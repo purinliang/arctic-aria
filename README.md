@@ -1,264 +1,61 @@
 # Arctic Aria
 
-Arctic Aria is a personal helper agent system for planning, reminders, routines,
-learning, rewards, progress sharing, and daily review. The goal is to reduce
-daily decision friction by keeping tasks, plans, feedback, and follow-up in one
-simple system.
+Arctic Aria is a personal life assistant for turning messy daily life into a
+clear plan. It focuses on planning, tasks, routines, reminders, ideas, daily
+review, and positive feedback.
 
-This project is a productivity support tool. It can help clarify priorities,
+The project is important because the hard part is often not doing one task. The
+hard part is deciding what to do next, breaking a large plan into daily work,
+remembering routines, collecting small ideas before they disappear, and seeing
+enough progress to feel that the effort was real.
+
+Arctic Aria is a productivity support tool. It can help clarify priorities,
 suggest next steps, remind the user, and adjust plans when work is stuck. It is
 not a medical, therapy, or mental health treatment product.
 
-## Vision
+## What It Helps With
 
-Arctic Aria should become a small personal life OS:
+- Break a long-term plan into tasks and subtasks.
+- Choose what to do today based on priority, urgency, progress, and deadlines.
+- Remember routines with reminders and quick completion checks.
+- Capture ideas, possible tasks, and possible routines before they are lost.
+- Review the day and show completed work, partial progress, and unfinished work.
+- Give positive feedback through rewards, progress summaries, and shareable
+  review cards.
 
-- Capture tasks, ideas, routines, learning items, and rewards in one place.
-- Turn unclear work into clear next actions.
-- Show a visual timetable so the day is easier to understand.
-- Show deadlines and weighted progress for large plans and small tasks.
-- Send useful reminders and quick commands through a Discord bot.
-- Track completion, partial completion, streaks, and progress history.
-- Let users share daily progress and encourage each other.
-- Help adjust plans when the current plan is too large, vague, or blocked.
+## How It Works
 
-The system should support the user in deciding what matters now, following
-through, and reviewing what happened without requiring heavy manual management.
+Arctic Aria has three layers:
 
-## Core Problems
+- Core layer: plans, tasks, routines, ideas, scheduler, and review.
+- Plugin layer: optional helpers such as rewards, English coach, research coach,
+  cuisine and sightseeing planner, movie or anime recommender, and future
+  specialized assistants.
+- Interface layer: web dashboard for full control and Discord bot for reminders,
+  quick capture, daily push messages, and review prompts.
 
-The first version should focus on practical problems:
+The web dashboard is the main workspace. The Discord bot is important because it
+can reach the user when they forget to open the app.
 
-- Priority anxiety: many possible tasks make it hard to choose what to do next.
-- Low positive feedback: completed work is easy to forget, so progress feels
-  invisible.
-- Cross-device capture: ideas and tasks should be easy to record from desktop
-  and mobile contexts.
-- Web-first application: the main product should be a Next.js web app with a
-  backend and database.
-- Discord bot support: Discord is useful for sending messages and commands to
-  the agent, quick capture, pushed notifications, and reminder buttons.
-- Visual timetable: the user needs a clear view of planned time, routines,
-  deadlines, task blocks, and progress.
-- Completion tracking: the system should record done items, skipped items,
-  partial completion, streaks, and review notes.
+## Future Plugins
 
-## MVP Direction
+Plugins make the system more useful and more fun without making the core planner
+too complicated.
 
-Build the unified core model first, then add interfaces on top of it.
+- English coach: help choose what to learn today, especially when the subject is
+  very open-ended.
+- Reward system: give gold, items, boxes, and collection progress for persistent
+  effort.
+- Weekend planner: suggest cuisine, sightseeing, or other outside activities.
+- Home entertainment recommender: suggest movies or anime when staying home.
+- Research coach: help collect sources, summarize material, and turn it into
+  ideas or tasks.
 
-The core model should represent tasks, plans, routines, reminders, timetable
-blocks, learning items, rewards, reviews, and completion events. The Next.js app
-and Discord bot should use the same backend data model instead of creating
-separate data flows.
+## Project Documents
 
-The MVP is the "Core life OS": a web-first system that can capture work, choose
-daily priorities, schedule reminders, show progress, and support a short daily
-review.
-
-## User Workflows
-
-### Daily Planning
-
-At the start of the day, the system should help select a small set of realistic
-priorities from the task backlog, routines, deadlines, and learning goals. The
-plan should include time blocks where useful, but it should also allow flexible
-tasks that do not need a fixed time.
-
-Large plans can contain small tasks. Each task should have a weight. The default
-weight is `1`, but the user or agent can later adjust it. The user can click a
-checkbox to mark a task as complete, or use a long-click action to open a dialog
-for partial completion by editing the full weight and completed weight. Daily
-review data should update the displayed progress.
-
-### Task Triage
-
-When a new task or idea appears, the user should be able to capture it quickly
-through the Next.js app or Discord bot. The system can later help classify it as
-a task, routine, learning item, note, reward, or reminder. Vague items should be
-rewritten into clear next actions.
-
-### Routine Reminders
-
-Repeating routines should produce reminders and completion checks. If a routine
-is skipped often, the system should suggest changing the schedule, reducing the
-scope, or pausing the routine.
-
-For the initial personal workflow, the Discord bot should send daily reminder
-checks at `20:30`, `22:00`, `23:30`, `01:00`, and `02:30`. The user's day ends
-at `04:00`. Each reminder should let the user answer with actions such as
-completed, skipped, or "busy now". The busy action should silence that reminder
-for two hours. If the user does not reply, the bot should send another reminder
-after 15 minutes.
-
-To avoid noisy Discord channels, reminder messages should be concise. Where
-possible, the bot should update an existing message instead of sending many new
-messages.
-
-### English Learning Feed
-
-English learning is a special routine generated by an agent. The main interface
-should be inside the Next.js app, likely as a chat-style experience.
-
-Each day, the learning agent should suggest 3 or 4 topic choices, possibly based
-on recent days. Example topics include cooking, supermarket shopping, or making
-a complaint. The user can also describe daily life in Chinese or English. The
-agent should answer in English, provide speaking-focused practice, correct
-mistakes, and generate a daily learning review.
-
-Learning history should be saved in the database so future practice can use it
-as retrieval context. This should be implemented as a separate major feature,
-not mixed into unrelated reward or planning work.
-
-### Reward And Streak Feedback
-
-Completed work should produce visible feedback. Rewards should encourage
-follow-through without turning the system into a punishment tool. Streaks should
-be helpful, but missing a day should lead to adjustment rather than shame.
-
-The reward system can use money, treasure boxes, gems, flowers, and simple text
-or emoji inventory items in the first version. Better daily fulfillment can
-produce higher-level treasure boxes. Opening a box can give several items, such
-as money, diamonds, gems, flowers, metal, wood, or other materials. Later, these
-items can support a light game-like system, such as building or repairing a
-small island. This should remain separate from core planning work.
-
-### Mobile Idea Capture
-
-The user should be able to capture a thought from a phone with very little
-friction through either the Next.js app or Discord bot. Captured items should be
-stored in the database and shown in the Next.js app for later triage.
-
-### Progress Sharing
-
-The system should allow the user to share daily progress with other users.
-Shared progress can support lightweight encouragement, comments, or agent
-generated feedback. This should be optional and should not block the private
-personal planning workflow.
-
-## Technical Direction
-
-The primary application should be a Next.js web app with a backend and database.
-TypeScript is the default language for the web app, shared types, UI, and
-application services. Python may be considered later for specialized backend
-agent processes if it provides a clear advantage, but the first architecture
-should avoid splitting core business logic across languages without a strong
-reason.
-
-### Storage
-
-The storage choice is still open. The product is user-centered and may not need
-strong relational consistency for every feature. Candidate approaches include:
-
-- PostgreSQL for a hosted web app with relational data, accounts, and sharing.
-- SQLite for a simple local-first or single-user prototype.
-- A document-oriented database for flexible user journals, learning context, and
-  agent memory.
-
-The first implementation plan should choose one default database after the core
-data model is written. Completion history, daily reviews, task progress, and
-learning history should be first-class data.
-
-### Application Shape
-
-Proposed project structure:
-
-```text
-arctic-aria/
-|-- apps/
-|   |-- web/                 # Next.js app: dashboard, timetable, learning UI
-|   `-- discord-bot/         # Discord commands, reminder delivery, quick capture
-|-- packages/
-|   |-- domain/              # Shared types, schemas, and business rules
-|   |-- database/            # Database schema, migrations, repositories
-|   |-- agents/              # Planning, review, and learning agent services
-|   `-- ui/                  # Shared UI components if needed
-|-- docs/                    # Product specs and implementation plans
-|-- README.md
-`-- AGENTS.md
-```
-
-Expected architecture:
-
-- Next.js web app for the main dashboard, timetable, backlog, daily plan,
-  learning feed, progress, and reward views.
-- Backend API used by the web app and Discord bot.
-- Shared domain package for tasks, plans, routines, reminders, timetable blocks,
-  learning items, rewards, reviews, and completion events.
-- Database layer with migrations or schema management.
-- Agent services for planning, reminder decisions, progress review, and English
-  learning support.
-- Discord bot for quick capture, pushed reminders, reminder buttons, and quick
-  status updates.
-
-Discord is important, but it is an extra interface. The Next.js app, backend,
-and database are the main product foundation.
-
-## Roadmap
-
-### Phase 0: Documentation And Specification
-
-- Define product goals, workflows, collaboration rules, and initial structure.
-- Write the first version of the data model and implementation plan.
-- Keep the scope focused on planning and fulfillment, with supportive feedback.
-
-### Phase 1: Core Data Model
-
-- Choose the first database approach.
-- Create the TypeScript project structure.
-- Model tasks, plans, routines, reminders, timetable blocks, learning items,
-  rewards, reviews, and completion events.
-- Add tests for domain behavior and persistence.
-
-### Phase 2: Next.js Dashboard And Timetable
-
-- Build the main web dashboard.
-- Show daily plan, backlog, deadlines, weighted progress, routines, timetable,
-  learning entry points, and review history.
-- Support editing, rescheduling, completing, partially completing, skipping, and
-  reviewing items.
-
-### Phase 3: Discord Bot
-
-- Add quick capture commands.
-- Add pushed reminder delivery.
-- Add reminder buttons for complete, skip, and busy responses.
-- Add daily planning and review prompts.
-
-### Phase 4: Reward Engine
-
-- Add money, boxes, gems, flowers, and simple inventory records.
-- Add reward rules based on daily plan fulfillment.
-- Keep reward work separate from planning and learning features.
-
-### Phase 5: English Learning Agent
-
-- Add daily topic suggestions.
-- Add chat-style speaking practice.
-- Add mistake correction and daily learning reviews.
-- Save learning history for retrieval-based future practice.
-- Allow learning progress to grant extra rewards.
-
-### Phase 6: Sharing And Deployment
-
-- Add optional progress sharing and encouragement interactions.
-- Decide the production hosting model for the Next.js app, backend, database,
-  and Discord bot.
-- Add backup, sync, and account strategy when the data model is stable.
-
-## Project Goals
-
-This README is an overview of the whole project. Detailed implementation plans
-should live in separate documents under `docs/` when the project structure
-exists.
-
-The project should aim to:
-
-- Reduce friction when choosing what to do next.
-- Make completed work and progress visible.
-- Provide reliable reminders and quick capture.
-- Make task and idea capture easy from desktop and mobile contexts.
-- Support a simple daily review.
-- Help adjust plans when they are too vague, too large, or blocked.
-- Keep the core planning system separate from large independent features such as
-  rewards and English learning.
+- [docs/user-story.md](docs/user-story.md): user problems and workflows.
+- [docs/architecture.md](docs/architecture.md): Core, Plugin, and Interface
+  layer responsibilities.
+- [docs/implementation.md](docs/implementation.md): technology, storage, and
+  repository structure.
+- [docs/roadmap.md](docs/roadmap.md): implementation phases.
