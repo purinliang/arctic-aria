@@ -14,6 +14,48 @@ translation is required to clarify a requirement.
 - Use clear, simple English so future documentation is easy for a non-native
   English speaker to edit.
 
+## Context
+
+Before making code changes, read:
+
+1. `README.md`
+   - Understand the product goal and current project status.
+
+2. `docs/architecture.md`
+   - Understand the Core / Plugin / Interface layer boundaries.
+
+3. `docs/implementation.md`
+   - Understand the project structure and technology stack guidelines.
+
+4. `docs/user-story.md`
+   - Understand the user requirements.
+
+5. The nearest relevant `AGENTS.md`
+   - Follow any module-specific instructions.
+
+For task-specific work, also read the relevant docs only:
+
+- Core work: `docs/core-layer/*` if present
+- Web work: `docs/interface-layer/web-dashboard/*` if present
+
+Do not read unrelated docs unless they are needed for the task.
+
+### Instruction Priority
+
+If documents conflict, follow this priority:
+
+1. User's current task prompt
+2. Nearest `AGENTS.md`
+3. Root `AGENTS.md`
+4. `docs/user-story.md`
+5. `docs/implementation.md`
+6. `docs/architecture.md`
+7. `README.md`
+8. Other docs
+
+If the conflict affects architecture or data model decisions, stop and ask the
+user.
+
 ## Change Discipline
 
 - Before implementation, inspect the current branch and working tree state.
