@@ -65,6 +65,8 @@ user.
 - Do not overwrite user changes.
 - If existing changes affect the requested task, work with them or ask the user
   to decide.
+- Avoid very long single-file implementations. As a rule of thumb, split code
+  into independent files before a file grows beyond about 300 lines.
 - Focus on the task implied by the branch name. For example, do not implement
   application code during documentation-only work on an `agent/docs-*` branch.
 

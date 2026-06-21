@@ -5,6 +5,8 @@ export type Priority = "High" | "Medium" | "Low";
 export type Subtask = {
   id: string;
   title: string;
+  description: string;
+  weight: number;
   done: boolean;
 };
 
@@ -20,13 +22,12 @@ export type Task = {
   subtasks?: Subtask[];
 };
 
-export type RoutineStatus = "pending" | "done" | "skipped" | "busy";
+export type RoutineStatus = "pending" | "reminding" | "done" | "skipped";
 
 export type Routine = {
   id: string;
   title: string;
   scheduledTime: string;
-  reminderState: "armed" | "reminding" | "muted";
   status: RoutineStatus;
   streakText: string;
 };

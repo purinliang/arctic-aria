@@ -47,8 +47,8 @@ should not own their real rules.
 
 - Task and subtask status, weights, deadlines, and priority are Core task-engine
   concepts.
-- Routine reminder state, completion, skip, and busy status are Core routine and
-  scheduler concepts.
+- Routine reminder state, completion, skip, and pending status are Core routine
+  and scheduler concepts.
 - Daily review summaries are Review engine concepts.
 - Gold and treasure chest rewards are Reward plugin concepts.
 
@@ -110,9 +110,12 @@ Task card behavior:
 - Do not add a second progress visualization.
 - Click the task card to expand details.
 - Click the task card again to collapse details.
-- Expanded details should show subtasks with checkboxes.
-- Partial completion should be represented in the expanded details through the
-  progress value and subtask completion, not a separate `Partial` button.
+- Expanded details should show subtasks with checkboxes, descriptions, and
+  weight circles.
+- Each subtask weight should be shown as outline circles. If the subtask is
+  checked, all of its circles become green.
+- Partial completion should be represented by checked subtask weights, not a
+  `Completed weight` range control or a separate `Partial` button.
 
 ## Interactions
 
@@ -123,7 +126,7 @@ The dashboard should support:
 - Toggling subtasks with checkboxes.
 - Reflecting partial task progress through the green progress circle.
 - Expanding and collapsing routine details by clicking the routine card.
-- Marking routines as complete, skipped, or busy.
+- Marking routines as done, skipped, or pending through reminder actions.
 - Clicking `Review` at any time, multiple times.
 
 ## Routine Cards
@@ -136,9 +139,11 @@ Routine card behavior:
 
 - Click the routine card to expand details.
 - Click the routine card again to collapse details.
-- Expanded details should show three action buttons: complete, skipped, and
-  busy.
-- Reminder state should be visible but compact.
+- Expanded details should show three action buttons: `Done`, `Busy`, and `Skip`.
+- Routine statuses are `done`, `reminding`, `pending`, and `skipped`.
+- `Busy` is an action, not a stored status. Clicking it moves the routine back
+  to `pending`.
+- Reminder state should be visible through routine status.
 
 ## Review And Rewards
 
@@ -150,7 +155,7 @@ The review card should show:
 
 - Completed tasks and routines.
 - Partial task progress.
-- Unfinished tasks and skipped or busy routines.
+- Unfinished tasks and skipped routines.
 - Expected rewards so far.
 
 Reward display:
@@ -191,8 +196,9 @@ apps/web/
 
 Suggested refactor shape:
 
-- Split the large dashboard component into smaller components when it improves
-  reviewability.
+- Keep `Dashboard` as the larger stateful component.
+- Split task cards, routine cards, review dialog, sidebar, and small shared UI
+  into separate components.
 - Keep dashboard-specific types in `features/dashboard/types.ts`.
 - Keep dummy records in `features/dashboard/dummy-data.ts`.
 - Keep UI-only derived state inside dashboard components.
@@ -237,7 +243,7 @@ Run the app locally and inspect:
 - Dark mode default and light mode toggle.
 - Task expand and collapse behavior.
 - Subtask checkbox behavior.
-- Green circular task progress behavior.
+- Green circular task progress behavior without text inside the circle.
 - Routine status changes.
 - Routine auto-expand behavior when reminding.
 - Repeated `Review` button behavior.
@@ -253,11 +259,12 @@ After this plan is accepted, refactor the existing prototype in this order:
 4. Replace task checkbox and progress bars with green circular progress.
 5. Change task deadlines to date-time values in dummy data.
 6. Make task cards expand and collapse on card click.
-7. Move subtask and progress controls into expanded task details.
+7. Move subtask checkboxes, descriptions, and weight circles into expanded task
+   details.
 8. Remove the timeline section from the dashboard.
 9. Make routine cards expand and collapse, with reminding routines open by
    default.
-10. Move routine complete, skipped, and busy buttons into expanded routine
+10. Move routine `Done`, `Busy`, and `Skip` buttons into expanded routine
     details.
 11. Replace the persistent review panel with a review dialog or popover.
 12. Replace box/item reward UI with gold and treasure chest preview UI.
