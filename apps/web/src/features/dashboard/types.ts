@@ -26,14 +26,23 @@ export type Routine = {
   id: string;
   title: string;
   scheduledTime: string;
-  reminderState: "armed" | "sent" | "muted";
+  reminderState: "armed" | "reminding" | "muted";
   status: RoutineStatus;
   streakText: string;
+};
+
+export type ChestItemRarity = "Legendary" | "Epic" | "Rare" | "Common";
+
+export type ChestPreviewItem = {
+  id: string;
+  name: string;
+  rarity: ChestItemRarity;
 };
 
 export type RewardPreview = {
   baseGold: number;
   perWeightGold: number;
   routineGold: number;
-  itemName: string;
+  chestName: string;
+  chestItems: ChestPreviewItem[];
 };
