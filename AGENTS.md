@@ -36,7 +36,9 @@ Before making code changes, read:
 For task-specific work, also read the relevant docs only:
 
 - Core work: `docs/core-layer/*` if present
-- Web work: `docs/interface-layer/web-dashboard/*` if present
+- Infrastructure work: `docs/infrastructure/*` if present
+- Web work: `docs/interface-layer/web/*` if present
+- Discord bot work: `docs/interface-layer/discord-bot/*` if present
 
 Do not read unrelated docs unless they are needed for the task.
 
@@ -88,6 +90,11 @@ Do not commit directly to `main` in any situation. It is protected by GitHub
 branch rules. Do not commit directly to `develop` unless the user explicitly
 asks.
 
+Agents may use non-destructive git commands to inspect status, create branches,
+stage files, and commit changes when those actions follow the branch and commit
+rules in this file. Destructive git commands still require an explicit user
+request.
+
 ## Integration
 
 - Before merging, state the source branch and target branch explicitly.
@@ -126,8 +133,9 @@ Common commit types:
 - `test(agent): ...` for test-only changes.
 - `chore(agent): ...` for maintenance work.
 
-The title should be a short summary of the subtasks. Split the work into
-separate commits when a change contains independent topics.
+The title should be a short summary of the subtasks. Keep each commit focused
+on one to five related subtasks. If a change needs more subtasks than that,
+consider splitting it into separate commits.
 
 Do not amend commits automatically. If the user requests an amend operation,
 prefer making a separate commit that shows the diff clearly, then tell the user
