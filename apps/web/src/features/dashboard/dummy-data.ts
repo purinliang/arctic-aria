@@ -157,6 +157,7 @@ export const rewardPreview: RewardPreview = {
     { id: "chest-2", name: "Polar Bloom", rarity: "Legendary" },
     { id: "chest-3", name: "Frost Thread", rarity: "Epic" },
     { id: "chest-4", name: "Blue Quartz", rarity: "Rare" },
-    { id: "chest-5", name: "Soft Timber", rarity: "Common" },
+    { id: "chest-5", name: "Moss Charm", rarity: "Uncommon" },
+    { id: "chest-6", name: "Soft Timber", rarity: "Common" },
   ],
 };

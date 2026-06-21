@@ -32,7 +32,12 @@ export type Routine = {
   streakText: string;
 };
 
-export type ChestItemRarity = "Legendary" | "Epic" | "Rare" | "Common";
+export type ChestItemRarity =
+  | "Legendary"
+  | "Epic"
+  | "Rare"
+  | "Uncommon"
+  | "Common";
 
 export type ChestPreviewItem = {
   id: string;

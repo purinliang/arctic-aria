@@ -5,18 +5,22 @@ import type { ChestItemRarity, Routine, Task } from "../types";
 
 function rarityClass(rarity: ChestItemRarity, darkMode: boolean) {
   if (rarity === "Legendary") {
-    return darkMode ? "text-orange-300" : "text-orange-700";
+    return darkMode ? "text-orange-300" : "text-orange-600";
   }
 
   if (rarity === "Epic") {
-    return darkMode ? "text-purple-300" : "text-purple-700";
+    return darkMode ? "text-purple-300" : "text-purple-600";
   }
 
   if (rarity === "Rare") {
-    return darkMode ? "text-sky-300" : "text-sky-700";
+    return darkMode ? "text-sky-300" : "text-blue-600";
   }
 
-  return darkMode ? "text-neutral-300" : "text-slate-600";
+  if (rarity === "Uncommon") {
+    return darkMode ? "text-emerald-300" : "text-emerald-600";
+  }
+
+  return darkMode ? "text-neutral-300" : "text-neutral-600";
 }
 
 export function ReviewDialog({

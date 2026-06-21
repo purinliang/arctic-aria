@@ -4,14 +4,14 @@ import type { Routine, RoutineStatus } from "../types";
 function routineStatusClass(status: RoutineStatus, darkMode: boolean) {
   if (status === "done") {
     return darkMode
-      ? "border-white/20 bg-white text-black"
+      ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-200"
       : "border-emerald-200 bg-emerald-50 text-emerald-700";
   }
 
   if (status === "reminding") {
     return darkMode
-      ? "border-white/20 bg-white/10 text-white"
-      : "border-emerald-200 bg-emerald-50 text-emerald-700";
+      ? "border-blue-400/40 bg-blue-500/15 text-blue-200"
+      : "border-blue-200 bg-blue-50 text-blue-700";
   }
 
   if (status === "skipped") {
@@ -21,7 +21,7 @@ function routineStatusClass(status: RoutineStatus, darkMode: boolean) {
   }
 
   return darkMode
-    ? "border-neutral-700 bg-black text-neutral-300"
+    ? "border-blue-400/40 bg-blue-500/15 text-blue-200"
     : "border-blue-200 bg-blue-50 text-blue-700";
 }
 

@@ -4,13 +4,13 @@ import type { Task } from "../types";
 function priorityClass(priority: Task["priority"], darkMode: boolean) {
   if (priority === "High") {
     return darkMode
-      ? "border-white/20 bg-white/10 text-white"
+      ? "border-red-400/40 bg-red-500/15 text-red-200"
       : "border-red-200 bg-red-50 text-red-700";
   }
 
   if (priority === "Medium") {
     return darkMode
-      ? "border-neutral-600 bg-neutral-900 text-neutral-200"
+      ? "border-amber-400/40 bg-amber-500/15 text-amber-200"
       : "border-amber-200 bg-amber-50 text-amber-700";
   }
 
@@ -19,18 +19,8 @@ function priorityClass(priority: Task["priority"], darkMode: boolean) {
     : "border-slate-200 bg-slate-50 text-slate-600";
 }
 
-function progressCircleClass(progress: number, darkMode: boolean) {
-  if (progress >= 100) {
-    return "bg-emerald-500";
-  }
-
-  if (progress > 0) {
-    return "bg-emerald-500/70";
-  }
-
-  return darkMode
-    ? "border border-neutral-600 bg-transparent"
-    : "border border-slate-300 bg-white";
+function progressTrackColor(darkMode: boolean) {
+  return darkMode ? "#404040" : "#d1d5db";
 }
 
 export function TaskCard({
@@ -59,9 +49,18 @@ export function TaskCard({
         onClick={onToggleExpanded}
       >
         <span
-          className={`h-4 w-4 rounded-full ${progressCircleClass(progress, darkMode)}`}
+          className="grid h-5 w-5 shrink-0 place-items-center rounded-full"
+          style={{
+            background: `conic-gradient(#22c55e ${progress * 3.6}deg, ${progressTrackColor(darkMode)} 0deg)`,
+          }}
           aria-label={`${progress}% complete`}
-        />
+        >
+          <span
+            className={`h-2.5 w-2.5 rounded-full ${
+              darkMode ? "bg-black" : "bg-white"
+            }`}
+          />
+        </span>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="min-w-0 text-base font-semibold">{task.title}</h3>
@@ -132,8 +131,8 @@ export function TaskCard({
                       subtask.done
                         ? "border-emerald-500 bg-emerald-500"
                         : darkMode
-                          ? "border-neutral-500"
-                          : "border-slate-300"
+                          ? "border-neutral-300 bg-black"
+                          : "border-slate-500 bg-white"
                     }`}
                   />
                 ))}
