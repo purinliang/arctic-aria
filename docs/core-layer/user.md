@@ -91,7 +91,7 @@ When a submit validation rule fails:
 
 When registration succeeds:
 
-- Show a small notification or dialog.
+- Show a small dialog or toast.
 - After about 2 seconds, dismiss the notification and navigate to the dashboard
   or main page.
 
