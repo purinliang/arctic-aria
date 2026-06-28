@@ -14,8 +14,8 @@ The first bot should support:
 - quick idea capture
 - concise daily status or review prompts
 
-The first version does not need general multi-user login. Arctic Aria can start
-with one seeded user record for the owner.
+The first Discord bot version does not need to implement login. It should rely
+on Arctic Aria user records created by the web registration flow.
 
 ## Binding
 

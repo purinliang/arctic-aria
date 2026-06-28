@@ -26,10 +26,9 @@ must be gitignored.
 
 ## User Model
 
-The first version does not need a login system. It can start with one Arctic
-Aria user record for the owner.
+The first version should support email and password registration and login.
 
-Even without login, keep a user table because many records need a stable owner:
+Keep a user table because many records need a stable owner:
 
 - plans
 - tasks
@@ -42,15 +41,14 @@ Even without login, keep a user table because many records need a stable owner:
 Recommended first tables:
 
 - `users`: Arctic Aria users.
+- `user_settings`: personal configuration such as timezone and day boundary.
 - `discord_accounts`: optional Discord binding records.
 
 An Arctic Aria user can be bound to at most one Discord user. A Discord user
 should also be bound to at most one Arctic Aria user. Enforce this with unique
 constraints on both `user_id` and `discord_user_id`.
 
-For the first personal version, seed one user and one optional Discord binding.
-Do not add password login, OAuth, session management, or multi-user account UI
-until the product needs them.
+Do not add OAuth until the email and password flow is stable.
 
 ## Core Tables
 
