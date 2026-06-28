@@ -57,6 +57,25 @@ coupled to Python plugin workers. For this project, the bot is mostly an
 interface for reminders, quick capture, buttons, and status updates, so
 TypeScript is the cleaner first choice.
 
+### Infrastructure Layer
+
+Treat the database, event bus, migrations, and background jobs as
+Infrastructure layer concerns.
+
+The Core layer should expose commands and domain events. Infrastructure should
+provide the technical implementation that persists command results, publishes
+events, schedules jobs, and records delivery state.
+
+For the first version, keep infrastructure simple:
+
+- PostgreSQL for durable storage.
+- Background jobs for reminders and plugin work when a direct request is not
+  reliable enough.
+- An event bus design can be added later when the event flow is clearer.
+
+Do not introduce Kafka, RabbitMQ, Redis Streams, or a separate document database
+until the project has a concrete scaling or reliability need.
+
 ## Storage Strategy
 
 Use PostgreSQL as the system of record for Core layer data.
@@ -66,7 +85,7 @@ PostgreSQL should store:
 - users and accounts
 - plans, tasks, task weights, and progress
 - ideas and triage state
-- routines and reminder rules
+- routines, routine rules, and routine instances
 - scheduler events and notification state
 - completion events and daily reviews
 - plugin registrations and plugin run records
@@ -148,7 +167,11 @@ arctic-aria/
 |
 |-- docs/
 |   |-- architecture.md
+|   |-- core-model.md
 |   |-- implementation.md
+|   |-- infrastructure/
+|   |   |-- database.md
+|   |   `-- event-bus.md
 |   |-- roadmap.md
 |   |-- user-story.md
 |   `-- core-model.md              # Future detailed data model
@@ -177,6 +200,8 @@ The first code branch should implement only the smallest useful Core slice:
 - daily plan
 - daily review
 - PostgreSQL schema for those entities
+- user and Discord binding schema
+- routine instance and reminder job schema
 - basic Next.js dashboard views for capture, plan, progress, and review
 
 Do not implement the Discord bot, English coach, reward inventory, or sharing in
@@ -192,3 +217,5 @@ are stable.
   manually triggered scripts in the first version.
 - Whether retrieval should start with PostgreSQL `jsonb` and full-text search,
   PostgreSQL vector search, or a later external vector database.
+- What event bus or dataflow mechanism should be used once the first reminder
+  and plugin flows are clearer.

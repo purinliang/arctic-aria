@@ -47,8 +47,8 @@ should not own their real rules.
 
 - Task and subtask status, weights, deadlines, and priority are Core task-engine
   concepts.
-- Routine reminder state, completion, skip, and pending status are Core routine
-  and scheduler concepts.
+- Routine instance completion, skip, and pending status are Core routine
+  concepts. Reminder delivery state is a scheduler and infrastructure concept.
 - Daily review summaries are Review engine concepts.
 - Gold and treasure chest rewards are Reward plugin concepts.
 
@@ -131,19 +131,22 @@ The dashboard should support:
 
 ## Routine Cards
 
-Routine cards should be collapsed by default, except for routines that are
-currently reminding. A routine in reminding state should open automatically so
-the user can answer quickly.
+Routine cards should be collapsed by default, except for routine instances with
+an active reminder delivery. A card with an active reminder should open
+automatically so the user can answer quickly.
 
 Routine card behavior:
 
 - Click the routine card to expand details.
 - Click the routine card again to collapse details.
 - Expanded details should show three action buttons: `Done`, `Busy`, and `Skip`.
-- Routine statuses are `done`, `reminding`, `pending`, and `skipped`.
-- `Busy` is an action, not a stored status. Clicking it moves the routine back
-  to `pending`.
-- Reminder state should be visible through routine status.
+- Dummy routine instance statuses are `completed`, `pending`, and `skipped`.
+- `reminding` is a UI delivery state for a currently visible reminder, not a
+  Core routine status.
+- `Busy` is an action, not a stored status. Clicking it should snooze or
+  reschedule the reminder delivery state.
+- Reminder delivery state should be visually distinct from routine instance
+  status.
 
 ## Review And Rewards
 
@@ -245,7 +248,7 @@ Run the app locally and inspect:
 - Subtask checkbox behavior.
 - Green circular task progress behavior without text inside the circle.
 - Routine status changes.
-- Routine auto-expand behavior when reminding.
+- Routine auto-expand behavior when a reminder is active.
 - Repeated `Review` button behavior.
 - Treasure chest hover or focus preview behavior.
 
@@ -262,7 +265,7 @@ After this plan is accepted, refactor the existing prototype in this order:
 7. Move subtask checkboxes, descriptions, and weight circles into expanded task
    details.
 8. Remove the timeline section from the dashboard.
-9. Make routine cards expand and collapse, with reminding routines open by
+9. Make routine cards expand and collapse, with active reminders open by
    default.
 10. Move routine `Done`, `Busy`, and `Skip` buttons into expanded routine
     details.
