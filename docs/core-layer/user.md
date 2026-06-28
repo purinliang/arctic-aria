@@ -99,6 +99,33 @@ For success, validation failure, and internal failure, both frontend and backend
 should write useful logs. Logs must not include raw passwords or other sensitive
 values.
 
+### UI
+
+- Keep the auth panel centered on the page.
+- `Sign up` should be the right tab in a two-tab control. The other tab is
+  `Sign in`.
+- Show small text `New here?` and larger text `Sign up`.
+- Below the tabs, stack the form vertically:
+  - Show a title, such as `Create an account`.
+  - Align field labels to the left.
+  - Align text boxes to the left.
+  - Show an error bubble with a tail pointing from the related text box.
+  - The error bubble can overlay other components and should not affect layout
+    height.
+  - The error bubble should appear only after the user has focused the field at
+    least once. If the user has not focused an empty required field, do not show
+    the field-level bubble yet.
+  - If a field is optional, show `(Optional)` beside its label. Required fields
+    do not need extra label text.
+  - Apply the same field layout rules to every field.
+- The main button should say `Sign up` and include a right arrow icon to imply
+  forward navigation.
+- When the main button is disabled, hovering over it should show the first
+  remaining validation error by rule priority. This includes hidden errors for
+  untouched fields, such as `Username is required`.
+- Do not show unrelated actions or information, such as `Open dashboard without
+  an account` or `OAuth`.
+
 ## Login
 
 Progress: planned
@@ -127,6 +154,16 @@ Use the same typing validation behavior as registration.
   or password.
 
 Use the same submit validation behavior as registration.
+
+### UI
+
+Use the same UI rules as registration, with these differences:
+
+- `Sign in` should be the left tab in a two-tab control. The other tab is
+  `Sign up`.
+- Show small text `Already have an account?` and larger text `Sign in`.
+- Show a title, such as `Welcome back`.
+- The main button should say `Sign in`.
 
 ## OAuth
 
