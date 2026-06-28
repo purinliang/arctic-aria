@@ -10,12 +10,14 @@ Progress: suspended
 User settings should include personal configuration that affects how the product
 behaves for one user.
 
-Initial settings:
+## Attributes
+
+Should be stored in the `user_settings` SQL table.
 
 - timezone
 - day boundary time, default `04:00`
 
-The day boundary matters because a routine completed at `01:00` may still belong
+The day boundary matters because a routine completed at `03:59` may still belong
 to the previous personal day.
 
 The first implementation can store settings in a SQL table linked by user id. A

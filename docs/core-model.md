@@ -37,7 +37,7 @@ and reviews all need a stable owner.
 `users` should store:
 
 - id
-- email
+- username
 - password hash
 - display name
 - created and updated timestamps

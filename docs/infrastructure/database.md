@@ -26,7 +26,7 @@ must be gitignored.
 
 ## User Model
 
-The first version should support email and password registration and login.
+The first version should support username and password registration and login.
 
 Keep a user table because many records need a stable owner:
 
@@ -48,7 +48,7 @@ An Arctic Aria user can be bound to at most one Discord user. A Discord user
 should also be bound to at most one Arctic Aria user. Enforce this with unique
 constraints on both `user_id` and `discord_user_id`.
 
-Do not add OAuth until the email and password flow is stable.
+Do not add OAuth until the username and password flow is stable.
 
 ## Core Tables
 

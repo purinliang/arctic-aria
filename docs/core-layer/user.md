@@ -8,8 +8,8 @@ and future OAuth. User settings are documented separately in
 
 The first user feature should include:
 
-- email and password registration
-- email and password login
+- username and password registration
+- username and password login
 - password hashing
 - basic validation and user-facing error messages
 
@@ -23,20 +23,20 @@ The first user feature should not include:
 
 ## Attributes
 
-Progress: planned
-
-Store users in SQL.
-
-`users` should store:
+Should be stored in the `users` SQL table.
 
 - id
-- email
+- username
 - password hash
 - display name
 - created and updated timestamps
 
 Do not store raw passwords. Password hashing secrets, salts, pepper values, and
 environment variables must not be committed to git.
+
+Use bcrypt for password hashing. Bcrypt handles per-password salts internally.
+If a pepper value is added, it must come from an environment variable or secret
+manager, not from tracked files.
 
 ## Registration
 
@@ -46,20 +46,26 @@ Use `register` in code. The UI can say `Sign up`.
 
 Required fields:
 
-- email
+- username
 - display name
 - password
 - repeated password
 
 Validation:
 
-- Email is required and should be normalized before storage.
-- Email must be unique.
-- Display name is required.
-- Display name can contain normal spaces.
-- Multiple spaces in a display name should be collapsed into one space.
+- Username is required.
+- Username must be unique.
+- Username must contain visible non-blank ASCII characters only.
+- Password is required.
 - Password must be at least 8 characters.
+- Password must contain visible non-blank ASCII characters only.
 - Password and repeated password must match.
+- Display name is required.
+- Display name should be trimmed.
+- Display name should support UTF-8.
+- Display name can contain spaces and other blank characters inside the trimmed
+  value.
+- Display name should be no longer than 80 characters.
 
 The first UI should show field-level errors for each validation failure.
 
@@ -71,19 +77,21 @@ Use `login` in code. The UI can say `Sign in`.
 
 Required fields:
 
-- email
+- username
 - password
 
 Validation:
 
-- Email is required.
+- Username is required.
 - Password is required.
-- Failed login should show a clear but generic error, such as invalid email or
-  password.
+- Username and password should use the same validation messages as registration
+  for format violations.
+- Failed login should show a clear but generic error, such as invalid username
+  or password.
 
 ## OAuth
 
 Progress: suspended
 
-Google OAuth can be added later. It should not block the first email and
+Google OAuth can be added later. It should not block the first username and
 password implementation.
