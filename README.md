@@ -33,6 +33,8 @@ Arctic Aria has three layers:
   specialized assistants.
 - Interface layer: web dashboard for full control and Discord bot for reminders,
   quick capture, daily push messages, and review prompts.
+- Infrastructure layer: database, background jobs, event bus, and external
+  service adapters.
 
 The web dashboard is the main workspace. The Discord bot is important because it
 can reach the user when they forget to open the app.
@@ -56,6 +58,8 @@ too complicated.
 - [docs/user-story.md](docs/user-story.md): user problems and workflows.
 - [docs/architecture.md](docs/architecture.md): Core, Plugin, and Interface
   layer responsibilities.
+- [docs/core-model.md](docs/core-model.md): first Core model for plans, tasks,
+  routines, daily plans, ideas, and reviews.
 - [docs/implementation.md](docs/implementation.md): technology, storage, and
   repository structure.
 - [docs/roadmap.md](docs/roadmap.md): implementation phases.

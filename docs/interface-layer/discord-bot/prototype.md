@@ -62,8 +62,8 @@ Reminder job due
   -> bot validates Discord binding
   -> bot calls Core or reminder command
   -> database state changes
-  -> event bus publishes completion, skip, or snooze event
-  -> review and reward subscribers react
+  -> review data updates
+  -> future reward or plugin flow may react
 ```
 
 The bot should call application APIs or shared command handlers. It should not

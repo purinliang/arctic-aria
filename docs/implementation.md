@@ -85,7 +85,7 @@ PostgreSQL should store:
 - users and accounts
 - plans, tasks, task weights, and progress
 - ideas and triage state
-- routines and reminder rules
+- routines, routine rules, and routine instances
 - scheduler events and notification state
 - completion events and daily reviews
 - plugin registrations and plugin run records
@@ -167,6 +167,7 @@ arctic-aria/
 |
 |-- docs/
 |   |-- architecture.md
+|   |-- core-model.md
 |   |-- implementation.md
 |   |-- infrastructure/
 |   |   |-- database.md

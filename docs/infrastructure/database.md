@@ -1,8 +1,8 @@
 # Database
 
 This document describes the first database direction for Arctic Aria. The
-database belongs to the Infrastructure layer. Core entities and rules still
-belong to the Core layer; the database stores them durably.
+database belongs to the Infrastructure layer. Core entities and rules are
+defined in [core-model.md](../core-model.md); the database stores them durably.
 
 Do not commit database files, local dumps, or secrets. Database schema files are
 safe to commit.
@@ -67,6 +67,7 @@ The first Core schema should support the Phase 1 and Phase 2 scope:
 - `daily_plan_items`
 - `daily_reviews`
 - `completion_events`
+- `reminder_jobs`
 
 Tasks should support parent-child relationships through `parent_task_id`.
 Subtasks are tasks with a parent task.
@@ -90,9 +91,10 @@ instance is the concrete occurrence for a specific day or time window.
 - user id
 - title
 - description
+- status: active, paused, or archived
 - first start date
 - optional end date, inclusive
-- active or archived state
+- created and updated timestamps
 
 `routine_rules` should store recurrence settings:
 
@@ -149,7 +151,7 @@ Discord reminder messages should show three actions:
 
 When the user clicks an action, the Discord bot should call a Core command. The
 Core command updates task or routine state, records a completion or skip event,
-and publishes a domain event for review and plugin subscribers.
+and updates review data or future dataflow hooks.
 
 `Busy` should not be stored as a routine status. It should update the reminder
 job by snoozing or rescheduling the reminder.

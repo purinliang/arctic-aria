@@ -75,7 +75,7 @@ The routine engine owns:
 - recurrence rules
 - routine instances for specific days
 - completion and skip states
-- links to reminder rules
+- reminder preferences used by the scheduler
 - simple routine categories, including fitness routines
 
 Fitness belongs here by default. It should become a plugin only if a future
@@ -239,8 +239,8 @@ User input
   -> Core layer command
   -> Core state change
   -> Infrastructure persistence
-  -> Domain event published
-  -> Scheduler / review / plugin subscriber
+  -> Scheduler / review update
+  -> Future plugin or dataflow hook
   -> Interface notification or dashboard update
 ```
 
@@ -253,9 +253,9 @@ Scheduler
   -> user button response
   -> Core routine/task completion command
   -> Infrastructure persistence
-  -> completion event published
+  -> completion event recorded
   -> review update
-  -> optional reward plugin subscriber
+  -> optional future reward flow
 ```
 
 Example English coach flow:
