@@ -9,6 +9,9 @@ Core, scheduler, review, and reward-plugin work.
 
 This is an Interface layer prototype. It must not add real Core logic,
 persistence, Discord behavior, API routes, authentication, or database access.
+This boundary applies to dashboard prototype work only. The separate username
+and password auth implementation is documented in
+[auth-implementation.md](auth-implementation.md).
 
 ## Scope
 

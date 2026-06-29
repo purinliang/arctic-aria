@@ -25,7 +25,7 @@ not a medical, therapy, or mental health treatment product.
 
 ## How It Works
 
-Arctic Aria has three layers:
+Arctic Aria has four layers:
 
 - Core layer: plans, tasks, routines, ideas, scheduler, and review.
 - Plugin layer: optional helpers such as rewards, English coach, research coach,
@@ -62,4 +62,8 @@ too complicated.
   routines, daily plans, ideas, and reviews.
 - [docs/implementation.md](docs/implementation.md): technology, storage, and
   repository structure.
+- [docs/infrastructure/database.md](docs/infrastructure/database.md): database
+  direction and current Neon PostgreSQL prototype notes.
+- [docs/interface-layer/web/auth-implementation.md](docs/interface-layer/web/auth-implementation.md):
+  current web auth implementation notes.
 - [docs/roadmap.md](docs/roadmap.md): implementation phases.

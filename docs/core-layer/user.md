@@ -4,6 +4,11 @@ This document defines the first user feature. It covers registration, login,
 and future OAuth. User settings are documented separately in
 [user-settings.md](user-settings.md).
 
+The current web implementation notes are documented in
+[auth-implementation.md](../interface-layer/web/auth-implementation.md). Keep
+this file as the product rule source and use the implementation note for code
+locations, commands, and current prototype status.
+
 ## Scope
 
 The first user feature should include:

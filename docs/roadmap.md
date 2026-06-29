@@ -11,6 +11,8 @@ becomes clearer.
 
 ## Phase 1: Core Model
 
+- Build the username and password auth foundation first so later records have a
+  stable owner.
 - Define plans, tasks, subtasks, routines, ideas, scheduler data, reviews, and
   completion events.
 - Choose concrete database schema and migration tooling.
