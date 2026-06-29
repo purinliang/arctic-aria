@@ -16,6 +16,13 @@ export type LoginInput = {
 
 const visibleAsciiPattern = /^[!-~]+$/;
 
+export const authFieldOrder: AuthField[] = [
+  "username",
+  "displayName",
+  "password",
+  "repeatPassword",
+];
+
 export function normalizeDisplayName(displayName: string) {
   return displayName.trim();
 }
