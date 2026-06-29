@@ -24,6 +24,17 @@ SQLite can still be useful for throwaway local experiments, but it should not be
 the main design target. If a local SQLite file is created during experiments, it
 must be gitignored.
 
+## Current Prototype Provider
+
+The current web auth prototype uses Neon PostgreSQL.
+
+Local connection strings belong in untracked files such as
+`apps/web/.env.local` or `apps/web/.env.development.local`. Do not commit Neon
+URLs, passwords, dumps, or generated local database files.
+
+Schema migration files are safe to commit. The current migration entry point is
+`apps/web/scripts/migrate.mjs`, exposed as `pnpm db:migrate` from `apps/web`.
+
 ## User Model
 
 The first version should support username and password registration and login.
