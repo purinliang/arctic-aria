@@ -15,6 +15,8 @@ export type LoginInput = {
 };
 
 const visibleAsciiPattern = /^[!-~]+$/;
+const minimumUsernameLength = 4;
+const minimumDisplayNameLength = 4;
 
 export const authFieldOrder: AuthField[] = [
   "username",
@@ -27,9 +29,32 @@ export function normalizeDisplayName(displayName: string) {
   return displayName.trim();
 }
 
+export function normalizeRegisterInput(input: RegisterInput): RegisterInput {
+  const username = input.username.trim();
+  const displayName = normalizeDisplayName(input.displayName);
+
+  return {
+    username,
+    displayName: displayName || username,
+    password: input.password.trim(),
+    repeatPassword: input.repeatPassword.trim(),
+  };
+}
+
+export function normalizeLoginInput(input: LoginInput): LoginInput {
+  return {
+    username: input.username.trim(),
+    password: input.password.trim(),
+  };
+}
+
 function validateUsername(username: string): string | null {
   if (!username) {
     return "Username is required.";
+  }
+
+  if (username.length < minimumUsernameLength) {
+    return "Username must be at least 4 characters.";
   }
 
   if (!visibleAsciiPattern.test(username)) {
@@ -59,7 +84,11 @@ function validateDisplayName(displayName: string): string | null {
   const normalized = normalizeDisplayName(displayName);
 
   if (!normalized) {
-    return "Display name is required.";
+    return null;
+  }
+
+  if (normalized.length < minimumDisplayNameLength) {
+    return "Display name must be at least 4 characters.";
   }
 
   if (normalized.length > 32) {

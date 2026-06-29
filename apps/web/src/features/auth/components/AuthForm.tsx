@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Eye, EyeOff, LockKeyhole } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { AuthMode } from "./AuthGate";
 import {
@@ -79,25 +79,21 @@ export function AuthForm({
     setTouched((current) => ({ ...current, [field]: true }));
   }
 
-  const eyebrow = mode === "register" ? "New here?" : "Already have an account?";
-  const headline = mode === "register" ? "Sign up" : "Sign in";
   const title = mode === "register" ? "Create an account" : "Welcome back";
-  const buttonText = pending ? "Checking..." : headline;
+  const buttonText = pending
+    ? "Checking..."
+    : mode === "register"
+      ? "Sign up"
+      : "Sign in";
+  const switchPrompt =
+    mode === "register" ? "Already have an account?" : "New here?";
+  const switchLabel = mode === "register" ? "Sign in" : "Sign up";
+  const switchTarget = mode === "register" ? "login" : "register";
 
   return (
     <main className="min-h-screen bg-[#eef2f5] text-slate-950">
       <div className="mx-auto flex min-h-screen w-full max-w-[560px] items-center px-4 py-6 sm:px-6">
         <section className="w-full rounded-md border border-slate-300 bg-white p-5 shadow-sm sm:p-8">
-          <div className="mb-7 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-slate-950 text-white">
-              <LockKeyhole size={20} aria-hidden="true" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">{eyebrow}</p>
-              <h1 className="text-2xl font-semibold tracking-normal">{headline}</h1>
-            </div>
-          </div>
-
           <div className="mb-6 grid grid-cols-2 rounded-md border border-slate-300 bg-slate-100 p-1">
             <button
               className={tabClass(mode === "login")}
@@ -141,6 +137,7 @@ export function AuthForm({
             {mode === "register" ? (
               <AuthTextField
                 label="Display name"
+                optional
                 value={registerInput.displayName}
                 error={errors.displayName}
                 touched={Boolean(touched.displayName)}
@@ -219,6 +216,17 @@ export function AuthForm({
                 <ArrowRight size={17} aria-hidden="true" />
               </button>
             </span>
+
+            <p className="text-center text-sm text-slate-600">
+              {switchPrompt}{" "}
+              <button
+                className="font-semibold text-slate-950 underline-offset-4 hover:underline"
+                type="button"
+                onClick={() => switchMode(switchTarget)}
+              >
+                {switchLabel}
+              </button>
+            </p>
           </form>
         </section>
       </div>

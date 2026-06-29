@@ -2,6 +2,8 @@
 
 import {
   hasAuthErrors,
+  normalizeLoginInput,
+  normalizeRegisterInput,
   normalizeDisplayName,
   validateLoginTyping,
   validateRegisterTyping,
@@ -38,11 +40,12 @@ function logAuthEvent(event: string, details: Record<string, unknown>) {
 export async function registerUser(
   input: RegisterInput,
 ): Promise<AuthActionResult> {
-  const fieldErrors = validateRegisterTyping(input);
+  const normalizedInput = normalizeRegisterInput(input);
+  const fieldErrors = validateRegisterTyping(normalizedInput);
 
   if (hasAuthErrors(fieldErrors)) {
     logAuthEvent("register_validation_failed", {
-      username: input.username,
+      username: normalizedInput.username,
       fields: Object.keys(fieldErrors),
     });
 
@@ -54,11 +57,11 @@ export async function registerUser(
   }
 
   const usernameTaken = dummyUsersTable.some(
-    (user) => user.username === input.username,
+    (user) => user.username === normalizedInput.username,
   );
 
   if (usernameTaken) {
-    logAuthEvent("register_username_taken", { username: input.username });
+    logAuthEvent("register_username_taken", { username: normalizedInput.username });
 
     return {
       ok: false,
@@ -67,21 +70,22 @@ export async function registerUser(
     };
   }
 
-  logAuthEvent("register_success", { username: input.username });
+  logAuthEvent("register_success", { username: normalizedInput.username });
 
   return {
     ok: true,
     message: "Account created. Opening dashboard...",
-    displayName: normalizeDisplayName(input.displayName),
+    displayName: normalizeDisplayName(normalizedInput.displayName),
   };
 }
 
 export async function loginUser(input: LoginInput): Promise<AuthActionResult> {
-  const fieldErrors = validateLoginTyping(input);
+  const normalizedInput = normalizeLoginInput(input);
+  const fieldErrors = validateLoginTyping(normalizedInput);
 
   if (hasAuthErrors(fieldErrors)) {
     logAuthEvent("login_validation_failed", {
-      username: input.username,
+      username: normalizedInput.username,
       fields: Object.keys(fieldErrors),
     });
 
@@ -92,10 +96,12 @@ export async function loginUser(input: LoginInput): Promise<AuthActionResult> {
     };
   }
 
-  const user = dummyUsersTable.find((record) => record.username === input.username);
+  const user = dummyUsersTable.find(
+    (record) => record.username === normalizedInput.username,
+  );
 
   if (!user) {
-    logAuthEvent("login_failed", { username: input.username });
+    logAuthEvent("login_failed", { username: normalizedInput.username });
 
     return {
       ok: false,
@@ -103,7 +109,7 @@ export async function loginUser(input: LoginInput): Promise<AuthActionResult> {
     };
   }
 
-  logAuthEvent("login_success", { username: input.username });
+  logAuthEvent("login_success", { username: normalizedInput.username });
 
   return {
     ok: true,

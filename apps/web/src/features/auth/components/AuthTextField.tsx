@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 type AuthTextFieldProps = {
   label: string;
+  optional?: boolean;
   value: string;
   error?: string;
   touched: boolean;
@@ -24,6 +25,7 @@ function inputClass(hasError: boolean) {
 
 export function AuthTextField({
   label,
+  optional = false,
   value,
   error,
   touched,
@@ -37,7 +39,12 @@ export function AuthTextField({
 
   return (
     <label className="relative grid gap-1.5">
-      <span className="text-left text-sm font-medium text-slate-700">{label}</span>
+      <span className="text-left text-sm font-medium text-slate-700">
+        {label}
+        {optional ? (
+          <span className="font-normal text-slate-500"> (Optional)</span>
+        ) : null}
+      </span>
       <span className="relative block">
         <input
           className={`${inputClass(showError)} ${trailingButton ? "pr-11" : ""}`}
