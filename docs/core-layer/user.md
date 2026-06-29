@@ -106,7 +106,8 @@ values.
 ### UI
 
 - Keep the auth panel centered on the page.
-- Do not show a title above the tabs. The tabs are the first component.
+- Show a centered brand row above the tabs as the first component. It should
+  include a Sparkles icon and the text `Arctic Aria`.
 - `Sign up` should be the right tab in a two-tab control. The other tab is
   `Sign in`.
 - Below the tabs, stack the form vertically:
@@ -167,8 +168,22 @@ Use the same UI rules as registration, with these differences:
 
 - `Sign in` should be the left tab in a two-tab control. The other tab is
   `Sign up`.
-- Show text `New here?` and link-style text `Sign up`.
+- Show subtext `New here?` and link-style text `Sign up`.
 - The main button should say `Sign in`.
+
+Below the main button and above the bottom subtexts, show a separate line:
+
+- `--- or ---`
+
+Then show a placeholder Google action:
+
+- Google logo
+- `Continue with Google`
+
+Also show a placeholder password reset line above `New here? Sign up`:
+
+- `Forgot your password?`
+- link-style text `Reset password`
 
 ## OAuth
 
