@@ -110,6 +110,11 @@ request.
   commit into `develop` after checking that it also works for the next version.
 - Do not delete branches after integration unless the user asks for branch
   deletion and confirms it.
+- Merge commit messages should follow the existing Conventional Commit style,
+  such as `feat(agent): merge dashboard prototype` or
+  `docs(agent): merge infrastructure dataflow docs`. Prefer
+  `type(agent): merge <feature name>` over generic messages such as
+  `merge: <branch name>`.
 
 ## Commits
 

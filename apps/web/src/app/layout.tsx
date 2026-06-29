@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Daily Dashboard Prototype",
-  description: "A dummy-data daily plan dashboard prototype.",
+  title: "Arctic Aria",
+  description: "A personal planning workspace prototype.",
 };
 
 export default function RootLayout({

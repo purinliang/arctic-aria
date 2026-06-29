@@ -24,12 +24,22 @@ SQLite can still be useful for throwaway local experiments, but it should not be
 the main design target. If a local SQLite file is created during experiments, it
 must be gitignored.
 
+## Current Prototype Provider
+
+The current web auth prototype uses Neon PostgreSQL.
+
+Local connection strings belong in untracked files such as
+`apps/web/.env.local` or `apps/web/.env.development.local`. Do not commit Neon
+URLs, passwords, dumps, or generated local database files.
+
+Schema migration files are safe to commit. The current migration entry point is
+`apps/web/scripts/migrate.mjs`, exposed as `pnpm db:migrate` from `apps/web`.
+
 ## User Model
 
-The first version does not need a login system. It can start with one Arctic
-Aria user record for the owner.
+The first version should support username and password registration and login.
 
-Even without login, keep a user table because many records need a stable owner:
+Keep a user table because many records need a stable owner:
 
 - plans
 - tasks
@@ -42,15 +52,14 @@ Even without login, keep a user table because many records need a stable owner:
 Recommended first tables:
 
 - `users`: Arctic Aria users.
+- `user_settings`: personal configuration such as timezone and day boundary.
 - `discord_accounts`: optional Discord binding records.
 
 An Arctic Aria user can be bound to at most one Discord user. A Discord user
 should also be bound to at most one Arctic Aria user. Enforce this with unique
 constraints on both `user_id` and `discord_user_id`.
 
-For the first personal version, seed one user and one optional Discord binding.
-Do not add password login, OAuth, session management, or multi-user account UI
-until the product needs them.
+Do not add OAuth until the username and password flow is stable.
 
 ## Core Tables
 

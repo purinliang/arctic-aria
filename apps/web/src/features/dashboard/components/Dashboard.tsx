@@ -1,7 +1,8 @@
 "use client";
 
-import { Bell, Check, ListChecks, Menu } from "lucide-react";
+import { Bell, Check, ListChecks, LogOut, Menu } from "lucide-react";
 import { useMemo, useState } from "react";
+import type { AuthUser } from "@/features/auth/server/auth-service";
 import {
   dayBoundary,
   initialRoutines,
@@ -40,7 +41,15 @@ function panelClass(darkMode: boolean) {
     : "border-slate-300 bg-white text-slate-950";
 }
 
-export function Dashboard() {
+export function Dashboard({
+  currentUser,
+  logoutPending,
+  onLogout,
+}: {
+  currentUser: AuthUser;
+  logoutPending: boolean;
+  onLogout: () => void;
+}) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [routines, setRoutines] = useState<Routine[]>(initialRoutines);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -151,18 +160,41 @@ export function Dashboard() {
               </h1>
             </div>
           </div>
-          <button
-            className={`flex h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold shadow-sm transition ${
-              darkMode
-                ? "bg-white text-black hover:bg-neutral-200"
-                : "bg-slate-950 text-white hover:bg-slate-800"
-            }`}
-            type="button"
-            onClick={openReview}
-          >
-            <ListChecks size={18} aria-hidden="true" />
-            Review
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={`max-w-[180px] truncate text-sm font-semibold ${
+                darkMode ? "text-neutral-300" : "text-slate-700"
+              }`}
+              title={currentUser.username}
+            >
+              {currentUser.displayName}
+            </span>
+            <button
+              className={`flex h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold shadow-sm transition ${
+                darkMode
+                  ? "bg-white text-black hover:bg-neutral-200"
+                  : "bg-slate-950 text-white hover:bg-slate-800"
+              }`}
+              type="button"
+              onClick={openReview}
+            >
+              <ListChecks size={18} aria-hidden="true" />
+              Review
+            </button>
+            <button
+              className={`flex h-11 items-center justify-center gap-2 rounded-md border px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                darkMode
+                  ? "border-neutral-700 text-white hover:border-white"
+                  : "border-slate-300 text-slate-700 hover:border-slate-500"
+              }`}
+              type="button"
+              disabled={logoutPending}
+              onClick={onLogout}
+            >
+              <LogOut size={17} aria-hidden="true" />
+              {logoutPending ? "Signing out..." : "Sign out"}
+            </button>
+          </div>
         </header>
 
         <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">

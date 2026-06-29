@@ -173,8 +173,7 @@ arctic-aria/
 |   |   |-- database.md
 |   |   `-- event-bus.md
 |   |-- roadmap.md
-|   |-- user-story.md
-|   `-- core-model.md              # Future detailed data model
+|   `-- user-story.md
 |
 |-- package.json
 |-- pnpm-workspace.yaml
@@ -189,9 +188,16 @@ another web surface needs the same components.
 Each plugin can have its own `README.md` later to describe setup, commands,
 dependencies, and integration contracts.
 
-## First Implementation Boundary
+## Implementation Boundary
 
-The first code branch should implement only the smallest useful Core slice:
+The current implementation started with the smallest useful auth foundation:
+username and password registration, login, bcrypt password hashing, Neon
+PostgreSQL storage, and matching frontend/backend validation. Its implementation
+notes are documented in
+[interface-layer/web/auth-implementation.md](interface-layer/web/auth-implementation.md).
+
+After auth, the next main product slice should implement the smallest useful
+Core planning slice:
 
 - plan and task capture
 - parent-child tasks
@@ -205,12 +211,13 @@ The first code branch should implement only the smallest useful Core slice:
 - basic Next.js dashboard views for capture, plan, progress, and review
 
 Do not implement the Discord bot, English coach, reward inventory, or sharing in
-the first code branch. They should be separate branches after the core contracts
-are stable.
+the next Core planning branch. They should be separate branches after the core
+contracts are stable.
 
 ## Open Decisions
 
-- Whether to use Prisma, Drizzle, or direct SQL for PostgreSQL access.
+- Whether to keep direct SQL beyond the current auth prototype or move broader
+  Core data access to Prisma or Drizzle.
 - Whether the first deployment target should be Vercel plus managed PostgreSQL,
   a VPS, or a local Docker Compose setup.
 - Whether plugin workers should run as separate services, background jobs, or

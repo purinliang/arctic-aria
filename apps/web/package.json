@@ -5,9 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "eslint"
+    "db:migrate": "node scripts/migrate.mjs",
+    "lint": "eslint",
+    "test": "node --test \"src/**/*.test.ts\""
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "bcryptjs": "^3.0.3",
     "lucide-react": "latest",
     "next": "latest",
     "react": "latest",

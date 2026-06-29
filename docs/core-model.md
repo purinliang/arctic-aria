@@ -8,7 +8,7 @@ tables should follow this model unless a later design decision updates it.
 
 The first Core model should support:
 
-- one seeded Arctic Aria user
+- user records for registration and login
 - long-running plans
 - tasks and subtasks with weighted progress
 - recurring routines
@@ -20,27 +20,30 @@ The first Core model should support:
 
 The first Core model should not include:
 
-- login, sessions, or OAuth
 - plugin-specific memory
 - reward inventory
 - event bus design
 - Discord-specific message details
 
+Detailed user registration and login rules are documented in
+[core-layer/user.md](core-layer/user.md). User settings are documented in
+[core-layer/user-settings.md](core-layer/user-settings.md).
+
 ## User
 
-The first version can start with one seeded user. A user record is still useful
-because almost every Core entity needs a stable owner.
+User records are Core data because plans, tasks, routines, ideas, daily plans,
+and reviews all need a stable owner.
 
 `users` should store:
 
 - id
+- username
+- password hash
 - display name
-- timezone
-- day boundary time, default `04:00`
 - created and updated timestamps
 
-The day boundary matters because a routine completed at `01:00` may still belong
-to the previous personal day.
+Personal configuration such as timezone and day boundary belongs to user
+settings, not the main user identity record.
 
 ## Plans
 
