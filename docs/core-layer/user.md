@@ -54,19 +54,18 @@ Use `register` in code. The UI can say `Sign up`.
 ### Validation when typing
 
 - Username is required.
-- Username must be at least 4 characters.
+- Username must be at least 4 characters and at most 16 characters.
 - Username must contain visible non-blank ASCII characters only.
 - Password is required.
-- Password must be at least 8 characters.
+- Password must be at least 8 characters and at most 32 characters.
 - Password must contain visible non-blank ASCII characters only.
 - Password and repeated password must match.
 - Display name is optional.
-- If display name is provided, it must be at least 4 characters.
+- If display name is provided, it must be at least 1 character and at most 24 characters.
 - Display name should support UTF-8.
 - Display name should be trimmed before validation.
 - Display name can contain spaces and other blank characters inside the trimmed
   value.
-- Display name should be no longer than 32 characters.
 
 When a typing validation rule fails:
 

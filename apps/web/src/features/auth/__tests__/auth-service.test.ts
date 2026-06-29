@@ -91,5 +91,5 @@ test("stored password hash does not contain the raw password", async () => {
 
   assert.ok(user);
   assert.notEqual(user.passwordHash, "password1");
-  assert.match(user.passwordHash, /^prototype-bcrypt:/);
+  assert.match(user.passwordHash, /^\$2[aby]\$/);
 });

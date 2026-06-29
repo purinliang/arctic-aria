@@ -1,4 +1,4 @@
-import { neon } from "@neondatabase/serverless";
+import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 
 const databaseUrlKeys = [
   "NEON_POSTGRES_URL",
@@ -8,7 +8,9 @@ const databaseUrlKeys = [
 
 type DatabaseUrlKey = (typeof databaseUrlKeys)[number];
 
-let cachedSql: ReturnType<typeof neon> | null = null;
+type SqlClient = NeonQueryFunction<false, false>;
+
+let cachedSql: SqlClient | null = null;
 
 export function getDatabaseUrl(env: NodeJS.ProcessEnv = process.env) {
   for (const key of databaseUrlKeys) {

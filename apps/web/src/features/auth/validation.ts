@@ -16,7 +16,11 @@ export type LoginInput = {
 
 const visibleAsciiPattern = /^[!-~]+$/;
 const minimumUsernameLength = 4;
-const minimumDisplayNameLength = 4;
+const maximumUsernameLength = 16;
+const minimumPasswordLength = 8;
+const maximumPasswordLength = 32;
+const minimumDisplayNameLength = 1;
+const maximumDisplayNameLength = 24;
 
 export const authFieldOrder: AuthField[] = [
   "username",
@@ -57,6 +61,10 @@ function validateUsername(username: string): string | null {
     return "Username must be at least 4 characters.";
   }
 
+  if (username.length > maximumUsernameLength) {
+    return "Username must be 16 characters or fewer.";
+  }
+
   if (!visibleAsciiPattern.test(username)) {
     return "Use visible ASCII characters only, with no spaces.";
   }
@@ -69,8 +77,12 @@ function validatePassword(password: string): string | null {
     return "Password is required.";
   }
 
-  if (password.length < 8) {
+  if (password.length < minimumPasswordLength) {
     return "Password must be at least 8 characters.";
+  }
+
+  if (password.length > maximumPasswordLength) {
+    return "Password must be 32 characters or fewer.";
   }
 
   if (!visibleAsciiPattern.test(password)) {
@@ -88,11 +100,11 @@ function validateDisplayName(displayName: string): string | null {
   }
 
   if (normalized.length < minimumDisplayNameLength) {
-    return "Display name must be at least 4 characters.";
+    return "Display name must be at least 1 character.";
   }
 
-  if (normalized.length > 32) {
-    return "Display name must be 32 characters or fewer.";
+  if (normalized.length > maximumDisplayNameLength) {
+    return "Display name must be 24 characters or fewer.";
   }
 
   return null;

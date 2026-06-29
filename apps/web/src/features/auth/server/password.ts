@@ -1,19 +1,15 @@
-import { createHash } from "node:crypto";
+import bcrypt from "bcryptjs";
 
 export type PasswordHasher = {
   hash(password: string): Promise<string>;
   verify(password: string, passwordHash: string): Promise<boolean>;
 };
 
-function prototypeHash(password: string) {
-  return createHash("sha256").update(password).digest("base64url");
-}
-
-export const prototypePasswordHasher: PasswordHasher = {
+export const bcryptPasswordHasher: PasswordHasher = {
   async hash(password) {
-    return `prototype-bcrypt:${prototypeHash(password)}`;
+    return bcrypt.hash(password, 12);
   },
   async verify(password, passwordHash) {
-    return passwordHash === `prototype-bcrypt:${prototypeHash(password)}`;
+    return bcrypt.compare(password, passwordHash);
   },
 };

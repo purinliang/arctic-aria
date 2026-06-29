@@ -8,11 +8,9 @@ import {
   type LoginInput,
   type RegisterInput,
 } from "../validation.ts";
-import { prototypePasswordHasher, type PasswordHasher } from "./password.ts";
-import {
-  authUserRepository,
-  type UserRepository,
-} from "./user-repository.ts";
+import { bcryptPasswordHasher, type PasswordHasher } from "./password.ts";
+import { PostgresUserRepository } from "./postgres-user-repository.ts";
+import type { UserRepository } from "./user-repository.ts";
 
 export type AuthActionResult =
   | {
@@ -37,8 +35,8 @@ function defaultAuthLog(event: string, details: Record<string, unknown>) {
 }
 
 export function createAuthService(options: AuthServiceOptions = {}) {
-  const users = options.users ?? authUserRepository;
-  const passwordHasher = options.passwordHasher ?? prototypePasswordHasher;
+  const users = options.users ?? new PostgresUserRepository();
+  const passwordHasher = options.passwordHasher ?? bcryptPasswordHasher;
   const log = options.log ?? defaultAuthLog;
 
   return {
