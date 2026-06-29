@@ -21,14 +21,21 @@ ArcticAria
 |   |-- future research coach
 |   `-- future life planners
 |
-`-- Interface layer
-    |-- web dashboard
-    `-- discord bot
+|-- Interface layer
+|   |-- web dashboard
+|   `-- discord bot
+|
+`-- Infrastructure layer
+    |-- database
+    |-- event bus
+    `-- background jobs
 ```
 
 The Core layer owns stable product logic. The Plugin layer adds optional
 specialized workflows. The Interface layer lets the user operate the same
-system through the web dashboard or Discord.
+system through the web dashboard or Discord. The Infrastructure layer provides
+shared technical capabilities that other layers use, but it does not own product
+rules.
 
 ## Core Layer
 
@@ -67,8 +74,8 @@ The routine engine owns:
 
 - recurrence rules
 - routine instances for specific days
-- completion, skip, and busy states
-- links to reminder rules
+- completion and skip states
+- reminder preferences used by the scheduler
 - simple routine categories, including fitness routines
 
 Fitness belongs here by default. It should become a plugin only if a future
@@ -201,6 +208,27 @@ It owns:
 The Discord bot should call Core APIs. It should not implement its own planning
 or routine logic.
 
+## Infrastructure Layer
+
+The Infrastructure layer supports the Core, Plugin, and Interface layers. It is
+where shared storage, event delivery, migrations, background jobs, and external
+service adapters belong.
+
+Infrastructure owns technical mechanisms, not product decisions. For example:
+
+- The database owns persistence, migrations, indexes, and transaction support.
+- The event bus owns publishing, subscribing, retries, and delivery tracking.
+- Background jobs own durable execution for reminders, scheduled review work,
+  plugin runs, and notification delivery.
+
+Core code should define product entities, commands, validations, and domain
+events. Infrastructure code should store those entities and move those events
+between modules.
+
+For the first version, the database and event bus can be simple. They still
+belong to Infrastructure because the Core layer should not depend on a specific
+storage engine, queue, or notification transport.
+
 ## Data Flow
 
 Typical daily flow:
@@ -210,8 +238,9 @@ User input
   -> Interface layer
   -> Core layer command
   -> Core state change
+  -> Infrastructure persistence
   -> Scheduler / review update
-  -> Optional plugin event
+  -> Future plugin or dataflow hook
   -> Interface notification or dashboard update
 ```
 
@@ -223,8 +252,10 @@ Scheduler
   -> Discord bot delivery
   -> user button response
   -> Core routine/task completion command
-  -> review state update
-  -> optional reward plugin event
+  -> Infrastructure persistence
+  -> completion event recorded
+  -> review update
+  -> optional future reward flow
 ```
 
 Example English coach flow:
