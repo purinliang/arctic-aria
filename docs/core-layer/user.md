@@ -54,12 +54,14 @@ Use `register` in code. The UI can say `Sign up`.
 ### Validation when typing
 
 - Username is required.
+- Username must be at least 4 characters.
 - Username must contain visible non-blank ASCII characters only.
 - Password is required.
 - Password must be at least 8 characters.
 - Password must contain visible non-blank ASCII characters only.
 - Password and repeated password must match.
-- Display name is required.
+- Display name is optional.
+- If display name is provided, it must be at least 4 characters.
 - Display name should support UTF-8.
 - Display name should be trimmed before validation.
 - Display name can contain spaces and other blank characters inside the trimmed
@@ -77,9 +79,11 @@ When a typing validation rule fails:
 
 ### Validation when submitting
 
+- Trim all fields before backend validation.
 - Run all typing validation rules again on the backend to protect against
   frontend mistakes or request tampering.
 - Username must be unique.
+- If display name is empty, use the username as the display name.
 
 When a submit validation rule fails:
 
@@ -102,9 +106,9 @@ values.
 ### UI
 
 - Keep the auth panel centered on the page.
+- Do not show a title above the tabs. The tabs are the first component.
 - `Sign up` should be the right tab in a two-tab control. The other tab is
   `Sign in`.
-- Show small text `New here?` and larger text `Sign up`.
 - Below the tabs, stack the form vertically:
   - Show a title, such as `Create an account`.
   - Align field labels to the left.
@@ -123,6 +127,8 @@ values.
 - When the main button is disabled, hovering over it should show the first
   remaining validation error by rule priority. This includes hidden errors for
   untouched fields, such as `Username is required`.
+- Show small text `Already have an account?` and link-style text `Sign in`.
+  Clicking the link is equivalent to switching tabs.
 - Do not show unrelated actions or information, such as `Open dashboard without
   an account` or `OAuth`.
 
@@ -161,8 +167,7 @@ Use the same UI rules as registration, with these differences:
 
 - `Sign in` should be the left tab in a two-tab control. The other tab is
   `Sign up`.
-- Show small text `Already have an account?` and larger text `Sign in`.
-- Show a title, such as `Welcome back`.
+- Show text `New here?` and link-style text `Sign up`.
 - The main button should say `Sign in`.
 
 ## OAuth
