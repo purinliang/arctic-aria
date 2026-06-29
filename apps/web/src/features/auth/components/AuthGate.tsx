@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
-import { loginUser, registerUser } from "../actions";
+import { getCurrentUser, loginUser, logoutUser, registerUser } from "../actions";
+import type { AuthUser } from "../server/auth-service";
 import {
   hasAuthErrors,
   validateLoginTyping,
@@ -28,7 +29,8 @@ const emptyLogin: LoginInput = {
 };
 
 export function AuthGate() {
-  const [authenticated, setAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [sessionChecked, setSessionChecked] = useState(false);
   const [mode, setMode] = useState<AuthMode>("login");
   const [registerInput, setRegisterInput] = useState<RegisterInput>(emptyRegister);
   const [loginInput, setLoginInput] = useState<LoginInput>(emptyLogin);
@@ -37,8 +39,48 @@ export function AuthGate() {
   const [serverErrors, setServerErrors] = useState<AuthFieldErrors>({});
   const [isPending, startTransition] = useTransition();
 
-  if (authenticated) {
-    return <Dashboard />;
+  useEffect(() => {
+    let active = true;
+
+    getCurrentUser()
+      .then((user) => {
+        if (active) {
+          setCurrentUser(user);
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setSessionChecked(true);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (!sessionChecked) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-[#eef2f5] text-slate-600">
+        <p className="text-sm font-medium">Opening Arctic Aria...</p>
+      </main>
+    );
+  }
+
+  if (currentUser) {
+    return (
+      <Dashboard
+        currentUser={currentUser}
+        logoutPending={isPending}
+        onLogout={() => {
+          startTransition(async () => {
+            await logoutUser();
+            setCurrentUser(null);
+            resetSubmitState();
+          });
+        }}
+      />
+    );
   }
 
   const typingErrors =
@@ -96,7 +138,7 @@ export function AuthGate() {
 
       window.setTimeout(() => {
         setSubmitMessage(null);
-        setAuthenticated(true);
+        setCurrentUser(result.user);
       }, 2000);
     });
   }

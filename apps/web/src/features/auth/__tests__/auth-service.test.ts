@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createAuthService } from "../server/auth-service.ts";
-import { InMemoryUserRepository } from "../server/user-repository.ts";
+import {
+  DuplicateUsernameError,
+  InMemoryUserRepository,
+  type CreateUserRecord,
+  type UserRepository,
+} from "../server/user-repository.ts";
 
 function createTestService() {
   const users = new InMemoryUserRepository();
@@ -60,6 +65,36 @@ test("register rejects duplicate usernames", async () => {
 
   if (!duplicateResult.ok) {
     assert.equal(duplicateResult.fieldErrors?.username, "Username is already taken.");
+  }
+});
+
+test("register handles duplicate username races from the repository", async () => {
+  class RacingUserRepository implements UserRepository {
+    async create(input: CreateUserRecord) {
+      throw new DuplicateUsernameError(input.username);
+    }
+
+    async findByUsername() {
+      return null;
+    }
+  }
+
+  const service = createAuthService({
+    users: new RacingUserRepository(),
+    log: () => {},
+  });
+
+  const result = await service.register({
+    username: "purin",
+    displayName: "Purin",
+    password: "password1",
+    repeatPassword: "password1",
+  });
+
+  assert.equal(result.ok, false);
+
+  if (!result.ok) {
+    assert.equal(result.fieldErrors?.username, "Username is already taken.");
   }
 });
 

@@ -13,6 +13,8 @@ becomes clearer.
 
 - Build the username and password auth foundation first so later records have a
   stable owner.
+- Add session persistence and logout so login survives refresh and users can
+  explicitly leave the dashboard.
 - Define plans, tasks, subtasks, routines, ideas, scheduler data, reviews, and
   completion events.
 - Choose concrete database schema and migration tooling.

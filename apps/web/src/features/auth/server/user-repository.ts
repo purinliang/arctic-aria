@@ -18,10 +18,21 @@ export type UserRepository = {
   findByUsername(username: string): Promise<UserRecord | null>;
 };
 
+export class DuplicateUsernameError extends Error {
+  constructor(username: string) {
+    super(`Username already exists: ${username}`);
+    this.name = "DuplicateUsernameError";
+  }
+}
+
 export class InMemoryUserRepository implements UserRepository {
   private users: UserRecord[] = [];
 
   async create(input: CreateUserRecord) {
+    if (this.users.some((user) => user.username === input.username)) {
+      throw new DuplicateUsernameError(input.username);
+    }
+
     const now = new Date();
     const user: UserRecord = {
       id: crypto.randomUUID(),

@@ -5,6 +5,7 @@ import type {
   UserRecord,
   UserRepository,
 } from "./user-repository.ts";
+import { DuplicateUsernameError } from "./user-repository.ts";
 
 type UserRow = {
   id: string;
@@ -26,6 +27,25 @@ function mapUser(row: UserRow): UserRecord {
   };
 }
 
+function isUniqueUsernameViolation(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const candidate = error as {
+    code?: unknown;
+    constraint?: unknown;
+    message?: unknown;
+  };
+  const constraint = String(candidate.constraint ?? "");
+  const message = String(candidate.message ?? "");
+
+  return (
+    candidate.code === "23505" &&
+    (constraint.includes("username") || message.includes("users_username"))
+  );
+}
+
 export class PostgresUserRepository implements UserRepository {
   private readonly sql?: NeonQueryFunction<false, false>;
 
@@ -38,11 +58,22 @@ export class PostgresUserRepository implements UserRepository {
   }
 
   async create(input: CreateUserRecord) {
-    const rows = (await this.getSql()`
-      INSERT INTO users (username, display_name, password_hash)
-      VALUES (${input.username}, ${input.displayName}, ${input.passwordHash})
-      RETURNING id, username, display_name, password_hash, created_at, updated_at
-    `) as UserRow[];
+    let rows: UserRow[];
+
+    try {
+      rows = (await this.getSql()`
+        INSERT INTO users (username, display_name, password_hash)
+        VALUES (${input.username}, ${input.displayName}, ${input.passwordHash})
+        RETURNING id, username, display_name, password_hash, created_at, updated_at
+      `) as UserRow[];
+    } catch (error) {
+      if (isUniqueUsernameViolation(error)) {
+        throw new DuplicateUsernameError(input.username);
+      }
+
+      throw error;
+    }
+
     const [row] = rows;
 
     return mapUser(row);

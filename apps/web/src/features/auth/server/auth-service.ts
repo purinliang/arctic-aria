@@ -10,13 +10,24 @@ import {
 } from "../validation.ts";
 import { bcryptPasswordHasher, type PasswordHasher } from "./password.ts";
 import { PostgresUserRepository } from "./postgres-user-repository.ts";
-import type { UserRepository } from "./user-repository.ts";
+import {
+  DuplicateUsernameError,
+  type UserRecord,
+  type UserRepository,
+} from "./user-repository.ts";
+
+export type AuthUser = {
+  id: string;
+  username: string;
+  displayName: string;
+};
 
 export type AuthActionResult =
   | {
       ok: true;
       message: string;
       displayName: string;
+      user: AuthUser;
     }
   | {
       ok: false;
@@ -32,6 +43,22 @@ type AuthServiceOptions = {
 
 function defaultAuthLog(event: string, details: Record<string, unknown>) {
   console.log("[auth]", event, details);
+}
+
+function toAuthUser(user: Pick<UserRecord, "id" | "username" | "displayName">) {
+  return {
+    id: user.id,
+    username: user.username,
+    displayName: user.displayName,
+  };
+}
+
+function usernameTakenResult(): AuthActionResult {
+  return {
+    ok: false,
+    message: "Username is already taken.",
+    fieldErrors: { username: "Username is already taken." },
+  };
 }
 
 export function createAuthService(options: AuthServiceOptions = {}) {
@@ -62,20 +89,30 @@ export function createAuthService(options: AuthServiceOptions = {}) {
       if (existingUser) {
         log("register_username_taken", { username: normalizedInput.username });
 
-        return {
-          ok: false,
-          message: "Username is already taken.",
-          fieldErrors: { username: "Username is already taken." },
-        };
+        return usernameTakenResult();
       }
 
       const passwordHash = await passwordHasher.hash(normalizedInput.password);
 
-      await users.create({
-        username: normalizedInput.username,
-        displayName: normalizedInput.displayName,
-        passwordHash,
-      });
+      let user: UserRecord;
+
+      try {
+        user = await users.create({
+          username: normalizedInput.username,
+          displayName: normalizedInput.displayName,
+          passwordHash,
+        });
+      } catch (error) {
+        if (error instanceof DuplicateUsernameError) {
+          log("register_username_taken_after_create", {
+            username: normalizedInput.username,
+          });
+
+          return usernameTakenResult();
+        }
+
+        throw error;
+      }
 
       log("register_success", { username: normalizedInput.username });
 
@@ -83,6 +120,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
         ok: true,
         message: "Account created. Opening dashboard...",
         displayName: normalizedInput.displayName,
+        user: toAuthUser(user),
       };
     },
 
@@ -123,6 +161,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
         ok: true,
         message: "Signed in. Opening dashboard...",
         displayName: user.displayName,
+        user: toAuthUser(user),
       };
     },
   };

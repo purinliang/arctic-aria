@@ -14,12 +14,16 @@ The first auth flow is a good starting point:
 
 - Users can sign up with username, optional display name, and password.
 - Users can sign in with username and password.
+- Successful sign up and sign in create a 30-day signed session cookie.
+- Users can sign out from the dashboard.
 - Passwords are hashed with bcrypt before storage.
 - The default auth service uses Neon PostgreSQL through the database client.
 - Frontend typing validation and backend submit validation share the same
   validation functions.
 - The initial `users` migration has database constraints for stored username
   and display name values.
+- Duplicate username races are handled through the database unique constraint
+  and returned as a clean username validation error.
 
 This is still not a complete production auth system. It is enough for local
 manual testing and for building the next authenticated features.
@@ -50,6 +54,7 @@ apps/web/src/features/auth/server/
 |-- auth-service.ts
 |-- password.ts
 |-- postgres-user-repository.ts
+|-- session.ts
 `-- user-repository.ts
 ```
 
@@ -65,6 +70,7 @@ Tests:
 
 ```text
 apps/web/src/features/auth/__tests__/auth-service.test.ts
+apps/web/src/features/auth/__tests__/session.test.ts
 apps/web/src/features/auth/__tests__/validation.test.ts
 apps/web/src/server/database/__tests__/neon.test.ts
 ```
@@ -109,6 +115,20 @@ The migration runner loads `.env.local` and `.env.development.local` before it
 connects. Prefer an unpooled or direct Neon URL for migrations when one is
 available.
 
+## Session Notes
+
+The current prototype stores login state in an HTTP-only signed cookie named
+`arctic_aria_session`. The cookie lasts 30 days.
+
+The session token is signed with `AUTH_SESSION_SECRET` when it is set. For local
+development, the app falls back to available database URL environment variables
+or a development-only fallback secret. A deployed environment should set
+`AUTH_SESSION_SECRET` explicitly.
+
+The current session payload stores user id, username, display name, and expiry.
+It is not stored in the database, so there is no server-side session revocation
+yet.
+
 ## UI Rules
 
 Auth UI should follow the existing web rules:
@@ -145,12 +165,10 @@ Manual smoke test:
 
 ## Improvements To Consider Next
 
-- Add session persistence so a successful login survives refresh.
-- Add logout.
-- Decide whether sessions should use signed cookies, a server-side sessions
-  table, or an auth library.
 - Add rate limiting for login and registration attempts.
 - Add better handling for unexpected database failures.
 - Add end-to-end tests for the browser auth flow.
-- Add a unique-index conflict fallback so duplicate username races return a
-  clean validation error.
+- Decide whether the signed cookie session should later move to a server-side
+  sessions table or an auth library.
+- Add session revocation if account settings, password changes, or shared
+  devices become important.
