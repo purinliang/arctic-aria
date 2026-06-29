@@ -11,6 +11,7 @@ import {
   type RegisterInput,
 } from "../validation";
 import { AuthTextField } from "./AuthTextField";
+import { GoogleIcon } from "./GoogleIcon";
 
 type AuthFormProps = {
   mode: AuthMode;
@@ -248,9 +249,7 @@ export function AuthForm({
                   className="flex h-11 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                   type="button"
                 >
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-xs font-bold text-slate-700">
-                    G
-                  </span>
+                  <GoogleIcon />
                   Continue with Google
                 </button>
 
