@@ -95,10 +95,13 @@ export function AuthForm({
     <main className="min-h-screen bg-[#eef2f5] text-slate-950">
       <div className="mx-auto flex min-h-screen w-full max-w-[560px] items-center px-4 py-6 sm:px-6">
         <section className="w-full rounded-md border border-slate-300 bg-white p-5 shadow-sm sm:p-8">
-          <div className="mb-6 flex items-center justify-center gap-2 text-slate-950">
+          <div className="flex items-center justify-center gap-2 text-slate-950">
             <Sparkles size={22} aria-hidden="true" />
             <h1 className="text-2xl font-semibold tracking-normal">Arctic Aria</h1>
           </div>
+          <p className="mx-auto mb-8 mt-2 max-w-[320px] text-center text-sm leading-6 text-slate-500">
+            Your personal life assistant under the aurora.
+          </p>
 
           <div className="mb-6 grid grid-cols-2 rounded-md border border-slate-300 bg-slate-100 p-1">
             <button

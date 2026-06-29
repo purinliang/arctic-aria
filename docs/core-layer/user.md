@@ -108,6 +108,8 @@ values.
 - Keep the auth panel centered on the page.
 - Show a centered brand row above the tabs as the first component. It should
   include a Sparkles icon and the text `Arctic Aria`.
+- Show a centered description below the brand row, such as `Your personal life
+  assistant under the aurora.`
 - `Sign up` should be the right tab in a two-tab control. The other tab is
   `Sign in`.
 - Below the tabs, stack the form vertically:
@@ -168,6 +170,7 @@ Use the same UI rules as registration, with these differences:
 
 - `Sign in` should be the left tab in a two-tab control. The other tab is
   `Sign up`.
+- The title below the tabs should say `Welcome back`.
 - Show subtext `New here?` and link-style text `Sign up`.
 - The main button should say `Sign in`.
 
