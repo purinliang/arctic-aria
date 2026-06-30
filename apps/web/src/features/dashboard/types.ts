@@ -51,12 +51,19 @@ export type PinnedMemory = {
 
 export type MemoryRecord = {
   id: string;
+  categoryId: string;
   category: MemoryCategory;
   title: string;
   description: string;
   lastDoneText: string;
   doneCount: number;
   pinned: boolean;
+};
+
+export type MemoryCategoryOption = {
+  id: string;
+  name: string;
+  baseWeight: number;
 };
 
 export type ChestItemRarity =

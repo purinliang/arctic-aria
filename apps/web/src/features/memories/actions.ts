@@ -1,14 +1,32 @@
 "use server";
 
 import { getCurrentUser } from "@/features/auth/actions";
-import type { MemoryRecord, PinnedMemory } from "@/features/dashboard/types";
+import type {
+  MemoryCategoryOption,
+  MemoryRecord,
+  PinnedMemory,
+} from "@/features/dashboard/types";
 import { memoryService } from "./server/memory-service";
 import type { DashboardPinnedMemory } from "./server/memory-service";
 import type { MemoryRecord as ServerMemoryRecord } from "./server/memory-repository";
 
 export type MemoryDashboardData = {
+  categories: MemoryCategoryOption[];
   pinnedMemories: PinnedMemory[];
   memoryRecords: MemoryRecord[];
+};
+
+export type MemoryCategoryInput = {
+  id?: string;
+  name: string;
+  baseWeight: number;
+};
+
+export type MemoryInput = {
+  id?: string;
+  categoryId: string;
+  title: string;
+  description: string;
 };
 
 export type MemoryActionResult<T> =
@@ -66,6 +84,7 @@ function toMemoryRecord(
 ): MemoryRecord {
   return {
     id: memory.id,
+    categoryId: memory.categoryId,
     category: memory.categoryName,
     title: memory.title,
     description: memory.description,
@@ -76,7 +95,8 @@ function toMemoryRecord(
 }
 
 async function loadMemoryDashboardData(userId: string): Promise<MemoryDashboardData> {
-  const [pinnedMemories, memoryRecords] = await Promise.all([
+  const [categories, pinnedMemories, memoryRecords] = await Promise.all([
+    memoryService.listMemoryCategories(userId),
     memoryService.listDashboardPinnedMemories(userId),
     memoryService.listMemoryLibrary(userId),
   ]);
@@ -85,11 +105,71 @@ async function loadMemoryDashboardData(userId: string): Promise<MemoryDashboardD
   );
 
   return {
+    categories: categories.map((category) => ({
+      id: category.id,
+      name: category.name,
+      baseWeight: category.baseWeight,
+    })),
     pinnedMemories: pinnedMemories.map(toPinnedMemory),
     memoryRecords: memoryRecords.map((memory) =>
       toMemoryRecord(memory, pinnedMemoryIds),
     ),
   };
+}
+
+function validateCategoryInput(input: MemoryCategoryInput) {
+  const name = input.name.trim();
+  const baseWeight = Number(input.baseWeight);
+
+  if (name.length < 1 || name.length > 40) {
+    return { ok: false as const, message: "Category name must be 1-40 characters." };
+  }
+
+  if (!Number.isFinite(baseWeight) || baseWeight <= 0) {
+    return { ok: false as const, message: "Base weight must be greater than 0." };
+  }
+
+  return { ok: true as const, name, baseWeight };
+}
+
+function validateMemoryInput(input: MemoryInput) {
+  const title = input.title.trim();
+  const description = input.description.trim();
+
+  if (!input.categoryId) {
+    return { ok: false as const, message: "Choose a category." };
+  }
+
+  if (title.length < 1 || title.length > 120) {
+    return { ok: false as const, message: "Memory title must be 1-120 characters." };
+  }
+
+  if (description.length > 2000) {
+    return {
+      ok: false as const,
+      message: "Memory description must be 2000 characters or fewer.",
+    };
+  }
+
+  return { ok: true as const, title, description };
+}
+
+function databaseMessage(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return "Database update failed.";
+  }
+
+  const candidate = error as { code?: unknown };
+
+  if (candidate.code === "23505") {
+    return "A category with that name already exists.";
+  }
+
+  if (candidate.code === "23503") {
+    return "This category is still used by memories.";
+  }
+
+  return "Database update failed.";
 }
 
 export async function getMemoryDashboardData(): Promise<
@@ -151,6 +231,138 @@ export async function replacePinnedMemory(
   }
 
   await memoryService.replacePinnedMemory(user.id, pinnedMemoryId);
+
+  return {
+    ok: true,
+    data: await loadMemoryDashboardData(user.id),
+  };
+}
+
+export async function saveMemoryCategory(
+  input: MemoryCategoryInput,
+): Promise<MemoryActionResult<MemoryDashboardData>> {
+  const user = await requireCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  const validation = validateCategoryInput(input);
+
+  if (!validation.ok) {
+    return { ok: false, message: validation.message };
+  }
+
+  try {
+    if (input.id) {
+      await memoryService.updateCategory(
+        user.id,
+        input.id,
+        validation.name,
+        validation.baseWeight,
+      );
+    } else {
+      await memoryService.createCategory(
+        user.id,
+        validation.name,
+        validation.baseWeight,
+      );
+    }
+  } catch (error) {
+    return { ok: false, message: databaseMessage(error) };
+  }
+
+  return {
+    ok: true,
+    data: await loadMemoryDashboardData(user.id),
+  };
+}
+
+export async function deleteMemoryCategory(
+  categoryId: string,
+): Promise<MemoryActionResult<MemoryDashboardData>> {
+  const user = await requireCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  try {
+    const deleted = await memoryService.deleteCategory(user.id, categoryId);
+
+    if (!deleted) {
+      return { ok: false, message: "Category was not found." };
+    }
+  } catch (error) {
+    return { ok: false, message: databaseMessage(error) };
+  }
+
+  return {
+    ok: true,
+    data: await loadMemoryDashboardData(user.id),
+  };
+}
+
+export async function saveMemory(
+  input: MemoryInput,
+): Promise<MemoryActionResult<MemoryDashboardData>> {
+  const user = await requireCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  const validation = validateMemoryInput(input);
+
+  if (!validation.ok) {
+    return { ok: false, message: validation.message };
+  }
+
+  if (input.id) {
+    const memory = await memoryService.updateMemory(
+      user.id,
+      input.id,
+      input.categoryId,
+      validation.title,
+      validation.description,
+    );
+
+    if (!memory) {
+      return { ok: false, message: "Memory or category was not found." };
+    }
+  } else {
+    const memory = await memoryService.createMemory(
+      user.id,
+      input.categoryId,
+      validation.title,
+      validation.description,
+    );
+
+    if (!memory) {
+      return { ok: false, message: "Category was not found." };
+    }
+  }
+
+  return {
+    ok: true,
+    data: await loadMemoryDashboardData(user.id),
+  };
+}
+
+export async function deleteMemory(
+  memoryId: string,
+): Promise<MemoryActionResult<MemoryDashboardData>> {
+  const user = await requireCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  const deleted = await memoryService.deleteMemory(user.id, memoryId);
+
+  if (!deleted) {
+    return { ok: false, message: "Memory was not found." };
+  }
 
   return {
     ok: true,

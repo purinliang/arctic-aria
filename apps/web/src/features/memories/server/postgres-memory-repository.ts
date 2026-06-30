@@ -3,6 +3,10 @@ import { getSql } from "../../../server/database/neon.ts";
 import {
   getDefaultMemoryCategories,
   type CancelPinnedMemoryInput,
+  type CreateMemoryCategoryInput,
+  type CreateMemoryInput,
+  type DeleteMemoryCategoryInput,
+  type DeleteMemoryInput,
   type CompletePinnedMemoryInput,
   type MemoryCategoryName,
   type MemoryCategoryRecord,
@@ -10,6 +14,8 @@ import {
   type MemoryRepository,
   type PinnedMemoryRecord,
   type ReplacePinnedMemoryInput,
+  type UpdateMemoryCategoryInput,
+  type UpdateMemoryInput,
 } from "./memory-repository.ts";
 
 type MemoryCategoryRow = {
@@ -186,6 +192,61 @@ export class PostgresMemoryRepository implements MemoryRepository {
     return rows.map(mapCategory);
   }
 
+  async listCategories(userId: string) {
+    await this.ensureDefaultCategories(userId);
+
+    const rows = (await this.getSql()`
+      SELECT id, user_id, name, base_weight, created_at, updated_at
+      FROM memory_categories
+      WHERE user_id = ${userId}
+      ORDER BY name
+    `) as MemoryCategoryRow[];
+
+    return rows.map(mapCategory);
+  }
+
+  async createCategory(input: CreateMemoryCategoryInput) {
+    const rows = (await this.getSql()`
+      INSERT INTO memory_categories (user_id, name, base_weight, created_at, updated_at)
+      VALUES (
+        ${input.userId},
+        ${input.name},
+        ${input.baseWeight},
+        ${input.occurredAt},
+        ${input.occurredAt}
+      )
+      RETURNING id, user_id, name, base_weight, created_at, updated_at
+    `) as MemoryCategoryRow[];
+
+    return mapCategory(rows[0]);
+  }
+
+  async updateCategory(input: UpdateMemoryCategoryInput) {
+    const rows = (await this.getSql()`
+      UPDATE memory_categories
+      SET
+        name = ${input.name},
+        base_weight = ${input.baseWeight},
+        updated_at = ${input.occurredAt}
+      WHERE id = ${input.categoryId}
+        AND user_id = ${input.userId}
+      RETURNING id, user_id, name, base_weight, created_at, updated_at
+    `) as MemoryCategoryRow[];
+
+    return rows[0] ? mapCategory(rows[0]) : null;
+  }
+
+  async deleteCategory(input: DeleteMemoryCategoryInput) {
+    const rows = (await this.getSql()`
+      DELETE FROM memory_categories
+      WHERE id = ${input.categoryId}
+        AND user_id = ${input.userId}
+      RETURNING id
+    `) as Array<{ id: string }>;
+
+    return rows.length > 0;
+  }
+
   async listMemories(userId: string) {
     const rows = (await this.getSql().query(
       `${memorySelect}
@@ -195,6 +256,83 @@ export class PostgresMemoryRepository implements MemoryRepository {
     )) as MemoryRow[];
 
     return rows.map(mapMemory);
+  }
+
+  async createMemory(input: CreateMemoryInput) {
+    const rows = (await this.getSql().query(
+      `WITH inserted AS (
+         INSERT INTO memories (
+           user_id,
+           category_id,
+           title,
+           description,
+           created_at,
+           updated_at
+         )
+         SELECT $1, memory_categories.id, $3, $4, $5, $5
+         FROM memory_categories
+         WHERE memory_categories.id = $2
+           AND memory_categories.user_id = $1
+         RETURNING id
+       )
+       ${memorySelect}
+       INNER JOIN inserted ON inserted.id = memories.id`,
+      [
+        input.userId,
+        input.categoryId,
+        input.title,
+        input.description,
+        input.occurredAt,
+      ],
+    )) as MemoryRow[];
+
+    return rows[0] ? mapMemory(rows[0]) : null;
+  }
+
+  async updateMemory(input: UpdateMemoryInput) {
+    const rows = (await this.getSql().query(
+      `WITH target_category AS (
+         SELECT id
+         FROM memory_categories
+         WHERE id = $3
+           AND user_id = $1
+       ),
+       updated AS (
+         UPDATE memories
+         SET
+           category_id = target_category.id,
+           title = $4,
+           description = $5,
+           updated_at = $6
+         FROM target_category
+         WHERE id = $2
+           AND memories.user_id = $1
+         RETURNING id
+       )
+       ${memorySelect}
+       INNER JOIN updated ON updated.id = memories.id`,
+      [
+        input.userId,
+        input.memoryId,
+        input.categoryId,
+        input.title,
+        input.description,
+        input.occurredAt,
+      ],
+    )) as MemoryRow[];
+
+    return rows[0] ? mapMemory(rows[0]) : null;
+  }
+
+  async deleteMemory(input: DeleteMemoryInput) {
+    const rows = (await this.getSql()`
+      DELETE FROM memories
+      WHERE id = ${input.memoryId}
+        AND user_id = ${input.userId}
+      RETURNING id
+    `) as Array<{ id: string }>;
+
+    return rows.length > 0;
   }
 
   async listPinnedMemories(userId: string) {

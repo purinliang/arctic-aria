@@ -50,6 +50,78 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
       return memories.listMemories(userId);
     },
 
+    async listMemoryCategories(userId: string) {
+      return memories.listCategories(userId);
+    },
+
+    async createCategory(userId: string, name: string, baseWeight: number) {
+      return memories.createCategory({
+        userId,
+        name,
+        baseWeight,
+        occurredAt: now(),
+      });
+    },
+
+    async updateCategory(
+      userId: string,
+      categoryId: string,
+      name: string,
+      baseWeight: number,
+    ) {
+      return memories.updateCategory({
+        userId,
+        categoryId,
+        name,
+        baseWeight,
+        occurredAt: now(),
+      });
+    },
+
+    async deleteCategory(userId: string, categoryId: string) {
+      return memories.deleteCategory({ userId, categoryId });
+    },
+
+    async createMemory(
+      userId: string,
+      categoryId: string,
+      title: string,
+      description: string,
+    ) {
+      return memories.createMemory({
+        userId,
+        categoryId,
+        title,
+        description,
+        occurredAt: now(),
+      });
+    },
+
+    async updateMemory(
+      userId: string,
+      memoryId: string,
+      categoryId: string,
+      title: string,
+      description: string,
+    ) {
+      return memories.updateMemory({
+        userId,
+        memoryId,
+        categoryId,
+        title,
+        description,
+        occurredAt: now(),
+      });
+    },
+
+    async deleteMemory(userId: string, memoryId: string) {
+      return memories.deleteMemory({
+        userId,
+        memoryId,
+        occurredAt: now(),
+      });
+    },
+
     async listDashboardPinnedMemories(userId: string) {
       await memories.ensureDefaultCategories(userId);
       const pinnedMemories = await memories.listPinnedMemories(userId);

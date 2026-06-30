@@ -6,9 +6,15 @@ import type { AuthUser } from "@/features/auth/server/auth-service";
 import {
   cancelPinnedMemoryDone,
   completePinnedMemory,
+  deleteMemory,
+  deleteMemoryCategory,
   getMemoryDashboardData,
   replacePinnedMemory,
+  saveMemory,
+  saveMemoryCategory,
+  type MemoryCategoryInput,
   type MemoryDashboardData,
+  type MemoryInput,
   type MemoryActionResult,
 } from "@/features/memories/actions";
 import {
@@ -19,6 +25,7 @@ import {
 } from "../dummy-data";
 import type {
   DashboardView,
+  MemoryCategoryOption,
   MemoryRecord,
   PinnedMemory,
   Routine,
@@ -75,6 +82,9 @@ export function Dashboard({
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [routines, setRoutines] = useState<Routine[]>(initialRoutines);
   const [pinnedMemories, setPinnedMemories] = useState<PinnedMemory[]>([]);
+  const [memoryCategories, setMemoryCategories] = useState<
+    MemoryCategoryOption[]
+  >([]);
   const [memoryRecords, setMemoryRecords] = useState<MemoryRecord[]>([]);
   const [memoryLoading, setMemoryLoading] = useState(true);
   const [memoryMessage, setMemoryMessage] = useState<string | null>(null);
@@ -95,6 +105,7 @@ export function Dashboard({
   const applyMemoryData = useCallback(
     (data: MemoryDashboardData, nextExpandedMemoryId?: string | null) => {
       setPinnedMemories(data.pinnedMemories);
+      setMemoryCategories(data.categories);
       setMemoryRecords(data.memoryRecords);
       setExpandedMemoryId((current) => {
         if (nextExpandedMemoryId !== undefined) {
@@ -120,6 +131,7 @@ export function Dashboard({
     if (!result.ok) {
       setMemoryMessage(result.message);
       setPinnedMemories([]);
+      setMemoryCategories([]);
       setMemoryRecords([]);
       setExpandedMemoryId(null);
       setMemoryLoading(false);
@@ -207,6 +219,20 @@ export function Dashboard({
     });
   }
 
+  function runMemoryManagementAction(action: MemoryDataAction) {
+    setMemoryMessage(null);
+    startMemoryAction(async () => {
+      const result = await action();
+
+      if (!result.ok) {
+        setMemoryMessage(result.message);
+        return;
+      }
+
+      applyMemoryData(result.data);
+    });
+  }
+
   function markMemoryDone(pinnedMemoryId: string) {
     runMemoryAction(
       () => completePinnedMemory(pinnedMemoryId),
@@ -232,6 +258,22 @@ export function Dashboard({
     setSelectedMemoryId(memoryId);
     setActiveView("memories");
     setSidebarOpen(false);
+  }
+
+  function saveMemoryFromPage(input: MemoryInput) {
+    runMemoryManagementAction(() => saveMemory(input));
+  }
+
+  function deleteMemoryFromPage(memoryId: string) {
+    runMemoryManagementAction(() => deleteMemory(memoryId));
+  }
+
+  function saveCategoryFromPage(input: MemoryCategoryInput) {
+    runMemoryManagementAction(() => saveMemoryCategory(input));
+  }
+
+  function deleteCategoryFromPage(categoryId: string) {
+    runMemoryManagementAction(() => deleteMemoryCategory(categoryId));
   }
 
   function openReview() {
@@ -321,10 +363,16 @@ export function Dashboard({
         {activeView === "memories" ? (
           <MemoriesPage
             darkMode={darkMode}
+            categories={memoryCategories}
             memoryRecords={memoryRecords}
             loading={memoryLoading}
+            pending={memoryActionPending}
             message={memoryMessage}
             selectedMemoryId={selectedMemoryId}
+            onMemorySave={saveMemoryFromPage}
+            onMemoryDelete={deleteMemoryFromPage}
+            onCategorySave={saveCategoryFromPage}
+            onCategoryDelete={deleteCategoryFromPage}
           />
         ) : (
           <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">

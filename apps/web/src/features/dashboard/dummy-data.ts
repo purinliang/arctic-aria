@@ -242,6 +242,7 @@ export const memoryReplacementPool: PinnedMemory[] = [
 export const memoryRecords: MemoryRecord[] = [
   {
     id: "memory-1",
+    categoryId: "category-cuisine",
     category: "Cuisine",
     title: "Handmade Shin Ramyun",
     description: "Soft egg, green onion, and a small cheese slice at home.",
@@ -251,6 +252,7 @@ export const memoryRecords: MemoryRecord[] = [
   },
   {
     id: "memory-2",
+    categoryId: "category-cuisine",
     category: "Cuisine",
     title: "Corner Dumpling House",
     description: "Pan-fried pork dumplings with a quiet late lunch window.",
@@ -260,6 +262,7 @@ export const memoryRecords: MemoryRecord[] = [
   },
   {
     id: "memory-5",
+    categoryId: "category-cuisine",
     category: "Cuisine",
     title: "Bakery melon pan",
     description: "Buy one fresh pastry and sit near the window for tea.",
@@ -269,6 +272,7 @@ export const memoryRecords: MemoryRecord[] = [
   },
   {
     id: "memory-6",
+    categoryId: "category-cuisine",
     category: "Cuisine",
     title: "Cold soba lunch",
     description: "Simple noodles, dipping sauce, and cucumber on a warm day.",
@@ -278,6 +282,7 @@ export const memoryRecords: MemoryRecord[] = [
   },
   {
     id: "memory-3",
+    categoryId: "category-sightseeing",
     category: "Sightseeing",
     title: "Harbour sunset walk",
     description: "Short waterside route with a clear view after dinner.",
@@ -287,6 +292,7 @@ export const memoryRecords: MemoryRecord[] = [
   },
   {
     id: "memory-4",
+    categoryId: "category-sightseeing",
     category: "Sightseeing",
     title: "Museum sketch corner",
     description: "Slow visit, one exhibit, then ten minutes of notes.",
@@ -296,6 +302,7 @@ export const memoryRecords: MemoryRecord[] = [
   },
   {
     id: "memory-7",
+    categoryId: "category-sightseeing",
     category: "Sightseeing",
     title: "Botanic garden loop",
     description: "One gentle loop, fern house, and a bench break.",
@@ -305,6 +312,7 @@ export const memoryRecords: MemoryRecord[] = [
   },
   {
     id: "memory-8",
+    categoryId: "category-sightseeing",
     category: "Sightseeing",
     title: "Bookshop lane",
     description: "Browse one shelf, pick a postcard, and leave before crowded.",

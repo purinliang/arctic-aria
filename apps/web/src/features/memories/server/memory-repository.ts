@@ -73,9 +73,52 @@ export type ReplacePinnedMemoryInput = {
   visibleUntil: Date;
 };
 
+export type CreateMemoryCategoryInput = {
+  userId: string;
+  name: string;
+  baseWeight: number;
+  occurredAt: Date;
+};
+
+export type UpdateMemoryCategoryInput = CreateMemoryCategoryInput & {
+  categoryId: string;
+};
+
+export type DeleteMemoryCategoryInput = {
+  userId: string;
+  categoryId: string;
+};
+
+export type CreateMemoryInput = {
+  userId: string;
+  categoryId: string;
+  title: string;
+  description: string;
+  occurredAt: Date;
+};
+
+export type UpdateMemoryInput = CreateMemoryInput & {
+  memoryId: string;
+};
+
+export type DeleteMemoryInput = {
+  userId: string;
+  memoryId: string;
+  occurredAt: Date;
+};
+
 export type MemoryRepository = {
   ensureDefaultCategories(userId: string): Promise<MemoryCategoryRecord[]>;
+  listCategories(userId: string): Promise<MemoryCategoryRecord[]>;
+  createCategory(input: CreateMemoryCategoryInput): Promise<MemoryCategoryRecord>;
+  updateCategory(
+    input: UpdateMemoryCategoryInput,
+  ): Promise<MemoryCategoryRecord | null>;
+  deleteCategory(input: DeleteMemoryCategoryInput): Promise<boolean>;
   listMemories(userId: string): Promise<MemoryRecord[]>;
+  createMemory(input: CreateMemoryInput): Promise<MemoryRecord | null>;
+  updateMemory(input: UpdateMemoryInput): Promise<MemoryRecord | null>;
+  deleteMemory(input: DeleteMemoryInput): Promise<boolean>;
   listPinnedMemories(userId: string): Promise<PinnedMemoryRecord[]>;
   completePinnedMemory(
     input: CompletePinnedMemoryInput,
@@ -148,6 +191,129 @@ export class InMemoryMemoryRepository implements MemoryRepository {
 
   async listMemories(userId: string) {
     return this.memories.filter((memory) => memory.userId === userId);
+  }
+
+  async listCategories(userId: string) {
+    await this.ensureDefaultCategories(userId);
+
+    return this.categories.filter((category) => category.userId === userId);
+  }
+
+  async createCategory(input: CreateMemoryCategoryInput) {
+    const category: MemoryCategoryRecord = {
+      id: crypto.randomUUID(),
+      userId: input.userId,
+      name: input.name,
+      baseWeight: input.baseWeight,
+      createdAt: input.occurredAt,
+      updatedAt: input.occurredAt,
+    };
+
+    this.categories.push(category);
+
+    return category;
+  }
+
+  async updateCategory(input: UpdateMemoryCategoryInput) {
+    const category = this.categories.find(
+      (current) =>
+        current.userId === input.userId && current.id === input.categoryId,
+    );
+
+    if (!category) {
+      return null;
+    }
+
+    category.name = input.name;
+    category.baseWeight = input.baseWeight;
+    category.updatedAt = input.occurredAt;
+
+    return category;
+  }
+
+  async deleteCategory(input: DeleteMemoryCategoryInput) {
+    if (
+      this.memories.some(
+        (memory) =>
+          memory.userId === input.userId && memory.categoryId === input.categoryId,
+      )
+    ) {
+      return false;
+    }
+
+    const before = this.categories.length;
+    this.categories = this.categories.filter(
+      (category) =>
+        category.userId !== input.userId || category.id !== input.categoryId,
+    );
+
+    return this.categories.length !== before;
+  }
+
+  async createMemory(input: CreateMemoryInput) {
+    const category = this.categories.find(
+      (current) =>
+        current.userId === input.userId && current.id === input.categoryId,
+    );
+
+    if (!category) {
+      return null;
+    }
+
+    const memory: MemoryRecord = {
+      id: crypto.randomUUID(),
+      userId: input.userId,
+      categoryId: input.categoryId,
+      categoryName: category.name,
+      title: input.title,
+      description: input.description,
+      lastDoneAt: null,
+      doneCount: 0,
+      lastPinnedAt: null,
+      lastIgnoredAt: null,
+      createdAt: input.occurredAt,
+      updatedAt: input.occurredAt,
+    };
+
+    this.memories.push(memory);
+
+    return memory;
+  }
+
+  async updateMemory(input: UpdateMemoryInput) {
+    const memory = this.memories.find(
+      (current) => current.userId === input.userId && current.id === input.memoryId,
+    );
+    const category = this.categories.find(
+      (current) =>
+        current.userId === input.userId && current.id === input.categoryId,
+    );
+
+    if (!memory || !category) {
+      return null;
+    }
+
+    memory.categoryId = input.categoryId;
+    memory.categoryName = category.name;
+    memory.title = input.title;
+    memory.description = input.description;
+    memory.updatedAt = input.occurredAt;
+
+    return memory;
+  }
+
+  async deleteMemory(input: DeleteMemoryInput) {
+    const before = this.memories.length;
+    this.memories = this.memories.filter(
+      (memory) => memory.userId !== input.userId || memory.id !== input.memoryId,
+    );
+    this.pinnedMemories = this.pinnedMemories.filter(
+      (memory) =>
+        memory.userId !== input.userId || memory.memoryId !== input.memoryId,
+    );
+    this.recordEvent(input.userId, input.memoryId, "deleted", input.occurredAt);
+
+    return this.memories.length !== before;
   }
 
   async listPinnedMemories(userId: string) {
