@@ -2,6 +2,7 @@ import {
   Bell,
   ClipboardList,
   LayoutDashboard,
+  Library,
   Moon,
   Settings,
   Sun,
@@ -84,6 +85,11 @@ export function Sidebar({
           <SidebarItem
             icon={<Bell size={18} aria-hidden="true" />}
             label="Routines"
+            darkMode={darkMode}
+          />
+          <SidebarItem
+            icon={<Library size={18} aria-hidden="true" />}
+            label="Memories"
             darkMode={darkMode}
           />
           <SidebarItem

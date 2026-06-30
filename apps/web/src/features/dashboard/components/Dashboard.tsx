@@ -1,15 +1,24 @@
 "use client";
 
-import { Bell, Check, ListChecks, LogOut, Menu } from "lucide-react";
+import { Bell, Check, ListChecks, LogOut, Menu, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import {
   dayBoundary,
+  initialPinnedMemories,
   initialRoutines,
   initialTasks,
+  memoryReplacementPool,
   rewardPreview,
 } from "../dummy-data";
-import type { Routine, RoutineStatus, Task, TaskStatus } from "../types";
+import type {
+  PinnedMemory,
+  Routine,
+  RoutineStatus,
+  Task,
+  TaskStatus,
+} from "../types";
+import { PinnedMemoryCard } from "./PinnedMemoryCard";
 import { ReviewDialog } from "./ReviewDialog";
 import { RoutineCard } from "./RoutineCard";
 import { SectionHeader } from "./SectionHeader";
@@ -52,6 +61,8 @@ export function Dashboard({
 }) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [routines, setRoutines] = useState<Routine[]>(initialRoutines);
+  const [pinnedMemories, setPinnedMemories] =
+    useState<PinnedMemory[]>(initialPinnedMemories);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewCount, setReviewCount] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -115,6 +126,40 @@ export function Dashboard({
         routine.id === routineId ? { ...routine, status } : routine,
       ),
     );
+  }
+
+  function markMemoryDone(memoryId: string) {
+    setPinnedMemories((current) =>
+      current.map((memory) =>
+        memory.id === memoryId ? { ...memory, status: "completed" } : memory,
+      ),
+    );
+  }
+
+  function replaceMemory(memoryId: string) {
+    setPinnedMemories((current) => {
+      const target = current.find((memory) => memory.id === memoryId);
+
+      if (!target) {
+        return current;
+      }
+
+      const candidates = memoryReplacementPool.filter(
+        (memory) =>
+          memory.category === target.category &&
+          !current.some((currentMemory) => currentMemory.id === memory.id),
+      );
+
+      if (candidates.length === 0) {
+        return current;
+      }
+
+      const [replacement] = candidates;
+
+      return current.map((memory) =>
+        memory.id === memoryId ? { ...replacement, status: "active" } : memory,
+      );
+    });
   }
 
   function openReview() {
@@ -229,34 +274,64 @@ export function Dashboard({
             </div>
           </section>
 
-          <section className={`rounded-md border ${panelClass(darkMode)}`}>
-            <SectionHeader
-              icon={<Bell size={18} aria-hidden="true" />}
-              title="Routines"
-              meta={`${routines.length} scheduled`}
-              darkMode={darkMode}
-            />
-            <div
-              className={
-                darkMode ? "divide-y divide-neutral-900" : "divide-y divide-slate-200"
-              }
-            >
-              {routines.map((routine) => (
-                <RoutineCard
-                  key={routine.id}
-                  routine={routine}
-                  darkMode={darkMode}
-                  expanded={expandedRoutineId === routine.id}
-                  onToggleExpanded={() =>
-                    setExpandedRoutineId((current) =>
-                      current === routine.id ? null : routine.id,
-                    )
-                  }
-                  onStatusChange={(status) => updateRoutine(routine.id, status)}
-                />
-              ))}
-            </div>
-          </section>
+          <aside className="grid gap-4">
+            <section className={`rounded-md border ${panelClass(darkMode)}`}>
+              <SectionHeader
+                icon={<Bell size={18} aria-hidden="true" />}
+                title="Routines"
+                meta={`${routines.length} scheduled`}
+                darkMode={darkMode}
+              />
+              <div
+                className={
+                  darkMode
+                    ? "divide-y divide-neutral-900"
+                    : "divide-y divide-slate-200"
+                }
+              >
+                {routines.map((routine) => (
+                  <RoutineCard
+                    key={routine.id}
+                    routine={routine}
+                    darkMode={darkMode}
+                    expanded={expandedRoutineId === routine.id}
+                    onToggleExpanded={() =>
+                      setExpandedRoutineId((current) =>
+                        current === routine.id ? null : routine.id,
+                      )
+                    }
+                    onStatusChange={(status) => updateRoutine(routine.id, status)}
+                  />
+                ))}
+              </div>
+            </section>
+
+            <section className={`rounded-md border ${panelClass(darkMode)}`}>
+              <SectionHeader
+                icon={<Sparkles size={18} aria-hidden="true" />}
+                title="Pinned Memories"
+                meta={`${pinnedMemories.length} saved`}
+                darkMode={darkMode}
+              />
+              <div
+                className={
+                  darkMode
+                    ? "divide-y divide-neutral-900"
+                    : "divide-y divide-slate-200"
+                }
+              >
+                {pinnedMemories.map((memory) => (
+                  <PinnedMemoryCard
+                    key={memory.id}
+                    memory={memory}
+                    darkMode={darkMode}
+                    onDone={() => markMemoryDone(memory.id)}
+                    onReplace={() => replaceMemory(memory.id)}
+                  />
+                ))}
+              </div>
+            </section>
+          </aside>
         </section>
       </div>
 

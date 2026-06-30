@@ -1,4 +1,4 @@
-import type { RewardPreview, Routine, Task } from "./types";
+import type { PinnedMemory, RewardPreview, Routine, Task } from "./types";
 
 export const dayBoundary = "04:00";
 
@@ -144,6 +144,76 @@ export const initialRoutines: Routine[] = [
     scheduledTime: "22:45",
     status: "pending",
     streakText: "Flexible window",
+  },
+];
+
+export const initialPinnedMemories: PinnedMemory[] = [
+  {
+    id: "memory-1",
+    category: "Cuisine",
+    title: "Handmade Shin Ramyun",
+    description: "Soft egg, green onion, and a small cheese slice at home.",
+    meta: "Pinned 2 days ago",
+    status: "active",
+  },
+  {
+    id: "memory-2",
+    category: "Cuisine",
+    title: "Corner Dumpling House",
+    description: "Pan-fried pork dumplings with a quiet late lunch window.",
+    meta: "Last done 18 days ago",
+    status: "active",
+  },
+  {
+    id: "memory-3",
+    category: "Sightseeing",
+    title: "Harbour sunset walk",
+    description: "Short waterside route with a clear view after dinner.",
+    meta: "Pinned yesterday",
+    status: "active",
+  },
+  {
+    id: "memory-4",
+    category: "Sightseeing",
+    title: "Museum sketch corner",
+    description: "Slow visit, one exhibit, then ten minutes of notes.",
+    meta: "Last done 41 days ago",
+    status: "active",
+  },
+];
+
+export const memoryReplacementPool: PinnedMemory[] = [
+  {
+    id: "memory-5",
+    category: "Cuisine",
+    title: "Bakery melon pan",
+    description: "Buy one fresh pastry and sit near the window for tea.",
+    meta: "Suggested from Cuisine",
+    status: "active",
+  },
+  {
+    id: "memory-6",
+    category: "Cuisine",
+    title: "Cold soba lunch",
+    description: "Simple noodles, dipping sauce, and cucumber on a warm day.",
+    meta: "Last done 24 days ago",
+    status: "active",
+  },
+  {
+    id: "memory-7",
+    category: "Sightseeing",
+    title: "Botanic garden loop",
+    description: "One gentle loop, fern house, and a bench break.",
+    meta: "Suggested from Sightseeing",
+    status: "active",
+  },
+  {
+    id: "memory-8",
+    category: "Sightseeing",
+    title: "Bookshop lane",
+    description: "Browse one shelf, pick a postcard, and leave before crowded.",
+    meta: "Last done 33 days ago",
+    status: "active",
   },
 ];
 

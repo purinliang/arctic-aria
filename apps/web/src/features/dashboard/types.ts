@@ -32,6 +32,19 @@ export type Routine = {
   streakText: string;
 };
 
+export type MemoryCategory = "Cuisine" | "Sightseeing";
+
+export type PinnedMemoryStatus = "active" | "completed";
+
+export type PinnedMemory = {
+  id: string;
+  category: MemoryCategory;
+  title: string;
+  description: string;
+  meta: string;
+  status: PinnedMemoryStatus;
+};
+
 export type ChestItemRarity =
   | "Legendary"
   | "Epic"
