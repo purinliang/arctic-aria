@@ -254,6 +254,14 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
       });
     },
 
+    async cancelSuggestedPin(userId: string, memoryId: string) {
+      return memories.unpinMemory({
+        userId,
+        memoryId,
+        occurredAt: now(),
+      });
+    },
+
     async listDashboardPinnedMemories(userId: string) {
       await memories.ensureDefaultCategories(userId);
       const pinnedMemories = await memories.listPinnedMemories(userId);

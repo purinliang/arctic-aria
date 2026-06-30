@@ -24,6 +24,11 @@ export type MemorySuggestionActionData = {
   dashboardData: MemoryDashboardData;
 };
 
+export type MemorySuggestionRefreshData = {
+  suggestions: MemorySuggestion[];
+  dashboardData: MemoryDashboardData;
+};
+
 export type MemoryCategoryInput = {
   id?: string;
   name: string;
@@ -389,8 +394,10 @@ export async function deleteMemory(
   };
 }
 
-export async function refreshMemorySuggestions(): Promise<
-  MemoryActionResult<MemorySuggestion[]>
+export async function refreshMemorySuggestions(
+  ignoredMemoryIds: string[] = [],
+): Promise<
+  MemoryActionResult<MemorySuggestionRefreshData>
 > {
   const user = await requireCurrentUser();
 
@@ -398,11 +405,20 @@ export async function refreshMemorySuggestions(): Promise<
     return unauthorizedResult();
   }
 
+  await Promise.all(
+    Array.from(new Set(ignoredMemoryIds)).map((memoryId) =>
+      memoryService.ignoreSuggestedMemory(user.id, memoryId),
+    ),
+  );
+
   const suggestions = await memoryService.suggestMemories(user.id);
 
   return {
     ok: true,
-    data: suggestions.map(toMemorySuggestion),
+    data: {
+      suggestions: suggestions.map(toMemorySuggestion),
+      dashboardData: await loadMemoryDashboardData(user.id),
+    },
   };
 }
 
@@ -447,6 +463,32 @@ export async function ignoreMemorySuggestion(
     return {
       ok: false,
       message: "Memory was not found.",
+    };
+  }
+
+  return {
+    ok: true,
+    data: {
+      dashboardData: await loadMemoryDashboardData(user.id),
+    },
+  };
+}
+
+export async function cancelPinnedMemorySuggestion(
+  memoryId: string,
+): Promise<MemoryActionResult<MemorySuggestionActionData>> {
+  const user = await requireCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  const canceled = await memoryService.cancelSuggestedPin(user.id, memoryId);
+
+  if (!canceled) {
+    return {
+      ok: false,
+      message: "Pinned memory was not found.",
     };
   }
 

@@ -295,3 +295,34 @@ test("pin suggested memory appends a same-category dashboard pin", async () => {
   assert.equal(result.status, "active");
   assert.equal(repository.getEvents()[0]?.eventType, "pinned");
 });
+
+test("cancel suggested pin removes the dashboard pin", async () => {
+  const repository = new InMemoryMemoryRepository({
+    categories,
+    memories: [
+      memory({
+        id: "memory-1",
+        categoryId: "category-cuisine",
+        title: "Ramen",
+      }),
+    ],
+    pinnedMemories: [
+      pinnedMemory({
+        id: "pin-1",
+        memoryId: "memory-1",
+        categoryId: "category-cuisine",
+        title: "Ramen",
+      }),
+    ],
+  });
+  const service = createMemoryService({
+    memories: repository,
+    now: () => now,
+  });
+
+  const result = await service.cancelSuggestedPin(userId, "memory-1");
+
+  assert.equal(result, true);
+  assert.equal((await repository.listPinnedMemories(userId)).length, 0);
+  assert.equal(repository.getEvents()[0]?.eventType, "unpinned");
+});

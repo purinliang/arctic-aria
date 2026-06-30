@@ -16,6 +16,7 @@ import {
   type PinMemoryInput,
   type PinnedMemoryRecord,
   type ReplacePinnedMemoryInput,
+  type UnpinMemoryInput,
   type UpdateMemoryCategoryInput,
   type UpdateMemoryInput,
 } from "./memory-repository.ts";
@@ -431,6 +432,26 @@ export class PostgresMemoryRepository implements MemoryRepository {
       )
       SELECT id FROM updated_memory
     `) as Array<{ id: string }>;
+
+    return rows.length > 0;
+  }
+
+  async unpinMemory(input: UnpinMemoryInput) {
+    const rows = (await this.getSql()`
+      WITH deleted_pin AS (
+        DELETE FROM pinned_memories
+        WHERE user_id = ${input.userId}
+          AND memory_id = ${input.memoryId}
+        RETURNING user_id, memory_id
+      ),
+      event AS (
+        INSERT INTO memory_events (user_id, memory_id, event_type, occurred_at)
+        SELECT user_id, memory_id, 'unpinned', ${input.occurredAt}
+        FROM deleted_pin
+        RETURNING id
+      )
+      SELECT memory_id FROM deleted_pin
+    `) as Array<{ memory_id: string }>;
 
     return rows.length > 0;
   }

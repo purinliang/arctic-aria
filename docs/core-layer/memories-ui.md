@@ -51,40 +51,40 @@ The page should allow the user to:
 - manage categories
 - refresh suggested memories
 
-## Title Section
+### Title Section
 
 The title section is at the top of the Memories page.
 
 Layout:
 
 - Left side: Lucide `ClipboardList` icon, title, and description.
-- Right side: `Add` button with a plus icon.
+- Right side: `Add Memory` button with a plus icon.
 - The title text is `Memories`.
 - The description text is `Saved experiences to revisit when the day needs a gentle option.`
 
 Do not put category chips in this section.
 
-## Categories Section
+### Categories Section
 
 The categories section appears below the title section and above the memory
 list.
 
 Layout:
 
-- Show the label `Categories:`.
+- Show the text `Categories:`, which is the same font size as category buttons.
 - Show filter tags starting with `All`, followed by user categories such as
   `Cuisine`.
 - If there are too many categories, the filter tags should wrap onto multiple
   lines.
-- At the end of the category row, show a plus icon and text `Add a new category`.
+- At the end of the category row, show a plus icon and text `Add Category`.
 
 Click behavior:
 
 - Clicking a category tag filters the memory list.
 - Clicking `All` removes the category filter.
-- Clicking `Add a new category` opens category management.
+- Clicking `Add Category` opens category management.
 
-## Memory List Section
+### Memory List Section
 
 The memory list is vertical.
 
@@ -165,7 +165,7 @@ Layout:
 - Use the Lucide `Lightbulb` icon.
 - The title text can be `Suggestions`.
 - The description should explain the panel, for example:
-  `Suggestions to reexperience today or in the next few days.`
+  `Suggestions to reexperience in the next few days.`
 - Show a `Refresh` button in the panel title section.
 
 ### List Section

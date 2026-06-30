@@ -115,6 +115,12 @@ export type PinMemoryInput = {
   visibleUntil: Date;
 };
 
+export type UnpinMemoryInput = {
+  userId: string;
+  memoryId: string;
+  occurredAt: Date;
+};
+
 export type IgnoreMemoryInput = {
   userId: string;
   memoryId: string;
@@ -134,6 +140,7 @@ export type MemoryRepository = {
   updateMemory(input: UpdateMemoryInput): Promise<MemoryRecord | null>;
   deleteMemory(input: DeleteMemoryInput): Promise<boolean>;
   pinMemory(input: PinMemoryInput): Promise<PinnedMemoryRecord | null>;
+  unpinMemory(input: UnpinMemoryInput): Promise<boolean>;
   ignoreMemory(input: IgnoreMemoryInput): Promise<boolean>;
   listPinnedMemories(userId: string): Promise<PinnedMemoryRecord[]>;
   completePinnedMemory(
@@ -381,6 +388,22 @@ export class InMemoryMemoryRepository implements MemoryRepository {
     memory.lastIgnoredAt = input.occurredAt;
     memory.updatedAt = input.occurredAt;
     this.recordEvent(input.userId, input.memoryId, "ignored", input.occurredAt);
+
+    return true;
+  }
+
+  async unpinMemory(input: UnpinMemoryInput) {
+    const before = this.pinnedMemories.length;
+    this.pinnedMemories = this.pinnedMemories.filter(
+      (memory) =>
+        memory.userId !== input.userId || memory.memoryId !== input.memoryId,
+    );
+
+    if (this.pinnedMemories.length === before) {
+      return false;
+    }
+
+    this.recordEvent(input.userId, input.memoryId, "unpinned", input.occurredAt);
 
     return true;
   }

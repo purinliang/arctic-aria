@@ -1,10 +1,12 @@
 import {
+  ChevronDown,
   ClipboardList,
   Edit3,
-  Eye,
+  Lightbulb,
+  Pin,
+  PinOff,
   Plus,
   RefreshCw,
-  SlidersHorizontal,
   Trash2,
   X,
 } from "lucide-react";
@@ -98,12 +100,14 @@ export function MemoriesPage({
   onCategoryDelete,
   onSuggestionsRefresh,
   onSuggestionPin,
-  onSuggestionIgnore,
+  onSuggestionCancel,
+  pinnedSuggestionIds,
 }: {
   darkMode: boolean;
   categories: MemoryCategoryOption[];
   memoryRecords: MemoryRecord[];
   suggestions: MemorySuggestion[];
+  pinnedSuggestionIds: string[];
   loading: boolean;
   pending: boolean;
   suggestionLoading: boolean;
@@ -118,9 +122,12 @@ export function MemoriesPage({
   onCategoryDelete: (categoryId: string) => EditorResult;
   onSuggestionsRefresh: () => Promise<void>;
   onSuggestionPin: (memoryId: string) => SuggestionResult;
-  onSuggestionIgnore: (memoryId: string) => SuggestionResult;
+  onSuggestionCancel: (memoryId: string) => SuggestionResult;
 }) {
   const [filter, setFilter] = useState<MemoryFilter>("All");
+  const [expandedMemoryId, setExpandedMemoryId] = useState<string | null>(
+    selectedMemoryId,
+  );
   const [memoryEditorOpen, setMemoryEditorOpen] = useState(false);
   const [categoryEditorOpen, setCategoryEditorOpen] = useState(false);
   const [memoryDraft, setMemoryDraft] = useState<MemoryInput>({
@@ -228,29 +235,21 @@ export function MemoriesPage({
                 Saved experiences to revisit when the day needs a gentle option.
               </p>
             </div>
-            <div className="flex shrink-0 flex-wrap gap-2">
-              <button
-                className={`flex h-9 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-                type="button"
-                disabled={pending}
-                onClick={openNewMemoryEditor}
-              >
-                <Plus size={15} aria-hidden="true" />
-                Add
-              </button>
-              <button
-                className={`flex h-9 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-                type="button"
-                disabled={pending}
-                onClick={() => setCategoryEditorOpen(true)}
-              >
-                <SlidersHorizontal size={15} aria-hidden="true" />
-                Categories
-              </button>
-            </div>
+            <button
+              className={`flex h-9 shrink-0 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
+              type="button"
+              disabled={pending}
+              onClick={openNewMemoryEditor}
+            >
+              <Plus size={15} aria-hidden="true" />
+              Add Memory
+            </button>
           </div>
 
-          <div className="flex flex-wrap gap-2 px-4 py-3">
+          <div className="flex flex-wrap items-center gap-2 px-4 py-3">
+            <span className={`text-xs font-semibold ${mutedText(darkMode)}`}>
+              Categories:
+            </span>
             {filters.map((item) => (
               <button
                 key={item}
@@ -261,6 +260,15 @@ export function MemoriesPage({
                 {item}
               </button>
             ))}
+            <button
+              className={`flex h-8 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
+              type="button"
+              disabled={pending}
+              onClick={() => setCategoryEditorOpen(true)}
+            >
+              <Plus size={14} aria-hidden="true" />
+              Add Category
+            </button>
           </div>
 
           <div
@@ -295,6 +303,12 @@ export function MemoriesPage({
                 memory={memory}
                 darkMode={darkMode}
                 selected={memory.id === selectedMemoryId}
+                expanded={expandedMemoryId === memory.id}
+                onToggle={() =>
+                  setExpandedMemoryId((current) =>
+                    current === memory.id ? null : memory.id,
+                  )
+                }
                 onEdit={() => openMemoryEditor(memory)}
               />
             ))}
@@ -309,11 +323,11 @@ export function MemoriesPage({
           >
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <RefreshCw size={17} aria-hidden="true" />
+                <Lightbulb size={17} aria-hidden="true" />
                 <h2 className="text-base font-semibold">Suggestions</h2>
               </div>
               <p className={`mt-1 text-sm ${mutedText(darkMode)}`}>
-                Refresh saved memories when you want an option.
+                Suggestions to reexperience in the next few days.
               </p>
             </div>
             <button
@@ -367,8 +381,9 @@ export function MemoriesPage({
                 suggestion={suggestion}
                 darkMode={darkMode}
                 pending={suggestionPending}
+                pinned={pinnedSuggestionIds.includes(suggestion.id)}
                 onPin={() => void onSuggestionPin(suggestion.id)}
-                onIgnore={() => void onSuggestionIgnore(suggestion.id)}
+                onCancel={() => void onSuggestionCancel(suggestion.id)}
               />
             ))}
           </div>
@@ -632,16 +647,20 @@ function MemoryListItem({
   memory,
   darkMode,
   selected,
+  expanded,
+  onToggle,
   onEdit,
 }: {
   memory: MemoryRecord;
   darkMode: boolean;
   selected: boolean;
+  expanded: boolean;
+  onToggle: () => void;
   onEdit: () => void;
 }) {
   return (
     <article
-      className={`grid gap-3 px-4 py-4 ${
+      className={`px-4 py-4 ${
         selected
           ? darkMode
             ? "bg-white/10"
@@ -649,43 +668,59 @@ function MemoryListItem({
           : ""
       }`}
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-semibold">{memory.title}</h3>
-            <span
-              className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${categoryClass(memory.category, darkMode)}`}
-            >
-              {memory.category}
-            </span>
-            {memory.pinned ? (
+      <button
+        className="grid w-full gap-3 text-left"
+        type="button"
+        aria-expanded={expanded}
+        onClick={onToggle}
+      >
+        <div className="flex min-w-0 items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-semibold">{memory.title}</h3>
               <span
-                className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${
-                  darkMode
-                    ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-200"
-                    : "border-emerald-200 bg-emerald-50 text-emerald-700"
-                }`}
+                className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${categoryClass(memory.category, darkMode)}`}
               >
-                Pinned
+                {memory.category}
               </span>
-            ) : null}
+              {memory.pinned ? (
+                <span
+                  className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${
+                    darkMode
+                      ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-200"
+                      : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  }`}
+                >
+                  Pinned
+                </span>
+              ) : null}
+            </div>
+            <p className={`mt-1 text-sm leading-6 ${mutedText(darkMode)}`}>
+              {memory.description}
+            </p>
+            <p className={`mt-2 text-xs ${mutedText(darkMode)}`}>
+              {memory.lastDoneText} · Done {memory.doneCount} times
+            </p>
           </div>
-          <p className={`mt-1 text-sm leading-6 ${mutedText(darkMode)}`}>
-            {memory.description}
-          </p>
-          <p className={`mt-2 text-xs ${mutedText(darkMode)}`}>
-            {memory.lastDoneText} · Done {memory.doneCount} times
-          </p>
+          <ChevronDown
+            className={`mt-1 shrink-0 transition ${expanded ? "rotate-180" : ""}`}
+            size={16}
+            aria-hidden="true"
+          />
         </div>
-        <button
-          className={`flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-          type="button"
-          onClick={onEdit}
-        >
-          <Eye size={15} aria-hidden="true" />
-          Edit
-        </button>
-      </div>
+      </button>
+      {expanded ? (
+        <div className="mt-3 flex justify-end">
+          <button
+            className={`flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
+            type="button"
+            onClick={onEdit}
+          >
+            <Edit3 size={15} aria-hidden="true" />
+            Edit
+          </button>
+        </div>
+      ) : null}
     </article>
   );
 }
@@ -694,14 +729,16 @@ function SuggestionListItem({
   suggestion,
   darkMode,
   pending,
+  pinned,
   onPin,
-  onIgnore,
+  onCancel,
 }: {
   suggestion: MemorySuggestion;
   darkMode: boolean;
   pending: boolean;
+  pinned: boolean;
   onPin: () => void;
-  onIgnore: () => void;
+  onCancel: () => void;
 }) {
   return (
     <article className="px-4 py-4">
@@ -721,20 +758,17 @@ function SuggestionListItem({
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <button
-          className={`h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode, true)}`}
+          className={`flex h-8 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode, !pinned)}`}
           type="button"
           disabled={pending}
-          onClick={onPin}
+          onClick={pinned ? onCancel : onPin}
         >
-          Pin
-        </button>
-        <button
-          className={`h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-          type="button"
-          disabled={pending}
-          onClick={onIgnore}
-        >
-          Ignore
+          {pinned ? (
+            <PinOff size={14} aria-hidden="true" />
+          ) : (
+            <Pin size={14} aria-hidden="true" />
+          )}
+          {pinned ? "Cancel" : "Pin"}
         </button>
       </div>
     </article>

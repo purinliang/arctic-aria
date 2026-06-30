@@ -5,11 +5,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import {
   cancelPinnedMemoryDone,
+  cancelPinnedMemorySuggestion,
   completePinnedMemory,
   deleteMemory,
   deleteMemoryCategory,
   getMemoryDashboardData,
-  ignoreMemorySuggestion,
   pinMemorySuggestion,
   replacePinnedMemory,
   refreshMemorySuggestions,
@@ -101,6 +101,7 @@ export function Dashboard({
   const [suggestionMessage, setSuggestionMessage] = useState<string | null>(
     null,
   );
+  const [pinnedSuggestionIds, setPinnedSuggestionIds] = useState<string[]>([]);
   const [suggestionsRequested, setSuggestionsRequested] = useState(false);
   const [activeView, setActiveView] = useState<DashboardView>("dashboard");
   const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null);
@@ -308,15 +309,22 @@ export function Dashboard({
     setSuggestionLoading(true);
 
     try {
-      const result = await refreshMemorySuggestions();
+      const pinnedSuggestionIdSet = new Set(pinnedSuggestionIds);
+      const ignoredMemoryIds = memorySuggestions
+        .filter((suggestion) => !pinnedSuggestionIdSet.has(suggestion.id))
+        .map((suggestion) => suggestion.id);
+      const result = await refreshMemorySuggestions(ignoredMemoryIds);
 
       if (!result.ok) {
         setSuggestionMessage(result.message);
         setMemorySuggestions([]);
+        setPinnedSuggestionIds([]);
         return;
       }
 
-      setMemorySuggestions(result.data);
+      applyMemoryData(result.data.dashboardData);
+      setMemorySuggestions(result.data.suggestions);
+      setPinnedSuggestionIds([]);
     } finally {
       setSuggestionLoading(false);
     }
@@ -335,8 +343,8 @@ export function Dashboard({
       }
 
       applyMemoryData(result.data.dashboardData);
-      setMemorySuggestions((current) =>
-        current.filter((memory) => memory.id !== memoryId),
+      setPinnedSuggestionIds((current) =>
+        current.includes(memoryId) ? current : [...current, memoryId],
       );
       return true;
     } finally {
@@ -344,12 +352,12 @@ export function Dashboard({
     }
   }
 
-  async function ignoreSuggestionFromPage(memoryId: string) {
+  async function cancelSuggestionPinFromPage(memoryId: string) {
     setSuggestionMessage(null);
     setSuggestionPending(true);
 
     try {
-      const result = await ignoreMemorySuggestion(memoryId);
+      const result = await cancelPinnedMemorySuggestion(memoryId);
 
       if (!result.ok) {
         setSuggestionMessage(result.message);
@@ -357,8 +365,8 @@ export function Dashboard({
       }
 
       applyMemoryData(result.data.dashboardData);
-      setMemorySuggestions((current) =>
-        current.filter((memory) => memory.id !== memoryId),
+      setPinnedSuggestionIds((current) =>
+        current.filter((suggestionId) => suggestionId !== memoryId),
       );
       return true;
     } finally {
@@ -456,6 +464,7 @@ export function Dashboard({
             categories={memoryCategories}
             memoryRecords={memoryRecords}
             suggestions={memorySuggestions}
+            pinnedSuggestionIds={pinnedSuggestionIds}
             loading={memoryLoading}
             pending={memoryActionPending}
             suggestionLoading={suggestionLoading}
@@ -470,7 +479,7 @@ export function Dashboard({
             onCategoryDelete={deleteCategoryFromPage}
             onSuggestionsRefresh={refreshSuggestionsFromPage}
             onSuggestionPin={pinSuggestionFromPage}
-            onSuggestionIgnore={ignoreSuggestionFromPage}
+            onSuggestionCancel={cancelSuggestionPinFromPage}
           />
         ) : (
           <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
