@@ -259,6 +259,9 @@ apps/web/
   src/features/dashboard/components/
 ```
 
+The database-backed Memories page implementation is now tracked separately in
+[memories-implementation.md](memories-implementation.md).
+
 Suggested refactor shape:
 
 - Keep `Dashboard` as the larger stateful component.

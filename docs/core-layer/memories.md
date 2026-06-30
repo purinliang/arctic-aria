@@ -382,3 +382,52 @@ It should allow the user to:
 The Memories page can be opened from the hamburger menu. Its icon should match
 the `Pinned Memories` dashboard section; `ClipboardList` is a reasonable first
 icon.
+
+### Memory Management UI
+
+The Memories page should support direct testing of persisted memory data.
+
+The user must be able to:
+
+- add a memory
+- edit a memory
+- delete a memory
+- add a memory category
+- edit a memory category
+- delete a memory category when it is not used by memories
+
+The add and edit controls should not appear as inline panels inside the memory
+list. Inline panels are hard to distinguish from page content and make it
+unclear whether a save action succeeded.
+
+Use one of these navigation patterns:
+
+- separate add/edit pages or subpages
+- modal dialogs above the current page
+
+For the current web implementation, prefer modal dialogs because they keep the
+user on the Memories page while testing data entry.
+
+Modal behavior:
+
+- Opening `Add` should show an add-memory dialog.
+- Opening `Edit` on a memory should show an edit-memory dialog.
+- Opening `Categories` should show a category-management dialog.
+- The page behind the dialog should be covered by a semi-transparent black
+  overlay.
+- Clicking outside the dialog or pressing a visible close button should dismiss
+  the dialog without saving.
+- The dialog should not be nested inside a page card or list item.
+- The dialog should fit on mobile and scroll internally when content is taller
+  than the viewport.
+
+Save/delete behavior:
+
+- After a successful save or delete, close the active dialog.
+- Refresh the Memories page data immediately after the backend action succeeds.
+- Keep the dialog open and show a clear message if validation or database
+  update fails.
+- Disable action buttons while the backend action is pending so duplicate
+  submits are avoided.
+- Category delete can fail when the category is still used by memories; show the
+  backend message and keep the dialog open.
