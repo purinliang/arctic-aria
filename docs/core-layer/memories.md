@@ -32,7 +32,7 @@ The Memories feature should include:
 - creating and editing lightweight categories
 - manually refreshing suggested memories on the Memories page
 - pinning suggested memories into `Pinned Memories`
-- ignoring suggested memories
+- recording ignored suggestion signals when the user refreshes suggestions
 - unpinning pinned memories
 - marking pinned memories as done
 - canceling a mistaken done action before cleanup
@@ -105,12 +105,12 @@ three to five items.
 The user can:
 
 - pin a suggestion
-- ignore a suggestion
 - manually refresh suggestions
 - open the memory detail page
 
-Pin and ignore actions should be recorded as events for future recommendation
-improvements.
+Pin actions should be recorded as events. When the user refreshes suggestions,
+currently visible suggestions that were not pinned should be treated as ignored
+signals and recorded as `ignored` events for future recommendation improvements.
 
 ### Pinned Memories
 
@@ -251,8 +251,8 @@ Constraints:
 ### Optional Later Tables
 
 The first version can generate suggestions on demand and record only pin,
-ignore, complete, cancel, replace, and delete events. If the suggestion screen
-later needs exact replay or analytics, add:
+refresh-derived ignore, complete, cancel, replace, and delete events. If the
+suggestion screen later needs exact replay or analytics, add:
 
 - `memory_suggestion_runs`
 - `memory_suggestion_items`
@@ -301,7 +301,11 @@ Rules:
   the Memories page instead of a separate suggestion page.
 - Pinning a suggestion changes pin state but does not refresh the whole
   suggestion list automatically.
-- Ignoring a suggestion records an event but does not delete the memory.
+- There is no explicit ignore button in the first UI.
+- When the user clicks refresh, memories that are currently visible as
+  suggestions and have not been pinned should be counted as ignored suggestion
+  signals.
+- Ignoring a suggestion signal records an event but does not delete the memory.
 - Already showing pinned memories should not appear again in suggestions.
 - Ignored memories may reappear in later refreshes, but recent ignores should
   reduce priority when possible.
@@ -338,100 +342,7 @@ Visibility timing:
   cleanup timing.
 - Visibility timing is separate from the 2-hour completed cleanup timing.
 
-## Dashboard
+## UI
 
-The home dashboard should show a compact `Pinned Memories` section. Its icon
-should match the Memories item in the hamburger menu.
-
-For each pinned memory, show:
-
-- title
-- short description
-- category
-
-Clicking or focusing a pinned memory should expand it like the current routine
-cards. Only the expanded state should show:
-
-- done button
-- replace button
-- view button that opens the memory detail page
-
-Clicking the pinned memory again should collapse it.
-
-If the user clicks done, keep the card expanded and show the completed state. If
-the user clicks replace, replace only that one item, keep other positions
-unchanged, and keep the new item expanded.
-
-On dashboard load or reload:
-
-- apply the rules in Pinned Memory Behavior
-- preserve the order of still-active pinned memories
-- fill empty slots by appending new pinned memories at the end of the category
-  list when candidates exist
-
-## Memories Page
-
-The Memories page is the full management page for this feature.
-
-It should allow the user to:
-
-- view all memories
-- filter by category
-- open a memory detail page
-- add a memory
-- edit or delete a memory
-- manage categories in a lightweight dialog
-- open the suggestion page
-
-The Memories page can be opened from the hamburger menu. Its icon should match
-the `Pinned Memories` dashboard section; `ClipboardList` is a reasonable first
-icon.
-
-### Memory Management UI
-
-The Memories page should support direct testing of persisted memory data.
-
-The user must be able to:
-
-- add a memory
-- edit a memory
-- delete a memory
-- add a memory category
-- edit a memory category
-- delete a memory category when it is not used by memories
-
-The add and edit controls should not appear as inline panels inside the memory
-list. Inline panels are hard to distinguish from page content and make it
-unclear whether a save action succeeded.
-
-Use one of these navigation patterns:
-
-- separate add/edit pages or subpages
-- modal dialogs above the current page
-
-For the current web implementation, prefer modal dialogs because they keep the
-user on the Memories page while testing data entry.
-
-Modal behavior:
-
-- Opening `Add` should show an add-memory dialog.
-- Opening `Edit` on a memory should show an edit-memory dialog.
-- Opening `Categories` should show a category-management dialog.
-- The page behind the dialog should be covered by a semi-transparent black
-  overlay.
-- Clicking outside the dialog or pressing a visible close button should dismiss
-  the dialog without saving.
-- The dialog should not be nested inside a page card or list item.
-- The dialog should fit on mobile and scroll internally when content is taller
-  than the viewport.
-
-Save/delete behavior:
-
-- After a successful save or delete, close the active dialog.
-- Refresh the Memories page data immediately after the backend action succeeds.
-- Keep the dialog open and show a clear message if validation or database
-  update fails.
-- Disable action buttons while the backend action is pending so duplicate
-  submits are avoided.
-- Category delete can fail when the category is still used by memories; show the
-  backend message and keep the dialog open.
+Memory UI behavior is documented in [memories-ui.md](memories-ui.md). Keep this
+file focused on product rules and data behavior.

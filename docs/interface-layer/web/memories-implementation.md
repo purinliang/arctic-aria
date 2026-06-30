@@ -72,7 +72,6 @@ Suggestion list:
   - short description
   - last-done text and done count
   - `Pin` button
-  - `Ignore` button
 
 Button behavior:
 
@@ -80,21 +79,23 @@ Button behavior:
 - Suggestions should not refresh automatically when the page loads.
 - `Pin` pins only that suggestion and removes it from the current suggestion
   list after the backend succeeds.
-- `Ignore` records an ignore event and removes only that suggestion from the
-  current suggestion list after the backend succeeds.
-- A failed `Pin` or `Ignore` keeps the suggestion visible and shows the backend
-  message in the panel.
+- There is no visible `Ignore` button.
+- When `Refresh` is clicked, currently visible suggestions that were not pinned
+  are recorded as ignored suggestion signals before the new list is loaded.
+- A failed `Pin` keeps the suggestion visible and shows the backend message in
+  the panel.
 - Buttons are disabled while a suggestion action is pending.
 - `Pin` should refresh the database-backed memory list and dashboard pinned
   state after success.
-- `Ignore` should refresh memory list summary fields after success.
+- `Refresh` should refresh memory list summary fields after recording ignored
+  suggestion signals.
 
 What should not happen:
 
 - Suggestions should not appear on the home dashboard.
 - Refreshing suggestions should not create database rows except event rows
-  caused by explicit user actions such as `Ignore` or `Pin`.
-- Pinning or ignoring one suggestion should not close memory/category dialogs.
+  caused by explicit user actions such as `Refresh` or `Pin`.
+- Pinning a suggestion should not close memory/category dialogs.
 - Pinning one suggestion should not automatically refresh the whole suggestion
   list.
 
