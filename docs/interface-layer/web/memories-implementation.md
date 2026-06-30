@@ -28,13 +28,75 @@ The page should show:
 - category filter chips
 - `Add` action
 - `Categories` action
-- suggestion placeholder
+- suggestions panel on the right side on desktop and below the list on mobile
 
 `Add` opens memory creation UI.
 
 Memory `Edit` opens memory editing UI.
 
 `Categories` opens category management UI.
+
+## Suggestions Panel
+
+The Suggestions panel is part of the Memories page.
+
+Location and alignment:
+
+- On desktop, the panel appears in the right column beside the memory list.
+- On mobile and narrow screens, it appears below the memory list.
+- The panel header aligns with the top of the memory list panel.
+- The panel is a single card with a border and the same radius as other
+  dashboard panels.
+
+Header:
+
+- The left side shows the `RefreshCw` icon.
+- The title text is `Suggestions`.
+- Under the title, show short muted text:
+  `Refresh saved memories when you want an option.`
+- The right side shows a compact `Refresh` button.
+- The `Refresh` button includes the `RefreshCw` icon and the text `Refresh`.
+
+Suggestion list:
+
+- Before the user clicks `Refresh`, show muted text:
+  `Click Refresh to load suggestions.`
+- While loading, show muted text:
+  `Loading suggestions...`
+- If there are no eligible memories, show muted text:
+  `No suggestions available. Add more memories or unpin existing ones.`
+- Each suggestion appears as a simple row, not a nested card.
+- Each row shows:
+  - title
+  - category chip
+  - short description
+  - last-done text and done count
+  - `Pin` button
+  - `Ignore` button
+
+Button behavior:
+
+- `Refresh` calls the backend suggestion service.
+- Suggestions should not refresh automatically when the page loads.
+- `Pin` pins only that suggestion and removes it from the current suggestion
+  list after the backend succeeds.
+- `Ignore` records an ignore event and removes only that suggestion from the
+  current suggestion list after the backend succeeds.
+- A failed `Pin` or `Ignore` keeps the suggestion visible and shows the backend
+  message in the panel.
+- Buttons are disabled while a suggestion action is pending.
+- `Pin` should refresh the database-backed memory list and dashboard pinned
+  state after success.
+- `Ignore` should refresh memory list summary fields after success.
+
+What should not happen:
+
+- Suggestions should not appear on the home dashboard.
+- Refreshing suggestions should not create database rows except event rows
+  caused by explicit user actions such as `Ignore` or `Pin`.
+- Pinning or ignoring one suggestion should not close memory/category dialogs.
+- Pinning one suggestion should not automatically refresh the whole suggestion
+  list.
 
 ## Required Editor Behavior
 

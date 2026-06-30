@@ -297,10 +297,14 @@ Rules:
 - Suggestions should appear on the Memories page, not directly on the
   dashboard.
 - Suggestions refresh only when the user clicks refresh.
+- The first web implementation can show suggestions in a right-side panel on
+  the Memories page instead of a separate suggestion page.
 - Pinning a suggestion changes pin state but does not refresh the whole
   suggestion list automatically.
 - Ignoring a suggestion records an event but does not delete the memory.
 - Already showing pinned memories should not appear again in suggestions.
+- Ignored memories may reappear in later refreshes, but recent ignores should
+  reduce priority when possible.
 
 ## Pinned Memory Behavior
 
