@@ -1,4 +1,4 @@
-import { Check, RefreshCw } from "lucide-react";
+import { Check, ChevronDown, Eye, RefreshCw, RotateCcw } from "lucide-react";
 import type { PinnedMemory } from "../types";
 
 function categoryClass(category: PinnedMemory["category"], darkMode: boolean) {
@@ -28,29 +28,40 @@ function iconButtonClass(darkMode: boolean, active = false) {
 export function PinnedMemoryCard({
   memory,
   darkMode,
+  expanded,
   onDone,
+  onCancelDone,
   onReplace,
+  onView,
+  onToggleExpanded,
 }: {
   memory: PinnedMemory;
   darkMode: boolean;
+  expanded: boolean;
   onDone: () => void;
+  onCancelDone: () => void;
   onReplace: () => void;
+  onView: () => void;
+  onToggleExpanded: () => void;
 }) {
   const completed = memory.status === "completed";
 
   return (
-    <article
-      className={`grid gap-3 px-4 py-4 transition ${
-        completed
-          ? darkMode
-            ? "bg-emerald-500/5"
-            : "bg-emerald-50/60"
-          : darkMode
-            ? "hover:bg-neutral-900"
-            : "hover:bg-slate-50"
-      }`}
-    >
-      <div className="flex min-w-0 items-start justify-between gap-3">
+    <article>
+      <button
+        className={`grid w-full grid-cols-[1fr_auto] items-start gap-3 px-4 py-4 text-left transition ${
+          completed
+            ? darkMode
+              ? "bg-emerald-500/5"
+              : "bg-emerald-50/60"
+            : darkMode
+              ? "hover:bg-neutral-900"
+              : "hover:bg-slate-50"
+        }`}
+        type="button"
+        aria-expanded={expanded}
+        onClick={onToggleExpanded}
+      >
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h3
@@ -88,27 +99,68 @@ export function PinnedMemoryCard({
           </p>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          <button
-            className={`flex h-9 w-9 items-center justify-center rounded-md border transition ${iconButtonClass(darkMode, completed)}`}
-            type="button"
-            aria-label={`Mark ${memory.title} done`}
-            title="Done"
-            onClick={onDone}
+        <ChevronDown
+          className={`mt-1 shrink-0 transition ${expanded ? "rotate-180" : ""}`}
+          size={18}
+          aria-hidden="true"
+        />
+      </button>
+
+      {expanded ? (
+        <div
+          className={`mx-4 mb-4 grid gap-2 rounded-md border p-3 ${
+            darkMode
+              ? "border-neutral-800 bg-black"
+              : "border-slate-200 bg-slate-50"
+          }`}
+        >
+          <div className="grid grid-cols-3 gap-2">
+            {completed ? (
+              <button
+                className={`flex h-9 items-center justify-center gap-2 rounded-md border px-2 text-xs font-semibold transition ${iconButtonClass(darkMode, true)}`}
+                type="button"
+                onClick={onCancelDone}
+              >
+                <RotateCcw size={15} aria-hidden="true" />
+                Cancel
+              </button>
+            ) : (
+              <button
+                className={`flex h-9 items-center justify-center gap-2 rounded-md border px-2 text-xs font-semibold transition ${iconButtonClass(darkMode)}`}
+                type="button"
+                onClick={onDone}
+              >
+                <Check size={15} aria-hidden="true" />
+                Done
+              </button>
+            )}
+            <button
+              className={`flex h-9 items-center justify-center gap-2 rounded-md border px-2 text-xs font-semibold transition ${iconButtonClass(darkMode)}`}
+              type="button"
+              onClick={onReplace}
+            >
+              <RefreshCw size={14} aria-hidden="true" />
+              Replace
+            </button>
+            <button
+              className={`flex h-9 items-center justify-center gap-2 rounded-md border px-2 text-xs font-semibold transition ${iconButtonClass(darkMode)}`}
+              type="button"
+              onClick={onView}
+            >
+              <Eye size={15} aria-hidden="true" />
+              View
+            </button>
+          </div>
+          <p
+            className={`text-xs ${
+              darkMode ? "text-neutral-500" : "text-slate-500"
+            }`}
           >
-            <Check size={16} aria-hidden="true" />
-          </button>
-          <button
-            className={`flex h-9 w-9 items-center justify-center rounded-md border transition ${iconButtonClass(darkMode)}`}
-            type="button"
-            aria-label={`Replace ${memory.title}`}
-            title="Replace"
-            onClick={onReplace}
-          >
-            <RefreshCw size={15} aria-hidden="true" />
-          </button>
+            Visible for a soft window; completed items can be canceled before
+            cleanup.
+          </p>
         </div>
-      </div>
+      ) : null}
     </article>
   );
 }

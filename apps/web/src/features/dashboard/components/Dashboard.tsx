@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Check, ListChecks, LogOut, Menu, Sparkles } from "lucide-react";
+import { Bell, Check, ClipboardList, ListChecks, LogOut, Menu } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import {
@@ -12,12 +12,14 @@ import {
   rewardPreview,
 } from "../dummy-data";
 import type {
+  DashboardView,
   PinnedMemory,
   Routine,
   RoutineStatus,
   Task,
   TaskStatus,
 } from "../types";
+import { MemoriesPage } from "./MemoriesPage";
 import { PinnedMemoryCard } from "./PinnedMemoryCard";
 import { ReviewDialog } from "./ReviewDialog";
 import { RoutineCard } from "./RoutineCard";
@@ -63,6 +65,8 @@ export function Dashboard({
   const [routines, setRoutines] = useState<Routine[]>(initialRoutines);
   const [pinnedMemories, setPinnedMemories] =
     useState<PinnedMemory[]>(initialPinnedMemories);
+  const [activeView, setActiveView] = useState<DashboardView>("dashboard");
+  const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewCount, setReviewCount] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -71,6 +75,9 @@ export function Dashboard({
   const [expandedRoutineId, setExpandedRoutineId] = useState<string | null>(
     initialRoutines.find((routine) => routine.status === "reminding")?.id ??
       null,
+  );
+  const [expandedMemoryId, setExpandedMemoryId] = useState<string | null>(
+    initialPinnedMemories[0]?.id ?? null,
   );
 
   const stats = useMemo(() => {
@@ -134,32 +141,51 @@ export function Dashboard({
         memory.id === memoryId ? { ...memory, status: "completed" } : memory,
       ),
     );
+    setExpandedMemoryId(memoryId);
+  }
+
+  function cancelMemoryDone(memoryId: string) {
+    setPinnedMemories((current) =>
+      current.map((memory) =>
+        memory.id === memoryId ? { ...memory, status: "active" } : memory,
+      ),
+    );
+    setExpandedMemoryId(memoryId);
   }
 
   function replaceMemory(memoryId: string) {
-    setPinnedMemories((current) => {
-      const target = current.find((memory) => memory.id === memoryId);
+    const target = pinnedMemories.find((memory) => memory.id === memoryId);
 
-      if (!target) {
-        return current;
-      }
+    if (!target) {
+      return;
+    }
 
-      const candidates = memoryReplacementPool.filter(
-        (memory) =>
-          memory.category === target.category &&
-          !current.some((currentMemory) => currentMemory.id === memory.id),
-      );
+    const candidates = memoryReplacementPool.filter(
+      (memory) =>
+        memory.category === target.category &&
+        !pinnedMemories.some(
+          (currentMemory) => currentMemory.id === memory.id,
+        ),
+    );
 
-      if (candidates.length === 0) {
-        return current;
-      }
+    if (candidates.length === 0) {
+      return;
+    }
 
-      const [replacement] = candidates;
+    const [replacement] = candidates;
 
-      return current.map((memory) =>
+    setPinnedMemories((current) =>
+      current.map((memory) =>
         memory.id === memoryId ? { ...replacement, status: "active" } : memory,
-      );
-    });
+      ),
+    );
+    setExpandedMemoryId(replacement.id);
+  }
+
+  function viewMemory(memoryId: string) {
+    setSelectedMemoryId(memoryId);
+    setActiveView("memories");
+    setSidebarOpen(false);
   }
 
   function openReview() {
@@ -201,7 +227,9 @@ export function Dashboard({
                 Daily plan ends at {dayBoundary}
               </p>
               <h1 className="mt-1 text-2xl font-semibold tracking-normal sm:text-3xl">
-                {todayFormatter.format(new Date())} Dashboard
+                {activeView === "dashboard"
+                  ? `${todayFormatter.format(new Date())} Dashboard`
+                  : "Memories"}
               </h1>
             </div>
           </div>
@@ -214,18 +242,20 @@ export function Dashboard({
             >
               {currentUser.displayName}
             </span>
-            <button
-              className={`flex h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold shadow-sm transition ${
-                darkMode
-                  ? "bg-white text-black hover:bg-neutral-200"
-                  : "bg-slate-950 text-white hover:bg-slate-800"
-              }`}
-              type="button"
-              onClick={openReview}
-            >
-              <ListChecks size={18} aria-hidden="true" />
-              Review
-            </button>
+            {activeView === "dashboard" ? (
+              <button
+                className={`flex h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold shadow-sm transition ${
+                  darkMode
+                    ? "bg-white text-black hover:bg-neutral-200"
+                    : "bg-slate-950 text-white hover:bg-slate-800"
+                }`}
+                type="button"
+                onClick={openReview}
+              >
+                <ListChecks size={18} aria-hidden="true" />
+                Review
+              </button>
+            ) : null}
             <button
               className={`flex h-11 items-center justify-center gap-2 rounded-md border px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
                 darkMode
@@ -242,44 +272,17 @@ export function Dashboard({
           </div>
         </header>
 
-        <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <section className={`min-w-0 rounded-md border ${panelClass(darkMode)}`}>
-            <SectionHeader
-              icon={<Check size={18} aria-hidden="true" />}
-              title="Today's Tasks"
-              meta={`${tasks.length} recommended`}
-              darkMode={darkMode}
-            />
-            <div
-              className={
-                darkMode ? "divide-y divide-neutral-900" : "divide-y divide-slate-200"
-              }
+        {activeView === "memories" ? (
+          <MemoriesPage darkMode={darkMode} selectedMemoryId={selectedMemoryId} />
+        ) : (
+          <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+            <section
+              className={`min-w-0 rounded-md border ${panelClass(darkMode)}`}
             >
-              {tasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  darkMode={darkMode}
-                  expanded={expandedTaskId === task.id}
-                  onToggleExpanded={() =>
-                    setExpandedTaskId((current) =>
-                      current === task.id ? null : task.id,
-                    )
-                  }
-                  onSubtaskToggle={(subtaskId) =>
-                    toggleSubtask(task.id, subtaskId)
-                  }
-                />
-              ))}
-            </div>
-          </section>
-
-          <aside className="grid gap-4">
-            <section className={`rounded-md border ${panelClass(darkMode)}`}>
               <SectionHeader
-                icon={<Bell size={18} aria-hidden="true" />}
-                title="Routines"
-                meta={`${routines.length} scheduled`}
+                icon={<Check size={18} aria-hidden="true" />}
+                title="Today's Tasks"
+                meta={`${tasks.length} recommended`}
                 darkMode={darkMode}
               />
               <div
@@ -289,56 +292,103 @@ export function Dashboard({
                     : "divide-y divide-slate-200"
                 }
               >
-                {routines.map((routine) => (
-                  <RoutineCard
-                    key={routine.id}
-                    routine={routine}
+                {tasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
                     darkMode={darkMode}
-                    expanded={expandedRoutineId === routine.id}
+                    expanded={expandedTaskId === task.id}
                     onToggleExpanded={() =>
-                      setExpandedRoutineId((current) =>
-                        current === routine.id ? null : routine.id,
+                      setExpandedTaskId((current) =>
+                        current === task.id ? null : task.id,
                       )
                     }
-                    onStatusChange={(status) => updateRoutine(routine.id, status)}
+                    onSubtaskToggle={(subtaskId) =>
+                      toggleSubtask(task.id, subtaskId)
+                    }
                   />
                 ))}
               </div>
             </section>
 
-            <section className={`rounded-md border ${panelClass(darkMode)}`}>
-              <SectionHeader
-                icon={<Sparkles size={18} aria-hidden="true" />}
-                title="Pinned Memories"
-                meta={`${pinnedMemories.length} saved`}
-                darkMode={darkMode}
-              />
-              <div
-                className={
-                  darkMode
-                    ? "divide-y divide-neutral-900"
-                    : "divide-y divide-slate-200"
-                }
-              >
-                {pinnedMemories.map((memory) => (
-                  <PinnedMemoryCard
-                    key={memory.id}
-                    memory={memory}
-                    darkMode={darkMode}
-                    onDone={() => markMemoryDone(memory.id)}
-                    onReplace={() => replaceMemory(memory.id)}
-                  />
-                ))}
-              </div>
-            </section>
-          </aside>
-        </section>
+            <aside className="grid gap-4">
+              <section className={`rounded-md border ${panelClass(darkMode)}`}>
+                <SectionHeader
+                  icon={<Bell size={18} aria-hidden="true" />}
+                  title="Routines"
+                  meta={`${routines.length} scheduled`}
+                  darkMode={darkMode}
+                />
+                <div
+                  className={
+                    darkMode
+                      ? "divide-y divide-neutral-900"
+                      : "divide-y divide-slate-200"
+                  }
+                >
+                  {routines.map((routine) => (
+                    <RoutineCard
+                      key={routine.id}
+                      routine={routine}
+                      darkMode={darkMode}
+                      expanded={expandedRoutineId === routine.id}
+                      onToggleExpanded={() =>
+                        setExpandedRoutineId((current) =>
+                          current === routine.id ? null : routine.id,
+                        )
+                      }
+                      onStatusChange={(status) =>
+                        updateRoutine(routine.id, status)
+                      }
+                    />
+                  ))}
+                </div>
+              </section>
+
+              <section className={`rounded-md border ${panelClass(darkMode)}`}>
+                <SectionHeader
+                  icon={<ClipboardList size={18} aria-hidden="true" />}
+                  title="Pinned Memories"
+                  meta={`${pinnedMemories.length} saved`}
+                  darkMode={darkMode}
+                />
+                <div
+                  className={
+                    darkMode
+                      ? "divide-y divide-neutral-900"
+                      : "divide-y divide-slate-200"
+                  }
+                >
+                  {pinnedMemories.map((memory) => (
+                    <PinnedMemoryCard
+                      key={memory.id}
+                      memory={memory}
+                      darkMode={darkMode}
+                      expanded={expandedMemoryId === memory.id}
+                      onDone={() => markMemoryDone(memory.id)}
+                      onCancelDone={() => cancelMemoryDone(memory.id)}
+                      onReplace={() => replaceMemory(memory.id)}
+                      onView={() => viewMemory(memory.id)}
+                      onToggleExpanded={() =>
+                        setExpandedMemoryId((current) =>
+                          current === memory.id ? null : memory.id,
+                        )
+                      }
+                    />
+                  ))}
+                </div>
+              </section>
+            </aside>
+          </section>
+        )}
       </div>
 
       <Sidebar
         open={sidebarOpen}
         darkMode={darkMode}
+        activeView={activeView}
         onClose={() => setSidebarOpen(false)}
+        onViewChange={setActiveView}
         onThemeChange={setDarkMode}
       />
 

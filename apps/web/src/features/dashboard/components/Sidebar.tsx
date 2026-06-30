@@ -2,25 +2,35 @@ import {
   Bell,
   ClipboardList,
   LayoutDashboard,
-  Library,
+  ListTodo,
   Moon,
   Settings,
   Sun,
   X,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import type { DashboardView } from "../types";
 
 export function Sidebar({
   open,
   darkMode,
+  activeView,
   onClose,
+  onViewChange,
   onThemeChange,
 }: {
   open: boolean;
   darkMode: boolean;
+  activeView: DashboardView;
   onClose: () => void;
+  onViewChange: (view: DashboardView) => void;
   onThemeChange: (darkMode: boolean) => void;
 }) {
+  function selectView(view: DashboardView) {
+    onViewChange(view);
+    onClose();
+  }
+
   return (
     <div
       className={`fixed inset-0 z-40 transition ${
@@ -74,11 +84,12 @@ export function Sidebar({
           <SidebarItem
             icon={<LayoutDashboard size={18} aria-hidden="true" />}
             label="Dashboard"
-            active
+            active={activeView === "dashboard"}
             darkMode={darkMode}
+            onClick={() => selectView("dashboard")}
           />
           <SidebarItem
-            icon={<ClipboardList size={18} aria-hidden="true" />}
+            icon={<ListTodo size={18} aria-hidden="true" />}
             label="Tasks"
             darkMode={darkMode}
           />
@@ -88,9 +99,11 @@ export function Sidebar({
             darkMode={darkMode}
           />
           <SidebarItem
-            icon={<Library size={18} aria-hidden="true" />}
+            icon={<ClipboardList size={18} aria-hidden="true" />}
             label="Memories"
+            active={activeView === "memories"}
             darkMode={darkMode}
+            onClick={() => selectView("memories")}
           />
           <SidebarItem
             icon={<Settings size={18} aria-hidden="true" />}
@@ -144,11 +157,13 @@ function SidebarItem({
   label,
   active = false,
   darkMode,
+  onClick,
 }: {
   icon: ReactNode;
   label: string;
   active?: boolean;
   darkMode: boolean;
+  onClick?: () => void;
 }) {
   return (
     <button
@@ -162,6 +177,7 @@ function SidebarItem({
             : "text-slate-700 hover:bg-slate-100"
       }`}
       type="button"
+      onClick={onClick}
     >
       {icon}
       {label}

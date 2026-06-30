@@ -1,5 +1,7 @@
 export type TaskStatus = "todo" | "partial" | "done";
 
+export type DashboardView = "dashboard" | "memories";
+
 export type Priority = "High" | "Medium" | "Low";
 
 export type Subtask = {
@@ -43,6 +45,16 @@ export type PinnedMemory = {
   description: string;
   meta: string;
   status: PinnedMemoryStatus;
+};
+
+export type MemoryRecord = {
+  id: string;
+  category: MemoryCategory;
+  title: string;
+  description: string;
+  lastDoneText: string;
+  doneCount: number;
+  pinned: boolean;
 };
 
 export type ChestItemRarity =
