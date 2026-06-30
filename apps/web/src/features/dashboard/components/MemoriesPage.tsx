@@ -165,6 +165,7 @@ export function MemoriesPage({
     useState<ConfirmationTarget | null>(null);
   const [memoryDraft, setMemoryDraft] = useState<MemoryInput>({
     categoryId: categories[0]?.id ?? "",
+    categoryName: categories[0]?.name,
     title: "",
     description: "",
   });
@@ -196,6 +197,7 @@ export function MemoriesPage({
   function openNewMemoryEditor() {
     setMemoryDraft({
       categoryId: "",
+      categoryName: "",
       title: "",
       description: "",
     });
@@ -207,6 +209,7 @@ export function MemoriesPage({
     setMemoryDraft({
       id: memory.id,
       categoryId: memory.categoryId,
+      categoryName: memory.category,
       title: memory.title,
       description: memory.description,
     });
@@ -266,6 +269,7 @@ export function MemoriesPage({
         setMemoryDraft((current) => ({
           ...current,
           categoryId: savedCategory.id,
+          categoryName: savedCategory.name,
         }));
       }
 
@@ -541,6 +545,7 @@ export function MemoriesPage({
                         setMemoryDraft((current) => ({
                           ...current,
                           categoryId: category.id,
+                          categoryName: category.name,
                         }))
                       }
                     >

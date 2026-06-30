@@ -7,6 +7,10 @@ import type {
   MemorySuggestion,
   PinnedMemory,
 } from "@/features/dashboard/types";
+import {
+  hasMemoryCategorySelection,
+  resolveMemoryCategoryId,
+} from "./memory-input";
 import { memoryService } from "./server/memory-service";
 import type {
   DashboardPinnedMemory,
@@ -38,6 +42,7 @@ export type MemoryCategoryInput = {
 export type MemoryInput = {
   id?: string;
   categoryId: string;
+  categoryName?: string;
   title: string;
   description: string;
 };
@@ -160,7 +165,7 @@ function validateMemoryInput(input: MemoryInput) {
   const title = input.title.trim();
   const description = input.description.trim();
 
-  if (!input.categoryId) {
+  if (!hasMemoryCategorySelection(input)) {
     return { ok: false as const, message: "Choose a category." };
   }
 
@@ -342,11 +347,16 @@ export async function saveMemory(
     return { ok: false, message: validation.message };
   }
 
+  const categoryId = resolveMemoryCategoryId(
+    input,
+    await memoryService.listMemoryCategories(user.id),
+  );
+
   if (input.id) {
     const memory = await memoryService.updateMemory(
       user.id,
       input.id,
-      input.categoryId,
+      categoryId,
       validation.title,
       validation.description,
     );
@@ -357,7 +367,7 @@ export async function saveMemory(
   } else {
     const memory = await memoryService.createMemory(
       user.id,
-      input.categoryId,
+      categoryId,
       validation.title,
       validation.description,
     );
