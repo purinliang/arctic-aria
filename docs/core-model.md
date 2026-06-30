@@ -1,8 +1,9 @@
 # Core Model
 
-This document defines the first Core data model for plans, tasks, and routines.
-It describes product entities and rules before SQL schema details. Database
-tables should follow this model unless a later design decision updates it.
+This document defines the first Core data model for plans, tasks, routines, and
+memories. It describes product entities and rules before SQL schema details.
+Database tables should follow this model unless a later design decision updates
+it.
 
 ## Scope
 
@@ -15,19 +16,21 @@ The first Core model should support:
 - generated routine instances
 - daily plans
 - quick idea capture
+- personal memories for repeatable enjoyable experiences
 - daily reviews
 - completion history for review and rewards
 
 The first Core model should not include:
 
-- plugin-specific memory
+- plugin-specific memory, such as learning history or retrieval context
 - reward inventory
 - event bus design
 - Discord-specific message details
 
 Detailed user registration and login rules are documented in
 [core-layer/user.md](core-layer/user.md). User settings are documented in
-[core-layer/user-settings.md](core-layer/user-settings.md).
+[core-layer/user-settings.md](core-layer/user-settings.md). Memory rules are
+documented in [core-layer/memories.md](core-layer/memories.md).
 
 ## User
 
@@ -261,6 +264,25 @@ Daily reviews summarize one personal day.
 
 The first version can store simple review summary fields. More detailed reward
 or sharing data should wait until those features are designed.
+
+## Memories
+
+Memories are repeatable personal experiences that the user may want to revisit,
+such as cuisine, sightseeing, anime, games, books, or shops. They are Core data
+because the user directly creates, manages, pins, completes, and reviews them.
+
+Memories are not tasks or routines. They are soft candidates for enjoyment and
+should not become overdue.
+
+The first model should include:
+
+- memory categories
+- memory records
+- pinned memories for the current dashboard shortlist
+- immutable memory events for pin, ignore, complete, unpin, and replace actions
+
+Detailed behavior and table attributes are documented in
+[core-layer/memories.md](core-layer/memories.md).
 
 ## Completion Events
 
