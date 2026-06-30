@@ -260,6 +260,26 @@ export function Dashboard({
     }
   }
 
+  async function runMemoryManagementDataAction(action: MemoryDataAction) {
+    setMemoryMessage(null);
+
+    setMemoryActionPending(true);
+
+    try {
+      const result = await action();
+
+      if (!result.ok) {
+        setMemoryMessage(result.message);
+        return null;
+      }
+
+      applyMemoryData(result.data);
+      return result.data;
+    } finally {
+      setMemoryActionPending(false);
+    }
+  }
+
   function markMemoryDone(pinnedMemoryId: string) {
     void runMemoryAction(
       () => completePinnedMemory(pinnedMemoryId),
@@ -296,7 +316,7 @@ export function Dashboard({
   }
 
   function saveCategoryFromPage(input: MemoryCategoryInput) {
-    return runMemoryManagementAction(() => saveMemoryCategory(input));
+    return runMemoryManagementDataAction(() => saveMemoryCategory(input));
   }
 
   function deleteCategoryFromPage(categoryId: string) {

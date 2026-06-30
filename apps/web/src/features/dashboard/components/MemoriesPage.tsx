@@ -16,6 +16,7 @@ import {
 import { useState } from "react";
 import type {
   MemoryCategoryInput,
+  MemoryDashboardData,
   MemoryInput,
 } from "@/features/memories/actions";
 import type {
@@ -27,6 +28,7 @@ import type {
 
 type MemoryFilter = "All" | MemoryCategory;
 type EditorResult = Promise<boolean>;
+type CategoryEditorResult = Promise<MemoryDashboardData | null>;
 type SuggestionResult = Promise<boolean>;
 type CategoryPeriod = "Weekly" | "Monthly";
 type ConfirmationTarget =
@@ -146,7 +148,7 @@ export function MemoriesPage({
   selectedMemoryId: string | null;
   onMemorySave: (input: MemoryInput) => EditorResult;
   onMemoryDelete: (memoryId: string) => EditorResult;
-  onCategorySave: (input: MemoryCategoryInput) => EditorResult;
+  onCategorySave: (input: MemoryCategoryInput) => CategoryEditorResult;
   onCategoryDelete: (categoryId: string) => EditorResult;
   onMessageClear: () => void;
   onSuggestionsRefresh: () => Promise<void>;
@@ -248,10 +250,27 @@ export function MemoriesPage({
   }
 
   async function submitCategory() {
-    const saved = await onCategorySave(categoryDraft);
+    const draft = categoryDraft;
+    const saved = await onCategorySave(draft);
 
     if (saved) {
+      const savedCategory = draft.id
+        ? saved.categories.find((category) => category.id === draft.id)
+        : saved.categories.find(
+            (category) =>
+              category.name.toLocaleLowerCase() ===
+              draft.name.trim().toLocaleLowerCase(),
+          );
+
+      if (savedCategory) {
+        setMemoryDraft((current) => ({
+          ...current,
+          categoryId: savedCategory.id,
+        }));
+      }
+
       setCategoryDraft(emptyCategoryDraft);
+      setCategoryEditorOpen(false);
     }
   }
 
