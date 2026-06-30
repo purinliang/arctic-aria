@@ -51,6 +51,17 @@ The page should allow the user to:
 - manage categories
 - refresh suggested memories
 
+Cards may have different heights, but their styling should stay consistent with
+the dashboard cards. Shared dashboard and Memories page card styles should be
+implemented in one reusable place.
+
+The bottom padding can be increased slightly. Keep dashboard and Memories page
+spacing consistent through the same reusable card design.
+
+## Memories Card
+
+The memories card is the main content in the memories page.
+
 ### Title Section
 
 The title section is at the top of the Memories page.
@@ -58,7 +69,7 @@ The title section is at the top of the Memories page.
 Layout:
 
 - Left side: Lucide `ClipboardList` icon, title, and description.
-- Right side: `Add Memory` button with a plus icon.
+- Right side: `Add` button with a plus icon.
 - The title text is `Memories`.
 - The description text is `Saved experiences to revisit when the day needs a gentle option.`
 
@@ -76,13 +87,15 @@ Layout:
   `Cuisine`.
 - If there are too many categories, the filter tags should wrap onto multiple
   lines.
-- At the end of the category row, show a plus icon and text `Add Category`.
+- Show a Lucide `Settings2` button with text `Manage`.
+- The `Manage` button should use the same style as filter items and be listed
+  with the filter tags.
 
 Click behavior:
 
 - Clicking a category tag filters the memory list.
 - Clicking `All` removes the category filter.
-- Clicking `Add Category` opens category management.
+- Clicking `Manage` opens category management.
 
 ### Memory List Section
 
@@ -102,6 +115,55 @@ Memory item behavior:
 - The edit action is shown only in the expanded state.
 - The edit action uses a pencil icon.
 - Clicking the pencil icon opens the edit-memory dialog or detail page.
+
+## Suggestions Card
+
+Suggested memories are part of the Memories page and are shown in the
+Suggestions card.
+
+### Title Section
+
+Use a separate suggested-memory panel.
+
+Layout:
+
+- Use the Lucide `Lightbulb` icon.
+- The title text can be `Suggestions`.
+- The description should explain the panel, for example:
+  `To reexperience in a few days.`
+- Show a `Refresh` button in the panel title section.
+
+### List Section
+
+The suggestion list is vertical.
+
+Each suggestion item should show:
+
+- title
+- category tag beside the title
+- description
+- a circular outline button on the right side, with only the Lucide `Pin` icon
+  and no text
+
+Click behavior:
+
+- Clicking `Pin` pins that suggestion. While processing, show a loading icon
+  inside the button and disable it.
+- After pin succeeds, the icon should change to an unpin state with no text.
+- Clicking `Cancel` should undo that pending pin state when supported by the
+  implementation. While processing, show a loading icon inside the button and
+  disable it.
+- Do not show a separate `Ignore` button.
+
+Refresh behavior:
+
+- Clicking `Refresh` loads a new suggestion list. While processing, show a
+  loading icon inside the button and disable it.
+- When `Refresh` is clicked, visible suggestions that were not pinned are
+  counted as ignored suggestion signals.
+- Only unpinned visible suggestions should be counted as ignored.
+- Refreshing suggestions should not affect pinned suggestions except by keeping
+  them out of the new suggestion list.
 
 ## Memory Management
 
@@ -152,47 +214,80 @@ Save/delete behavior:
 - Category delete can fail when the category is still used by memories; show the
   backend message and keep the dialog open.
 
-## Suggested Memories
+### Add Memory Dialog
 
-Suggested memories are part of the Memories page.
+#### Title Section
 
-### Title Section
+Title: `Add a new memory`.
 
-Use a separate suggested-memory panel.
+Close button: cross icon button without an outline.
 
-Layout:
+#### Content Section
 
-- Use the Lucide `Lightbulb` icon.
-- The title text can be `Suggestions`.
-- The description should explain the panel, for example:
-  `Suggestions to reexperience in the next few days.`
-- Show a `Refresh` button in the panel title section.
+List fields vertically.
 
-### List Section
+Use a title label, title text box, and hint placeholder.
 
-The suggestion list is vertical.
+Category selection should not be a dropdown list. Use the same tag style as the
+category filters in the Memories card. Nothing should be selected by default.
+Include the `Manage` button.
 
-Each suggestion item should show:
+#### Confirm Button
 
-- title
-- category tag beside the title
-- description
-- a Lucide `Pin` icon and `Pin` text
+Text: `Save`, with a save icon.
 
-Click behavior:
+### Edit Memory Dialog
 
-- Clicking `Pin` pins that suggestion.
-- After pin succeeds, the icon should change to an unpin/cancel state and the
-  text should become `Cancel`.
-- Clicking `Cancel` should undo that pending pin state when supported by the
-  implementation.
-- Do not show a separate `Ignore` button.
+#### Title Section
 
-Refresh behavior:
+Title: `Edit a memory`.
 
-- Clicking `Refresh` loads a new suggestion list.
-- When `Refresh` is clicked, visible suggestions that were not pinned are
-  counted as ignored suggestion signals.
-- Only unpinned visible suggestions should be counted as ignored.
-- Refreshing suggestions should not affect pinned suggestions except by keeping
-  them out of the new suggestion list.
+Close button: cross icon button without an outline.
+
+#### Content Section
+
+Use the same layout as the Add Memory dialog.
+
+#### Confirm Button
+
+Text: `Save`, with a save icon.
+
+#### Delete Button
+
+Text: `Delete`, with a delete icon.
+
+When clicked, show a confirmation dialog with two buttons.
+
+Error messages should disappear after the next successful action or when the
+dialog closes.
+
+Because the app will use many dialogs, including title-description-confirm-cancel
+dialogs and add/edit/delete dialogs, the main design should stay consistent.
+Componentize the shared dialog patterns for reuse.
+
+## Category Management
+
+Clicking the `Manage` button should show a Manage Categories dialog. Keep the
+current dialog direction, but document and implement the details below. Do not
+show weights in the edit list because they are internal.
+
+### Add a New Category
+
+Use the same style as the Add Memory dialog.
+
+Use a clear label: `Category name`.
+
+Suggestion period should be selected with tag-style options: `Weekly` and
+`Monthly`. Sightseeing defaults to monthly; Cuisine defaults to weekly. The
+selection should automatically translate into the internal weight.
+
+Always keep the same design as the Add Memory dialog for consistency.
+
+### Edit or Delete a Category
+
+When clicking the edit button, open a new edit dialog with the same UI as the
+Add Category dialog.
+
+When clicking the delete button, show a confirmation dialog with two buttons.
+If the category is still used by memories, show the backend error and keep the
+dialog open.
