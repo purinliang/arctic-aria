@@ -17,43 +17,35 @@ pressure and should not automatically carry it forward like a task.
 ## Boundary
 
 Memories are Core product data because the user directly creates, manages, pins,
-and completes them.
+completes, and deletes them.
 
-Memories are different from plugin memory:
-
-- Memories are user-visible experiences such as restaurants, parks, shows, or
-  books.
-- Plugin memory is internal context used by plugins or agents, such as learning
-  history, conversation summaries, retrieval context, or raw agent output.
-
-Memories are also different from aspirations. Large future goals such as
-traveling to Kyoto or seeing the aurora should belong to a separate aspirations
-or dreams feature because they need planning, budgeting, milestones, and
-long-term review.
+Memories are different from aspirations. Large future goals such as traveling to
+Kyoto or seeing the aurora should belong to a separate aspirations or dreams
+feature because they need planning, budgeting, milestones, and long-term review.
 
 ## Scope
 
-The first Memories feature should include:
+The Memories feature should include:
 
 - creating memories
-- editing and archiving memories
+- editing and deleting memories
 - creating and editing lightweight categories
-- manually refreshing suggested memories
+- manually refreshing suggested memories on the Memories page
 - pinning suggested memories into `Pinned Memories`
 - ignoring suggested memories
 - unpinning pinned memories
 - marking pinned memories as done
+- canceling a mistaken done action before cleanup
 - showing pinned cuisine and sightseeing memories on the home dashboard
-- opening a memory detail page from suggestions, pinned memories, or the
-  Memories page
+- opening a memory detail page from suggested memories, pinned memories, the
+  Memories page, or any other place a memory appears
 
-The first Memories feature should not include:
+The Memories feature should not include:
 
 - automatic background suggestion refresh
 - location search or map integration
 - recommendations for places the user has never saved
 - aspirations or dreams
-- plugin-generated memory extraction from chat history
 - vector search
 
 ## Core Concepts
@@ -74,8 +66,8 @@ A memory can be completed multiple times. Completion history should be stored as
 events, not as an array on the memory row.
 
 A memory should support a detail page with an edit action. The detail page can
-show title, description, category, current pin state, done count, last done
-time, and event history.
+show title, description, category, current pin state, done count, last done time,
+and event history.
 
 ### Memory Category
 
@@ -98,14 +90,14 @@ Later categories can include:
 - Books
 - Shopping
 
-Only categories marked for the dashboard should appear on the home dashboard.
-The first dashboard should show only Cuisine and Sightseeing.
+The first dashboard supports Cuisine and Sightseeing only. Category add and edit
+actions belong on the Memories page, not on the dashboard.
 
 ### Suggested Memories
 
 Suggested memories are temporary choices generated from the memory library when
-the user manually clicks refresh. They are not refreshed automatically in the
-background.
+the user manually clicks refresh on the Memories page. They are not refreshed
+automatically in the background.
 
 The system should recommend a small number of memories per category, usually
 three to five items.
@@ -128,14 +120,13 @@ Pinned memories are closer to a soft shortlist or temporary favorites list.
 
 The dashboard should use the title `Pinned Memories`.
 
-Pinned memories should remain visible gently for a few days. They should not
-disappear quickly just because the user does not complete them immediately.
-
 The user can:
 
+- expand and collapse a pinned memory
 - open the memory detail page
 - mark a pinned memory as done
-- replace a pinned memory with another suggestion
+- cancel done if it was a misclick
+- replace a pinned memory with another memory from the same category
 - unpin a memory
 
 ## Suggested Table Design
@@ -146,35 +137,27 @@ constrain, paginate, and update safely.
 
 ### `memory_categories`
 
-Stores user-owned categories and dashboard behavior.
+Stores user-owned categories and suggestion weights.
 
 Recommended fields:
 
 - `id`
 - `user_id`
 - `name`
-- `icon`
 - `base_weight`
-- `dashboard_enabled`
-- `dashboard_limit`
-- `sort_order`
 - `created_at`
 - `updated_at`
-- `archived_at`
 
 Constraints:
 
 - `user_id` references `users.id`.
-- `name` should be unique per active user category.
+- `name` should be unique per user.
 - `base_weight` should be greater than `0`.
-- `dashboard_limit` should be between `1` and `5`.
 
 Suggested defaults:
 
-- Cuisine: `base_weight = 1.2`, `dashboard_enabled = true`,
-  `dashboard_limit = 3`
-- Sightseeing: `base_weight = 0.8`, `dashboard_enabled = true`,
-  `dashboard_limit = 3`
+- Cuisine: `base_weight = 1.2`
+- Sightseeing: `base_weight = 0.8`
 
 ### `memories`
 
@@ -187,23 +170,18 @@ Recommended fields:
 - `category_id`
 - `title`
 - `description`
-- `status`
 - `last_done_at`
 - `done_count`
 - `last_pinned_at`
 - `last_ignored_at`
-- `metadata`
 - `created_at`
 - `updated_at`
-- `archived_at`
 
 Field notes:
 
-- `status` should start with `active` and `archived`.
-- Delete actions in the first implementation should archive the memory instead
-  of physically deleting it, so history remains intact.
-- `metadata` can be `jsonb` for lightweight optional details that are not stable
-  enough for first-class columns yet.
+- Delete actions should physically delete the memory.
+- Deleting a memory should also remove its current pinned record and related
+  memory events.
 - `done_count`, `last_done_at`, `last_pinned_at`, and `last_ignored_at` are
   denormalized summary fields. The source of truth for history is
   `memory_events`.
@@ -226,8 +204,6 @@ Recommended fields:
 - `memory_id`
 - `event_type`
 - `occurred_at`
-- `source`
-- `context`
 
 Allowed first event types:
 
@@ -235,13 +211,9 @@ Allowed first event types:
 - `unpinned`
 - `ignored`
 - `completed`
+- `completed_canceled`
 - `replaced`
-
-Field notes:
-
-- `source` can be `web`, `discord`, `agent`, or `system`.
-- `context` can be `jsonb` for details such as category id, suggestion score,
-  previous pinned id, or replacement reason.
+- `deleted`
 
 ### `pinned_memories`
 
@@ -252,46 +224,35 @@ Recommended fields:
 - `id`
 - `user_id`
 - `memory_id`
-- `category_id`
 - `position`
-- `status`
 - `pinned_at`
-- `expires_at`
+- `last_shown_at`
+- `visible_until`
 - `completed_at`
-- `removed_at`
+- `completed_cleanup_at`
 - `created_at`
 - `updated_at`
 
-Allowed first statuses:
-
-- `active`
-- `completed`
-- `unpinned`
-- `replaced`
-- `expired`
-
 Field notes:
 
-- `category_id` is denormalized from the memory category so category dashboard
-  queries stay simple.
 - `position` preserves dashboard order.
-- `expires_at` should normally be seven days after `pinned_at`.
-- A completed pinned memory can remain visible until the next dashboard load or
-  until the user replaces it manually.
+- `visible_until` controls when a pinned memory should stop appearing if it is
+  not completed.
+- `completed_cleanup_at` should normally be 2 hours after `completed_at`.
+- The first dashboard should show at most 3 Cuisine memories and 3 Sightseeing
+  memories.
 
 Constraints:
 
 - `user_id` references `users.id`.
 - `memory_id` references `memories.id`.
-- `category_id` references `memory_categories.id`.
-- There should be at most one active pin for the same `memory_id`.
-- Active pins should be queryable by user, category, status, and position.
+- There should be at most one current pinned record for the same `memory_id`.
 
 ### Optional Later Tables
 
 The first version can generate suggestions on demand and record only pin,
-ignore, complete, and replace events. If the suggestion screen later needs exact
-replay or analytics, add:
+ignore, complete, cancel, replace, and delete events. If the suggestion screen
+later needs exact replay or analytics, add:
 
 - `memory_suggestion_runs`
 - `memory_suggestion_items`
@@ -333,11 +294,13 @@ items.
 
 Rules:
 
+- Suggestions should appear on the Memories page, not directly on the
+  dashboard.
 - Suggestions refresh only when the user clicks refresh.
 - Pinning a suggestion changes pin state but does not refresh the whole
   suggestion list automatically.
 - Ignoring a suggestion records an event but does not delete the memory.
-- Already active pinned memories should not appear again in suggestions.
+- Already showing pinned memories should not appear again in suggestions.
 
 ## Pinned Memory Behavior
 
@@ -346,46 +309,61 @@ strong manual signal.
 
 Dashboard behavior:
 
-- Each dashboard-enabled category should show up to its `dashboard_limit`.
-- The first dashboard should show only Cuisine and Sightseeing.
+- The first dashboard should show up to 3 Cuisine memories and up to 3
+  Sightseeing memories.
+- The first dashboard should not support adding or editing memory categories.
 - Pinned memory order should remain stable across refreshes and dashboard loads.
 - Marking a pinned memory as done records a `completed` event, updates memory
-  summary fields, and marks the pin as `completed`.
-- Replacing a pinned memory marks the old pin as `replaced` and selects a new
-  memory for the same category and position.
-- Expired pins should be removed from active display on dashboard load.
+  summary fields, sets `completed_at`, and sets `completed_cleanup_at` to about
+  2 hours later.
+- If done was a misclick, the user can cancel done before cleanup.
+- On dashboard load, completed pinned records whose cleanup time has passed
+  should be deleted and replaced with another memory if one is available.
+- Replacing a pinned memory selects a new memory from the same category and
+  position. The replacement should not already be showing and should not already
+  be completed.
+- The new replacement should stay expanded so the user can immediately inspect
+  it.
 
-Default pin duration:
+Visibility timing:
 
-```text
-expires_at = pinned_at + 7 days
-```
-
-If a pinned memory is completed, it can remain in place until the user replaces
-it manually or until the next dashboard load fills that slot.
+- When a pinned memory appears, set `visible_until` to a random duration after
+  `last_shown_at`.
+- Allowed durations are 24, 30, 36, 42, and 48 hours.
+- Completing or replacing a pinned memory should refresh the relevant visible or
+  cleanup timing.
+- Visibility timing is separate from the 2-hour completed cleanup timing.
 
 ## Dashboard
 
-The home dashboard should show a compact `Pinned Memories` section.
+The home dashboard should show a compact `Pinned Memories` section. Its icon
+should match the Memories item in the hamburger menu.
 
 For each pinned memory, show:
 
 - title
 - short description
 - category
+
+Clicking or focusing a pinned memory should expand it like the current routine
+cards. Only the expanded state should show:
+
 - done button
 - replace button
-- link or click target for the detail page
+- view button that opens the memory detail page
 
-When a memory is focused or hovered, show icon buttons for done and replace. If
-the user clicks done, keep focus and show the completed state. If the user
-clicks replace, replace only that one item and keep other positions unchanged.
+Clicking the pinned memory again should collapse it.
 
-On dashboard load:
+If the user clicks done, keep the card expanded and show the completed state. If
+the user clicks replace, replace only that one item, keep other positions
+unchanged, and keep the new item expanded.
 
-- hide completed, expired, unpinned, or replaced pins
-- fill empty dashboard slots up to the category limit
-- preserve the order of still-active pins
+On dashboard load or reload:
+
+- apply the rules in Pinned Memory Behavior
+- preserve the order of still-active pinned memories
+- fill empty slots by appending new pinned memories at the end of the category
+  list when candidates exist
 
 ## Memories Page
 
@@ -397,8 +375,10 @@ It should allow the user to:
 - filter by category
 - open a memory detail page
 - add a memory
-- edit or archive a memory
+- edit or delete a memory
 - manage categories in a lightweight dialog
 - open the suggestion page
 
-The Memories page can be opened from the hamburger menu.
+The Memories page can be opened from the hamburger menu. Its icon should match
+the `Pinned Memories` dashboard section; `ClipboardList` is a reasonable first
+icon.

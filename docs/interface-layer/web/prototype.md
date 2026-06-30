@@ -204,17 +204,30 @@ Each pinned memory card should show:
 - short description
 - category
 - subtle metadata such as `Pinned 2 days ago` or `Last done 18 days ago`
-- icon buttons for `Done` and `Replace`
+
+Clicking or focusing a pinned memory should expand it like the current routine
+cards. Only the expanded state should show action buttons:
+
+- `Done`
+- `Replace`
+- `View`
 
 Interaction behavior:
 
-- `Done` marks only that pinned memory as completed visually.
+- `Done` marks only that pinned memory as completed visually and keeps the card
+  expanded.
+- A completed memory should support canceling done before cleanup in the real
+  implementation.
 - `Replace` swaps only that pinned memory with another dummy memory from the
-  same category.
+  same category and keeps the new memory expanded.
 - Replacing one item should preserve the order and state of the other pinned
   memories.
+- The first dashboard should show up to three Cuisine memories and up to three
+  Sightseeing memories.
 - The `Memories` sidebar item can be a placeholder and does not need navigation
   yet.
+- Use the same icon for the `Pinned Memories` section and the `Memories`
+  sidebar item. `ClipboardList` is a reasonable first choice.
 
 Visual direction:
 

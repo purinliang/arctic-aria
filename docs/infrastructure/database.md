@@ -48,7 +48,7 @@ Keep a user table because many records need a stable owner:
 - memories and pinned memories
 - reminders
 - daily reviews
-- plugin memory and plugin run records
+- internal plugin context and plugin run records
 
 Recommended first tables:
 
@@ -97,19 +97,18 @@ review and reward plugins can reason about what happened.
 
 ## Memory Tables
 
-Memories are Core data, not plugin memory. They represent user-visible
-repeatable experiences that can be suggested, pinned, ignored, and completed.
+Memories are Core data. They represent user-visible repeatable experiences that
+can be suggested, pinned, ignored, completed, and deleted.
 
 Recommended first tables:
 
-- `memory_categories`: user-owned categories, suggestion weight, dashboard
-  visibility, dashboard limit, icon, and sort order.
-- `memories`: canonical memory records, category, title, description, status,
-  summary timestamps, done count, and optional `jsonb` metadata.
+- `memory_categories`: user-owned categories and suggestion base weight.
+- `memories`: canonical memory records, category, title, description, summary
+  timestamps, and done count.
 - `memory_events`: immutable history for `pinned`, `unpinned`, `ignored`,
-  `completed`, and `replaced` events.
+  `completed`, `completed_canceled`, `replaced`, and `deleted` events.
 - `pinned_memories`: current dashboard shortlist with category, position,
-  status, pin time, expiry time, completion time, and removal time.
+  pin time, visible-until time, completion time, and completed cleanup time.
 
 Keep event history separate from current state. Do not store pin, ignore, or
 done timestamp arrays on `memories`; use `memory_events` for history and

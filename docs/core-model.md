@@ -22,7 +22,8 @@ The first Core model should support:
 
 The first Core model should not include:
 
-- plugin-specific memory, such as learning history or retrieval context
+- internal plugin or agent context, such as learning history or retrieval
+  context
 - reward inventory
 - event bus design
 - Discord-specific message details
@@ -269,7 +270,7 @@ or sharing data should wait until those features are designed.
 
 Memories are repeatable personal experiences that the user may want to revisit,
 such as cuisine, sightseeing, anime, games, books, or shops. They are Core data
-because the user directly creates, manages, pins, completes, and reviews them.
+because the user directly creates, manages, pins, completes, and deletes them.
 
 Memories are not tasks or routines. They are soft candidates for enjoyment and
 should not become overdue.
@@ -279,7 +280,8 @@ The first model should include:
 - memory categories
 - memory records
 - pinned memories for the current dashboard shortlist
-- immutable memory events for pin, ignore, complete, unpin, and replace actions
+- immutable memory events for pin, ignore, complete, cancel, unpin, replace,
+  and delete actions
 
 Detailed behavior and table attributes are documented in
 [core-layer/memories.md](core-layer/memories.md).

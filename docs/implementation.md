@@ -91,20 +91,20 @@ PostgreSQL should store:
 - completion events and daily reviews
 - plugin registrations and plugin run records
 
-Use document-style storage for plugin memory, but do not start with a separate
-document database unless the need is proven.
+Use document-style storage for internal plugin or agent context, but do not
+start with a separate document database unless the need is proven.
 
 Recommended first approach:
 
 - PostgreSQL relational tables for core entities.
 - PostgreSQL `jsonb` columns for flexible plugin metadata, conversation
-  summaries, extracted plugin memory facts, and raw agent outputs.
+  summaries, extracted context facts, and raw agent outputs.
 - PostgreSQL vector extension or a later dedicated vector store for retrieval if
   the English coach or research coach needs semantic search.
 
 This keeps deployment simpler while leaving room for document-like plugin data.
-A separate document database can be added later if plugin memory becomes large,
-independent, or hard to model in PostgreSQL.
+A separate document database can be added later if internal plugin or agent
+context becomes large, independent, or hard to model in PostgreSQL.
 
 ## Proposed Repository Structure
 
