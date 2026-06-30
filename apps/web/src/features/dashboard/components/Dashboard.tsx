@@ -1,7 +1,7 @@
 "use client";
 
 import { Bell, Check, ClipboardList, ListChecks, LogOut, Menu } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import {
   cancelPinnedMemoryDone,
@@ -88,7 +88,7 @@ export function Dashboard({
   const [memoryRecords, setMemoryRecords] = useState<MemoryRecord[]>([]);
   const [memoryLoading, setMemoryLoading] = useState(true);
   const [memoryMessage, setMemoryMessage] = useState<string | null>(null);
-  const [memoryActionPending, startMemoryAction] = useTransition();
+  const [memoryActionPending, setMemoryActionPending] = useState(false);
   const [activeView, setActiveView] = useState<DashboardView>("dashboard");
   const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -205,9 +205,14 @@ export function Dashboard({
     );
   }
 
-  function runMemoryAction(action: MemoryDataAction, expandedPinnedMemoryId: string) {
+  async function runMemoryAction(
+    action: MemoryDataAction,
+    expandedPinnedMemoryId: string,
+  ) {
     setMemoryMessage(null);
-    startMemoryAction(async () => {
+    setMemoryActionPending(true);
+
+    try {
       const result = await action();
 
       if (!result.ok) {
@@ -216,39 +221,47 @@ export function Dashboard({
       }
 
       applyMemoryData(result.data, expandedPinnedMemoryId);
-    });
+    } finally {
+      setMemoryActionPending(false);
+    }
   }
 
-  function runMemoryManagementAction(action: MemoryDataAction) {
+  async function runMemoryManagementAction(action: MemoryDataAction) {
     setMemoryMessage(null);
-    startMemoryAction(async () => {
+
+    setMemoryActionPending(true);
+
+    try {
       const result = await action();
 
       if (!result.ok) {
         setMemoryMessage(result.message);
-        return;
+        return false;
       }
 
       applyMemoryData(result.data);
-    });
+      return true;
+    } finally {
+      setMemoryActionPending(false);
+    }
   }
 
   function markMemoryDone(pinnedMemoryId: string) {
-    runMemoryAction(
+    void runMemoryAction(
       () => completePinnedMemory(pinnedMemoryId),
       pinnedMemoryId,
     );
   }
 
   function cancelMemoryDone(pinnedMemoryId: string) {
-    runMemoryAction(
+    void runMemoryAction(
       () => cancelPinnedMemoryDone(pinnedMemoryId),
       pinnedMemoryId,
     );
   }
 
   function replaceMemory(pinnedMemoryId: string) {
-    runMemoryAction(
+    void runMemoryAction(
       () => replacePinnedMemory(pinnedMemoryId),
       pinnedMemoryId,
     );
@@ -261,19 +274,19 @@ export function Dashboard({
   }
 
   function saveMemoryFromPage(input: MemoryInput) {
-    runMemoryManagementAction(() => saveMemory(input));
+    return runMemoryManagementAction(() => saveMemory(input));
   }
 
   function deleteMemoryFromPage(memoryId: string) {
-    runMemoryManagementAction(() => deleteMemory(memoryId));
+    return runMemoryManagementAction(() => deleteMemory(memoryId));
   }
 
   function saveCategoryFromPage(input: MemoryCategoryInput) {
-    runMemoryManagementAction(() => saveMemoryCategory(input));
+    return runMemoryManagementAction(() => saveMemoryCategory(input));
   }
 
   function deleteCategoryFromPage(categoryId: string) {
-    runMemoryManagementAction(() => deleteMemoryCategory(categoryId));
+    return runMemoryManagementAction(() => deleteMemoryCategory(categoryId));
   }
 
   function openReview() {
