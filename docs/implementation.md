@@ -85,6 +85,7 @@ PostgreSQL should store:
 - users and accounts
 - plans, tasks, task weights, and progress
 - ideas and triage state
+- memories, memory events, and pinned memories
 - routines, routine rules, and routine instances
 - scheduler events and notification state
 - completion events and daily reviews
@@ -97,7 +98,7 @@ Recommended first approach:
 
 - PostgreSQL relational tables for core entities.
 - PostgreSQL `jsonb` columns for flexible plugin metadata, conversation
-  summaries, extracted memories, and raw agent outputs.
+  summaries, extracted plugin memory facts, and raw agent outputs.
 - PostgreSQL vector extension or a later dedicated vector store for retrieval if
   the English coach or research coach needs semantic search.
 
@@ -133,6 +134,7 @@ arctic-aria/
 |   |   |   |-- tasks/
 |   |   |   |-- routines/
 |   |   |   |-- ideas/
+|   |   |   |-- memories/
 |   |   |   |-- scheduler/
 |   |   |   `-- reviews/
 |   |   `-- package.json
@@ -204,11 +206,13 @@ Core planning slice:
 - task weights
 - complete and partial-complete events
 - daily plan
+- pinned memories for the dashboard
 - daily review
 - PostgreSQL schema for those entities
 - user and Discord binding schema
 - routine instance and reminder job schema
-- basic Next.js dashboard views for capture, plan, progress, and review
+- basic Next.js dashboard views for capture, plan, progress, pinned memories,
+  and review
 
 Do not implement the Discord bot, English coach, reward inventory, or sharing in
 the next Core planning branch. They should be separate branches after the core
