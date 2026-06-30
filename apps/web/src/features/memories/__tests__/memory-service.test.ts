@@ -99,6 +99,27 @@ test("initializes default memory categories for a user", async () => {
   assert.equal(secondCall.length, 2);
 });
 
+test("creates memory in a newly created custom category", async () => {
+  const repository = new InMemoryMemoryRepository();
+  const service = createMemoryService({
+    memories: repository,
+    now: () => now,
+  });
+
+  const category = await service.createCategory(userId, "Custom", 1.2);
+  const createdMemory = await service.createMemory(
+    userId,
+    category.id,
+    "Custom memory",
+    "Created under a custom category",
+  );
+
+  assert.ok(createdMemory);
+  assert.equal(createdMemory.categoryId, category.id);
+  assert.equal(createdMemory.categoryName, "Custom");
+  assert.equal(createdMemory.title, "Custom memory");
+});
+
 test("complete pinned memory records completion and cleanup timing", async () => {
   const repository = new InMemoryMemoryRepository({
     memories: [
