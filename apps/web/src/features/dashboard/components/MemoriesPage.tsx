@@ -3,10 +3,13 @@ import {
   ClipboardList,
   Edit3,
   Lightbulb,
+  LoaderCircle,
   Pin,
   PinOff,
   Plus,
   RefreshCw,
+  Save,
+  Settings2,
   Trash2,
   X,
 } from "lucide-react";
@@ -25,6 +28,23 @@ import type {
 type MemoryFilter = "All" | MemoryCategory;
 type EditorResult = Promise<boolean>;
 type SuggestionResult = Promise<boolean>;
+type CategoryPeriod = "Weekly" | "Monthly";
+type ConfirmationTarget =
+  | {
+      type: "memory";
+      id: string;
+      title: string;
+    }
+  | {
+      type: "category";
+      id: string;
+      title: string;
+    };
+
+const categoryPeriodWeights: Record<CategoryPeriod, number> = {
+  Weekly: 1.2,
+  Monthly: 0.8,
+};
 
 function panelClass(darkMode: boolean) {
   return darkMode
@@ -78,8 +98,15 @@ function modalClass(darkMode: boolean) {
 
 const emptyCategoryDraft: MemoryCategoryInput = {
   name: "",
-  baseWeight: 1,
+  baseWeight: categoryPeriodWeights.Weekly,
 };
+
+function categoryPeriodFromWeight(baseWeight: number): CategoryPeriod {
+  return Math.abs(baseWeight - categoryPeriodWeights.Monthly) <
+    Math.abs(baseWeight - categoryPeriodWeights.Weekly)
+    ? "Monthly"
+    : "Weekly";
+}
 
 export function MemoriesPage({
   darkMode,
@@ -98,6 +125,7 @@ export function MemoriesPage({
   onMemoryDelete,
   onCategorySave,
   onCategoryDelete,
+  onMessageClear,
   onSuggestionsRefresh,
   onSuggestionPin,
   onSuggestionCancel,
@@ -120,6 +148,7 @@ export function MemoriesPage({
   onMemoryDelete: (memoryId: string) => EditorResult;
   onCategorySave: (input: MemoryCategoryInput) => EditorResult;
   onCategoryDelete: (categoryId: string) => EditorResult;
+  onMessageClear: () => void;
   onSuggestionsRefresh: () => Promise<void>;
   onSuggestionPin: (memoryId: string) => SuggestionResult;
   onSuggestionCancel: (memoryId: string) => SuggestionResult;
@@ -130,6 +159,8 @@ export function MemoriesPage({
   );
   const [memoryEditorOpen, setMemoryEditorOpen] = useState(false);
   const [categoryEditorOpen, setCategoryEditorOpen] = useState(false);
+  const [confirmationTarget, setConfirmationTarget] =
+    useState<ConfirmationTarget | null>(null);
   const [memoryDraft, setMemoryDraft] = useState<MemoryInput>({
     categoryId: categories[0]?.id ?? "",
     title: "",
@@ -149,21 +180,24 @@ export function MemoriesPage({
   function closeMemoryEditor() {
     if (!pending) {
       setMemoryEditorOpen(false);
+      onMessageClear();
     }
   }
 
   function closeCategoryEditor() {
     if (!pending) {
       setCategoryEditorOpen(false);
+      onMessageClear();
     }
   }
 
   function openNewMemoryEditor() {
     setMemoryDraft({
-      categoryId: categories[0]?.id ?? "",
+      categoryId: "",
       title: "",
       description: "",
     });
+    onMessageClear();
     setMemoryEditorOpen(true);
   }
 
@@ -174,6 +208,7 @@ export function MemoriesPage({
       title: memory.title,
       description: memory.description,
     });
+    onMessageClear();
     setMemoryEditorOpen(true);
   }
 
@@ -185,15 +220,30 @@ export function MemoriesPage({
     }
   }
 
-  async function deleteEditedMemory() {
-    if (!memoryDraft.id || !window.confirm("Delete this memory?")) {
+  async function confirmDelete() {
+    if (!confirmationTarget) {
       return;
     }
 
-    const deleted = await onMemoryDelete(memoryDraft.id);
+    if (confirmationTarget.type === "memory") {
+      const deleted = await onMemoryDelete(confirmationTarget.id);
+
+      if (deleted) {
+        setMemoryEditorOpen(false);
+        setConfirmationTarget(null);
+      } else {
+        setConfirmationTarget(null);
+      }
+      return;
+    }
+
+    const deleted = await onCategoryDelete(confirmationTarget.id);
 
     if (deleted) {
-      setMemoryEditorOpen(false);
+      setConfirmationTarget(null);
+      setCategoryDraft(emptyCategoryDraft);
+    } else {
+      setConfirmationTarget(null);
     }
   }
 
@@ -205,16 +255,11 @@ export function MemoriesPage({
     }
   }
 
-  async function deleteCategory(categoryId: string) {
-    if (!window.confirm("Delete this category?")) {
-      return;
-    }
-
-    const deleted = await onCategoryDelete(categoryId);
-
-    if (deleted && categoryDraft.id === categoryId) {
-      setCategoryDraft(emptyCategoryDraft);
-    }
+  function selectCategoryPeriod(period: CategoryPeriod) {
+    setCategoryDraft((current) => ({
+      ...current,
+      baseWeight: categoryPeriodWeights[period],
+    }));
   }
 
   return (
@@ -242,7 +287,7 @@ export function MemoriesPage({
               onClick={openNewMemoryEditor}
             >
               <Plus size={15} aria-hidden="true" />
-              Add Memory
+              Add
             </button>
           </div>
 
@@ -264,10 +309,13 @@ export function MemoriesPage({
               className={`flex h-8 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
               type="button"
               disabled={pending}
-              onClick={() => setCategoryEditorOpen(true)}
+              onClick={() => {
+                onMessageClear();
+                setCategoryEditorOpen(true);
+              }}
             >
-              <Plus size={14} aria-hidden="true" />
-              Add Category
+              <Settings2 size={14} aria-hidden="true" />
+              Manage
             </button>
           </div>
 
@@ -327,7 +375,7 @@ export function MemoriesPage({
                 <h2 className="text-base font-semibold">Suggestions</h2>
               </div>
               <p className={`mt-1 text-sm ${mutedText(darkMode)}`}>
-                Suggestions to reexperience in the next few days.
+                To reexperience in a few days.
               </p>
             </div>
             <button
@@ -336,7 +384,15 @@ export function MemoriesPage({
               disabled={suggestionLoading || suggestionPending}
               onClick={() => void onSuggestionsRefresh()}
             >
-              <RefreshCw size={14} aria-hidden="true" />
+              {suggestionLoading ? (
+                <LoaderCircle
+                  className="animate-spin"
+                  size={14}
+                  aria-hidden="true"
+                />
+              ) : (
+                <RefreshCw size={14} aria-hidden="true" />
+              )}
               Refresh
             </button>
           </div>
@@ -407,10 +463,14 @@ export function MemoriesPage({
           >
             <div className="mb-4 flex items-center justify-between gap-3">
               <h3 className="text-base font-semibold">
-                {editingMemory ? "Edit memory" : "Add memory"}
+                {editingMemory ? "Edit a memory" : "Add a new memory"}
               </h3>
               <button
-                className={`flex h-9 w-9 items-center justify-center rounded-md border transition ${buttonClass(darkMode)}`}
+                className={`flex h-9 w-9 items-center justify-center rounded-md transition ${
+                  darkMode
+                    ? "text-neutral-300 hover:bg-white/10 hover:text-white"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
+                }`}
                 type="button"
                 aria-label="Close memory editor"
                 onClick={closeMemoryEditor}
@@ -431,32 +491,12 @@ export function MemoriesPage({
             ) : null}
             <div className="grid gap-3">
               <label className="grid gap-1 text-xs font-semibold">
-                Category
-                <select
-                  className={inputClass(darkMode)}
-                  value={memoryDraft.categoryId}
-                  disabled={pending}
-                  onChange={(event) =>
-                    setMemoryDraft((current) => ({
-                      ...current,
-                      categoryId: event.target.value,
-                    }))
-                  }
-                >
-                  <option value="">Choose category</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="grid gap-1 text-xs font-semibold">
                 Title
                 <input
                   className={inputClass(darkMode)}
                   value={memoryDraft.title}
                   maxLength={120}
+                  placeholder="Memory title"
                   disabled={pending}
                   onChange={(event) =>
                     setMemoryDraft((current) => ({
@@ -466,6 +506,42 @@ export function MemoriesPage({
                   }
                 />
               </label>
+              <div className="grid gap-2">
+                <span className="text-xs font-semibold">Category</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  {categories.map((category) => (
+                    <button
+                      key={category.id}
+                      className={`h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(
+                        darkMode,
+                        memoryDraft.categoryId === category.id,
+                      )}`}
+                      type="button"
+                      disabled={pending}
+                      onClick={() =>
+                        setMemoryDraft((current) => ({
+                          ...current,
+                          categoryId: category.id,
+                        }))
+                      }
+                    >
+                      {category.name}
+                    </button>
+                  ))}
+                  <button
+                    className={`flex h-8 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
+                    type="button"
+                    disabled={pending}
+                    onClick={() => {
+                      onMessageClear();
+                      setCategoryEditorOpen(true);
+                    }}
+                  >
+                    <Settings2 size={14} aria-hidden="true" />
+                    Manage
+                  </button>
+                </div>
+              </div>
               <label className="grid gap-1 text-xs font-semibold">
                 Description
                 <textarea
@@ -484,18 +560,35 @@ export function MemoriesPage({
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               <button
-                className={`h-9 rounded-md border px-4 text-xs font-semibold transition ${buttonClass(darkMode, true)}`}
+                className={`flex h-9 items-center gap-2 rounded-md border px-4 text-xs font-semibold transition ${buttonClass(darkMode, true)}`}
                 type="submit"
                 disabled={pending}
               >
-                {pending ? "Saving..." : "Save"}
+                {pending ? (
+                  <LoaderCircle
+                    className="animate-spin"
+                    size={14}
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <Save size={14} aria-hidden="true" />
+                )}
+                Save
               </button>
               {editingMemory ? (
                 <button
                   className={`flex h-9 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
                   type="button"
                   disabled={pending}
-                  onClick={() => void deleteEditedMemory()}
+                  onClick={() =>
+                    memoryDraft.id
+                      ? setConfirmationTarget({
+                          type: "memory",
+                          id: memoryDraft.id,
+                          title: memoryDraft.title || "this memory",
+                        })
+                      : undefined
+                  }
                 >
                   <Trash2 size={14} aria-hidden="true" />
                   Delete
@@ -516,9 +609,13 @@ export function MemoriesPage({
           />
           <section className={modalClass(darkMode)}>
             <div className="mb-4 flex items-center justify-between gap-3">
-              <h3 className="text-base font-semibold">Categories</h3>
+              <h3 className="text-base font-semibold">Manage Categories</h3>
               <button
-                className={`flex h-9 w-9 items-center justify-center rounded-md border transition ${buttonClass(darkMode)}`}
+                className={`flex h-9 w-9 items-center justify-center rounded-md transition ${
+                  darkMode
+                    ? "text-neutral-300 hover:bg-white/10 hover:text-white"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
+                }`}
                 type="button"
                 aria-label="Close category editor"
                 onClick={closeCategoryEditor}
@@ -538,52 +635,77 @@ export function MemoriesPage({
               </p>
             ) : null}
             <form
-              className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_110px_auto]"
+              className="grid gap-3"
               onSubmit={(event) => {
                 event.preventDefault();
                 void submitCategory();
               }}
             >
-              <input
-                className={inputClass(darkMode)}
-                value={categoryDraft.name}
-                maxLength={40}
-                placeholder="Category name"
-                disabled={pending}
-                onChange={(event) =>
-                  setCategoryDraft((current) => ({
-                    ...current,
-                    name: event.target.value,
-                  }))
-                }
-              />
-              <input
-                className={inputClass(darkMode)}
-                value={categoryDraft.baseWeight}
-                min="0.1"
-                step="0.1"
-                type="number"
-                disabled={pending}
-                onChange={(event) =>
-                  setCategoryDraft((current) => ({
-                    ...current,
-                    baseWeight: Number(event.target.value),
-                  }))
-                }
-              />
-              <button
-                className={`h-10 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode, true)}`}
-                type="submit"
-                disabled={pending}
-              >
-                {categoryDraft.id ? "Update" : "Add"}
-              </button>
+              <label className="grid gap-1 text-xs font-semibold">
+                Category name
+                <input
+                  className={inputClass(darkMode)}
+                  value={categoryDraft.name}
+                  maxLength={40}
+                  placeholder="Category name"
+                  disabled={pending}
+                  onChange={(event) =>
+                    setCategoryDraft((current) => ({
+                      ...current,
+                      name: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+              <div className="grid gap-2">
+                <span className="text-xs font-semibold">
+                  Suggestion period
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {(["Weekly", "Monthly"] as CategoryPeriod[]).map((period) => (
+                    <button
+                      key={period}
+                      className={`h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(
+                        darkMode,
+                        categoryPeriodFromWeight(categoryDraft.baseWeight) ===
+                          period,
+                      )}`}
+                      type="button"
+                      disabled={pending}
+                      onClick={() => selectCategoryPeriod(period)}
+                    >
+                      {period}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  className={`flex h-9 items-center gap-2 rounded-md border px-4 text-xs font-semibold transition ${buttonClass(darkMode, true)}`}
+                  type="submit"
+                  disabled={pending}
+                >
+                  {pending ? (
+                    <LoaderCircle
+                      className="animate-spin"
+                      size={14}
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Save size={14} aria-hidden="true" />
+                  )}
+                  Save
+                </button>
+              </div>
             </form>
             <button
               className={`mt-3 h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
               type="button"
               disabled={pending}
-              onClick={() => setCategoryDraft(emptyCategoryDraft)}
+              onClick={() => {
+                onMessageClear();
+                setCategoryDraft(emptyCategoryDraft);
+              }}
             >
               New category
             </button>
@@ -602,9 +724,6 @@ export function MemoriesPage({
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">
                       {category.name}
-                    </p>
-                    <p className={`text-xs ${mutedText(darkMode)}`}>
-                      Weight {category.baseWeight}
                     </p>
                   </div>
                   <div className="flex shrink-0 gap-2">
@@ -628,7 +747,13 @@ export function MemoriesPage({
                       type="button"
                       disabled={pending}
                       aria-label={`Delete ${category.name}`}
-                      onClick={() => void deleteCategory(category.id)}
+                      onClick={() =>
+                        setConfirmationTarget({
+                          type: "category",
+                          id: category.id,
+                          title: category.name,
+                        })
+                      }
                     >
                       <Trash2 size={14} aria-hidden="true" />
                     </button>
@@ -639,7 +764,97 @@ export function MemoriesPage({
           </section>
         </div>
       ) : null}
+
+      {confirmationTarget ? (
+        <ConfirmDialog
+          darkMode={darkMode}
+          pending={pending}
+          title={`Delete ${confirmationTarget.type}`}
+          description={`Delete "${confirmationTarget.title}"? This cannot be undone.`}
+          onCancel={() => {
+            if (!pending) {
+              setConfirmationTarget(null);
+            }
+          }}
+          onConfirm={() => void confirmDelete()}
+        />
+      ) : null}
     </>
+  );
+}
+
+function ConfirmDialog({
+  darkMode,
+  pending,
+  title,
+  description,
+  onCancel,
+  onConfirm,
+}: {
+  darkMode: boolean;
+  pending: boolean;
+  title: string;
+  description: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[60] grid place-items-center bg-black/65 px-4 py-6">
+      <button
+        className="absolute inset-0 cursor-default"
+        type="button"
+        aria-label="Close confirmation"
+        onClick={onCancel}
+      />
+      <section className={`${modalClass(darkMode)} max-w-md`}>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h3 className="text-base font-semibold">{title}</h3>
+          <button
+            className={`flex h-9 w-9 items-center justify-center rounded-md transition ${
+              darkMode
+                ? "text-neutral-300 hover:bg-white/10 hover:text-white"
+                : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
+            }`}
+            type="button"
+            aria-label="Close confirmation"
+            disabled={pending}
+            onClick={onCancel}
+          >
+            <X size={16} aria-hidden="true" />
+          </button>
+        </div>
+        <p className={`text-sm leading-6 ${mutedText(darkMode)}`}>
+          {description}
+        </p>
+        <div className="mt-4 flex flex-wrap justify-end gap-2">
+          <button
+            className={`h-9 rounded-md border px-4 text-xs font-semibold transition ${buttonClass(darkMode)}`}
+            type="button"
+            disabled={pending}
+            onClick={onCancel}
+          >
+            Cancel
+          </button>
+          <button
+            className={`flex h-9 items-center gap-2 rounded-md border px-4 text-xs font-semibold transition ${buttonClass(darkMode, true)}`}
+            type="button"
+            disabled={pending}
+            onClick={onConfirm}
+          >
+            {pending ? (
+              <LoaderCircle
+                className="animate-spin"
+                size={14}
+                aria-hidden="true"
+              />
+            ) : (
+              <Trash2 size={14} aria-hidden="true" />
+            )}
+            Delete
+          </button>
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -741,34 +956,42 @@ function SuggestionListItem({
   onCancel: () => void;
 }) {
   return (
-    <article className="px-4 py-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <h3 className="text-sm font-semibold">{suggestion.title}</h3>
-        <span
-          className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${categoryClass(suggestion.category, darkMode)}`}
-        >
-          {suggestion.category}
-        </span>
+    <article className="flex items-start gap-3 px-4 py-4">
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="text-sm font-semibold">{suggestion.title}</h3>
+          <span
+            className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${categoryClass(suggestion.category, darkMode)}`}
+          >
+            {suggestion.category}
+          </span>
+        </div>
+        <p className={`mt-1 text-xs leading-5 ${mutedText(darkMode)}`}>
+          {suggestion.description}
+        </p>
+        <p className={`mt-2 text-xs ${mutedText(darkMode)}`}>
+          {suggestion.lastDoneText} · Done {suggestion.doneCount} times
+        </p>
       </div>
-      <p className={`mt-1 text-xs leading-5 ${mutedText(darkMode)}`}>
-        {suggestion.description}
-      </p>
-      <p className={`mt-2 text-xs ${mutedText(darkMode)}`}>
-        {suggestion.lastDoneText} · Done {suggestion.doneCount} times
-      </p>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="shrink-0">
         <button
-          className={`flex h-8 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode, !pinned)}`}
+          className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${buttonClass(darkMode, !pinned)}`}
           type="button"
           disabled={pending}
+          aria-label={pinned ? "Cancel pin" : "Pin suggestion"}
           onClick={pinned ? onCancel : onPin}
         >
-          {pinned ? (
+          {pending ? (
+            <LoaderCircle
+              className="animate-spin"
+              size={15}
+              aria-hidden="true"
+            />
+          ) : pinned ? (
             <PinOff size={14} aria-hidden="true" />
           ) : (
             <Pin size={14} aria-hidden="true" />
           )}
-          {pinned ? "Cancel" : "Pin"}
         </button>
       </div>
     </article>

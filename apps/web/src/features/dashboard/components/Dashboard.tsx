@@ -303,6 +303,10 @@ export function Dashboard({
     return runMemoryManagementAction(() => deleteMemoryCategory(categoryId));
   }
 
+  function clearMemoryMessage() {
+    setMemoryMessage(null);
+  }
+
   async function refreshSuggestionsFromPage() {
     setSuggestionsRequested(true);
     setSuggestionMessage(null);
@@ -477,6 +481,7 @@ export function Dashboard({
             onMemoryDelete={deleteMemoryFromPage}
             onCategorySave={saveCategoryFromPage}
             onCategoryDelete={deleteCategoryFromPage}
+            onMessageClear={clearMemoryMessage}
             onSuggestionsRefresh={refreshSuggestionsFromPage}
             onSuggestionPin={pinSuggestionFromPage}
             onSuggestionCancel={cancelSuggestionPinFromPage}
