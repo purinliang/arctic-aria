@@ -26,15 +26,28 @@ The first user feature should not include:
 - account deletion
 - multi-factor authentication
 
-## Attributes
+## Suggested Table Design
+
+### `users`
 
 Should be stored in the `users` SQL table.
 
-- id
-- username
-- password hash
-- display name
-- created and updated timestamps
+Recommended fields:
+
+- `id`
+- `username`
+- `password_hash`
+- `display_name`
+- `created_at`
+- `updated_at`
+
+Recommended constraints:
+
+- `id` is the primary key.
+- `username` is unique.
+- `username` must follow the registration username validation rules.
+- `display_name` must follow the registration display name validation rules.
+- `password_hash` is required.
 
 Do not store raw passwords. Password hashing secrets, salts, pepper values, and
 environment variables must not be committed to git.
