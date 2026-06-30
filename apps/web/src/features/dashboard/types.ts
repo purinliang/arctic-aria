@@ -34,16 +34,18 @@ export type Routine = {
   streakText: string;
 };
 
-export type MemoryCategory = "Cuisine" | "Sightseeing";
+export type MemoryCategory = string;
 
 export type PinnedMemoryStatus = "active" | "completed";
 
 export type PinnedMemory = {
   id: string;
+  memoryId: string;
   category: MemoryCategory;
   title: string;
   description: string;
   meta: string;
+  position: number;
   status: PinnedMemoryStatus;
 };
 

@@ -6,12 +6,9 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { useState } from "react";
-import { memoryRecords, memoryReplacementPool } from "../dummy-data";
 import type { MemoryCategory, MemoryRecord } from "../types";
 
 type MemoryFilter = "All" | MemoryCategory;
-
-const filters: MemoryFilter[] = ["All", "Cuisine", "Sightseeing"];
 
 function panelClass(darkMode: boolean) {
   return darkMode
@@ -49,12 +46,22 @@ function buttonClass(darkMode: boolean, active = false) {
 
 export function MemoriesPage({
   darkMode,
+  memoryRecords,
+  loading,
+  message,
   selectedMemoryId,
 }: {
   darkMode: boolean;
+  memoryRecords: MemoryRecord[];
+  loading: boolean;
+  message: string | null;
   selectedMemoryId: string | null;
 }) {
   const [filter, setFilter] = useState<MemoryFilter>("All");
+  const filters: MemoryFilter[] = [
+    "All",
+    ...Array.from(new Set(memoryRecords.map((memory) => memory.category))),
+  ];
   const visibleMemories = memoryRecords.filter(
     (memory) => filter === "All" || memory.category === filter,
   );
@@ -112,6 +119,25 @@ export function MemoriesPage({
             darkMode ? "divide-y divide-neutral-900" : "divide-y divide-slate-200"
           }
         >
+          {message ? (
+            <p
+              className={`px-4 py-4 text-sm ${
+                darkMode ? "text-amber-200" : "text-amber-700"
+              }`}
+            >
+              {message}
+            </p>
+          ) : null}
+          {loading ? (
+            <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
+              Loading memories...
+            </p>
+          ) : null}
+          {!loading && visibleMemories.length === 0 ? (
+            <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
+              No memories found for this filter.
+            </p>
+          ) : null}
           {visibleMemories.map((memory) => (
             <MemoryListItem
               key={memory.id}
@@ -143,35 +169,10 @@ export function MemoriesPage({
             darkMode ? "divide-y divide-neutral-900" : "divide-y divide-slate-200"
           }
         >
-          {memoryReplacementPool.slice(0, 4).map((memory) => (
-            <article key={memory.id} className="px-4 py-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-sm font-semibold">{memory.title}</h3>
-                <span
-                  className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${categoryClass(memory.category, darkMode)}`}
-                >
-                  {memory.category}
-                </span>
-              </div>
-              <p className={`mt-1 text-xs leading-5 ${mutedText(darkMode)}`}>
-                {memory.description}
-              </p>
-              <div className="mt-3 flex gap-2">
-                <button
-                  className={`h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-                  type="button"
-                >
-                  Pin
-                </button>
-                <button
-                  className={`h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-                  type="button"
-                >
-                  Ignore
-                </button>
-              </div>
-            </article>
-          ))}
+          <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
+            Suggestions will use saved database memories after the suggestion
+            service is added.
+          </p>
         </div>
       </aside>
     </section>

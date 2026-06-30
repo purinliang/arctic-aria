@@ -28,6 +28,7 @@ function iconButtonClass(darkMode: boolean, active = false) {
 export function PinnedMemoryCard({
   memory,
   darkMode,
+  disabled,
   expanded,
   onDone,
   onCancelDone,
@@ -37,6 +38,7 @@ export function PinnedMemoryCard({
 }: {
   memory: PinnedMemory;
   darkMode: boolean;
+  disabled: boolean;
   expanded: boolean;
   onDone: () => void;
   onCancelDone: () => void;
@@ -60,6 +62,7 @@ export function PinnedMemoryCard({
         }`}
         type="button"
         aria-expanded={expanded}
+        disabled={disabled}
         onClick={onToggleExpanded}
       >
         <div className="min-w-0">
@@ -119,6 +122,7 @@ export function PinnedMemoryCard({
               <button
                 className={`flex h-9 items-center justify-center gap-2 rounded-md border px-2 text-xs font-semibold transition ${iconButtonClass(darkMode, true)}`}
                 type="button"
+                disabled={disabled}
                 onClick={onCancelDone}
               >
                 <RotateCcw size={15} aria-hidden="true" />
@@ -128,6 +132,7 @@ export function PinnedMemoryCard({
               <button
                 className={`flex h-9 items-center justify-center gap-2 rounded-md border px-2 text-xs font-semibold transition ${iconButtonClass(darkMode)}`}
                 type="button"
+                disabled={disabled}
                 onClick={onDone}
               >
                 <Check size={15} aria-hidden="true" />
@@ -137,6 +142,7 @@ export function PinnedMemoryCard({
             <button
               className={`flex h-9 items-center justify-center gap-2 rounded-md border px-2 text-xs font-semibold transition ${iconButtonClass(darkMode)}`}
               type="button"
+              disabled={disabled}
               onClick={onReplace}
             >
               <RefreshCw size={14} aria-hidden="true" />
@@ -145,6 +151,7 @@ export function PinnedMemoryCard({
             <button
               className={`flex h-9 items-center justify-center gap-2 rounded-md border px-2 text-xs font-semibold transition ${iconButtonClass(darkMode)}`}
               type="button"
+              disabled={disabled}
               onClick={onView}
             >
               <Eye size={15} aria-hidden="true" />

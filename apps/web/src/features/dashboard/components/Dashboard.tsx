@@ -1,18 +1,25 @@
 "use client";
 
 import { Bell, Check, ClipboardList, ListChecks, LogOut, Menu } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import {
+  cancelPinnedMemoryDone,
+  completePinnedMemory,
+  getMemoryDashboardData,
+  replacePinnedMemory,
+  type MemoryDashboardData,
+  type MemoryActionResult,
+} from "@/features/memories/actions";
+import {
   dayBoundary,
-  initialPinnedMemories,
   initialRoutines,
   initialTasks,
-  memoryReplacementPool,
   rewardPreview,
 } from "../dummy-data";
 import type {
   DashboardView,
+  MemoryRecord,
   PinnedMemory,
   Routine,
   RoutineStatus,
@@ -33,6 +40,10 @@ const todayFormatter = new Intl.DateTimeFormat("en", {
   day: "numeric",
   year: "numeric",
 });
+
+type MemoryDataAction = () => Promise<
+  MemoryActionResult<MemoryDashboardData>
+>;
 
 function statusForWeight(completedWeight: number, weight: number): TaskStatus {
   if (completedWeight >= weight) {
@@ -63,8 +74,11 @@ export function Dashboard({
 }) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [routines, setRoutines] = useState<Routine[]>(initialRoutines);
-  const [pinnedMemories, setPinnedMemories] =
-    useState<PinnedMemory[]>(initialPinnedMemories);
+  const [pinnedMemories, setPinnedMemories] = useState<PinnedMemory[]>([]);
+  const [memoryRecords, setMemoryRecords] = useState<MemoryRecord[]>([]);
+  const [memoryLoading, setMemoryLoading] = useState(true);
+  const [memoryMessage, setMemoryMessage] = useState<string | null>(null);
+  const [memoryActionPending, startMemoryAction] = useTransition();
   const [activeView, setActiveView] = useState<DashboardView>("dashboard");
   const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -76,9 +90,53 @@ export function Dashboard({
     initialRoutines.find((routine) => routine.status === "reminding")?.id ??
       null,
   );
-  const [expandedMemoryId, setExpandedMemoryId] = useState<string | null>(
-    initialPinnedMemories[0]?.id ?? null,
+  const [expandedMemoryId, setExpandedMemoryId] = useState<string | null>(null);
+
+  const applyMemoryData = useCallback(
+    (data: MemoryDashboardData, nextExpandedMemoryId?: string | null) => {
+      setPinnedMemories(data.pinnedMemories);
+      setMemoryRecords(data.memoryRecords);
+      setExpandedMemoryId((current) => {
+        if (nextExpandedMemoryId !== undefined) {
+          return nextExpandedMemoryId;
+        }
+
+        if (
+          current &&
+          data.pinnedMemories.some((memory) => memory.id === current)
+        ) {
+          return current;
+        }
+
+        return data.pinnedMemories[0]?.id ?? null;
+      });
+    },
+    [],
   );
+
+  const refreshMemoryData = useCallback(async () => {
+    const result = await getMemoryDashboardData();
+
+    if (!result.ok) {
+      setMemoryMessage(result.message);
+      setPinnedMemories([]);
+      setMemoryRecords([]);
+      setExpandedMemoryId(null);
+      setMemoryLoading(false);
+      return;
+    }
+
+    applyMemoryData(result.data);
+    setMemoryLoading(false);
+  }, [applyMemoryData]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void refreshMemoryData();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [currentUser.id, refreshMemoryData]);
 
   const stats = useMemo(() => {
     const completedWeight = tasks.reduce(
@@ -135,51 +193,39 @@ export function Dashboard({
     );
   }
 
-  function markMemoryDone(memoryId: string) {
-    setPinnedMemories((current) =>
-      current.map((memory) =>
-        memory.id === memoryId ? { ...memory, status: "completed" } : memory,
-      ),
-    );
-    setExpandedMemoryId(memoryId);
+  function runMemoryAction(action: MemoryDataAction, expandedPinnedMemoryId: string) {
+    setMemoryMessage(null);
+    startMemoryAction(async () => {
+      const result = await action();
+
+      if (!result.ok) {
+        setMemoryMessage(result.message);
+        return;
+      }
+
+      applyMemoryData(result.data, expandedPinnedMemoryId);
+    });
   }
 
-  function cancelMemoryDone(memoryId: string) {
-    setPinnedMemories((current) =>
-      current.map((memory) =>
-        memory.id === memoryId ? { ...memory, status: "active" } : memory,
-      ),
+  function markMemoryDone(pinnedMemoryId: string) {
+    runMemoryAction(
+      () => completePinnedMemory(pinnedMemoryId),
+      pinnedMemoryId,
     );
-    setExpandedMemoryId(memoryId);
   }
 
-  function replaceMemory(memoryId: string) {
-    const target = pinnedMemories.find((memory) => memory.id === memoryId);
-
-    if (!target) {
-      return;
-    }
-
-    const candidates = memoryReplacementPool.filter(
-      (memory) =>
-        memory.category === target.category &&
-        !pinnedMemories.some(
-          (currentMemory) => currentMemory.id === memory.id,
-        ),
+  function cancelMemoryDone(pinnedMemoryId: string) {
+    runMemoryAction(
+      () => cancelPinnedMemoryDone(pinnedMemoryId),
+      pinnedMemoryId,
     );
+  }
 
-    if (candidates.length === 0) {
-      return;
-    }
-
-    const [replacement] = candidates;
-
-    setPinnedMemories((current) =>
-      current.map((memory) =>
-        memory.id === memoryId ? { ...replacement, status: "active" } : memory,
-      ),
+  function replaceMemory(pinnedMemoryId: string) {
+    runMemoryAction(
+      () => replacePinnedMemory(pinnedMemoryId),
+      pinnedMemoryId,
     );
-    setExpandedMemoryId(replacement.id);
   }
 
   function viewMemory(memoryId: string) {
@@ -273,7 +319,13 @@ export function Dashboard({
         </header>
 
         {activeView === "memories" ? (
-          <MemoriesPage darkMode={darkMode} selectedMemoryId={selectedMemoryId} />
+          <MemoriesPage
+            darkMode={darkMode}
+            memoryRecords={memoryRecords}
+            loading={memoryLoading}
+            message={memoryMessage}
+            selectedMemoryId={selectedMemoryId}
+          />
         ) : (
           <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
             <section
@@ -352,6 +404,17 @@ export function Dashboard({
                   meta={`${pinnedMemories.length} saved`}
                   darkMode={darkMode}
                 />
+                {memoryMessage ? (
+                  <div
+                    className={`border-b px-4 py-3 text-xs font-semibold ${
+                      darkMode
+                        ? "border-neutral-900 text-amber-200"
+                        : "border-slate-200 text-amber-700"
+                    }`}
+                  >
+                    {memoryMessage}
+                  </div>
+                ) : null}
                 <div
                   className={
                     darkMode
@@ -359,16 +422,35 @@ export function Dashboard({
                       : "divide-y divide-slate-200"
                   }
                 >
+                  {memoryLoading ? (
+                    <p
+                      className={`px-4 py-4 text-sm ${
+                        darkMode ? "text-neutral-400" : "text-slate-500"
+                      }`}
+                    >
+                      Loading pinned memories...
+                    </p>
+                  ) : null}
+                  {!memoryLoading && pinnedMemories.length === 0 ? (
+                    <p
+                      className={`px-4 py-4 text-sm ${
+                        darkMode ? "text-neutral-400" : "text-slate-500"
+                      }`}
+                    >
+                      No pinned memories yet.
+                    </p>
+                  ) : null}
                   {pinnedMemories.map((memory) => (
                     <PinnedMemoryCard
                       key={memory.id}
                       memory={memory}
                       darkMode={darkMode}
+                      disabled={memoryActionPending}
                       expanded={expandedMemoryId === memory.id}
                       onDone={() => markMemoryDone(memory.id)}
                       onCancelDone={() => cancelMemoryDone(memory.id)}
                       onReplace={() => replaceMemory(memory.id)}
-                      onView={() => viewMemory(memory.id)}
+                      onView={() => viewMemory(memory.memoryId)}
                       onToggleExpanded={() =>
                         setExpandedMemoryId((current) =>
                           current === memory.id ? null : memory.id,
