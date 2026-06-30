@@ -17,10 +17,12 @@ import type {
   MemoryCategory,
   MemoryCategoryOption,
   MemoryRecord,
+  MemorySuggestion,
 } from "../types";
 
 type MemoryFilter = "All" | MemoryCategory;
 type EditorResult = Promise<boolean>;
+type SuggestionResult = Promise<boolean>;
 
 function panelClass(darkMode: boolean) {
   return darkMode
@@ -81,26 +83,42 @@ export function MemoriesPage({
   darkMode,
   categories,
   memoryRecords,
+  suggestions,
   loading,
   pending,
+  suggestionLoading,
+  suggestionPending,
+  suggestionMessage,
+  suggestionsRequested,
   message,
   selectedMemoryId,
   onMemorySave,
   onMemoryDelete,
   onCategorySave,
   onCategoryDelete,
+  onSuggestionsRefresh,
+  onSuggestionPin,
+  onSuggestionIgnore,
 }: {
   darkMode: boolean;
   categories: MemoryCategoryOption[];
   memoryRecords: MemoryRecord[];
+  suggestions: MemorySuggestion[];
   loading: boolean;
   pending: boolean;
+  suggestionLoading: boolean;
+  suggestionPending: boolean;
+  suggestionMessage: string | null;
+  suggestionsRequested: boolean;
   message: string | null;
   selectedMemoryId: string | null;
   onMemorySave: (input: MemoryInput) => EditorResult;
   onMemoryDelete: (memoryId: string) => EditorResult;
   onCategorySave: (input: MemoryCategoryInput) => EditorResult;
   onCategoryDelete: (categoryId: string) => EditorResult;
+  onSuggestionsRefresh: () => Promise<void>;
+  onSuggestionPin: (memoryId: string) => SuggestionResult;
+  onSuggestionIgnore: (memoryId: string) => SuggestionResult;
 }) {
   const [filter, setFilter] = useState<MemoryFilter>("All");
   const [memoryEditorOpen, setMemoryEditorOpen] = useState(false);
@@ -285,17 +303,28 @@ export function MemoriesPage({
 
         <aside className={`rounded-md border ${panelClass(darkMode)}`}>
           <div
-            className={`border-b px-4 py-4 ${
+            className={`flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-start sm:justify-between ${
               darkMode ? "border-neutral-800" : "border-slate-200"
             }`}
           >
-            <div className="flex items-center gap-2">
-              <RefreshCw size={17} aria-hidden="true" />
-              <h2 className="text-base font-semibold">Suggestions</h2>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <RefreshCw size={17} aria-hidden="true" />
+                <h2 className="text-base font-semibold">Suggestions</h2>
+              </div>
+              <p className={`mt-1 text-sm ${mutedText(darkMode)}`}>
+                Refresh saved memories when you want an option.
+              </p>
             </div>
-            <p className={`mt-1 text-sm ${mutedText(darkMode)}`}>
-              Manual refresh preview for the future Memories page.
-            </p>
+            <button
+              className={`flex h-9 shrink-0 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
+              type="button"
+              disabled={suggestionLoading || suggestionPending}
+              onClick={() => void onSuggestionsRefresh()}
+            >
+              <RefreshCw size={14} aria-hidden="true" />
+              Refresh
+            </button>
           </div>
 
           <div
@@ -305,10 +334,43 @@ export function MemoriesPage({
                 : "divide-y divide-slate-200"
             }
           >
-            <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
-              Suggestions will use saved database memories after the suggestion
-              service is added.
-            </p>
+            {suggestionMessage ? (
+              <p
+                className={`px-4 py-4 text-sm ${
+                  darkMode ? "text-amber-200" : "text-amber-700"
+                }`}
+              >
+                {suggestionMessage}
+              </p>
+            ) : null}
+            {!suggestionsRequested && !suggestionLoading ? (
+              <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
+                Click Refresh to load suggestions.
+              </p>
+            ) : null}
+            {suggestionLoading ? (
+              <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
+                Loading suggestions...
+              </p>
+            ) : null}
+            {suggestionsRequested &&
+            !suggestionLoading &&
+            suggestions.length === 0 ? (
+              <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
+                No suggestions available. Add more memories or unpin existing
+                ones.
+              </p>
+            ) : null}
+            {suggestions.map((suggestion) => (
+              <SuggestionListItem
+                key={suggestion.id}
+                suggestion={suggestion}
+                darkMode={darkMode}
+                pending={suggestionPending}
+                onPin={() => void onSuggestionPin(suggestion.id)}
+                onIgnore={() => void onSuggestionIgnore(suggestion.id)}
+              />
+            ))}
           </div>
         </aside>
       </section>
@@ -622,6 +684,57 @@ function MemoryListItem({
         >
           <Eye size={15} aria-hidden="true" />
           Edit
+        </button>
+      </div>
+    </article>
+  );
+}
+
+function SuggestionListItem({
+  suggestion,
+  darkMode,
+  pending,
+  onPin,
+  onIgnore,
+}: {
+  suggestion: MemorySuggestion;
+  darkMode: boolean;
+  pending: boolean;
+  onPin: () => void;
+  onIgnore: () => void;
+}) {
+  return (
+    <article className="px-4 py-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 className="text-sm font-semibold">{suggestion.title}</h3>
+        <span
+          className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${categoryClass(suggestion.category, darkMode)}`}
+        >
+          {suggestion.category}
+        </span>
+      </div>
+      <p className={`mt-1 text-xs leading-5 ${mutedText(darkMode)}`}>
+        {suggestion.description}
+      </p>
+      <p className={`mt-2 text-xs ${mutedText(darkMode)}`}>
+        {suggestion.lastDoneText} · Done {suggestion.doneCount} times
+      </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          className={`h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode, true)}`}
+          type="button"
+          disabled={pending}
+          onClick={onPin}
+        >
+          Pin
+        </button>
+        <button
+          className={`h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
+          type="button"
+          disabled={pending}
+          onClick={onIgnore}
+        >
+          Ignore
         </button>
       </div>
     </article>

@@ -4,16 +4,24 @@ import { getCurrentUser } from "@/features/auth/actions";
 import type {
   MemoryCategoryOption,
   MemoryRecord,
+  MemorySuggestion,
   PinnedMemory,
 } from "@/features/dashboard/types";
 import { memoryService } from "./server/memory-service";
-import type { DashboardPinnedMemory } from "./server/memory-service";
+import type {
+  DashboardPinnedMemory,
+  MemorySuggestionRecord,
+} from "./server/memory-service";
 import type { MemoryRecord as ServerMemoryRecord } from "./server/memory-repository";
 
 export type MemoryDashboardData = {
   categories: MemoryCategoryOption[];
   pinnedMemories: PinnedMemory[];
   memoryRecords: MemoryRecord[];
+};
+
+export type MemorySuggestionActionData = {
+  dashboardData: MemoryDashboardData;
 };
 
 export type MemoryCategoryInput = {
@@ -91,6 +99,17 @@ function toMemoryRecord(
     lastDoneText: formatLastDone(memory),
     doneCount: memory.doneCount,
     pinned: pinnedMemoryIds.has(memory.id),
+  };
+}
+
+function toMemorySuggestion(memory: MemorySuggestionRecord): MemorySuggestion {
+  return {
+    id: memory.id,
+    category: memory.categoryName,
+    title: memory.title,
+    description: memory.description,
+    lastDoneText: formatLastDone(memory),
+    doneCount: memory.doneCount,
   };
 }
 
@@ -367,5 +386,74 @@ export async function deleteMemory(
   return {
     ok: true,
     data: await loadMemoryDashboardData(user.id),
+  };
+}
+
+export async function refreshMemorySuggestions(): Promise<
+  MemoryActionResult<MemorySuggestion[]>
+> {
+  const user = await requireCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  const suggestions = await memoryService.suggestMemories(user.id);
+
+  return {
+    ok: true,
+    data: suggestions.map(toMemorySuggestion),
+  };
+}
+
+export async function pinMemorySuggestion(
+  memoryId: string,
+): Promise<MemoryActionResult<MemorySuggestionActionData>> {
+  const user = await requireCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  const pinnedMemory = await memoryService.pinSuggestedMemory(user.id, memoryId);
+
+  if (!pinnedMemory) {
+    return {
+      ok: false,
+      message: "Memory cannot be pinned right now.",
+    };
+  }
+
+  return {
+    ok: true,
+    data: {
+      dashboardData: await loadMemoryDashboardData(user.id),
+    },
+  };
+}
+
+export async function ignoreMemorySuggestion(
+  memoryId: string,
+): Promise<MemoryActionResult<MemorySuggestionActionData>> {
+  const user = await requireCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  const ignored = await memoryService.ignoreSuggestedMemory(user.id, memoryId);
+
+  if (!ignored) {
+    return {
+      ok: false,
+      message: "Memory was not found.",
+    };
+  }
+
+  return {
+    ok: true,
+    data: {
+      dashboardData: await loadMemoryDashboardData(user.id),
+    },
   };
 }

@@ -9,7 +9,10 @@ import {
   deleteMemory,
   deleteMemoryCategory,
   getMemoryDashboardData,
+  ignoreMemorySuggestion,
+  pinMemorySuggestion,
   replacePinnedMemory,
+  refreshMemorySuggestions,
   saveMemory,
   saveMemoryCategory,
   type MemoryCategoryInput,
@@ -27,6 +30,7 @@ import type {
   DashboardView,
   MemoryCategoryOption,
   MemoryRecord,
+  MemorySuggestion,
   PinnedMemory,
   Routine,
   RoutineStatus,
@@ -86,9 +90,18 @@ export function Dashboard({
     MemoryCategoryOption[]
   >([]);
   const [memoryRecords, setMemoryRecords] = useState<MemoryRecord[]>([]);
+  const [memorySuggestions, setMemorySuggestions] = useState<MemorySuggestion[]>(
+    [],
+  );
   const [memoryLoading, setMemoryLoading] = useState(true);
   const [memoryMessage, setMemoryMessage] = useState<string | null>(null);
   const [memoryActionPending, setMemoryActionPending] = useState(false);
+  const [suggestionLoading, setSuggestionLoading] = useState(false);
+  const [suggestionPending, setSuggestionPending] = useState(false);
+  const [suggestionMessage, setSuggestionMessage] = useState<string | null>(
+    null,
+  );
+  const [suggestionsRequested, setSuggestionsRequested] = useState(false);
   const [activeView, setActiveView] = useState<DashboardView>("dashboard");
   const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -289,6 +302,70 @@ export function Dashboard({
     return runMemoryManagementAction(() => deleteMemoryCategory(categoryId));
   }
 
+  async function refreshSuggestionsFromPage() {
+    setSuggestionsRequested(true);
+    setSuggestionMessage(null);
+    setSuggestionLoading(true);
+
+    try {
+      const result = await refreshMemorySuggestions();
+
+      if (!result.ok) {
+        setSuggestionMessage(result.message);
+        setMemorySuggestions([]);
+        return;
+      }
+
+      setMemorySuggestions(result.data);
+    } finally {
+      setSuggestionLoading(false);
+    }
+  }
+
+  async function pinSuggestionFromPage(memoryId: string) {
+    setSuggestionMessage(null);
+    setSuggestionPending(true);
+
+    try {
+      const result = await pinMemorySuggestion(memoryId);
+
+      if (!result.ok) {
+        setSuggestionMessage(result.message);
+        return false;
+      }
+
+      applyMemoryData(result.data.dashboardData);
+      setMemorySuggestions((current) =>
+        current.filter((memory) => memory.id !== memoryId),
+      );
+      return true;
+    } finally {
+      setSuggestionPending(false);
+    }
+  }
+
+  async function ignoreSuggestionFromPage(memoryId: string) {
+    setSuggestionMessage(null);
+    setSuggestionPending(true);
+
+    try {
+      const result = await ignoreMemorySuggestion(memoryId);
+
+      if (!result.ok) {
+        setSuggestionMessage(result.message);
+        return false;
+      }
+
+      applyMemoryData(result.data.dashboardData);
+      setMemorySuggestions((current) =>
+        current.filter((memory) => memory.id !== memoryId),
+      );
+      return true;
+    } finally {
+      setSuggestionPending(false);
+    }
+  }
+
   function openReview() {
     setReviewOpen(true);
     setReviewCount((count) => count + 1);
@@ -378,14 +455,22 @@ export function Dashboard({
             darkMode={darkMode}
             categories={memoryCategories}
             memoryRecords={memoryRecords}
+            suggestions={memorySuggestions}
             loading={memoryLoading}
             pending={memoryActionPending}
+            suggestionLoading={suggestionLoading}
+            suggestionPending={suggestionPending}
+            suggestionMessage={suggestionMessage}
+            suggestionsRequested={suggestionsRequested}
             message={memoryMessage}
             selectedMemoryId={selectedMemoryId}
             onMemorySave={saveMemoryFromPage}
             onMemoryDelete={deleteMemoryFromPage}
             onCategorySave={saveCategoryFromPage}
             onCategoryDelete={deleteCategoryFromPage}
+            onSuggestionsRefresh={refreshSuggestionsFromPage}
+            onSuggestionPin={pinSuggestionFromPage}
+            onSuggestionIgnore={ignoreSuggestionFromPage}
           />
         ) : (
           <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">

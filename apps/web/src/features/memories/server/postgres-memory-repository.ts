@@ -12,6 +12,8 @@ import {
   type MemoryCategoryRecord,
   type MemoryRecord,
   type MemoryRepository,
+  type IgnoreMemoryInput,
+  type PinMemoryInput,
   type PinnedMemoryRecord,
   type ReplacePinnedMemoryInput,
   type UpdateMemoryCategoryInput,
@@ -330,6 +332,104 @@ export class PostgresMemoryRepository implements MemoryRepository {
       WHERE id = ${input.memoryId}
         AND user_id = ${input.userId}
       RETURNING id
+    `) as Array<{ id: string }>;
+
+    return rows.length > 0;
+  }
+
+  async pinMemory(input: PinMemoryInput) {
+    const rows = (await this.getSql().query(
+      `
+      WITH target AS (
+        SELECT id, user_id
+        FROM memories
+        WHERE id = $2
+          AND user_id = $1
+        LIMIT 1
+      ),
+      inserted_pin AS (
+        INSERT INTO pinned_memories (
+          user_id,
+          memory_id,
+          position,
+          pinned_at,
+          last_shown_at,
+          visible_until,
+          created_at,
+          updated_at
+        )
+        SELECT user_id, id, $3, $4, $4, $5, $4, $4
+        FROM target
+        ON CONFLICT (user_id, memory_id) DO NOTHING
+        RETURNING *
+      ),
+      updated_memory AS (
+        UPDATE memories
+        SET
+          last_pinned_at = $4,
+          updated_at = $4
+        FROM inserted_pin
+        WHERE memories.id = inserted_pin.memory_id
+        RETURNING memories.id
+      ),
+      event AS (
+        INSERT INTO memory_events (user_id, memory_id, event_type, occurred_at)
+        SELECT user_id, memory_id, 'pinned', $4
+        FROM inserted_pin
+        RETURNING id
+      )
+      SELECT
+        inserted_pin.id,
+        inserted_pin.user_id,
+        inserted_pin.memory_id,
+        memories.category_id,
+        memory_categories.name AS category_name,
+        memories.title,
+        memories.description,
+        inserted_pin.position,
+        inserted_pin.pinned_at,
+        inserted_pin.last_shown_at,
+        inserted_pin.visible_until,
+        inserted_pin.completed_at,
+        inserted_pin.completed_cleanup_at,
+        memories.last_done_at,
+        memories.done_count,
+        inserted_pin.created_at,
+        inserted_pin.updated_at
+      FROM inserted_pin
+      INNER JOIN memories ON memories.id = inserted_pin.memory_id
+      INNER JOIN memory_categories ON memory_categories.id = memories.category_id
+      `,
+      [
+        input.userId,
+        input.memoryId,
+        input.position,
+        input.occurredAt,
+        input.visibleUntil,
+      ],
+    )) as PinnedMemoryRow[];
+
+    return rows[0] ? mapPinnedMemory(rows[0]) : null;
+  }
+
+  async ignoreMemory(input: IgnoreMemoryInput) {
+    const rows = (await this.getSql()`
+      WITH updated_memory AS (
+        UPDATE memories
+        SET
+          last_ignored_at = ${input.occurredAt},
+          updated_at = ${input.occurredAt}
+        WHERE id = ${input.memoryId}
+          AND user_id = ${input.userId}
+        RETURNING id, user_id
+      ),
+      event AS (
+        INSERT INTO memory_events (user_id, memory_id, event_type, occurred_at)
+        SELECT user_id, id, 'ignored', ${input.occurredAt}
+        FROM updated_memory
+        RETURNING id
+      )
+      SELECT id FROM updated_memory
     `) as Array<{ id: string }>;
 
     return rows.length > 0;

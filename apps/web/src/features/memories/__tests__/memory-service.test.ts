@@ -6,12 +6,32 @@ import {
 } from "../server/memory-service.ts";
 import {
   InMemoryMemoryRepository,
+  type MemoryCategoryRecord,
   type MemoryRecord,
   type PinnedMemoryRecord,
 } from "../server/memory-repository.ts";
 
 const userId = "user-1";
 const now = new Date("2026-06-30T10:00:00.000Z");
+
+const categories: MemoryCategoryRecord[] = [
+  {
+    id: "category-cuisine",
+    userId,
+    name: "Cuisine",
+    baseWeight: 1.2,
+    createdAt: new Date("2026-06-01T00:00:00.000Z"),
+    updatedAt: new Date("2026-06-01T00:00:00.000Z"),
+  },
+  {
+    id: "category-sightseeing",
+    userId,
+    name: "Sightseeing",
+    baseWeight: 0.8,
+    createdAt: new Date("2026-06-01T00:00:00.000Z"),
+    updatedAt: new Date("2026-06-01T00:00:00.000Z"),
+  },
+];
 
 function memory(
   input: Partial<MemoryRecord> & Pick<MemoryRecord, "id" | "categoryId" | "title">,
@@ -198,4 +218,80 @@ test("replace pinned memory uses another memory from the same category", async (
   assert.notEqual(result.memoryId, "memory-3");
   assert.equal(repository.getEvents()[0]?.eventType, "replaced");
   assert.equal(repository.getEvents()[1]?.eventType, "pinned");
+});
+
+test("suggest memories excludes already pinned memories", async () => {
+  const repository = new InMemoryMemoryRepository({
+    categories,
+    memories: [
+      memory({
+        id: "memory-1",
+        categoryId: "category-cuisine",
+        title: "Ramen",
+      }),
+      memory({
+        id: "memory-2",
+        categoryId: "category-cuisine",
+        title: "Dumplings",
+      }),
+    ],
+    pinnedMemories: [
+      pinnedMemory({
+        id: "pin-1",
+        memoryId: "memory-1",
+        categoryId: "category-cuisine",
+        title: "Ramen",
+      }),
+    ],
+  });
+  const service = createMemoryService({
+    memories: repository,
+    now: () => now,
+  });
+
+  const suggestions = await service.suggestMemories(userId, 4);
+
+  assert.deepEqual(
+    suggestions.map((suggestion) => suggestion.id),
+    ["memory-2"],
+  );
+});
+
+test("pin suggested memory appends a same-category dashboard pin", async () => {
+  const repository = new InMemoryMemoryRepository({
+    categories,
+    memories: [
+      memory({
+        id: "memory-1",
+        categoryId: "category-cuisine",
+        title: "Ramen",
+      }),
+      memory({
+        id: "memory-2",
+        categoryId: "category-cuisine",
+        title: "Dumplings",
+      }),
+    ],
+    pinnedMemories: [
+      pinnedMemory({
+        id: "pin-1",
+        memoryId: "memory-1",
+        categoryId: "category-cuisine",
+        title: "Ramen",
+        position: 1,
+      }),
+    ],
+  });
+  const service = createMemoryService({
+    memories: repository,
+    now: () => now,
+  });
+
+  const result = await service.pinSuggestedMemory(userId, "memory-2");
+
+  assert.ok(result);
+  assert.equal(result.memoryId, "memory-2");
+  assert.equal(result.position, 2);
+  assert.equal(result.status, "active");
+  assert.equal(repository.getEvents()[0]?.eventType, "pinned");
 });

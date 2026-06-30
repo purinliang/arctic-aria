@@ -107,6 +107,20 @@ export type DeleteMemoryInput = {
   occurredAt: Date;
 };
 
+export type PinMemoryInput = {
+  userId: string;
+  memoryId: string;
+  position: number;
+  occurredAt: Date;
+  visibleUntil: Date;
+};
+
+export type IgnoreMemoryInput = {
+  userId: string;
+  memoryId: string;
+  occurredAt: Date;
+};
+
 export type MemoryRepository = {
   ensureDefaultCategories(userId: string): Promise<MemoryCategoryRecord[]>;
   listCategories(userId: string): Promise<MemoryCategoryRecord[]>;
@@ -119,6 +133,8 @@ export type MemoryRepository = {
   createMemory(input: CreateMemoryInput): Promise<MemoryRecord | null>;
   updateMemory(input: UpdateMemoryInput): Promise<MemoryRecord | null>;
   deleteMemory(input: DeleteMemoryInput): Promise<boolean>;
+  pinMemory(input: PinMemoryInput): Promise<PinnedMemoryRecord | null>;
+  ignoreMemory(input: IgnoreMemoryInput): Promise<boolean>;
   listPinnedMemories(userId: string): Promise<PinnedMemoryRecord[]>;
   completePinnedMemory(
     input: CompletePinnedMemoryInput,
@@ -314,6 +330,59 @@ export class InMemoryMemoryRepository implements MemoryRepository {
     this.recordEvent(input.userId, input.memoryId, "deleted", input.occurredAt);
 
     return this.memories.length !== before;
+  }
+
+  async pinMemory(input: PinMemoryInput) {
+    const memory = this.memories.find(
+      (current) => current.userId === input.userId && current.id === input.memoryId,
+    );
+
+    if (!memory) {
+      return null;
+    }
+
+    const pinnedMemory: PinnedMemoryRecord = {
+      id: crypto.randomUUID(),
+      userId: input.userId,
+      memoryId: memory.id,
+      categoryId: memory.categoryId,
+      categoryName: memory.categoryName,
+      title: memory.title,
+      description: memory.description,
+      position: input.position,
+      pinnedAt: input.occurredAt,
+      lastShownAt: input.occurredAt,
+      visibleUntil: input.visibleUntil,
+      completedAt: null,
+      completedCleanupAt: null,
+      lastDoneAt: memory.lastDoneAt,
+      doneCount: memory.doneCount,
+      createdAt: input.occurredAt,
+      updatedAt: input.occurredAt,
+    };
+
+    this.pinnedMemories.push(pinnedMemory);
+    memory.lastPinnedAt = input.occurredAt;
+    memory.updatedAt = input.occurredAt;
+    this.recordEvent(input.userId, input.memoryId, "pinned", input.occurredAt);
+
+    return pinnedMemory;
+  }
+
+  async ignoreMemory(input: IgnoreMemoryInput) {
+    const memory = this.memories.find(
+      (current) => current.userId === input.userId && current.id === input.memoryId,
+    );
+
+    if (!memory) {
+      return false;
+    }
+
+    memory.lastIgnoredAt = input.occurredAt;
+    memory.updatedAt = input.occurredAt;
+    this.recordEvent(input.userId, input.memoryId, "ignored", input.occurredAt);
+
+    return true;
   }
 
   async listPinnedMemories(userId: string) {

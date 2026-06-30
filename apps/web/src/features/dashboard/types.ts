@@ -60,6 +60,15 @@ export type MemoryRecord = {
   pinned: boolean;
 };
 
+export type MemorySuggestion = {
+  id: string;
+  category: MemoryCategory;
+  title: string;
+  description: string;
+  lastDoneText: string;
+  doneCount: number;
+};
+
 export type MemoryCategoryOption = {
   id: string;
   name: string;
