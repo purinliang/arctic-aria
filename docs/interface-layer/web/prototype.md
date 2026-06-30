@@ -177,6 +177,52 @@ Reward display:
 - Use rarity colors in the preview list: Legendary orange, Epic purple, Rare
   blue, and Common neutral.
 
+## Pinned Memories Prototype
+
+The first Memories UI should be a dashboard-only prototype. It should help
+review the product feel before adding the Memories page, suggestion page,
+category management, database tables, or real recommendation logic.
+
+The prototype should use:
+
+- dummy data only
+- local React state only
+- no database storage
+- no server actions
+- no full Memories CRUD
+- no real suggestion algorithm
+
+The dashboard should show a compact `Pinned Memories` section for two
+categories:
+
+- Cuisine
+- Sightseeing
+
+Each pinned memory card should show:
+
+- title
+- short description
+- category
+- subtle metadata such as `Pinned 2 days ago` or `Last done 18 days ago`
+- icon buttons for `Done` and `Replace`
+
+Interaction behavior:
+
+- `Done` marks only that pinned memory as completed visually.
+- `Replace` swaps only that pinned memory with another dummy memory from the
+  same category.
+- Replacing one item should preserve the order and state of the other pinned
+  memories.
+- The `Memories` sidebar item can be a placeholder and does not need navigation
+  yet.
+
+Visual direction:
+
+- Keep the section restrained and dashboard-like.
+- Use `lucide-react` icons for action buttons.
+- Do not add hero text, empty marketing copy, or nested decorative cards.
+- On mobile, memory text and action buttons must not overlap.
+
 ## Technical Plan
 
 Continue using the existing Next.js app under `apps/web`:
@@ -208,6 +254,8 @@ Suggested refactor shape:
 - Keep dashboard-specific types in `features/dashboard/types.ts`.
 - Keep dummy records in `features/dashboard/dummy-data.ts`.
 - Keep UI-only derived state inside dashboard components.
+- Keep the first pinned Memories prototype inside `features/dashboard` because
+  it is dashboard-only dummy UI.
 - Do not introduce shared packages or server APIs.
 - Do not create a real scheduler, review engine, or reward plugin in this
   branch.
@@ -252,6 +300,8 @@ Run the app locally and inspect:
 - Green circular task progress behavior without text inside the circle.
 - Routine status changes.
 - Routine auto-expand behavior when a reminder is active.
+- Pinned memory done behavior.
+- Pinned memory replace behavior.
 - Repeated `Review` button behavior.
 - Treasure chest hover or focus preview behavior.
 
