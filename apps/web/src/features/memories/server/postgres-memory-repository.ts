@@ -276,10 +276,34 @@ export class PostgresMemoryRepository implements MemoryRepository {
          FROM memory_categories
          WHERE memory_categories.id = $2
            AND memory_categories.user_id = $1
-         RETURNING id
+         RETURNING
+           id,
+           user_id,
+           category_id,
+           title,
+           description,
+           last_done_at,
+           done_count,
+           last_pinned_at,
+           last_ignored_at,
+           created_at,
+           updated_at
        )
-       ${memorySelect}
-       INNER JOIN inserted ON inserted.id = memories.id`,
+       SELECT
+         inserted.id,
+         inserted.user_id,
+         inserted.category_id,
+         memory_categories.name AS category_name,
+         inserted.title,
+         inserted.description,
+         inserted.last_done_at,
+         inserted.done_count,
+         inserted.last_pinned_at,
+         inserted.last_ignored_at,
+         inserted.created_at,
+         inserted.updated_at
+       FROM inserted
+       INNER JOIN memory_categories ON memory_categories.id = inserted.category_id`,
       [
         input.userId,
         input.categoryId,
@@ -310,10 +334,34 @@ export class PostgresMemoryRepository implements MemoryRepository {
          FROM target_category
          WHERE id = $2
            AND memories.user_id = $1
-         RETURNING id
+         RETURNING
+           memories.id,
+           memories.user_id,
+           memories.category_id,
+           memories.title,
+           memories.description,
+           memories.last_done_at,
+           memories.done_count,
+           memories.last_pinned_at,
+           memories.last_ignored_at,
+           memories.created_at,
+           memories.updated_at
        )
-       ${memorySelect}
-       INNER JOIN updated ON updated.id = memories.id`,
+       SELECT
+         updated.id,
+         updated.user_id,
+         updated.category_id,
+         memory_categories.name AS category_name,
+         updated.title,
+         updated.description,
+         updated.last_done_at,
+         updated.done_count,
+         updated.last_pinned_at,
+         updated.last_ignored_at,
+         updated.created_at,
+         updated.updated_at
+       FROM updated
+       INNER JOIN memory_categories ON memory_categories.id = updated.category_id`,
       [
         input.userId,
         input.memoryId,
