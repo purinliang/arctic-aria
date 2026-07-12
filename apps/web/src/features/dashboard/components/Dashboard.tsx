@@ -42,6 +42,10 @@ import {
   initialTasks,
   rewardPreview,
 } from "../dummy-data";
+import {
+  applyOptimisticPinnedMemoryStatus,
+  applyOptimisticRoutineStatus,
+} from "../optimistic-updates";
 import type {
   DashboardView,
   MemoryCategoryOption,
@@ -276,18 +280,26 @@ export function Dashboard({
   }
 
   function updateRoutine(routineId: string, status: RoutineStatus) {
+    const previousRoutines = routines;
+
+    setExpandedRoutineId(null);
+    setRoutines((current) =>
+      applyOptimisticRoutineStatus(current, routineId, status),
+    );
     void runRoutineAction(
       () =>
         status === "completed"
           ? completeRoutineInstance(routineId)
           : skipRoutineInstance(routineId),
       null,
+      () => setRoutines(previousRoutines),
     );
   }
 
   async function runMemoryAction(
     action: MemoryDataAction,
     expandedPinnedMemoryId: string | null,
+    onFailure?: () => void,
   ) {
     setMemoryMessage(null);
     setMemoryActionPending(true);
@@ -296,6 +308,7 @@ export function Dashboard({
       const result = await action();
 
       if (!result.ok) {
+        onFailure?.();
         setMemoryMessage(result.message);
         return;
       }
@@ -349,6 +362,7 @@ export function Dashboard({
   async function runRoutineAction(
     action: RoutineDataAction,
     expandedRoutineId: string | null,
+    onFailure?: () => void,
   ) {
     setRoutineMessage(null);
     setRoutineActionPending(true);
@@ -357,6 +371,7 @@ export function Dashboard({
       const result = await action();
 
       if (!result.ok) {
+        onFailure?.();
         setRoutineMessage(result.message);
         return;
       }
@@ -387,20 +402,35 @@ export function Dashboard({
   }
 
   function markMemoryDone(pinnedMemoryId: string) {
+    const previousPinnedMemories = pinnedMemories;
+
+    setExpandedMemoryId(null);
+    setPinnedMemories((current) =>
+      applyOptimisticPinnedMemoryStatus(current, pinnedMemoryId, "completed"),
+    );
     void runMemoryAction(
       () => completePinnedMemory(pinnedMemoryId),
       null,
+      () => setPinnedMemories(previousPinnedMemories),
     );
   }
 
   function cancelMemoryDone(pinnedMemoryId: string) {
+    const previousPinnedMemories = pinnedMemories;
+
+    setExpandedMemoryId(null);
+    setPinnedMemories((current) =>
+      applyOptimisticPinnedMemoryStatus(current, pinnedMemoryId, "active"),
+    );
     void runMemoryAction(
       () => cancelPinnedMemoryDone(pinnedMemoryId),
       null,
+      () => setPinnedMemories(previousPinnedMemories),
     );
   }
 
   function replaceMemory(pinnedMemoryId: string) {
+    setExpandedMemoryId(null);
     void runMemoryAction(
       () => replacePinnedMemory(pinnedMemoryId),
       null,
@@ -478,21 +508,24 @@ export function Dashboard({
   }
 
   async function pinSuggestionFromPage(memoryId: string) {
+    const previousPinnedSuggestionIds = pinnedSuggestionIds;
+
     setSuggestionMessage(null);
     setSuggestionPending(true);
+    setPinnedSuggestionIds((current) =>
+      current.includes(memoryId) ? current : [...current, memoryId],
+    );
 
     try {
       const result = await pinMemorySuggestion(memoryId);
 
       if (!result.ok) {
+        setPinnedSuggestionIds(previousPinnedSuggestionIds);
         setSuggestionMessage(result.message);
         return false;
       }
 
       applyMemoryData(result.data.dashboardData);
-      setPinnedSuggestionIds((current) =>
-        current.includes(memoryId) ? current : [...current, memoryId],
-      );
       return true;
     } finally {
       setSuggestionPending(false);
@@ -500,21 +533,24 @@ export function Dashboard({
   }
 
   async function cancelSuggestionPinFromPage(memoryId: string) {
+    const previousPinnedSuggestionIds = pinnedSuggestionIds;
+
     setSuggestionMessage(null);
     setSuggestionPending(true);
+    setPinnedSuggestionIds((current) =>
+      current.filter((suggestionId) => suggestionId !== memoryId),
+    );
 
     try {
       const result = await cancelPinnedMemorySuggestion(memoryId);
 
       if (!result.ok) {
+        setPinnedSuggestionIds(previousPinnedSuggestionIds);
         setSuggestionMessage(result.message);
         return false;
       }
 
       applyMemoryData(result.data.dashboardData);
-      setPinnedSuggestionIds((current) =>
-        current.filter((suggestionId) => suggestionId !== memoryId),
-      );
       return true;
     } finally {
       setSuggestionPending(false);
