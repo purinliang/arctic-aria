@@ -396,10 +396,16 @@ export class PostgresRoutineRepository implements RoutineRepository {
       WITH updated_instance AS (
         UPDATE routine_instances
         SET
-          status = $3,
-          completed_at = CASE WHEN $3 = 'completed' THEN $4 ELSE NULL END,
-          skipped_at = CASE WHEN $3 = 'skipped' THEN $4 ELSE NULL END,
-          updated_at = $4
+          status = $3::text,
+          completed_at = CASE
+            WHEN $3::text = 'completed' THEN $4::timestamptz
+            ELSE NULL
+          END,
+          skipped_at = CASE
+            WHEN $3::text = 'skipped' THEN $4::timestamptz
+            ELSE NULL
+          END,
+          updated_at = $4::timestamptz
         WHERE user_id = $1
           AND id = $2
         RETURNING *
@@ -413,7 +419,7 @@ export class PostgresRoutineRepository implements RoutineRepository {
           occurred_at,
           source
         )
-        SELECT user_id, 'routine_instance', id, $3, $4, 'web'
+        SELECT user_id, 'routine_instance', id, $3::text, $4::timestamptz, 'web'
         FROM updated_instance
         RETURNING id
       )

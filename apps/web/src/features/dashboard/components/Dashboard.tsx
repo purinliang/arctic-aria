@@ -50,7 +50,6 @@ import type {
   PinnedMemory,
   Routine,
   RoutineDefinition,
-  RoutineReminderState,
   RoutineStatus,
   Task,
   TaskStatus,
@@ -286,17 +285,6 @@ export function Dashboard({
     );
   }
 
-  function updateRoutineReminder(
-    routineId: string,
-    reminderState: RoutineReminderState,
-  ) {
-    setRoutines((current) =>
-      current.map((routine) =>
-        routine.id === routineId ? { ...routine, reminderState } : routine,
-      ),
-    );
-  }
-
   async function runMemoryAction(
     action: MemoryDataAction,
     expandedPinnedMemoryId: string,
@@ -455,6 +443,10 @@ export function Dashboard({
 
   function clearRoutineMessage() {
     setRoutineMessage(null);
+  }
+
+  function markRoutineBusy() {
+    setRoutineMessage("Busy will snooze reminders after reminder jobs are implemented.");
   }
 
   async function refreshSuggestionsFromPage() {
@@ -745,7 +737,7 @@ export function Dashboard({
                       onStatusChange={(status) =>
                         updateRoutine(routine.id, status)
                       }
-                      onBusy={() => updateRoutineReminder(routine.id, "snoozed")}
+                      onBusy={markRoutineBusy}
                     />
                   ))}
                 </div>

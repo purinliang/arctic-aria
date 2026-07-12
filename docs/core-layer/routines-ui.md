@@ -104,7 +104,7 @@ Use user-facing text that matches the action:
 - Button text: `Skip`
 - Persisted instance status: `skipped`
 - Button text: `Busy`
-- Persisted reminder state: snoozed or rescheduled
+- Later reminder state: snoozed or rescheduled
 
 Do not expose `reminding` as a Core routine status. It can appear only as a
 delivery or UI state.

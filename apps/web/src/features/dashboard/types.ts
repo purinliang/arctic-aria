@@ -25,7 +25,7 @@ export type Task = {
 };
 
 export type RoutineStatus = "pending" | "completed" | "skipped";
-export type RoutineReminderState = "idle" | "reminding" | "snoozed";
+export type RoutineReminderState = "idle" | "reminding";
 
 export type Routine = {
   id: string;

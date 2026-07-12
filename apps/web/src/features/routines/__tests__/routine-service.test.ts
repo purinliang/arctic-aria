@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   InMemoryRoutineRepository,
+  type RoutineInstanceRecord,
   type RoutineRecord,
 } from "../server/routine-repository.ts";
 import { createRoutineService } from "../server/routine-service.ts";
@@ -108,4 +109,46 @@ test("deleted routines do not generate instances", async () => {
   const instances = await service.listTodayRoutineInstances(userId);
 
   assert.equal(instances.length, 0);
+});
+
+test("complete and skip update routine instance status", async () => {
+  const instance: RoutineInstanceRecord = {
+    id: "instance-1",
+    userId,
+    routineId: "routine-1",
+    title: "Morning check",
+    description: "Morning check description",
+    scheduledDate: "2026-07-12",
+    scheduledTime: "08:00",
+    status: "pending",
+    completedAt: null,
+    skippedAt: null,
+    createdAt: new Date("2026-07-12T00:00:00.000Z"),
+    updatedAt: new Date("2026-07-12T00:00:00.000Z"),
+  };
+  const repository = new InMemoryRoutineRepository({
+    routines: [
+      routine({
+        id: "routine-1",
+        title: "Morning check",
+      }),
+    ],
+    instances: [instance],
+  });
+  const service = createRoutineService({
+    routines: repository,
+    now: () => now,
+  });
+
+  const completed = await service.completeRoutineInstance(userId, "instance-1");
+
+  assert.equal(completed?.status, "completed");
+  assert.deepEqual(completed?.completedAt, now);
+  assert.equal(completed?.skippedAt, null);
+
+  const skipped = await service.skipRoutineInstance(userId, "instance-1");
+
+  assert.equal(skipped?.status, "skipped");
+  assert.equal(skipped?.completedAt, null);
+  assert.deepEqual(skipped?.skippedAt, now);
 });

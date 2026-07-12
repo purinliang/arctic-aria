@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import type { Routine, RoutineReminderState, RoutineStatus } from "../types";
+import type { Routine, RoutineStatus } from "../types";
 
 function routineStatusClass(status: RoutineStatus, darkMode: boolean) {
   if (status === "completed") {
@@ -17,18 +17,6 @@ function routineStatusClass(status: RoutineStatus, darkMode: boolean) {
   return darkMode
     ? "border-blue-400/40 bg-blue-500/15 text-blue-200"
     : "border-blue-200 bg-blue-50 text-blue-700";
-}
-
-function reminderStateClass(state: RoutineReminderState, darkMode: boolean) {
-  if (state === "reminding") {
-    return darkMode
-      ? "border-blue-400/40 bg-blue-500/15 text-blue-200"
-      : "border-blue-200 bg-blue-50 text-blue-700";
-  }
-
-  return darkMode
-    ? "border-amber-400/40 bg-amber-500/15 text-amber-200"
-    : "border-amber-200 bg-amber-50 text-amber-700";
 }
 
 export function RoutineCard({
@@ -80,10 +68,11 @@ export function RoutineCard({
           </span>
           {routine.reminderState !== "idle" ? (
             <span
-              className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${reminderStateClass(
-                routine.reminderState,
-                darkMode,
-              )}`}
+              className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${
+                darkMode
+                  ? "border-blue-400/40 bg-blue-500/15 text-blue-200"
+                  : "border-blue-200 bg-blue-50 text-blue-700"
+              }`}
             >
               {routine.reminderState}
             </span>
