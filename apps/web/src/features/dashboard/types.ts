@@ -1,5 +1,7 @@
 export type TaskStatus = "todo" | "partial" | "done";
 
+export type DashboardView = "dashboard" | "memories";
+
 export type Priority = "High" | "Medium" | "Low";
 
 export type Subtask = {
@@ -30,6 +32,47 @@ export type Routine = {
   scheduledTime: string;
   status: RoutineStatus;
   streakText: string;
+};
+
+export type MemoryCategory = string;
+
+export type PinnedMemoryStatus = "active" | "completed";
+
+export type PinnedMemory = {
+  id: string;
+  memoryId: string;
+  category: MemoryCategory;
+  title: string;
+  description: string;
+  meta: string;
+  position: number;
+  status: PinnedMemoryStatus;
+};
+
+export type MemoryRecord = {
+  id: string;
+  categoryId: string;
+  category: MemoryCategory;
+  title: string;
+  description: string;
+  lastDoneText: string;
+  doneCount: number;
+  pinned: boolean;
+};
+
+export type MemorySuggestion = {
+  id: string;
+  category: MemoryCategory;
+  title: string;
+  description: string;
+  lastDoneText: string;
+  doneCount: number;
+};
+
+export type MemoryCategoryOption = {
+  id: string;
+  name: string;
+  baseWeight: number;
 };
 
 export type ChestItemRarity =

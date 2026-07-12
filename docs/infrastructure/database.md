@@ -45,9 +45,10 @@ Keep a user table because many records need a stable owner:
 - tasks
 - routines
 - ideas
+- memories and pinned memories
 - reminders
 - daily reviews
-- plugin memory and plugin run records
+- internal plugin context and plugin run records
 
 Recommended first tables:
 
@@ -72,6 +73,10 @@ The first Core schema should support the Phase 1 and Phase 2 scope:
 - `routine_rules`
 - `routine_instances`
 - `ideas`
+- `memory_categories`
+- `memories`
+- `memory_events`
+- `pinned_memories`
 - `daily_plans`
 - `daily_plan_items`
 - `daily_reviews`
@@ -89,6 +94,28 @@ Task progress should be based on weight:
 
 Completion changes should also create immutable `completion_events` so daily
 review and reward plugins can reason about what happened.
+
+## Memory Tables
+
+Memories are Core data. They represent user-visible repeatable experiences that
+can be suggested, pinned, ignored, completed, and deleted.
+
+Recommended first tables:
+
+- `memory_categories`: user-owned categories and suggestion base weight.
+- `memories`: canonical memory records, category, title, description, summary
+  timestamps, and done count.
+- `memory_events`: immutable history for `pinned`, `unpinned`, `ignored`,
+  `completed`, `completed_canceled`, `replaced`, and `deleted` events.
+- `pinned_memories`: current dashboard shortlist with category, position,
+  pin time, visible-until time, completion time, and completed cleanup time.
+
+Keep event history separate from current state. Do not store pin, ignore, or
+done timestamp arrays on `memories`; use `memory_events` for history and
+denormalized summary fields on `memories` for common queries.
+
+Detailed memory rules are documented in
+[memories.md](../core-layer/memories.md).
 
 ## Routine Tables
 

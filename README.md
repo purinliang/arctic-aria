@@ -2,7 +2,7 @@
 
 Arctic Aria is a personal life assistant for turning messy daily life into a
 clear plan. It focuses on planning, tasks, routines, reminders, ideas, daily
-review, and positive feedback.
+review, memories, and positive feedback.
 
 The project is important because the hard part is often not doing one task. The
 hard part is deciding what to do next, breaking a large plan into daily work,
@@ -19,6 +19,8 @@ not a medical, therapy, or mental health treatment product.
 - Choose what to do today based on priority, urgency, progress, and deadlines.
 - Remember routines with reminders and quick completion checks.
 - Capture ideas, possible tasks, and possible routines before they are lost.
+- Revisit saved personal experiences such as cuisine, sightseeing, books, or
+  shows.
 - Review the day and show completed work, partial progress, and unfinished work.
 - Give positive feedback through rewards, progress summaries, and shareable
   review cards.
@@ -27,7 +29,7 @@ not a medical, therapy, or mental health treatment product.
 
 Arctic Aria has four layers:
 
-- Core layer: plans, tasks, routines, ideas, scheduler, and review.
+- Core layer: plans, tasks, routines, ideas, memories, scheduler, and review.
 - Plugin layer: optional helpers such as rewards, English coach, research coach,
   cuisine and sightseeing planner, movie or anime recommender, and future
   specialized assistants.
@@ -48,8 +50,9 @@ too complicated.
   very open-ended.
 - Reward system: give gold, items, boxes, and collection progress for persistent
   effort.
-- Weekend planner: suggest cuisine, sightseeing, or other outside activities.
-- Home entertainment recommender: suggest movies or anime when staying home.
+- Weekend planner: suggest new cuisine, sightseeing, or other outside
+  activities beyond saved memories.
+- Home entertainment recommender: suggest new movies or anime when staying home.
 - Research coach: help collect sources, summarize material, and turn it into
   ideas or tasks.
 
@@ -59,7 +62,7 @@ too complicated.
 - [docs/architecture.md](docs/architecture.md): Core, Plugin, and Interface
   layer responsibilities.
 - [docs/core-model.md](docs/core-model.md): first Core model for plans, tasks,
-  routines, daily plans, ideas, and reviews.
+  routines, daily plans, ideas, memories, and reviews.
 - [docs/implementation.md](docs/implementation.md): technology, storage, and
   repository structure.
 - [docs/infrastructure/database.md](docs/infrastructure/database.md): database

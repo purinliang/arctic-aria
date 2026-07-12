@@ -1,15 +1,44 @@
 "use client";
 
-import { Bell, Check, ListChecks, LogOut, Menu } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Bell, Check, ClipboardList, ListChecks, LogOut, Menu } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AuthUser } from "@/features/auth/server/auth-service";
+import {
+  cancelPinnedMemoryDone,
+  cancelPinnedMemorySuggestion,
+  completePinnedMemory,
+  deleteMemory,
+  deleteMemoryCategory,
+  getMemoryDashboardData,
+  pinMemorySuggestion,
+  replacePinnedMemory,
+  refreshMemorySuggestions,
+  saveMemory,
+  saveMemoryCategory,
+  type MemoryCategoryInput,
+  type MemoryDashboardData,
+  type MemoryInput,
+  type MemoryActionResult,
+} from "@/features/memories/actions";
 import {
   dayBoundary,
   initialRoutines,
   initialTasks,
   rewardPreview,
 } from "../dummy-data";
-import type { Routine, RoutineStatus, Task, TaskStatus } from "../types";
+import type {
+  DashboardView,
+  MemoryCategoryOption,
+  MemoryRecord,
+  MemorySuggestion,
+  PinnedMemory,
+  Routine,
+  RoutineStatus,
+  Task,
+  TaskStatus,
+} from "../types";
+import { MemoriesPage } from "./MemoriesPage";
+import { PinnedMemoryCard } from "./PinnedMemoryCard";
 import { ReviewDialog } from "./ReviewDialog";
 import { RoutineCard } from "./RoutineCard";
 import { SectionHeader } from "./SectionHeader";
@@ -22,6 +51,10 @@ const todayFormatter = new Intl.DateTimeFormat("en", {
   day: "numeric",
   year: "numeric",
 });
+
+type MemoryDataAction = () => Promise<
+  MemoryActionResult<MemoryDashboardData>
+>;
 
 function statusForWeight(completedWeight: number, weight: number): TaskStatus {
   if (completedWeight >= weight) {
@@ -52,6 +85,26 @@ export function Dashboard({
 }) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [routines, setRoutines] = useState<Routine[]>(initialRoutines);
+  const [pinnedMemories, setPinnedMemories] = useState<PinnedMemory[]>([]);
+  const [memoryCategories, setMemoryCategories] = useState<
+    MemoryCategoryOption[]
+  >([]);
+  const [memoryRecords, setMemoryRecords] = useState<MemoryRecord[]>([]);
+  const [memorySuggestions, setMemorySuggestions] = useState<MemorySuggestion[]>(
+    [],
+  );
+  const [memoryLoading, setMemoryLoading] = useState(true);
+  const [memoryMessage, setMemoryMessage] = useState<string | null>(null);
+  const [memoryActionPending, setMemoryActionPending] = useState(false);
+  const [suggestionLoading, setSuggestionLoading] = useState(false);
+  const [suggestionPending, setSuggestionPending] = useState(false);
+  const [suggestionMessage, setSuggestionMessage] = useState<string | null>(
+    null,
+  );
+  const [pinnedSuggestionIds, setPinnedSuggestionIds] = useState<string[]>([]);
+  const [suggestionsRequested, setSuggestionsRequested] = useState(false);
+  const [activeView, setActiveView] = useState<DashboardView>("dashboard");
+  const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewCount, setReviewCount] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -61,6 +114,55 @@ export function Dashboard({
     initialRoutines.find((routine) => routine.status === "reminding")?.id ??
       null,
   );
+  const [expandedMemoryId, setExpandedMemoryId] = useState<string | null>(null);
+
+  const applyMemoryData = useCallback(
+    (data: MemoryDashboardData, nextExpandedMemoryId?: string | null) => {
+      setPinnedMemories(data.pinnedMemories);
+      setMemoryCategories(data.categories);
+      setMemoryRecords(data.memoryRecords);
+      setExpandedMemoryId((current) => {
+        if (nextExpandedMemoryId !== undefined) {
+          return nextExpandedMemoryId;
+        }
+
+        if (
+          current &&
+          data.pinnedMemories.some((memory) => memory.id === current)
+        ) {
+          return current;
+        }
+
+        return data.pinnedMemories[0]?.id ?? null;
+      });
+    },
+    [],
+  );
+
+  const refreshMemoryData = useCallback(async () => {
+    const result = await getMemoryDashboardData();
+
+    if (!result.ok) {
+      setMemoryMessage(result.message);
+      setPinnedMemories([]);
+      setMemoryCategories([]);
+      setMemoryRecords([]);
+      setExpandedMemoryId(null);
+      setMemoryLoading(false);
+      return;
+    }
+
+    applyMemoryData(result.data);
+    setMemoryLoading(false);
+  }, [applyMemoryData]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void refreshMemoryData();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [currentUser.id, refreshMemoryData]);
 
   const stats = useMemo(() => {
     const completedWeight = tasks.reduce(
@@ -117,6 +219,185 @@ export function Dashboard({
     );
   }
 
+  async function runMemoryAction(
+    action: MemoryDataAction,
+    expandedPinnedMemoryId: string,
+  ) {
+    setMemoryMessage(null);
+    setMemoryActionPending(true);
+
+    try {
+      const result = await action();
+
+      if (!result.ok) {
+        setMemoryMessage(result.message);
+        return;
+      }
+
+      applyMemoryData(result.data, expandedPinnedMemoryId);
+    } finally {
+      setMemoryActionPending(false);
+    }
+  }
+
+  async function runMemoryManagementAction(action: MemoryDataAction) {
+    setMemoryMessage(null);
+
+    setMemoryActionPending(true);
+
+    try {
+      const result = await action();
+
+      if (!result.ok) {
+        setMemoryMessage(result.message);
+        return false;
+      }
+
+      applyMemoryData(result.data);
+      return true;
+    } finally {
+      setMemoryActionPending(false);
+    }
+  }
+
+  async function runMemoryManagementDataAction(action: MemoryDataAction) {
+    setMemoryMessage(null);
+
+    setMemoryActionPending(true);
+
+    try {
+      const result = await action();
+
+      if (!result.ok) {
+        setMemoryMessage(result.message);
+        return null;
+      }
+
+      applyMemoryData(result.data);
+      return result.data;
+    } finally {
+      setMemoryActionPending(false);
+    }
+  }
+
+  function markMemoryDone(pinnedMemoryId: string) {
+    void runMemoryAction(
+      () => completePinnedMemory(pinnedMemoryId),
+      pinnedMemoryId,
+    );
+  }
+
+  function cancelMemoryDone(pinnedMemoryId: string) {
+    void runMemoryAction(
+      () => cancelPinnedMemoryDone(pinnedMemoryId),
+      pinnedMemoryId,
+    );
+  }
+
+  function replaceMemory(pinnedMemoryId: string) {
+    void runMemoryAction(
+      () => replacePinnedMemory(pinnedMemoryId),
+      pinnedMemoryId,
+    );
+  }
+
+  function viewMemory(memoryId: string) {
+    setSelectedMemoryId(memoryId);
+    setActiveView("memories");
+    setSidebarOpen(false);
+  }
+
+  function saveMemoryFromPage(input: MemoryInput) {
+    return runMemoryManagementAction(() => saveMemory(input));
+  }
+
+  function deleteMemoryFromPage(memoryId: string) {
+    return runMemoryManagementAction(() => deleteMemory(memoryId));
+  }
+
+  function saveCategoryFromPage(input: MemoryCategoryInput) {
+    return runMemoryManagementDataAction(() => saveMemoryCategory(input));
+  }
+
+  function deleteCategoryFromPage(categoryId: string) {
+    return runMemoryManagementAction(() => deleteMemoryCategory(categoryId));
+  }
+
+  function clearMemoryMessage() {
+    setMemoryMessage(null);
+  }
+
+  async function refreshSuggestionsFromPage() {
+    setSuggestionsRequested(true);
+    setSuggestionMessage(null);
+    setSuggestionLoading(true);
+
+    try {
+      const pinnedSuggestionIdSet = new Set(pinnedSuggestionIds);
+      const ignoredMemoryIds = memorySuggestions
+        .filter((suggestion) => !pinnedSuggestionIdSet.has(suggestion.id))
+        .map((suggestion) => suggestion.id);
+      const result = await refreshMemorySuggestions(ignoredMemoryIds);
+
+      if (!result.ok) {
+        setSuggestionMessage(result.message);
+        setMemorySuggestions([]);
+        setPinnedSuggestionIds([]);
+        return;
+      }
+
+      applyMemoryData(result.data.dashboardData);
+      setMemorySuggestions(result.data.suggestions);
+      setPinnedSuggestionIds([]);
+    } finally {
+      setSuggestionLoading(false);
+    }
+  }
+
+  async function pinSuggestionFromPage(memoryId: string) {
+    setSuggestionMessage(null);
+    setSuggestionPending(true);
+
+    try {
+      const result = await pinMemorySuggestion(memoryId);
+
+      if (!result.ok) {
+        setSuggestionMessage(result.message);
+        return false;
+      }
+
+      applyMemoryData(result.data.dashboardData);
+      setPinnedSuggestionIds((current) =>
+        current.includes(memoryId) ? current : [...current, memoryId],
+      );
+      return true;
+    } finally {
+      setSuggestionPending(false);
+    }
+  }
+
+  async function cancelSuggestionPinFromPage(memoryId: string) {
+    setSuggestionMessage(null);
+    setSuggestionPending(true);
+
+    try {
+      const result = await cancelPinnedMemorySuggestion(memoryId);
+
+      if (!result.ok) {
+        setSuggestionMessage(result.message);
+        return false;
+      }
+
+      applyMemoryData(result.data.dashboardData);
+      setPinnedSuggestionIds((current) =>
+        current.filter((suggestionId) => suggestionId !== memoryId),
+      );
+      return true;
+    } finally {
+      setSuggestionPending(false);
+    }
+  }
+
   function openReview() {
     setReviewOpen(true);
     setReviewCount((count) => count + 1);
@@ -156,7 +437,9 @@ export function Dashboard({
                 Daily plan ends at {dayBoundary}
               </p>
               <h1 className="mt-1 text-2xl font-semibold tracking-normal sm:text-3xl">
-                {todayFormatter.format(new Date())} Dashboard
+                {activeView === "dashboard"
+                  ? `${todayFormatter.format(new Date())} Dashboard`
+                  : "Memories"}
               </h1>
             </div>
           </div>
@@ -169,18 +452,20 @@ export function Dashboard({
             >
               {currentUser.displayName}
             </span>
-            <button
-              className={`flex h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold shadow-sm transition ${
-                darkMode
-                  ? "bg-white text-black hover:bg-neutral-200"
-                  : "bg-slate-950 text-white hover:bg-slate-800"
-              }`}
-              type="button"
-              onClick={openReview}
-            >
-              <ListChecks size={18} aria-hidden="true" />
-              Review
-            </button>
+            {activeView === "dashboard" ? (
+              <button
+                className={`flex h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold shadow-sm transition ${
+                  darkMode
+                    ? "bg-white text-black hover:bg-neutral-200"
+                    : "bg-slate-950 text-white hover:bg-slate-800"
+                }`}
+                type="button"
+                onClick={openReview}
+              >
+                <ListChecks size={18} aria-hidden="true" />
+                Review
+              </button>
+            ) : null}
             <button
               className={`flex h-11 items-center justify-center gap-2 rounded-md border px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
                 darkMode
@@ -197,73 +482,175 @@ export function Dashboard({
           </div>
         </header>
 
-        <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <section className={`min-w-0 rounded-md border ${panelClass(darkMode)}`}>
-            <SectionHeader
-              icon={<Check size={18} aria-hidden="true" />}
-              title="Today's Tasks"
-              meta={`${tasks.length} recommended`}
-              darkMode={darkMode}
-            />
-            <div
-              className={
-                darkMode ? "divide-y divide-neutral-900" : "divide-y divide-slate-200"
-              }
+        {activeView === "memories" ? (
+          <MemoriesPage
+            darkMode={darkMode}
+            categories={memoryCategories}
+            memoryRecords={memoryRecords}
+            suggestions={memorySuggestions}
+            pinnedSuggestionIds={pinnedSuggestionIds}
+            loading={memoryLoading}
+            pending={memoryActionPending}
+            suggestionLoading={suggestionLoading}
+            suggestionPending={suggestionPending}
+            suggestionMessage={suggestionMessage}
+            suggestionsRequested={suggestionsRequested}
+            message={memoryMessage}
+            selectedMemoryId={selectedMemoryId}
+            onMemorySave={saveMemoryFromPage}
+            onMemoryDelete={deleteMemoryFromPage}
+            onCategorySave={saveCategoryFromPage}
+            onCategoryDelete={deleteCategoryFromPage}
+            onMessageClear={clearMemoryMessage}
+            onSuggestionsRefresh={refreshSuggestionsFromPage}
+            onSuggestionPin={pinSuggestionFromPage}
+            onSuggestionCancel={cancelSuggestionPinFromPage}
+          />
+        ) : (
+          <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+            <section
+              className={`min-w-0 rounded-md border ${panelClass(darkMode)}`}
             >
-              {tasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  darkMode={darkMode}
-                  expanded={expandedTaskId === task.id}
-                  onToggleExpanded={() =>
-                    setExpandedTaskId((current) =>
-                      current === task.id ? null : task.id,
-                    )
-                  }
-                  onSubtaskToggle={(subtaskId) =>
-                    toggleSubtask(task.id, subtaskId)
-                  }
-                />
-              ))}
-            </div>
-          </section>
+              <SectionHeader
+                icon={<Check size={18} aria-hidden="true" />}
+                title="Today's Tasks"
+                meta={`${tasks.length} recommended`}
+                darkMode={darkMode}
+              />
+              <div
+                className={
+                  darkMode
+                    ? "divide-y divide-neutral-900"
+                    : "divide-y divide-slate-200"
+                }
+              >
+                {tasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    darkMode={darkMode}
+                    expanded={expandedTaskId === task.id}
+                    onToggleExpanded={() =>
+                      setExpandedTaskId((current) =>
+                        current === task.id ? null : task.id,
+                      )
+                    }
+                    onSubtaskToggle={(subtaskId) =>
+                      toggleSubtask(task.id, subtaskId)
+                    }
+                  />
+                ))}
+              </div>
+            </section>
 
-          <section className={`rounded-md border ${panelClass(darkMode)}`}>
-            <SectionHeader
-              icon={<Bell size={18} aria-hidden="true" />}
-              title="Routines"
-              meta={`${routines.length} scheduled`}
-              darkMode={darkMode}
-            />
-            <div
-              className={
-                darkMode ? "divide-y divide-neutral-900" : "divide-y divide-slate-200"
-              }
-            >
-              {routines.map((routine) => (
-                <RoutineCard
-                  key={routine.id}
-                  routine={routine}
+            <aside className="grid gap-4">
+              <section className={`rounded-md border ${panelClass(darkMode)}`}>
+                <SectionHeader
+                  icon={<Bell size={18} aria-hidden="true" />}
+                  title="Routines"
+                  meta={`${routines.length} scheduled`}
                   darkMode={darkMode}
-                  expanded={expandedRoutineId === routine.id}
-                  onToggleExpanded={() =>
-                    setExpandedRoutineId((current) =>
-                      current === routine.id ? null : routine.id,
-                    )
-                  }
-                  onStatusChange={(status) => updateRoutine(routine.id, status)}
                 />
-              ))}
-            </div>
+                <div
+                  className={
+                    darkMode
+                      ? "divide-y divide-neutral-900"
+                      : "divide-y divide-slate-200"
+                  }
+                >
+                  {routines.map((routine) => (
+                    <RoutineCard
+                      key={routine.id}
+                      routine={routine}
+                      darkMode={darkMode}
+                      expanded={expandedRoutineId === routine.id}
+                      onToggleExpanded={() =>
+                        setExpandedRoutineId((current) =>
+                          current === routine.id ? null : routine.id,
+                        )
+                      }
+                      onStatusChange={(status) =>
+                        updateRoutine(routine.id, status)
+                      }
+                    />
+                  ))}
+                </div>
+              </section>
+
+              <section className={`rounded-md border ${panelClass(darkMode)}`}>
+                <SectionHeader
+                  icon={<ClipboardList size={18} aria-hidden="true" />}
+                  title="Pinned Memories"
+                  meta={`${pinnedMemories.length} saved`}
+                  darkMode={darkMode}
+                />
+                {memoryMessage ? (
+                  <div
+                    className={`border-b px-4 py-3 text-xs font-semibold ${
+                      darkMode
+                        ? "border-neutral-900 text-amber-200"
+                        : "border-slate-200 text-amber-700"
+                    }`}
+                  >
+                    {memoryMessage}
+                  </div>
+                ) : null}
+                <div
+                  className={
+                    darkMode
+                      ? "divide-y divide-neutral-900"
+                      : "divide-y divide-slate-200"
+                  }
+                >
+                  {memoryLoading ? (
+                    <p
+                      className={`px-4 py-4 text-sm ${
+                        darkMode ? "text-neutral-400" : "text-slate-500"
+                      }`}
+                    >
+                      Loading pinned memories...
+                    </p>
+                  ) : null}
+                  {!memoryLoading && pinnedMemories.length === 0 ? (
+                    <p
+                      className={`px-4 py-4 text-sm ${
+                        darkMode ? "text-neutral-400" : "text-slate-500"
+                      }`}
+                    >
+                      No pinned memories yet.
+                    </p>
+                  ) : null}
+                  {pinnedMemories.map((memory) => (
+                    <PinnedMemoryCard
+                      key={memory.id}
+                      memory={memory}
+                      darkMode={darkMode}
+                      disabled={memoryActionPending}
+                      expanded={expandedMemoryId === memory.id}
+                      onDone={() => markMemoryDone(memory.id)}
+                      onCancelDone={() => cancelMemoryDone(memory.id)}
+                      onReplace={() => replaceMemory(memory.id)}
+                      onView={() => viewMemory(memory.memoryId)}
+                      onToggleExpanded={() =>
+                        setExpandedMemoryId((current) =>
+                          current === memory.id ? null : memory.id,
+                        )
+                      }
+                    />
+                  ))}
+                </div>
+              </section>
+            </aside>
           </section>
-        </section>
+        )}
       </div>
 
       <Sidebar
         open={sidebarOpen}
         darkMode={darkMode}
+        activeView={activeView}
         onClose={() => setSidebarOpen(false)}
+        onViewChange={setActiveView}
         onThemeChange={setDarkMode}
       />
 

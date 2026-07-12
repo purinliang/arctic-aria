@@ -12,6 +12,7 @@ ArcticAria
 |   |-- plan and task engine
 |   |-- routine engine
 |   |-- idea engine
+|   |-- memory engine
 |   |-- scheduler
 |   `-- review engine
 |
@@ -40,8 +41,8 @@ rules.
 ## Core Layer
 
 The Core layer is the source of truth for planning, routines, scheduling, ideas,
-and reviews. It should be deterministic, testable, and independent from any
-specific interface.
+memories, and reviews. It should be deterministic, testable, and independent
+from any specific interface.
 
 ### Plan And Task Engine
 
@@ -93,6 +94,22 @@ The idea engine owns:
 - source information, such as web, Discord, or mobile
 - triage state
 - conversion into a task, plan, routine, idea record, or plugin request
+
+### Memory Engine
+
+The memory engine stores repeatable personal experiences that the user may want
+to revisit, such as cuisine, sightseeing, anime, games, books, or shops.
+
+Memories are not commitments. They should not become overdue like tasks or
+routines.
+
+The memory engine owns:
+
+- memory categories
+- memory records
+- suggestion scoring for saved memories
+- pinned memories for the dashboard shortlist
+- completion, pin, ignore, unpin, and replace history
 
 ### Scheduler
 
@@ -170,8 +187,9 @@ be triaged later.
 ### Future Life Planners
 
 Future planners can include cooking, shopping, sightseeing, anime
-recommendation, or other fun planning helpers. They should remain plugins unless
-their behavior becomes a stable part of the core planning model.
+recommendation, or other fun planning helpers. They should focus on new external
+suggestions or specialized workflows. Saved personal experiences belong to the
+Core memory engine.
 
 ## Interface Layer
 

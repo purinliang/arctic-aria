@@ -177,6 +177,65 @@ Reward display:
 - Use rarity colors in the preview list: Legendary orange, Epic purple, Rare
   blue, and Common neutral.
 
+## Pinned Memories Prototype
+
+The first Memories UI should be a dashboard-only prototype. It should help
+review the product feel before adding the Memories page, suggestion page,
+category management, database tables, or real recommendation logic.
+
+The prototype should use:
+
+- dummy data only
+- local React state only
+- no database storage
+- no server actions
+- no full Memories CRUD
+- no real suggestion algorithm
+
+The dashboard should show a compact `Pinned Memories` section for two
+categories:
+
+- Cuisine
+- Sightseeing
+
+Each pinned memory card should show:
+
+- title
+- short description
+- category
+- subtle metadata such as `Pinned 2 days ago` or `Last done 18 days ago`
+
+Clicking or focusing a pinned memory should expand it like the current routine
+cards. Only the expanded state should show action buttons:
+
+- `Done`
+- `Replace`
+- `View`
+
+Interaction behavior:
+
+- `Done` marks only that pinned memory as completed visually and keeps the card
+  expanded.
+- A completed memory should support canceling done before cleanup in the real
+  implementation.
+- `Replace` swaps only that pinned memory with another dummy memory from the
+  same category and keeps the new memory expanded.
+- Replacing one item should preserve the order and state of the other pinned
+  memories.
+- The first dashboard should show up to three Cuisine memories and up to three
+  Sightseeing memories.
+- The `Memories` sidebar item can be a placeholder and does not need navigation
+  yet.
+- Use the same icon for the `Pinned Memories` section and the `Memories`
+  sidebar item. `ClipboardList` is a reasonable first choice.
+
+Visual direction:
+
+- Keep the section restrained and dashboard-like.
+- Use `lucide-react` icons for action buttons.
+- Do not add hero text, empty marketing copy, or nested decorative cards.
+- On mobile, memory text and action buttons must not overlap.
+
 ## Technical Plan
 
 Continue using the existing Next.js app under `apps/web`:
@@ -200,6 +259,9 @@ apps/web/
   src/features/dashboard/components/
 ```
 
+The database-backed Memories page implementation is now tracked separately in
+[memories-implementation.md](memories-implementation.md).
+
 Suggested refactor shape:
 
 - Keep `Dashboard` as the larger stateful component.
@@ -208,6 +270,8 @@ Suggested refactor shape:
 - Keep dashboard-specific types in `features/dashboard/types.ts`.
 - Keep dummy records in `features/dashboard/dummy-data.ts`.
 - Keep UI-only derived state inside dashboard components.
+- Keep the first pinned Memories prototype inside `features/dashboard` because
+  it is dashboard-only dummy UI.
 - Do not introduce shared packages or server APIs.
 - Do not create a real scheduler, review engine, or reward plugin in this
   branch.
@@ -252,6 +316,8 @@ Run the app locally and inspect:
 - Green circular task progress behavior without text inside the circle.
 - Routine status changes.
 - Routine auto-expand behavior when a reminder is active.
+- Pinned memory done behavior.
+- Pinned memory replace behavior.
 - Repeated `Review` button behavior.
 - Treasure chest hover or focus preview behavior.
 

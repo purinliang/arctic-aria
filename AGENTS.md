@@ -13,6 +13,8 @@ translation is required to clarify a requirement.
 - Write agent responses in English unless translation is needed.
 - Use clear, simple English so future documentation is easy for a non-native
   English speaker to edit.
+- When the user asks or comments with numbered points, answer with matching
+  numbered points so each response can be checked directly.
 
 ## Context
 
