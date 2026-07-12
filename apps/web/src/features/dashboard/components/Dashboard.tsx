@@ -70,6 +70,13 @@ import { RoutinesPage } from "./RoutinesPage";
 import { SectionHeader } from "./SectionHeader";
 import { Sidebar } from "./Sidebar";
 import { TaskCard } from "./TaskCard";
+import {
+  DashboardButton,
+  DashboardPanel,
+  dividerClass,
+  mutedTextClass,
+  sectionBorderClass,
+} from "./ui/primitives";
 
 const todayFormatter = new Intl.DateTimeFormat("en", {
   weekday: "short",
@@ -95,12 +102,6 @@ function statusForWeight(completedWeight: number, weight: number): TaskStatus {
   }
 
   return "todo";
-}
-
-function panelClass(darkMode: boolean) {
-  return darkMode
-    ? "border-neutral-800 bg-black text-white"
-    : "border-slate-300 bg-white text-slate-950";
 }
 
 export function Dashboard({
@@ -593,27 +594,21 @@ export function Dashboard({
       <div className="mx-auto flex max-w-[1500px] flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <header
           className={`flex flex-col gap-3 border-b pb-4 lg:flex-row lg:items-center lg:justify-between ${
-            darkMode ? "border-neutral-800" : "border-slate-300"
+            sectionBorderClass(darkMode)
           }`}
         >
           <div className="flex min-w-0 items-center gap-3">
-            <button
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md border transition ${
-                darkMode
-                  ? "border-neutral-800 bg-black text-white hover:border-white"
-                  : "border-slate-300 bg-white text-slate-700 hover:border-slate-500"
-              }`}
-              type="button"
+            <DashboardButton
+              darkMode={darkMode}
+              size="icon-sm"
+              className="h-10 w-10"
               aria-label="Open navigation"
+              icon={<Menu size={20} aria-hidden="true" />}
               onClick={() => setSidebarOpen(true)}
-            >
-              <Menu size={20} aria-hidden="true" />
-            </button>
+            />
             <div className="min-w-0">
               <p
-                className={`text-sm font-medium ${
-                  darkMode ? "text-neutral-500" : "text-slate-500"
-                }`}
+                className={`text-sm font-medium ${mutedTextClass(darkMode)}`}
               >
                 Daily plan ends at {dayBoundary}
               </p>
@@ -636,32 +631,25 @@ export function Dashboard({
               {currentUser.displayName}
             </span>
             {activeView === "dashboard" ? (
-              <button
-                className={`flex h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold shadow-sm transition ${
-                  darkMode
-                    ? "bg-white text-black hover:bg-neutral-200"
-                    : "bg-slate-950 text-white hover:bg-slate-800"
-                }`}
-                type="button"
+              <DashboardButton
+                darkMode={darkMode}
+                tone="primary"
+                size="md"
+                icon={<ListChecks size={18} aria-hidden="true" />}
                 onClick={openReview}
               >
-                <ListChecks size={18} aria-hidden="true" />
                 Review
-              </button>
+              </DashboardButton>
             ) : null}
-            <button
-              className={`flex h-11 items-center justify-center gap-2 rounded-md border px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                darkMode
-                  ? "border-neutral-700 text-white hover:border-white"
-                  : "border-slate-300 text-slate-700 hover:border-slate-500"
-              }`}
-              type="button"
+            <DashboardButton
+              darkMode={darkMode}
+              size="md"
               disabled={logoutPending}
+              icon={<LogOut size={17} aria-hidden="true" />}
               onClick={onLogout}
             >
-              <LogOut size={17} aria-hidden="true" />
               {logoutPending ? "Signing out..." : "Sign out"}
-            </button>
+            </DashboardButton>
           </div>
         </header>
 
@@ -701,22 +689,14 @@ export function Dashboard({
           />
         ) : (
           <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-            <section
-              className={`min-w-0 rounded-md border ${panelClass(darkMode)}`}
-            >
+            <DashboardPanel darkMode={darkMode} className="min-w-0">
               <SectionHeader
                 icon={<Check size={18} aria-hidden="true" />}
                 title="Today's Tasks"
                 meta={`${tasks.length} recommended`}
                 darkMode={darkMode}
               />
-              <div
-                className={
-                  darkMode
-                    ? "divide-y divide-neutral-900"
-                    : "divide-y divide-slate-200"
-                }
-              >
+              <div className={dividerClass(darkMode)}>
                 {tasks.map((task) => (
                   <TaskCard
                     key={task.id}
@@ -734,10 +714,10 @@ export function Dashboard({
                   />
                 ))}
               </div>
-            </section>
+            </DashboardPanel>
 
             <aside className="grid gap-4">
-              <section className={`rounded-md border ${panelClass(darkMode)}`}>
+              <DashboardPanel darkMode={darkMode}>
                 <SectionHeader
                   icon={<Bell size={18} aria-hidden="true" />}
                   title="Routines"
@@ -755,28 +735,14 @@ export function Dashboard({
                     {routineMessage}
                   </div>
                 ) : null}
-                <div
-                  className={
-                    darkMode
-                      ? "divide-y divide-neutral-900"
-                      : "divide-y divide-slate-200"
-                  }
-                >
+                <div className={dividerClass(darkMode)}>
                   {routineLoading ? (
-                    <p
-                      className={`px-4 py-4 text-sm ${
-                        darkMode ? "text-neutral-400" : "text-slate-500"
-                      }`}
-                    >
+                    <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
                       Loading routines...
                     </p>
                   ) : null}
                   {!routineLoading && routines.length === 0 ? (
-                    <p
-                      className={`px-4 py-4 text-sm ${
-                        darkMode ? "text-neutral-400" : "text-slate-500"
-                      }`}
-                    >
+                    <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
                       No routines due today.
                     </p>
                   ) : null}
@@ -799,9 +765,9 @@ export function Dashboard({
                     />
                   ))}
                 </div>
-              </section>
+              </DashboardPanel>
 
-              <section className={`rounded-md border ${panelClass(darkMode)}`}>
+              <DashboardPanel darkMode={darkMode}>
                 <SectionHeader
                   icon={<ClipboardList size={18} aria-hidden="true" />}
                   title="Pinned Memories"
@@ -819,28 +785,14 @@ export function Dashboard({
                     {memoryMessage}
                   </div>
                 ) : null}
-                <div
-                  className={
-                    darkMode
-                      ? "divide-y divide-neutral-900"
-                      : "divide-y divide-slate-200"
-                  }
-                >
+                <div className={dividerClass(darkMode)}>
                   {memoryLoading ? (
-                    <p
-                      className={`px-4 py-4 text-sm ${
-                        darkMode ? "text-neutral-400" : "text-slate-500"
-                      }`}
-                    >
+                    <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
                       Loading pinned memories...
                     </p>
                   ) : null}
                   {!memoryLoading && pinnedMemories.length === 0 ? (
-                    <p
-                      className={`px-4 py-4 text-sm ${
-                        darkMode ? "text-neutral-400" : "text-slate-500"
-                      }`}
-                    >
+                    <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
                       No pinned memories yet.
                     </p>
                   ) : null}
@@ -863,7 +815,7 @@ export function Dashboard({
                     />
                   ))}
                 </div>
-              </section>
+              </DashboardPanel>
             </aside>
           </section>
         )}

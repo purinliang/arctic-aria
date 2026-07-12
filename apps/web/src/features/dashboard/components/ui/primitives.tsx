@@ -5,7 +5,7 @@ import type {
   TextareaHTMLAttributes,
 } from "react";
 
-type ButtonTone = "primary" | "secondary" | "ghost";
+type ButtonTone = "primary" | "secondary" | "ghost" | "success";
 type ButtonSize = "xs" | "sm" | "md" | "icon-sm";
 
 export function cx(
@@ -218,6 +218,12 @@ function buttonToneClass(
     return darkMode
       ? "text-neutral-300 hover:bg-white/10 hover:text-white"
       : "text-slate-500 hover:bg-slate-100 hover:text-slate-950";
+  }
+
+  if (tone === "success") {
+    return darkMode
+      ? "border border-emerald-400/50 bg-emerald-500/15 text-emerald-200 hover:border-emerald-300"
+      : "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300";
   }
 
   return darkMode
