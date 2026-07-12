@@ -31,7 +31,7 @@ import {
   mutedTextClass,
   sectionBorderClass,
 } from "@/components/ui/color";
-import { dialogFrameClass } from "@/components/ui/dialog";
+import { ConfirmDialog, dialogFrameClass } from "@/components/ui/dialog";
 import { TextArea, TextInput } from "@/components/ui/input-field";
 import { ListItem } from "@/components/ui/list";
 import { Panel } from "@/components/ui/panel";
@@ -770,6 +770,7 @@ export function MemoriesPage({
           pending={pending}
           title={`Delete ${confirmationTarget.type}`}
           description={`Delete "${confirmationTarget.title}"? This cannot be undone.`}
+          confirmIcon={<Trash2 size={14} aria-hidden="true" />}
           onCancel={() => {
             if (!pending) {
               setConfirmationTarget(null);
@@ -779,78 +780,6 @@ export function MemoriesPage({
         />
       ) : null}
     </>
-  );
-}
-
-function ConfirmDialog({
-  darkMode,
-  pending,
-  title,
-  description,
-  onCancel,
-  onConfirm,
-}: {
-  darkMode: boolean;
-  pending: boolean;
-  title: string;
-  description: string;
-  onCancel: () => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <div className="fixed inset-0 z-[60] grid place-items-center bg-black/65 px-4 py-6">
-      <button
-        className="absolute inset-0 cursor-default"
-        type="button"
-        aria-label="Close confirmation"
-        onClick={onCancel}
-      />
-      <section className={cx(dialogFrameClass(darkMode), "max-w-md")}>
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-base font-semibold">{title}</h3>
-          <Button
-            darkMode={darkMode}
-            tone="ghost"
-            size="icon-sm"
-            aria-label="Close confirmation"
-            disabled={pending}
-            icon={<X size={16} aria-hidden="true" />}
-            onClick={onCancel}
-          />
-        </div>
-        <p className={`text-sm leading-6 ${mutedTextClass(darkMode)}`}>
-          {description}
-        </p>
-        <div className="mt-4 flex flex-wrap justify-end gap-2">
-          <Button
-            darkMode={darkMode}
-            disabled={pending}
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
-          <Button
-            darkMode={darkMode}
-            tone="primary"
-            disabled={pending}
-            icon={
-              pending ? (
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              ) : (
-                <Trash2 size={14} aria-hidden="true" />
-              )
-            }
-            onClick={onConfirm}
-          >
-            Delete
-          </Button>
-        </div>
-      </section>
-    </div>
   );
 }
 

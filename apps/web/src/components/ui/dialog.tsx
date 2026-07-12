@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { X } from "lucide-react";
+import { LoaderCircle, X } from "lucide-react";
 import { Button } from "./button";
 import { surfaceClass } from "./color";
 import { cx } from "./utils";
@@ -99,6 +99,7 @@ export function ConfirmDialog({
   description,
   confirmText = "Delete",
   confirmIcon,
+  loadingIcon,
   onCancel,
   onConfirm,
 }: {
@@ -108,6 +109,7 @@ export function ConfirmDialog({
   description: string;
   confirmText?: string;
   confirmIcon?: ReactNode;
+  loadingIcon?: ReactNode;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
@@ -133,7 +135,15 @@ export function ConfirmDialog({
             tone="primary"
             loading={pending}
             icon={confirmIcon}
-            loadingIcon={confirmIcon}
+            loadingIcon={
+              loadingIcon ?? (
+                <LoaderCircle
+                  className="animate-spin"
+                  size={14}
+                  aria-hidden="true"
+                />
+              )
+            }
             onClick={onConfirm}
           >
             {confirmText}
