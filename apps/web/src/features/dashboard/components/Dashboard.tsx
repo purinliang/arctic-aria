@@ -281,13 +281,13 @@ export function Dashboard({
         status === "completed"
           ? completeRoutineInstance(routineId)
           : skipRoutineInstance(routineId),
-      routineId,
+      null,
     );
   }
 
   async function runMemoryAction(
     action: MemoryDataAction,
-    expandedPinnedMemoryId: string,
+    expandedPinnedMemoryId: string | null,
   ) {
     setMemoryMessage(null);
     setMemoryActionPending(true);
@@ -348,7 +348,7 @@ export function Dashboard({
 
   async function runRoutineAction(
     action: RoutineDataAction,
-    expandedRoutineId: string,
+    expandedRoutineId: string | null,
   ) {
     setRoutineMessage(null);
     setRoutineActionPending(true);
@@ -389,21 +389,21 @@ export function Dashboard({
   function markMemoryDone(pinnedMemoryId: string) {
     void runMemoryAction(
       () => completePinnedMemory(pinnedMemoryId),
-      pinnedMemoryId,
+      null,
     );
   }
 
   function cancelMemoryDone(pinnedMemoryId: string) {
     void runMemoryAction(
       () => cancelPinnedMemoryDone(pinnedMemoryId),
-      pinnedMemoryId,
+      null,
     );
   }
 
   function replaceMemory(pinnedMemoryId: string) {
     void runMemoryAction(
       () => replacePinnedMemory(pinnedMemoryId),
-      pinnedMemoryId,
+      null,
     );
   }
 
@@ -447,6 +447,7 @@ export function Dashboard({
 
   function markRoutineBusy() {
     setRoutineMessage("Busy will snooze reminders after reminder jobs are implemented.");
+    setExpandedRoutineId(null);
   }
 
   async function refreshSuggestionsFromPage() {
