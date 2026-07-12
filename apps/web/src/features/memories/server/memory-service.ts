@@ -21,6 +21,7 @@ export type MemorySuggestionRecord = MemoryRecord & {
 const completedCleanupDelayMs = 2 * 60 * 60 * 1000;
 const visibleDurationsHours = [24, 30, 36, 42, 48] as const;
 const maxPinnedPerCategory = 3;
+const dashboardCategoryNames = ["Cuisine", "Sightseeing"] as const;
 
 function addHours(date: Date, hours: number) {
   return new Date(date.getTime() + hours * 60 * 60 * 1000);
@@ -81,6 +82,28 @@ function toDashboardPinnedMemory(
     ...memory,
     status: memory.completedAt ? "completed" : "active",
   };
+}
+
+function filterDashboardPinnedMemories(memories: PinnedMemoryRecord[]) {
+  const pinnedByCategory = new Map<string, PinnedMemoryRecord[]>();
+
+  for (const categoryName of dashboardCategoryNames) {
+    pinnedByCategory.set(categoryName, []);
+  }
+
+  for (const memory of memories) {
+    const categoryPins = pinnedByCategory.get(memory.categoryName);
+
+    if (!categoryPins || categoryPins.length >= maxPinnedPerCategory) {
+      continue;
+    }
+
+    categoryPins.push(memory);
+  }
+
+  return dashboardCategoryNames.flatMap(
+    (categoryName) => pinnedByCategory.get(categoryName) ?? [],
+  );
 }
 
 export function createMemoryService(options: MemoryServiceOptions = {}) {
@@ -266,7 +289,9 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
       await memories.ensureDefaultCategories(userId);
       const pinnedMemories = await memories.listPinnedMemories(userId);
 
-      return pinnedMemories.map(toDashboardPinnedMemory);
+      return filterDashboardPinnedMemories(pinnedMemories).map(
+        toDashboardPinnedMemory,
+      );
     },
 
     async completePinnedMemory(userId: string, pinnedMemoryId: string) {

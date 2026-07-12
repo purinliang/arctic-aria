@@ -40,7 +40,9 @@ function memory(
     id: input.id,
     userId,
     categoryId: input.categoryId,
-    categoryName: input.categoryId === "category-cuisine" ? "Cuisine" : "Sightseeing",
+    categoryName:
+      input.categoryName ??
+      (input.categoryId === "category-cuisine" ? "Cuisine" : "Sightseeing"),
     title: input.title,
     description: input.description ?? `${input.title} description`,
     lastDoneAt: input.lastDoneAt ?? null,
@@ -61,7 +63,9 @@ function pinnedMemory(
     userId,
     memoryId: input.memoryId,
     categoryId: input.categoryId,
-    categoryName: input.categoryId === "category-cuisine" ? "Cuisine" : "Sightseeing",
+    categoryName:
+      input.categoryName ??
+      (input.categoryId === "category-cuisine" ? "Cuisine" : "Sightseeing"),
     title: input.title,
     description: input.description ?? `${input.title} description`,
     position: input.position ?? 1,
@@ -195,6 +199,98 @@ test("cancel pinned memory done clears completion state", async () => {
   assert.equal(result.completedCleanupAt, null);
   assert.equal(result.doneCount, 0);
   assert.equal(repository.getEvents()[0]?.eventType, "completed_canceled");
+});
+
+test("dashboard pinned memories only include supported default categories", async () => {
+  const repository = new InMemoryMemoryRepository({
+    categories: [
+      ...categories,
+      {
+        id: "category-custom",
+        userId,
+        name: "Anime",
+        baseWeight: 1,
+        createdAt: new Date("2026-06-01T00:00:00.000Z"),
+        updatedAt: new Date("2026-06-01T00:00:00.000Z"),
+      },
+    ],
+    memories: [
+      memory({
+        id: "memory-1",
+        categoryId: "category-cuisine",
+        title: "Ramen",
+      }),
+      memory({
+        id: "memory-2",
+        categoryId: "category-sightseeing",
+        title: "Harbour walk",
+      }),
+      memory({
+        id: "memory-3",
+        categoryId: "category-custom",
+        categoryName: "Anime",
+        title: "Anime night",
+      }),
+    ],
+    pinnedMemories: [
+      pinnedMemory({
+        id: "pin-1",
+        memoryId: "memory-1",
+        categoryId: "category-cuisine",
+        title: "Ramen",
+      }),
+      pinnedMemory({
+        id: "pin-2",
+        memoryId: "memory-2",
+        categoryId: "category-sightseeing",
+        title: "Harbour walk",
+      }),
+      pinnedMemory({
+        id: "pin-3",
+        memoryId: "memory-3",
+        categoryId: "category-custom",
+        categoryName: "Anime",
+        title: "Anime night",
+      }),
+    ],
+  });
+  const service = createMemoryService({
+    memories: repository,
+    now: () => now,
+  });
+
+  const result = await service.listDashboardPinnedMemories(userId);
+
+  assert.deepEqual(
+    result.map((memory) => memory.categoryName),
+    ["Cuisine", "Sightseeing"],
+  );
+});
+
+test("dashboard pinned memories are limited to three per supported category", async () => {
+  const repository = new InMemoryMemoryRepository({
+    categories,
+    pinnedMemories: [1, 2, 3, 4].map((position) =>
+      pinnedMemory({
+        id: `pin-${position}`,
+        memoryId: `memory-${position}`,
+        categoryId: "category-cuisine",
+        title: `Cuisine ${position}`,
+        position,
+      }),
+    ),
+  });
+  const service = createMemoryService({
+    memories: repository,
+    now: () => now,
+  });
+
+  const result = await service.listDashboardPinnedMemories(userId);
+
+  assert.deepEqual(
+    result.map((memory) => memory.id),
+    ["pin-1", "pin-2", "pin-3"],
+  );
 });
 
 test("replace pinned memory uses another memory from the same category", async () => {
