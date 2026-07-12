@@ -132,7 +132,7 @@ export function Dashboard({
   const [activeView, setActiveView] = useState<DashboardView>("dashboard");
   const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null);
   const [reviewOpen, setReviewOpen] = useState(false);
-  const [reviewCount, setReviewCount] = useState(0);
+  const reviewCount = 0;
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>("task-1");
@@ -585,11 +585,6 @@ export function Dashboard({
     }
   }
 
-  function openReview() {
-    setReviewOpen(true);
-    setReviewCount((count) => count + 1);
-  }
-
   function showUnavailableFeature(featureName: string) {
     showInfoNotification(
       `${featureName} is not implemented in this prototype yet.`,
@@ -615,17 +610,15 @@ export function Dashboard({
           open={sidebarOpen}
           darkMode={darkMode}
           activeView={activeView}
-          currentUser={currentUser}
           logoutPending={logoutPending}
           onClose={() => setSidebarOpen(false)}
           onViewChange={setActiveView}
           onThemeChange={setDarkMode}
           onLogout={onLogout}
-          onReviewOpen={openReview}
           onUnavailableFeature={showUnavailableFeature}
         />
 
-        <div className="mx-auto flex min-w-0 flex-1 flex-col gap-4 px-4 py-4 sm:px-6 lg:max-w-[1200px] lg:px-8">
+        <div className="mx-auto flex min-h-[105vh] min-w-0 flex-1 flex-col gap-4 px-4 py-4 sm:px-6 lg:max-w-[1200px] lg:px-8">
           <header
             className={`flex items-center gap-3 border-b pb-4 ${sectionBorderClass(darkMode)}`}
           >
