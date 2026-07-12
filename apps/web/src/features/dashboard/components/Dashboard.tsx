@@ -9,6 +9,17 @@ import {
   Menu,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  dividerClass,
+  mutedTextClass,
+  sectionBorderClass,
+} from "@/components/ui/color";
+import {
+  NotificationStack,
+  type NotificationItem,
+} from "@/components/ui/notification";
+import { Panel } from "@/components/ui/panel";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import {
   cancelPinnedMemoryDone,
@@ -59,10 +70,6 @@ import type {
   TaskStatus,
 } from "../types";
 import { MemoriesPage } from "./MemoriesPage";
-import {
-  NotificationStack,
-  type DashboardNotification,
-} from "./NotificationStack";
 import { PinnedMemoryCard } from "./PinnedMemoryCard";
 import { ReviewDialog } from "./ReviewDialog";
 import { RoutineCard } from "./RoutineCard";
@@ -70,13 +77,6 @@ import { RoutinesPage } from "./RoutinesPage";
 import { SectionHeader } from "./SectionHeader";
 import { Sidebar } from "./Sidebar";
 import { TaskCard } from "./TaskCard";
-import {
-  DashboardButton,
-  DashboardPanel,
-  dividerClass,
-  mutedTextClass,
-  sectionBorderClass,
-} from "./ui/primitives";
 
 const todayFormatter = new Intl.DateTimeFormat("en", {
   weekday: "short",
@@ -136,7 +136,7 @@ export function Dashboard({
   const [suggestionPending, setSuggestionPending] = useState(false);
   const [pinnedSuggestionIds, setPinnedSuggestionIds] = useState<string[]>([]);
   const [suggestionsRequested, setSuggestionsRequested] = useState(false);
-  const [notifications, setNotifications] = useState<DashboardNotification[]>(
+  const [notifications, setNotifications] = useState<NotificationItem[]>(
     [],
   );
   const [activeView, setActiveView] = useState<DashboardView>("dashboard");
@@ -598,7 +598,7 @@ export function Dashboard({
           }`}
         >
           <div className="flex min-w-0 items-center gap-3">
-            <DashboardButton
+            <Button
               darkMode={darkMode}
               size="icon-sm"
               className="h-10 w-10"
@@ -631,7 +631,7 @@ export function Dashboard({
               {currentUser.displayName}
             </span>
             {activeView === "dashboard" ? (
-              <DashboardButton
+              <Button
                 darkMode={darkMode}
                 tone="primary"
                 size="md"
@@ -639,9 +639,9 @@ export function Dashboard({
                 onClick={openReview}
               >
                 Review
-              </DashboardButton>
+              </Button>
             ) : null}
-            <DashboardButton
+            <Button
               darkMode={darkMode}
               size="md"
               disabled={logoutPending}
@@ -649,7 +649,7 @@ export function Dashboard({
               onClick={onLogout}
             >
               {logoutPending ? "Signing out..." : "Sign out"}
-            </DashboardButton>
+            </Button>
           </div>
         </header>
 
@@ -689,7 +689,7 @@ export function Dashboard({
           />
         ) : (
           <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-            <DashboardPanel darkMode={darkMode} className="min-w-0">
+            <Panel darkMode={darkMode} className="min-w-0">
               <SectionHeader
                 icon={<Check size={18} aria-hidden="true" />}
                 title="Today's Tasks"
@@ -714,10 +714,10 @@ export function Dashboard({
                   />
                 ))}
               </div>
-            </DashboardPanel>
+            </Panel>
 
             <aside className="grid gap-4">
-              <DashboardPanel darkMode={darkMode}>
+              <Panel darkMode={darkMode}>
                 <SectionHeader
                   icon={<Bell size={18} aria-hidden="true" />}
                   title="Routines"
@@ -765,9 +765,9 @@ export function Dashboard({
                     />
                   ))}
                 </div>
-              </DashboardPanel>
+              </Panel>
 
-              <DashboardPanel darkMode={darkMode}>
+              <Panel darkMode={darkMode}>
                 <SectionHeader
                   icon={<ClipboardList size={18} aria-hidden="true" />}
                   title="Pinned Memories"
@@ -815,7 +815,7 @@ export function Dashboard({
                     />
                   ))}
                 </div>
-              </DashboardPanel>
+              </Panel>
             </aside>
           </section>
         )}

@@ -25,20 +25,19 @@ import type {
   MemoryRecord,
   MemorySuggestion,
 } from "../types";
+import { Button } from "@/components/ui/button";
 import {
-  DashboardButton,
-  DashboardPanel,
-  InlineMessage,
-  ListItem,
-  Tag,
-  TextArea,
-  TextInput,
-  cx,
   dividerClass,
-  modalClass,
   mutedTextClass,
   sectionBorderClass,
-} from "./ui/primitives";
+} from "@/components/ui/color";
+import { dialogFrameClass } from "@/components/ui/dialog";
+import { TextArea, TextInput } from "@/components/ui/input-field";
+import { ListItem } from "@/components/ui/list";
+import { Panel } from "@/components/ui/panel";
+import { Tag } from "@/components/ui/tag";
+import { InlineMessage } from "@/components/ui/text";
+import { cx } from "@/components/ui/utils";
 
 type MemoryFilter = "All" | MemoryCategory;
 type EditorResult = Promise<boolean>;
@@ -281,7 +280,7 @@ export function MemoriesPage({
   return (
     <>
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <DashboardPanel darkMode={darkMode} className="min-w-0">
+        <Panel darkMode={darkMode} className="min-w-0">
           <div
             className={cx(
               "flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between",
@@ -297,14 +296,14 @@ export function MemoriesPage({
                 Saved experiences to revisit when the day needs a gentle option.
               </p>
             </div>
-            <DashboardButton
+            <Button
               darkMode={darkMode}
               disabled={pending}
               icon={<Plus size={15} aria-hidden="true" />}
               onClick={openNewMemoryEditor}
             >
               Add
-            </DashboardButton>
+            </Button>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 px-4 py-3">
@@ -312,7 +311,7 @@ export function MemoriesPage({
               Categories:
             </span>
             {filters.map((item) => (
-              <DashboardButton
+              <Button
                 key={item}
                 darkMode={darkMode}
                 size="xs"
@@ -320,9 +319,9 @@ export function MemoriesPage({
                 onClick={() => setFilter(item)}
               >
                 {item}
-              </DashboardButton>
+              </Button>
             ))}
-            <DashboardButton
+            <Button
               darkMode={darkMode}
               size="xs"
               disabled={pending}
@@ -333,7 +332,7 @@ export function MemoriesPage({
               }}
             >
               Manage
-            </DashboardButton>
+            </Button>
           </div>
 
           <div className={dividerClass(darkMode)}>
@@ -372,9 +371,9 @@ export function MemoriesPage({
               />
             ))}
           </div>
-        </DashboardPanel>
+        </Panel>
 
-        <DashboardPanel darkMode={darkMode}>
+        <Panel darkMode={darkMode}>
           <div
             className={cx(
               "flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-start sm:justify-between",
@@ -390,7 +389,7 @@ export function MemoriesPage({
                 To reexperience in a few days.
               </p>
             </div>
-            <DashboardButton
+            <Button
               darkMode={darkMode}
               disabled={suggestionLoading || suggestionPending}
               icon={
@@ -407,7 +406,7 @@ export function MemoriesPage({
               onClick={() => void onSuggestionsRefresh()}
             >
               Refresh
-            </DashboardButton>
+            </Button>
           </div>
 
           <div className={dividerClass(darkMode)}>
@@ -441,7 +440,7 @@ export function MemoriesPage({
               />
             ))}
           </div>
-        </DashboardPanel>
+        </Panel>
       </section>
 
       {memoryEditorOpen ? (
@@ -453,7 +452,7 @@ export function MemoriesPage({
             onClick={closeMemoryEditor}
           />
           <form
-            className={modalClass(darkMode)}
+            className={dialogFrameClass(darkMode)}
             onSubmit={(event) => {
               event.preventDefault();
               void submitMemory();
@@ -463,7 +462,7 @@ export function MemoriesPage({
               <h3 className="text-base font-semibold">
                 {editingMemory ? "Edit a memory" : "Add a new memory"}
               </h3>
-              <DashboardButton
+              <Button
                 darkMode={darkMode}
                 tone="ghost"
                 size="icon-sm"
@@ -498,7 +497,7 @@ export function MemoriesPage({
                 <span className="text-xs font-semibold">Category</span>
                 <div className="flex flex-wrap items-center gap-2">
                   {categories.map((category) => (
-                    <DashboardButton
+                    <Button
                       key={category.id}
                       darkMode={darkMode}
                       size="xs"
@@ -513,9 +512,9 @@ export function MemoriesPage({
                       }
                     >
                       {category.name}
-                    </DashboardButton>
+                    </Button>
                   ))}
-                  <DashboardButton
+                  <Button
                     darkMode={darkMode}
                     size="xs"
                     disabled={pending}
@@ -526,7 +525,7 @@ export function MemoriesPage({
                     }}
                   >
                     Manage
-                  </DashboardButton>
+                  </Button>
                 </div>
               </div>
               <label className="grid gap-1 text-xs font-semibold">
@@ -547,7 +546,7 @@ export function MemoriesPage({
               </label>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <DashboardButton
+              <Button
                 darkMode={darkMode}
                 tone="primary"
                 type="submit"
@@ -565,9 +564,9 @@ export function MemoriesPage({
                 }
               >
                 Save
-              </DashboardButton>
+              </Button>
               {editingMemory ? (
-                <DashboardButton
+                <Button
                   darkMode={darkMode}
                   disabled={pending}
                   icon={<Trash2 size={14} aria-hidden="true" />}
@@ -582,7 +581,7 @@ export function MemoriesPage({
                   }
                 >
                   Delete
-                </DashboardButton>
+                </Button>
               ) : null}
             </div>
           </form>
@@ -597,10 +596,10 @@ export function MemoriesPage({
             aria-label="Close category editor"
             onClick={closeCategoryEditor}
           />
-          <section className={modalClass(darkMode)}>
+          <section className={dialogFrameClass(darkMode)}>
             <div className="mb-4 flex items-center justify-between gap-3">
               <h3 className="text-base font-semibold">Manage Categories</h3>
-              <DashboardButton
+              <Button
                 darkMode={darkMode}
                 tone="ghost"
                 size="icon-sm"
@@ -614,14 +613,14 @@ export function MemoriesPage({
                 {message}
               </InlineMessage>
             ) : null}
-            <DashboardButton
+            <Button
               darkMode={darkMode}
               disabled={pending}
               icon={<Plus size={14} aria-hidden="true" />}
               onClick={openNewCategoryEditor}
             >
               New category
-            </DashboardButton>
+            </Button>
             <div className={`mt-3 ${dividerClass(darkMode)}`}>
               {categories.map((category) => (
                 <ListItem
@@ -635,7 +634,7 @@ export function MemoriesPage({
                     </p>
                   </div>
                   <div className="flex shrink-0 gap-2">
-                    <DashboardButton
+                    <Button
                       darkMode={darkMode}
                       size="icon-sm"
                       className="h-8 w-8"
@@ -644,7 +643,7 @@ export function MemoriesPage({
                       icon={<Edit3 size={14} aria-hidden="true" />}
                       onClick={() => openCategoryEditor(category)}
                     />
-                    <DashboardButton
+                    <Button
                       darkMode={darkMode}
                       size="icon-sm"
                       className="h-8 w-8"
@@ -676,7 +675,7 @@ export function MemoriesPage({
             onClick={closeCategoryForm}
           />
           <form
-            className={cx(modalClass(darkMode), "max-w-md")}
+            className={cx(dialogFrameClass(darkMode), "max-w-md")}
             onSubmit={(event) => {
               event.preventDefault();
               void submitCategory();
@@ -686,7 +685,7 @@ export function MemoriesPage({
               <h3 className="text-base font-semibold">
                 {categoryDraft.id ? "Edit category" : "Add category"}
               </h3>
-              <DashboardButton
+              <Button
                 darkMode={darkMode}
                 tone="ghost"
                 size="icon-sm"
@@ -723,7 +722,7 @@ export function MemoriesPage({
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {(["Weekly", "Monthly"] as CategoryPeriod[]).map((period) => (
-                    <DashboardButton
+                    <Button
                       key={period}
                       darkMode={darkMode}
                       size="xs"
@@ -735,13 +734,13 @@ export function MemoriesPage({
                       onClick={() => selectCategoryPeriod(period)}
                     >
                       {period}
-                    </DashboardButton>
+                    </Button>
                   ))}
                 </div>
               </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <DashboardButton
+              <Button
                 darkMode={darkMode}
                 tone="primary"
                 type="submit"
@@ -759,7 +758,7 @@ export function MemoriesPage({
                 }
               >
                 Save
-              </DashboardButton>
+              </Button>
             </div>
           </form>
         </div>
@@ -806,10 +805,10 @@ function ConfirmDialog({
         aria-label="Close confirmation"
         onClick={onCancel}
       />
-      <section className={cx(modalClass(darkMode), "max-w-md")}>
+      <section className={cx(dialogFrameClass(darkMode), "max-w-md")}>
         <div className="mb-4 flex items-center justify-between gap-3">
           <h3 className="text-base font-semibold">{title}</h3>
-          <DashboardButton
+          <Button
             darkMode={darkMode}
             tone="ghost"
             size="icon-sm"
@@ -823,14 +822,14 @@ function ConfirmDialog({
           {description}
         </p>
         <div className="mt-4 flex flex-wrap justify-end gap-2">
-          <DashboardButton
+          <Button
             darkMode={darkMode}
             disabled={pending}
             onClick={onCancel}
           >
             Cancel
-          </DashboardButton>
-          <DashboardButton
+          </Button>
+          <Button
             darkMode={darkMode}
             tone="primary"
             disabled={pending}
@@ -848,7 +847,7 @@ function ConfirmDialog({
             onClick={onConfirm}
           >
             Delete
-          </DashboardButton>
+          </Button>
         </div>
       </section>
     </div>
@@ -913,13 +912,13 @@ function MemoryListItem({
       </button>
       {expanded ? (
         <div className="mt-3 flex justify-end">
-          <DashboardButton
+          <Button
             darkMode={darkMode}
             icon={<Edit3 size={15} aria-hidden="true" />}
             onClick={onEdit}
           >
             Edit
-          </DashboardButton>
+          </Button>
         </div>
       ) : null}
     </ListItem>
@@ -958,7 +957,7 @@ function SuggestionListItem({
         </p>
       </div>
       <div className="shrink-0">
-        <DashboardButton
+        <Button
           darkMode={darkMode}
           size="icon-sm"
           active={!pinned}

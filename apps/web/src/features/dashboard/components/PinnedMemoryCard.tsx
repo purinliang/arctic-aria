@@ -1,10 +1,8 @@
 import { Check, ChevronDown, Eye, RefreshCw, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { mutedTextClass } from "@/components/ui/color";
+import { Tag } from "@/components/ui/tag";
 import type { PinnedMemory } from "../types";
-import {
-  DashboardButton,
-  Tag,
-  mutedTextClass,
-} from "./ui/primitives";
 
 export function PinnedMemoryCard({
   memory,
@@ -96,7 +94,7 @@ export function PinnedMemoryCard({
         >
           <div className="grid grid-cols-3 gap-2">
             {completed ? (
-              <DashboardButton
+              <Button
                 darkMode={darkMode}
                 tone="success"
                 className="px-2"
@@ -105,9 +103,9 @@ export function PinnedMemoryCard({
                 onClick={onCancelDone}
               >
                 Cancel
-              </DashboardButton>
+              </Button>
             ) : (
-              <DashboardButton
+              <Button
                 darkMode={darkMode}
                 className="px-2"
                 disabled={disabled}
@@ -115,9 +113,9 @@ export function PinnedMemoryCard({
                 onClick={onDone}
               >
                 Done
-              </DashboardButton>
+              </Button>
             )}
-            <DashboardButton
+            <Button
               darkMode={darkMode}
               className="px-2"
               disabled={disabled}
@@ -125,8 +123,8 @@ export function PinnedMemoryCard({
               onClick={onReplace}
             >
               Replace
-            </DashboardButton>
-            <DashboardButton
+            </Button>
+            <Button
               darkMode={darkMode}
               className="px-2"
               disabled={disabled}
@@ -134,7 +132,7 @@ export function PinnedMemoryCard({
               onClick={onView}
             >
               View
-            </DashboardButton>
+            </Button>
           </div>
           <p className={`text-xs ${mutedTextClass(darkMode)}`}>
             Visible for a soft window; completed items can be canceled before

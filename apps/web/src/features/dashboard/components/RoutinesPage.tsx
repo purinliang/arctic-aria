@@ -8,22 +8,21 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import type { RoutineInput } from "@/features/routines/actions";
-import type { RoutineDefinition, RoutineRuleType } from "../types";
+import { Button } from "@/components/ui/button";
 import {
-  DashboardButton,
-  DashboardPanel,
-  InlineMessage,
-  ListItem,
-  Tag,
-  TextArea,
-  TextInput,
-  cx,
   dividerClass,
-  modalClass,
   mutedTextClass,
   sectionBorderClass,
-} from "./ui/primitives";
+} from "@/components/ui/color";
+import { dialogFrameClass } from "@/components/ui/dialog";
+import { TextArea, TextInput } from "@/components/ui/input-field";
+import { ListItem } from "@/components/ui/list";
+import { Panel } from "@/components/ui/panel";
+import { Tag } from "@/components/ui/tag";
+import { InlineMessage } from "@/components/ui/text";
+import { cx } from "@/components/ui/utils";
+import type { RoutineInput } from "@/features/routines/actions";
+import type { RoutineDefinition, RoutineRuleType } from "../types";
 
 type RoutineResult = Promise<boolean>;
 type ConfirmationTarget = {
@@ -198,7 +197,7 @@ export function RoutinesPage({
 
   return (
     <>
-      <DashboardPanel darkMode={darkMode}>
+      <Panel darkMode={darkMode}>
         <div
           className={cx(
             "flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between",
@@ -214,14 +213,14 @@ export function RoutinesPage({
               Repeatable checks for the current personal day.
             </p>
           </div>
-          <DashboardButton
+          <Button
             darkMode={darkMode}
             disabled={pending}
             icon={<Plus size={15} aria-hidden="true" />}
             onClick={openNewEditor}
           >
             Add
-          </DashboardButton>
+          </Button>
         </div>
 
         {message ? (
@@ -263,18 +262,18 @@ export function RoutinesPage({
                   {ruleSummary(routine)}
                 </p>
               </div>
-              <DashboardButton
+              <Button
                 darkMode={darkMode}
                 disabled={pending}
                 icon={<Edit3 size={15} aria-hidden="true" />}
                 onClick={() => openEditor(routine)}
               >
                 Edit
-              </DashboardButton>
+              </Button>
             </ListItem>
           ))}
         </div>
-      </DashboardPanel>
+      </Panel>
 
       {editorOpen ? (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/65 px-4 py-6">
@@ -285,7 +284,7 @@ export function RoutinesPage({
             onClick={closeEditor}
           />
           <form
-            className={modalClass(darkMode)}
+            className={dialogFrameClass(darkMode)}
             onSubmit={(event) => {
               event.preventDefault();
               void submitRoutine();
@@ -295,7 +294,7 @@ export function RoutinesPage({
               <h3 className="text-base font-semibold">
                 {draft.id ? "Edit routine" : "Add routine"}
               </h3>
-              <DashboardButton
+              <Button
                 darkMode={darkMode}
                 tone="ghost"
                 size="icon-sm"
@@ -346,7 +345,7 @@ export function RoutinesPage({
                 <span className="text-xs font-semibold">Recurrence</span>
                 <div className="flex flex-wrap gap-2">
                   {ruleOptions.map((option) => (
-                    <DashboardButton
+                    <Button
                       key={option.type}
                       darkMode={darkMode}
                       size="xs"
@@ -360,7 +359,7 @@ export function RoutinesPage({
                       }
                     >
                       {option.label}
-                    </DashboardButton>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -369,7 +368,7 @@ export function RoutinesPage({
                   <span className="text-xs font-semibold">Weekdays</span>
                   <div className="flex flex-wrap gap-2">
                     {weekdayOptions.map((weekday) => (
-                      <DashboardButton
+                      <Button
                         key={weekday.value}
                         darkMode={darkMode}
                         size="xs"
@@ -378,7 +377,7 @@ export function RoutinesPage({
                         onClick={() => toggleWeekday(weekday.value)}
                       >
                         {weekday.label}
-                      </DashboardButton>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -472,7 +471,7 @@ export function RoutinesPage({
               </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <DashboardButton
+              <Button
                 darkMode={darkMode}
                 tone="primary"
                 type="submit"
@@ -490,9 +489,9 @@ export function RoutinesPage({
                 }
               >
                 Save
-              </DashboardButton>
+              </Button>
               {draft.id ? (
-                <DashboardButton
+                <Button
                   darkMode={darkMode}
                   disabled={pending}
                   icon={<Trash2 size={14} aria-hidden="true" />}
@@ -506,7 +505,7 @@ export function RoutinesPage({
                   }
                 >
                   Delete
-                </DashboardButton>
+                </Button>
               ) : null}
             </div>
           </form>
@@ -554,10 +553,10 @@ function ConfirmDialog({
         aria-label="Close confirmation"
         onClick={onCancel}
       />
-      <section className={cx(modalClass(darkMode), "max-w-md")}>
+      <section className={cx(dialogFrameClass(darkMode), "max-w-md")}>
         <div className="mb-4 flex items-center justify-between gap-3">
           <h3 className="text-base font-semibold">{title}</h3>
-          <DashboardButton
+          <Button
             darkMode={darkMode}
             tone="ghost"
             size="icon-sm"
@@ -571,14 +570,14 @@ function ConfirmDialog({
           {description}
         </p>
         <div className="mt-4 flex flex-wrap justify-end gap-2">
-          <DashboardButton
+          <Button
             darkMode={darkMode}
             disabled={pending}
             onClick={onCancel}
           >
             Cancel
-          </DashboardButton>
-          <DashboardButton
+          </Button>
+          <Button
             darkMode={darkMode}
             tone="primary"
             disabled={pending}
@@ -596,7 +595,7 @@ function ConfirmDialog({
             onClick={onConfirm}
           >
             Delete
-          </DashboardButton>
+          </Button>
         </div>
       </section>
     </div>

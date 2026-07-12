@@ -1,7 +1,8 @@
 import { AlertCircle, X } from "lucide-react";
 import { useEffect } from "react";
+import { cx } from "./utils";
 
-export type DashboardNotification = {
+export type NotificationItem = {
   id: number;
   tone: "error";
   title: string;
@@ -13,7 +14,7 @@ export function NotificationStack({
   darkMode,
   onDismiss,
 }: {
-  notifications: DashboardNotification[];
+  notifications: NotificationItem[];
   darkMode: boolean;
   onDismiss: (notificationId: number) => void;
 }) {
@@ -23,7 +24,7 @@ export function NotificationStack({
 
   return (
     <div
-      className="fixed left-1/2 top-4 z-[80] grid w-[min(calc(100%-2rem),24rem)] -translate-x-1/2 gap-2 lg:bottom-6 lg:left-auto lg:right-6 lg:top-auto lg:w-96 lg:translate-x-0"
+      className="fixed bottom-4 left-1/2 z-[80] grid w-[min(calc(100%-2rem),24rem)] -translate-x-1/2 gap-2 lg:bottom-6 lg:left-auto lg:right-6 lg:w-96 lg:translate-x-0"
       aria-live="polite"
       aria-relevant="additions text"
     >
@@ -44,7 +45,7 @@ function NotificationToast({
   darkMode,
   onDismiss,
 }: {
-  notification: DashboardNotification;
+  notification: NotificationItem;
   darkMode: boolean;
   onDismiss: (notificationId: number) => void;
 }) {
@@ -58,11 +59,12 @@ function NotificationToast({
 
   return (
     <section
-      className={`grid grid-cols-[auto_1fr_auto] gap-3 rounded-md border px-4 py-3 shadow-2xl ${
+      className={cx(
+        "grid grid-cols-[auto_1fr_auto] gap-3 rounded-md border px-4 py-3 shadow-2xl",
         darkMode
           ? "border-red-400/40 bg-red-950 text-red-50"
-          : "border-red-200 bg-red-50 text-red-900"
-      }`}
+          : "border-red-200 bg-red-50 text-red-900",
+      )}
       role="status"
     >
       <AlertCircle
@@ -73,19 +75,21 @@ function NotificationToast({
       <div className="min-w-0">
         <h2 className="text-sm font-semibold">{notification.title}</h2>
         <p
-          className={`mt-1 text-sm leading-5 ${
-            darkMode ? "text-red-100" : "text-red-800"
-          }`}
+          className={cx(
+            "mt-1 text-sm leading-5",
+            darkMode ? "text-red-100" : "text-red-800",
+          )}
         >
           {notification.message}
         </p>
       </div>
       <button
-        className={`flex h-7 w-7 items-center justify-center rounded-md transition ${
+        className={cx(
+          "flex h-7 w-7 items-center justify-center rounded-md transition",
           darkMode
             ? "text-red-100 hover:bg-white/10"
-            : "text-red-700 hover:bg-red-100"
-        }`}
+            : "text-red-700 hover:bg-red-100",
+        )}
         type="button"
         aria-label="Dismiss notification"
         onClick={() => onDismiss(notification.id)}

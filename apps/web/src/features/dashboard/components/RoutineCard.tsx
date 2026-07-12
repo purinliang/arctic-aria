@@ -1,10 +1,8 @@
 import { ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { mutedTextClass } from "@/components/ui/color";
+import { Tag } from "@/components/ui/tag";
 import type { Routine, RoutineStatus } from "../types";
-import {
-  DashboardButton,
-  Tag,
-  mutedTextClass,
-} from "./ui/primitives";
 
 export function RoutineCard({
   routine,
@@ -69,30 +67,30 @@ export function RoutineCard({
               : "border-slate-200 bg-slate-50"
           }`}
         >
-          <DashboardButton
+          <Button
             darkMode={darkMode}
             className="px-2"
             disabled={disabled}
             onClick={() => onStatusChange("completed")}
           >
             Done
-          </DashboardButton>
-          <DashboardButton
+          </Button>
+          <Button
             darkMode={darkMode}
             className="px-2"
             disabled={disabled}
             onClick={onBusy}
           >
             Busy
-          </DashboardButton>
-          <DashboardButton
+          </Button>
+          <Button
             darkMode={darkMode}
             className="px-2"
             disabled={disabled}
             onClick={() => onStatusChange("skipped")}
           >
             Skip
-          </DashboardButton>
+          </Button>
         </div>
       ) : null}
     </article>
