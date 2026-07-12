@@ -15,7 +15,7 @@ import {
   sectionBorderClass,
 } from "@/components/ui/color";
 import { ConfirmDialog, dialogFrameClass } from "@/components/ui/dialog";
-import { TextArea, TextInput } from "@/components/ui/input-field";
+import { FieldLabel, TextArea, TextInput } from "@/components/ui/input-field";
 import { ListItem } from "@/components/ui/list";
 import { Panel } from "@/components/ui/panel";
 import { Tag } from "@/components/ui/tag";
@@ -309,8 +309,7 @@ export function RoutinesPage({
               </InlineMessage>
             ) : null}
             <div className="grid gap-3">
-              <label className="grid gap-1 text-xs font-semibold">
-                Title
+              <FieldLabel darkMode={darkMode} label="Title">
                 <TextInput
                   darkMode={darkMode}
                   value={draft.title}
@@ -324,9 +323,8 @@ export function RoutinesPage({
                     }))
                   }
                 />
-              </label>
-              <label className="grid gap-1 text-xs font-semibold">
-                Description
+              </FieldLabel>
+              <FieldLabel darkMode={darkMode} label="Description">
                 <TextArea
                   darkMode={darkMode}
                   className="min-h-24"
@@ -340,7 +338,7 @@ export function RoutinesPage({
                     }))
                   }
                 />
-              </label>
+              </FieldLabel>
               <div className="grid gap-2">
                 <span className="text-xs font-semibold">Recurrence</span>
                 <div className="flex flex-wrap gap-2">
@@ -385,8 +383,7 @@ export function RoutinesPage({
               {draft.ruleType === "monthly_by_date" ||
               draft.ruleType === "day_interval" ? (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="grid gap-1 text-xs font-semibold">
-                    Interval
+                  <FieldLabel darkMode={darkMode} label="Interval">
                     <TextInput
                       darkMode={darkMode}
                       type="number"
@@ -400,10 +397,9 @@ export function RoutinesPage({
                         }))
                       }
                     />
-                  </label>
+                  </FieldLabel>
                   {draft.ruleType === "monthly_by_date" ? (
-                    <label className="grid gap-1 text-xs font-semibold">
-                      Day of month
+                    <FieldLabel darkMode={darkMode} label="Day of month">
                       <TextInput
                         darkMode={darkMode}
                         type="number"
@@ -418,16 +414,17 @@ export function RoutinesPage({
                           }))
                         }
                       />
-                    </label>
+                    </FieldLabel>
                   ) : null}
                 </div>
               ) : null}
               <div className="grid gap-3 sm:grid-cols-3">
-                <label className="grid gap-1 text-xs font-semibold">
-                  First start date
+                <FieldLabel darkMode={darkMode} label="First start date">
                   <TextInput
                     darkMode={darkMode}
-                    type="date"
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="YYYY-MM-DD"
                     value={draft.firstStartDate}
                     disabled={pending}
                     onChange={(event) =>
@@ -437,12 +434,13 @@ export function RoutinesPage({
                       }))
                     }
                   />
-                </label>
-                <label className="grid gap-1 text-xs font-semibold">
-                  End date
+                </FieldLabel>
+                <FieldLabel darkMode={darkMode} label="End date" optional>
                   <TextInput
                     darkMode={darkMode}
-                    type="date"
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="YYYY-MM-DD"
                     value={draft.endDate ?? ""}
                     disabled={pending}
                     onChange={(event) =>
@@ -452,12 +450,13 @@ export function RoutinesPage({
                       }))
                     }
                   />
-                </label>
-                <label className="grid gap-1 text-xs font-semibold">
-                  Preferred time
+                </FieldLabel>
+                <FieldLabel darkMode={darkMode} label="Preferred time" optional>
                   <TextInput
                     darkMode={darkMode}
-                    type="time"
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="HH:MM"
                     value={draft.preferredTime ?? ""}
                     disabled={pending}
                     onChange={(event) =>
@@ -467,7 +466,7 @@ export function RoutinesPage({
                       }))
                     }
                   />
-                </label>
+                </FieldLabel>
               </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
