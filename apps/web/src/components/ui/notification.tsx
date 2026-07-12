@@ -4,7 +4,7 @@ import { cx } from "./utils";
 
 export type NotificationItem = {
   id: number;
-  tone: "error";
+  tone: "error" | "info";
   title: string;
   message: string;
 };
@@ -61,14 +61,26 @@ function NotificationToast({
     <section
       className={cx(
         "grid grid-cols-[auto_1fr_auto] gap-3 rounded-md border px-4 py-3 shadow-2xl",
-        darkMode
-          ? "border-red-400/40 bg-red-950 text-red-50"
-          : "border-red-200 bg-red-50 text-red-900",
+        notification.tone === "error"
+          ? darkMode
+            ? "border-red-400/40 bg-red-950 text-red-50"
+            : "border-red-200 bg-red-50 text-red-900"
+          : darkMode
+            ? "border-blue-400/40 bg-blue-950 text-blue-50"
+            : "border-blue-200 bg-blue-50 text-blue-900",
       )}
       role="status"
     >
       <AlertCircle
-        className={darkMode ? "text-red-200" : "text-red-600"}
+        className={
+          notification.tone === "error"
+            ? darkMode
+              ? "text-red-200"
+              : "text-red-600"
+            : darkMode
+              ? "text-blue-200"
+              : "text-blue-600"
+        }
         size={18}
         aria-hidden="true"
       />
@@ -77,7 +89,13 @@ function NotificationToast({
         <p
           className={cx(
             "mt-1 text-sm leading-5",
-            darkMode ? "text-red-100" : "text-red-800",
+            notification.tone === "error"
+              ? darkMode
+                ? "text-red-100"
+                : "text-red-800"
+              : darkMode
+                ? "text-blue-100"
+                : "text-blue-800",
           )}
         >
           {notification.message}
@@ -87,8 +105,10 @@ function NotificationToast({
         className={cx(
           "flex h-7 w-7 items-center justify-center rounded-md transition",
           darkMode
-            ? "text-red-100 hover:bg-white/10"
-            : "text-red-700 hover:bg-red-100",
+            ? "text-white/80 hover:bg-white/10"
+            : notification.tone === "error"
+              ? "text-red-700 hover:bg-red-100"
+              : "text-blue-700 hover:bg-blue-100",
         )}
         type="button"
         aria-label="Dismiss notification"

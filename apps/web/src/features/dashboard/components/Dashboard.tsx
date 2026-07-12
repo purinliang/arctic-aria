@@ -4,8 +4,6 @@ import {
   Bell,
   Check,
   ClipboardList,
-  ListChecks,
-  LogOut,
   Menu,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -49,7 +47,6 @@ import {
   type RoutineInput,
 } from "@/features/routines/actions";
 import {
-  dayBoundary,
   initialTasks,
   rewardPreview,
 } from "../dummy-data";
@@ -77,13 +74,6 @@ import { RoutinesPage } from "./RoutinesPage";
 import { SectionHeader } from "./SectionHeader";
 import { Sidebar } from "./Sidebar";
 import { TaskCard } from "./TaskCard";
-
-const todayFormatter = new Intl.DateTimeFormat("en", {
-  weekday: "short",
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-});
 
 type MemoryDataAction = () => Promise<
   MemoryActionResult<MemoryDashboardData>
@@ -241,6 +231,21 @@ export function Dashboard({
         {
           id: Date.now(),
           tone: "error",
+          title,
+          message,
+        },
+      ]);
+    },
+    [],
+  );
+
+  const showInfoNotification = useCallback(
+    (message: string, title = "Not available yet") => {
+      setNotifications((current) => [
+        ...current.slice(-2),
+        {
+          id: Date.now(),
+          tone: "info",
           title,
           message,
         },
@@ -585,75 +590,59 @@ export function Dashboard({
     setReviewCount((count) => count + 1);
   }
 
+  function showUnavailableFeature(featureName: string) {
+    showInfoNotification(
+      `${featureName} is not implemented in this prototype yet.`,
+      "Feature not ready",
+    );
+  }
+
+  const pageTitle =
+    activeView === "dashboard"
+      ? "Dashboard"
+      : activeView === "routines"
+        ? "Routines"
+        : "Memories";
+
   return (
     <main
       className={`min-h-screen transition-colors ${
         darkMode ? "bg-black text-white" : "bg-[#eef2f5] text-slate-950"
       }`}
     >
-      <div className="mx-auto flex max-w-[1500px] flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
-        <header
-          className={`flex flex-col gap-3 border-b pb-4 lg:flex-row lg:items-center lg:justify-between ${
-            sectionBorderClass(darkMode)
-          }`}
-        >
-          <div className="flex min-w-0 items-center gap-3">
+      <div className="lg:flex">
+        <Sidebar
+          open={sidebarOpen}
+          darkMode={darkMode}
+          activeView={activeView}
+          currentUser={currentUser}
+          logoutPending={logoutPending}
+          onClose={() => setSidebarOpen(false)}
+          onViewChange={setActiveView}
+          onThemeChange={setDarkMode}
+          onLogout={onLogout}
+          onReviewOpen={openReview}
+          onUnavailableFeature={showUnavailableFeature}
+        />
+
+        <div className="mx-auto flex min-w-0 flex-1 flex-col gap-4 px-4 py-4 sm:px-6 lg:max-w-[1200px] lg:px-8">
+          <header
+            className={`flex items-center gap-3 border-b pb-4 ${sectionBorderClass(darkMode)}`}
+          >
             <Button
               darkMode={darkMode}
               size="icon-sm"
-              className="h-10 w-10"
+              className="h-10 w-10 lg:hidden"
               aria-label="Open navigation"
               icon={<Menu size={20} aria-hidden="true" />}
               onClick={() => setSidebarOpen(true)}
             />
-            <div className="min-w-0">
-              <p
-                className={`text-sm font-medium ${mutedTextClass(darkMode)}`}
-              >
-                Daily plan ends at {dayBoundary}
-              </p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-normal sm:text-3xl">
-                {activeView === "dashboard"
-                  ? `${todayFormatter.format(new Date())} Dashboard`
-                  : activeView === "routines"
-                    ? "Routines"
-                  : "Memories"}
-              </h1>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={`max-w-[180px] truncate text-sm font-semibold ${
-                darkMode ? "text-neutral-300" : "text-slate-700"
-              }`}
-              title={currentUser.username}
-            >
-              {currentUser.displayName}
-            </span>
-            {activeView === "dashboard" ? (
-              <Button
-                darkMode={darkMode}
-                tone="primary"
-                size="md"
-                icon={<ListChecks size={18} aria-hidden="true" />}
-                onClick={openReview}
-              >
-                Review
-              </Button>
-            ) : null}
-            <Button
-              darkMode={darkMode}
-              size="md"
-              disabled={logoutPending}
-              icon={<LogOut size={17} aria-hidden="true" />}
-              onClick={onLogout}
-            >
-              {logoutPending ? "Signing out..." : "Sign out"}
-            </Button>
-          </div>
-        </header>
+            <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
+              {pageTitle}
+            </h1>
+          </header>
 
-        {activeView === "routines" ? (
+          {activeView === "routines" ? (
           <RoutinesPage
             darkMode={darkMode}
             routines={routineDefinitions}
@@ -664,7 +653,7 @@ export function Dashboard({
             onRoutineDelete={deleteRoutineFromPage}
             onMessageClear={clearRoutineMessage}
           />
-        ) : activeView === "memories" ? (
+          ) : activeView === "memories" ? (
           <MemoriesPage
             darkMode={darkMode}
             categories={memoryCategories}
@@ -687,7 +676,7 @@ export function Dashboard({
             onSuggestionPin={pinSuggestionFromPage}
             onSuggestionCancel={cancelSuggestionPinFromPage}
           />
-        ) : (
+          ) : (
           <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
             <Panel darkMode={darkMode} className="min-w-0">
               <SectionHeader
@@ -818,17 +807,9 @@ export function Dashboard({
               </Panel>
             </aside>
           </section>
-        )}
+          )}
+        </div>
       </div>
-
-      <Sidebar
-        open={sidebarOpen}
-        darkMode={darkMode}
-        activeView={activeView}
-        onClose={() => setSidebarOpen(false)}
-        onViewChange={setActiveView}
-        onThemeChange={setDarkMode}
-      />
 
       <NotificationStack
         notifications={notifications}

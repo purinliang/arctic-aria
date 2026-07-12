@@ -82,15 +82,30 @@ sections stacking cleanly and without overlapping text.
 
 ## Navigation And Theme
 
-Add a hamburger button that opens a left sidebar. The sidebar should contain:
+On desktop, keep a persistent left sidebar and show page content on the right.
+On mobile and tablet-sized viewports, hide the sidebar behind a hamburger
+button and show it as an overlay when opened.
+
+The page title bar should show only the current page title. Do not show the day
+boundary, current time, current user, logout button, or review button in the
+page title bar.
+
+The sidebar should contain:
 
 - `Dashboard`: the current page.
 - `Tasks`: placeholder navigation item for future task editing.
 - `Routines`: placeholder navigation item for future routine editing.
+- `Memories`: memory management.
+- `Review`: opens the current review and reward dialog.
 - `Settings`: contains the dark mode toggle for now.
+- current signed-in user display name.
+- sign out action.
 
-Dark mode should be the default. A light mode toggle can be local state and does
-not need persistence.
+Daytime mode should be the default. A dark mode toggle can be local state and
+does not need persistence.
+
+Placeholder sidebar items should show a non-blocking notification instead of
+silently doing nothing.
 
 ## Task Cards
 
