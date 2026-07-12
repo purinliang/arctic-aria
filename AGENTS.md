@@ -76,6 +76,11 @@ user.
 
 ## UI Interaction Defaults
 
+- Web UI must use the shared components under `apps/web/src/components/ui/`.
+  Creating one-off styled buttons, panels, inputs, dialogs, notifications,
+  lists, cards, text, or tags inside feature pages is prohibited. If the shared
+  component is missing a needed pattern, extend or add a shared UI component
+  first, then use it from the feature page.
 - For dashboard cards and lightweight product commands, command actions should
   normally resolve the active surface immediately. Examples: collapse an
   expanded card after `Done`, `Skip`, `Replace`, or similar command buttons.
@@ -90,7 +95,7 @@ user.
   backend or database fails.
 - Failed optimistic commands should show the shared notification component, not
   a duplicated inline section error. Use a red notification at the bottom-right
-  on desktop and at the top-center on mobile or tablet-sized viewports.
+  on desktop and at the bottom-center on mobile or tablet-sized viewports.
 - Username/password login and registration are excluded from optimistic UI.
   Auth flows should wait for strong backend confirmation before showing success
   or opening the dashboard.
