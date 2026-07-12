@@ -10,7 +10,12 @@ the right.
 
 The sidebar height is independent from the page content height. It should stay
 anchored to the viewport and must not stretch to match a long right-side page.
-The page content may scroll independently.
+The sidebar and page content may scroll independently. If the sidebar does not
+have enough vertical space, the sidebar content should scroll inside the
+sidebar instead of being clipped.
+
+The page content area should keep a minimum height of `105vh` so the right page
+keeps its own scroll surface visible during normal desktop inspection.
 
 The desktop page title bar should show only the current page title. It should
 not show the current user, sign out button, current time, day boundary, or review
@@ -31,12 +36,14 @@ The main navigation area should contain:
 - Tasks
 - Routines
 - Memories
-- Review
 - Settings
 
 Implemented items should navigate or open the intended dialog. Placeholder
 items should show a non-blocking notification instead of silently doing
 nothing.
+
+Review is hidden from the sidebar until the review feature has a stable
+navigation design.
 
 ## Bottom Account Area
 
@@ -47,9 +54,16 @@ setting.
 Order from top to bottom:
 
 - separator line
-- dark mode setting
-- sign out button
-- current user display name
+- theme mode item
+- sign out item
 
-The current user display name belongs at the bottom of the sidebar, near the
-account action. It should not appear in the page title bar.
+The theme mode and sign out actions should look like other sidebar menu items:
+same left alignment, icon position, row height, and button surface. Do not use a
+separate switch control in the sidebar. Do not show the current user display
+name in the sidebar or page title bar.
+
+## Brand
+
+The sidebar brand should match the login page naming: `Arctic Aria`, same
+letter case, led by a Sparkles icon. It should not be shown as uppercase helper
+text.

@@ -11,6 +11,12 @@ from page panels and should not share the right page's height.
 The page area starts to the right of the sidebar and keeps its own max width.
 The sidebar should not look like another page panel.
 
+The right page content should have a minimum height of `105vh`. This keeps the
+page scroll behavior visible and separate from the sidebar.
+
+The sidebar should scroll internally when the viewport height is too small for
+all sidebar content.
+
 ## Mobile
 
 Use the hamburger button only on mobile and tablet-sized viewports. The opened
@@ -32,9 +38,17 @@ vertical spacing.
 
 The bottom controls appear in this order:
 
-- Dark mode row with switch
-- Sign out button
-- Current user display name
+- Theme mode menu item
+- Sign out menu item
+
+Theme mode and sign out should use the same visual style as navigation menu
+items. They should share the same left alignment and should not use a separate
+switch control. Do not show the username in the sidebar.
+
+## Brand
+
+The brand row uses a Sparkles icon followed by `Arctic Aria`. The label uses the
+same casing as the login page and should not be converted to all caps.
 
 ## Expandable Lists Near Sidebar Pages
 

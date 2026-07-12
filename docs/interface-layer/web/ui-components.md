@@ -80,6 +80,9 @@ Input fields support:
 Use it for settings that can be turned on or off, such as theme mode. Do not
 build one-off toggle switches inside feature pages.
 
+Do not use a switch in the sidebar theme row. Sidebar actions should use the
+same menu-item button style as navigation items.
+
 ## Panel
 
 `panel.tsx` owns page panels: the main content blocks inside pages, dashboards,
