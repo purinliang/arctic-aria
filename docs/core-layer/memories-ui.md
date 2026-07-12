@@ -38,9 +38,10 @@ cards. Only the expanded state should show:
 
 Clicking the pinned memory again should collapse it.
 
-If the user clicks `Done`, keep the card expanded and show the completed state.
-If the user clicks `Replace`, replace only that one item, keep other positions
-unchanged, and keep the new item expanded.
+If the user clicks `Done`, collapse the card after the backend acknowledges the
+action and the dashboard data refreshes. If the user clicks `Replace`, replace
+only that one item, keep other positions unchanged, and collapse the card after
+the backend acknowledges the action.
 
 On dashboard load or reload:
 

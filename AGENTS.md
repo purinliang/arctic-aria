@@ -74,6 +74,23 @@ user.
 - Focus on the task implied by the branch name. For example, do not implement
   application code during documentation-only work on an `agent/docs-*` branch.
 
+## UI Interaction Defaults
+
+- For dashboard cards, management lists, and modal-based CRUD flows, command
+  actions should normally resolve the active surface after the backend
+  acknowledges the request. Examples: collapse an expanded card after `Done`,
+  `Skip`, `Replace`, or similar command buttons; close dialogs after successful
+  save or delete.
+- Do not collapse multi-step detail surfaces while the user is still editing
+  several controls, such as checking multiple subtasks.
+- A future UI-only branch should use optimistic interaction flow for normal
+  product commands: the frontend responds immediately after click, sends the
+  backend request, keeps a successful database write silent, and shows a visible
+  error only if the backend or database fails.
+- Username/password login and registration are excluded from optimistic UI.
+  Auth flows should wait for strong backend confirmation before showing success
+  or opening the dashboard.
+
 ## Branches
 
 - `main` is the release and stable branch.
