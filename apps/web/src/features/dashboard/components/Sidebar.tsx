@@ -135,7 +135,7 @@ function SidebarFrame({
           ? `absolute left-0 top-0 h-full w-[300px] max-w-[86vw] shadow-xl transition-transform ${
               open ? "translate-x-0" : "-translate-x-full"
             }`
-          : "hidden min-h-screen w-[300px] shrink-0 lg:flex"
+          : "hidden h-screen w-[300px] shrink-0 lg:sticky lg:top-0 lg:flex"
       } flex-col border-r p-4 ${
         darkMode
           ? "border-neutral-800 bg-black text-white"
@@ -158,24 +158,6 @@ function SidebarFrame({
             onClick={onClose}
           />
         ) : null}
-      </div>
-
-      <div
-        className={`mt-4 rounded-md border p-3 ${
-          darkMode
-            ? "border-neutral-800 bg-neutral-950"
-            : "border-slate-200 bg-slate-50"
-        }`}
-      >
-        <p className={`text-xs font-semibold uppercase ${mutedTextClass(darkMode)}`}>
-          Signed in
-        </p>
-        <p
-          className="mt-1 truncate text-sm font-semibold"
-          title={currentUser.username}
-        >
-          {currentUser.displayName}
-        </p>
       </div>
 
       <nav className="mt-6 grid gap-2">
@@ -221,10 +203,8 @@ function SidebarFrame({
       </nav>
 
       <div
-        className={`mt-auto grid gap-3 rounded-md border p-3 ${
-          darkMode
-            ? "border-neutral-800 bg-neutral-950"
-            : "border-slate-200 bg-slate-50"
+        className={`mt-auto grid gap-3 border-t pt-4 ${
+          darkMode ? "border-neutral-800" : "border-slate-200"
         }`}
       >
         <div className="flex items-center justify-between gap-3">
@@ -251,6 +231,17 @@ function SidebarFrame({
         >
           {logoutPending ? "Signing out..." : "Sign out"}
         </Button>
+        <div>
+          <p className={`text-xs font-semibold uppercase ${mutedTextClass(darkMode)}`}>
+            Signed in
+          </p>
+          <p
+            className="mt-1 truncate text-sm font-semibold"
+            title={currentUser.username}
+          >
+            {currentUser.displayName}
+          </p>
+        </div>
       </div>
     </aside>
   );

@@ -17,20 +17,28 @@ export function List({
 export function ListItem({
   darkMode,
   selected = false,
+  expanded = false,
+  layout = "row",
   className,
   children,
 }: {
   darkMode: boolean;
   selected?: boolean;
+  expanded?: boolean;
+  layout?: "row" | "block";
   className?: string;
   children: ReactNode;
 }) {
+  const active = selected || expanded;
+
   return (
     <article
       className={cx(
-        "flex items-start justify-between gap-3 px-4 py-4",
-        darkMode ? "hover:bg-neutral-950" : "hover:bg-slate-50",
-        selected && (darkMode ? "bg-white/10" : "bg-slate-100"),
+        layout === "row"
+          ? "flex items-start justify-between gap-3 px-4 py-4"
+          : "px-4 py-4",
+        !active && (darkMode ? "hover:bg-neutral-950" : "hover:bg-slate-50"),
+        active && (darkMode ? "bg-white/10" : "bg-slate-100"),
         className,
       )}
     >

@@ -610,7 +610,7 @@ export function Dashboard({
         darkMode ? "bg-black text-white" : "bg-[#eef2f5] text-slate-950"
       }`}
     >
-      <div className="lg:flex">
+      <div className="lg:flex lg:items-start">
         <Sidebar
           open={sidebarOpen}
           darkMode={darkMode}

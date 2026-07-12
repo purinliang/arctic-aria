@@ -279,7 +279,7 @@ export function MemoriesPage({
 
   return (
     <>
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <section className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         <Panel darkMode={darkMode} className="min-w-0">
           <div
             className={cx(
@@ -801,10 +801,9 @@ function MemoryListItem({
   return (
     <ListItem
       darkMode={darkMode}
-      className={cx(
-        "block",
-        selected && (darkMode ? "bg-white/10" : "bg-slate-100"),
-      )}
+      layout="block"
+      expanded={expanded}
+      selected={selected}
     >
       <button
         className="grid w-full gap-3 text-left"
