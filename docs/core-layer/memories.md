@@ -65,9 +65,10 @@ Examples:
 A memory can be completed multiple times. Completion history should be stored as
 events, not as an array on the memory row.
 
-A memory should support a detail page with an edit action. The detail page can
-show title, description, category, current pin state, done count, last done time,
-and event history.
+A memory should eventually support a detail page with an edit action. The detail
+page can show title, description, category, current pin state, done count, and
+last done time. Event history should be stored in the database, but the first UI
+does not need to show an event-history view.
 
 ### Memory Category
 
@@ -119,6 +120,16 @@ they may want to do soon. They are not tasks and should not become overdue.
 Pinned memories are closer to a soft shortlist or temporary favorites list.
 
 The dashboard should use the title `Pinned Memories`.
+
+The dashboard's primary responsibility is to show the user's pinned memories.
+The first dashboard only supports default dashboard categories:
+
+- Cuisine
+- Sightseeing
+
+Custom categories can exist in the Memories page, but they should not appear in
+the dashboard pinned-memory list until dashboard support for more categories is
+explicitly designed.
 
 The user can:
 
@@ -319,6 +330,7 @@ Dashboard behavior:
 
 - The first dashboard should show up to 3 Cuisine memories and up to 3
   Sightseeing memories.
+- The first dashboard should not show pinned memories from custom categories.
 - The first dashboard should not support adding or editing memory categories.
 - Pinned memory order should remain stable across refreshes and dashboard loads.
 - Marking a pinned memory as done records a `completed` event, updates memory
@@ -327,6 +339,14 @@ Dashboard behavior:
 - If done was a misclick, the user can cancel done before cleanup.
 - On dashboard load, completed pinned records whose cleanup time has passed
   should be deleted and replaced with another memory if one is available.
+- On dashboard load, active pinned records whose `visible_until` time has passed
+  should also be deleted and replaced with another memory from the same category
+  if one is available.
+- Cleanup and expiry should run before the dashboard response is returned so the
+  user sees the final active pinned-memory list after reload.
+- Cleanup and expiry replacement must preserve category limits. The final
+  dashboard list should still contain at most 3 Cuisine memories and at most 3
+  Sightseeing memories.
 - Replacing a pinned memory selects a new memory from the same category and
   position. The replacement should not already be showing and should not already
   be completed.
@@ -338,8 +358,8 @@ Visibility timing:
 - When a pinned memory appears, set `visible_until` to a random duration after
   `last_shown_at`.
 - Allowed durations are 24, 30, 36, 42, and 48 hours.
-- Completing or replacing a pinned memory should refresh the relevant visible or
-  cleanup timing.
+- Replacing a pinned memory should refresh `visible_until`.
+- Completing a pinned memory should set `completed_cleanup_at`.
 - Visibility timing is separate from the 2-hour completed cleanup timing.
 
 ## UI

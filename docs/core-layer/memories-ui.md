@@ -9,6 +9,20 @@ The home dashboard should show a compact `Pinned Memories` section. Its icon
 should match the Memories item in the hamburger menu. Use the Lucide
 `ClipboardList` icon.
 
+The dashboard's required first behavior is to show pinned memories only. The
+expanded controls below are specified in [memories.md](memories.md) under
+Pinned Memory Behavior so the user can quickly act on a pinned memory without
+opening the Memories page.
+
+The first dashboard should show pinned memories from supported dashboard
+categories only:
+
+- up to 3 Cuisine memories
+- up to 3 Sightseeing memories
+
+Do not show dashboard pinned memories from custom categories until a later UI
+feature designs that behavior.
+
 For each pinned memory, show:
 
 - title
@@ -34,6 +48,8 @@ On dashboard load or reload:
 - preserve the order of still-active pinned memories
 - fill empty slots by appending new pinned memories at the end of the category
   list when candidates exist
+- remove or replace completed pins whose cleanup time has passed
+- remove or replace active pins whose visible window has expired
 
 ## Memories Page
 
@@ -273,7 +289,8 @@ show weights in the edit list because they are internal.
 
 ### Add a New Category
 
-Use the same style as the Add Memory dialog.
+Clicking `New category` should open an add-category dialog. Use the same style
+as the Add Memory dialog.
 
 Use a clear label: `Category name`.
 
@@ -287,6 +304,9 @@ Always keep the same design as the Add Memory dialog for consistency.
 
 When clicking the edit button, open a new edit dialog with the same UI as the
 Add Category dialog.
+
+The Manage Categories dialog should not turn into an inline edit form when the
+user clicks edit.
 
 When clicking the delete button, show a confirmation dialog with two buttons.
 If the category is still used by memories, show the backend error and keep the
