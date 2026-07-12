@@ -161,6 +161,7 @@ export function MemoriesPage({
   );
   const [memoryEditorOpen, setMemoryEditorOpen] = useState(false);
   const [categoryEditorOpen, setCategoryEditorOpen] = useState(false);
+  const [categoryFormOpen, setCategoryFormOpen] = useState(false);
   const [confirmationTarget, setConfirmationTarget] =
     useState<ConfirmationTarget | null>(null);
   const [memoryDraft, setMemoryDraft] = useState<MemoryInput>({
@@ -190,6 +191,16 @@ export function MemoriesPage({
   function closeCategoryEditor() {
     if (!pending) {
       setCategoryEditorOpen(false);
+      setCategoryFormOpen(false);
+      setCategoryDraft(emptyCategoryDraft);
+      onMessageClear();
+    }
+  }
+
+  function closeCategoryForm() {
+    if (!pending) {
+      setCategoryFormOpen(false);
+      setCategoryDraft(emptyCategoryDraft);
       onMessageClear();
     }
   }
@@ -215,6 +226,22 @@ export function MemoriesPage({
     });
     onMessageClear();
     setMemoryEditorOpen(true);
+  }
+
+  function openNewCategoryEditor() {
+    setCategoryDraft(emptyCategoryDraft);
+    onMessageClear();
+    setCategoryFormOpen(true);
+  }
+
+  function openCategoryEditor(category: MemoryCategoryOption) {
+    setCategoryDraft({
+      id: category.id,
+      name: category.name,
+      baseWeight: category.baseWeight,
+    });
+    onMessageClear();
+    setCategoryFormOpen(true);
   }
 
   async function submitMemory() {
@@ -274,7 +301,7 @@ export function MemoriesPage({
       }
 
       setCategoryDraft(emptyCategoryDraft);
-      setCategoryEditorOpen(false);
+      setCategoryFormOpen(false);
     }
   }
 
@@ -658,13 +685,109 @@ export function MemoriesPage({
                 {message}
               </p>
             ) : null}
-            <form
-              className="grid gap-3"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void submitCategory();
-              }}
+            <button
+              className={`flex h-9 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
+              type="button"
+              disabled={pending}
+              onClick={openNewCategoryEditor}
             >
+              <Plus size={14} aria-hidden="true" />
+              New category
+            </button>
+            <div
+              className={`mt-3 ${
+                darkMode
+                  ? "divide-y divide-neutral-800"
+                  : "divide-y divide-slate-200"
+              }`}
+            >
+              {categories.map((category) => (
+                <div
+                  key={category.id}
+                  className="flex items-center justify-between gap-3 py-3"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">
+                      {category.name}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 gap-2">
+                    <button
+                      className={`flex h-8 w-8 items-center justify-center rounded-md border transition ${buttonClass(darkMode)}`}
+                      type="button"
+                      disabled={pending}
+                      aria-label={`Edit ${category.name}`}
+                      onClick={() => openCategoryEditor(category)}
+                    >
+                      <Edit3 size={14} aria-hidden="true" />
+                    </button>
+                    <button
+                      className={`flex h-8 w-8 items-center justify-center rounded-md border transition ${buttonClass(darkMode)}`}
+                      type="button"
+                      disabled={pending}
+                      aria-label={`Delete ${category.name}`}
+                      onClick={() =>
+                        setConfirmationTarget({
+                          type: "category",
+                          id: category.id,
+                          title: category.name,
+                        })
+                      }
+                    >
+                      <Trash2 size={14} aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      ) : null}
+
+      {categoryFormOpen ? (
+        <div className="fixed inset-0 z-[60] grid place-items-center bg-black/65 px-4 py-6">
+          <button
+            className="absolute inset-0 cursor-default"
+            type="button"
+            aria-label="Close category form"
+            onClick={closeCategoryForm}
+          />
+          <form
+            className={`${modalClass(darkMode)} max-w-md`}
+            onSubmit={(event) => {
+              event.preventDefault();
+              void submitCategory();
+            }}
+          >
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h3 className="text-base font-semibold">
+                {categoryDraft.id ? "Edit category" : "Add category"}
+              </h3>
+              <button
+                className={`flex h-9 w-9 items-center justify-center rounded-md transition ${
+                  darkMode
+                    ? "text-neutral-300 hover:bg-white/10 hover:text-white"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
+                }`}
+                type="button"
+                aria-label="Close category form"
+                onClick={closeCategoryForm}
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            </div>
+            {message ? (
+              <p
+                className={`mb-3 rounded-md border px-3 py-2 text-sm ${
+                  darkMode
+                    ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
+                    : "border-amber-200 bg-amber-50 text-amber-700"
+                }`}
+              >
+                {message}
+              </p>
+            ) : null}
+            <div className="grid gap-3">
               <label className="grid gap-1 text-xs font-semibold">
                 Category name
                 <input
@@ -703,89 +826,26 @@ export function MemoriesPage({
                   ))}
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  className={`flex h-9 items-center gap-2 rounded-md border px-4 text-xs font-semibold transition ${buttonClass(darkMode, true)}`}
-                  type="submit"
-                  disabled={pending}
-                >
-                  {pending ? (
-                    <LoaderCircle
-                      className="animate-spin"
-                      size={14}
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <Save size={14} aria-hidden="true" />
-                  )}
-                  Save
-                </button>
-              </div>
-            </form>
-            <button
-              className={`mt-3 h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-              type="button"
-              disabled={pending}
-              onClick={() => {
-                onMessageClear();
-                setCategoryDraft(emptyCategoryDraft);
-              }}
-            >
-              New category
-            </button>
-            <div
-              className={`mt-3 ${
-                darkMode
-                  ? "divide-y divide-neutral-800"
-                  : "divide-y divide-slate-200"
-              }`}
-            >
-              {categories.map((category) => (
-                <div
-                  key={category.id}
-                  className="flex items-center justify-between gap-3 py-3"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">
-                      {category.name}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 gap-2">
-                    <button
-                      className={`flex h-8 w-8 items-center justify-center rounded-md border transition ${buttonClass(darkMode)}`}
-                      type="button"
-                      disabled={pending}
-                      aria-label={`Edit ${category.name}`}
-                      onClick={() =>
-                        setCategoryDraft({
-                          id: category.id,
-                          name: category.name,
-                          baseWeight: category.baseWeight,
-                        })
-                      }
-                    >
-                      <Edit3 size={14} aria-hidden="true" />
-                    </button>
-                    <button
-                      className={`flex h-8 w-8 items-center justify-center rounded-md border transition ${buttonClass(darkMode)}`}
-                      type="button"
-                      disabled={pending}
-                      aria-label={`Delete ${category.name}`}
-                      onClick={() =>
-                        setConfirmationTarget({
-                          type: "category",
-                          id: category.id,
-                          title: category.name,
-                        })
-                      }
-                    >
-                      <Trash2 size={14} aria-hidden="true" />
-                    </button>
-                  </div>
-                </div>
-              ))}
             </div>
-          </section>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                className={`flex h-9 items-center gap-2 rounded-md border px-4 text-xs font-semibold transition ${buttonClass(darkMode, true)}`}
+                type="submit"
+                disabled={pending}
+              >
+                {pending ? (
+                  <LoaderCircle
+                    className="animate-spin"
+                    size={14}
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <Save size={14} aria-hidden="true" />
+                )}
+                Save
+              </button>
+            </div>
+          </form>
         </div>
       ) : null}
 
