@@ -76,17 +76,26 @@ user.
 
 ## UI Interaction Defaults
 
-- For dashboard cards, management lists, and modal-based CRUD flows, command
-  actions should normally resolve the active surface after the backend
-  acknowledges the request. Examples: collapse an expanded card after `Done`,
-  `Skip`, `Replace`, or similar command buttons; close dialogs after successful
-  save or delete.
+- Web UI must use the shared components under `apps/web/src/components/ui/`.
+  Creating one-off styled buttons, panels, inputs, dialogs, notifications,
+  lists, cards, text, or tags inside feature pages is prohibited. If the shared
+  component is missing a needed pattern, extend or add a shared UI component
+  first, then use it from the feature page.
+- For dashboard cards and lightweight product commands, command actions should
+  normally resolve the active surface immediately. Examples: collapse an
+  expanded card after `Done`, `Skip`, `Replace`, or similar command buttons.
+- Modal-based CRUD save/delete flows are different: close dialogs only after a
+  successful backend response, and keep the dialog open when validation or
+  database updates fail.
 - Do not collapse multi-step detail surfaces while the user is still editing
   several controls, such as checking multiple subtasks.
-- A future UI-only branch should use optimistic interaction flow for normal
-  product commands: the frontend responds immediately after click, sends the
-  backend request, keeps a successful database write silent, and shows a visible
-  error only if the backend or database fails.
+- Normal product commands should use optimistic interaction flow: the frontend
+  responds immediately after click, sends the backend request, keeps a
+  successful database write silent, and shows a visible error only if the
+  backend or database fails.
+- Failed optimistic commands should show the shared notification component, not
+  a duplicated inline section error. Use a red notification at the bottom-right
+  on desktop and at the bottom-center on mobile or tablet-sized viewports.
 - Username/password login and registration are excluded from optimistic UI.
   Auth flows should wait for strong backend confirmation before showing success
   or opening the dashboard.

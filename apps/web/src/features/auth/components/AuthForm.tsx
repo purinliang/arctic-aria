@@ -2,6 +2,9 @@
 
 import { ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Panel } from "@/components/ui/panel";
+import { InlineMessage } from "@/components/ui/text";
 import type { AuthMode } from "./AuthGate";
 import {
   authFieldOrder,
@@ -38,14 +41,6 @@ const visibleFields: Record<AuthMode, AuthField[]> = {
   login: ["username", "password"],
   register: ["username", "displayName", "password", "repeatPassword"],
 };
-
-function tabClass(active: boolean) {
-  return `h-10 rounded text-sm font-semibold transition ${
-    active
-      ? "bg-white text-slate-950 shadow-sm"
-      : "text-slate-600 hover:text-slate-950"
-  }`;
-}
 
 export function AuthForm({
   mode,
@@ -94,7 +89,7 @@ export function AuthForm({
   return (
     <main className="min-h-screen bg-[#eef2f5] text-slate-950">
       <div className="mx-auto flex min-h-screen w-full max-w-[560px] items-center px-4 py-6 sm:px-6">
-        <section className="w-full rounded-md border border-slate-300 bg-white p-5 shadow-sm sm:p-8">
+        <Panel darkMode={false} className="w-full p-5 shadow-sm sm:p-8">
           <div className="flex items-center justify-center gap-2 text-slate-950">
             <Sparkles size={22} aria-hidden="true" />
             <h1 className="text-2xl font-semibold tracking-normal">Arctic Aria</h1>
@@ -104,20 +99,24 @@ export function AuthForm({
           </p>
 
           <div className="mb-6 grid grid-cols-2 rounded-md border border-slate-300 bg-slate-100 p-1">
-            <button
-              className={tabClass(mode === "login")}
-              type="button"
+            <Button
+              darkMode={false}
+              tone={mode === "login" ? "primary" : "ghost"}
+              size="md"
+              className="h-10"
               onClick={() => switchMode("login")}
             >
               Sign in
-            </button>
-            <button
-              className={tabClass(mode === "register")}
-              type="button"
+            </Button>
+            <Button
+              darkMode={false}
+              tone={mode === "register" ? "primary" : "ghost"}
+              size="md"
+              className="h-10"
               onClick={() => switchMode("register")}
             >
               Sign up
-            </button>
+            </Button>
           </div>
 
           <form
@@ -166,18 +165,21 @@ export function AuthForm({
               type={showPassword ? "text" : "password"}
               autoComplete={mode === "register" ? "new-password" : "current-password"}
               trailingButton={
-                <button
-                  className="flex h-8 w-8 items-center justify-center rounded text-slate-500 hover:bg-slate-100 hover:text-slate-950"
-                  type="button"
+                <Button
+                  darkMode={false}
+                  tone="ghost"
+                  size="icon-sm"
+                  className="h-8 w-8"
                   onClick={() => setShowPassword((current) => !current)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? (
-                    <EyeOff size={18} aria-hidden="true" />
-                  ) : (
-                    <Eye size={18} aria-hidden="true" />
-                  )}
-                </button>
+                  icon={
+                    showPassword ? (
+                      <EyeOff size={18} aria-hidden="true" />
+                    ) : (
+                      <Eye size={18} aria-hidden="true" />
+                    )
+                  }
+                />
               }
               onBlur={() => markTouched("password")}
               onChange={(value) =>
@@ -196,18 +198,21 @@ export function AuthForm({
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 trailingButton={
-                  <button
-                    className="flex h-8 w-8 items-center justify-center rounded text-slate-500 hover:bg-slate-100 hover:text-slate-950"
-                    type="button"
+                  <Button
+                    darkMode={false}
+                    tone="ghost"
+                    size="icon-sm"
+                    className="h-8 w-8"
                     onClick={() => setShowPassword((current) => !current)}
                     aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? (
-                      <EyeOff size={18} aria-hidden="true" />
-                    ) : (
-                      <Eye size={18} aria-hidden="true" />
-                    )}
-                  </button>
+                    icon={
+                      showPassword ? (
+                        <EyeOff size={18} aria-hidden="true" />
+                      ) : (
+                        <Eye size={18} aria-hidden="true" />
+                      )
+                    }
+                  />
                 }
                 onBlur={() => markTouched("repeatPassword")}
                 onChange={(value) => onRegisterChange("repeatPassword", value)}
@@ -215,29 +220,32 @@ export function AuthForm({
             ) : null}
 
             {submitError ? (
-              <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              <InlineMessage darkMode={false} tone="red">
                 {submitError}
-              </div>
+              </InlineMessage>
             ) : null}
 
             {submitMessage ? (
-              <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+              <InlineMessage darkMode={false} tone="emerald">
                 {submitMessage}
-              </div>
+              </InlineMessage>
             ) : null}
 
             <span
               className="mt-1 block"
               title={disabled && firstError ? errors[firstError] : undefined}
             >
-              <button
-                className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+              <Button
+                darkMode={false}
+                tone="primary"
+                size="md"
+                className="w-full"
                 type="submit"
                 disabled={disabled}
+                icon={<ArrowRight size={17} aria-hidden="true" />}
               >
                 {buttonText}
-                <ArrowRight size={17} aria-hidden="true" />
-              </button>
+              </Button>
             </span>
 
             {mode === "login" ? (
@@ -248,38 +256,42 @@ export function AuthForm({
                   <span className="h-px bg-slate-200" />
                 </div>
 
-                <button
-                  className="flex h-11 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                  type="button"
+                <Button
+                  darkMode={false}
+                  size="md"
+                  icon={<GoogleIcon />}
                 >
-                  <GoogleIcon />
                   Continue with Google
-                </button>
+                </Button>
 
                 <p className="text-center text-sm text-slate-600">
                   Forgot your password?{" "}
-                  <button
-                    className="font-semibold text-slate-950 underline-offset-4 hover:underline"
-                    type="button"
+                  <Button
+                    darkMode={false}
+                    tone="ghost"
+                    size="xs"
+                    className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"
                   >
                     Reset password
-                  </button>
+                  </Button>
                 </p>
               </>
             ) : null}
 
             <p className="text-center text-sm text-slate-600">
               {switchPrompt}{" "}
-              <button
-                className="font-semibold text-slate-950 underline-offset-4 hover:underline"
-                type="button"
+              <Button
+                darkMode={false}
+                tone="ghost"
+                size="xs"
+                className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"
                 onClick={() => switchMode(switchTarget)}
               >
                 {switchLabel}
-              </button>
+              </Button>
             </p>
           </form>
-        </section>
+        </Panel>
       </div>
     </main>
   );

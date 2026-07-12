@@ -82,15 +82,34 @@ sections stacking cleanly and without overlapping text.
 
 ## Navigation And Theme
 
-Add a hamburger button that opens a left sidebar. The sidebar should contain:
+On desktop, keep a persistent left sidebar and show page content on the right.
+On mobile and tablet-sized viewports, hide the sidebar behind a hamburger
+button and show it as an overlay when opened. Detailed sidebar behavior is
+documented in [sidebar.md](sidebar.md) and [sidebar-ui.md](sidebar-ui.md).
+
+The page title bar should show only the current page title. Do not show the day
+boundary, current time, current user, logout button, or review button in the
+page title bar.
+
+The sidebar should contain:
 
 - `Dashboard`: the current page.
 - `Tasks`: placeholder navigation item for future task editing.
 - `Routines`: placeholder navigation item for future routine editing.
-- `Settings`: contains the dark mode toggle for now.
+- `Memories`: memory management.
+- `Settings`: placeholder navigation item for future settings.
+- theme mode action.
+- sign out action.
 
-Dark mode should be the default. A light mode toggle can be local state and does
-not need persistence.
+Do not show `Review` in the sidebar until the review feature has a stable
+navigation design. Do not show the current signed-in user display name in the
+sidebar or page title bar.
+
+Daytime mode should be the default. A theme mode action can be local state and
+does not need persistence.
+
+Placeholder sidebar items should show a non-blocking notification instead of
+silently doing nothing.
 
 ## Task Cards
 
@@ -129,7 +148,6 @@ The dashboard should support:
 - Reflecting partial task progress through the green progress circle.
 - Expanding and collapsing routine details by clicking the routine card.
 - Marking routines as done, skipped, or pending through reminder actions.
-- Clicking `Review` at any time, multiple times.
 
 ## Routine Cards
 
@@ -152,9 +170,9 @@ Routine card behavior:
 
 ## Review And Rewards
 
-The review UI should appear only after clicking the `Review` button. It can be a
-center dialog or a compact popover below the review button. Prefer the option
-that feels stable on desktop and usable on mobile.
+The review UI is intentionally hidden from primary navigation for now. Keep the
+prototype dialog code only if it is useful for later work, but do not expose a
+sidebar item until the review feature has a stable navigation design.
 
 The review card should show:
 
@@ -264,7 +282,7 @@ Run the app locally and inspect:
 - Nonblank dashboard content.
 - No incoherent text overlap.
 - Sidebar open and close behavior.
-- Dark mode default and light mode toggle.
+- Daytime mode default and theme mode menu action.
 - Task expand and collapse behavior.
 - Subtask checkbox behavior.
 - Green circular task progress behavior without text inside the circle.
@@ -272,14 +290,13 @@ Run the app locally and inspect:
 - Routine auto-expand behavior when a reminder is active.
 - Pinned memory done behavior.
 - Pinned memory replace behavior.
-- Repeated `Review` button behavior.
 - Treasure chest hover or focus preview behavior.
 
 ## Refactor Checklist
 
 After this plan is accepted, refactor the existing prototype in this order:
 
-1. Add dark-mode-first page styling and local light mode toggle.
+1. Add daytime-first page styling and local theme mode action.
 2. Add hamburger sidebar with placeholder navigation items.
 3. Simplify the top bar to date, day boundary, and review button only.
 4. Replace task checkbox and progress bars with green circular progress.

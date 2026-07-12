@@ -1,23 +1,8 @@
 import { ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { mutedTextClass } from "@/components/ui/color";
+import { Tag } from "@/components/ui/tag";
 import type { Routine, RoutineStatus } from "../types";
-
-function routineStatusClass(status: RoutineStatus, darkMode: boolean) {
-  if (status === "completed") {
-    return darkMode
-      ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-200"
-      : "border-emerald-200 bg-emerald-50 text-emerald-700";
-  }
-
-  if (status === "skipped") {
-    return darkMode
-      ? "border-neutral-700 bg-neutral-900 text-neutral-300"
-      : "border-slate-200 bg-slate-100 text-slate-600";
-  }
-
-  return darkMode
-    ? "border-blue-400/40 bg-blue-500/15 text-blue-200"
-    : "border-blue-200 bg-blue-50 text-blue-700";
-}
 
 export function RoutineCard({
   routine,
@@ -52,30 +37,20 @@ export function RoutineCard({
             <h3 className="min-w-0 text-sm font-semibold">{routine.title}</h3>
           </div>
           <div
-            className={`mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs ${
-              darkMode ? "text-neutral-400" : "text-slate-500"
-            }`}
+            className={`mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs ${mutedTextClass(darkMode)}`}
           >
             <span>{routine.scheduledTime}</span>
             <span>{routine.streakText}</span>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <span
-            className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${routineStatusClass(routine.status, darkMode)}`}
-          >
+          <Tag darkMode={darkMode} tone={routineStatusTone(routine.status)}>
             {routine.status}
-          </span>
+          </Tag>
           {routine.reminderState !== "idle" ? (
-            <span
-              className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${
-                darkMode
-                  ? "border-blue-400/40 bg-blue-500/15 text-blue-200"
-                  : "border-blue-200 bg-blue-50 text-blue-700"
-              }`}
-            >
+            <Tag darkMode={darkMode}>
               {routine.reminderState}
-            </span>
+            </Tag>
           ) : null}
           <ChevronDown
             className={`transition ${expanded ? "rotate-180" : ""}`}
@@ -92,40 +67,44 @@ export function RoutineCard({
               : "border-slate-200 bg-slate-50"
           }`}
         >
-          <button
-            className={routineButtonClass(darkMode)}
-            type="button"
+          <Button
+            darkMode={darkMode}
+            className="px-2"
             disabled={disabled}
             onClick={() => onStatusChange("completed")}
           >
             Done
-          </button>
-          <button
-            className={routineButtonClass(darkMode)}
-            type="button"
+          </Button>
+          <Button
+            darkMode={darkMode}
+            className="px-2"
             disabled={disabled}
             onClick={onBusy}
           >
             Busy
-          </button>
-          <button
-            className={routineButtonClass(darkMode)}
-            type="button"
+          </Button>
+          <Button
+            darkMode={darkMode}
+            className="px-2"
             disabled={disabled}
             onClick={() => onStatusChange("skipped")}
           >
             Skip
-          </button>
+          </Button>
         </div>
       ) : null}
     </article>
   );
 }
 
-function routineButtonClass(darkMode: boolean) {
-  return `h-9 rounded-md border px-2 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
-    darkMode
-      ? "border-neutral-700 text-neutral-200 hover:border-white hover:text-white"
-      : "border-slate-300 text-slate-700 hover:border-slate-500"
-  }`;
+function routineStatusTone(status: RoutineStatus) {
+  if (status === "completed") {
+    return "emerald";
+  }
+
+  if (status === "skipped") {
+    return "neutral";
+  }
+
+  return "blue";
 }

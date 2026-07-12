@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { SupportingText } from "@/components/ui/text";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { getCurrentUser, loginUser, logoutUser, registerUser } from "../actions";
 import type { AuthUser } from "../server/auth-service";
@@ -62,7 +63,9 @@ export function AuthGate() {
   if (!sessionChecked) {
     return (
       <main className="grid min-h-screen place-items-center bg-[#eef2f5] text-slate-600">
-        <p className="text-sm font-medium">Opening Arctic Aria...</p>
+        <SupportingText darkMode={false} className="font-medium">
+          Opening Arctic Aria...
+        </SupportingText>
       </main>
     );
   }

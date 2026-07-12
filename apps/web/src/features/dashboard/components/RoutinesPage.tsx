@@ -8,6 +8,19 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  dividerClass,
+  mutedTextClass,
+  sectionBorderClass,
+} from "@/components/ui/color";
+import { ConfirmDialog, dialogFrameClass } from "@/components/ui/dialog";
+import { FieldLabel, TextArea, TextInput } from "@/components/ui/input-field";
+import { ListItem } from "@/components/ui/list";
+import { Panel } from "@/components/ui/panel";
+import { Tag } from "@/components/ui/tag";
+import { InlineMessage } from "@/components/ui/text";
+import { cx } from "@/components/ui/utils";
 import type { RoutineInput } from "@/features/routines/actions";
 import type { RoutineDefinition, RoutineRuleType } from "../types";
 
@@ -55,44 +68,6 @@ function emptyDraft(): RoutineInput {
     preferredTime: "",
     timezone: "UTC",
   };
-}
-
-function panelClass(darkMode: boolean) {
-  return darkMode
-    ? "border-neutral-800 bg-black text-white"
-    : "border-slate-300 bg-white text-slate-950";
-}
-
-function mutedText(darkMode: boolean) {
-  return darkMode ? "text-neutral-400" : "text-slate-500";
-}
-
-function buttonClass(darkMode: boolean, active = false) {
-  if (active) {
-    return darkMode
-      ? "border-white bg-white text-black"
-      : "border-slate-950 bg-slate-950 text-white";
-  }
-
-  return darkMode
-    ? "border-neutral-700 text-neutral-200 hover:border-white"
-    : "border-slate-300 text-slate-700 hover:border-slate-500";
-}
-
-function inputClass(darkMode: boolean) {
-  return `w-full rounded-md border px-3 py-2 text-sm outline-none transition ${
-    darkMode
-      ? "border-neutral-700 bg-black text-white focus:border-white"
-      : "border-slate-300 bg-white text-slate-950 focus:border-slate-600"
-  }`;
-}
-
-function modalClass(darkMode: boolean) {
-  return `relative max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-md border p-4 shadow-2xl ${
-    darkMode
-      ? "border-neutral-800 bg-black text-white"
-      : "border-slate-200 bg-white text-slate-950"
-  }`;
 }
 
 function toDraft(routine: RoutineDefinition): RoutineInput {
@@ -222,30 +197,30 @@ export function RoutinesPage({
 
   return (
     <>
-      <section className={`rounded-md border ${panelClass(darkMode)}`}>
+      <Panel darkMode={darkMode}>
         <div
-          className={`flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between ${
-            darkMode ? "border-neutral-800" : "border-slate-200"
-          }`}
+          className={cx(
+            "flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between",
+            sectionBorderClass(darkMode),
+          )}
         >
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <Bell size={18} aria-hidden="true" />
               <h2 className="text-base font-semibold">Routines</h2>
             </div>
-            <p className={`mt-1 text-sm ${mutedText(darkMode)}`}>
+            <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
               Repeatable checks for the current personal day.
             </p>
           </div>
-          <button
-            className={`flex h-9 shrink-0 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-            type="button"
+          <Button
+            darkMode={darkMode}
             disabled={pending}
+            icon={<Plus size={15} aria-hidden="true" />}
             onClick={openNewEditor}
           >
-            <Plus size={15} aria-hidden="true" />
             Add
-          </button>
+          </Button>
         </div>
 
         {message ? (
@@ -260,59 +235,45 @@ export function RoutinesPage({
           </p>
         ) : null}
 
-        <div
-          className={
-            darkMode ? "divide-y divide-neutral-900" : "divide-y divide-slate-200"
-          }
-        >
+        <div className={dividerClass(darkMode)}>
           {loading ? (
-            <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
+            <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
               Loading routines...
             </p>
           ) : null}
           {!loading && routines.length === 0 ? (
-            <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
+            <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
               No routines yet.
             </p>
           ) : null}
           {routines.map((routine) => (
-            <article
-              key={routine.id}
-              className="flex items-start justify-between gap-3 px-4 py-4"
-            >
+            <ListItem key={routine.id} darkMode={darkMode}>
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="text-sm font-semibold">{routine.title}</h3>
-                  <span
-                    className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${
-                      darkMode
-                        ? "border-blue-400/40 bg-blue-500/15 text-blue-200"
-                        : "border-blue-200 bg-blue-50 text-blue-700"
-                    }`}
-                  >
+                  <Tag darkMode={darkMode}>
                     {routine.preferredTime ?? "Flexible"}
-                  </span>
+                  </Tag>
                 </div>
-                <p className={`mt-1 text-sm leading-6 ${mutedText(darkMode)}`}>
+                <p className={`mt-1 text-sm leading-6 ${mutedTextClass(darkMode)}`}>
                   {routine.description || "No description."}
                 </p>
-                <p className={`mt-2 text-xs ${mutedText(darkMode)}`}>
+                <p className={`mt-2 text-xs ${mutedTextClass(darkMode)}`}>
                   {ruleSummary(routine)}
                 </p>
               </div>
-              <button
-                className={`flex h-9 shrink-0 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-                type="button"
+              <Button
+                darkMode={darkMode}
                 disabled={pending}
+                icon={<Edit3 size={15} aria-hidden="true" />}
                 onClick={() => openEditor(routine)}
               >
-                <Edit3 size={15} aria-hidden="true" />
                 Edit
-              </button>
-            </article>
+              </Button>
+            </ListItem>
           ))}
         </div>
-      </section>
+      </Panel>
 
       {editorOpen ? (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/65 px-4 py-6">
@@ -323,7 +284,7 @@ export function RoutinesPage({
             onClick={closeEditor}
           />
           <form
-            className={modalClass(darkMode)}
+            className={dialogFrameClass(darkMode)}
             onSubmit={(event) => {
               event.preventDefault();
               void submitRoutine();
@@ -333,35 +294,24 @@ export function RoutinesPage({
               <h3 className="text-base font-semibold">
                 {draft.id ? "Edit routine" : "Add routine"}
               </h3>
-              <button
-                className={`flex h-9 w-9 items-center justify-center rounded-md transition ${
-                  darkMode
-                    ? "text-neutral-300 hover:bg-white/10 hover:text-white"
-                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
-                }`}
-                type="button"
+              <Button
+                darkMode={darkMode}
+                tone="ghost"
+                size="icon-sm"
                 aria-label="Close routine editor"
+                icon={<X size={16} aria-hidden="true" />}
                 onClick={closeEditor}
-              >
-                <X size={16} aria-hidden="true" />
-              </button>
+              />
             </div>
             {message ? (
-              <p
-                className={`mb-3 rounded-md border px-3 py-2 text-sm ${
-                  darkMode
-                    ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
-                    : "border-amber-200 bg-amber-50 text-amber-700"
-                }`}
-              >
+              <InlineMessage darkMode={darkMode} className="mb-3">
                 {message}
-              </p>
+              </InlineMessage>
             ) : null}
             <div className="grid gap-3">
-              <label className="grid gap-1 text-xs font-semibold">
-                Title
-                <input
-                  className={inputClass(darkMode)}
+              <FieldLabel darkMode={darkMode} label="Title">
+                <TextInput
+                  darkMode={darkMode}
                   value={draft.title}
                   maxLength={120}
                   placeholder="Routine title"
@@ -373,11 +323,11 @@ export function RoutinesPage({
                     }))
                   }
                 />
-              </label>
-              <label className="grid gap-1 text-xs font-semibold">
-                Description
-                <textarea
-                  className={`${inputClass(darkMode)} min-h-24 resize-y`}
+              </FieldLabel>
+              <FieldLabel darkMode={darkMode} label="Description">
+                <TextArea
+                  darkMode={darkMode}
+                  className="min-h-24"
                   value={draft.description}
                   maxLength={2000}
                   disabled={pending}
@@ -388,18 +338,16 @@ export function RoutinesPage({
                     }))
                   }
                 />
-              </label>
+              </FieldLabel>
               <div className="grid gap-2">
                 <span className="text-xs font-semibold">Recurrence</span>
                 <div className="flex flex-wrap gap-2">
                   {ruleOptions.map((option) => (
-                    <button
+                    <Button
                       key={option.type}
-                      className={`h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(
-                        darkMode,
-                        draft.ruleType === option.type,
-                      )}`}
-                      type="button"
+                      darkMode={darkMode}
+                      size="xs"
+                      active={draft.ruleType === option.type}
                       disabled={pending}
                       onClick={() =>
                         setDraft((current) => ({
@@ -409,7 +357,7 @@ export function RoutinesPage({
                       }
                     >
                       {option.label}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -418,18 +366,16 @@ export function RoutinesPage({
                   <span className="text-xs font-semibold">Weekdays</span>
                   <div className="flex flex-wrap gap-2">
                     {weekdayOptions.map((weekday) => (
-                      <button
+                      <Button
                         key={weekday.value}
-                        className={`h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(
-                          darkMode,
-                          draft.weekdays?.includes(weekday.value) ?? false,
-                        )}`}
-                        type="button"
+                        darkMode={darkMode}
+                        size="xs"
+                        active={draft.weekdays?.includes(weekday.value) ?? false}
                         disabled={pending}
                         onClick={() => toggleWeekday(weekday.value)}
                       >
                         {weekday.label}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -437,10 +383,9 @@ export function RoutinesPage({
               {draft.ruleType === "monthly_by_date" ||
               draft.ruleType === "day_interval" ? (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="grid gap-1 text-xs font-semibold">
-                    Interval
-                    <input
-                      className={inputClass(darkMode)}
+                  <FieldLabel darkMode={darkMode} label="Interval">
+                    <TextInput
+                      darkMode={darkMode}
                       type="number"
                       min={1}
                       value={draft.intervalValue ?? 1}
@@ -452,12 +397,11 @@ export function RoutinesPage({
                         }))
                       }
                     />
-                  </label>
+                  </FieldLabel>
                   {draft.ruleType === "monthly_by_date" ? (
-                    <label className="grid gap-1 text-xs font-semibold">
-                      Day of month
-                      <input
-                        className={inputClass(darkMode)}
+                    <FieldLabel darkMode={darkMode} label="Day of month">
+                      <TextInput
+                        darkMode={darkMode}
                         type="number"
                         min={1}
                         max={31}
@@ -470,16 +414,17 @@ export function RoutinesPage({
                           }))
                         }
                       />
-                    </label>
+                    </FieldLabel>
                   ) : null}
                 </div>
               ) : null}
               <div className="grid gap-3 sm:grid-cols-3">
-                <label className="grid gap-1 text-xs font-semibold">
-                  First start date
-                  <input
-                    className={inputClass(darkMode)}
-                    type="date"
+                <FieldLabel darkMode={darkMode} label="First start date">
+                  <TextInput
+                    darkMode={darkMode}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="YYYY-MM-DD"
                     value={draft.firstStartDate}
                     disabled={pending}
                     onChange={(event) =>
@@ -489,12 +434,13 @@ export function RoutinesPage({
                       }))
                     }
                   />
-                </label>
-                <label className="grid gap-1 text-xs font-semibold">
-                  End date
-                  <input
-                    className={inputClass(darkMode)}
-                    type="date"
+                </FieldLabel>
+                <FieldLabel darkMode={darkMode} label="End date" optional>
+                  <TextInput
+                    darkMode={darkMode}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="YYYY-MM-DD"
                     value={draft.endDate ?? ""}
                     disabled={pending}
                     onChange={(event) =>
@@ -504,12 +450,13 @@ export function RoutinesPage({
                       }))
                     }
                   />
-                </label>
-                <label className="grid gap-1 text-xs font-semibold">
-                  Preferred time
-                  <input
-                    className={inputClass(darkMode)}
-                    type="time"
+                </FieldLabel>
+                <FieldLabel darkMode={darkMode} label="Preferred time" optional>
+                  <TextInput
+                    darkMode={darkMode}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="HH:MM"
                     value={draft.preferredTime ?? ""}
                     disabled={pending}
                     onChange={(event) =>
@@ -519,31 +466,34 @@ export function RoutinesPage({
                       }))
                     }
                   />
-                </label>
+                </FieldLabel>
               </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <button
-                className={`flex h-9 items-center gap-2 rounded-md border px-4 text-xs font-semibold transition ${buttonClass(darkMode, true)}`}
+              <Button
+                darkMode={darkMode}
+                tone="primary"
                 type="submit"
                 disabled={pending}
+                icon={
+                  pending ? (
+                    <LoaderCircle
+                      className="animate-spin"
+                      size={14}
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Save size={14} aria-hidden="true" />
+                  )
+                }
               >
-                {pending ? (
-                  <LoaderCircle
-                    className="animate-spin"
-                    size={14}
-                    aria-hidden="true"
-                  />
-                ) : (
-                  <Save size={14} aria-hidden="true" />
-                )}
                 Save
-              </button>
+              </Button>
               {draft.id ? (
-                <button
-                  className={`flex h-9 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-                  type="button"
+                <Button
+                  darkMode={darkMode}
                   disabled={pending}
+                  icon={<Trash2 size={14} aria-hidden="true" />}
                   onClick={() =>
                     draft.id
                       ? setConfirmationTarget({
@@ -553,9 +503,8 @@ export function RoutinesPage({
                       : undefined
                   }
                 >
-                  <Trash2 size={14} aria-hidden="true" />
                   Delete
-                </button>
+                </Button>
               ) : null}
             </div>
           </form>
@@ -568,6 +517,7 @@ export function RoutinesPage({
           pending={pending}
           title="Delete routine"
           description={`Delete "${confirmationTarget.title}"? It will be removed from normal views.`}
+          confirmIcon={<Trash2 size={14} aria-hidden="true" />}
           onCancel={() => {
             if (!pending) {
               setConfirmationTarget(null);
@@ -577,80 +527,5 @@ export function RoutinesPage({
         />
       ) : null}
     </>
-  );
-}
-
-function ConfirmDialog({
-  darkMode,
-  pending,
-  title,
-  description,
-  onCancel,
-  onConfirm,
-}: {
-  darkMode: boolean;
-  pending: boolean;
-  title: string;
-  description: string;
-  onCancel: () => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <div className="fixed inset-0 z-[60] grid place-items-center bg-black/65 px-4 py-6">
-      <button
-        className="absolute inset-0 cursor-default"
-        type="button"
-        aria-label="Close confirmation"
-        onClick={onCancel}
-      />
-      <section className={`${modalClass(darkMode)} max-w-md`}>
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-base font-semibold">{title}</h3>
-          <button
-            className={`flex h-9 w-9 items-center justify-center rounded-md transition ${
-              darkMode
-                ? "text-neutral-300 hover:bg-white/10 hover:text-white"
-                : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
-            }`}
-            type="button"
-            aria-label="Close confirmation"
-            disabled={pending}
-            onClick={onCancel}
-          >
-            <X size={16} aria-hidden="true" />
-          </button>
-        </div>
-        <p className={`text-sm leading-6 ${mutedText(darkMode)}`}>
-          {description}
-        </p>
-        <div className="mt-4 flex flex-wrap justify-end gap-2">
-          <button
-            className={`h-9 rounded-md border px-4 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-            type="button"
-            disabled={pending}
-            onClick={onCancel}
-          >
-            Cancel
-          </button>
-          <button
-            className={`flex h-9 items-center gap-2 rounded-md border px-4 text-xs font-semibold transition ${buttonClass(darkMode, true)}`}
-            type="button"
-            disabled={pending}
-            onClick={onConfirm}
-          >
-            {pending ? (
-              <LoaderCircle
-                className="animate-spin"
-                size={14}
-                aria-hidden="true"
-              />
-            ) : (
-              <Trash2 size={14} aria-hidden="true" />
-            )}
-            Delete
-          </button>
-        </div>
-      </section>
-    </div>
   );
 }

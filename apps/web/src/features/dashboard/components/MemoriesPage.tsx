@@ -25,6 +25,19 @@ import type {
   MemoryRecord,
   MemorySuggestion,
 } from "../types";
+import { Button } from "@/components/ui/button";
+import {
+  dividerClass,
+  mutedTextClass,
+  sectionBorderClass,
+} from "@/components/ui/color";
+import { ConfirmDialog, dialogFrameClass } from "@/components/ui/dialog";
+import { TextArea, TextInput } from "@/components/ui/input-field";
+import { ListItem } from "@/components/ui/list";
+import { Panel } from "@/components/ui/panel";
+import { Tag } from "@/components/ui/tag";
+import { InlineMessage } from "@/components/ui/text";
+import { cx } from "@/components/ui/utils";
 
 type MemoryFilter = "All" | MemoryCategory;
 type EditorResult = Promise<boolean>;
@@ -48,60 +61,14 @@ const categoryPeriodWeights: Record<CategoryPeriod, number> = {
   Monthly: 0.8,
 };
 
-function panelClass(darkMode: boolean) {
-  return darkMode
-    ? "border-neutral-800 bg-black text-white"
-    : "border-slate-300 bg-white text-slate-950";
-}
-
-function mutedText(darkMode: boolean) {
-  return darkMode ? "text-neutral-400" : "text-slate-500";
-}
-
-function categoryClass(category: MemoryCategory, darkMode: boolean) {
-  if (category === "Cuisine") {
-    return darkMode
-      ? "border-amber-400/40 bg-amber-500/15 text-amber-200"
-      : "border-amber-200 bg-amber-50 text-amber-700";
-  }
-
-  return darkMode
-    ? "border-cyan-400/40 bg-cyan-500/15 text-cyan-200"
-    : "border-cyan-200 bg-cyan-50 text-cyan-700";
-}
-
-function buttonClass(darkMode: boolean, active = false) {
-  if (active) {
-    return darkMode
-      ? "border-white bg-white text-black"
-      : "border-slate-950 bg-slate-950 text-white";
-  }
-
-  return darkMode
-    ? "border-neutral-700 text-neutral-200 hover:border-white"
-    : "border-slate-300 text-slate-700 hover:border-slate-500";
-}
-
-function inputClass(darkMode: boolean) {
-  return `w-full rounded-md border px-3 py-2 text-sm outline-none transition ${
-    darkMode
-      ? "border-neutral-700 bg-black text-white focus:border-white"
-      : "border-slate-300 bg-white text-slate-950 focus:border-slate-600"
-  }`;
-}
-
-function modalClass(darkMode: boolean) {
-  return `relative max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-md border p-4 shadow-2xl ${
-    darkMode
-      ? "border-neutral-800 bg-black text-white"
-      : "border-slate-200 bg-white text-slate-950"
-  }`;
-}
-
 const emptyCategoryDraft: MemoryCategoryInput = {
   name: "",
   baseWeight: categoryPeriodWeights.Weekly,
 };
+
+function categoryTone(category: MemoryCategory) {
+  return category === "Cuisine" ? "amber" : "cyan";
+}
 
 function categoryPeriodFromWeight(baseWeight: number): CategoryPeriod {
   return Math.abs(baseWeight - categoryPeriodWeights.Monthly) <
@@ -119,7 +86,6 @@ export function MemoriesPage({
   pending,
   suggestionLoading,
   suggestionPending,
-  suggestionMessage,
   suggestionsRequested,
   message,
   selectedMemoryId,
@@ -142,7 +108,6 @@ export function MemoriesPage({
   pending: boolean;
   suggestionLoading: boolean;
   suggestionPending: boolean;
-  suggestionMessage: string | null;
   suggestionsRequested: boolean;
   message: string | null;
   selectedMemoryId: string | null;
@@ -314,68 +279,63 @@ export function MemoriesPage({
 
   return (
     <>
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <section className={`min-w-0 rounded-md border ${panelClass(darkMode)}`}>
+      <section className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <Panel darkMode={darkMode} className="min-w-0">
           <div
-            className={`flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between ${
-              darkMode ? "border-neutral-800" : "border-slate-200"
-            }`}
+            className={cx(
+              "flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between",
+              sectionBorderClass(darkMode),
+            )}
           >
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <ClipboardList size={18} aria-hidden="true" />
                 <h2 className="text-base font-semibold">Memories</h2>
               </div>
-              <p className={`mt-1 text-sm ${mutedText(darkMode)}`}>
+              <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
                 Saved experiences to revisit when the day needs a gentle option.
               </p>
             </div>
-            <button
-              className={`flex h-9 shrink-0 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-              type="button"
+            <Button
+              darkMode={darkMode}
               disabled={pending}
+              icon={<Plus size={15} aria-hidden="true" />}
               onClick={openNewMemoryEditor}
             >
-              <Plus size={15} aria-hidden="true" />
               Add
-            </button>
+            </Button>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 px-4 py-3">
-            <span className={`text-xs font-semibold ${mutedText(darkMode)}`}>
+            <span className={`text-xs font-semibold ${mutedTextClass(darkMode)}`}>
               Categories:
             </span>
             {filters.map((item) => (
-              <button
+              <Button
                 key={item}
-                className={`h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode, filter === item)}`}
-                type="button"
+                darkMode={darkMode}
+                size="xs"
+                active={filter === item}
                 onClick={() => setFilter(item)}
               >
                 {item}
-              </button>
+              </Button>
             ))}
-            <button
-              className={`flex h-8 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-              type="button"
+            <Button
+              darkMode={darkMode}
+              size="xs"
               disabled={pending}
+              icon={<Settings2 size={14} aria-hidden="true" />}
               onClick={() => {
                 onMessageClear();
                 setCategoryEditorOpen(true);
               }}
             >
-              <Settings2 size={14} aria-hidden="true" />
               Manage
-            </button>
+            </Button>
           </div>
 
-          <div
-            className={
-              darkMode
-                ? "divide-y divide-neutral-900"
-                : "divide-y divide-slate-200"
-            }
-          >
+          <div className={dividerClass(darkMode)}>
             {message ? (
               <p
                 className={`px-4 py-4 text-sm ${
@@ -386,12 +346,12 @@ export function MemoriesPage({
               </p>
             ) : null}
             {loading ? (
-              <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
+              <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
                 Loading memories...
               </p>
             ) : null}
             {!loading && visibleMemories.length === 0 ? (
-              <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
+              <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
                 No memories found for this filter.
               </p>
             ) : null}
@@ -411,72 +371,59 @@ export function MemoriesPage({
               />
             ))}
           </div>
-        </section>
+        </Panel>
 
-        <aside className={`rounded-md border ${panelClass(darkMode)}`}>
+        <Panel darkMode={darkMode}>
           <div
-            className={`flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-start sm:justify-between ${
-              darkMode ? "border-neutral-800" : "border-slate-200"
-            }`}
+            className={cx(
+              "flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-start sm:justify-between",
+              sectionBorderClass(darkMode),
+            )}
           >
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <Lightbulb size={17} aria-hidden="true" />
                 <h2 className="text-base font-semibold">Suggestions</h2>
               </div>
-              <p className={`mt-1 text-sm ${mutedText(darkMode)}`}>
+              <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
                 To reexperience in a few days.
               </p>
             </div>
-            <button
-              className={`flex h-9 shrink-0 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-              type="button"
+            <Button
+              darkMode={darkMode}
               disabled={suggestionLoading || suggestionPending}
+              icon={
+                suggestionLoading ? (
+                  <LoaderCircle
+                    className="animate-spin"
+                    size={14}
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <RefreshCw size={14} aria-hidden="true" />
+                )
+              }
               onClick={() => void onSuggestionsRefresh()}
             >
-              {suggestionLoading ? (
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              ) : (
-                <RefreshCw size={14} aria-hidden="true" />
-              )}
               Refresh
-            </button>
+            </Button>
           </div>
 
-          <div
-            className={
-              darkMode
-                ? "divide-y divide-neutral-900"
-                : "divide-y divide-slate-200"
-            }
-          >
-            {suggestionMessage ? (
-              <p
-                className={`px-4 py-4 text-sm ${
-                  darkMode ? "text-amber-200" : "text-amber-700"
-                }`}
-              >
-                {suggestionMessage}
-              </p>
-            ) : null}
+          <div className={dividerClass(darkMode)}>
             {!suggestionsRequested && !suggestionLoading ? (
-              <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
+              <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
                 Click Refresh to load suggestions.
               </p>
             ) : null}
             {suggestionLoading ? (
-              <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
+              <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
                 Loading suggestions...
               </p>
             ) : null}
             {suggestionsRequested &&
             !suggestionLoading &&
             suggestions.length === 0 ? (
-              <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
+              <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
                 No suggestions available. Add more memories or unpin existing
                 ones.
               </p>
@@ -493,7 +440,7 @@ export function MemoriesPage({
               />
             ))}
           </div>
-        </aside>
+        </Panel>
       </section>
 
       {memoryEditorOpen ? (
@@ -505,7 +452,7 @@ export function MemoriesPage({
             onClick={closeMemoryEditor}
           />
           <form
-            className={modalClass(darkMode)}
+            className={dialogFrameClass(darkMode)}
             onSubmit={(event) => {
               event.preventDefault();
               void submitMemory();
@@ -515,35 +462,25 @@ export function MemoriesPage({
               <h3 className="text-base font-semibold">
                 {editingMemory ? "Edit a memory" : "Add a new memory"}
               </h3>
-              <button
-                className={`flex h-9 w-9 items-center justify-center rounded-md transition ${
-                  darkMode
-                    ? "text-neutral-300 hover:bg-white/10 hover:text-white"
-                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
-                }`}
-                type="button"
+              <Button
+                darkMode={darkMode}
+                tone="ghost"
+                size="icon-sm"
                 aria-label="Close memory editor"
+                icon={<X size={16} aria-hidden="true" />}
                 onClick={closeMemoryEditor}
-              >
-                <X size={16} aria-hidden="true" />
-              </button>
+              />
             </div>
             {message ? (
-              <p
-                className={`mb-3 rounded-md border px-3 py-2 text-sm ${
-                  darkMode
-                    ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
-                    : "border-amber-200 bg-amber-50 text-amber-700"
-                }`}
-              >
+              <InlineMessage darkMode={darkMode} className="mb-3">
                 {message}
-              </p>
+              </InlineMessage>
             ) : null}
             <div className="grid gap-3">
               <label className="grid gap-1 text-xs font-semibold">
                 Title
-                <input
-                  className={inputClass(darkMode)}
+                <TextInput
+                  darkMode={darkMode}
                   value={memoryDraft.title}
                   maxLength={120}
                   placeholder="Memory title"
@@ -560,13 +497,11 @@ export function MemoriesPage({
                 <span className="text-xs font-semibold">Category</span>
                 <div className="flex flex-wrap items-center gap-2">
                   {categories.map((category) => (
-                    <button
+                    <Button
                       key={category.id}
-                      className={`h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(
-                        darkMode,
-                        memoryDraft.categoryId === category.id,
-                      )}`}
-                      type="button"
+                      darkMode={darkMode}
+                      size="xs"
+                      active={memoryDraft.categoryId === category.id}
                       disabled={pending}
                       onClick={() =>
                         setMemoryDraft((current) => ({
@@ -577,26 +512,27 @@ export function MemoriesPage({
                       }
                     >
                       {category.name}
-                    </button>
+                    </Button>
                   ))}
-                  <button
-                    className={`flex h-8 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-                    type="button"
+                  <Button
+                    darkMode={darkMode}
+                    size="xs"
                     disabled={pending}
+                    icon={<Settings2 size={14} aria-hidden="true" />}
                     onClick={() => {
                       onMessageClear();
                       setCategoryEditorOpen(true);
                     }}
                   >
-                    <Settings2 size={14} aria-hidden="true" />
                     Manage
-                  </button>
+                  </Button>
                 </div>
               </div>
               <label className="grid gap-1 text-xs font-semibold">
                 Description
-                <textarea
-                  className={`${inputClass(darkMode)} min-h-28 resize-y`}
+                <TextArea
+                  darkMode={darkMode}
+                  className="min-h-28"
                   value={memoryDraft.description}
                   maxLength={2000}
                   disabled={pending}
@@ -610,27 +546,30 @@ export function MemoriesPage({
               </label>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <button
-                className={`flex h-9 items-center gap-2 rounded-md border px-4 text-xs font-semibold transition ${buttonClass(darkMode, true)}`}
+              <Button
+                darkMode={darkMode}
+                tone="primary"
                 type="submit"
                 disabled={pending}
+                icon={
+                  pending ? (
+                    <LoaderCircle
+                      className="animate-spin"
+                      size={14}
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Save size={14} aria-hidden="true" />
+                  )
+                }
               >
-                {pending ? (
-                  <LoaderCircle
-                    className="animate-spin"
-                    size={14}
-                    aria-hidden="true"
-                  />
-                ) : (
-                  <Save size={14} aria-hidden="true" />
-                )}
                 Save
-              </button>
+              </Button>
               {editingMemory ? (
-                <button
-                  className={`flex h-9 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-                  type="button"
+                <Button
+                  darkMode={darkMode}
                   disabled={pending}
+                  icon={<Trash2 size={14} aria-hidden="true" />}
                   onClick={() =>
                     memoryDraft.id
                       ? setConfirmationTarget({
@@ -641,9 +580,8 @@ export function MemoriesPage({
                       : undefined
                   }
                 >
-                  <Trash2 size={14} aria-hidden="true" />
                   Delete
-                </button>
+                </Button>
               ) : null}
             </div>
           </form>
@@ -658,53 +596,37 @@ export function MemoriesPage({
             aria-label="Close category editor"
             onClick={closeCategoryEditor}
           />
-          <section className={modalClass(darkMode)}>
+          <section className={dialogFrameClass(darkMode)}>
             <div className="mb-4 flex items-center justify-between gap-3">
               <h3 className="text-base font-semibold">Manage Categories</h3>
-              <button
-                className={`flex h-9 w-9 items-center justify-center rounded-md transition ${
-                  darkMode
-                    ? "text-neutral-300 hover:bg-white/10 hover:text-white"
-                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
-                }`}
-                type="button"
+              <Button
+                darkMode={darkMode}
+                tone="ghost"
+                size="icon-sm"
                 aria-label="Close category editor"
+                icon={<X size={16} aria-hidden="true" />}
                 onClick={closeCategoryEditor}
-              >
-                <X size={16} aria-hidden="true" />
-              </button>
+              />
             </div>
             {message ? (
-              <p
-                className={`mb-3 rounded-md border px-3 py-2 text-sm ${
-                  darkMode
-                    ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
-                    : "border-amber-200 bg-amber-50 text-amber-700"
-                }`}
-              >
+              <InlineMessage darkMode={darkMode} className="mb-3">
                 {message}
-              </p>
+              </InlineMessage>
             ) : null}
-            <button
-              className={`flex h-9 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-              type="button"
+            <Button
+              darkMode={darkMode}
               disabled={pending}
+              icon={<Plus size={14} aria-hidden="true" />}
               onClick={openNewCategoryEditor}
             >
-              <Plus size={14} aria-hidden="true" />
               New category
-            </button>
-            <div
-              className={`mt-3 ${
-                darkMode
-                  ? "divide-y divide-neutral-800"
-                  : "divide-y divide-slate-200"
-              }`}
-            >
+            </Button>
+            <div className={`mt-3 ${dividerClass(darkMode)}`}>
               {categories.map((category) => (
-                <div
+                <ListItem
                   key={category.id}
-                  className="flex items-center justify-between gap-3 py-3"
+                  darkMode={darkMode}
+                  className="items-center px-0 py-3"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">
@@ -712,20 +634,22 @@ export function MemoriesPage({
                     </p>
                   </div>
                   <div className="flex shrink-0 gap-2">
-                    <button
-                      className={`flex h-8 w-8 items-center justify-center rounded-md border transition ${buttonClass(darkMode)}`}
-                      type="button"
+                    <Button
+                      darkMode={darkMode}
+                      size="icon-sm"
+                      className="h-8 w-8"
                       disabled={pending}
                       aria-label={`Edit ${category.name}`}
+                      icon={<Edit3 size={14} aria-hidden="true" />}
                       onClick={() => openCategoryEditor(category)}
-                    >
-                      <Edit3 size={14} aria-hidden="true" />
-                    </button>
-                    <button
-                      className={`flex h-8 w-8 items-center justify-center rounded-md border transition ${buttonClass(darkMode)}`}
-                      type="button"
+                    />
+                    <Button
+                      darkMode={darkMode}
+                      size="icon-sm"
+                      className="h-8 w-8"
                       disabled={pending}
                       aria-label={`Delete ${category.name}`}
+                      icon={<Trash2 size={14} aria-hidden="true" />}
                       onClick={() =>
                         setConfirmationTarget({
                           type: "category",
@@ -733,11 +657,9 @@ export function MemoriesPage({
                           title: category.name,
                         })
                       }
-                    >
-                      <Trash2 size={14} aria-hidden="true" />
-                    </button>
+                    />
                   </div>
-                </div>
+                </ListItem>
               ))}
             </div>
           </section>
@@ -753,7 +675,7 @@ export function MemoriesPage({
             onClick={closeCategoryForm}
           />
           <form
-            className={`${modalClass(darkMode)} max-w-md`}
+            className={cx(dialogFrameClass(darkMode), "max-w-md")}
             onSubmit={(event) => {
               event.preventDefault();
               void submitCategory();
@@ -763,35 +685,25 @@ export function MemoriesPage({
               <h3 className="text-base font-semibold">
                 {categoryDraft.id ? "Edit category" : "Add category"}
               </h3>
-              <button
-                className={`flex h-9 w-9 items-center justify-center rounded-md transition ${
-                  darkMode
-                    ? "text-neutral-300 hover:bg-white/10 hover:text-white"
-                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
-                }`}
-                type="button"
+              <Button
+                darkMode={darkMode}
+                tone="ghost"
+                size="icon-sm"
                 aria-label="Close category form"
+                icon={<X size={16} aria-hidden="true" />}
                 onClick={closeCategoryForm}
-              >
-                <X size={16} aria-hidden="true" />
-              </button>
+              />
             </div>
             {message ? (
-              <p
-                className={`mb-3 rounded-md border px-3 py-2 text-sm ${
-                  darkMode
-                    ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
-                    : "border-amber-200 bg-amber-50 text-amber-700"
-                }`}
-              >
+              <InlineMessage darkMode={darkMode} className="mb-3">
                 {message}
-              </p>
+              </InlineMessage>
             ) : null}
             <div className="grid gap-3">
               <label className="grid gap-1 text-xs font-semibold">
                 Category name
-                <input
-                  className={inputClass(darkMode)}
+                <TextInput
+                  darkMode={darkMode}
                   value={categoryDraft.name}
                   maxLength={40}
                   placeholder="Category name"
@@ -810,40 +722,43 @@ export function MemoriesPage({
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {(["Weekly", "Monthly"] as CategoryPeriod[]).map((period) => (
-                    <button
+                    <Button
                       key={period}
-                      className={`h-8 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(
-                        darkMode,
+                      darkMode={darkMode}
+                      size="xs"
+                      active={
                         categoryPeriodFromWeight(categoryDraft.baseWeight) ===
-                          period,
-                      )}`}
-                      type="button"
+                        period
+                      }
                       disabled={pending}
                       onClick={() => selectCategoryPeriod(period)}
                     >
                       {period}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <button
-                className={`flex h-9 items-center gap-2 rounded-md border px-4 text-xs font-semibold transition ${buttonClass(darkMode, true)}`}
+              <Button
+                darkMode={darkMode}
+                tone="primary"
                 type="submit"
                 disabled={pending}
+                icon={
+                  pending ? (
+                    <LoaderCircle
+                      className="animate-spin"
+                      size={14}
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Save size={14} aria-hidden="true" />
+                  )
+                }
               >
-                {pending ? (
-                  <LoaderCircle
-                    className="animate-spin"
-                    size={14}
-                    aria-hidden="true"
-                  />
-                ) : (
-                  <Save size={14} aria-hidden="true" />
-                )}
                 Save
-              </button>
+              </Button>
             </div>
           </form>
         </div>
@@ -855,6 +770,7 @@ export function MemoriesPage({
           pending={pending}
           title={`Delete ${confirmationTarget.type}`}
           description={`Delete "${confirmationTarget.title}"? This cannot be undone.`}
+          confirmIcon={<Trash2 size={14} aria-hidden="true" />}
           onCancel={() => {
             if (!pending) {
               setConfirmationTarget(null);
@@ -864,81 +780,6 @@ export function MemoriesPage({
         />
       ) : null}
     </>
-  );
-}
-
-function ConfirmDialog({
-  darkMode,
-  pending,
-  title,
-  description,
-  onCancel,
-  onConfirm,
-}: {
-  darkMode: boolean;
-  pending: boolean;
-  title: string;
-  description: string;
-  onCancel: () => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <div className="fixed inset-0 z-[60] grid place-items-center bg-black/65 px-4 py-6">
-      <button
-        className="absolute inset-0 cursor-default"
-        type="button"
-        aria-label="Close confirmation"
-        onClick={onCancel}
-      />
-      <section className={`${modalClass(darkMode)} max-w-md`}>
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-base font-semibold">{title}</h3>
-          <button
-            className={`flex h-9 w-9 items-center justify-center rounded-md transition ${
-              darkMode
-                ? "text-neutral-300 hover:bg-white/10 hover:text-white"
-                : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
-            }`}
-            type="button"
-            aria-label="Close confirmation"
-            disabled={pending}
-            onClick={onCancel}
-          >
-            <X size={16} aria-hidden="true" />
-          </button>
-        </div>
-        <p className={`text-sm leading-6 ${mutedText(darkMode)}`}>
-          {description}
-        </p>
-        <div className="mt-4 flex flex-wrap justify-end gap-2">
-          <button
-            className={`h-9 rounded-md border px-4 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-            type="button"
-            disabled={pending}
-            onClick={onCancel}
-          >
-            Cancel
-          </button>
-          <button
-            className={`flex h-9 items-center gap-2 rounded-md border px-4 text-xs font-semibold transition ${buttonClass(darkMode, true)}`}
-            type="button"
-            disabled={pending}
-            onClick={onConfirm}
-          >
-            {pending ? (
-              <LoaderCircle
-                className="animate-spin"
-                size={14}
-                aria-hidden="true"
-              />
-            ) : (
-              <Trash2 size={14} aria-hidden="true" />
-            )}
-            Delete
-          </button>
-        </div>
-      </section>
-    </div>
   );
 }
 
@@ -958,14 +799,11 @@ function MemoryListItem({
   onEdit: () => void;
 }) {
   return (
-    <article
-      className={`px-4 py-4 ${
-        selected
-          ? darkMode
-            ? "bg-white/10"
-            : "bg-slate-100"
-          : ""
-      }`}
+    <ListItem
+      darkMode={darkMode}
+      layout="block"
+      expanded={expanded}
+      selected={selected}
     >
       <button
         className="grid w-full gap-3 text-left"
@@ -977,27 +815,19 @@ function MemoryListItem({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-sm font-semibold">{memory.title}</h3>
-              <span
-                className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${categoryClass(memory.category, darkMode)}`}
-              >
+              <Tag darkMode={darkMode} tone={categoryTone(memory.category)}>
                 {memory.category}
-              </span>
+              </Tag>
               {memory.pinned ? (
-                <span
-                  className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${
-                    darkMode
-                      ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-200"
-                      : "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  }`}
-                >
+                <Tag darkMode={darkMode} tone="emerald">
                   Pinned
-                </span>
+                </Tag>
               ) : null}
             </div>
-            <p className={`mt-1 text-sm leading-6 ${mutedText(darkMode)}`}>
+            <p className={`mt-1 text-sm leading-6 ${mutedTextClass(darkMode)}`}>
               {memory.description}
             </p>
-            <p className={`mt-2 text-xs ${mutedText(darkMode)}`}>
+            <p className={`mt-2 text-xs ${mutedTextClass(darkMode)}`}>
               {memory.lastDoneText} · Done {memory.doneCount} times
             </p>
           </div>
@@ -1010,17 +840,16 @@ function MemoryListItem({
       </button>
       {expanded ? (
         <div className="mt-3 flex justify-end">
-          <button
-            className={`flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${buttonClass(darkMode)}`}
-            type="button"
+          <Button
+            darkMode={darkMode}
+            icon={<Edit3 size={15} aria-hidden="true" />}
             onClick={onEdit}
           >
-            <Edit3 size={15} aria-hidden="true" />
             Edit
-          </button>
+          </Button>
         </div>
       ) : null}
-    </article>
+    </ListItem>
   );
 }
 
@@ -1040,44 +869,45 @@ function SuggestionListItem({
   onCancel: () => void;
 }) {
   return (
-    <article className="flex items-start gap-3 px-4 py-4">
+    <ListItem darkMode={darkMode} className="gap-3">
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="text-sm font-semibold">{suggestion.title}</h3>
-          <span
-            className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${categoryClass(suggestion.category, darkMode)}`}
-          >
+          <Tag darkMode={darkMode} tone={categoryTone(suggestion.category)}>
             {suggestion.category}
-          </span>
+          </Tag>
         </div>
-        <p className={`mt-1 text-xs leading-5 ${mutedText(darkMode)}`}>
+        <p className={`mt-1 text-xs leading-5 ${mutedTextClass(darkMode)}`}>
           {suggestion.description}
         </p>
-        <p className={`mt-2 text-xs ${mutedText(darkMode)}`}>
+        <p className={`mt-2 text-xs ${mutedTextClass(darkMode)}`}>
           {suggestion.lastDoneText} · Done {suggestion.doneCount} times
         </p>
       </div>
       <div className="shrink-0">
-        <button
-          className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${buttonClass(darkMode, !pinned)}`}
-          type="button"
+        <Button
+          darkMode={darkMode}
+          size="icon-sm"
+          active={!pinned}
+          className="rounded-full"
           disabled={pending}
           aria-label={pinned ? "Cancel pin" : "Pin suggestion"}
+          icon={
+            pending ? (
+              <LoaderCircle
+                className="animate-spin"
+                size={15}
+                aria-hidden="true"
+              />
+            ) : pinned ? (
+              <PinOff size={14} aria-hidden="true" />
+            ) : (
+              <Pin size={14} aria-hidden="true" />
+            )
+          }
           onClick={pinned ? onCancel : onPin}
-        >
-          {pending ? (
-            <LoaderCircle
-              className="animate-spin"
-              size={15}
-              aria-hidden="true"
-            />
-          ) : pinned ? (
-            <PinOff size={14} aria-hidden="true" />
-          ) : (
-            <Pin size={14} aria-hidden="true" />
-          )}
-        </button>
+        />
       </div>
-    </article>
+    </ListItem>
   );
 }

@@ -38,10 +38,14 @@ cards. Only the expanded state should show:
 
 Clicking the pinned memory again should collapse it.
 
-If the user clicks `Done`, collapse the card after the backend acknowledges the
-action and the dashboard data refreshes. If the user clicks `Replace`, replace
-only that one item, keep other positions unchanged, and collapse the card after
-the backend acknowledges the action.
+If the user clicks `Done`, collapse the card immediately and optimistically show
+the completed state. If the backend later rejects the command, restore the
+previous visible state and show the backend message in the shared notification
+component.
+
+If the user clicks `Replace`, collapse the card immediately. Replace only that
+one item and keep other positions unchanged after the backend returns the
+replacement data.
 
 On dashboard load or reload:
 
@@ -166,10 +170,13 @@ Click behavior:
 
 - Clicking `Pin` pins that suggestion. While processing, show a loading icon
   inside the button and disable it.
-- After pin succeeds, the icon should change to an unpin state with no text.
+- After clicking `Pin`, optimistically change the icon to an unpin state with no
+  text. If the backend rejects the command, restore the previous icon state and
+  show the backend message in the shared notification component.
 - Clicking `Cancel` should undo that pending pin state when supported by the
   implementation. While processing, show a loading icon inside the button and
-  disable it.
+  disable it. If the backend rejects the command, restore the previous icon
+  state and show the backend message in the shared notification component.
 - Do not show a separate `Ignore` button.
 
 Refresh behavior:

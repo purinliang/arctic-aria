@@ -4,11 +4,20 @@ import {
   Bell,
   Check,
   ClipboardList,
-  ListChecks,
-  LogOut,
   Menu,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  dividerClass,
+  mutedTextClass,
+  sectionBorderClass,
+} from "@/components/ui/color";
+import {
+  NotificationStack,
+  type NotificationItem,
+} from "@/components/ui/notification";
+import { Panel } from "@/components/ui/panel";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import {
   cancelPinnedMemoryDone,
@@ -38,10 +47,13 @@ import {
   type RoutineInput,
 } from "@/features/routines/actions";
 import {
-  dayBoundary,
   initialTasks,
   rewardPreview,
 } from "../dummy-data";
+import {
+  applyOptimisticPinnedMemoryStatus,
+  applyOptimisticRoutineStatus,
+} from "../optimistic-updates";
 import type {
   DashboardView,
   MemoryCategoryOption,
@@ -63,13 +75,6 @@ import { SectionHeader } from "./SectionHeader";
 import { Sidebar } from "./Sidebar";
 import { TaskCard } from "./TaskCard";
 
-const todayFormatter = new Intl.DateTimeFormat("en", {
-  weekday: "short",
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-});
-
 type MemoryDataAction = () => Promise<
   MemoryActionResult<MemoryDashboardData>
 >;
@@ -87,12 +92,6 @@ function statusForWeight(completedWeight: number, weight: number): TaskStatus {
   }
 
   return "todo";
-}
-
-function panelClass(darkMode: boolean) {
-  return darkMode
-    ? "border-neutral-800 bg-black text-white"
-    : "border-slate-300 bg-white text-slate-950";
 }
 
 export function Dashboard({
@@ -125,17 +124,17 @@ export function Dashboard({
   const [memoryActionPending, setMemoryActionPending] = useState(false);
   const [suggestionLoading, setSuggestionLoading] = useState(false);
   const [suggestionPending, setSuggestionPending] = useState(false);
-  const [suggestionMessage, setSuggestionMessage] = useState<string | null>(
-    null,
-  );
   const [pinnedSuggestionIds, setPinnedSuggestionIds] = useState<string[]>([]);
   const [suggestionsRequested, setSuggestionsRequested] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>(
+    [],
+  );
   const [activeView, setActiveView] = useState<DashboardView>("dashboard");
   const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null);
   const [reviewOpen, setReviewOpen] = useState(false);
-  const [reviewCount, setReviewCount] = useState(0);
+  const reviewCount = 0;
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>("task-1");
   const [expandedRoutineId, setExpandedRoutineId] = useState<string | null>(null);
   const [expandedMemoryId, setExpandedMemoryId] = useState<string | null>(null);
@@ -219,6 +218,42 @@ export function Dashboard({
     setRoutineLoading(false);
   }, [applyRoutineData]);
 
+  const dismissNotification = useCallback((notificationId: number) => {
+    setNotifications((current) =>
+      current.filter((notification) => notification.id !== notificationId),
+    );
+  }, []);
+
+  const showErrorNotification = useCallback(
+    (message: string, title = "Action failed") => {
+      setNotifications((current) => [
+        ...current.slice(-2),
+        {
+          id: Date.now(),
+          tone: "error",
+          title,
+          message,
+        },
+      ]);
+    },
+    [],
+  );
+
+  const showInfoNotification = useCallback(
+    (message: string, title = "Not available yet") => {
+      setNotifications((current) => [
+        ...current.slice(-2),
+        {
+          id: Date.now(),
+          tone: "info",
+          title,
+          message,
+        },
+      ]);
+    },
+    [],
+  );
+
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       void refreshMemoryData();
@@ -276,18 +311,26 @@ export function Dashboard({
   }
 
   function updateRoutine(routineId: string, status: RoutineStatus) {
+    const previousRoutines = routines;
+
+    setExpandedRoutineId(null);
+    setRoutines((current) =>
+      applyOptimisticRoutineStatus(current, routineId, status),
+    );
     void runRoutineAction(
       () =>
         status === "completed"
           ? completeRoutineInstance(routineId)
           : skipRoutineInstance(routineId),
       null,
+      () => setRoutines(previousRoutines),
     );
   }
 
   async function runMemoryAction(
     action: MemoryDataAction,
     expandedPinnedMemoryId: string | null,
+    onFailure?: () => void,
   ) {
     setMemoryMessage(null);
     setMemoryActionPending(true);
@@ -296,7 +339,8 @@ export function Dashboard({
       const result = await action();
 
       if (!result.ok) {
-        setMemoryMessage(result.message);
+        onFailure?.();
+        showErrorNotification(result.message);
         return;
       }
 
@@ -349,6 +393,7 @@ export function Dashboard({
   async function runRoutineAction(
     action: RoutineDataAction,
     expandedRoutineId: string | null,
+    onFailure?: () => void,
   ) {
     setRoutineMessage(null);
     setRoutineActionPending(true);
@@ -357,7 +402,8 @@ export function Dashboard({
       const result = await action();
 
       if (!result.ok) {
-        setRoutineMessage(result.message);
+        onFailure?.();
+        showErrorNotification(result.message);
         return;
       }
 
@@ -387,20 +433,35 @@ export function Dashboard({
   }
 
   function markMemoryDone(pinnedMemoryId: string) {
+    const previousPinnedMemories = pinnedMemories;
+
+    setExpandedMemoryId(null);
+    setPinnedMemories((current) =>
+      applyOptimisticPinnedMemoryStatus(current, pinnedMemoryId, "completed"),
+    );
     void runMemoryAction(
       () => completePinnedMemory(pinnedMemoryId),
       null,
+      () => setPinnedMemories(previousPinnedMemories),
     );
   }
 
   function cancelMemoryDone(pinnedMemoryId: string) {
+    const previousPinnedMemories = pinnedMemories;
+
+    setExpandedMemoryId(null);
+    setPinnedMemories((current) =>
+      applyOptimisticPinnedMemoryStatus(current, pinnedMemoryId, "active"),
+    );
     void runMemoryAction(
       () => cancelPinnedMemoryDone(pinnedMemoryId),
       null,
+      () => setPinnedMemories(previousPinnedMemories),
     );
   }
 
   function replaceMemory(pinnedMemoryId: string) {
+    setExpandedMemoryId(null);
     void runMemoryAction(
       () => replacePinnedMemory(pinnedMemoryId),
       null,
@@ -452,7 +513,6 @@ export function Dashboard({
 
   async function refreshSuggestionsFromPage() {
     setSuggestionsRequested(true);
-    setSuggestionMessage(null);
     setSuggestionLoading(true);
 
     try {
@@ -463,7 +523,7 @@ export function Dashboard({
       const result = await refreshMemorySuggestions(ignoredMemoryIds);
 
       if (!result.ok) {
-        setSuggestionMessage(result.message);
+        showErrorNotification(result.message);
         setMemorySuggestions([]);
         setPinnedSuggestionIds([]);
         return;
@@ -478,21 +538,23 @@ export function Dashboard({
   }
 
   async function pinSuggestionFromPage(memoryId: string) {
-    setSuggestionMessage(null);
+    const previousPinnedSuggestionIds = pinnedSuggestionIds;
+
     setSuggestionPending(true);
+    setPinnedSuggestionIds((current) =>
+      current.includes(memoryId) ? current : [...current, memoryId],
+    );
 
     try {
       const result = await pinMemorySuggestion(memoryId);
 
       if (!result.ok) {
-        setSuggestionMessage(result.message);
+        setPinnedSuggestionIds(previousPinnedSuggestionIds);
+        showErrorNotification(result.message);
         return false;
       }
 
       applyMemoryData(result.data.dashboardData);
-      setPinnedSuggestionIds((current) =>
-        current.includes(memoryId) ? current : [...current, memoryId],
-      );
       return true;
     } finally {
       setSuggestionPending(false);
@@ -500,31 +562,42 @@ export function Dashboard({
   }
 
   async function cancelSuggestionPinFromPage(memoryId: string) {
-    setSuggestionMessage(null);
+    const previousPinnedSuggestionIds = pinnedSuggestionIds;
+
     setSuggestionPending(true);
+    setPinnedSuggestionIds((current) =>
+      current.filter((suggestionId) => suggestionId !== memoryId),
+    );
 
     try {
       const result = await cancelPinnedMemorySuggestion(memoryId);
 
       if (!result.ok) {
-        setSuggestionMessage(result.message);
+        setPinnedSuggestionIds(previousPinnedSuggestionIds);
+        showErrorNotification(result.message);
         return false;
       }
 
       applyMemoryData(result.data.dashboardData);
-      setPinnedSuggestionIds((current) =>
-        current.filter((suggestionId) => suggestionId !== memoryId),
-      );
       return true;
     } finally {
       setSuggestionPending(false);
     }
   }
 
-  function openReview() {
-    setReviewOpen(true);
-    setReviewCount((count) => count + 1);
+  function showUnavailableFeature(featureName: string) {
+    showInfoNotification(
+      `${featureName} is not implemented in this prototype yet.`,
+      "Feature not ready",
+    );
   }
+
+  const pageTitle =
+    activeView === "dashboard"
+      ? "Dashboard"
+      : activeView === "routines"
+        ? "Routines"
+        : "Memories";
 
   return (
     <main
@@ -532,82 +605,37 @@ export function Dashboard({
         darkMode ? "bg-black text-white" : "bg-[#eef2f5] text-slate-950"
       }`}
     >
-      <div className="mx-auto flex max-w-[1500px] flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
-        <header
-          className={`flex flex-col gap-3 border-b pb-4 lg:flex-row lg:items-center lg:justify-between ${
-            darkMode ? "border-neutral-800" : "border-slate-300"
-          }`}
-        >
-          <div className="flex min-w-0 items-center gap-3">
-            <button
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md border transition ${
-                darkMode
-                  ? "border-neutral-800 bg-black text-white hover:border-white"
-                  : "border-slate-300 bg-white text-slate-700 hover:border-slate-500"
-              }`}
-              type="button"
-              aria-label="Open navigation"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu size={20} aria-hidden="true" />
-            </button>
-            <div className="min-w-0">
-              <p
-                className={`text-sm font-medium ${
-                  darkMode ? "text-neutral-500" : "text-slate-500"
-                }`}
-              >
-                Daily plan ends at {dayBoundary}
-              </p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-normal sm:text-3xl">
-                {activeView === "dashboard"
-                  ? `${todayFormatter.format(new Date())} Dashboard`
-                  : activeView === "routines"
-                    ? "Routines"
-                  : "Memories"}
-              </h1>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={`max-w-[180px] truncate text-sm font-semibold ${
-                darkMode ? "text-neutral-300" : "text-slate-700"
-              }`}
-              title={currentUser.username}
-            >
-              {currentUser.displayName}
-            </span>
-            {activeView === "dashboard" ? (
-              <button
-                className={`flex h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold shadow-sm transition ${
-                  darkMode
-                    ? "bg-white text-black hover:bg-neutral-200"
-                    : "bg-slate-950 text-white hover:bg-slate-800"
-                }`}
-                type="button"
-                onClick={openReview}
-              >
-                <ListChecks size={18} aria-hidden="true" />
-                Review
-              </button>
-            ) : null}
-            <button
-              className={`flex h-11 items-center justify-center gap-2 rounded-md border px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                darkMode
-                  ? "border-neutral-700 text-white hover:border-white"
-                  : "border-slate-300 text-slate-700 hover:border-slate-500"
-              }`}
-              type="button"
-              disabled={logoutPending}
-              onClick={onLogout}
-            >
-              <LogOut size={17} aria-hidden="true" />
-              {logoutPending ? "Signing out..." : "Sign out"}
-            </button>
-          </div>
-        </header>
+      <div className="lg:flex lg:items-start">
+        <Sidebar
+          open={sidebarOpen}
+          darkMode={darkMode}
+          activeView={activeView}
+          logoutPending={logoutPending}
+          onClose={() => setSidebarOpen(false)}
+          onViewChange={setActiveView}
+          onThemeChange={setDarkMode}
+          onLogout={onLogout}
+          onUnavailableFeature={showUnavailableFeature}
+        />
 
-        {activeView === "routines" ? (
+        <div className="mx-auto flex min-h-[105vh] min-w-0 flex-1 flex-col gap-4 px-4 py-4 sm:px-6 lg:max-w-[1200px] lg:px-8">
+          <header
+            className={`flex items-center gap-3 border-b pb-4 ${sectionBorderClass(darkMode)}`}
+          >
+            <Button
+              darkMode={darkMode}
+              size="icon-sm"
+              className="h-10 w-10 lg:hidden"
+              aria-label="Open navigation"
+              icon={<Menu size={20} aria-hidden="true" />}
+              onClick={() => setSidebarOpen(true)}
+            />
+            <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
+              {pageTitle}
+            </h1>
+          </header>
+
+          {activeView === "routines" ? (
           <RoutinesPage
             darkMode={darkMode}
             routines={routineDefinitions}
@@ -618,7 +646,7 @@ export function Dashboard({
             onRoutineDelete={deleteRoutineFromPage}
             onMessageClear={clearRoutineMessage}
           />
-        ) : activeView === "memories" ? (
+          ) : activeView === "memories" ? (
           <MemoriesPage
             darkMode={darkMode}
             categories={memoryCategories}
@@ -629,7 +657,6 @@ export function Dashboard({
             pending={memoryActionPending}
             suggestionLoading={suggestionLoading}
             suggestionPending={suggestionPending}
-            suggestionMessage={suggestionMessage}
             suggestionsRequested={suggestionsRequested}
             message={memoryMessage}
             selectedMemoryId={selectedMemoryId}
@@ -642,24 +669,16 @@ export function Dashboard({
             onSuggestionPin={pinSuggestionFromPage}
             onSuggestionCancel={cancelSuggestionPinFromPage}
           />
-        ) : (
+          ) : (
           <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-            <section
-              className={`min-w-0 rounded-md border ${panelClass(darkMode)}`}
-            >
+            <Panel darkMode={darkMode} className="min-w-0">
               <SectionHeader
                 icon={<Check size={18} aria-hidden="true" />}
                 title="Today's Tasks"
                 meta={`${tasks.length} recommended`}
                 darkMode={darkMode}
               />
-              <div
-                className={
-                  darkMode
-                    ? "divide-y divide-neutral-900"
-                    : "divide-y divide-slate-200"
-                }
-              >
+              <div className={dividerClass(darkMode)}>
                 {tasks.map((task) => (
                   <TaskCard
                     key={task.id}
@@ -677,10 +696,10 @@ export function Dashboard({
                   />
                 ))}
               </div>
-            </section>
+            </Panel>
 
             <aside className="grid gap-4">
-              <section className={`rounded-md border ${panelClass(darkMode)}`}>
+              <Panel darkMode={darkMode}>
                 <SectionHeader
                   icon={<Bell size={18} aria-hidden="true" />}
                   title="Routines"
@@ -698,28 +717,14 @@ export function Dashboard({
                     {routineMessage}
                   </div>
                 ) : null}
-                <div
-                  className={
-                    darkMode
-                      ? "divide-y divide-neutral-900"
-                      : "divide-y divide-slate-200"
-                  }
-                >
+                <div className={dividerClass(darkMode)}>
                   {routineLoading ? (
-                    <p
-                      className={`px-4 py-4 text-sm ${
-                        darkMode ? "text-neutral-400" : "text-slate-500"
-                      }`}
-                    >
+                    <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
                       Loading routines...
                     </p>
                   ) : null}
                   {!routineLoading && routines.length === 0 ? (
-                    <p
-                      className={`px-4 py-4 text-sm ${
-                        darkMode ? "text-neutral-400" : "text-slate-500"
-                      }`}
-                    >
+                    <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
                       No routines due today.
                     </p>
                   ) : null}
@@ -742,9 +747,9 @@ export function Dashboard({
                     />
                   ))}
                 </div>
-              </section>
+              </Panel>
 
-              <section className={`rounded-md border ${panelClass(darkMode)}`}>
+              <Panel darkMode={darkMode}>
                 <SectionHeader
                   icon={<ClipboardList size={18} aria-hidden="true" />}
                   title="Pinned Memories"
@@ -762,28 +767,14 @@ export function Dashboard({
                     {memoryMessage}
                   </div>
                 ) : null}
-                <div
-                  className={
-                    darkMode
-                      ? "divide-y divide-neutral-900"
-                      : "divide-y divide-slate-200"
-                  }
-                >
+                <div className={dividerClass(darkMode)}>
                   {memoryLoading ? (
-                    <p
-                      className={`px-4 py-4 text-sm ${
-                        darkMode ? "text-neutral-400" : "text-slate-500"
-                      }`}
-                    >
+                    <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
                       Loading pinned memories...
                     </p>
                   ) : null}
                   {!memoryLoading && pinnedMemories.length === 0 ? (
-                    <p
-                      className={`px-4 py-4 text-sm ${
-                        darkMode ? "text-neutral-400" : "text-slate-500"
-                      }`}
-                    >
+                    <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
                       No pinned memories yet.
                     </p>
                   ) : null}
@@ -806,19 +797,17 @@ export function Dashboard({
                     />
                   ))}
                 </div>
-              </section>
+              </Panel>
             </aside>
           </section>
-        )}
+          )}
+        </div>
       </div>
 
-      <Sidebar
-        open={sidebarOpen}
+      <NotificationStack
+        notifications={notifications}
         darkMode={darkMode}
-        activeView={activeView}
-        onClose={() => setSidebarOpen(false)}
-        onViewChange={setActiveView}
-        onThemeChange={setDarkMode}
+        onDismiss={dismissNotification}
       />
 
       <ReviewDialog

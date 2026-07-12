@@ -1,29 +1,8 @@
 import { Check, ChevronDown, Eye, RefreshCw, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { mutedTextClass } from "@/components/ui/color";
+import { Tag } from "@/components/ui/tag";
 import type { PinnedMemory } from "../types";
-
-function categoryClass(category: PinnedMemory["category"], darkMode: boolean) {
-  if (category === "Cuisine") {
-    return darkMode
-      ? "border-amber-400/40 bg-amber-500/15 text-amber-200"
-      : "border-amber-200 bg-amber-50 text-amber-700";
-  }
-
-  return darkMode
-    ? "border-cyan-400/40 bg-cyan-500/15 text-cyan-200"
-    : "border-cyan-200 bg-cyan-50 text-cyan-700";
-}
-
-function iconButtonClass(darkMode: boolean, active = false) {
-  if (active) {
-    return darkMode
-      ? "border-emerald-400/50 bg-emerald-500/15 text-emerald-200"
-      : "border-emerald-200 bg-emerald-50 text-emerald-700";
-  }
-
-  return darkMode
-    ? "border-neutral-700 text-neutral-300 hover:border-white hover:text-white"
-    : "border-slate-300 text-slate-600 hover:border-slate-500 hover:text-slate-950";
-}
 
 export function PinnedMemoryCard({
   memory,
@@ -74,16 +53,12 @@ export function PinnedMemoryCard({
             >
               {memory.title}
             </h3>
-            <span
-              className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${categoryClass(memory.category, darkMode)}`}
-            >
+            <Tag darkMode={darkMode} tone={categoryTone(memory.category)}>
               {memory.category}
-            </span>
+            </Tag>
           </div>
           <p
-            className={`mt-1 line-clamp-2 text-xs leading-5 ${
-              darkMode ? "text-neutral-400" : "text-slate-500"
-            }`}
+            className={`mt-1 line-clamp-2 text-xs leading-5 ${mutedTextClass(darkMode)}`}
           >
             {memory.description}
           </p>
@@ -119,50 +94,47 @@ export function PinnedMemoryCard({
         >
           <div className="grid grid-cols-3 gap-2">
             {completed ? (
-              <button
-                className={`flex h-9 items-center justify-center gap-2 rounded-md border px-2 text-xs font-semibold transition ${iconButtonClass(darkMode, true)}`}
-                type="button"
+              <Button
+                darkMode={darkMode}
+                tone="success"
+                className="px-2"
                 disabled={disabled}
+                icon={<RotateCcw size={15} aria-hidden="true" />}
                 onClick={onCancelDone}
               >
-                <RotateCcw size={15} aria-hidden="true" />
                 Cancel
-              </button>
+              </Button>
             ) : (
-              <button
-                className={`flex h-9 items-center justify-center gap-2 rounded-md border px-2 text-xs font-semibold transition ${iconButtonClass(darkMode)}`}
-                type="button"
+              <Button
+                darkMode={darkMode}
+                className="px-2"
                 disabled={disabled}
+                icon={<Check size={15} aria-hidden="true" />}
                 onClick={onDone}
               >
-                <Check size={15} aria-hidden="true" />
                 Done
-              </button>
+              </Button>
             )}
-            <button
-              className={`flex h-9 items-center justify-center gap-2 rounded-md border px-2 text-xs font-semibold transition ${iconButtonClass(darkMode)}`}
-              type="button"
+            <Button
+              darkMode={darkMode}
+              className="px-2"
               disabled={disabled}
+              icon={<RefreshCw size={14} aria-hidden="true" />}
               onClick={onReplace}
             >
-              <RefreshCw size={14} aria-hidden="true" />
               Replace
-            </button>
-            <button
-              className={`flex h-9 items-center justify-center gap-2 rounded-md border px-2 text-xs font-semibold transition ${iconButtonClass(darkMode)}`}
-              type="button"
+            </Button>
+            <Button
+              darkMode={darkMode}
+              className="px-2"
               disabled={disabled}
+              icon={<Eye size={15} aria-hidden="true" />}
               onClick={onView}
             >
-              <Eye size={15} aria-hidden="true" />
               View
-            </button>
+            </Button>
           </div>
-          <p
-            className={`text-xs ${
-              darkMode ? "text-neutral-500" : "text-slate-500"
-            }`}
-          >
+          <p className={`text-xs ${mutedTextClass(darkMode)}`}>
             Visible for a soft window; completed items can be canceled before
             cleanup.
           </p>
@@ -170,4 +142,8 @@ export function PinnedMemoryCard({
       ) : null}
     </article>
   );
+}
+
+function categoryTone(category: PinnedMemory["category"]) {
+  return category === "Cuisine" ? "amber" : "cyan";
 }

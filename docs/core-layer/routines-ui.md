@@ -32,8 +32,12 @@ Click behavior:
 - `Skip` marks the instance skipped.
 - `Busy` snoozes reminder delivery when reminder jobs exist. It should not set
   the routine instance status to busy.
-- After `Done`, `Skip`, or `Busy`, collapse the routine card after the action is
-  acknowledged or the temporary message is shown.
+- After `Done`, `Skip`, or `Busy`, collapse the routine card immediately.
+- `Done` and `Skip` should optimistically update the visible routine status.
+  If the backend later rejects the command, restore the previous visible state
+  and show the backend message in the shared notification component.
+- `Busy` shows a temporary reminder message and does not wait for backend
+  persistence until reminder jobs exist.
 
 The UI may show a temporary reminder delivery state, but the persisted Core
 instance statuses are only `pending`, `completed`, and `skipped`.
