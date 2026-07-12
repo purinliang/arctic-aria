@@ -143,7 +143,7 @@ export function Dashboard({
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewCount, setReviewCount] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>("task-1");
   const [expandedRoutineId, setExpandedRoutineId] = useState<string | null>(null);
   const [expandedMemoryId, setExpandedMemoryId] = useState<string | null>(null);
