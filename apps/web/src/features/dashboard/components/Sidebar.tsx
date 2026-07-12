@@ -96,7 +96,9 @@ export function Sidebar({
           <SidebarItem
             icon={<Bell size={18} aria-hidden="true" />}
             label="Routines"
+            active={activeView === "routines"}
             darkMode={darkMode}
+            onClick={() => selectView("routines")}
           />
           <SidebarItem
             icon={<ClipboardList size={18} aria-hidden="true" />}

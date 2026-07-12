@@ -34,6 +34,7 @@ function reminderStateClass(state: RoutineReminderState, darkMode: boolean) {
 export function RoutineCard({
   routine,
   darkMode,
+  disabled,
   expanded,
   onToggleExpanded,
   onStatusChange,
@@ -41,6 +42,7 @@ export function RoutineCard({
 }: {
   routine: Routine;
   darkMode: boolean;
+  disabled: boolean;
   expanded: boolean;
   onToggleExpanded: () => void;
   onStatusChange: (status: RoutineStatus) => void;
@@ -54,6 +56,7 @@ export function RoutineCard({
         }`}
         type="button"
         aria-expanded={expanded}
+        disabled={disabled}
         onClick={onToggleExpanded}
       >
         <div className="min-w-0">
@@ -103,6 +106,7 @@ export function RoutineCard({
           <button
             className={routineButtonClass(darkMode)}
             type="button"
+            disabled={disabled}
             onClick={() => onStatusChange("completed")}
           >
             Done
@@ -110,6 +114,7 @@ export function RoutineCard({
           <button
             className={routineButtonClass(darkMode)}
             type="button"
+            disabled={disabled}
             onClick={onBusy}
           >
             Busy
@@ -117,6 +122,7 @@ export function RoutineCard({
           <button
             className={routineButtonClass(darkMode)}
             type="button"
+            disabled={disabled}
             onClick={() => onStatusChange("skipped")}
           >
             Skip
@@ -128,7 +134,7 @@ export function RoutineCard({
 }
 
 function routineButtonClass(darkMode: boolean) {
-  return `h-9 rounded-md border px-2 text-xs font-semibold transition ${
+  return `h-9 rounded-md border px-2 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
     darkMode
       ? "border-neutral-700 text-neutral-200 hover:border-white hover:text-white"
       : "border-slate-300 text-slate-700 hover:border-slate-500"

@@ -1,6 +1,6 @@
 export type TaskStatus = "todo" | "partial" | "done";
 
-export type DashboardView = "dashboard" | "memories";
+export type DashboardView = "dashboard" | "routines" | "memories";
 
 export type Priority = "High" | "Medium" | "Low";
 
@@ -29,11 +29,35 @@ export type RoutineReminderState = "idle" | "reminding" | "snoozed";
 
 export type Routine = {
   id: string;
+  routineId: string;
   title: string;
+  description: string;
   scheduledTime: string;
   status: RoutineStatus;
   reminderState: RoutineReminderState;
   streakText: string;
+};
+
+export type RoutineRuleType =
+  | "daily"
+  | "weekly"
+  | "bi_weekly"
+  | "monthly_by_date"
+  | "day_interval";
+
+export type RoutineDefinition = {
+  id: string;
+  title: string;
+  description: string;
+  status: "active" | "deleted";
+  firstStartDate: string;
+  endDate: string | null;
+  ruleType: RoutineRuleType;
+  intervalValue: number | null;
+  weekdays: number[] | null;
+  dayOfMonth: number | null;
+  preferredTime: string | null;
+  timezone: string;
 };
 
 export type MemoryCategory = string;

@@ -125,7 +125,9 @@ export const initialTasks: Task[] = [
 export const initialRoutines: Routine[] = [
   {
     id: "routine-1",
+    routineId: "routine-definition-1",
     title: "Morning medication",
+    description: "Take the morning medication after breakfast.",
     scheduledTime: "08:00",
     status: "completed",
     reminderState: "idle",
@@ -133,7 +135,9 @@ export const initialRoutines: Routine[] = [
   },
   {
     id: "routine-2",
+    routineId: "routine-definition-2",
     title: "Lunch walk",
+    description: "Walk outside for a short reset around lunch.",
     scheduledTime: "12:20",
     status: "pending",
     reminderState: "reminding",
@@ -141,7 +145,9 @@ export const initialRoutines: Routine[] = [
   },
   {
     id: "routine-3",
+    routineId: "routine-definition-3",
     title: "Inbox zero pass",
+    description: "Do one pass over urgent messages.",
     scheduledTime: "15:30",
     status: "pending",
     reminderState: "idle",
@@ -149,7 +155,9 @@ export const initialRoutines: Routine[] = [
   },
   {
     id: "routine-4",
+    routineId: "routine-definition-4",
     title: "Evening shutdown",
+    description: "Close work tabs and write the next first action.",
     scheduledTime: "22:45",
     status: "pending",
     reminderState: "idle",
