@@ -35,7 +35,7 @@ Click behavior:
 - After `Done`, `Skip`, or `Busy`, collapse the routine card immediately.
 - `Done` and `Skip` should optimistically update the visible routine status.
   If the backend later rejects the command, restore the previous visible state
-  and show the backend message.
+  and show the backend message in the shared notification component.
 - `Busy` shows a temporary reminder message and does not wait for backend
   persistence until reminder jobs exist.
 

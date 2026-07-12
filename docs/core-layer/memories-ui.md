@@ -40,7 +40,8 @@ Clicking the pinned memory again should collapse it.
 
 If the user clicks `Done`, collapse the card immediately and optimistically show
 the completed state. If the backend later rejects the command, restore the
-previous visible state and show the backend message.
+previous visible state and show the backend message in the shared notification
+component.
 
 If the user clicks `Replace`, collapse the card immediately. Replace only that
 one item and keep other positions unchanged after the backend returns the
@@ -171,11 +172,11 @@ Click behavior:
   inside the button and disable it.
 - After clicking `Pin`, optimistically change the icon to an unpin state with no
   text. If the backend rejects the command, restore the previous icon state and
-  show the backend message.
+  show the backend message in the shared notification component.
 - Clicking `Cancel` should undo that pending pin state when supported by the
   implementation. While processing, show a loading icon inside the button and
   disable it. If the backend rejects the command, restore the previous icon
-  state and show the backend message.
+  state and show the backend message in the shared notification component.
 - Do not show a separate `Ignore` button.
 
 Refresh behavior:

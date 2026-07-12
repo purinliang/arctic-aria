@@ -59,6 +59,10 @@ import type {
   TaskStatus,
 } from "../types";
 import { MemoriesPage } from "./MemoriesPage";
+import {
+  NotificationStack,
+  type DashboardNotification,
+} from "./NotificationStack";
 import { PinnedMemoryCard } from "./PinnedMemoryCard";
 import { ReviewDialog } from "./ReviewDialog";
 import { RoutineCard } from "./RoutineCard";
@@ -129,11 +133,11 @@ export function Dashboard({
   const [memoryActionPending, setMemoryActionPending] = useState(false);
   const [suggestionLoading, setSuggestionLoading] = useState(false);
   const [suggestionPending, setSuggestionPending] = useState(false);
-  const [suggestionMessage, setSuggestionMessage] = useState<string | null>(
-    null,
-  );
   const [pinnedSuggestionIds, setPinnedSuggestionIds] = useState<string[]>([]);
   const [suggestionsRequested, setSuggestionsRequested] = useState(false);
+  const [notifications, setNotifications] = useState<DashboardNotification[]>(
+    [],
+  );
   const [activeView, setActiveView] = useState<DashboardView>("dashboard");
   const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -223,6 +227,27 @@ export function Dashboard({
     setRoutineLoading(false);
   }, [applyRoutineData]);
 
+  const dismissNotification = useCallback((notificationId: number) => {
+    setNotifications((current) =>
+      current.filter((notification) => notification.id !== notificationId),
+    );
+  }, []);
+
+  const showErrorNotification = useCallback(
+    (message: string, title = "Action failed") => {
+      setNotifications((current) => [
+        ...current.slice(-2),
+        {
+          id: Date.now(),
+          tone: "error",
+          title,
+          message,
+        },
+      ]);
+    },
+    [],
+  );
+
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       void refreshMemoryData();
@@ -309,7 +334,7 @@ export function Dashboard({
 
       if (!result.ok) {
         onFailure?.();
-        setMemoryMessage(result.message);
+        showErrorNotification(result.message);
         return;
       }
 
@@ -372,7 +397,7 @@ export function Dashboard({
 
       if (!result.ok) {
         onFailure?.();
-        setRoutineMessage(result.message);
+        showErrorNotification(result.message);
         return;
       }
 
@@ -482,7 +507,6 @@ export function Dashboard({
 
   async function refreshSuggestionsFromPage() {
     setSuggestionsRequested(true);
-    setSuggestionMessage(null);
     setSuggestionLoading(true);
 
     try {
@@ -493,7 +517,7 @@ export function Dashboard({
       const result = await refreshMemorySuggestions(ignoredMemoryIds);
 
       if (!result.ok) {
-        setSuggestionMessage(result.message);
+        showErrorNotification(result.message);
         setMemorySuggestions([]);
         setPinnedSuggestionIds([]);
         return;
@@ -510,7 +534,6 @@ export function Dashboard({
   async function pinSuggestionFromPage(memoryId: string) {
     const previousPinnedSuggestionIds = pinnedSuggestionIds;
 
-    setSuggestionMessage(null);
     setSuggestionPending(true);
     setPinnedSuggestionIds((current) =>
       current.includes(memoryId) ? current : [...current, memoryId],
@@ -521,7 +544,7 @@ export function Dashboard({
 
       if (!result.ok) {
         setPinnedSuggestionIds(previousPinnedSuggestionIds);
-        setSuggestionMessage(result.message);
+        showErrorNotification(result.message);
         return false;
       }
 
@@ -535,7 +558,6 @@ export function Dashboard({
   async function cancelSuggestionPinFromPage(memoryId: string) {
     const previousPinnedSuggestionIds = pinnedSuggestionIds;
 
-    setSuggestionMessage(null);
     setSuggestionPending(true);
     setPinnedSuggestionIds((current) =>
       current.filter((suggestionId) => suggestionId !== memoryId),
@@ -546,7 +568,7 @@ export function Dashboard({
 
       if (!result.ok) {
         setPinnedSuggestionIds(previousPinnedSuggestionIds);
-        setSuggestionMessage(result.message);
+        showErrorNotification(result.message);
         return false;
       }
 
@@ -665,7 +687,6 @@ export function Dashboard({
             pending={memoryActionPending}
             suggestionLoading={suggestionLoading}
             suggestionPending={suggestionPending}
-            suggestionMessage={suggestionMessage}
             suggestionsRequested={suggestionsRequested}
             message={memoryMessage}
             selectedMemoryId={selectedMemoryId}
@@ -855,6 +876,12 @@ export function Dashboard({
         onClose={() => setSidebarOpen(false)}
         onViewChange={setActiveView}
         onThemeChange={setDarkMode}
+      />
+
+      <NotificationStack
+        notifications={notifications}
+        darkMode={darkMode}
+        onDismiss={dismissNotification}
       />
 
       <ReviewDialog

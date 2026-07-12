@@ -88,6 +88,9 @@ user.
   responds immediately after click, sends the backend request, keeps a
   successful database write silent, and shows a visible error only if the
   backend or database fails.
+- Failed optimistic commands should show the shared notification component, not
+  a duplicated inline section error. Use a red notification at the bottom-right
+  on desktop and at the top-center on mobile or tablet-sized viewports.
 - Username/password login and registration are excluded from optimistic UI.
   Auth flows should wait for strong backend confirmation before showing success
   or opening the dashboard.

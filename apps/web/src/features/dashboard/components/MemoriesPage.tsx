@@ -119,7 +119,6 @@ export function MemoriesPage({
   pending,
   suggestionLoading,
   suggestionPending,
-  suggestionMessage,
   suggestionsRequested,
   message,
   selectedMemoryId,
@@ -142,7 +141,6 @@ export function MemoriesPage({
   pending: boolean;
   suggestionLoading: boolean;
   suggestionPending: boolean;
-  suggestionMessage: string | null;
   suggestionsRequested: boolean;
   message: string | null;
   selectedMemoryId: string | null;
@@ -454,15 +452,6 @@ export function MemoriesPage({
                 : "divide-y divide-slate-200"
             }
           >
-            {suggestionMessage ? (
-              <p
-                className={`px-4 py-4 text-sm ${
-                  darkMode ? "text-amber-200" : "text-amber-700"
-                }`}
-              >
-                {suggestionMessage}
-              </p>
-            ) : null}
             {!suggestionsRequested && !suggestionLoading ? (
               <p className={`px-4 py-4 text-sm ${mutedText(darkMode)}`}>
                 Click Refresh to load suggestions.
