@@ -84,7 +84,8 @@ sections stacking cleanly and without overlapping text.
 
 On desktop, keep a persistent left sidebar and show page content on the right.
 On mobile and tablet-sized viewports, hide the sidebar behind a hamburger
-button and show it as an overlay when opened.
+button and show it as an overlay when opened. Detailed sidebar behavior is
+documented in [sidebar.md](sidebar.md) and [sidebar-ui.md](sidebar-ui.md).
 
 The page title bar should show only the current page title. Do not show the day
 boundary, current time, current user, logout button, or review button in the

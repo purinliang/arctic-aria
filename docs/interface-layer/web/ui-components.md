@@ -120,6 +120,9 @@ Use it for:
 List items should keep horizontal padding, vertical rhythm, hover state, and
 selected state consistent.
 
+Expandable list items should append details below a stable header row. The
+expanded content must share the same selected/expanded background as the header.
+
 ## Dialog
 
 `dialog.tsx` owns dialog shells and confirmation dialogs.
