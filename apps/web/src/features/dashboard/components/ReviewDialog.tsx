@@ -46,7 +46,7 @@ export function ReviewDialog({
   const partialTasks = tasks.filter((task) => task.status === "partial");
   const unfinishedTasks = tasks.filter((task) => task.status === "todo");
   const completedRoutines = routines.filter(
-    (routine) => routine.status === "done",
+    (routine) => routine.status === "completed",
   );
   const interruptedRoutines = routines.filter(
     (routine) => routine.status === "skipped",

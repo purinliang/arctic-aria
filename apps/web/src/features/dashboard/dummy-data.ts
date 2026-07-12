@@ -127,14 +127,16 @@ export const initialRoutines: Routine[] = [
     id: "routine-1",
     title: "Morning medication",
     scheduledTime: "08:00",
-    status: "done",
+    status: "completed",
+    reminderState: "idle",
     streakText: "18 day streak",
   },
   {
     id: "routine-2",
     title: "Lunch walk",
     scheduledTime: "12:20",
-    status: "reminding",
+    status: "pending",
+    reminderState: "reminding",
     streakText: "4 day streak",
   },
   {
@@ -142,6 +144,7 @@ export const initialRoutines: Routine[] = [
     title: "Inbox zero pass",
     scheduledTime: "15:30",
     status: "pending",
+    reminderState: "idle",
     streakText: "Due today",
   },
   {
@@ -149,6 +152,7 @@ export const initialRoutines: Routine[] = [
     title: "Evening shutdown",
     scheduledTime: "22:45",
     status: "pending",
+    reminderState: "idle",
     streakText: "Flexible window",
   },
 ];

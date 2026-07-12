@@ -1,17 +1,11 @@
 import { ChevronDown } from "lucide-react";
-import type { Routine, RoutineStatus } from "../types";
+import type { Routine, RoutineReminderState, RoutineStatus } from "../types";
 
 function routineStatusClass(status: RoutineStatus, darkMode: boolean) {
-  if (status === "done") {
+  if (status === "completed") {
     return darkMode
       ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-200"
       : "border-emerald-200 bg-emerald-50 text-emerald-700";
-  }
-
-  if (status === "reminding") {
-    return darkMode
-      ? "border-blue-400/40 bg-blue-500/15 text-blue-200"
-      : "border-blue-200 bg-blue-50 text-blue-700";
   }
 
   if (status === "skipped") {
@@ -25,18 +19,32 @@ function routineStatusClass(status: RoutineStatus, darkMode: boolean) {
     : "border-blue-200 bg-blue-50 text-blue-700";
 }
 
+function reminderStateClass(state: RoutineReminderState, darkMode: boolean) {
+  if (state === "reminding") {
+    return darkMode
+      ? "border-blue-400/40 bg-blue-500/15 text-blue-200"
+      : "border-blue-200 bg-blue-50 text-blue-700";
+  }
+
+  return darkMode
+    ? "border-amber-400/40 bg-amber-500/15 text-amber-200"
+    : "border-amber-200 bg-amber-50 text-amber-700";
+}
+
 export function RoutineCard({
   routine,
   darkMode,
   expanded,
   onToggleExpanded,
   onStatusChange,
+  onBusy,
 }: {
   routine: Routine;
   darkMode: boolean;
   expanded: boolean;
   onToggleExpanded: () => void;
   onStatusChange: (status: RoutineStatus) => void;
+  onBusy: () => void;
 }) {
   return (
     <article>
@@ -67,6 +75,16 @@ export function RoutineCard({
           >
             {routine.status}
           </span>
+          {routine.reminderState !== "idle" ? (
+            <span
+              className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${reminderStateClass(
+                routine.reminderState,
+                darkMode,
+              )}`}
+            >
+              {routine.reminderState}
+            </span>
+          ) : null}
           <ChevronDown
             className={`transition ${expanded ? "rotate-180" : ""}`}
             size={18}
@@ -85,14 +103,14 @@ export function RoutineCard({
           <button
             className={routineButtonClass(darkMode)}
             type="button"
-            onClick={() => onStatusChange("done")}
+            onClick={() => onStatusChange("completed")}
           >
             Done
           </button>
           <button
             className={routineButtonClass(darkMode)}
             type="button"
-            onClick={() => onStatusChange("pending")}
+            onClick={onBusy}
           >
             Busy
           </button>

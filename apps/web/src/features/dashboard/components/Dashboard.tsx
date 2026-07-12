@@ -33,6 +33,7 @@ import type {
   MemorySuggestion,
   PinnedMemory,
   Routine,
+  RoutineReminderState,
   RoutineStatus,
   Task,
   TaskStatus,
@@ -111,7 +112,8 @@ export function Dashboard({
   const [darkMode, setDarkMode] = useState(true);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>("task-1");
   const [expandedRoutineId, setExpandedRoutineId] = useState<string | null>(
-    initialRoutines.find((routine) => routine.status === "reminding")?.id ??
+    initialRoutines.find((routine) => routine.reminderState === "reminding")
+      ?.id ??
       null,
   );
   const [expandedMemoryId, setExpandedMemoryId] = useState<string | null>(null);
@@ -170,7 +172,7 @@ export function Dashboard({
       0,
     );
     const completedRoutines = routines.filter(
-      (routine) => routine.status === "done",
+      (routine) => routine.status === "completed",
     ).length;
     const gold =
       rewardPreview.baseGold +
@@ -214,7 +216,20 @@ export function Dashboard({
   function updateRoutine(routineId: string, status: RoutineStatus) {
     setRoutines((current) =>
       current.map((routine) =>
-        routine.id === routineId ? { ...routine, status } : routine,
+        routine.id === routineId
+          ? { ...routine, status, reminderState: "idle" }
+          : routine,
+      ),
+    );
+  }
+
+  function updateRoutineReminder(
+    routineId: string,
+    reminderState: RoutineReminderState,
+  ) {
+    setRoutines((current) =>
+      current.map((routine) =>
+        routine.id === routineId ? { ...routine, reminderState } : routine,
       ),
     );
   }
@@ -572,6 +587,7 @@ export function Dashboard({
                       onStatusChange={(status) =>
                         updateRoutine(routine.id, status)
                       }
+                      onBusy={() => updateRoutineReminder(routine.id, "snoozed")}
                     />
                   ))}
                 </div>

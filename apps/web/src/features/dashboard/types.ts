@@ -24,13 +24,15 @@ export type Task = {
   subtasks?: Subtask[];
 };
 
-export type RoutineStatus = "pending" | "reminding" | "done" | "skipped";
+export type RoutineStatus = "pending" | "completed" | "skipped";
+export type RoutineReminderState = "idle" | "reminding" | "snoozed";
 
 export type Routine = {
   id: string;
   title: string;
   scheduledTime: string;
   status: RoutineStatus;
+  reminderState: RoutineReminderState;
   streakText: string;
 };
 
