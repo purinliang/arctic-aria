@@ -172,7 +172,7 @@ export function Tag({
   children,
 }: {
   darkMode: boolean;
-  tone?: "blue" | "amber" | "emerald" | "neutral";
+  tone?: "blue" | "amber" | "cyan" | "emerald" | "neutral";
   children: ReactNode;
 }) {
   return (
@@ -236,7 +236,7 @@ function inputClass(darkMode: boolean) {
 
 function tagToneClass(
   darkMode: boolean,
-  tone: "blue" | "amber" | "emerald" | "neutral",
+  tone: "blue" | "amber" | "cyan" | "emerald" | "neutral",
 ) {
   if (tone === "amber") {
     return darkMode
@@ -248,6 +248,12 @@ function tagToneClass(
     return darkMode
       ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-200"
       : "border-emerald-200 bg-emerald-50 text-emerald-700";
+  }
+
+  if (tone === "cyan") {
+    return darkMode
+      ? "border-cyan-400/40 bg-cyan-500/15 text-cyan-200"
+      : "border-cyan-200 bg-cyan-50 text-cyan-700";
   }
 
   if (tone === "neutral") {
