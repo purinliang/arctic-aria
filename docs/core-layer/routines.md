@@ -9,8 +9,8 @@ routines describe recurring behavior to check.
 
 ## Boundary
 
-Routines are Core product data because the user creates, edits, pauses,
-archives, completes, and skips them.
+Routines are Core product data because the user creates, edits, deletes,
+completes, and skips them.
 
 Reminder delivery is not the routine itself. The routine engine owns routine
 definitions, recurrence rules, routine instances, and completion or skip
@@ -23,20 +23,20 @@ The first routines feature should include:
 
 - creating routines
 - editing routine title and description
-- pausing and resuming routines
-- archiving routines
+- deleting routines
 - defining recurrence rules
 - generating routine instances
 - showing today's routine instances on the dashboard
 - marking a routine instance completed
 - marking a routine instance skipped
-- recording completion events for review and future rewards
+- recording completion events for daily review
 
 The first routines feature should not include:
 
 - Discord reminder delivery
 - advanced scheduler optimization
-- reward calculation
+- pause and resume
+- archive-only user flows
 - health-device integration
 - AI-generated routine coaching
 - task subtasks inside routines
@@ -56,16 +56,15 @@ Recommended fields:
 - `end_date`
 - `created_at`
 - `updated_at`
-- `archived_at`
 
 Routine statuses:
 
 - `active`: can generate future instances.
-- `paused`: kept by the user, but does not generate new instances.
-- `archived`: hidden from normal views.
+- `deleted`: hidden from normal views and excluded from future instance
+  generation.
 
 The optional `end_date` is inclusive. If it is blank, the routine continues
-until the user pauses or archives it.
+until the user deletes it.
 
 ## Routine Rules
 
@@ -76,15 +75,18 @@ Supported first rule types:
 - `daily`: every day.
 - `weekly`: selected weekdays.
 - `bi_weekly`: every 14 days.
-- `monthly_by_day`: each month on a selected day of month.
-- `fixed_interval_days`: every N days.
+- `monthly_by_date`: every 1, 2, 3, 6, or 12 months on a selected day of
+  month, useful for bills and yearly renewal checks.
+- `day_interval`: every fixed number of days, useful for subscription-like
+  routines that should repeat after exactly 30, 60, or 90 days instead of on a
+  calendar date.
 
 Recommended fields:
 
 - `id`
 - `routine_id`
 - `rule_type`
-- `interval_days`
+- `interval_value`
 - `weekdays`
 - `day_of_month`
 - `preferred_time`
@@ -94,9 +96,10 @@ Recommended fields:
 
 Rule constraints:
 
-- `interval_days` is required only for `fixed_interval_days`.
+- `interval_value` stores either a month interval for `monthly_by_date` or a
+  day interval for `day_interval`.
 - `weekdays` is required only for selected-weekday weekly rules.
-- `day_of_month` is required only for `monthly_by_day`.
+- `day_of_month` is required only for `monthly_by_date`.
 - `preferred_time` is optional, but the dashboard should show it when present.
 - `timezone` should default to the user's settings timezone.
 
@@ -161,7 +164,7 @@ Action behavior:
 ## Events
 
 Completing or skipping a routine instance should create immutable completion
-history for daily review and future reward logic.
+history for daily review.
 
 The first event target should be:
 

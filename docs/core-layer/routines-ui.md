@@ -46,15 +46,17 @@ The first Routines page should allow the user to:
 - view recent or upcoming instances
 - add a routine
 - edit a routine
-- pause or resume a routine
-- archive a routine
+- delete a routine
 - choose a recurrence rule
 - choose a preferred reminder time
+
+Use the same modal direction as the Memories add/edit dialogs and category
+add/edit dialogs so routine management feels consistent with existing
+management pages.
 
 The first Routines page does not need:
 
 - Discord delivery controls
-- reward settings
 - AI coaching
 - analytics charts
 
@@ -85,11 +87,13 @@ Title: `Edit routine`.
 The dialog should include actions for:
 
 - Save
-- Pause or Resume
-- Archive
+- Delete
 
 Successful save closes the dialog and refreshes visible routine data. Failed
 save keeps the dialog open and shows the backend message.
+
+Clicking `Delete` should show a confirmation dialog. Successful delete closes
+the dialog and removes the routine from normal views.
 
 ## Status Text
 
