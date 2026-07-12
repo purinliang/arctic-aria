@@ -1,6 +1,13 @@
 "use client";
 
-import { Bell, Check, ClipboardList, ListChecks, LogOut, Menu } from "lucide-react";
+import {
+  Bell,
+  Check,
+  ClipboardList,
+  ListChecks,
+  LogOut,
+  Menu,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import {
@@ -21,8 +28,17 @@ import {
   type MemoryActionResult,
 } from "@/features/memories/actions";
 import {
+  completeRoutineInstance,
+  deleteRoutine,
+  getRoutineDashboardData,
+  saveRoutine,
+  skipRoutineInstance,
+  type RoutineActionResult,
+  type RoutineDashboardData,
+  type RoutineInput,
+} from "@/features/routines/actions";
+import {
   dayBoundary,
-  initialRoutines,
   initialTasks,
   rewardPreview,
 } from "../dummy-data";
@@ -33,6 +49,7 @@ import type {
   MemorySuggestion,
   PinnedMemory,
   Routine,
+  RoutineDefinition,
   RoutineStatus,
   Task,
   TaskStatus,
@@ -41,6 +58,7 @@ import { MemoriesPage } from "./MemoriesPage";
 import { PinnedMemoryCard } from "./PinnedMemoryCard";
 import { ReviewDialog } from "./ReviewDialog";
 import { RoutineCard } from "./RoutineCard";
+import { RoutinesPage } from "./RoutinesPage";
 import { SectionHeader } from "./SectionHeader";
 import { Sidebar } from "./Sidebar";
 import { TaskCard } from "./TaskCard";
@@ -54,6 +72,9 @@ const todayFormatter = new Intl.DateTimeFormat("en", {
 
 type MemoryDataAction = () => Promise<
   MemoryActionResult<MemoryDashboardData>
+>;
+type RoutineDataAction = () => Promise<
+  RoutineActionResult<RoutineDashboardData>
 >;
 
 function statusForWeight(completedWeight: number, weight: number): TaskStatus {
@@ -84,7 +105,13 @@ export function Dashboard({
   onLogout: () => void;
 }) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [routines, setRoutines] = useState<Routine[]>(initialRoutines);
+  const [routines, setRoutines] = useState<Routine[]>([]);
+  const [routineDefinitions, setRoutineDefinitions] = useState<
+    RoutineDefinition[]
+  >([]);
+  const [routineLoading, setRoutineLoading] = useState(true);
+  const [routineMessage, setRoutineMessage] = useState<string | null>(null);
+  const [routineActionPending, setRoutineActionPending] = useState(false);
   const [pinnedMemories, setPinnedMemories] = useState<PinnedMemory[]>([]);
   const [memoryCategories, setMemoryCategories] = useState<
     MemoryCategoryOption[]
@@ -110,10 +137,7 @@ export function Dashboard({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>("task-1");
-  const [expandedRoutineId, setExpandedRoutineId] = useState<string | null>(
-    initialRoutines.find((routine) => routine.status === "reminding")?.id ??
-      null,
-  );
+  const [expandedRoutineId, setExpandedRoutineId] = useState<string | null>(null);
   const [expandedMemoryId, setExpandedMemoryId] = useState<string | null>(null);
 
   const applyMemoryData = useCallback(
@@ -156,13 +180,53 @@ export function Dashboard({
     setMemoryLoading(false);
   }, [applyMemoryData]);
 
+  const applyRoutineData = useCallback(
+    (data: RoutineDashboardData, nextExpandedRoutineId?: string | null) => {
+      setRoutines(data.routines);
+      setRoutineDefinitions(data.routineDefinitions);
+      setExpandedRoutineId((current) => {
+        if (nextExpandedRoutineId !== undefined) {
+          return nextExpandedRoutineId;
+        }
+
+        if (current && data.routines.some((routine) => routine.id === current)) {
+          return current;
+        }
+
+        return (
+          data.routines.find(
+            (routine) => routine.reminderState === "reminding",
+          )?.id ?? null
+        );
+      });
+    },
+    [],
+  );
+
+  const refreshRoutineData = useCallback(async () => {
+    const result = await getRoutineDashboardData();
+
+    if (!result.ok) {
+      setRoutineMessage(result.message);
+      setRoutines([]);
+      setRoutineDefinitions([]);
+      setExpandedRoutineId(null);
+      setRoutineLoading(false);
+      return;
+    }
+
+    applyRoutineData(result.data);
+    setRoutineLoading(false);
+  }, [applyRoutineData]);
+
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       void refreshMemoryData();
+      void refreshRoutineData();
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, [currentUser.id, refreshMemoryData]);
+  }, [currentUser.id, refreshMemoryData, refreshRoutineData]);
 
   const stats = useMemo(() => {
     const completedWeight = tasks.reduce(
@@ -170,7 +234,7 @@ export function Dashboard({
       0,
     );
     const completedRoutines = routines.filter(
-      (routine) => routine.status === "done",
+      (routine) => routine.status === "completed",
     ).length;
     const gold =
       rewardPreview.baseGold +
@@ -212,16 +276,18 @@ export function Dashboard({
   }
 
   function updateRoutine(routineId: string, status: RoutineStatus) {
-    setRoutines((current) =>
-      current.map((routine) =>
-        routine.id === routineId ? { ...routine, status } : routine,
-      ),
+    void runRoutineAction(
+      () =>
+        status === "completed"
+          ? completeRoutineInstance(routineId)
+          : skipRoutineInstance(routineId),
+      null,
     );
   }
 
   async function runMemoryAction(
     action: MemoryDataAction,
-    expandedPinnedMemoryId: string,
+    expandedPinnedMemoryId: string | null,
   ) {
     setMemoryMessage(null);
     setMemoryActionPending(true);
@@ -280,24 +346,64 @@ export function Dashboard({
     }
   }
 
+  async function runRoutineAction(
+    action: RoutineDataAction,
+    expandedRoutineId: string | null,
+  ) {
+    setRoutineMessage(null);
+    setRoutineActionPending(true);
+
+    try {
+      const result = await action();
+
+      if (!result.ok) {
+        setRoutineMessage(result.message);
+        return;
+      }
+
+      applyRoutineData(result.data, expandedRoutineId);
+    } finally {
+      setRoutineActionPending(false);
+    }
+  }
+
+  async function runRoutineManagementAction(action: RoutineDataAction) {
+    setRoutineMessage(null);
+    setRoutineActionPending(true);
+
+    try {
+      const result = await action();
+
+      if (!result.ok) {
+        setRoutineMessage(result.message);
+        return false;
+      }
+
+      applyRoutineData(result.data);
+      return true;
+    } finally {
+      setRoutineActionPending(false);
+    }
+  }
+
   function markMemoryDone(pinnedMemoryId: string) {
     void runMemoryAction(
       () => completePinnedMemory(pinnedMemoryId),
-      pinnedMemoryId,
+      null,
     );
   }
 
   function cancelMemoryDone(pinnedMemoryId: string) {
     void runMemoryAction(
       () => cancelPinnedMemoryDone(pinnedMemoryId),
-      pinnedMemoryId,
+      null,
     );
   }
 
   function replaceMemory(pinnedMemoryId: string) {
     void runMemoryAction(
       () => replacePinnedMemory(pinnedMemoryId),
-      pinnedMemoryId,
+      null,
     );
   }
 
@@ -325,6 +431,23 @@ export function Dashboard({
 
   function clearMemoryMessage() {
     setMemoryMessage(null);
+  }
+
+  function saveRoutineFromPage(input: RoutineInput) {
+    return runRoutineManagementAction(() => saveRoutine(input));
+  }
+
+  function deleteRoutineFromPage(routineId: string) {
+    return runRoutineManagementAction(() => deleteRoutine(routineId));
+  }
+
+  function clearRoutineMessage() {
+    setRoutineMessage(null);
+  }
+
+  function markRoutineBusy() {
+    setRoutineMessage("Busy will snooze reminders after reminder jobs are implemented.");
+    setExpandedRoutineId(null);
   }
 
   async function refreshSuggestionsFromPage() {
@@ -439,6 +562,8 @@ export function Dashboard({
               <h1 className="mt-1 text-2xl font-semibold tracking-normal sm:text-3xl">
                 {activeView === "dashboard"
                   ? `${todayFormatter.format(new Date())} Dashboard`
+                  : activeView === "routines"
+                    ? "Routines"
                   : "Memories"}
               </h1>
             </div>
@@ -482,7 +607,18 @@ export function Dashboard({
           </div>
         </header>
 
-        {activeView === "memories" ? (
+        {activeView === "routines" ? (
+          <RoutinesPage
+            darkMode={darkMode}
+            routines={routineDefinitions}
+            loading={routineLoading}
+            pending={routineActionPending}
+            message={routineMessage}
+            onRoutineSave={saveRoutineFromPage}
+            onRoutineDelete={deleteRoutineFromPage}
+            onMessageClear={clearRoutineMessage}
+          />
+        ) : activeView === "memories" ? (
           <MemoriesPage
             darkMode={darkMode}
             categories={memoryCategories}
@@ -551,6 +687,17 @@ export function Dashboard({
                   meta={`${routines.length} scheduled`}
                   darkMode={darkMode}
                 />
+                {routineMessage ? (
+                  <div
+                    className={`border-b px-4 py-3 text-xs font-semibold ${
+                      darkMode
+                        ? "border-neutral-900 text-amber-200"
+                        : "border-slate-200 text-amber-700"
+                    }`}
+                  >
+                    {routineMessage}
+                  </div>
+                ) : null}
                 <div
                   className={
                     darkMode
@@ -558,11 +705,30 @@ export function Dashboard({
                       : "divide-y divide-slate-200"
                   }
                 >
+                  {routineLoading ? (
+                    <p
+                      className={`px-4 py-4 text-sm ${
+                        darkMode ? "text-neutral-400" : "text-slate-500"
+                      }`}
+                    >
+                      Loading routines...
+                    </p>
+                  ) : null}
+                  {!routineLoading && routines.length === 0 ? (
+                    <p
+                      className={`px-4 py-4 text-sm ${
+                        darkMode ? "text-neutral-400" : "text-slate-500"
+                      }`}
+                    >
+                      No routines due today.
+                    </p>
+                  ) : null}
                   {routines.map((routine) => (
                     <RoutineCard
                       key={routine.id}
                       routine={routine}
                       darkMode={darkMode}
+                      disabled={routineActionPending}
                       expanded={expandedRoutineId === routine.id}
                       onToggleExpanded={() =>
                         setExpandedRoutineId((current) =>
@@ -572,6 +738,7 @@ export function Dashboard({
                       onStatusChange={(status) =>
                         updateRoutine(routine.id, status)
                       }
+                      onBusy={markRoutineBusy}
                     />
                   ))}
                 </div>

@@ -2,16 +2,10 @@ import { ChevronDown } from "lucide-react";
 import type { Routine, RoutineStatus } from "../types";
 
 function routineStatusClass(status: RoutineStatus, darkMode: boolean) {
-  if (status === "done") {
+  if (status === "completed") {
     return darkMode
       ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-200"
       : "border-emerald-200 bg-emerald-50 text-emerald-700";
-  }
-
-  if (status === "reminding") {
-    return darkMode
-      ? "border-blue-400/40 bg-blue-500/15 text-blue-200"
-      : "border-blue-200 bg-blue-50 text-blue-700";
   }
 
   if (status === "skipped") {
@@ -28,15 +22,19 @@ function routineStatusClass(status: RoutineStatus, darkMode: boolean) {
 export function RoutineCard({
   routine,
   darkMode,
+  disabled,
   expanded,
   onToggleExpanded,
   onStatusChange,
+  onBusy,
 }: {
   routine: Routine;
   darkMode: boolean;
+  disabled: boolean;
   expanded: boolean;
   onToggleExpanded: () => void;
   onStatusChange: (status: RoutineStatus) => void;
+  onBusy: () => void;
 }) {
   return (
     <article>
@@ -46,6 +44,7 @@ export function RoutineCard({
         }`}
         type="button"
         aria-expanded={expanded}
+        disabled={disabled}
         onClick={onToggleExpanded}
       >
         <div className="min-w-0">
@@ -67,6 +66,17 @@ export function RoutineCard({
           >
             {routine.status}
           </span>
+          {routine.reminderState !== "idle" ? (
+            <span
+              className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${
+                darkMode
+                  ? "border-blue-400/40 bg-blue-500/15 text-blue-200"
+                  : "border-blue-200 bg-blue-50 text-blue-700"
+              }`}
+            >
+              {routine.reminderState}
+            </span>
+          ) : null}
           <ChevronDown
             className={`transition ${expanded ? "rotate-180" : ""}`}
             size={18}
@@ -85,20 +95,23 @@ export function RoutineCard({
           <button
             className={routineButtonClass(darkMode)}
             type="button"
-            onClick={() => onStatusChange("done")}
+            disabled={disabled}
+            onClick={() => onStatusChange("completed")}
           >
             Done
           </button>
           <button
             className={routineButtonClass(darkMode)}
             type="button"
-            onClick={() => onStatusChange("pending")}
+            disabled={disabled}
+            onClick={onBusy}
           >
             Busy
           </button>
           <button
             className={routineButtonClass(darkMode)}
             type="button"
+            disabled={disabled}
             onClick={() => onStatusChange("skipped")}
           >
             Skip
@@ -110,7 +123,7 @@ export function RoutineCard({
 }
 
 function routineButtonClass(darkMode: boolean) {
-  return `h-9 rounded-md border px-2 text-xs font-semibold transition ${
+  return `h-9 rounded-md border px-2 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
     darkMode
       ? "border-neutral-700 text-neutral-200 hover:border-white hover:text-white"
       : "border-slate-300 text-slate-700 hover:border-slate-500"

@@ -18,20 +18,20 @@ The first Core model should support:
 - quick idea capture
 - personal memories for repeatable enjoyable experiences
 - daily reviews
-- completion history for review and rewards
+- completion history for review
 
 The first Core model should not include:
 
 - internal plugin or agent context, such as learning history or retrieval
   context
-- reward inventory
 - event bus design
 - Discord-specific message details
 
 Detailed user registration and login rules are documented in
 [core-layer/user.md](core-layer/user.md). User settings are documented in
-[core-layer/user-settings.md](core-layer/user-settings.md). Memory rules are
-documented in [core-layer/memories.md](core-layer/memories.md).
+[core-layer/user-settings.md](core-layer/user-settings.md). Routine rules are
+documented in [core-layer/routines.md](core-layer/routines.md). Memory rules
+are documented in [core-layer/memories.md](core-layer/memories.md).
 
 ## User
 
@@ -124,6 +124,9 @@ task has no children, use its own `weight` and `completed_weight`.
 A routine is repeatable daily-life work. It is not a plan and should not use the
 task hierarchy.
 
+Detailed routine behavior is documented in
+[core-layer/routines.md](core-layer/routines.md).
+
 `routines` should store:
 
 - user id
@@ -133,16 +136,15 @@ task hierarchy.
 - first start date
 - optional end date, inclusive
 - created and updated timestamps
-- archived timestamp, if archived
 
 Routine statuses:
 
 - `active`: can generate future instances.
-- `paused`: kept but not generating new instances.
-- `archived`: hidden from normal views.
+- `deleted`: hidden from normal views and excluded from future instance
+  generation.
 
 The optional end date is inclusive. If it is blank, the routine continues until
-the user pauses or archives it.
+the user deletes it.
 
 ## Routine Rules
 
@@ -153,16 +155,17 @@ Rule types:
 - `daily`: every day.
 - `weekly`: every 7 days or selected weekdays.
 - `bi_weekly`: every 14 days.
-- `monthly_by_day`: each month on a selected day of month.
-- `fixed_interval_days`: every N days, such as every 30 days.
+- `monthly_by_date`: every 1, 2, 3, 6, or 12 months on a selected day of
+  month.
+- `day_interval`: every fixed number of days, such as every 30 days.
 
 `routine_rules` should store:
 
 - routine id
 - rule type
-- interval days, when the rule uses a fixed day interval
+- interval value, when the rule uses a month or day interval
 - weekdays, when the rule uses selected weekdays
-- day of month, when the rule uses monthly-by-day recurrence
+- day of month, when the rule uses monthly-by-date recurrence
 - preferred reminder time
 - timezone
 
@@ -263,8 +266,8 @@ Daily reviews summarize one personal day.
 - partial count
 - created and updated timestamps
 
-The first version can store simple review summary fields. More detailed reward
-or sharing data should wait until those features are designed.
+The first version can store simple review summary fields. More detailed sharing
+data should wait until that feature is designed.
 
 ## Memories
 
@@ -288,8 +291,7 @@ Detailed behavior and table attributes are documented in
 
 ## Completion Events
 
-Completion events are immutable history records used by review and future reward
-logic.
+Completion events are immutable history records used by review logic.
 
 `completion_events` should store:
 

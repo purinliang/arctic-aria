@@ -93,7 +93,7 @@ Task progress should be based on weight:
 - `status`: `todo`, `doing`, `blocked`, `skipped`, or `done`.
 
 Completion changes should also create immutable `completion_events` so daily
-review and reward plugins can reason about what happened.
+review can reason about what happened.
 
 ## Memory Tables
 
@@ -122,12 +122,15 @@ Detailed memory rules are documented in
 Routines are Core data. A routine is the repeatable definition, and a routine
 instance is the concrete occurrence for a specific day or time window.
 
+Detailed routine rules are documented in
+[routines.md](../core-layer/routines.md).
+
 `routines` should store:
 
 - user id
 - title
 - description
-- status: active, paused, or archived
+- status: active or deleted
 - first start date
 - optional end date, inclusive
 - created and updated timestamps
@@ -135,15 +138,14 @@ instance is the concrete occurrence for a specific day or time window.
 `routine_rules` should store recurrence settings:
 
 - repeat type, such as daily, weekly, bi-weekly, monthly by day of month, or
-  every N days
-- repeat interval, such as `7` days, `14` days, or `30` days when the rule uses
-  a day interval
+- exact day interval
+- repeat interval value, such as 3 months, 6 months, 12 months, or 30 days
 - day-of-month value when the rule means "each month on day X"
 - reminder time or preferred check time when needed
 - timezone
 
 The end date should be optional. If it is blank, the routine continues until the
-user pauses or archives it.
+user deletes it.
 
 `routine_instances` should store generated occurrences:
 
