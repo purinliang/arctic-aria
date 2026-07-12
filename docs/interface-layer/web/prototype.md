@@ -2,20 +2,21 @@
 
 ## Goal
 
-Refine the current interactive Next.js dashboard prototype so it better matches
-the intended daily planning experience. The prototype still uses dummy data
-only, but the UI should show the product direction clearly enough to guide later
-Core, scheduler, review, and reward-plugin work.
+Refine the interactive Next.js dashboard prototype so it better matches the
+intended daily planning experience. This document is historical for the first
+dashboard prototype, but it still describes the dummy task, dummy routine,
+review, and reward UI direction.
 
-This is an Interface layer prototype. It must not add real Core logic,
-persistence, Discord behavior, API routes, authentication, or database access.
 This boundary applies to dashboard prototype work only. The separate username
 and password auth implementation is documented in
-[auth-implementation.md](auth-implementation.md).
+[auth-implementation.md](auth-implementation.md). Database-backed Memories are
+documented in [memories-implementation.md](memories-implementation.md).
+Routines are the next feature branch and should follow the Core rules in
+[routines.md](../../core-layer/routines.md).
 
 ## Scope
 
-The current prototype already includes:
+The dashboard prototype currently includes:
 
 - A single dashboard page for today's daily plan.
 - A fixed day boundary of `04:00`.
@@ -25,19 +26,17 @@ The current prototype already includes:
 - Local React state for all interactions.
 - A review panel that can be opened at any time and updated repeatedly.
 - Expected reward values based on dummy progress.
+- Database-backed pinned memories from the Memories implementation.
 
-The refactor should keep:
+For task, routine, review, and reward prototype work, keep:
 
 - Dummy data only.
 - Local React state only.
 - No state survival after reload.
 - Desktop-first layout with usable iPhone Chrome behavior.
 
-The refactor must not add:
+For task, routine, review, and reward prototype work, do not add:
 
-- Authentication or user accounts.
-- Database storage, persistence, or backend APIs.
-- Discord bot behavior.
 - Real reward calculations.
 - Full CRUD for plans, tasks, or routines.
 - Shared packages.
@@ -177,64 +176,17 @@ Reward display:
 - Use rarity colors in the preview list: Legendary orange, Epic purple, Rare
   blue, and Common neutral.
 
-## Pinned Memories Prototype
+## Pinned Memories Status
 
-The first Memories UI should be a dashboard-only prototype. It should help
-review the product feel before adding the Memories page, suggestion page,
-category management, database tables, or real recommendation logic.
+Pinned Memories started as dashboard dummy UI, but the current app now uses the
+database-backed Memories implementation. Do not follow the old dummy-memory
+prototype direction for new work.
 
-The prototype should use:
+Current Memories behavior is documented in:
 
-- dummy data only
-- local React state only
-- no database storage
-- no server actions
-- no full Memories CRUD
-- no real suggestion algorithm
-
-The dashboard should show a compact `Pinned Memories` section for two
-categories:
-
-- Cuisine
-- Sightseeing
-
-Each pinned memory card should show:
-
-- title
-- short description
-- category
-- subtle metadata such as `Pinned 2 days ago` or `Last done 18 days ago`
-
-Clicking or focusing a pinned memory should expand it like the current routine
-cards. Only the expanded state should show action buttons:
-
-- `Done`
-- `Replace`
-- `View`
-
-Interaction behavior:
-
-- `Done` marks only that pinned memory as completed visually and keeps the card
-  expanded.
-- A completed memory should support canceling done before cleanup in the real
-  implementation.
-- `Replace` swaps only that pinned memory with another dummy memory from the
-  same category and keeps the new memory expanded.
-- Replacing one item should preserve the order and state of the other pinned
-  memories.
-- The first dashboard should show up to three Cuisine memories and up to three
-  Sightseeing memories.
-- The `Memories` sidebar item can be a placeholder and does not need navigation
-  yet.
-- Use the same icon for the `Pinned Memories` section and the `Memories`
-  sidebar item. `ClipboardList` is a reasonable first choice.
-
-Visual direction:
-
-- Keep the section restrained and dashboard-like.
-- Use `lucide-react` icons for action buttons.
-- Do not add hero text, empty marketing copy, or nested decorative cards.
-- On mobile, memory text and action buttons must not overlap.
+- [memories.md](../../core-layer/memories.md)
+- [memories-ui.md](../../core-layer/memories-ui.md)
+- [memories-implementation.md](memories-implementation.md)
 
 ## Technical Plan
 
@@ -270,8 +222,10 @@ Suggested refactor shape:
 - Keep dashboard-specific types in `features/dashboard/types.ts`.
 - Keep dummy records in `features/dashboard/dummy-data.ts`.
 - Keep UI-only derived state inside dashboard components.
-- Keep the first pinned Memories prototype inside `features/dashboard` because
-  it is dashboard-only dummy UI.
+- Keep task and routine dummy records in `features/dashboard/dummy-data.ts`
+  until their database-backed feature branches replace them.
+- Keep database-backed Memories behavior in `features/memories` and the
+  dashboard components that render it.
 - Do not introduce shared packages or server APIs.
 - Do not create a real scheduler, review engine, or reward plugin in this
   branch.

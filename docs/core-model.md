@@ -30,8 +30,9 @@ The first Core model should not include:
 
 Detailed user registration and login rules are documented in
 [core-layer/user.md](core-layer/user.md). User settings are documented in
-[core-layer/user-settings.md](core-layer/user-settings.md). Memory rules are
-documented in [core-layer/memories.md](core-layer/memories.md).
+[core-layer/user-settings.md](core-layer/user-settings.md). Routine rules are
+documented in [core-layer/routines.md](core-layer/routines.md). Memory rules
+are documented in [core-layer/memories.md](core-layer/memories.md).
 
 ## User
 
@@ -123,6 +124,9 @@ task has no children, use its own `weight` and `completed_weight`.
 
 A routine is repeatable daily-life work. It is not a plan and should not use the
 task hierarchy.
+
+Detailed routine behavior is documented in
+[core-layer/routines.md](core-layer/routines.md).
 
 `routines` should store:
 

@@ -63,6 +63,8 @@ too complicated.
   layer responsibilities.
 - [docs/core-model.md](docs/core-model.md): first Core model for plans, tasks,
   routines, daily plans, ideas, memories, and reviews.
+- [docs/core-layer/routines.md](docs/core-layer/routines.md): routine product
+  rules and data behavior.
 - [docs/implementation.md](docs/implementation.md): technology, storage, and
   repository structure.
 - [docs/infrastructure/database.md](docs/infrastructure/database.md): database

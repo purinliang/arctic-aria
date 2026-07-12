@@ -122,6 +122,9 @@ Detailed memory rules are documented in
 Routines are Core data. A routine is the repeatable definition, and a routine
 instance is the concrete occurrence for a specific day or time window.
 
+Detailed routine rules are documented in
+[routines.md](../core-layer/routines.md).
+
 `routines` should store:
 
 - user id
