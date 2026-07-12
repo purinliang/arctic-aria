@@ -73,6 +73,13 @@ Input fields support:
 - validation errors
 - trailing controls such as password visibility buttons
 
+## Switch
+
+`switch.tsx` owns binary toggle controls.
+
+Use it for settings that can be turned on or off, such as theme mode. Do not
+build one-off toggle switches inside feature pages.
+
 ## Panel
 
 `panel.tsx` owns page panels: the main content blocks inside pages, dashboards,

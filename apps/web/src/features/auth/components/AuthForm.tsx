@@ -266,25 +266,29 @@ export function AuthForm({
 
                 <p className="text-center text-sm text-slate-600">
                   Forgot your password?{" "}
-                  <button
-                    className="font-semibold text-slate-950 underline-offset-4 hover:underline"
-                    type="button"
+                  <Button
+                    darkMode={false}
+                    tone="ghost"
+                    size="xs"
+                    className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"
                   >
                     Reset password
-                  </button>
+                  </Button>
                 </p>
               </>
             ) : null}
 
             <p className="text-center text-sm text-slate-600">
               {switchPrompt}{" "}
-              <button
-                className="font-semibold text-slate-950 underline-offset-4 hover:underline"
-                type="button"
+              <Button
+                darkMode={false}
+                tone="ghost"
+                size="xs"
+                className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"
                 onClick={() => switchMode(switchTarget)}
               >
                 {switchLabel}
-              </button>
+              </Button>
             </p>
           </form>
         </Panel>

@@ -9,6 +9,9 @@ import {
   X,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { mutedTextClass } from "@/components/ui/color";
+import { Switch } from "@/components/ui/switch";
 import type { DashboardView } from "../types";
 
 export function Sidebar({
@@ -57,27 +60,18 @@ export function Sidebar({
       >
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p
-              className={`text-xs font-semibold uppercase ${
-                darkMode ? "text-neutral-500" : "text-slate-500"
-              }`}
-            >
+            <p className={`text-xs font-semibold uppercase ${mutedTextClass(darkMode)}`}>
               Arctic Aria
             </p>
             <h2 className="text-lg font-semibold">Workspace</h2>
           </div>
-          <button
-            className={`flex h-9 w-9 items-center justify-center rounded-md border transition ${
-              darkMode
-                ? "border-neutral-800 hover:border-white"
-                : "border-slate-300 hover:border-slate-500"
-            }`}
-            type="button"
+          <Button
+            darkMode={darkMode}
+            size="icon-sm"
             aria-label="Close navigation"
+            icon={<X size={18} aria-hidden="true" />}
             onClick={onClose}
-          >
-            <X size={18} aria-hidden="true" />
-          </button>
+          />
         </div>
 
         <nav className="mt-6 grid gap-2">
@@ -130,23 +124,12 @@ export function Sidebar({
               )}
               <span className="text-sm font-semibold">Dark mode</span>
             </div>
-            <button
-              className={`h-7 w-12 rounded-full border p-1 transition ${
-                darkMode
-                  ? "border-white bg-white"
-                  : "border-slate-300 bg-slate-200"
-              }`}
-              type="button"
-              role="switch"
-              aria-checked={darkMode}
-              onClick={() => onThemeChange(!darkMode)}
-            >
-              <span
-                className={`block h-4 w-4 rounded-full transition ${
-                  darkMode ? "translate-x-5 bg-black" : "translate-x-0 bg-white"
-                }`}
-              />
-            </button>
+            <Switch
+              checked={darkMode}
+              darkMode={darkMode}
+              label="Toggle dark mode"
+              onChange={onThemeChange}
+            />
           </div>
         </div>
       </aside>
@@ -168,21 +151,15 @@ function SidebarItem({
   onClick?: () => void;
 }) {
   return (
-    <button
-      className={`flex h-10 items-center gap-3 rounded-md px-3 text-sm font-semibold transition ${
-        active
-          ? darkMode
-            ? "bg-white text-black"
-            : "bg-slate-950 text-white"
-          : darkMode
-            ? "text-neutral-300 hover:bg-neutral-900"
-            : "text-slate-700 hover:bg-slate-100"
-      }`}
-      type="button"
+    <Button
+      darkMode={darkMode}
+      tone={active ? "primary" : "ghost"}
+      size="md"
+      className="w-full justify-start"
+      icon={icon}
       onClick={onClick}
     >
-      {icon}
       {label}
-    </button>
+    </Button>
   );
 }
