@@ -73,4 +73,6 @@ too complicated.
   direction and current Neon PostgreSQL prototype notes.
 - [docs/interface-layer/web/auth-implementation.md](docs/interface-layer/web/auth-implementation.md):
   current web auth implementation notes.
+- [docs/interface-layer/web/tasks-implementation.md](docs/interface-layer/web/tasks-implementation.md):
+  current web task implementation notes.
 - [docs/roadmap.md](docs/roadmap.md): implementation phases.

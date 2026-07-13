@@ -198,11 +198,10 @@ PostgreSQL storage, and matching frontend/backend validation. Its implementation
 notes are documented in
 [interface-layer/web/auth-implementation.md](interface-layer/web/auth-implementation.md).
 
-Auth, database-backed Memories, and database-backed Routines are now
-implemented in the web app. Tasks still use dashboard dummy data.
+Auth, database-backed Memories, database-backed Routines, and database-backed
+Tasks are now implemented in the web app.
 
-The next product slice should focus on tasks before the full daily scheduler.
-The task slice should implement:
+The current task slice includes:
 
 - plan and task capture
 - parent-child tasks
@@ -213,9 +212,9 @@ The task slice should implement:
 - PostgreSQL schema for those entities
 - completion events for task completion, partial completion, and skip actions
 
-Do not implement Discord reminder delivery, reward inventory, English coach,
-automatic daily plan optimization, or full review cards in the task branch.
-They should be separate branches after the task contracts are stable.
+The task slice intentionally excludes Discord reminder delivery, reward
+inventory, English coach, automatic daily plan optimization, and full review
+cards. They should be separate branches after the task contracts are stable.
 
 ## Open Decisions
 

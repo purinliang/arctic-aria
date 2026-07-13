@@ -243,10 +243,10 @@ Suggested refactor shape:
 - Split task cards, routine cards, review dialog, sidebar, and small shared UI
   into separate components.
 - Keep dashboard-specific types in `features/dashboard/types.ts`.
-- Keep dummy records in `features/dashboard/dummy-data.ts`.
+- Keep only remaining prototype records in `features/dashboard/dummy-data.ts`.
 - Keep UI-only derived state inside dashboard components.
-- Keep task dummy records in `features/dashboard/dummy-data.ts` until the
-  database-backed task feature replaces them.
+- Keep database-backed task behavior in `features/tasks` and the dashboard
+  components that render it.
 - Keep database-backed Memories behavior in `features/memories` and the
   dashboard components that render it.
 - Do not introduce shared packages or server APIs.

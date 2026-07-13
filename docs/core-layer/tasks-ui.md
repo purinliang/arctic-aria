@@ -32,6 +32,9 @@ The home dashboard should continue showing a compact `Today's Tasks` section.
 After the backend task feature is implemented, the dashboard should load task
 candidates from the database instead of `dummy-data.ts`.
 
+Normal signed-in users should use database-backed task data. Do not reintroduce
+dashboard dummy task data into the signed-in dashboard path.
+
 Each dashboard task card should show:
 
 - title
@@ -40,6 +43,9 @@ Each dashboard task card should show:
 - status tag
 - deadline or scheduled date
 - one green circular progress indicator
+
+Prefer showing the deadline when a task has one. Use scheduled date only when a
+task has no deadline.
 
 Do not show:
 

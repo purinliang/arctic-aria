@@ -44,8 +44,12 @@ export function ReviewDialog({
   onClose: () => void;
 }) {
   const completedTasks = tasks.filter((task) => task.status === "done");
-  const partialTasks = tasks.filter((task) => task.status === "partial");
-  const unfinishedTasks = tasks.filter((task) => task.status === "todo");
+  const partialTasks = tasks.filter(
+    (task) => task.status !== "done" && task.completedWeight > 0,
+  );
+  const unfinishedTasks = tasks.filter((task) =>
+    ["todo", "doing", "blocked", "skipped"].includes(task.status),
+  );
   const completedRoutines = routines.filter(
     (routine) => routine.status === "completed",
   );

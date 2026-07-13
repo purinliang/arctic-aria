@@ -47,13 +47,29 @@ import {
   type RoutineInput,
 } from "@/features/routines/actions";
 import {
-  initialTasks,
   rewardPreview,
 } from "../dummy-data";
 import {
   applyOptimisticPinnedMemoryStatus,
   applyOptimisticRoutineStatus,
+  applyOptimisticTaskStatus,
 } from "../optimistic-updates";
+import {
+  archiveTask,
+  blockTask,
+  completeTask,
+  deleteTask,
+  getTaskDashboardData,
+  reopenTask,
+  saveTask,
+  skipTask,
+  updateTaskProgress,
+  updateTaskStatus,
+  type TaskActionResult,
+  type TaskDashboardData,
+  type TaskInput,
+  type TaskProgressInput,
+} from "@/features/tasks/actions";
 import type {
   DashboardView,
   MemoryCategoryOption,
@@ -74,6 +90,7 @@ import { RoutinesPage } from "./RoutinesPage";
 import { SectionHeader } from "./SectionHeader";
 import { Sidebar } from "./Sidebar";
 import { TaskCard } from "./TaskCard";
+import { TasksPage } from "./TasksPage";
 
 type MemoryDataAction = () => Promise<
   MemoryActionResult<MemoryDashboardData>
@@ -81,18 +98,7 @@ type MemoryDataAction = () => Promise<
 type RoutineDataAction = () => Promise<
   RoutineActionResult<RoutineDashboardData>
 >;
-
-function statusForWeight(completedWeight: number, weight: number): TaskStatus {
-  if (completedWeight >= weight) {
-    return "done";
-  }
-
-  if (completedWeight > 0) {
-    return "partial";
-  }
-
-  return "todo";
-}
+type TaskDataAction = () => Promise<TaskActionResult<TaskDashboardData>>;
 
 export function Dashboard({
   currentUser,
@@ -103,7 +109,11 @@ export function Dashboard({
   logoutPending: boolean;
   onLogout: () => void;
 }) {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [taskRecords, setTaskRecords] = useState<Task[]>([]);
+  const [taskLoading, setTaskLoading] = useState(true);
+  const [taskMessage, setTaskMessage] = useState<string | null>(null);
+  const [taskActionPending, setTaskActionPending] = useState(false);
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [routineDefinitions, setRoutineDefinitions] = useState<
     RoutineDefinition[]
@@ -138,6 +148,41 @@ export function Dashboard({
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>("task-1");
   const [expandedRoutineId, setExpandedRoutineId] = useState<string | null>(null);
   const [expandedMemoryId, setExpandedMemoryId] = useState<string | null>(null);
+
+  const applyTaskData = useCallback(
+    (data: TaskDashboardData, nextExpandedTaskId?: string | null) => {
+      setTasks(data.tasks);
+      setTaskRecords(data.taskRecords);
+      setExpandedTaskId((current) => {
+        if (nextExpandedTaskId !== undefined) {
+          return nextExpandedTaskId;
+        }
+
+        if (current && data.tasks.some((task) => task.id === current)) {
+          return current;
+        }
+
+        return data.tasks[0]?.id ?? null;
+      });
+    },
+    [],
+  );
+
+  const refreshTaskData = useCallback(async () => {
+    const result = await getTaskDashboardData();
+
+    if (!result.ok) {
+      setTaskMessage(result.message);
+      setTasks([]);
+      setTaskRecords([]);
+      setExpandedTaskId(null);
+      setTaskLoading(false);
+      return;
+    }
+
+    applyTaskData(result.data);
+    setTaskLoading(false);
+  }, [applyTaskData]);
 
   const applyMemoryData = useCallback(
     (data: MemoryDashboardData, nextExpandedMemoryId?: string | null) => {
@@ -256,12 +301,13 @@ export function Dashboard({
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
+      void refreshTaskData();
       void refreshMemoryData();
       void refreshRoutineData();
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, [currentUser.id, refreshMemoryData, refreshRoutineData]);
+  }, [currentUser.id, refreshMemoryData, refreshRoutineData, refreshTaskData]);
 
   const stats = useMemo(() => {
     const completedWeight = tasks.reduce(
@@ -283,31 +329,46 @@ export function Dashboard({
     return { gold, chestLevel };
   }, [routines, tasks]);
 
-  function toggleSubtask(taskId: string, subtaskId: string) {
-    setTasks((current) =>
-      current.map((task) => {
-        if (task.id !== taskId || !task.subtasks) {
-          return task;
-        }
+  async function runTaskAction(
+    action: TaskDataAction,
+    expandedTaskId: string | null,
+    onFailure?: () => void,
+  ) {
+    setTaskMessage(null);
+    setTaskActionPending(true);
 
-        const subtasks = task.subtasks.map((subtask) =>
-          subtask.id === subtaskId
-            ? { ...subtask, done: !subtask.done }
-            : subtask,
-        );
-        const nextCompletedWeight = subtasks.reduce(
-          (sum, subtask) => sum + (subtask.done ? subtask.weight : 0),
-          0,
-        );
+    try {
+      const result = await action();
 
-        return {
-          ...task,
-          subtasks,
-          completedWeight: nextCompletedWeight,
-          status: statusForWeight(nextCompletedWeight, task.weight),
-        };
-      }),
-    );
+      if (!result.ok) {
+        onFailure?.();
+        showErrorNotification(result.message);
+        return;
+      }
+
+      applyTaskData(result.data, expandedTaskId);
+    } finally {
+      setTaskActionPending(false);
+    }
+  }
+
+  async function runTaskManagementAction(action: TaskDataAction) {
+    setTaskMessage(null);
+    setTaskActionPending(true);
+
+    try {
+      const result = await action();
+
+      if (!result.ok) {
+        setTaskMessage(result.message);
+        return false;
+      }
+
+      applyTaskData(result.data);
+      return true;
+    } finally {
+      setTaskActionPending(false);
+    }
   }
 
   function updateRoutine(routineId: string, status: RoutineStatus) {
@@ -430,6 +491,69 @@ export function Dashboard({
     } finally {
       setRoutineActionPending(false);
     }
+  }
+
+  function updateTaskFromDashboard(
+    taskId: string,
+    status: Exclude<TaskStatus, "archived">,
+  ) {
+    const previousTasks = tasks;
+    const previousTaskRecords = taskRecords;
+
+    setExpandedTaskId(null);
+    setTasks((current) => applyOptimisticTaskStatus(current, taskId, status));
+    setTaskRecords((current) =>
+      applyOptimisticTaskStatus(current, taskId, status),
+    );
+    void runTaskAction(
+      () =>
+        status === "done"
+          ? completeTask(taskId)
+          : status === "blocked"
+            ? blockTask(taskId)
+            : status === "skipped"
+              ? skipTask(taskId)
+              : updateTaskStatus(taskId, status),
+      null,
+      () => {
+        setTasks(previousTasks);
+        setTaskRecords(previousTaskRecords);
+      },
+    );
+  }
+
+  function toggleSubtask(subtaskId: string, done: boolean) {
+    void runTaskAction(
+      () => (done ? reopenTask(subtaskId) : completeTask(subtaskId)),
+      expandedTaskId,
+    );
+  }
+
+  function saveTaskFromPage(input: TaskInput) {
+    return runTaskManagementAction(() => saveTask(input));
+  }
+
+  function deleteTaskFromPage(taskId: string) {
+    return runTaskManagementAction(() => deleteTask(taskId));
+  }
+
+  function archiveTaskFromPage(taskId: string) {
+    return runTaskManagementAction(() => archiveTask(taskId));
+  }
+
+  function progressTaskFromPage(input: TaskProgressInput) {
+    return runTaskManagementAction(() => updateTaskProgress(input));
+  }
+
+  function statusTaskFromPage(
+    taskId: string,
+    status: Exclude<TaskStatus, "archived">,
+  ) {
+    return runTaskManagementAction(() => updateTaskStatus(taskId, status));
+  }
+
+  function clearTaskMessage() {
+    setTaskMessage(null);
   }
 
   function markMemoryDone(pinnedMemoryId: string) {
@@ -595,6 +719,8 @@ export function Dashboard({
   const pageTitle =
     activeView === "dashboard"
       ? "Dashboard"
+      : activeView === "tasks"
+        ? "Tasks"
       : activeView === "routines"
         ? "Routines"
         : "Memories";
@@ -635,7 +761,21 @@ export function Dashboard({
             </h1>
           </header>
 
-          {activeView === "routines" ? (
+          {activeView === "tasks" ? (
+          <TasksPage
+            darkMode={darkMode}
+            tasks={taskRecords}
+            loading={taskLoading}
+            pending={taskActionPending}
+            message={taskMessage}
+            onTaskSave={saveTaskFromPage}
+            onTaskDelete={deleteTaskFromPage}
+            onTaskArchive={archiveTaskFromPage}
+            onTaskProgress={progressTaskFromPage}
+            onTaskStatus={statusTaskFromPage}
+            onMessageClear={clearTaskMessage}
+          />
+          ) : activeView === "routines" ? (
           <RoutinesPage
             darkMode={darkMode}
             routines={routineDefinitions}
@@ -679,11 +819,22 @@ export function Dashboard({
                 darkMode={darkMode}
               />
               <div className={dividerClass(darkMode)}>
+                {taskLoading ? (
+                  <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+                    Loading tasks...
+                  </p>
+                ) : null}
+                {!taskLoading && tasks.length === 0 ? (
+                  <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+                    No tasks selected for today.
+                  </p>
+                ) : null}
                 {tasks.map((task) => (
                   <TaskCard
                     key={task.id}
                     task={task}
                     darkMode={darkMode}
+                    disabled={taskActionPending}
                     expanded={expandedTaskId === task.id}
                     onToggleExpanded={() =>
                       setExpandedTaskId((current) =>
@@ -691,8 +842,19 @@ export function Dashboard({
                       )
                     }
                     onSubtaskToggle={(subtaskId) =>
-                      toggleSubtask(task.id, subtaskId)
+                      toggleSubtask(
+                        subtaskId,
+                        task.subtasks?.find((subtask) => subtask.id === subtaskId)
+                          ?.done ?? false,
+                      )
                     }
+                    onDone={() => updateTaskFromDashboard(task.id, "done")}
+                    onBlock={() => updateTaskFromDashboard(task.id, "blocked")}
+                    onSkip={() => updateTaskFromDashboard(task.id, "skipped")}
+                    onEdit={() => {
+                      setActiveView("tasks");
+                      setSidebarOpen(false);
+                    }}
                   />
                 ))}
               </div>
