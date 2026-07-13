@@ -2,7 +2,7 @@ import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mutedTextClass } from "@/components/ui/color";
 import { Tag } from "@/components/ui/tag";
-import type { Routine, RoutineStatus } from "../types";
+import type { Routine, RoutineStatus } from "@/features/dashboard/types";
 
 export function RoutineCard({
   routine,

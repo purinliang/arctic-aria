@@ -115,7 +115,7 @@ arctic-aria/
 |   |   |-- src/
 |   |   |   |-- app/                 # Next.js App Router routes
 |   |   |   |-- components/          # Web-only UI components
-|   |   |   |-- features/            # Dashboard feature modules
+|   |   |   |-- features/            # Web feature modules
 |   |   |   `-- server/              # Route handlers and server actions
 |   |   `-- package.json
 |   |
@@ -222,6 +222,12 @@ The next project refactor should replace the prototype with:
 - no user-facing numeric progress fields
 - dashboard cards focused on today's scheduled tasks, not project progress
   rings
+
+Web source organization should follow the feature directories under
+`apps/web/src/features`. Feature pages, cards, dialogs, actions, repositories,
+and tests live with their owning feature. Dashboard composition can import
+feature-owned cards, but it should not own memory, routine, or project page
+implementations. Shared primitives remain in `apps/web/src/components/ui`.
 
 The task slice intentionally excludes Discord reminder delivery, reward
 inventory, English coach, automatic daily plan optimization, and full review

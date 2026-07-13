@@ -1,7 +1,7 @@
 import { Ban, Check, ChevronDown, Edit3, SkipForward } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
-import type { Task } from "../types";
+import type { Task } from "@/features/dashboard/types";
 
 function priorityClass(priority: Task["priority"], darkMode: boolean) {
   if (priority === "high") {

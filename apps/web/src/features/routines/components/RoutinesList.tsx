@@ -1,0 +1,62 @@
+import { Edit3 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { dividerClass, mutedTextClass } from "@/components/ui/color";
+import { ListItem } from "@/components/ui/list";
+import { Tag } from "@/components/ui/tag";
+import type { RoutineDefinition } from "@/features/dashboard/types";
+import { ruleSummary } from "./routine-page-helpers";
+
+export function RoutinesList({
+  darkMode,
+  loading,
+  pending,
+  routines,
+  onEdit,
+}: {
+  darkMode: boolean;
+  loading: boolean;
+  pending: boolean;
+  routines: RoutineDefinition[];
+  onEdit: (routine: RoutineDefinition) => void;
+}) {
+  return (
+    <div className={dividerClass(darkMode)}>
+      {loading ? (
+        <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+          Loading routines...
+        </p>
+      ) : null}
+      {!loading && routines.length === 0 ? (
+        <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+          No routines yet.
+        </p>
+      ) : null}
+      {routines.map((routine) => (
+        <ListItem key={routine.id} darkMode={darkMode}>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-semibold">{routine.title}</h3>
+              <Tag darkMode={darkMode}>
+                {routine.preferredTime ?? "Flexible"}
+              </Tag>
+            </div>
+            <p className={`mt-1 text-sm leading-6 ${mutedTextClass(darkMode)}`}>
+              {routine.description || "No description."}
+            </p>
+            <p className={`mt-2 text-xs ${mutedTextClass(darkMode)}`}>
+              {ruleSummary(routine)}
+            </p>
+          </div>
+          <Button
+            darkMode={darkMode}
+            disabled={pending}
+            icon={<Edit3 size={15} aria-hidden="true" />}
+            onClick={() => onEdit(routine)}
+          >
+            Edit
+          </Button>
+        </ListItem>
+      ))}
+    </div>
+  );
+}

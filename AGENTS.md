@@ -76,6 +76,20 @@ user.
 - Focus on the task implied by the branch name. For example, do not implement
   application code during documentation-only work on an `agent/docs-*` branch.
 
+## Refactor Discipline
+
+- Refactor in reviewable cycles. For each focused area, identify the relevant
+  existing coverage or add focused coverage first when behavior is not already
+  covered.
+- Run the focused check before the move when practical, make the smallest
+  coherent move, then run the same focused check again.
+- Commit each completed refactor area separately before moving to the next
+  unrelated area. Avoid accumulating a large mixed refactor diff.
+- Keep pure moves, helper extraction, lint-rule changes, and behavior changes
+  in separate commits unless they are tightly coupled.
+- If a refactor area has no direct automated coverage, say so in the commit or
+  final report and use `lint` plus `build` as the minimum safety check.
+
 ## Web Source Organization
 
 - Keep reusable web UI primitives in `apps/web/src/components/ui/`. This
@@ -103,6 +117,22 @@ user.
   they encode. Keep them in `features/dashboard` only when they are purely
   dashboard interaction helpers; move them to the product feature when they
   describe project, routine, memory, or other domain command behavior.
+
+## TypeScript Style
+
+- Use `import type` for imports that are used only as TypeScript types. The web
+  ESLint config enforces this with separate type imports.
+- Keep value imports and type imports separate. Do not mix runtime imports and
+  inline `type` specifiers in the same import list when a separate type import
+  is possible.
+- Prefer named imports and exports. Use namespace or compatibility imports only
+  when a dependency API requires them.
+- Keep function signatures readable. When a parameter list wraps, put each
+  parameter on its own line with a trailing comma.
+- Prefer a named input object when a function needs more than three parameters,
+  or when several parameters share the same primitive type. Keep positional
+  parameters only when matching an existing interface or when the call remains
+  clearer than an object.
 
 ## UI Interaction Defaults
 

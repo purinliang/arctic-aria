@@ -37,6 +37,16 @@ The user should open the Projects page from the sidebar. The current code still
 uses older prototype component names and should be renamed during the project
 refactor.
 
+## Component Naming
+
+Use `ProjectsPage` for the list and management entry point because it shows the
+collection of projects. Use `ProjectDetailPage` for one selected project and
+its milestone/task/subtask tree.
+
+Do not use `ProjectPage` unless the component truly has no list/detail
+distinction. The current `TasksPage` is legacy prototype code, not a separate
+long-term page parallel to Projects.
+
 The Projects page should show:
 
 - status filters
@@ -93,9 +103,11 @@ to match the Project docs:
 Project prototype web UI:
 
 ```text
-apps/web/src/features/dashboard/components/TasksPage.tsx
-apps/web/src/features/dashboard/components/TaskCard.tsx
+apps/web/src/features/tasks/components/TasksPage.tsx
+apps/web/src/features/tasks/components/TaskCard.tsx
+apps/web/src/features/tasks/components/TasksList.tsx
 apps/web/src/features/dashboard/components/Dashboard.tsx
+apps/web/src/features/dashboard/components/DashboardHome.tsx
 ```
 
 Project prototype server actions:
@@ -121,3 +133,27 @@ Tests:
 ```text
 apps/web/src/features/tasks/__tests__/task-service.test.ts
 ```
+
+## Refactor Status
+
+Completed in `agent/refactor-web-source-organization`:
+
+- moved memory, routine, and task page/card components from dashboard-owned
+  folders into their feature folders
+- split dashboard data hooks and home composition out of the main dashboard
+  component
+- split memory, routine, and task page dialogs/lists/helpers out of oversized
+  page files
+- split PostgreSQL repository mapping/query helpers out of oversized repository
+  adapters
+- added ESLint enforcement for type-only imports
+- kept every `apps/web/src` TypeScript source file below 400 lines
+
+Next Project implementation work:
+
+- create `features/projects` for the stable Project model
+- replace legacy `TasksPage` with `ProjectsPage` and `ProjectDetailPage`
+- replace `planTitle`, numeric `weight`, and `completedWeight` UI with
+  project, milestone, task, and subtask fields
+- add Project/Milestone/Subtask schema and migrate away from prototype-only task
+  fields when the replacement is ready

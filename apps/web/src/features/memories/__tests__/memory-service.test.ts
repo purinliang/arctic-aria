@@ -4,82 +4,14 @@ import {
   createMemoryService,
   memoryTiming,
 } from "../server/memory-service.ts";
+import { InMemoryMemoryRepository } from "../server/memory-repository.ts";
 import {
-  InMemoryMemoryRepository,
-  type MemoryCategoryRecord,
-  type MemoryRecord,
-  type PinnedMemoryRecord,
-} from "../server/memory-repository.ts";
-
-const userId = "user-1";
-const now = new Date("2026-06-30T10:00:00.000Z");
-
-const categories: MemoryCategoryRecord[] = [
-  {
-    id: "category-cuisine",
-    userId,
-    name: "Cuisine",
-    baseWeight: 1.2,
-    createdAt: new Date("2026-06-01T00:00:00.000Z"),
-    updatedAt: new Date("2026-06-01T00:00:00.000Z"),
-  },
-  {
-    id: "category-sightseeing",
-    userId,
-    name: "Sightseeing",
-    baseWeight: 0.8,
-    createdAt: new Date("2026-06-01T00:00:00.000Z"),
-    updatedAt: new Date("2026-06-01T00:00:00.000Z"),
-  },
-];
-
-function memory(
-  input: Partial<MemoryRecord> & Pick<MemoryRecord, "id" | "categoryId" | "title">,
-): MemoryRecord {
-  return {
-    id: input.id,
-    userId,
-    categoryId: input.categoryId,
-    categoryName:
-      input.categoryName ??
-      (input.categoryId === "category-cuisine" ? "Cuisine" : "Sightseeing"),
-    title: input.title,
-    description: input.description ?? `${input.title} description`,
-    lastDoneAt: input.lastDoneAt ?? null,
-    doneCount: input.doneCount ?? 0,
-    lastPinnedAt: input.lastPinnedAt ?? null,
-    lastIgnoredAt: input.lastIgnoredAt ?? null,
-    createdAt: input.createdAt ?? new Date("2026-06-01T00:00:00.000Z"),
-    updatedAt: input.updatedAt ?? new Date("2026-06-01T00:00:00.000Z"),
-  };
-}
-
-function pinnedMemory(
-  input: Partial<PinnedMemoryRecord> &
-    Pick<PinnedMemoryRecord, "id" | "memoryId" | "categoryId" | "title">,
-): PinnedMemoryRecord {
-  return {
-    id: input.id,
-    userId,
-    memoryId: input.memoryId,
-    categoryId: input.categoryId,
-    categoryName:
-      input.categoryName ??
-      (input.categoryId === "category-cuisine" ? "Cuisine" : "Sightseeing"),
-    title: input.title,
-    description: input.description ?? `${input.title} description`,
-    position: input.position ?? 1,
-    pinnedAt: input.pinnedAt ?? new Date("2026-06-20T00:00:00.000Z"),
-    lastShownAt: input.lastShownAt ?? new Date("2026-06-20T00:00:00.000Z"),
-    visibleUntil: input.visibleUntil ?? new Date("2026-07-01T00:00:00.000Z"),
-    completedAt: input.completedAt ?? null,
-    completedCleanupAt: input.completedCleanupAt ?? null,
-    lastDoneAt: input.lastDoneAt ?? null,
-    doneCount: input.doneCount ?? 0,
-    createdAt: input.createdAt ?? new Date("2026-06-20T00:00:00.000Z"),
-    updatedAt: input.updatedAt ?? new Date("2026-06-20T00:00:00.000Z"),
-  };
-}
+  memory,
+  memoryCategories,
+  now,
+  pinnedMemory,
+  userId,
+} from "./memory-test-fixtures.ts";
 
 test("initializes default memory categories for a user", async () => {
   const repository = new InMemoryMemoryRepository();
@@ -204,7 +136,7 @@ test("cancel pinned memory done clears completion state", async () => {
 test("dashboard pinned memories only include supported default categories", async () => {
   const repository = new InMemoryMemoryRepository({
     categories: [
-      ...categories,
+      ...memoryCategories,
       {
         id: "category-custom",
         userId,
@@ -269,7 +201,7 @@ test("dashboard pinned memories only include supported default categories", asyn
 
 test("dashboard pinned memories are limited to three per supported category", async () => {
   const repository = new InMemoryMemoryRepository({
-    categories,
+    categories: memoryCategories,
     pinnedMemories: [1, 2, 3, 4].map((position) =>
       pinnedMemory({
         id: `pin-${position}`,
@@ -339,7 +271,7 @@ test("replace pinned memory uses another memory from the same category", async (
 
 test("suggest memories excludes already pinned memories", async () => {
   const repository = new InMemoryMemoryRepository({
-    categories,
+    categories: memoryCategories,
     memories: [
       memory({
         id: "memory-1",
@@ -376,7 +308,7 @@ test("suggest memories excludes already pinned memories", async () => {
 
 test("pin suggested memory appends a same-category dashboard pin", async () => {
   const repository = new InMemoryMemoryRepository({
-    categories,
+    categories: memoryCategories,
     memories: [
       memory({
         id: "memory-1",
@@ -415,7 +347,7 @@ test("pin suggested memory appends a same-category dashboard pin", async () => {
 
 test("cancel suggested pin removes the dashboard pin", async () => {
   const repository = new InMemoryMemoryRepository({
-    categories,
+    categories: memoryCategories,
     memories: [
       memory({
         id: "memory-1",
