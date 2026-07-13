@@ -1,169 +1,22 @@
 import type { NeonQueryFunction } from "@neondatabase/serverless";
 import { getSql } from "../../../server/database/neon.ts";
-import {
-  getDefaultMemoryCategories,
-  type CancelPinnedMemoryInput,
-  type CreateMemoryCategoryInput,
-  type CreateMemoryInput,
-  type DeleteMemoryCategoryInput,
-  type DeleteMemoryInput,
-  type CompletePinnedMemoryInput,
-  type MemoryCategoryName,
-  type MemoryCategoryRecord,
-  type MemoryRecord,
-  type MemoryRepository,
-  type IgnoreMemoryInput,
-  type PinMemoryInput,
-  type PinnedMemoryRecord,
-  type ReplacePinnedMemoryInput,
-  type UnpinMemoryInput,
-  type UpdateMemoryCategoryInput,
-  type UpdateMemoryInput,
+import type {
+  CancelPinnedMemoryInput,
+  CompletePinnedMemoryInput,
+  CreateMemoryCategoryInput,
+  CreateMemoryInput,
+  DeleteMemoryCategoryInput,
+  DeleteMemoryInput,
+  IgnoreMemoryInput,
+  MemoryRepository,
+  PinMemoryInput,
+  ReplacePinnedMemoryInput,
+  UnpinMemoryInput,
+  UpdateMemoryCategoryInput,
+  UpdateMemoryInput,
 } from "./memory-repository.ts";
-
-type MemoryCategoryRow = {
-  id: string;
-  user_id: string;
-  name: MemoryCategoryName;
-  base_weight: string | number;
-  created_at: Date | string;
-  updated_at: Date | string;
-};
-
-type MemoryRow = {
-  id: string;
-  user_id: string;
-  category_id: string;
-  category_name: MemoryCategoryName;
-  title: string;
-  description: string;
-  last_done_at: Date | string | null;
-  done_count: number;
-  last_pinned_at: Date | string | null;
-  last_ignored_at: Date | string | null;
-  created_at: Date | string;
-  updated_at: Date | string;
-};
-
-type PinnedMemoryRow = {
-  id: string;
-  user_id: string;
-  memory_id: string;
-  category_id: string;
-  category_name: MemoryCategoryName;
-  title: string;
-  description: string;
-  position: number;
-  pinned_at: Date | string;
-  last_shown_at: Date | string;
-  visible_until: Date | string;
-  completed_at: Date | string | null;
-  completed_cleanup_at: Date | string | null;
-  last_done_at: Date | string | null;
-  done_count: number;
-  created_at: Date | string;
-  updated_at: Date | string;
-};
-
-function toDate(value: Date | string) {
-  return value instanceof Date ? value : new Date(value);
-}
-
-function toNullableDate(value: Date | string | null) {
-  return value ? toDate(value) : null;
-}
-
-function mapCategory(row: MemoryCategoryRow): MemoryCategoryRecord {
-  return {
-    id: row.id,
-    userId: row.user_id,
-    name: row.name,
-    baseWeight: Number(row.base_weight),
-    createdAt: toDate(row.created_at),
-    updatedAt: toDate(row.updated_at),
-  };
-}
-
-function mapMemory(row: MemoryRow): MemoryRecord {
-  return {
-    id: row.id,
-    userId: row.user_id,
-    categoryId: row.category_id,
-    categoryName: row.category_name,
-    title: row.title,
-    description: row.description,
-    lastDoneAt: toNullableDate(row.last_done_at),
-    doneCount: row.done_count,
-    lastPinnedAt: toNullableDate(row.last_pinned_at),
-    lastIgnoredAt: toNullableDate(row.last_ignored_at),
-    createdAt: toDate(row.created_at),
-    updatedAt: toDate(row.updated_at),
-  };
-}
-
-function mapPinnedMemory(row: PinnedMemoryRow): PinnedMemoryRecord {
-  return {
-    id: row.id,
-    userId: row.user_id,
-    memoryId: row.memory_id,
-    categoryId: row.category_id,
-    categoryName: row.category_name,
-    title: row.title,
-    description: row.description,
-    position: row.position,
-    pinnedAt: toDate(row.pinned_at),
-    lastShownAt: toDate(row.last_shown_at),
-    visibleUntil: toDate(row.visible_until),
-    completedAt: toNullableDate(row.completed_at),
-    completedCleanupAt: toNullableDate(row.completed_cleanup_at),
-    lastDoneAt: toNullableDate(row.last_done_at),
-    doneCount: row.done_count,
-    createdAt: toDate(row.created_at),
-    updatedAt: toDate(row.updated_at),
-  };
-}
-
-const memorySelect = `
-  SELECT
-    memories.id,
-    memories.user_id,
-    memories.category_id,
-    memory_categories.name AS category_name,
-    memories.title,
-    memories.description,
-    memories.last_done_at,
-    memories.done_count,
-    memories.last_pinned_at,
-    memories.last_ignored_at,
-    memories.created_at,
-    memories.updated_at
-  FROM memories
-  INNER JOIN memory_categories ON memory_categories.id = memories.category_id
-`;
-
-const pinnedMemorySelect = `
-  SELECT
-    pinned_memories.id,
-    pinned_memories.user_id,
-    pinned_memories.memory_id,
-    memories.category_id,
-    memory_categories.name AS category_name,
-    memories.title,
-    memories.description,
-    pinned_memories.position,
-    pinned_memories.pinned_at,
-    pinned_memories.last_shown_at,
-    pinned_memories.visible_until,
-    pinned_memories.completed_at,
-    pinned_memories.completed_cleanup_at,
-    memories.last_done_at,
-    memories.done_count,
-    pinned_memories.created_at,
-    pinned_memories.updated_at
-  FROM pinned_memories
-  INNER JOIN memories ON memories.id = pinned_memories.memory_id
-  INNER JOIN memory_categories ON memory_categories.id = memories.category_id
-`;
+import * as coreQueries from "./postgres-memory-core-queries.ts";
+import * as pinnedQueries from "./postgres-pinned-memory-queries.ts";
 
 export class PostgresMemoryRepository implements MemoryRepository {
   private readonly sql?: NeonQueryFunction<false, false>;
@@ -176,524 +29,67 @@ export class PostgresMemoryRepository implements MemoryRepository {
     return this.sql ?? getSql();
   }
 
-  async ensureDefaultCategories(userId: string) {
-    for (const category of getDefaultMemoryCategories()) {
-      await this.getSql()`
-        INSERT INTO memory_categories (user_id, name, base_weight)
-        VALUES (${userId}, ${category.name}, ${category.baseWeight})
-        ON CONFLICT (user_id, name) DO NOTHING
-      `;
-    }
-
-    const rows = (await this.getSql()`
-      SELECT id, user_id, name, base_weight, created_at, updated_at
-      FROM memory_categories
-      WHERE user_id = ${userId}
-      ORDER BY name
-    `) as MemoryCategoryRow[];
-
-    return rows.map(mapCategory);
+  ensureDefaultCategories(userId: string) {
+    return coreQueries.ensureDefaultCategories(this.getSql(), userId);
   }
 
-  async listCategories(userId: string) {
-    await this.ensureDefaultCategories(userId);
-
-    const rows = (await this.getSql()`
-      SELECT id, user_id, name, base_weight, created_at, updated_at
-      FROM memory_categories
-      WHERE user_id = ${userId}
-      ORDER BY name
-    `) as MemoryCategoryRow[];
-
-    return rows.map(mapCategory);
+  listCategories(userId: string) {
+    return coreQueries.listCategories(this.getSql(), userId);
   }
 
-  async createCategory(input: CreateMemoryCategoryInput) {
-    const rows = (await this.getSql()`
-      INSERT INTO memory_categories (user_id, name, base_weight, created_at, updated_at)
-      VALUES (
-        ${input.userId},
-        ${input.name},
-        ${input.baseWeight},
-        ${input.occurredAt},
-        ${input.occurredAt}
-      )
-      RETURNING id, user_id, name, base_weight, created_at, updated_at
-    `) as MemoryCategoryRow[];
-
-    return mapCategory(rows[0]);
+  createCategory(input: CreateMemoryCategoryInput) {
+    return coreQueries.createCategory(this.getSql(), input);
   }
 
-  async updateCategory(input: UpdateMemoryCategoryInput) {
-    const rows = (await this.getSql()`
-      UPDATE memory_categories
-      SET
-        name = ${input.name},
-        base_weight = ${input.baseWeight},
-        updated_at = ${input.occurredAt}
-      WHERE id = ${input.categoryId}
-        AND user_id = ${input.userId}
-      RETURNING id, user_id, name, base_weight, created_at, updated_at
-    `) as MemoryCategoryRow[];
-
-    return rows[0] ? mapCategory(rows[0]) : null;
+  updateCategory(input: UpdateMemoryCategoryInput) {
+    return coreQueries.updateCategory(this.getSql(), input);
   }
 
-  async deleteCategory(input: DeleteMemoryCategoryInput) {
-    const rows = (await this.getSql()`
-      DELETE FROM memory_categories
-      WHERE id = ${input.categoryId}
-        AND user_id = ${input.userId}
-      RETURNING id
-    `) as Array<{ id: string }>;
-
-    return rows.length > 0;
+  deleteCategory(input: DeleteMemoryCategoryInput) {
+    return coreQueries.deleteCategory(this.getSql(), input);
   }
 
-  async listMemories(userId: string) {
-    const rows = (await this.getSql().query(
-      `${memorySelect}
-       WHERE memories.user_id = $1
-       ORDER BY memory_categories.name, memories.created_at DESC`,
-      [userId],
-    )) as MemoryRow[];
-
-    return rows.map(mapMemory);
+  listMemories(userId: string) {
+    return coreQueries.listMemories(this.getSql(), userId);
   }
 
-  async createMemory(input: CreateMemoryInput) {
-    const rows = (await this.getSql().query(
-      `WITH inserted AS (
-         INSERT INTO memories (
-           user_id,
-           category_id,
-           title,
-           description,
-           created_at,
-           updated_at
-         )
-         SELECT $1, memory_categories.id, $3, $4, $5, $5
-         FROM memory_categories
-         WHERE memory_categories.id = $2
-           AND memory_categories.user_id = $1
-         RETURNING
-           id,
-           user_id,
-           category_id,
-           title,
-           description,
-           last_done_at,
-           done_count,
-           last_pinned_at,
-           last_ignored_at,
-           created_at,
-           updated_at
-       )
-       SELECT
-         inserted.id,
-         inserted.user_id,
-         inserted.category_id,
-         memory_categories.name AS category_name,
-         inserted.title,
-         inserted.description,
-         inserted.last_done_at,
-         inserted.done_count,
-         inserted.last_pinned_at,
-         inserted.last_ignored_at,
-         inserted.created_at,
-         inserted.updated_at
-       FROM inserted
-       INNER JOIN memory_categories ON memory_categories.id = inserted.category_id`,
-      [
-        input.userId,
-        input.categoryId,
-        input.title,
-        input.description,
-        input.occurredAt,
-      ],
-    )) as MemoryRow[];
-
-    return rows[0] ? mapMemory(rows[0]) : null;
+  createMemory(input: CreateMemoryInput) {
+    return coreQueries.createMemory(this.getSql(), input);
   }
 
-  async updateMemory(input: UpdateMemoryInput) {
-    const rows = (await this.getSql().query(
-      `WITH target_category AS (
-         SELECT id
-         FROM memory_categories
-         WHERE id = $3
-           AND user_id = $1
-       ),
-       updated AS (
-         UPDATE memories
-         SET
-           category_id = target_category.id,
-           title = $4,
-           description = $5,
-           updated_at = $6
-         FROM target_category
-         WHERE id = $2
-           AND memories.user_id = $1
-         RETURNING
-           memories.id,
-           memories.user_id,
-           memories.category_id,
-           memories.title,
-           memories.description,
-           memories.last_done_at,
-           memories.done_count,
-           memories.last_pinned_at,
-           memories.last_ignored_at,
-           memories.created_at,
-           memories.updated_at
-       )
-       SELECT
-         updated.id,
-         updated.user_id,
-         updated.category_id,
-         memory_categories.name AS category_name,
-         updated.title,
-         updated.description,
-         updated.last_done_at,
-         updated.done_count,
-         updated.last_pinned_at,
-         updated.last_ignored_at,
-         updated.created_at,
-         updated.updated_at
-       FROM updated
-       INNER JOIN memory_categories ON memory_categories.id = updated.category_id`,
-      [
-        input.userId,
-        input.memoryId,
-        input.categoryId,
-        input.title,
-        input.description,
-        input.occurredAt,
-      ],
-    )) as MemoryRow[];
-
-    return rows[0] ? mapMemory(rows[0]) : null;
+  updateMemory(input: UpdateMemoryInput) {
+    return coreQueries.updateMemory(this.getSql(), input);
   }
 
-  async deleteMemory(input: DeleteMemoryInput) {
-    const rows = (await this.getSql()`
-      DELETE FROM memories
-      WHERE id = ${input.memoryId}
-        AND user_id = ${input.userId}
-      RETURNING id
-    `) as Array<{ id: string }>;
-
-    return rows.length > 0;
+  deleteMemory(input: DeleteMemoryInput) {
+    return coreQueries.deleteMemory(this.getSql(), input);
   }
 
-  async pinMemory(input: PinMemoryInput) {
-    const rows = (await this.getSql().query(
-      `
-      WITH target AS (
-        SELECT id, user_id
-        FROM memories
-        WHERE id = $2
-          AND user_id = $1
-        LIMIT 1
-      ),
-      inserted_pin AS (
-        INSERT INTO pinned_memories (
-          user_id,
-          memory_id,
-          position,
-          pinned_at,
-          last_shown_at,
-          visible_until,
-          created_at,
-          updated_at
-        )
-        SELECT user_id, id, $3, $4, $4, $5, $4, $4
-        FROM target
-        ON CONFLICT (user_id, memory_id) DO NOTHING
-        RETURNING *
-      ),
-      updated_memory AS (
-        UPDATE memories
-        SET
-          last_pinned_at = $4,
-          updated_at = $4
-        FROM inserted_pin
-        WHERE memories.id = inserted_pin.memory_id
-        RETURNING memories.id
-      ),
-      event AS (
-        INSERT INTO memory_events (user_id, memory_id, event_type, occurred_at)
-        SELECT user_id, memory_id, 'pinned', $4
-        FROM inserted_pin
-        RETURNING id
-      )
-      SELECT
-        inserted_pin.id,
-        inserted_pin.user_id,
-        inserted_pin.memory_id,
-        memories.category_id,
-        memory_categories.name AS category_name,
-        memories.title,
-        memories.description,
-        inserted_pin.position,
-        inserted_pin.pinned_at,
-        inserted_pin.last_shown_at,
-        inserted_pin.visible_until,
-        inserted_pin.completed_at,
-        inserted_pin.completed_cleanup_at,
-        memories.last_done_at,
-        memories.done_count,
-        inserted_pin.created_at,
-        inserted_pin.updated_at
-      FROM inserted_pin
-      INNER JOIN memories ON memories.id = inserted_pin.memory_id
-      INNER JOIN memory_categories ON memory_categories.id = memories.category_id
-      `,
-      [
-        input.userId,
-        input.memoryId,
-        input.position,
-        input.occurredAt,
-        input.visibleUntil,
-      ],
-    )) as PinnedMemoryRow[];
-
-    return rows[0] ? mapPinnedMemory(rows[0]) : null;
+  pinMemory(input: PinMemoryInput) {
+    return pinnedQueries.pinMemory(this.getSql(), input);
   }
 
-  async ignoreMemory(input: IgnoreMemoryInput) {
-    const rows = (await this.getSql()`
-      WITH updated_memory AS (
-        UPDATE memories
-        SET
-          last_ignored_at = ${input.occurredAt},
-          updated_at = ${input.occurredAt}
-        WHERE id = ${input.memoryId}
-          AND user_id = ${input.userId}
-        RETURNING id, user_id
-      ),
-      event AS (
-        INSERT INTO memory_events (user_id, memory_id, event_type, occurred_at)
-        SELECT user_id, id, 'ignored', ${input.occurredAt}
-        FROM updated_memory
-        RETURNING id
-      )
-      SELECT id FROM updated_memory
-    `) as Array<{ id: string }>;
-
-    return rows.length > 0;
+  ignoreMemory(input: IgnoreMemoryInput) {
+    return pinnedQueries.ignoreMemory(this.getSql(), input);
   }
 
-  async unpinMemory(input: UnpinMemoryInput) {
-    const rows = (await this.getSql()`
-      WITH deleted_pin AS (
-        DELETE FROM pinned_memories
-        WHERE user_id = ${input.userId}
-          AND memory_id = ${input.memoryId}
-        RETURNING user_id, memory_id
-      ),
-      event AS (
-        INSERT INTO memory_events (user_id, memory_id, event_type, occurred_at)
-        SELECT user_id, memory_id, 'unpinned', ${input.occurredAt}
-        FROM deleted_pin
-        RETURNING id
-      )
-      SELECT memory_id FROM deleted_pin
-    `) as Array<{ memory_id: string }>;
-
-    return rows.length > 0;
+  unpinMemory(input: UnpinMemoryInput) {
+    return pinnedQueries.unpinMemory(this.getSql(), input);
   }
 
-  async listPinnedMemories(userId: string) {
-    const rows = (await this.getSql().query(
-      `${pinnedMemorySelect}
-       WHERE pinned_memories.user_id = $1
-       ORDER BY memory_categories.name, pinned_memories.position`,
-      [userId],
-    )) as PinnedMemoryRow[];
-
-    return rows.map(mapPinnedMemory);
+  listPinnedMemories(userId: string) {
+    return pinnedQueries.listPinnedMemories(this.getSql(), userId);
   }
 
-  async completePinnedMemory(input: CompletePinnedMemoryInput) {
-    const rows = (await this.getSql().query(
-      `
-      WITH updated_pin AS (
-        UPDATE pinned_memories
-        SET
-          completed_at = $3,
-          completed_cleanup_at = $4,
-          updated_at = $3
-        WHERE id = $2
-          AND user_id = $1
-        RETURNING *
-      ),
-      updated_memory AS (
-        UPDATE memories
-        SET
-          done_count = done_count + 1,
-          last_done_at = $3,
-          updated_at = $3
-        FROM updated_pin
-        WHERE memories.id = updated_pin.memory_id
-        RETURNING memories.id
-      ),
-      event AS (
-        INSERT INTO memory_events (user_id, memory_id, event_type, occurred_at)
-        SELECT user_id, memory_id, 'completed', $3
-        FROM updated_pin
-        RETURNING id
-      )
-      ${pinnedSelectFromUpdatedPin}
-      `,
-      [input.userId, input.pinnedMemoryId, input.occurredAt, input.cleanupAt],
-    )) as PinnedMemoryRow[];
-
-    return rows[0] ? mapPinnedMemory(rows[0]) : null;
+  completePinnedMemory(input: CompletePinnedMemoryInput) {
+    return pinnedQueries.completePinnedMemory(this.getSql(), input);
   }
 
-  async cancelPinnedMemoryDone(input: CancelPinnedMemoryInput) {
-    const rows = (await this.getSql().query(
-      `
-      WITH target AS (
-        SELECT *
-        FROM pinned_memories
-        WHERE id = $2
-          AND user_id = $1
-        LIMIT 1
-      ),
-      updated_pin AS (
-        UPDATE pinned_memories
-        SET
-          completed_at = NULL,
-          completed_cleanup_at = NULL,
-          updated_at = $3
-        FROM target
-        WHERE pinned_memories.id = target.id
-        RETURNING pinned_memories.*
-      ),
-      updated_memory AS (
-        UPDATE memories
-        SET
-          done_count = greatest(done_count - 1, 0),
-          last_done_at = NULL,
-          updated_at = $3
-        FROM target
-        WHERE memories.id = target.memory_id
-          AND target.completed_at IS NOT NULL
-        RETURNING memories.id
-      ),
-      event AS (
-        INSERT INTO memory_events (user_id, memory_id, event_type, occurred_at)
-        SELECT user_id, memory_id, 'completed_canceled', $3
-        FROM target
-        WHERE target.completed_at IS NOT NULL
-        RETURNING id
-      )
-      ${pinnedSelectFromUpdatedPin}
-      `,
-      [input.userId, input.pinnedMemoryId, input.occurredAt],
-    )) as PinnedMemoryRow[];
-
-    return rows[0] ? mapPinnedMemory(rows[0]) : null;
+  cancelPinnedMemoryDone(input: CancelPinnedMemoryInput) {
+    return pinnedQueries.cancelPinnedMemoryDone(this.getSql(), input);
   }
 
-  async replacePinnedMemory(input: ReplacePinnedMemoryInput) {
-    const rows = (await this.getSql().query(
-      `
-      WITH target AS (
-        SELECT
-          pinned_memories.id,
-          pinned_memories.user_id,
-          pinned_memories.memory_id AS old_memory_id,
-          pinned_memories.position,
-          memories.category_id
-        FROM pinned_memories
-        INNER JOIN memories ON memories.id = pinned_memories.memory_id
-        WHERE pinned_memories.id = $2
-          AND pinned_memories.user_id = $1
-        LIMIT 1
-      ),
-      candidate AS (
-        SELECT memories.id AS memory_id
-        FROM memories
-        INNER JOIN target ON target.category_id = memories.category_id
-        WHERE memories.user_id = $1
-          AND NOT EXISTS (
-            SELECT 1
-            FROM pinned_memories
-            WHERE pinned_memories.user_id = $1
-              AND pinned_memories.memory_id = memories.id
-          )
-        ORDER BY COALESCE(memories.last_done_at, memories.created_at), memories.created_at
-        LIMIT 1
-      ),
-      updated_pin AS (
-        UPDATE pinned_memories
-        SET
-          memory_id = candidate.memory_id,
-          pinned_at = $3,
-          last_shown_at = $3,
-          visible_until = $4,
-          completed_at = NULL,
-          completed_cleanup_at = NULL,
-          updated_at = $3
-        FROM target, candidate
-        WHERE pinned_memories.id = target.id
-        RETURNING pinned_memories.*
-      ),
-      updated_memory AS (
-        UPDATE memories
-        SET
-          last_pinned_at = $3,
-          updated_at = $3
-        FROM updated_pin
-        WHERE memories.id = updated_pin.memory_id
-        RETURNING memories.id
-      ),
-      replaced_event AS (
-        INSERT INTO memory_events (user_id, memory_id, event_type, occurred_at)
-        SELECT user_id, old_memory_id, 'replaced', $3
-        FROM target
-        WHERE EXISTS (SELECT 1 FROM updated_pin)
-        RETURNING id
-      ),
-      pinned_event AS (
-        INSERT INTO memory_events (user_id, memory_id, event_type, occurred_at)
-        SELECT user_id, memory_id, 'pinned', $3
-        FROM updated_pin
-        RETURNING id
-      )
-      ${pinnedSelectFromUpdatedPin}
-      `,
-      [input.userId, input.pinnedMemoryId, input.occurredAt, input.visibleUntil],
-    )) as PinnedMemoryRow[];
-
-    return rows[0] ? mapPinnedMemory(rows[0]) : null;
+  replacePinnedMemory(input: ReplacePinnedMemoryInput) {
+    return pinnedQueries.replacePinnedMemory(this.getSql(), input);
   }
-
 }
-
-const pinnedSelectFromUpdatedPin = `
-  SELECT
-    updated_pin.id,
-    updated_pin.user_id,
-    updated_pin.memory_id,
-    memories.category_id,
-    memory_categories.name AS category_name,
-    memories.title,
-    memories.description,
-    updated_pin.position,
-    updated_pin.pinned_at,
-    updated_pin.last_shown_at,
-    updated_pin.visible_until,
-    updated_pin.completed_at,
-    updated_pin.completed_cleanup_at,
-    memories.last_done_at,
-    memories.done_count,
-    updated_pin.created_at,
-    updated_pin.updated_at
-  FROM updated_pin
-  INNER JOIN memories ON memories.id = updated_pin.memory_id
-  INNER JOIN memory_categories ON memory_categories.id = memories.category_id
-`;
