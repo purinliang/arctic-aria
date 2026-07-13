@@ -33,7 +33,7 @@ The mobile sidebar should use the same content order as desktop.
 The main navigation area should contain:
 
 - Dashboard
-- Tasks
+- Projects
 - Routines
 - Memories
 - Settings

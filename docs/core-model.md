@@ -1,7 +1,7 @@
 # Core Model
 
-This document defines the first Core data model for plans, tasks, routines, and
-memories. It describes product entities and rules before SQL schema details.
+This document defines the first Core data model for projects, tasks, routines,
+and memories. It describes product entities and rules before SQL schema details.
 Database tables should follow this model unless a later design decision updates
 it.
 
@@ -10,8 +10,8 @@ it.
 The first Core model should support:
 
 - user records for registration and login
-- long-running plans
-- tasks and subtasks with status-derived progress
+- long-running projects
+- milestones, tasks, and subtasks with status-derived progress
 - recurring routines
 - generated routine instances
 - daily plans
@@ -29,15 +29,16 @@ The first Core model should not include:
 
 Detailed user registration and login rules are documented in
 [core-layer/user.md](core-layer/user.md). User settings are documented in
-[core-layer/user-settings.md](core-layer/user-settings.md). Task rules are
-documented in [core-layer/tasks.md](core-layer/tasks.md). Routine rules are
-documented in [core-layer/routines.md](core-layer/routines.md). Memory rules
-are documented in [core-layer/memories.md](core-layer/memories.md).
+[core-layer/user-settings.md](core-layer/user-settings.md). Project and task
+rules are documented in
+[core-layer/projects/overview.md](core-layer/projects/overview.md). Routine
+rules are documented in [core-layer/routines.md](core-layer/routines.md).
+Memory rules are documented in [core-layer/memories.md](core-layer/memories.md).
 
 ## User
 
-User records are Core data because plans, tasks, routines, ideas, daily plans,
-and reviews all need a stable owner.
+User records are Core data because projects, tasks, routines, ideas, daily
+plans, and reviews all need a stable owner.
 
 `users` should store:
 
@@ -50,53 +51,87 @@ and reviews all need a stable owner.
 Personal configuration such as timezone and day boundary belongs to user
 settings, not the main user identity record.
 
-## Plans
+## Projects
 
-A plan is a long-running personal initiative that may last for weeks or months,
-such as finding a job, applying for a degree, applying for a visa, or finishing
-a study/work project.
+A project is a long-running personal initiative that may last for one month,
+several months, or several years. Examples include finding a job, applying for
+a degree, applying for a visa, or finishing a study/work objective.
 
-`plans` should store:
+`projects` should store:
 
 - user id
 - title
-- description
+- target or objective
+- importance reason
 - status
 - priority
-- optional deadline
+- start date
+- optional deadline date
+- optional expected duration
 - created and updated timestamps
+- completed timestamp, if completed
 - archived timestamp, if archived
 
-Plan statuses:
+Project statuses:
 
 - `active`: currently relevant.
 - `paused`: intentionally stopped for now.
 - `completed`: finished.
 - `archived`: hidden from normal planning views.
 
-A plan's progress should be derived from its tasks when possible. Avoid storing
-manual plan progress in the first version unless there is no task data yet.
+A project's progress should be derived from milestone, task, and subtask state.
+Avoid storing manual project progress in the first version.
+
+## Milestones
+
+A milestone is a phase boundary inside a project. It can behave like a smaller
+project for planning purposes, but it should stay lightweight. It helps the user
+avoid planning too far into the future and focus on the first or current phase.
+
+`project_milestones` should store:
+
+- user id
+- project id
+- title
+- optional objective
+- status
+- sort order
+- optional start date
+- optional deadline date
+- optional expected duration
+- created and updated timestamps
+- completed timestamp, if completed
+- archived timestamp, if archived
+
+Every project should have at least one milestone. If the user does not create a
+specific milestone, create a default milestone named `Project completion`.
 
 ## Tasks
 
-A task is executable work. A task may belong to a plan, but standalone tasks
-should be allowed because not every useful action starts as a formal plan.
+A task is executable work under one project milestone. Tasks are the atomic
+items selected by the dashboard and scheduler. A task may last less than a day
+or up to a few weeks, depending on project scale.
 
-Detailed task behavior is documented in [core-layer/tasks.md](core-layer/tasks.md).
+Detailed project and task behavior is documented in
+[core-layer/projects/overview.md](core-layer/projects/overview.md).
 
-`tasks` should store:
+`project_tasks` should store:
 
 - user id
-- optional plan id
-- optional parent task id
+- project id
+- milestone id
 - title
 - description
 - status
 - priority
-- optional deadline
 - optional scheduled date
+- optional start date
+- optional deadline date
+- sort order
 - created and updated timestamps
 - completed timestamp, if completed
+- skipped timestamp, if skipped
+- blocked timestamp, if blocked
 - archived timestamp, if archived
 
 Task statuses:
@@ -108,24 +143,47 @@ Task statuses:
 - `done`: completed.
 - `archived`: hidden from normal planning views.
 
-Subtasks are tasks with `parent_task_id`. A task can contain subtasks, but
-subtasks are not a separate entity type.
+Tasks can depend on other tasks, but they should not contain child tasks. Use
+subtasks for checklist-level breakdowns inside a task.
 
 Task progress rules:
 
-- Leaf tasks are either open or done.
-- Parent task progress should be derived from child task completion.
-- Plan progress should be derived from task completion.
-- Do not expose numeric task weight or completed weight in the first
-  user-facing workflow.
+- Tasks are either open or done at scheduler level.
+- Local task progress may be derived from checked subtasks.
+- Milestone and project progress should be derived from task completion and
+  optional subtask completion summaries.
+- Do not expose editable numeric progress fields in the first user-facing
+  workflow.
 
-Parent progress should be derived from child tasks when child tasks exist. If a
-task has no children, use its own status.
+## Subtasks
+
+A subtask is a checklist item inside a task. It is useful for breaking down a
+task, but it is not scheduled independently and cannot contain smaller
+subtasks.
+
+`project_subtasks` should store:
+
+- user id
+- task id
+- title
+- optional description
+- done flag
+- sort order
+- created and updated timestamps
+- completed timestamp, if completed
+
+Subtask rules:
+
+- Subtasks belong to exactly one task.
+- Subtasks do not have their own deadlines, priorities, dependencies,
+  reminders, or scheduler records.
+- Subtasks can be stored in SQL for persistence and history, but they are not a
+  separate Core scheduling entity.
 
 ## Routines
 
-A routine is repeatable daily-life work. It is not a plan and should not use the
-task hierarchy.
+A routine is repeatable daily-life work. It is not a project and should not use
+the project hierarchy.
 
 Detailed routine behavior is documented in
 [core-layer/routines.md](core-layer/routines.md).
@@ -235,7 +293,7 @@ Daily plan item fields:
 
 ## Ideas
 
-Ideas are quick captured thoughts that may later become plans, tasks, routines,
+Ideas are quick captured thoughts that may later become projects, tasks, routines,
 or plugin requests.
 
 `ideas` should store:
@@ -252,7 +310,7 @@ Idea triage statuses:
 
 - `untriaged`: captured but not reviewed.
 - `kept`: saved as a note or idea.
-- `converted`: turned into a plan, task, routine, or plugin request.
+- `converted`: turned into a project, task, routine, or plugin request.
 - `archived`: hidden from normal views.
 
 ## Daily Reviews

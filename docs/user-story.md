@@ -7,7 +7,7 @@ Aria.
 
 Arctic Aria should help with:
 
-- breaking long-term plans into tasks and subtasks
+- breaking long-term projects into milestones, tasks, and subtasks
 - automatically choosing daily work based on priority, urgency, deadline, and
   remaining progress
 - managing routines and reminders
@@ -21,24 +21,25 @@ Arctic Aria should help with:
 ## Daily Planning
 
 At the start of the day, the system should help select a small set of realistic
-priorities from plans, tasks, routines, deadlines, and learning goals. The plan
-should include time blocks where useful, but it should also allow flexible tasks
-that do not need a fixed time.
+priorities from projects, tasks, routines, deadlines, and learning goals. The
+daily plan should include time blocks where useful, but it should also allow
+flexible tasks that do not need a fixed time.
 
-Large plans can contain tasks. Examples include finding a job, applying for a
-degree, applying for a visa, or finishing a study/work project. Tasks can
-contain subtasks, but subtasks are still tasks.
+Large projects can contain milestones. Milestones contain tasks. Examples
+include finding a job, applying for a degree, applying for a visa, or finishing
+a study/work project. Tasks can contain subtasks, but subtasks are checklist
+items and are not scheduled independently.
 
 The user can click a checkbox or command button to mark a task as complete.
-Partial progress should come from completed subtasks or future plan phases, not
-from asking the user to edit numeric weight fields. Daily review data should
-update the displayed progress.
+Partial progress should come from completed subtasks, completed tasks, or
+milestone phases, not from asking the user to edit numeric progress fields.
+Daily review data should update the displayed progress.
 
 ## Idea Capture
 
 When a new thought appears, the user should be able to capture it quickly
 through the web application or Discord bot. The captured item can later become a
-task, plan, routine, idea record, or plugin request.
+task, project, routine, idea record, or plugin request.
 
 The capture flow should be low-friction because many useful ideas happen away
 from the desk, such as on a train.

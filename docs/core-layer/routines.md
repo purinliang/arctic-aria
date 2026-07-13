@@ -3,9 +3,9 @@
 This document defines the Core product rules for routines.
 
 Routines are repeatable daily-life work such as medication, walking, evening
-shutdown, English practice, exercise, or review. A routine is not a plan, and it
-should not use the task hierarchy. Plans and tasks describe work to complete;
-routines describe recurring behavior to check.
+shutdown, English practice, exercise, or review. A routine is not a project, and
+it should not use the project hierarchy. Projects and tasks describe work to
+complete; routines describe recurring behavior to check.
 
 ## Boundary
 
