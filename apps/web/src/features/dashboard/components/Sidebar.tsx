@@ -151,8 +151,9 @@ function SidebarFrame({
         <SidebarItem
           icon={<ListTodo size={18} aria-hidden="true" />}
           label="Tasks"
+          active={activeView === "tasks"}
           darkMode={darkMode}
-          onClick={() => onUnavailableFeature("Tasks")}
+          onClick={() => onSelectView("tasks")}
         />
         <SidebarItem
           icon={<Bell size={18} aria-hidden="true" />}

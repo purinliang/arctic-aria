@@ -9,7 +9,7 @@ documented in [implementation.md](implementation.md).
 ```text
 ArcticAria
 |-- Core layer
-|   |-- plan and task engine
+|   |-- project and task engine
 |   |-- routine engine
 |   |-- idea engine
 |   |-- memory engine
@@ -40,34 +40,43 @@ rules.
 
 ## Core Layer
 
-The Core layer is the source of truth for planning, routines, scheduling, ideas,
-memories, and reviews. It should be deterministic, testable, and independent
-from any specific interface.
+The Core layer is the source of truth for projects, tasks, routines,
+scheduling, ideas, memories, and reviews. It should be deterministic, testable,
+and independent from any specific interface.
 
-### Plan And Task Engine
+### Project And Task Engine
 
-A plan is a large goal that may last for weeks or months. A task is a smaller
-piece of work that usually takes a few hours to a few days. A task can contain
-subtasks, but subtasks are still tasks.
+A project is a large personal initiative that may last for one month, several
+months, or several years, such as finding a job, applying for a degree,
+applying for a visa, or finishing a study/work objective. A milestone is an
+optional phase boundary inside a project. A task is the schedulable work unit
+under a milestone. A subtask is a checklist item inside a task and is not
+scheduled independently.
 
-The first model should use two conceptual levels:
+The first model should use four conceptual levels:
 
-- Plan: long-running goal, deadline, overall progress, and grouped work.
-- Task: executable work item, optional parent task, weight, status, and
-  completion progress.
+- Project: long-running objective, importance reason, start date, optional
+  deadline or expected duration, and grouped milestones.
+- Milestone: phase boundary inside a project, usually used to keep near-term
+  focus clear.
+- Task: executable schedulable work item, priority, status, deadline, and
+  optional prerequisite tasks.
+- Subtask: non-schedulable checklist item inside one task.
 
-The task engine owns:
+The project and task engine owns:
 
-- task capture and triage
-- parent-child task relationships
-- task weights
-- full completion and partial completion
+- project capture and triage
+- milestone boundaries
+- task capture under milestones
+- task subtask checklists
+- task prerequisite relationships
+- full completion and subtask-derived local progress
 - deadline and progress calculation
 - status changes such as todo, doing, blocked, skipped, and done
 
 ### Routine Engine
 
-A routine is not a plan. It represents repeated daily-life work, such as
+A routine is not a project. It represents repeated daily-life work, such as
 exercise, sleep preparation, English practice, review, or other recurring
 chores.
 
@@ -85,15 +94,15 @@ integration.
 
 ### Idea Engine
 
-The idea engine stores quick thoughts before they become tasks, plans, routines,
-or plugin inputs.
+The idea engine stores quick thoughts before they become projects, tasks,
+routines, or plugin inputs.
 
 The idea engine owns:
 
 - quick capture records
 - source information, such as web, Discord, or mobile
 - triage state
-- conversion into a task, plan, routine, idea record, or plugin request
+- conversion into a project, task, routine, idea record, or plugin request
 
 ### Memory Engine
 
@@ -204,7 +213,7 @@ It owns:
 
 - schedule editing UI
 - completion and partial-completion UI
-- plan and task management UI
+- project and task management UI
 - routine management UI
 - review UI
 - reward and plugin screens

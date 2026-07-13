@@ -3,7 +3,38 @@ import type {
   PinnedMemoryStatus,
   Routine,
   RoutineStatus,
+  Task,
+  TaskStatus,
 } from "./types";
+
+export function applyOptimisticTaskStatus(
+  tasks: Task[],
+  taskId: string,
+  status: TaskStatus,
+): Task[] {
+  return tasks.map((task) =>
+    task.id === taskId
+      ? {
+          ...task,
+          status,
+          completedWeight: status === "done" ? task.weight : task.completedWeight,
+        }
+      : {
+          ...task,
+          subtasks: task.subtasks?.map((subtask) =>
+            subtask.id === taskId
+              ? {
+                  ...subtask,
+                  status,
+                  done: status === "done",
+                  completedWeight:
+                    status === "done" ? subtask.weight : subtask.completedWeight,
+                }
+              : subtask,
+          ),
+        },
+  );
+}
 
 export function applyOptimisticRoutineStatus(
   routines: Routine[],

@@ -69,10 +69,40 @@ user.
 - Do not overwrite user changes.
 - If existing changes affect the requested task, work with them or ask the user
   to decide.
-- Avoid very long single-file implementations. As a rule of thumb, split code
-  into independent files before a file grows beyond about 300 lines.
+- Avoid very long single-file implementations. Keep each source code file no
+  longer than 400 lines. Treat 250 lines or less as the preferred target, but
+  not a hard limit. When a file approaches the limit, split by responsibility
+  before adding more behavior.
 - Focus on the task implied by the branch name. For example, do not implement
   application code during documentation-only work on an `agent/docs-*` branch.
+
+## Web Source Organization
+
+- Keep reusable web UI primitives in `apps/web/src/components/ui/`. This
+  includes buttons, cards, panels, dialogs, notifications, inputs, text,
+  tags, lists, switches, and color helpers.
+- Keep app-shell components at the same level as feature modules when they are
+  not owned by one product feature. Examples include sidebar, theme mode,
+  layout shell, route guards, and shared navigation.
+- Keep product feature code under its own feature directory, such as
+  `features/auth`, `features/memories`, `features/routines`, and future
+  `features/projects`.
+- Feature pages, feature dialogs, feature cards, feature actions, feature
+  repositories, and feature tests should live with that feature unless they are
+  truly shared by multiple features.
+- The dashboard feature should own dashboard composition and dashboard-only
+  sections. Dashboard cards that are thin summaries of another feature should
+  delegate data shape, commands, and reusable card content to that feature when
+  practical.
+- Do not create feature-local `components/ui` folders for shared primitives.
+  Add missing primitives to `apps/web/src/components/ui/` instead.
+- Do not keep dummy data after the matching real feature data is available.
+  Temporary dummy data must be clearly scoped to prototype-only surfaces and
+  removed during the feature refactor.
+- Optimistic update helpers belong near the feature whose command semantics
+  they encode. Keep them in `features/dashboard` only when they are purely
+  dashboard interaction helpers; move them to the product feature when they
+  describe project, routine, memory, or other domain command behavior.
 
 ## UI Interaction Defaults
 

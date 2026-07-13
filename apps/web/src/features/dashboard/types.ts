@@ -1,26 +1,37 @@
-export type TaskStatus = "todo" | "partial" | "done";
+export type TaskStatus =
+  | "todo"
+  | "doing"
+  | "blocked"
+  | "skipped"
+  | "done"
+  | "archived";
 
-export type DashboardView = "dashboard" | "routines" | "memories";
+export type DashboardView = "dashboard" | "tasks" | "routines" | "memories";
 
-export type Priority = "High" | "Medium" | "Low";
+export type Priority = "high" | "medium" | "low";
 
 export type Subtask = {
   id: string;
   title: string;
   description: string;
   weight: number;
+  completedWeight: number;
+  status: TaskStatus;
   done: boolean;
 };
 
 export type Task = {
   id: string;
   title: string;
+  description: string;
   planLabel: string;
   deadline: string;
   priority: Priority;
   status: TaskStatus;
   weight: number;
   completedWeight: number;
+  deadlineAt: string;
+  scheduledDate: string;
   subtasks?: Subtask[];
 };
 

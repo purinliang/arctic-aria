@@ -1,14 +1,16 @@
-import { ChevronDown } from "lucide-react";
+import { Ban, Check, ChevronDown, Edit3, SkipForward } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tag } from "@/components/ui/tag";
 import type { Task } from "../types";
 
 function priorityClass(priority: Task["priority"], darkMode: boolean) {
-  if (priority === "High") {
+  if (priority === "high") {
     return darkMode
       ? "border-red-400/40 bg-red-500/15 text-red-200"
       : "border-red-200 bg-red-50 text-red-700";
   }
 
-  if (priority === "Medium") {
+  if (priority === "medium") {
     return darkMode
       ? "border-amber-400/40 bg-amber-500/15 text-amber-200"
       : "border-amber-200 bg-amber-50 text-amber-700";
@@ -23,20 +25,36 @@ function progressTrackColor(darkMode: boolean) {
   return darkMode ? "#404040" : "#d1d5db";
 }
 
+function titleCase(value: string) {
+  return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
+}
+
 export function TaskCard({
   task,
   darkMode,
+  disabled = false,
   expanded,
   onToggleExpanded,
   onSubtaskToggle,
+  onDone,
+  onBlock,
+  onSkip,
+  onEdit,
 }: {
   task: Task;
   darkMode: boolean;
+  disabled?: boolean;
   expanded: boolean;
   onToggleExpanded: () => void;
   onSubtaskToggle: (subtaskId: string) => void;
+  onDone: () => void;
+  onBlock: () => void;
+  onSkip: () => void;
+  onEdit: () => void;
 }) {
-  const progress = Math.round((task.completedWeight / task.weight) * 100);
+  const progress = Math.round(
+    task.weight > 0 ? (task.completedWeight / task.weight) * 100 : 0,
+  );
 
   return (
     <article>
@@ -67,8 +85,9 @@ export function TaskCard({
             <span
               className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${priorityClass(task.priority, darkMode)}`}
             >
-              {task.priority}
+              {titleCase(task.priority)}
             </span>
+            <Tag darkMode={darkMode}>{titleCase(task.status)}</Tag>
           </div>
           <div
             className={`mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm ${
@@ -91,12 +110,17 @@ export function TaskCard({
 
       {expanded ? (
         <div
-          className={`mx-4 mb-4 grid gap-2 rounded-md border p-3 ${
-            darkMode
-              ? "border-neutral-800 bg-black"
-              : "border-slate-200 bg-slate-50"
+          className={`grid gap-3 px-4 pb-4 ${
+            darkMode ? "bg-transparent" : "bg-transparent"
           }`}
         >
+          <p
+            className={`text-sm leading-6 ${
+              darkMode ? "text-neutral-300" : "text-slate-600"
+            }`}
+          >
+            {task.description || "No description."}
+          </p>
           {task.subtasks?.map((subtask) => (
             <label
               key={subtask.id}
@@ -109,6 +133,7 @@ export function TaskCard({
                 className="accent-emerald-500"
                 type="checkbox"
                 checked={subtask.done}
+                disabled={disabled}
                 onChange={() => onSubtaskToggle(subtask.id)}
               />
               <span className="min-w-0">
@@ -124,7 +149,7 @@ export function TaskCard({
                 </span>
               </span>
               <span className="flex shrink-0 gap-1" aria-label={`${subtask.weight} weight`}>
-                {Array.from({ length: subtask.weight }).map((_, index) => (
+                {Array.from({ length: Math.ceil(subtask.weight) }).map((_, index) => (
                   <span
                     key={index}
                     className={`h-3 w-3 rounded-full border ${
@@ -139,6 +164,40 @@ export function TaskCard({
               </span>
             </label>
           ))}
+          <div className="flex flex-wrap gap-2 pt-1">
+            <Button
+              darkMode={darkMode}
+              tone="success"
+              disabled={disabled || task.status === "done"}
+              icon={<Check size={14} aria-hidden="true" />}
+              onClick={onDone}
+            >
+              Done
+            </Button>
+            <Button
+              darkMode={darkMode}
+              disabled={disabled || task.status === "blocked"}
+              icon={<Ban size={14} aria-hidden="true" />}
+              onClick={onBlock}
+            >
+              Block
+            </Button>
+            <Button
+              darkMode={darkMode}
+              disabled={disabled || task.status === "skipped"}
+              icon={<SkipForward size={14} aria-hidden="true" />}
+              onClick={onSkip}
+            >
+              Skip
+            </Button>
+            <Button
+              darkMode={darkMode}
+              icon={<Edit3 size={14} aria-hidden="true" />}
+              onClick={onEdit}
+            >
+              Edit
+            </Button>
+          </div>
         </div>
       ) : null}
     </article>

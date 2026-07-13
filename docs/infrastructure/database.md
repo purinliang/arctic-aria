@@ -41,7 +41,8 @@ The first version should support username and password registration and login.
 
 Keep a user table because many records need a stable owner:
 
-- plans
+- projects
+- milestones
 - tasks
 - routines
 - ideas
@@ -66,9 +67,11 @@ Do not add OAuth until the username and password flow is stable.
 
 The first Core schema should support the Phase 1 and Phase 2 scope:
 
-- `plans`
-- `tasks`
-- `task_dependencies` if dependencies are needed later
+- `projects`
+- `project_milestones`
+- `project_tasks`
+- `project_subtasks`
+- `project_task_dependencies` if dependencies are needed later
 - `routines`
 - `routine_rules`
 - `routine_instances`
@@ -83,17 +86,26 @@ The first Core schema should support the Phase 1 and Phase 2 scope:
 - `completion_events`
 - `reminder_jobs`
 
-Tasks should support parent-child relationships through `parent_task_id`.
-Subtasks are tasks with a parent task.
+Projects should own milestones. Milestones should own tasks. Tasks may own
+subtasks, but subtasks are checklist records and are not independently
+scheduled.
 
-Task progress should be based on weight:
+Task progress should be status-derived in the next project refactor:
 
-- `weight`: total task weight, default `1`.
-- `completed_weight`: completed amount, default `0`.
 - `status`: `todo`, `doing`, `blocked`, `skipped`, or `done`.
+- subtask completion can summarize local task progress.
+- task completion determines milestone and project progress.
 
-Completion changes should also create immutable `completion_events` so daily
-review can reason about what happened.
+Do not expose editable numeric progress fields in the task UI. If old prototype
+columns exist from an earlier migration, treat them as temporary implementation
+details until a cleanup migration removes or ignores them safely.
+
+Task completion changes should also create immutable `completion_events` so
+daily review can reason about what happened.
+
+Detailed project and task rules are documented in
+[projects/overview.md](../core-layer/projects/overview.md) and
+[projects/data-model.md](../core-layer/projects/data-model.md).
 
 ## Memory Tables
 

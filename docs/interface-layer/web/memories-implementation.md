@@ -16,7 +16,8 @@ The current web implementation supports database-backed memory testing:
 - cancel pinned memory done
 - replace a pinned memory with another same-category memory when available
 
-Tasks and routines remain dummy dashboard data.
+The current project task prototype is database-backed.
+Routines are database-backed.
 
 ## Current User Flow
 

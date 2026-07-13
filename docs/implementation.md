@@ -16,8 +16,8 @@ Reasons:
 - The Discord bot can also use TypeScript through `discord.js`.
 - Core rules should be deterministic and testable, not hidden inside agent
   prompts.
-- The system can avoid cross-language duplication for early task, routine,
-  scheduler, idea, and review logic.
+- The system can avoid cross-language duplication for early project, task,
+  routine, scheduler, idea, and review logic.
 
 Python can be added later for plugin workers or agent services, but the first
 Core layer should not depend on Python.
@@ -39,8 +39,8 @@ libraries.
 Use Next.js for the web dashboard.
 
 The dashboard should be responsive and usable from desktop and iPhone Chrome. It
-should be the main product surface for planning, timetable editing, task
-progress, reviews, rewards, and plugin views.
+should be the main product surface for planning, timetable editing, project and
+task progress, reviews, rewards, and plugin views.
 
 Use `discord.js` for the Discord bot unless a later implementation branch finds
 a concrete blocker.
@@ -83,7 +83,7 @@ Use PostgreSQL as the system of record for Core layer data.
 PostgreSQL should store:
 
 - users and accounts
-- plans, tasks, task weights, and progress
+- projects, milestones, tasks, subtasks, and derived progress
 - ideas and triage state
 - memories, memory events, and pinned memories
 - routines, routine rules, and routine instances
@@ -130,7 +130,7 @@ arctic-aria/
 |-- packages/
 |   |-- core/
 |   |   |-- src/
-|   |   |   |-- plans/
+|   |   |   |-- projects/
 |   |   |   |-- tasks/
 |   |   |   |-- routines/
 |   |   |   |-- ideas/
@@ -198,39 +198,34 @@ PostgreSQL storage, and matching frontend/backend validation. Its implementation
 notes are documented in
 [interface-layer/web/auth-implementation.md](interface-layer/web/auth-implementation.md).
 
-Auth and database-backed Memories are now implemented in the web app. Tasks and
-routines still use dashboard dummy data.
+Auth, database-backed Memories, database-backed Routines, and a database-backed
+task prototype are now implemented in the web app.
 
-The next product slice should focus on routines before broad plan/task work.
-Routines are a good next step because the dashboard already shows routine cards,
-and the routine model is smaller than the full plan-task-daily-plan scheduler.
+The current task slice is prototype debt and should be refactored into the
+Project model before it becomes a stable contract. It currently includes:
 
-The routines slice should implement:
-
-- routine definitions
-- recurrence rules
-- generated routine instances
-- dashboard routine instances loaded from PostgreSQL
-- web actions for completing and skipping routine instances
-- basic routine add and edit UI
-- completion events for routine instance completion and skip actions
-
-Do not implement Discord reminder delivery, reward inventory, English coach,
-or full plan/task scheduling in the routines branch. They should be separate
-branches after the routine contracts are stable.
-
-After routines, a later Core planning slice should implement:
-
-- plan and task capture
-- parent-child tasks
-- task weights
-- complete and partial-complete events
-- daily plan
-- daily review
+- prototype grouping and task capture
+- child task records
+- editable numeric progress fields
+- complete, partial-complete, skip, block, archive, and reopen commands
+- database-backed dashboard task cards
+- a basic prototype Projects management page
 - PostgreSQL schema for those entities
-- user and Discord binding schema
-- reminder job schema
-- basic Next.js dashboard views for capture, plan, progress, and review
+- completion events for task completion, partial completion, and skip actions
+
+The next project refactor should replace the prototype with:
+
+- project capture
+- milestone capture and ordering
+- task capture under one milestone
+- subtask checklists under one task
+- no user-facing numeric progress fields
+- dashboard cards focused on today's scheduled tasks, not project progress
+  rings
+
+The task slice intentionally excludes Discord reminder delivery, reward
+inventory, English coach, automatic daily plan optimization, and full review
+cards. They should be separate branches after the task contracts are stable.
 
 ## Open Decisions
 
