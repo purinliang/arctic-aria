@@ -2,7 +2,7 @@ import { Check, ChevronDown, Eye, RefreshCw, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mutedTextClass } from "@/components/ui/color";
 import { Tag } from "@/components/ui/tag";
-import type { PinnedMemory } from "../types";
+import type { PinnedMemory } from "@/features/dashboard/types";
 
 export function PinnedMemoryCard({
   memory,
