@@ -198,39 +198,24 @@ PostgreSQL storage, and matching frontend/backend validation. Its implementation
 notes are documented in
 [interface-layer/web/auth-implementation.md](interface-layer/web/auth-implementation.md).
 
-Auth and database-backed Memories are now implemented in the web app. Tasks and
-routines still use dashboard dummy data.
+Auth, database-backed Memories, and database-backed Routines are now
+implemented in the web app. Tasks still use dashboard dummy data.
 
-The next product slice should focus on routines before broad plan/task work.
-Routines are a good next step because the dashboard already shows routine cards,
-and the routine model is smaller than the full plan-task-daily-plan scheduler.
-
-The routines slice should implement:
-
-- routine definitions
-- recurrence rules
-- generated routine instances
-- dashboard routine instances loaded from PostgreSQL
-- web actions for completing and skipping routine instances
-- basic routine add and edit UI
-- completion events for routine instance completion and skip actions
-
-Do not implement Discord reminder delivery, reward inventory, English coach,
-or full plan/task scheduling in the routines branch. They should be separate
-branches after the routine contracts are stable.
-
-After routines, a later Core planning slice should implement:
+The next product slice should focus on tasks before the full daily scheduler.
+The task slice should implement:
 
 - plan and task capture
 - parent-child tasks
 - task weights
-- complete and partial-complete events
-- daily plan
-- daily review
+- complete, partial-complete, skip, block, archive, and reopen commands
+- database-backed dashboard task cards
+- a basic Tasks management page
 - PostgreSQL schema for those entities
-- user and Discord binding schema
-- reminder job schema
-- basic Next.js dashboard views for capture, plan, progress, and review
+- completion events for task completion, partial completion, and skip actions
+
+Do not implement Discord reminder delivery, reward inventory, English coach,
+automatic daily plan optimization, or full review cards in the task branch.
+They should be separate branches after the task contracts are stable.
 
 ## Open Decisions
 

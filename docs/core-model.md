@@ -29,7 +29,8 @@ The first Core model should not include:
 
 Detailed user registration and login rules are documented in
 [core-layer/user.md](core-layer/user.md). User settings are documented in
-[core-layer/user-settings.md](core-layer/user-settings.md). Routine rules are
+[core-layer/user-settings.md](core-layer/user-settings.md). Task rules are
+documented in [core-layer/tasks.md](core-layer/tasks.md). Routine rules are
 documented in [core-layer/routines.md](core-layer/routines.md). Memory rules
 are documented in [core-layer/memories.md](core-layer/memories.md).
 
@@ -78,6 +79,8 @@ manual plan progress in the first version unless there is no task data yet.
 
 A task is executable work. A task may belong to a plan, but standalone tasks
 should be allowed because not every useful action starts as a formal plan.
+
+Detailed task behavior is documented in [core-layer/tasks.md](core-layer/tasks.md).
 
 `tasks` should store:
 

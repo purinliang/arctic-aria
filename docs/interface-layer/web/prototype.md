@@ -10,9 +10,9 @@ review, and reward UI direction.
 This boundary applies to dashboard prototype work only. The separate username
 and password auth implementation is documented in
 [auth-implementation.md](auth-implementation.md). Database-backed Memories are
-documented in [memories-implementation.md](memories-implementation.md).
-Routines are the next feature branch and should follow the Core rules in
-[routines.md](../../core-layer/routines.md).
+documented in [memories-implementation.md](memories-implementation.md). Task
+rules are documented in [tasks.md](../../core-layer/tasks.md) and
+[tasks-ui.md](../../core-layer/tasks-ui.md).
 
 ## Scope
 
@@ -61,7 +61,7 @@ For this prototype, these concepts can remain typed dummy records in
 
 The first screen is the dashboard itself, not a landing page. The layout should
 be dense, quiet, and work-focused so it feels like an operational planning tool.
-Default theme should be dark.
+Daytime mode should be the default.
 
 The desktop layout should include:
 
@@ -112,6 +112,11 @@ Placeholder sidebar items should show a non-blocking notification instead of
 silently doing nothing.
 
 ## Task Cards
+
+Task product and UI rules are now documented in
+[tasks.md](../../core-layer/tasks.md) and
+[tasks-ui.md](../../core-layer/tasks-ui.md). This section records the original
+dashboard prototype behavior and should not override those task specs.
 
 Tasks shown on the dashboard are recommended for today, but their plan deadline
 may be several days later. A task deadline should display as a date with time,
@@ -240,8 +245,8 @@ Suggested refactor shape:
 - Keep dashboard-specific types in `features/dashboard/types.ts`.
 - Keep dummy records in `features/dashboard/dummy-data.ts`.
 - Keep UI-only derived state inside dashboard components.
-- Keep task and routine dummy records in `features/dashboard/dummy-data.ts`
-  until their database-backed feature branches replace them.
+- Keep task dummy records in `features/dashboard/dummy-data.ts` until the
+  database-backed task feature replaces them.
 - Keep database-backed Memories behavior in `features/memories` and the
   dashboard components that render it.
 - Do not introduce shared packages or server APIs.

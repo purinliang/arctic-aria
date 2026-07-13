@@ -95,6 +95,8 @@ Task progress should be based on weight:
 Completion changes should also create immutable `completion_events` so daily
 review can reason about what happened.
 
+Detailed task rules are documented in [tasks.md](../core-layer/tasks.md).
+
 ## Memory Tables
 
 Memories are Core data. They represent user-visible repeatable experiences that
