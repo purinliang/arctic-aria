@@ -11,7 +11,7 @@ The first Core model should support:
 
 - user records for registration and login
 - long-running plans
-- tasks and subtasks with weighted progress
+- tasks and subtasks with status-derived progress
 - recurring routines
 - generated routine instances
 - daily plans
@@ -52,7 +52,9 @@ settings, not the main user identity record.
 
 ## Plans
 
-A plan is a long-running goal that may last for weeks or months.
+A plan is a long-running personal initiative that may last for weeks or months,
+such as finding a job, applying for a degree, applying for a visa, or finishing
+a study/work project.
 
 `plans` should store:
 
@@ -91,8 +93,6 @@ Detailed task behavior is documented in [core-layer/tasks.md](core-layer/tasks.m
 - description
 - status
 - priority
-- weight, default `1`
-- completed weight, default `0`
 - optional deadline
 - optional scheduled date
 - created and updated timestamps
@@ -113,14 +113,14 @@ subtasks are not a separate entity type.
 
 Task progress rules:
 
-- `weight` must be positive.
-- `completed_weight` must be between `0` and `weight`.
-- Setting `completed_weight` to `weight` should mark the task `done`.
-- Marking a task `done` should set `completed_weight` to `weight`.
-- Partial completion should update `completed_weight` without forcing `done`.
+- Leaf tasks are either open or done.
+- Parent task progress should be derived from child task completion.
+- Plan progress should be derived from task completion.
+- Do not expose numeric task weight or completed weight in the first
+  user-facing workflow.
 
 Parent progress should be derived from child tasks when child tasks exist. If a
-task has no children, use its own `weight` and `completed_weight`.
+task has no children, use its own status.
 
 ## Routines
 
@@ -301,9 +301,8 @@ Completion events are immutable history records used by review logic.
 - user id
 - target type: `task` or `routine_instance`
 - target id
-- event type: `completed`, `partially_completed`, or `skipped`
-- previous completed weight, for tasks
-- new completed weight, for tasks
+- event type, such as `completed`, `reopened`, `blocked`, `unblocked`, or
+  `skipped`
 - occurred at timestamp
 - source, such as web, Discord, scheduler, or agent
 

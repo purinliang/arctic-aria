@@ -25,13 +25,14 @@ priorities from plans, tasks, routines, deadlines, and learning goals. The plan
 should include time blocks where useful, but it should also allow flexible tasks
 that do not need a fixed time.
 
-Large plans can contain tasks. Tasks can contain subtasks, but subtasks are
-still tasks. Each task should have a weight. The default weight is `1`, but the
-user or agent can later adjust it.
+Large plans can contain tasks. Examples include finding a job, applying for a
+degree, applying for a visa, or finishing a study/work project. Tasks can
+contain subtasks, but subtasks are still tasks.
 
-The user can click a checkbox to mark a task as complete, or use a long-click
-action to open a dialog for partial completion by editing the full weight and
-completed weight. Daily review data should update the displayed progress.
+The user can click a checkbox or command button to mark a task as complete.
+Partial progress should come from completed subtasks or future plan phases, not
+from asking the user to edit numeric weight fields. Daily review data should
+update the displayed progress.
 
 ## Idea Capture
 

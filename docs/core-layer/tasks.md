@@ -1,21 +1,29 @@
-# Tasks
+# Plans And Tasks
 
-This document defines the Core product rules for tasks and lightweight plan
-relationships. User-visible web behavior is documented in
-[tasks-ui.md](tasks-ui.md).
+This document defines the Core product rules for plans and tasks. User-visible
+web behavior is documented in [tasks-ui.md](tasks-ui.md).
 
-Tasks are executable work. A task can be standalone, belong to a long-running
-plan, or be a child of another task. Subtasks are not a separate entity type;
-they are tasks with `parent_task_id`.
+A plan is a long-running personal initiative with many details to track. A
+plan can represent things like finding a job, applying for a degree, applying
+for a visa, finishing a study program, or completing a work project.
+
+A task is executable work inside or outside a plan. Tasks are smaller than
+plans and are suitable for scheduling into today's work.
+
+Use `Plan` as the product term for now. It is broad enough for personal
+planning, study, work, and life administration. `Project` can be treated as an
+informal synonym in user thinking, but the app should not introduce a separate
+Project type unless a future design finds a real difference.
 
 ## Boundary
 
-Tasks are Core product data because the user creates, edits, completes,
-partially completes, skips, blocks, and reviews them.
+Plans and tasks are Core product data because the user creates, edits,
+completes, skips, blocks, schedules, and reviews them.
 
-The task engine owns task identity, hierarchy, status, weight, progress,
-deadline, and completion events. The scheduler may select tasks for a daily
-plan, but task state remains owned by the task engine.
+The plan and task engine owns plan identity, task identity, hierarchy,
+prerequisite relationships, status, progress, deadlines, and completion events.
+The scheduler may select tasks for a daily plan, but plan and task state remains
+owned by the plan and task engine.
 
 The first task feature should not implement the full scheduler, review engine,
 reward plugin, Discord reminder delivery, or agent-generated plan
@@ -24,48 +32,95 @@ use.
 
 ## Scope
 
-The first task feature should include:
+The next refactor should include:
 
+- creating and editing plans
+- showing a Plans card or Plans section on the Tasks page
+- grouping tasks by plan
 - creating standalone tasks
 - editing task title, description, priority, deadline, and scheduled date
-- assigning a task to an optional plan label or plan record
+- assigning a task to an optional plan record
 - creating and editing child tasks as subtasks
 - showing today's task candidates on the dashboard from the database
-- showing all normal tasks on a Tasks management page
+- showing all normal tasks on a Tasks page
 - completing a whole task
-- partially completing a task by weight
+- tracking plan progress from completed tasks
 - toggling child tasks as done or not done
 - blocking, unblocking, skipping, archiving, and deleting tasks
-- recording completion events for complete, partial-complete, and skip actions
+- recording completion events for complete and skip actions
 
-The first task feature should not include:
+The next refactor should not include:
 
 - automatic daily plan optimization
 - calendar drag-and-drop scheduling
-- dependency graph UI
 - recurring tasks; use routines for repeated work
 - Discord task reminders
 - reward calculations
 - AI plan breakdown
 - shareable review cards
+- numeric user-facing task weights
 
 ## Plans
 
-A plan is a long-running goal that groups tasks. A task may belong to a plan,
-but standalone tasks must be allowed.
+A plan is a long-running initiative that groups tasks and records the user's
+implementation approach. A task may belong to a plan, but standalone tasks must
+be allowed because not every useful action starts as a formal plan.
 
-The first task feature can use lightweight plan support:
+Plans should be user-managed. The user decides the big thing, why it matters,
+its deadline, and the rough implementation approach. The system can then help
+break that plan into tasks and select which task is useful today.
+
+Plan examples:
+
+- Find a job
+- Apply for a degree
+- Apply for a visa
+- Finish a research paper
+- Prepare a final exam
+- Launch a small app
+
+The task feature should include real plan records:
 
 - a task may have no plan
 - a task may reference an existing plan
-- the UI may allow creating a simple plan name while adding or editing a task
+- a plan can contain tasks
+- a plan can later contain phases or milestones
+- a plan can show derived progress from its tasks
 
-Full plan management, plan review, milestones, and plan-level dashboard pages
-can wait for a later plan feature.
+Full calendar scheduling, AI plan breakdown, and plan review summaries can wait
+for later features.
 
 Plan progress should be derived from the tasks in the plan. Do not store manual
-plan progress in the first task feature unless a later design explicitly needs
-it.
+plan progress in the first refactor unless a later design explicitly needs it.
+
+## Plan Record
+
+Recommended fields:
+
+- `id`
+- `user_id`
+- `title`
+- `description`
+- `status`
+- `priority`
+- `deadline_at`
+- `created_at`
+- `updated_at`
+- `completed_at`
+- `archived_at`
+
+Plan statuses:
+
+- `active`: currently relevant.
+- `paused`: intentionally stopped for now.
+- `completed`: finished.
+- `archived`: hidden from normal planning views.
+
+Optional later fields or tables:
+
+- plan phases or milestones
+- plan notes
+- plan review summaries
 
 ## Task Record
 
@@ -79,8 +134,6 @@ Recommended fields:
 - `description`
 - `status`
 - `priority`
-- `weight`
-- `completed_weight`
 - `deadline_at`
 - `scheduled_date`
 - `sort_order`
@@ -103,6 +156,9 @@ Field notes:
 - `archived_at` hides the task from normal planning views.
 - Delete can be physical delete in the first implementation, but archive is
   safer for user-created work and should be available in the UI.
+- Do not expose `weight` or `completed_weight` to the user in the next
+  implementation. If a future scheduler needs effort scoring, add an internal
+  estimate later after the task workflow feels right.
 
 ## Statuses
 
@@ -118,12 +174,11 @@ Allowed task statuses:
 Status rules:
 
 - New tasks start as `todo` unless the user explicitly creates them as `doing`.
-- A task with `completed_weight = weight` should be `done`.
-- Marking a task `done` should set `completed_weight = weight` and
-  `completed_at`.
-- Reducing `completed_weight` below `weight` should move `done` tasks back to
-  `doing` unless the user explicitly chooses another status.
-- `blocked` should preserve progress and should not reset completed weight.
+- Marking a task `done` should set `completed_at`.
+- Reopening a `done` task should clear `completed_at` and normally return it to
+  `todo` or `doing`.
+- `blocked` should preserve child task state and should not reset completed
+  subtasks.
 - `skipped` means intentionally not done for the relevant context. It does not
   delete the task and does not necessarily mean the whole plan failed.
 - `archived` hides the task from normal views and should exclude it from daily
@@ -141,35 +196,34 @@ Priority is user intent, not urgency. Urgency should be derived from deadline
 and scheduled date. The dashboard can combine priority and urgency when sorting
 today's tasks.
 
-## Weight And Progress
+## Progress
 
-Task progress is weight based.
+The next user-facing implementation should not ask the user to enter task
+weight or completed weight. Those fields are too abstract for first manual use
+and can trigger browser-native localized validation hints in numeric inputs.
 
-Rules:
+First progress rules:
 
-- `weight` must be greater than `0`.
-- `completed_weight` must be greater than or equal to `0`.
-- `completed_weight` must be less than or equal to `weight`.
-- Default `weight` is `1`.
-- Default `completed_weight` is `0`.
-- Partial completion changes `completed_weight` without forcing `done` unless
-  `completed_weight` reaches `weight`.
+- leaf tasks are either not done or done
+- parent task progress is derived from child task completion
+- plan progress is derived from task completion
+- partial progress should be represented by completed child tasks, phases, or
+  checklist items, not by a numeric completed-weight field
 
 When a task has child tasks:
 
-- parent progress should be derived from child task weights
-- direct parent `completed_weight` should not be the primary source of truth
+- parent progress should be derived from child task completion
 - completing all child tasks should complete the parent
 - reopening a child task should reopen the parent unless the parent is archived
 
 When a task has no child tasks:
 
-- use the task's own `weight` and `completed_weight`
+- use the task's own status
 
 ## Child Tasks
 
 Child tasks represent subtasks. They should remain full task records so they can
-have weight, progress, status, deadline, and history.
+have status, deadline, and history.
 
 First child-task rules:
 
@@ -197,19 +251,49 @@ Required commands:
 - reorder child tasks
 - complete task
 - reopen task
-- update partial progress
 - block task
 - unblock task
 - skip task
+- add prerequisite task
+- remove prerequisite task
 
 Command behavior:
 
 - validate ownership for every command
 - validate status transitions
-- validate weight and completed weight together
-- update parent derived progress after child changes
+- update parent derived status or progress after child changes
 - write completion events for user-visible progress changes
 - return fresh task dashboard and task page data after successful writes
+
+## Dependencies
+
+Some tasks cannot start until another task is finished. These relationships are
+prerequisites, not parent-child hierarchy.
+
+Example:
+
+- parent plan: `Apply for a visa`
+- prerequisite task: `Receive university offer`
+- dependent task: `Submit visa application`
+
+Recommended table:
+
+- `task_dependencies`
+
+Recommended fields:
+
+- `task_id`
+- `depends_on_task_id`
+- `created_at`
+
+Rules:
+
+- both tasks must belong to the same user
+- prevent self-dependency
+- prevent dependency cycles
+- dependency UI can be simple at first, such as selecting prerequisite tasks in
+  the edit dialog
+- do not build a graph visualization in the first refactor
 
 ## Completion Events
 
@@ -219,9 +303,7 @@ Task events should use:
 
 - target type: `task`
 - target id: task id
-- event type: `completed`, `partially_completed`, or `skipped`
-- previous completed weight
-- new completed weight
+- event type: `completed`, `reopened`, `blocked`, `unblocked`, or `skipped`
 - occurred at timestamp
 - source, such as `web`, `discord`, `scheduler`, or `agent`
 
@@ -232,13 +314,19 @@ State tables store the latest state. Completion events store what happened.
 The first database-backed task dashboard should use a simple deterministic
 selection, not an AI scheduler.
 
-Suggested selection order:
+Dashboard wording should make the relationship to plans clear:
+
+`Today's tasks to fulfill your plans`
+
+Suggested selection inputs:
 
 1. tasks scheduled for the current personal day
 2. overdue unfinished tasks
-3. high-priority unfinished tasks with near deadlines
-4. recently updated `doing` tasks
-5. a small fallback set of normal `todo` tasks
+3. tasks from active plans with near deadlines
+4. high-priority unfinished tasks with near deadlines
+5. prerequisite-ready tasks, meaning their dependencies are done
+6. recently updated `doing` tasks
+7. a small fallback set of normal `todo` tasks
 
 Dashboard selection should exclude archived tasks and completed tasks by
 default. Skipped tasks may remain visible for the same personal day if the UI
@@ -252,14 +340,13 @@ Recommended first tables:
 
 - `plans`
 - `tasks`
+- `task_dependencies`
 - `completion_events`
 
-Optional later table:
-
-- `task_dependencies`
-
-Do not add `task_dependencies` until there is a concrete UI or scheduler need.
-Parent-child hierarchy is enough for the first task feature.
+The current implementation used numeric `weight` and `completed_weight`. The
+next migration should remove those fields from the user-facing model and either
+drop them or keep them as ignored legacy columns until a cleanup migration is
+safe.
 
 ## UI
 

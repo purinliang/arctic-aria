@@ -46,22 +46,24 @@ from any specific interface.
 
 ### Plan And Task Engine
 
-A plan is a large goal that may last for weeks or months. A task is a smaller
-piece of work that usually takes a few hours to a few days. A task can contain
-subtasks, but subtasks are still tasks.
+A plan is a large personal initiative that may last for weeks or months, such
+as finding a job, applying for a degree, applying for a visa, or finishing a
+study/work project. A task is a smaller piece of executable work that usually
+takes a few hours to a few days. A task can contain subtasks, but subtasks are
+still tasks.
 
 The first model should use two conceptual levels:
 
-- Plan: long-running goal, deadline, overall progress, and grouped work.
-- Task: executable work item, optional parent task, weight, status, and
-  completion progress.
+- Plan: long-running initiative, deadline, overall progress, and grouped work.
+- Task: executable work item, optional parent task, prerequisite tasks, status,
+  deadline, and completion progress.
 
 The task engine owns:
 
 - task capture and triage
 - parent-child task relationships
-- task weights
-- full completion and partial completion
+- task prerequisite relationships
+- full completion and child-task-derived partial progress
 - deadline and progress calculation
 - status changes such as todo, doing, blocked, skipped, and done
 

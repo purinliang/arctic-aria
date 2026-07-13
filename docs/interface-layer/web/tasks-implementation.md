@@ -13,7 +13,6 @@ The current web implementation supports database-backed task testing:
 - add, edit, archive, and delete top-level tasks
 - add simple child tasks while adding or editing a task
 - complete, skip, block, and reopen tasks through server actions
-- update task progress by total weight and completed weight
 - record task completion, partial-completion, and skip events
 - show task command failure through shared notifications
 
@@ -22,9 +21,11 @@ The current task implementation does not include:
 - automatic daily plan optimization
 - Discord task reminders
 - dependency graph editing
+- plan management
 - AI-generated task breakdown
 - reward calculations
 - review-card finalization
+- removal of numeric weight fields from the UI and schema
 
 ## Current User Flow
 
@@ -41,8 +42,9 @@ The page should show:
 
 Task `Edit` opens a task editing dialog.
 
-`Progress` opens a focused progress dialog for total weight and completed
-weight.
+The current implementation still exposes numeric `Weight` and
+`Completed weight` fields. This should be refactored out. The next version
+should make progress come from completed subtasks or plan phases instead.
 
 ## Dashboard Behavior
 

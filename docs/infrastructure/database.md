@@ -86,11 +86,15 @@ The first Core schema should support the Phase 1 and Phase 2 scope:
 Tasks should support parent-child relationships through `parent_task_id`.
 Subtasks are tasks with a parent task.
 
-Task progress should be based on weight:
+Task progress should be status-derived in the next task refactor:
 
-- `weight`: total task weight, default `1`.
-- `completed_weight`: completed amount, default `0`.
 - `status`: `todo`, `doing`, `blocked`, `skipped`, or `done`.
+- child task completion determines parent task progress.
+- task completion determines plan progress.
+
+Do not expose numeric `weight` or `completed_weight` in the task UI. If those
+columns exist from an earlier migration, treat them as temporary implementation
+details until a cleanup migration removes or ignores them safely.
 
 Completion changes should also create immutable `completion_events` so daily
 review can reason about what happened.

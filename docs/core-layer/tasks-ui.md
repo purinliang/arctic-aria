@@ -27,7 +27,11 @@ sidebar item.
 
 ## Dashboard
 
-The home dashboard should continue showing a compact `Today's Tasks` section.
+The home dashboard should continue showing a compact task section.
+
+Title:
+
+`Today's tasks to fulfill your plans`
 
 After the backend task feature is implemented, the dashboard should load task
 candidates from the database instead of `dummy-data.ts`.
@@ -53,6 +57,7 @@ Do not show:
 - a horizontal progress bar
 - duplicate progress visuals
 - a full edit form inside the dashboard card
+- numeric `Weight` or `Completed weight` fields
 
 Clicking or focusing a task card should expand it. Clicking it again should
 collapse it.
@@ -61,7 +66,6 @@ Expanded state should show:
 
 - description when present
 - child tasks as checklist rows
-- child task weight circles
 - compact actions for `Done`, `Block`, `Skip`, and `Edit`
 
 Child task behavior:
@@ -69,9 +73,7 @@ Child task behavior:
 - clicking a child checkbox marks that child task done or reopens it
 - child task commands should not collapse the parent card because the user may
   be completing several child tasks in one session
-- child task rows should show their title, optional description, and weight
-  circles
-- if a child task is complete, all of its weight circles are green
+- child task rows should show their title, optional description, and done state
 
 Dashboard command behavior:
 
@@ -87,10 +89,12 @@ Dashboard command behavior:
 
 ## Tasks Page
 
-The Tasks page is the full management page for this feature.
+The Tasks page is the full plan and task management page for this feature.
 
 The first Tasks page should allow the user to:
 
+- view plans
+- add, edit, pause, complete, archive, and delete plans
 - view normal tasks
 - filter by status
 - filter by plan
@@ -99,7 +103,8 @@ The first Tasks page should allow the user to:
 - archive a task
 - delete a task
 - add and edit child tasks
-- complete, partially complete, skip, block, and reopen tasks
+- set prerequisite tasks
+- complete, skip, block, and reopen tasks
 
 The first Tasks page does not need:
 
@@ -109,6 +114,7 @@ The first Tasks page does not need:
 - AI-generated task breakdown
 - review summary charts
 - reward previews
+- numeric weight editing
 
 ## Page Layout
 
@@ -116,12 +122,22 @@ Use a dense management layout similar to the Memories and Routines pages.
 
 Top section:
 
-- left side: `ListTodo` icon, title `Tasks`, and description
-- right side: `Add` button with a plus icon
+- left side: `ListTodo` icon, title `Plans and Tasks`, and description
+- right side: `Add plan` and `Add task` buttons with plus icons
 
 Suggested description:
 
-`Plan concrete work, subtasks, deadlines, and progress.`
+`Track bigger plans and the concrete tasks that move them forward.`
+
+Plans section:
+
+- show before the task list
+- use the title `Plans`
+- show active plans as compact plan cards
+- each plan card should show title, deadline, status, priority, and derived
+  progress from tasks
+- clicking a plan filters or focuses the task list for that plan
+- an empty Plans section should say `No plans yet. Add a plan for a larger goal.`
 
 Filter section:
 
@@ -150,6 +166,7 @@ Collapsed item should show:
 - status tag
 - deadline or scheduled date
 - progress indicator
+- dependency-ready or blocked-by-prerequisite text when relevant
 
 Expanded item should append details below the header without pushing the
 expand/collapse indicator left.
@@ -158,8 +175,8 @@ Expanded details should show:
 
 - description
 - child task list
-- progress text such as `2 / 5 weight done`
-- actions: `Done`, `Progress`, `Block`, `Skip`, `Edit`
+- dependency or prerequisite text
+- actions: `Done`, `Block`, `Skip`, `Edit`
 
 The expanded area should share the same background color as the expanded list
 item. Hover color should not create a mismatched block between the collapsed
@@ -178,30 +195,30 @@ Fields:
 - plan
 - priority
 - status
-- weight
-- completed weight
 - deadline
 - scheduled date
 - child tasks
+- prerequisite tasks
 
 Required fields:
 
 - title
-- weight
 
 Default values:
 
 - priority: `medium`
 - status: `todo`
-- weight: `1`
-- completed weight: `0`
 
 The child task editor should start simple:
 
 - show an `Add subtask` action
-- each child row has title and weight
+- each child row has title and optional description
 - do not support deep nesting in the first UI
 - do not show a separate page for child creation in the first UI
+
+Do not show numeric `Weight` or `Completed weight` fields in the add task
+dialog. If the implementation still needs internal defaults temporarily, keep
+them hidden from the user.
 
 Successful save closes the dialog and refreshes visible task data. Failed save
 keeps the dialog open and shows the backend message.
@@ -225,26 +242,16 @@ behind confirmation.
 Successful save, archive, or delete closes the dialog and refreshes visible task
 data. Failed actions keep the dialog open and show the backend message.
 
-## Progress Dialog
+## Progress
 
-Partial completion should use a focused dialog opened from `Progress`.
+Do not use a numeric progress dialog in the next implementation. Partial
+progress should come from child task completion or future plan phases.
 
-Title: `Update progress`.
+If a task has no child tasks, it is either open or done. If partial progress
+feels necessary, the UI should encourage adding child tasks instead of editing a
+number.
 
-Fields:
-
-- total weight
-- completed weight
-
-Rules:
-
-- completed weight cannot be less than `0`
-- completed weight cannot be greater than total weight
-- total weight must be greater than `0`
-- setting completed weight equal to total weight marks the task done
-
-Successful save closes the dialog and refreshes visible task data. Failed save
-keeps the dialog open and shows the backend message.
+This also avoids browser-native localized validation popups from number inputs.
 
 ## Status Text
 
@@ -270,7 +277,7 @@ Empty dashboard text:
 
 Empty Tasks page text:
 
-`No tasks yet. Add a task to start planning concrete work.`
+`No tasks yet. Add a plan or task to start tracking concrete work.`
 
 Validation errors should appear near the related field inside dialogs. Failed
 optimistic dashboard commands should appear as shared notifications.
@@ -286,7 +293,7 @@ Before implementation is accepted, inspect:
 - child task checkbox behavior
 - add task dialog
 - edit task dialog
-- progress dialog
+- plan card section
 - validation errors
 - failed command notification behavior
 - no overlapping text in task cards, dialogs, or filter tags
