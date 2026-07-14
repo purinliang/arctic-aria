@@ -51,10 +51,15 @@ distinction.
 The Projects page should show:
 
 - project list
+- milestone summaries inside each project list item
+- `Add project` action
+
+The Project detail page should show:
+
+- breadcrumb with project switcher
 - selected project detail
 - milestone, task, and subtask tree
-- `Add project` action
-- milestone and task add/edit actions
+- project, milestone, and task add/edit actions
 
 `Add project` should open project creation.
 
@@ -118,27 +123,25 @@ body under the shared page title bar.
 ### Projects Page Component Tree
 
 `ProjectsPage` owns project-management state for the selected project and open
-editor dialogs. Its visible page content is one shared `Panel`.
+editor dialogs. It switches between the list page and the detail page inside the
+existing dashboard view.
 
 ```text
 ProjectsPage
-  Panel
-    optional InlineMessage
-    two-column management grid
-      ProjectsList
-      ProjectDetailPage
+  optional InlineMessage
+  ProjectsList, when no project is selected for detail view
+  ProjectDetailPage, when a project is selected for detail view
   ProjectEditorDialog, when adding or editing a project
   MilestoneEditorDialog, when adding or editing a milestone
   ProjectTaskEditorDialog, when adding or editing a task
 ```
 
-The management grid uses `lg:grid-cols-[360px_minmax(0,1fr)]`. On desktop, the
-project list is the left column and selected project detail is the right column.
-On smaller screens, the same children stack vertically with the list first.
+The project list and project detail are separate user-visible pages. Do not use
+a permanent side-by-side list/detail grid for this flow.
 
 ### Project List Layout
 
-`ProjectsList` is a vertical section inside the left grid column.
+`ProjectsList` is the first Projects page. It uses one shared `Panel`.
 
 Top header:
 
@@ -155,14 +158,24 @@ List body:
 - item first line: project title, status `Tag`, priority `Tag`
 - item second line: truncated description
 - item third line: timeline text, current milestone, progress text
-- selected item appends an `Edit project` button below the summary
+- milestone preview: vertical rows below the project summary
+- milestone preview row: milestone title, status `Tag`, progress text
+- footer action: `View`, which opens the detail page
 
-Clicking the item selects the project. Clicking `Edit project` opens
-`ProjectEditorDialog`.
+Clicking the item or its `View` action opens the detail page. The list page does
+not show task or subtask rows.
 
 ### Project Detail Layout
 
-`ProjectDetailPage` is a vertical section inside the right grid column.
+`ProjectDetailPage` is the second Projects page. It uses one shared `Panel`.
+
+Breadcrumb row:
+
+- layout: horizontal flex with wrapping
+- first item: `Projects`, which returns to the list page
+- divider: `/`
+- second item: project name switcher
+- switching through the project name keeps the user on the detail page
 
 Project header:
 
@@ -173,8 +186,8 @@ Project header:
 Action row:
 
 - layout: horizontal flex with wrapping
-- action: `Add milestone`
-- icon: `Plus`
+- actions: `Edit project`, then `Add milestone`
+- icons: `Edit3`, `Plus`
 
 Milestone list:
 

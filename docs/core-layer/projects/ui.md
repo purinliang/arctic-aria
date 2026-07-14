@@ -87,7 +87,8 @@ Main content:
 
 - active project list
 - archived or completed projects hidden by default
-- compact project cards
+- project cards with milestone summaries
+- tasks and subtasks hidden by default
 
 Each project card should show:
 
@@ -98,26 +99,30 @@ Each project card should show:
 - current milestone
 - derived progress
 - status
+- milestone summaries
 
-Clicking a project card opens a Project detail page. It should not open an edit
-dialog.
+Each milestone summary should show:
+
+- milestone title
+- status
+- derived progress
+
+The project list page should not show task rows or subtask rows. Clicking a
+project card or its `View` action opens a Project detail page. It should not
+open an edit dialog.
 
 ### Projects Page Layout
 
-The page uses one shared `Panel` as the visible container for the management
-area.
+The Projects page is a list-first page. It should not use a permanent
+side-by-side list/detail layout.
 
-Desktop layout:
+Page layout:
 
-- direction: horizontal
-- left column: project list, fixed around 360px
-- right column: selected project detail, flexible width
-
-Mobile and narrow layout:
-
+- parent surface: one shared `Panel`
 - direction: vertical
-- project list appears first
-- selected project detail appears below the list
+- top header: title and description on the left, `Add project` on the right
+- project list: vertical list of project cards
+- project creation: `Add project` opens the project editor dialog
 
 Project list layout:
 
@@ -129,25 +134,10 @@ Project list layout:
 - project item first line: title, status tag, priority tag
 - project item second line: truncated description
 - project item third line: timeline, current milestone, progress text
-- selected project item appends an `Edit project` button below the summary
-
-Selected project detail layout:
-
-- parent section direction: vertical
-- first group: project title and status tag on one wrapping line
-- second group: project description
-- third group: started date, deadline or duration, progress text
-- action group: `Add milestone` button with `Plus`
-- milestone list direction: vertical
-- milestone card header direction: horizontal with wrapping
-- milestone header left group: title and status tag, then objective or progress
-  text
-- milestone header right group: `Edit` with `Edit3`, then `Add task` with
-  `Plus`
-- task rows appear vertically under their milestone
-- task row left group: title, status tag, priority tag, then subtask summary and
-  deadline
-- task row right group: `Done` with `Check`, then `Edit`
+- milestone preview appears below the project summary
+- milestone preview direction: vertical
+- milestone preview row: milestone title, status tag, progress text
+- footer action: `View` with a forward navigation icon
 
 ## Add Project Flow
 
@@ -206,6 +196,7 @@ Clicking a project opens a detail page.
 
 The project detail page should show:
 
+- breadcrumb: `Projects / project name`
 - project title
 - description
 - start date
@@ -223,6 +214,35 @@ Project actions:
 
 Use a page, not a dialog, because project detail needs space for the milestone
 tree and progress context.
+
+Breadcrumb behavior:
+
+- clicking `Projects` returns to the project list page
+- clicking or focusing the project name lets the user switch to another project
+- switching projects should keep the user on the detail page
+- the breadcrumb should not force the user to return to the list page before
+  opening another project
+
+Detail page layout:
+
+- parent surface: one shared `Panel`
+- direction: vertical
+- breadcrumb row: horizontal with wrapping
+- breadcrumb left item: `Projects`
+- breadcrumb divider: `/`
+- breadcrumb right item: current project name switcher
+- project summary group: title and status tag, description, dates, progress
+- action group: edit project, add milestone, and later lifecycle actions
+- milestone list direction: vertical
+- milestone card header direction: horizontal with wrapping
+- milestone header left group: title and status tag, then objective or progress
+  text
+- milestone header right group: `Edit` with `Edit3`, then `Add task` with
+  `Plus`
+- task rows appear vertically under their milestone
+- task row left group: title, status tag, priority tag, then subtask summary and
+  deadline
+- task row right group: `Done` with `Check`, then `Edit`
 
 ## Tree Structure
 
