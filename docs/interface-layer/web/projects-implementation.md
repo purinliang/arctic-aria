@@ -11,7 +11,7 @@ and UI rules are defined in [projects/ui.md](../../core-layer/projects/ui.md).
 The current web implementation supports the first database-backed Project model:
 
 - load Projects, Milestones, Tasks, and Subtasks from Neon
-- add and edit projects
+- add and edit projects with a single description field
 - add and edit milestones
 - add and edit tasks under milestones
 - add and edit subtask checklist items while editing a task
@@ -56,6 +56,21 @@ The Projects page should show:
 - milestone and task add/edit actions
 
 `Add project` should open project creation.
+
+Project creation and editing should use one `Description` textarea instead of
+separate objective and importance fields. The prompt should guide the user to
+write the objective and why the project matters. While the current database
+still has `objective` and `importance_reason`, the web layer treats them as one
+description field for user-facing behavior.
+
+Project timeline input should use a mode selection:
+
+- `Deadline`: enables a deadline date input and clears duration.
+- `Duration`: enables a duration dropdown and clears deadline.
+
+The first duration options are `1-3 months`, `3-6 months`, `6-12 months`, and
+`1-3 years`. The web layer maps these ranges to the current numeric
+`expected_duration_days` storage until a later database cleanup migration.
 
 Task `Edit` can still use a dialog inside the project detail page.
 

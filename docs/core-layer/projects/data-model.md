@@ -28,13 +28,12 @@ Recommended fields:
 - `id`
 - `user_id`
 - `title`
-- `objective`
-- `importance_reason`
+- `description`
 - `status`
 - `priority`
 - `start_date`
 - `deadline_date`
-- `expected_duration_days`
+- `duration_range`
 - `created_at`
 - `updated_at`
 - `completed_at`
@@ -43,16 +42,16 @@ Recommended fields:
 Field rules:
 
 - `title` is required.
-- `objective` is required because it describes what the project is trying to
-  accomplish.
-- `importance_reason` is strongly recommended because it reminds the user why
-  the project matters.
+- `description` is required. It combines what the project is trying to
+  accomplish and why it matters to the user.
 - `start_date` is required.
 - `deadline_date` is optional.
-- `expected_duration_days` is optional.
-- A project can have a deadline, an expected duration, or both.
-- If a project has neither a deadline nor expected duration, the UI should allow
-  it but mark the project as open-ended.
+- `duration_range` is optional.
+- A project must use exactly one timeline mode: either `deadline_date` or
+  `duration_range`.
+- The first duration ranges are `1-3 months`, `3-6 months`, `6-12 months`, and
+  `1-3 years`.
+- Do not expose free numeric duration input in the first UI.
 
 Statuses:
 
@@ -229,3 +228,14 @@ Because some local and Neon databases may already have recorded
 `0005_create_projects.sql` to replace the prototype tables with the Project
 schema. The migration drops the old prototype `plans` and `tasks` tables and
 creates the Project tables above.
+
+Current compatibility note:
+
+- `0005_create_projects.sql` still has `objective`, `importance_reason`, and
+  `expected_duration_days` columns.
+- The web UI treats project description as one user-facing field and maps it
+  into the current columns until a later cleanup migration renames the storage
+  columns.
+- The web UI treats duration as a dropdown range and maps the selected range to
+  the current numeric `expected_duration_days` storage until the cleanup
+  migration adds a native `duration_range` column.

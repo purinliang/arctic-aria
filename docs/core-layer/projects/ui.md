@@ -55,8 +55,7 @@ Main content:
 Each project card should show:
 
 - project title
-- objective
-- importance reason, truncated when long
+- description, truncated when long
 - start date
 - deadline or expected duration
 - current milestone
@@ -74,17 +73,25 @@ implementation if it stays simple.
 Fields:
 
 - title
-- target or objective
-- reason or importance
+- description
 - start date
-- deadline date
-- expected duration
+- timeline type: deadline or duration
+- deadline date, when timeline type is deadline
+- duration range, when timeline type is duration
 
 Deadline and expected duration:
 
-- allow a hard deadline
-- allow expected duration when there is no hard deadline
-- allow open-ended projects only when the user explicitly leaves both blank
+- allow either a hard deadline or an expected duration range, not both
+- show a single selection for the timeline type
+- use a duration dropdown instead of free numeric duration input
+- first duration options: `1-3 months`, `3-6 months`, `6-12 months`,
+  `1-3 years`
+
+Description prompt:
+
+- label: `Description`
+- placeholder should guide the user to write both the goal and life reason,
+  such as `Objective: to ... How and why is it important to you?`
 
 Milestone hint:
 
@@ -101,8 +108,7 @@ Clicking a project opens a detail page.
 The project detail page should show:
 
 - project title
-- objective
-- importance reason
+- description
 - start date
 - deadline or expected duration
 - derived progress

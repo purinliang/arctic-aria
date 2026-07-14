@@ -38,14 +38,18 @@ The user should create the project first. At project creation time, collect only
 the stable top-level information:
 
 - title
-- target or objective
-- reason or importance
+- description
 - start date
-- hard deadline or expected duration
+- hard deadline or expected duration range
 
 The project should not require detailed implementation tasks at creation time.
 The user often does not know the exact details yet, and those details will
 change after the user starts.
+
+Project description replaces the previous separate objective and importance
+reason fields. It should prompt the user to describe what the project is trying
+to accomplish and why it matters in real life, such as `Objective: to ...` and
+`How and why is it important to you?`.
 
 ### Milestone
 
