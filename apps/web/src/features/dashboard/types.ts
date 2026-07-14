@@ -6,7 +6,7 @@ export type TaskStatus =
   | "done"
   | "archived";
 
-export type DashboardView = "dashboard" | "tasks" | "routines" | "memories";
+export type DashboardView = "dashboard" | "projects" | "routines" | "memories";
 
 export type Priority = "high" | "medium" | "low";
 
@@ -14,9 +14,7 @@ export type Subtask = {
   id: string;
   title: string;
   description: string;
-  weight: number;
-  completedWeight: number;
-  status: TaskStatus;
+  isDone: boolean;
   done: boolean;
 };
 
@@ -24,14 +22,15 @@ export type Task = {
   id: string;
   title: string;
   description: string;
-  planLabel: string;
+  projectLabel: string;
+  milestoneLabel: string;
   deadline: string;
   priority: Priority;
   status: TaskStatus;
-  weight: number;
-  completedWeight: number;
-  deadlineAt: string;
   scheduledDate: string;
+  startDate: string;
+  deadlineDate: string;
+  subtaskSummary: string;
   subtasks?: Subtask[];
 };
 

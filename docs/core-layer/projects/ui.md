@@ -36,6 +36,43 @@ Dashboard task cards should not show:
 The atomic scheduled unit is the task. A task can last a few days, but subtasks
 should remain checklist details inside the task.
 
+### Dashboard Task Card Layout
+
+The dashboard project area is the main left dashboard panel. Routines and
+pinned memories stay in the right-side dashboard column.
+
+Panel header:
+
+- icon: `Check`
+- title: `Today's tasks to move projects forward`
+- meta: number of recommended tasks
+
+Collapsed task card layout:
+
+- parent surface: one full-width task card row
+- row direction: horizontal, with task text on the left and expand chevron on
+  the right
+- left text group direction: vertical
+- first text line: task title, priority tag, status tag
+- second text line: project title, milestone title, deadline, subtask summary
+- right icon: `ChevronDown`, rotated when expanded
+
+Expanded task card layout:
+
+- expanded content appends under the collapsed row
+- expanded content should share the same card surface and color as the collapsed
+  row
+- first line: task description
+- middle section: subtask checklist rows
+- each subtask row: checkbox on the left, title and description on the right
+- footer action row direction: horizontal with wrapping on small screens
+- actions in order: `Done` with `Check`, `Block` with `Ban`, `Skip` with
+  `SkipForward`, `Edit` with `Edit3`
+
+`Done` is an unfinished command while waiting for user input, so it should use
+the normal command-button style. Do not make it green before the task is
+completed.
+
 ## Projects Page
 
 The Projects page is the project management entry point.
@@ -50,21 +87,57 @@ Main content:
 
 - active project list
 - archived or completed projects hidden by default
-- compact project cards
+- project cards with milestone summaries
+- tasks and subtasks hidden by default
 
 Each project card should show:
 
 - project title
-- objective
-- importance reason, truncated when long
+- description, truncated when long
 - start date
 - deadline or expected duration
 - current milestone
 - derived progress
 - status
+- milestone summaries
 
-Clicking a project card opens a Project detail page. It should not open an edit
-dialog.
+Each milestone summary should show:
+
+- milestone title
+- status
+- derived progress
+
+The project list page should not show task rows or subtask rows. Clicking a
+project card or its `View` action opens a Project detail page. It should not
+open an edit dialog.
+
+### Projects Page Layout
+
+The Projects page is a list-first page. It should not use a permanent
+side-by-side list/detail layout.
+
+Page layout:
+
+- parent surface: one shared `Panel`
+- direction: vertical
+- top header: title and description on the left, `Add project` on the right
+- project list: vertical list of project cards
+- project creation: `Add project` opens the project editor dialog
+
+Project list layout:
+
+- parent section direction: vertical
+- header direction: horizontal with wrapping
+- header left group: `Projects` title, then description below it
+- header right group: `Add project` button with `Plus`
+- list direction: vertical
+- project item first line: title, status tag, priority tag
+- project item second line: truncated description
+- project item third line: timeline, current milestone, progress text
+- milestone preview appears below the project summary
+- milestone preview direction: vertical
+- milestone preview row: milestone title, status tag, progress text
+- footer action: `View` with a forward navigation icon
 
 ## Add Project Flow
 
@@ -74,17 +147,25 @@ implementation if it stays simple.
 Fields:
 
 - title
-- target or objective
-- reason or importance
+- description
 - start date
-- deadline date
-- expected duration
+- timeline type: deadline or duration
+- deadline date, when timeline type is deadline
+- duration range, when timeline type is duration
 
 Deadline and expected duration:
 
-- allow a hard deadline
-- allow expected duration when there is no hard deadline
-- allow open-ended projects only when the user explicitly leaves both blank
+- allow either a hard deadline or an expected duration range, not both
+- show a single selection for the timeline type
+- use a duration dropdown instead of free numeric duration input
+- first duration options: `1-3 months`, `3-6 months`, `6-12 months`,
+  `1-3 years`
+
+Description prompt:
+
+- label: `Description`
+- placeholder should guide the user to write both the goal and life reason,
+  such as `Objective: to ... How and why is it important to you?`
 
 Milestone hint:
 
@@ -94,15 +175,30 @@ Milestone hint:
 - create a default milestone named `Project completion` if the user skips
   milestone setup
 
+Project dialog layout:
+
+- overlay: semi-transparent backdrop over the current page
+- frame direction: vertical
+- top row: dialog title and close button
+- optional message appears below the title row
+- field direction: vertical
+- fields in order: title, description, timeline, dates or duration, priority
+- timeline selector direction: horizontal with wrapping
+- timeline options: `Deadline`, `Duration`
+- date fields direction: two columns on desktop, stacked on mobile
+- priority selector direction: horizontal with wrapping
+- footer action row: `Save` button with `Save`; loading state uses
+  `LoaderCircle`
+
 ## Project Detail Page
 
 Clicking a project opens a detail page.
 
 The project detail page should show:
 
+- breadcrumb: `Projects / project name`
 - project title
-- objective
-- importance reason
+- description
 - start date
 - deadline or expected duration
 - derived progress
@@ -118,6 +214,35 @@ Project actions:
 
 Use a page, not a dialog, because project detail needs space for the milestone
 tree and progress context.
+
+Breadcrumb behavior:
+
+- clicking `Projects` returns to the project list page
+- clicking or focusing the project name lets the user switch to another project
+- switching projects should keep the user on the detail page
+- the breadcrumb should not force the user to return to the list page before
+  opening another project
+
+Detail page layout:
+
+- parent surface: one shared `Panel`
+- direction: vertical
+- breadcrumb row: horizontal with wrapping
+- breadcrumb left item: `Projects`
+- breadcrumb divider: `/`
+- breadcrumb right item: current project name switcher
+- project summary group: title and status tag, description, dates, progress
+- action group: edit project, add milestone, and later lifecycle actions
+- milestone list direction: vertical
+- milestone card header direction: horizontal with wrapping
+- milestone header left group: title and status tag, then objective or progress
+  text
+- milestone header right group: `Edit` with `Edit3`, then `Add task` with
+  `Plus`
+- task rows appear vertically under their milestone
+- task row left group: title, status tag, priority tag, then subtask summary and
+  deadline
+- task row right group: `Done` with `Check`, then `Edit`
 
 ## Tree Structure
 

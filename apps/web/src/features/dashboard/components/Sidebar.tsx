@@ -2,7 +2,7 @@ import {
   Bell,
   ClipboardList,
   LayoutDashboard,
-  ListTodo,
+  FolderKanban,
   LogOut,
   Moon,
   Settings,
@@ -149,11 +149,11 @@ function SidebarFrame({
           onClick={() => onSelectView("dashboard")}
         />
         <SidebarItem
-          icon={<ListTodo size={18} aria-hidden="true" />}
-          label="Tasks"
-          active={activeView === "tasks"}
+          icon={<FolderKanban size={18} aria-hidden="true" />}
+          label="Projects"
+          active={activeView === "projects"}
           darkMode={darkMode}
-          onClick={() => onSelectView("tasks")}
+          onClick={() => onSelectView("projects")}
         />
         <SidebarItem
           icon={<Bell size={18} aria-hidden="true" />}

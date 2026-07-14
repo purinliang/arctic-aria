@@ -5,8 +5,8 @@ import {
 } from "@/components/ui/color";
 import { Panel } from "@/components/ui/panel";
 import { PinnedMemoryCard } from "@/features/memories/components/PinnedMemoryCard";
+import { ProjectTaskCard } from "@/features/projects/components/ProjectTaskCard";
 import { RoutineCard } from "@/features/routines/components/RoutineCard";
-import { TaskCard } from "@/features/tasks/components/TaskCard";
 import type {
   PinnedMemory,
   Routine,
@@ -20,7 +20,8 @@ export function DashboardHome({
   darkMode,
   tasks,
   taskLoading,
-  taskActionPending,
+  pendingTaskIds,
+  pendingSubtaskIds,
   expandedTaskId,
   routines,
   routineLoading,
@@ -48,7 +49,8 @@ export function DashboardHome({
   darkMode: boolean;
   tasks: Task[];
   taskLoading: boolean;
-  taskActionPending: boolean;
+  pendingTaskIds: string[];
+  pendingSubtaskIds: string[];
   expandedTaskId: string | null;
   routines: Routine[];
   routineLoading: boolean;
@@ -81,7 +83,7 @@ export function DashboardHome({
       <Panel darkMode={darkMode} className="min-w-0">
         <SectionHeader
           icon={<Check size={18} aria-hidden="true" />}
-          title="Today's Tasks"
+          title="Today's tasks to move projects forward"
           meta={`${tasks.length} recommended`}
           darkMode={darkMode}
         />
@@ -93,11 +95,12 @@ export function DashboardHome({
             <EmptyLine darkMode={darkMode} text="No tasks selected for today." />
           ) : null}
           {tasks.map((task) => (
-            <TaskCard
+            <ProjectTaskCard
               key={task.id}
               task={task}
               darkMode={darkMode}
-              disabled={taskActionPending}
+              taskPending={pendingTaskIds.includes(task.id)}
+              pendingSubtaskIds={pendingSubtaskIds}
               expanded={expandedTaskId === task.id}
               onToggleExpanded={() => onTaskExpand(task.id)}
               onSubtaskToggle={(subtaskId) => onSubtaskToggle(task, subtaskId)}
