@@ -1,4 +1,5 @@
 import type {
+  MemorySuggestion,
   PinnedMemory,
   PinnedMemoryStatus,
   Routine,
@@ -70,4 +71,31 @@ export function applyOptimisticPinnedMemoryStatus(
         }
       : memory,
   );
+}
+
+export function addPendingSuggestionId(
+  pendingSuggestionIds: string[],
+  memoryId: string,
+): string[] {
+  if (pendingSuggestionIds.includes(memoryId)) {
+    return pendingSuggestionIds;
+  }
+
+  return [...pendingSuggestionIds, memoryId];
+}
+
+export function removePendingSuggestionId(
+  pendingSuggestionIds: string[],
+  memoryId: string,
+): string[] {
+  return pendingSuggestionIds.filter(
+    (pendingMemoryId) => pendingMemoryId !== memoryId,
+  );
+}
+
+export function removeMemorySuggestion(
+  suggestions: MemorySuggestion[],
+  memoryId: string,
+): MemorySuggestion[] {
+  return suggestions.filter((suggestion) => suggestion.id !== memoryId);
 }
