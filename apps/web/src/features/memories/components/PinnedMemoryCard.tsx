@@ -4,6 +4,8 @@ import { mutedTextClass } from "@/components/ui/color";
 import { Tag } from "@/components/ui/tag";
 import type { PinnedMemory } from "@/features/dashboard/types";
 
+const actionIconSize = 15;
+
 export function PinnedMemoryCard({
   memory,
   darkMode,
@@ -99,7 +101,7 @@ export function PinnedMemoryCard({
                 tone="success"
                 className="px-2"
                 disabled={disabled}
-                icon={<RotateCcw size={15} aria-hidden="true" />}
+                icon={<RotateCcw size={actionIconSize} aria-hidden="true" />}
                 onClick={onCancelDone}
               >
                 Cancel
@@ -109,7 +111,7 @@ export function PinnedMemoryCard({
                 darkMode={darkMode}
                 className="px-2"
                 disabled={disabled}
-                icon={<Check size={15} aria-hidden="true" />}
+                icon={<Check size={actionIconSize} aria-hidden="true" />}
                 onClick={onDone}
               >
                 Done
@@ -119,7 +121,7 @@ export function PinnedMemoryCard({
               darkMode={darkMode}
               className="px-2"
               disabled={disabled}
-              icon={<RefreshCw size={14} aria-hidden="true" />}
+              icon={<RefreshCw size={actionIconSize} aria-hidden="true" />}
               onClick={onReplace}
             >
               Replace
@@ -128,7 +130,7 @@ export function PinnedMemoryCard({
               darkMode={darkMode}
               className="px-2"
               disabled={disabled}
-              icon={<Eye size={15} aria-hidden="true" />}
+              icon={<Eye size={actionIconSize} aria-hidden="true" />}
               onClick={onView}
             >
               View
