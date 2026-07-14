@@ -124,7 +124,6 @@ export function ProjectTaskCard({
           <div className="flex flex-wrap gap-2 pt-1">
             <Button
               darkMode={darkMode}
-              tone="success"
               disabled={disabled || task.status === "done"}
               icon={<Check size={14} aria-hidden="true" />}
               onClick={onDone}

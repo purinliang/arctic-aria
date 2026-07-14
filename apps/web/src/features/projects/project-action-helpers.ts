@@ -4,6 +4,7 @@ import {
   durationLabelForDays,
   durationRangeForDays,
 } from "./project-duration";
+import { isValidProjectDate } from "./project-date-validation";
 import type {
   ProjectDurationRange,
   ProjectTimelineType,
@@ -151,14 +152,20 @@ export function validateProjectInput(input: ProjectInput) {
   }
 
   if (!validateDate(startDate)) {
-    return { ok: false as const, message: "Start date must use YYYY-MM-DD." };
+    return {
+      ok: false as const,
+      message: "Start date must be a real date in YYYY-MM-DD format.",
+    };
   }
 
   if (input.timelineType === "deadline") {
     deadlineDate = input.deadlineDate.trim();
 
     if (!deadlineDate || !validateDate(deadlineDate)) {
-      return { ok: false as const, message: "Deadline date must use YYYY-MM-DD." };
+      return {
+        ok: false as const,
+        message: "Deadline date must be a real date in YYYY-MM-DD format.",
+      };
     }
 
     if (deadlineDate < startDate) {
@@ -199,11 +206,17 @@ export function validateMilestoneInput(input: MilestoneInput) {
   }
 
   if (startDate && !validateDate(startDate)) {
-    return { ok: false as const, message: "Start date must use YYYY-MM-DD." };
+    return {
+      ok: false as const,
+      message: "Start date must be a real date in YYYY-MM-DD format.",
+    };
   }
 
   if (deadlineDate && !validateDate(deadlineDate)) {
-    return { ok: false as const, message: "Deadline date must use YYYY-MM-DD." };
+    return {
+      ok: false as const,
+      message: "Deadline date must be a real date in YYYY-MM-DD format.",
+    };
   }
 
   if (startDate && deadlineDate && deadlineDate < startDate) {
@@ -249,7 +262,10 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
 
   for (const value of [scheduledDate, startDate, deadlineDate]) {
     if (value && !validateDate(value)) {
-      return { ok: false as const, message: "Dates must use YYYY-MM-DD." };
+      return {
+        ok: false as const,
+        message: "Dates must be real calendar dates in YYYY-MM-DD format.",
+      };
     }
   }
 
@@ -368,5 +384,5 @@ function parseOptionalInteger(value: string) {
 }
 
 function validateDate(value: string) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value);
+  return isValidProjectDate(value);
 }

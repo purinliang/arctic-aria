@@ -167,7 +167,6 @@ function ProjectTaskRow({
           <Button
             darkMode={darkMode}
             size="xs"
-            tone="success"
             disabled={pending || task.status === "done"}
             icon={<Check size={13} aria-hidden="true" />}
             onClick={() => onTaskStatus(task.id, "done")}
