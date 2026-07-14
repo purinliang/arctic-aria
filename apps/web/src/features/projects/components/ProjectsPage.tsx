@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { SetStateAction } from "react";
 import { InlineMessage } from "@/components/ui/text";
 import type { TaskStatus } from "@/features/dashboard/types";
@@ -33,11 +33,13 @@ export function ProjectsPage({
   loading,
   pending,
   message,
+  selectedProjectId,
   onProjectSave,
   onMilestoneSave,
   onTaskSave,
   onTaskStatus,
   onSubtaskToggle,
+  onProjectSelect,
   onMessageClear,
 }: {
   darkMode: boolean;
@@ -45,6 +47,7 @@ export function ProjectsPage({
   loading: boolean;
   pending: boolean;
   message: string | null;
+  selectedProjectId: string | null;
   onProjectSave: (input: ProjectInput) => ProjectResult;
   onMilestoneSave: (input: MilestoneInput) => ProjectResult;
   onTaskSave: (input: ProjectTaskInput) => ProjectResult;
@@ -53,9 +56,9 @@ export function ProjectsPage({
     status: Exclude<TaskStatus, "archived">,
   ) => ProjectResult;
   onSubtaskToggle: (subtaskId: string, done: boolean) => ProjectResult;
+  onProjectSelect: (projectId: string | null) => void;
   onMessageClear: () => void;
 }) {
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [projectDraft, setProjectDraft] = useState<ProjectInput | null>(null);
   const [milestoneDraft, setMilestoneDraft] = useState<MilestoneInput | null>(
     null,
@@ -68,6 +71,12 @@ export function ProjectsPage({
         : null,
     [projects, selectedProjectId],
   );
+
+  useEffect(() => {
+    if (selectedProjectId && !loading && !selectedProject) {
+      onProjectSelect(null);
+    }
+  }, [loading, onProjectSelect, selectedProject, selectedProjectId]);
 
   function closeDialogs() {
     if (!pending) {
@@ -157,10 +166,7 @@ export function ProjectsPage({
           <ProjectDetailPage
             darkMode={darkMode}
             pending={pending}
-            projects={projects}
             project={selectedProject}
-            onBackToList={() => setSelectedProjectId(null)}
-            onSelectProject={setSelectedProjectId}
             onEditProject={(project) => {
               onMessageClear();
               setProjectDraft(projectToDraft(project));
@@ -192,7 +198,7 @@ export function ProjectsPage({
             loading={loading}
             pending={pending}
             projects={projects}
-            onViewProject={setSelectedProjectId}
+            onViewProject={(projectId) => onProjectSelect(projectId)}
             onAddProject={() => {
               onMessageClear();
               setProjectDraft(emptyProjectDraft());

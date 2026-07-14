@@ -5,7 +5,10 @@ Tasks, and Subtasks. Product data rules are documented in [data-model.md](data-m
 
 ## Sidebar
 
-The sidebar `Projects` item opens the Projects page.
+The sidebar `Projects` item opens the Projects list page. If the user is
+already viewing a Project detail page, clicking sidebar `Projects` must return
+to the Projects list page instead of keeping the current Project detail page
+selected.
 
 ## Dashboard
 
@@ -137,6 +140,8 @@ Project list layout:
 - milestone preview appears below the project summary
 - milestone preview direction: vertical
 - milestone preview row: milestone title, status tag, progress text
+- milestone preview rows should stay transparent, without their own outlined box
+  or background fill
 - footer action: `View` with a forward navigation icon
 
 ## Add Project Flow
@@ -196,7 +201,6 @@ Clicking a project opens a detail page.
 
 The project detail page should show:
 
-- breadcrumb: `Projects / project name`
 - project title
 - description
 - start date
@@ -217,22 +221,45 @@ tree and progress context.
 
 Breadcrumb behavior:
 
-- clicking `Projects` returns to the project list page
-- clicking or focusing the project name lets the user switch to another project
+- the page title bar, not the detail panel, shows `Projects / project name`
+- `Projects` in the page title bar returns to the project list page
+- clicking or focusing the project name opens a menu-style project switcher
 - switching projects should keep the user on the detail page
 - the breadcrumb should not force the user to return to the list page before
   opening another project
 
+Project title switcher:
+
+- use a button plus dropdown menu, not an input-like select field
+- the button text is the current project name
+- show a `ChevronDown` icon to hint that it opens a menu
+- the menu lists available projects as buttons
+- the current project should be visually active
+- long project names should truncate in the title button without changing title
+  height
+- long project names inside the opened menu should truncate instead of changing
+  row height
+- the opened menu should scroll vertically when the project count exceeds the
+  available height
+
 Detail page layout:
 
-- parent surface: one shared `Panel`
-- direction: vertical
-- breadcrumb row: horizontal with wrapping
-- breadcrumb left item: `Projects`
-- breadcrumb divider: `/`
-- breadcrumb right item: current project name switcher
-- project summary group: title and status tag, description, dates, progress
-- action group: edit project, add milestone, and later lifecycle actions
+- parent layout: shared split layout
+- direction: left-right on desktop, stacked on mobile
+- desktop split: flexible left panel and fixed `24rem` right panel
+- if available width cannot keep the left panel at least 20% wider than the
+  right panel, stack the panels vertically instead
+- use the shared `aa-split-*` classes so the two-column layout activates only
+  when the detail container is at least `53rem` wide
+- left and right panels keep independent content-driven heights
+- left panel: milestone/task/subtask tree
+- right panel: project overview
+- left card: `Milestones` card with icon, supporting text, and `Add milestone`
+- right card: `Overview` with `Edit project`
+- overview metadata group: title, status, description, priority, start date, and
+  deadline or duration
+- do not show current milestone or progress in the metadata card; that
+  information is already visible in the milestone tree
 - milestone list direction: vertical
 - milestone card header direction: horizontal with wrapping
 - milestone header left group: title and status tag, then objective or progress

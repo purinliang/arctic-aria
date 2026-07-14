@@ -75,6 +75,13 @@ user.
   before adding more behavior.
 - Focus on the task implied by the branch name. For example, do not implement
   application code during documentation-only work on an `agent/docs-*` branch.
+- For desktop left-right page layouts, use the shared split pattern: flexible
+  left content panel and fixed `24rem` right metadata/action panel. If the
+  available width cannot keep the left panel at least 20% wider than the right
+  panel, stack the panels vertically. In the web app, use
+  `aa-split-container`, `aa-split-panel`, and `aa-split-panel-sidebar` for this
+  width behavior. The split must not equalize panel heights; left and right
+  panels keep independent content-driven heights.
 - If the user asks for an unrelated bug fix or chore while another branch has
   active work in progress, do not mix it into the current branch. Stash the
   current work, switch back to `develop`, create a focused `agent/fix-*` or

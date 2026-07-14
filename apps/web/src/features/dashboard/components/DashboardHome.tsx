@@ -79,103 +79,105 @@ export function DashboardHome({
   onMemoryView: (memoryId: string) => void;
 }) {
   return (
-    <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-      <Panel darkMode={darkMode} className="min-w-0">
-        <SectionHeader
-          icon={<Check size={18} aria-hidden="true" />}
-          title="Today's tasks to move projects forward"
-          meta={`${tasks.length} recommended`}
-          darkMode={darkMode}
-        />
-        <div className={dividerClass(darkMode)}>
-          {taskLoading ? (
-            <EmptyLine darkMode={darkMode} text="Loading tasks..." />
-          ) : null}
-          {!taskLoading && tasks.length === 0 ? (
-            <EmptyLine darkMode={darkMode} text="No tasks selected for today." />
-          ) : null}
-          {tasks.map((task) => (
-            <ProjectTaskCard
-              key={task.id}
-              task={task}
+    <section className="aa-split-container">
+      <div className="aa-split-panel gap-4">
+        <Panel darkMode={darkMode} className="min-w-0">
+          <SectionHeader
+            icon={<Check size={18} aria-hidden="true" />}
+            title="Today's tasks to move projects forward"
+            meta={`${tasks.length} recommended`}
+            darkMode={darkMode}
+          />
+          <div className={dividerClass(darkMode)}>
+            {taskLoading ? (
+              <EmptyLine darkMode={darkMode} text="Loading tasks..." />
+            ) : null}
+            {!taskLoading && tasks.length === 0 ? (
+              <EmptyLine darkMode={darkMode} text="No tasks selected for today." />
+            ) : null}
+            {tasks.map((task) => (
+              <ProjectTaskCard
+                key={task.id}
+                task={task}
+                darkMode={darkMode}
+                taskPending={pendingTaskIds.includes(task.id)}
+                pendingSubtaskIds={pendingSubtaskIds}
+                expanded={expandedTaskId === task.id}
+                onToggleExpanded={() => onTaskExpand(task.id)}
+                onSubtaskToggle={(subtaskId) => onSubtaskToggle(task, subtaskId)}
+                onDone={() => onTaskStatus(task.id, "done")}
+                onBlock={() => onTaskStatus(task.id, "blocked")}
+                onSkip={() => onTaskStatus(task.id, "skipped")}
+                onEdit={onTaskEdit}
+              />
+            ))}
+          </div>
+        </Panel>
+
+        <aside className="grid content-start gap-4">
+          <Panel darkMode={darkMode}>
+            <SectionHeader
+              icon={<Bell size={18} aria-hidden="true" />}
+              title="Routines"
+              meta={`${routines.length} scheduled`}
               darkMode={darkMode}
-              taskPending={pendingTaskIds.includes(task.id)}
-              pendingSubtaskIds={pendingSubtaskIds}
-              expanded={expandedTaskId === task.id}
-              onToggleExpanded={() => onTaskExpand(task.id)}
-              onSubtaskToggle={(subtaskId) => onSubtaskToggle(task, subtaskId)}
-              onDone={() => onTaskStatus(task.id, "done")}
-              onBlock={() => onTaskStatus(task.id, "blocked")}
-              onSkip={() => onTaskStatus(task.id, "skipped")}
-              onEdit={onTaskEdit}
             />
-          ))}
-        </div>
-      </Panel>
+            <DashboardMessage darkMode={darkMode} message={routineMessage} />
+            <div className={dividerClass(darkMode)}>
+              {routineLoading ? (
+                <EmptyLine darkMode={darkMode} text="Loading routines..." />
+              ) : null}
+              {!routineLoading && routines.length === 0 ? (
+                <EmptyLine darkMode={darkMode} text="No routines due today." />
+              ) : null}
+              {routines.map((routine) => (
+                <RoutineCard
+                  key={routine.id}
+                  routine={routine}
+                  darkMode={darkMode}
+                  disabled={routineActionPending}
+                  expanded={expandedRoutineId === routine.id}
+                  onToggleExpanded={() => onRoutineExpand(routine.id)}
+                  onStatusChange={(status) => onRoutineStatus(routine.id, status)}
+                  onBusy={onRoutineBusy}
+                />
+              ))}
+            </div>
+          </Panel>
 
-      <aside className="grid gap-4">
-        <Panel darkMode={darkMode}>
-          <SectionHeader
-            icon={<Bell size={18} aria-hidden="true" />}
-            title="Routines"
-            meta={`${routines.length} scheduled`}
-            darkMode={darkMode}
-          />
-          <DashboardMessage darkMode={darkMode} message={routineMessage} />
-          <div className={dividerClass(darkMode)}>
-            {routineLoading ? (
-              <EmptyLine darkMode={darkMode} text="Loading routines..." />
-            ) : null}
-            {!routineLoading && routines.length === 0 ? (
-              <EmptyLine darkMode={darkMode} text="No routines due today." />
-            ) : null}
-            {routines.map((routine) => (
-              <RoutineCard
-                key={routine.id}
-                routine={routine}
-                darkMode={darkMode}
-                disabled={routineActionPending}
-                expanded={expandedRoutineId === routine.id}
-                onToggleExpanded={() => onRoutineExpand(routine.id)}
-                onStatusChange={(status) => onRoutineStatus(routine.id, status)}
-                onBusy={onRoutineBusy}
-              />
-            ))}
-          </div>
-        </Panel>
-
-        <Panel darkMode={darkMode}>
-          <SectionHeader
-            icon={<ClipboardList size={18} aria-hidden="true" />}
-            title="Pinned Memories"
-            meta={`${pinnedMemories.length} saved`}
-            darkMode={darkMode}
-          />
-          <DashboardMessage darkMode={darkMode} message={memoryMessage} />
-          <div className={dividerClass(darkMode)}>
-            {memoryLoading ? (
-              <EmptyLine darkMode={darkMode} text="Loading pinned memories..." />
-            ) : null}
-            {!memoryLoading && pinnedMemories.length === 0 ? (
-              <EmptyLine darkMode={darkMode} text="No pinned memories yet." />
-            ) : null}
-            {pinnedMemories.map((memory) => (
-              <PinnedMemoryCard
-                key={memory.id}
-                memory={memory}
-                darkMode={darkMode}
-                disabled={memoryActionPending}
-                expanded={expandedMemoryId === memory.id}
-                onDone={() => onMemoryDone(memory.id)}
-                onCancelDone={() => onMemoryCancelDone(memory.id)}
-                onReplace={() => onMemoryReplace(memory.id)}
-                onView={() => onMemoryView(memory.memoryId)}
-                onToggleExpanded={() => onMemoryExpand(memory.id)}
-              />
-            ))}
-          </div>
-        </Panel>
-      </aside>
+          <Panel darkMode={darkMode}>
+            <SectionHeader
+              icon={<ClipboardList size={18} aria-hidden="true" />}
+              title="Pinned Memories"
+              meta={`${pinnedMemories.length} saved`}
+              darkMode={darkMode}
+            />
+            <DashboardMessage darkMode={darkMode} message={memoryMessage} />
+            <div className={dividerClass(darkMode)}>
+              {memoryLoading ? (
+                <EmptyLine darkMode={darkMode} text="Loading pinned memories..." />
+              ) : null}
+              {!memoryLoading && pinnedMemories.length === 0 ? (
+                <EmptyLine darkMode={darkMode} text="No pinned memories yet." />
+              ) : null}
+              {pinnedMemories.map((memory) => (
+                <PinnedMemoryCard
+                  key={memory.id}
+                  memory={memory}
+                  darkMode={darkMode}
+                  disabled={memoryActionPending}
+                  expanded={expandedMemoryId === memory.id}
+                  onDone={() => onMemoryDone(memory.id)}
+                  onCancelDone={() => onMemoryCancelDone(memory.id)}
+                  onReplace={() => onMemoryReplace(memory.id)}
+                  onView={() => onMemoryView(memory.memoryId)}
+                  onToggleExpanded={() => onMemoryExpand(memory.id)}
+                />
+              ))}
+            </div>
+          </Panel>
+        </aside>
+      </div>
     </section>
   );
 }

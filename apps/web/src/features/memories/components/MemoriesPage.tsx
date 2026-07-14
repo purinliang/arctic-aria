@@ -241,61 +241,63 @@ export function MemoriesPage({
 
   return (
     <>
-      <section className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <Panel darkMode={darkMode} className="min-w-0">
-          <MemoryPanelHeader
-            darkMode={darkMode}
-            pending={pending}
-            onAdd={openNewMemoryEditor}
-          />
-          <MemoryFilters
-            darkMode={darkMode}
-            filter={filter}
-            filters={filters}
-            pending={pending}
-            onFilterChange={setFilter}
-            onManage={openManageCategories}
-          />
-          <div className={dividerClass(darkMode)}>
-            <PageMessage darkMode={darkMode} message={message} />
-            {loading ? (
-              <EmptyLine darkMode={darkMode} text="Loading memories..." />
-            ) : null}
-            {!loading && visibleMemories.length === 0 ? (
-              <EmptyLine
-                darkMode={darkMode}
-                text="No memories found for this filter."
-              />
-            ) : null}
-            {visibleMemories.map((memory) => (
-              <MemoryListItem
-                key={memory.id}
-                memory={memory}
-                darkMode={darkMode}
-                selected={memory.id === selectedMemoryId}
-                expanded={expandedMemoryId === memory.id}
-                onToggle={() =>
-                  setExpandedMemoryId((current) =>
-                    current === memory.id ? null : memory.id,
-                  )
-                }
-                onEdit={() => openMemoryEditor(memory)}
-              />
-            ))}
-          </div>
-        </Panel>
+      <section className="aa-split-container">
+        <div className="aa-split-panel gap-4">
+          <Panel darkMode={darkMode} className="min-w-0">
+            <MemoryPanelHeader
+              darkMode={darkMode}
+              pending={pending}
+              onAdd={openNewMemoryEditor}
+            />
+            <MemoryFilters
+              darkMode={darkMode}
+              filter={filter}
+              filters={filters}
+              pending={pending}
+              onFilterChange={setFilter}
+              onManage={openManageCategories}
+            />
+            <div className={dividerClass(darkMode)}>
+              <PageMessage darkMode={darkMode} message={message} />
+              {loading ? (
+                <EmptyLine darkMode={darkMode} text="Loading memories..." />
+              ) : null}
+              {!loading && visibleMemories.length === 0 ? (
+                <EmptyLine
+                  darkMode={darkMode}
+                  text="No memories found for this filter."
+                />
+              ) : null}
+              {visibleMemories.map((memory) => (
+                <MemoryListItem
+                  key={memory.id}
+                  memory={memory}
+                  darkMode={darkMode}
+                  selected={memory.id === selectedMemoryId}
+                  expanded={expandedMemoryId === memory.id}
+                  onToggle={() =>
+                    setExpandedMemoryId((current) =>
+                      current === memory.id ? null : memory.id,
+                    )
+                  }
+                  onEdit={() => openMemoryEditor(memory)}
+                />
+              ))}
+            </div>
+          </Panel>
 
-        <SuggestionsPanel
-          darkMode={darkMode}
-          suggestions={suggestions}
-          suggestionLoading={suggestionLoading}
-          suggestionsRequested={suggestionsRequested}
-          pinnedSuggestionIds={pinnedSuggestionIds}
-          pendingSuggestionIds={pendingSuggestionIds}
-          onSuggestionsRefresh={onSuggestionsRefresh}
-          onSuggestionPin={onSuggestionPin}
-          onSuggestionCancel={onSuggestionCancel}
-        />
+          <SuggestionsPanel
+            darkMode={darkMode}
+            suggestions={suggestions}
+            suggestionLoading={suggestionLoading}
+            suggestionsRequested={suggestionsRequested}
+            pinnedSuggestionIds={pinnedSuggestionIds}
+            pendingSuggestionIds={pendingSuggestionIds}
+            onSuggestionsRefresh={onSuggestionsRefresh}
+            onSuggestionPin={onSuggestionPin}
+            onSuggestionCancel={onSuggestionCancel}
+          />
+        </div>
       </section>
 
       {memoryEditorOpen ? (

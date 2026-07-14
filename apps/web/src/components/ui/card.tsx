@@ -1,6 +1,24 @@
 import type { ReactNode } from "react";
-import { mutedTextClass } from "./color";
+import { mutedTextClass, surfaceClass } from "./color";
 import { cx } from "./utils";
+
+export function Card({
+  darkMode,
+  className,
+  children,
+}: {
+  darkMode: boolean;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <article
+      className={cx("rounded-md border", surfaceClass(darkMode), className)}
+    >
+      {children}
+    </article>
+  );
+}
 
 export function CardHeader({
   icon,
