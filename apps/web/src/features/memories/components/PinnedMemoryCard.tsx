@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Eye, RefreshCw, RotateCcw } from "lucide-react";
+import { Check, ChevronDown, Eye, Repeat2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mutedTextClass } from "@/components/ui/color";
 import { Tag } from "@/components/ui/tag";
@@ -121,7 +121,7 @@ export function PinnedMemoryCard({
               darkMode={darkMode}
               className="px-2"
               disabled={disabled}
-              icon={<RefreshCw size={actionIconSize} aria-hidden="true" />}
+              icon={<Repeat2 size={actionIconSize} aria-hidden="true" />}
               onClick={onReplace}
             >
               Replace
