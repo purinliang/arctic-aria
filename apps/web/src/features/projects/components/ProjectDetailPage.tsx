@@ -50,13 +50,8 @@ export function ProjectDetailPage({
           <Tag darkMode={darkMode}>{titleCase(project.status)}</Tag>
         </div>
         <p className={`mt-2 text-sm leading-6 ${mutedTextClass(darkMode)}`}>
-          {project.objective}
+          {project.description}
         </p>
-        {project.importanceReason ? (
-          <p className={`mt-2 text-sm leading-6 ${mutedTextClass(darkMode)}`}>
-            {project.importanceReason}
-          </p>
-        ) : null}
         <div
           className={`mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm ${mutedTextClass(darkMode)}`}
         >

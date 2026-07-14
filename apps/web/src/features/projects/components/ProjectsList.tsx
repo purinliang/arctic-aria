@@ -102,7 +102,7 @@ function ProjectListItem({
           <Tag darkMode={darkMode}>{titleCase(project.priority)}</Tag>
         </div>
         <p className={`mt-1 line-clamp-2 text-sm ${mutedTextClass(darkMode)}`}>
-          {project.objective}
+          {project.description}
         </p>
         <div
           className={`mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs ${mutedTextClass(darkMode)}`}

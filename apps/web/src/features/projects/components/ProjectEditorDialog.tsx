@@ -10,6 +10,7 @@ import {
 import {
   FieldLabel,
   NumberInput,
+  SelectInput,
   TextArea,
   TextInput,
 } from "@/components/ui/input-field";
@@ -18,6 +19,7 @@ import type {
   MilestoneInput,
   ProjectInput,
 } from "@/features/projects/actions";
+import { projectDurationOptions } from "@/features/projects/project-duration";
 import { priorityOptions } from "./project-page-helpers";
 
 export function ProjectEditorDialog({
@@ -59,34 +61,18 @@ export function ProjectEditorDialog({
           }
         />
       </FieldLabel>
-      <FieldLabel darkMode={darkMode} label="Objective">
+      <FieldLabel darkMode={darkMode} label="Description">
         <TextArea
           darkMode={darkMode}
-          className="min-h-20"
-          value={draft.objective}
-          maxLength={500}
-          disabled={pending}
-          placeholder="What should this project accomplish?"
-          onChange={(event) =>
-            setDraft((current) => ({
-              ...current,
-              objective: event.target.value,
-            }))
-          }
-        />
-      </FieldLabel>
-      <FieldLabel darkMode={darkMode} label="Importance reason" optional>
-        <TextArea
-          darkMode={darkMode}
-          className="min-h-20"
-          value={draft.importanceReason}
+          className="min-h-28"
+          value={draft.description}
           maxLength={1000}
           disabled={pending}
-          placeholder="Why does this matter?"
+          placeholder="Objective: to ... How and why is it important to you?"
           onChange={(event) =>
             setDraft((current) => ({
               ...current,
-              importanceReason: event.target.value,
+              description: event.target.value,
             }))
           }
         />
@@ -178,7 +164,41 @@ function ProjectDateFields({
 }) {
   return (
     <>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-1.5">
+        <span className="text-xs font-semibold">Timeline</span>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            darkMode={darkMode}
+            size="xs"
+            active={draft.timelineType === "deadline"}
+            disabled={pending}
+            onClick={() =>
+              setDraft((current) => ({
+                ...current,
+                timelineType: "deadline",
+              }))
+            }
+          >
+            Deadline
+          </Button>
+          <Button
+            darkMode={darkMode}
+            size="xs"
+            active={draft.timelineType === "duration"}
+            disabled={pending}
+            onClick={() =>
+              setDraft((current) => ({
+                ...current,
+                timelineType: "duration",
+                deadlineDate: "",
+              }))
+            }
+          >
+            Duration
+          </Button>
+        </div>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
         <FieldLabel darkMode={darkMode} label="Start date">
           <TextInput
             darkMode={darkMode}
@@ -193,35 +213,43 @@ function ProjectDateFields({
             }
           />
         </FieldLabel>
-        <FieldLabel darkMode={darkMode} label="Deadline" optional>
-          <TextInput
-            darkMode={darkMode}
-            value={draft.deadlineDate}
-            placeholder="YYYY-MM-DD"
-            disabled={pending}
-            onChange={(event) =>
-              setDraft((current) => ({
-                ...current,
-                deadlineDate: event.target.value,
-              }))
-            }
-          />
-        </FieldLabel>
-        <FieldLabel darkMode={darkMode} label="Duration days" optional>
-          <NumberInput
-            darkMode={darkMode}
-            min={1}
-            step={1}
-            value={draft.expectedDurationDays}
-            disabled={pending}
-            onChange={(event) =>
-              setDraft((current) => ({
-                ...current,
-                expectedDurationDays: event.target.value,
-              }))
-            }
-          />
-        </FieldLabel>
+        {draft.timelineType === "deadline" ? (
+          <FieldLabel darkMode={darkMode} label="Deadline">
+            <TextInput
+              darkMode={darkMode}
+              value={draft.deadlineDate}
+              placeholder="YYYY-MM-DD"
+              disabled={pending}
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  deadlineDate: event.target.value,
+                }))
+              }
+            />
+          </FieldLabel>
+        ) : (
+          <FieldLabel darkMode={darkMode} label="Duration">
+            <SelectInput
+              darkMode={darkMode}
+              value={draft.durationRange}
+              disabled={pending}
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  durationRange: event.target
+                    .value as ProjectInput["durationRange"],
+                }))
+              }
+            >
+              {projectDurationOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </SelectInput>
+          </FieldLabel>
+        )}
       </div>
       <div className="grid gap-1.5">
         <span className="text-xs font-semibold">Priority</span>

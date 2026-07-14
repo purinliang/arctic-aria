@@ -1,4 +1,13 @@
 import type { Task } from "@/features/dashboard/types";
+import {
+  durationDaysForRange,
+  durationLabelForDays,
+  durationRangeForDays,
+} from "./project-duration";
+import type {
+  ProjectDurationRange,
+  ProjectTimelineType,
+} from "./project-duration";
 import type {
   ProjectMilestoneRecord,
   ProjectPriority,
@@ -11,13 +20,13 @@ import { projectService } from "./server/project-service";
 export type ProjectView = {
   id: string;
   title: string;
-  objective: string;
-  importanceReason: string;
+  description: string;
   status: ProjectRecord["status"];
   priority: ProjectPriority;
   startDate: string;
   deadlineDate: string;
   expectedDurationDays: string;
+  durationRange: ProjectDurationRange;
   timelineText: string;
   currentMilestone: string;
   progressText: string;
@@ -45,12 +54,12 @@ export type ProjectTaskView = Task & {
 export type ProjectInput = {
   id?: string;
   title: string;
-  objective: string;
-  importanceReason: string;
+  description: string;
   priority: ProjectPriority;
   startDate: string;
+  timelineType: ProjectTimelineType;
   deadlineDate: string;
-  expectedDurationDays: string;
+  durationRange: ProjectDurationRange;
 };
 
 export type MilestoneInput = {
@@ -125,24 +134,19 @@ export async function loadProjectDashboardData(
 
 export function validateProjectInput(input: ProjectInput) {
   const title = input.title.trim();
-  const objective = input.objective.trim();
-  const importanceReason = input.importanceReason.trim();
+  const description = input.description.trim();
   const startDate = input.startDate.trim();
-  const deadlineDate = input.deadlineDate.trim() || null;
-  const expectedDurationDays = parseOptionalInteger(input.expectedDurationDays);
+  let deadlineDate: string | null = null;
+  let expectedDurationDays: number | null = null;
 
   if (title.length < 1 || title.length > 120) {
     return { ok: false as const, message: "Project title must be 1-120 characters." };
   }
 
-  if (objective.length < 1 || objective.length > 500) {
-    return { ok: false as const, message: "Objective must be 1-500 characters." };
-  }
-
-  if (importanceReason.length > 1000) {
+  if (description.length < 1 || description.length > 1000) {
     return {
       ok: false as const,
-      message: "Importance reason must be 1000 characters or fewer.",
+      message: "Project description must be 1-1000 characters.",
     };
   }
 
@@ -150,23 +154,29 @@ export function validateProjectInput(input: ProjectInput) {
     return { ok: false as const, message: "Start date must use YYYY-MM-DD." };
   }
 
-  if (deadlineDate && !validateDate(deadlineDate)) {
-    return { ok: false as const, message: "Deadline date must use YYYY-MM-DD." };
-  }
+  if (input.timelineType === "deadline") {
+    deadlineDate = input.deadlineDate.trim();
 
-  if (deadlineDate && deadlineDate < startDate) {
-    return { ok: false as const, message: "Deadline cannot be before start date." };
-  }
+    if (!deadlineDate || !validateDate(deadlineDate)) {
+      return { ok: false as const, message: "Deadline date must use YYYY-MM-DD." };
+    }
 
-  if (expectedDurationDays !== null && expectedDurationDays <= 0) {
-    return { ok: false as const, message: "Expected duration must be positive." };
+    if (deadlineDate < startDate) {
+      return { ok: false as const, message: "Deadline cannot be before start date." };
+    }
+  } else {
+    expectedDurationDays = durationDaysForRange(input.durationRange);
+
+    if (!expectedDurationDays) {
+      return { ok: false as const, message: "Choose an expected duration." };
+    }
   }
 
   return {
     ok: true as const,
     title,
-    objective,
-    importanceReason,
+    objective: description.slice(0, 500),
+    importanceReason: description,
     startDate,
     deadlineDate,
     expectedDurationDays,
@@ -278,17 +288,17 @@ function toProjectView(project: ProjectRecord): ProjectView {
   return {
     id: project.id,
     title: project.title,
-    objective: project.objective,
-    importanceReason: project.importanceReason,
+    description: project.importanceReason || project.objective,
     status: project.status,
     priority: project.priority,
     startDate: project.startDate,
     deadlineDate: project.deadlineDate ?? "",
     expectedDurationDays: project.expectedDurationDays?.toString() ?? "",
+    durationRange: durationRangeForDays(project.expectedDurationDays),
     timelineText: project.deadlineDate
       ? `Due ${formatDate(project.deadlineDate)}`
       : project.expectedDurationDays
-        ? `${project.expectedDurationDays} days expected`
+        ? `${durationLabelForDays(project.expectedDurationDays)} expected`
         : "Open-ended",
     currentMilestone: activeMilestone?.title ?? "No active milestone",
     progressText: `${doneCount} of ${tasks.length} tasks done`,

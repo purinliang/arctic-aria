@@ -1,6 +1,7 @@
 import type {
   InputHTMLAttributes,
   ReactNode,
+  SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from "react";
 import { inputColorClass } from "./color";
@@ -117,6 +118,27 @@ export function TextArea({
       aria-invalid={hasError || undefined}
       {...props}
     />
+  );
+}
+
+export function SelectInput({
+  darkMode,
+  hasError = false,
+  className,
+  children,
+  ...props
+}: SelectHTMLAttributes<HTMLSelectElement> & {
+  darkMode: boolean;
+  hasError?: boolean;
+}) {
+  return (
+    <select
+      className={cx(inputBaseClass(darkMode, hasError), className)}
+      aria-invalid={hasError || undefined}
+      {...props}
+    >
+      {children}
+    </select>
   );
 }
 

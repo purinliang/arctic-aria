@@ -5,6 +5,10 @@ import type {
   ProjectTaskView,
   ProjectView,
 } from "@/features/projects/actions";
+import {
+  defaultProjectDurationRange,
+  durationRangeForDays,
+} from "@/features/projects/project-duration";
 import type { ProjectPriority } from "@/features/projects/server/project-repository";
 
 export const priorityOptions: Array<{
@@ -30,12 +34,12 @@ export const taskStatusOptions: Array<{
 export function emptyProjectDraft(): ProjectInput {
   return {
     title: "",
-    objective: "",
-    importanceReason: "",
+    description: "",
     priority: "medium",
     startDate: new Date().toISOString().slice(0, 10),
+    timelineType: "duration",
     deadlineDate: "",
-    expectedDurationDays: "",
+    durationRange: defaultProjectDurationRange,
   };
 }
 
@@ -43,12 +47,12 @@ export function projectToDraft(project: ProjectView): ProjectInput {
   return {
     id: project.id,
     title: project.title,
-    objective: project.objective,
-    importanceReason: project.importanceReason,
+    description: project.description,
     priority: project.priority,
     startDate: project.startDate,
+    timelineType: project.deadlineDate ? "deadline" : "duration",
     deadlineDate: project.deadlineDate,
-    expectedDurationDays: project.expectedDurationDays,
+    durationRange: durationRangeForDays(Number(project.expectedDurationDays)),
   };
 }
 
