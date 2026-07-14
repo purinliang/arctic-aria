@@ -2,11 +2,11 @@
 
 This document defines the first user feature. It covers registration, login,
 and future OAuth. User settings are documented separately in
-[user-settings.md](user-settings.md).
+[settings.md](settings.md).
 
-User-facing auth UI behavior is documented in [user-ui.md](user-ui.md). The
+User-facing auth UI behavior is documented in [ui.md](ui.md). The
 current web implementation notes are documented in
-[auth-implementation.md](../interface-layer/web/auth-implementation.md). Keep
+[web-implementation.md](web-implementation.md). Keep
 this file as the product rule source and use the implementation note for code
 locations, commands, and current prototype status.
 
@@ -159,5 +159,5 @@ password implementation.
 
 ## UI
 
-User auth UI behavior is documented in [user-ui.md](user-ui.md). Keep this file
+User auth UI behavior is documented in [ui.md](ui.md). Keep this file
 focused on product rules, validation, persistence, and security behavior.

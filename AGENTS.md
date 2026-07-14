@@ -24,7 +24,7 @@ Before making code changes, read:
    - Understand the product goal and current project status.
 
 2. `docs/architecture.md`
-   - Understand the Core / Plugin / Interface layer boundaries.
+   - Understand feature, plugin, app, and infrastructure ownership.
 
 3. `docs/implementation.md`
    - Understand the project structure and technology stack guidelines.
@@ -37,10 +37,10 @@ Before making code changes, read:
 
 For task-specific work, also read the relevant docs only:
 
-- Core work: `docs/core-layer/*` if present
+- Feature work: `docs/features/<feature>/*` if present
+- Shared web UI work: `docs/shared/*` if present
 - Infrastructure work: `docs/infrastructure/*` if present
-- Web work: `docs/interface-layer/web/*` if present
-- Discord bot work: `docs/interface-layer/discord-bot/*` if present
+- App-specific work: `docs/apps/*` if present
 
 Do not read unrelated docs unless they are needed for the task.
 

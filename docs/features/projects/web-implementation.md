@@ -2,9 +2,8 @@
 
 This document records the current user-detectable Projects web behavior.
 Product rules are defined in
-[projects/overview.md](../../core-layer/projects/overview.md), data rules are
-defined in [projects/data-model.md](../../core-layer/projects/data-model.md),
-and UI rules are defined in [projects/ui.md](../../core-layer/projects/ui.md).
+[overview.md](overview.md), data rules are defined in
+[data-model.md](data-model.md), and UI rules are defined in [ui.md](ui.md).
 
 ## Current Scope
 
@@ -350,7 +349,7 @@ Completed in `agent/refactor-web-source-organization`:
 - added ESLint enforcement for type-only imports
 - kept every `apps/web/src` TypeScript source file below 400 lines
 
-Completed in `agent/feat-projects-implementation`:
+Completed in the Project implementation branch:
 
 - added `features/projects` for the stable Project model
 - replaced the legacy task prototype page with `ProjectsPage` and

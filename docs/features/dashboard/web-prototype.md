@@ -9,12 +9,13 @@ instead of this older prototype direction.
 
 This boundary applies to dashboard prototype work only. The separate username
 and password auth implementation is documented in
-[auth-implementation.md](auth-implementation.md). Database-backed Memories are
-documented in [memories-implementation.md](memories-implementation.md). Project
-rules are documented in
-[projects/overview.md](../../core-layer/projects/overview.md),
-[projects/data-model.md](../../core-layer/projects/data-model.md), and
-[projects/ui.md](../../core-layer/projects/ui.md).
+[../auth/web-implementation.md](../auth/web-implementation.md).
+Database-backed Memories are documented in
+[../memories/web-implementation.md](../memories/web-implementation.md).
+Project rules are documented in
+[../projects/overview.md](../projects/overview.md),
+[../projects/data-model.md](../projects/data-model.md), and
+[../projects/ui.md](../projects/ui.md).
 
 ## Scope
 
@@ -42,16 +43,16 @@ For task, routine, review, and reward prototype work, do not add:
 - Real reward calculations.
 - Full CRUD for projects, tasks, or routines.
 - Shared packages.
-- Core-layer business logic.
+- product-module business logic.
 
 ## Product Boundaries
 
 The dashboard may display task, routine, review, and reward concepts, but it
 should not own their real rules.
 
-- Project, task, and subtask status, deadlines, and priority are Core project
+- Project, task, and subtask status, deadlines, and priority are Project feature
   concepts.
-- Routine instance completion, skip, and pending status are Core routine
+- Routine instance completion, skip, and pending status are Routine feature
   concepts. Reminder delivery state is a scheduler and infrastructure concept.
 - Daily review summaries are Review engine concepts.
 - Gold and treasure chest rewards are Reward plugin concepts.
@@ -116,9 +117,9 @@ silently doing nothing.
 ## Task Cards
 
 Project product and UI rules are now documented in
-[projects/overview.md](../../core-layer/projects/overview.md),
-[projects/data-model.md](../../core-layer/projects/data-model.md), and
-[projects/ui.md](../../core-layer/projects/ui.md). This section records the
+[../projects/overview.md](../projects/overview.md),
+[../projects/data-model.md](../projects/data-model.md), and
+[../projects/ui.md](../projects/ui.md). This section records the
 dashboard behavior that remains valid after the Project naming decision.
 
 Tasks shown on the dashboard are recommended for today, but their project or
@@ -207,9 +208,9 @@ prototype direction for new work.
 
 Current Memories behavior is documented in:
 
-- [memories.md](../../core-layer/memories.md)
-- [memories-ui.md](../../core-layer/memories-ui.md)
-- [memories-implementation.md](memories-implementation.md)
+- [../memories/design.md](../memories/design.md)
+- [../memories/ui.md](../memories/ui.md)
+- [../memories/web-implementation.md](../memories/web-implementation.md)
 
 ## Technical Direction
 
@@ -235,7 +236,7 @@ apps/web/
 ```
 
 The database-backed Memories page implementation is now tracked separately in
-[memories-implementation.md](memories-implementation.md).
+[../memories/web-implementation.md](../memories/web-implementation.md).
 
 Suggested refactor shape:
 
