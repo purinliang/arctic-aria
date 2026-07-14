@@ -27,9 +27,9 @@ export async function saveProject(sql: Sql, input: SaveProjectInput) {
        user_id, title, objective, importance_reason, priority, start_date,
        deadline_date, expected_duration_days, created_at, updated_at
      )
-     VALUES ($1, $3, $4, $5, $6, $7, $8, $9, $10, $10)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9)
      RETURNING id`,
-    projectParams(input),
+    createProjectParams(input),
   )) as Array<{ id: string }>;
   const projectId = inserted[0]?.id;
 
@@ -68,12 +68,12 @@ export async function saveMilestone(sql: Sql, input: SaveMilestoneInput) {
        user_id, project_id, title, objective, start_date, deadline_date,
        expected_duration_days, sort_order, created_at, updated_at
      )
-     SELECT $1, $2, $4, $5, $6, $7, $8,
-       COALESCE(MAX(sort_order), -1) + 1, $9, $9
+     SELECT $1, $2, $3, $4, $5, $6, $7,
+       COALESCE(MAX(sort_order), -1) + 1, $8, $8
      FROM project_milestones
      WHERE user_id = $1 AND project_id = $2
      RETURNING id`,
-    milestoneParams(input),
+    createMilestoneParams(input),
   )) as Array<{ id: string }>;
 
   return inserted[0]?.id ?? null;
@@ -111,11 +111,38 @@ function projectParams(input: SaveProjectInput) {
   ];
 }
 
+function createProjectParams(input: SaveProjectInput) {
+  return [
+    input.userId,
+    input.title,
+    input.objective,
+    input.importanceReason,
+    input.priority,
+    input.startDate,
+    input.deadlineDate,
+    input.expectedDurationDays,
+    input.occurredAt,
+  ];
+}
+
 function milestoneParams(input: SaveMilestoneInput) {
   return [
     input.userId,
     input.projectId,
     input.milestoneId ?? null,
+    input.title,
+    input.objective,
+    input.startDate,
+    input.deadlineDate,
+    input.expectedDurationDays,
+    input.occurredAt,
+  ];
+}
+
+function createMilestoneParams(input: SaveMilestoneInput) {
+  return [
+    input.userId,
+    input.projectId,
     input.title,
     input.objective,
     input.startDate,
@@ -139,6 +166,22 @@ function taskParams(input: SaveProjectTaskInput) {
     input.deadlineDate,
     input.occurredAt,
     input.taskId ?? null,
+  ];
+}
+
+function createTaskParams(input: SaveProjectTaskInput) {
+  return [
+    input.userId,
+    input.projectId,
+    input.milestoneId,
+    input.title,
+    input.description,
+    input.status,
+    input.priority,
+    input.scheduledDate,
+    input.startDate,
+    input.deadlineDate,
+    input.occurredAt,
   ];
 }
 
@@ -170,7 +213,7 @@ async function createTask(sql: Sql, input: SaveProjectTaskInput) {
        $11, $11
      )
      RETURNING id`,
-    taskParams(input),
+    createTaskParams(input),
   )) as Array<{ id: string }>;
 
   return rows[0]?.id ?? null;
