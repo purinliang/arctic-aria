@@ -249,6 +249,8 @@ Detail page layout:
 - desktop split: flexible left panel and fixed `20rem` right panel
 - if available width cannot keep the left panel at least 20% wider than the
   right panel, stack the panels vertically instead
+- use the shared `aa-split-*` classes so the two-column layout activates only
+  when the detail container is at least `44rem` wide
 - left panel: milestone/task/subtask tree
 - right panel: project metadata and milestone overview
 - left header: `Milestones`, supporting text, and `Add milestone`

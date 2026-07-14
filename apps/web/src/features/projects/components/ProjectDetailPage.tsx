@@ -53,87 +53,91 @@ export function ProjectDetailPage({
 
   return (
     <Panel darkMode={darkMode} className="min-h-[60vh]">
-      <section className="grid lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="grid gap-4 px-4 py-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-semibold">Milestones</h2>
-              <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
-                Detailed tasks and subtasks grouped by project phase.
-              </p>
+      <section className="aa-split-container">
+        <div className="aa-split-panel">
+          <div className="grid gap-4 px-4 py-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold">Milestones</h2>
+                <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
+                  Detailed tasks and subtasks grouped by project phase.
+                </p>
+              </div>
+              <Button
+                darkMode={darkMode}
+                disabled={pending}
+                icon={<Plus size={14} aria-hidden="true" />}
+                onClick={() => onAddMilestone(project.id)}
+              >
+                Add milestone
+              </Button>
             </div>
-            <Button
-              darkMode={darkMode}
-              disabled={pending}
-              icon={<Plus size={14} aria-hidden="true" />}
-              onClick={() => onAddMilestone(project.id)}
-            >
-              Add milestone
-            </Button>
-          </div>
 
-          <List darkMode={darkMode}>
-            {project.milestones.map((milestone) => (
-              <ListItem key={milestone.id} darkMode={darkMode} layout="block">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-base font-semibold">
-                        {milestone.title}
-                      </h3>
-                      <Tag darkMode={darkMode}>{titleCase(milestone.status)}</Tag>
+            <List darkMode={darkMode}>
+              {project.milestones.map((milestone) => (
+                <ListItem key={milestone.id} darkMode={darkMode} layout="block">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-base font-semibold">
+                          {milestone.title}
+                        </h3>
+                        <Tag darkMode={darkMode}>
+                          {titleCase(milestone.status)}
+                        </Tag>
+                      </div>
+                      <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
+                        {milestone.objective || milestone.progressText}
+                      </p>
                     </div>
-                    <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
-                      {milestone.objective || milestone.progressText}
-                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        darkMode={darkMode}
+                        size="xs"
+                        disabled={pending}
+                        icon={<Edit3 size={13} aria-hidden="true" />}
+                        onClick={() => onEditMilestone(milestone)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        darkMode={darkMode}
+                        size="xs"
+                        disabled={pending}
+                        icon={<Plus size={13} aria-hidden="true" />}
+                        onClick={() => onAddTask(project.id, milestone.id)}
+                      >
+                        Add task
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      darkMode={darkMode}
-                      size="xs"
-                      disabled={pending}
-                      icon={<Edit3 size={13} aria-hidden="true" />}
-                      onClick={() => onEditMilestone(milestone)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      darkMode={darkMode}
-                      size="xs"
-                      disabled={pending}
-                      icon={<Plus size={13} aria-hidden="true" />}
-                      onClick={() => onAddTask(project.id, milestone.id)}
-                    >
-                      Add task
-                    </Button>
+                  <div className="mt-3 grid gap-2">
+                    {milestone.tasks.length === 0 ? (
+                      <p className={`text-sm ${mutedTextClass(darkMode)}`}>
+                        No tasks in this milestone yet. Add the next concrete
+                        task.
+                      </p>
+                    ) : null}
+                    {milestone.tasks.map((task) => (
+                      <ProjectTaskRow
+                        key={task.id}
+                        darkMode={darkMode}
+                        pending={pending}
+                        task={task}
+                        onEdit={() => onEditTask(task)}
+                        onTaskStatus={onTaskStatus}
+                        onSubtaskToggle={onSubtaskToggle}
+                      />
+                    ))}
                   </div>
-                </div>
-                <div className="mt-3 grid gap-2">
-                  {milestone.tasks.length === 0 ? (
-                    <p className={`text-sm ${mutedTextClass(darkMode)}`}>
-                      No tasks in this milestone yet. Add the next concrete task.
-                    </p>
-                  ) : null}
-                  {milestone.tasks.map((task) => (
-                    <ProjectTaskRow
-                      key={task.id}
-                      darkMode={darkMode}
-                      pending={pending}
-                      task={task}
-                      onEdit={() => onEditTask(task)}
-                      onTaskStatus={onTaskStatus}
-                      onSubtaskToggle={onSubtaskToggle}
-                    />
-                  ))}
-                </div>
-              </ListItem>
-            ))}
-          </List>
-        </div>
+                </ListItem>
+              ))}
+            </List>
+          </div>
 
         <aside
           className={cx(
-            "grid content-start gap-5 border-t px-4 py-4 lg:border-l lg:border-t-0",
+            "aa-split-panel-sidebar grid content-start gap-5 border-t px-4 py-4",
             sectionBorderClass(darkMode),
           )}
         >
@@ -203,6 +207,7 @@ export function ProjectDetailPage({
             </div>
           </div>
         </aside>
+        </div>
       </section>
     </Panel>
   );

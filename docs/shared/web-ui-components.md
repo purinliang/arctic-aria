@@ -97,7 +97,9 @@ recreated independently in each feature page.
 Desktop pages that use a left detail area and a right metadata panel should use
 the same split pattern: flexible left panel plus fixed `20rem` right panel. If
 the available width cannot keep the left panel at least 20% wider than the
-right panel, stack the panels vertically.
+right panel, stack the panels vertically. Use the shared CSS classes
+`aa-split-container`, `aa-split-panel`, and `aa-split-panel-sidebar`; they switch
+to two columns only when the container is at least `44rem` wide.
 
 ## Card
 

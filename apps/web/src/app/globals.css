@@ -27,6 +27,25 @@ input {
   font: inherit;
 }
 
+.aa-split-container {
+  container-type: inline-size;
+}
+
+.aa-split-panel {
+  display: grid;
+}
+
+@container (min-width: 44rem) {
+  .aa-split-panel {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+  }
+
+  .aa-split-panel-sidebar {
+    border-left-width: 1px;
+    border-top-width: 0;
+  }
+}
+
 button:focus-visible,
 input:focus-visible {
   outline: 2px solid #2563eb;
