@@ -33,6 +33,7 @@ input {
 
 .aa-split-panel {
   display: grid;
+  align-items: start;
 }
 
 @container (min-width: 44rem) {

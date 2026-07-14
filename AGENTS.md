@@ -80,7 +80,8 @@ user.
   available width cannot keep the left panel at least 20% wider than the right
   panel, stack the panels vertically. In the web app, use
   `aa-split-container`, `aa-split-panel`, and `aa-split-panel-sidebar` for this
-  behavior.
+  width behavior. The split must not equalize panel heights; left and right
+  panels keep independent content-driven heights.
 - If the user asks for an unrelated bug fix or chore while another branch has
   active work in progress, do not mix it into the current branch. Stash the
   current work, switch back to `develop`, create a focused `agent/fix-*` or

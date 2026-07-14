@@ -251,13 +251,13 @@ Detail page layout:
   right panel, stack the panels vertically instead
 - use the shared `aa-split-*` classes so the two-column layout activates only
   when the detail container is at least `44rem` wide
+- left and right panels keep independent content-driven heights
 - left panel: milestone/task/subtask tree
 - right panel: project metadata and milestone overview
-- left header: `Milestones`, supporting text, and `Add milestone`
-- right header: `Project overview`
+- left card: `Milestones` card with icon, supporting text, and `Add milestone`
+- right cards: `Project metadata` with `Edit project`, then `Milestone overview`
 - project metadata group: status, priority, start date, deadline or duration,
   and derived progress
-- right action: `Edit project`
 - milestone overview list: each milestone title, status tag, and progress text
 - milestone list direction: vertical
 - milestone card header direction: horizontal with wrapping
