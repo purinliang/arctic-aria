@@ -105,6 +105,7 @@ right panel, stack the panels vertically.
 
 Cards may include:
 
+- shared card surface and border styling
 - icon
 - title
 - description

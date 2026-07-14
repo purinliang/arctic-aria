@@ -1,5 +1,6 @@
 import { Check, Edit3, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { mutedTextClass, sectionBorderClass } from "@/components/ui/color";
 import { List, ListItem } from "@/components/ui/list";
 import { Panel } from "@/components/ui/panel";
@@ -245,11 +246,7 @@ function ProjectTaskRow({
   const subtasks = task.subtasks ?? [];
 
   return (
-    <div
-      className={`rounded-md border px-3 py-3 ${
-        darkMode ? "border-neutral-800 bg-black" : "border-slate-200 bg-white"
-      }`}
-    >
+    <Card darkMode={darkMode} className="px-3 py-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -311,6 +308,6 @@ function ProjectTaskRow({
           ))}
         </div>
       ) : null}
-    </div>
+    </Card>
   );
 }
