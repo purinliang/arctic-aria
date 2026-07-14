@@ -1,7 +1,7 @@
 import { Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { dividerClass, mutedTextClass } from "@/components/ui/color";
-import { ListItem } from "@/components/ui/list";
+import { mutedTextClass } from "@/components/ui/color";
+import { List, ListItem } from "@/components/ui/list";
 import { Tag } from "@/components/ui/tag";
 import type { RoutineDefinition } from "@/features/dashboard/types";
 import { ruleSummary } from "./routine-page-helpers";
@@ -20,7 +20,7 @@ export function RoutinesList({
   onEdit: (routine: RoutineDefinition) => void;
 }) {
   return (
-    <div className={dividerClass(darkMode)}>
+    <List darkMode={darkMode}>
       {loading ? (
         <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
           Loading routines...
@@ -57,6 +57,6 @@ export function RoutinesList({
           </Button>
         </ListItem>
       ))}
-    </div>
+    </List>
   );
 }

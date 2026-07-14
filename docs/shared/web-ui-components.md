@@ -123,8 +123,10 @@ Use it for:
 List items should keep horizontal padding, vertical rhythm, hover state, and
 selected state consistent.
 
-Expandable list items should append details below a stable header row. The
-expanded content must share the same selected/expanded background as the header.
+Use `ExpandableListItem` for rows that open details. The header row and expanded
+details must be rendered inside the same list item so the background, padding,
+and divider behavior stay consistent. Do not place expanded details in a
+separate grey box or sibling container below the item.
 
 ## Dialog
 
