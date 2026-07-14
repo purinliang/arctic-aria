@@ -17,6 +17,8 @@ The current web implementation supports the first database-backed Project model:
 - add and edit subtask checklist items while editing a task
 - complete, skip, block, and reopen tasks through server actions
 - update subtask checklist state
+- return project database failures through normal action results instead of a
+  Next.js runtime overlay
 - record task completion, skip, block, unblock, and reopen events
 - show task command failure through shared notifications
 - show dashboard task cards for today's selected tasks
@@ -99,6 +101,7 @@ Project server actions:
 
 ```text
 apps/web/src/features/projects/actions.ts
+apps/web/src/features/projects/project-database-errors.ts
 ```
 
 Project backend:
@@ -116,8 +119,26 @@ apps/web/database/migrations/0005_create_projects.sql
 Tests:
 
 ```text
+apps/web/src/features/projects/__tests__/project-action-helpers.test.ts
 apps/web/src/features/projects/__tests__/project-service.test.ts
 ```
+
+## Database Error Handling
+
+Project server actions should catch database failures and return
+`ProjectActionResult` failures. The UI can then keep dialogs open or show shared
+notifications instead of exposing a Next.js runtime overlay.
+
+If the database reports that `projects`, `project_milestones`,
+`project_tasks`, or `project_subtasks` does not exist, the action message should
+tell the developer to run:
+
+```text
+pnpm --dir apps/web db:migrate
+```
+
+This is especially important after switching to a new Neon database or after
+pulling the `0005_create_projects.sql` migration onto an existing database.
 
 ## Refactor Status
 
@@ -142,4 +163,5 @@ Completed in `agent/feat-projects-implementation`:
 - replaced old plan and numeric-progress UI with project, milestone, task, and
   subtask fields
 - added Project/Milestone/Subtask schema in `0005_create_projects.sql`
+- added project action error mapping for missing project migrations
 - removed the obsolete task prototype code

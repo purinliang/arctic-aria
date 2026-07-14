@@ -34,6 +34,13 @@ URLs, passwords, dumps, or generated local database files.
 
 Schema migration files are safe to commit. The current migration entry point is
 `apps/web/scripts/migrate.mjs`, exposed as `pnpm db:migrate` from `apps/web`.
+From the repository root, run the same migration entry point with
+`pnpm --dir apps/web db:migrate`.
+
+The Projects feature requires `0005_create_projects.sql`. If project server
+actions report missing `projects`, `project_milestones`, `project_tasks`, or
+`project_subtasks` tables, treat the database as not migrated and run the web
+database migration before manual testing.
 
 ## User Model
 
