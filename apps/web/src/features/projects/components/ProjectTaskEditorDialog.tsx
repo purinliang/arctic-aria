@@ -1,11 +1,4 @@
-import {
-  Archive,
-  LoaderCircle,
-  Plus,
-  Save,
-  Trash2,
-  X,
-} from "lucide-react";
+import { LoaderCircle, Plus, Save, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,17 +7,15 @@ import {
   DialogHeader,
   DialogOverlay,
 } from "@/components/ui/dialog";
-import {
-  FieldLabel,
-  NumberInput,
-  TextArea,
-  TextInput,
-} from "@/components/ui/input-field";
+import { FieldLabel, TextArea, TextInput } from "@/components/ui/input-field";
 import { InlineMessage } from "@/components/ui/text";
-import type { TaskInput } from "@/features/tasks/actions";
-import { priorityOptions } from "./task-page-helpers";
+import type { ProjectTaskInput } from "@/features/projects/actions";
+import {
+  priorityOptions,
+  taskStatusOptions,
+} from "./project-page-helpers";
 
-export function TaskEditorDialog({
+export function ProjectTaskEditorDialog({
   darkMode,
   pending,
   message,
@@ -32,24 +23,23 @@ export function TaskEditorDialog({
   setDraft,
   onClose,
   onSubmit,
-  onArchive,
-  onDelete,
 }: {
   darkMode: boolean;
   pending: boolean;
   message: string | null;
-  draft: TaskInput;
-  setDraft: Dispatch<SetStateAction<TaskInput>>;
+  draft: ProjectTaskInput;
+  setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
   onClose: () => void;
   onSubmit: () => void;
-  onArchive: () => void;
-  onDelete: () => void;
 }) {
-  function updateChild(index: number, next: Partial<TaskInput["children"][number]>) {
+  function updateSubtask(
+    index: number,
+    next: Partial<ProjectTaskInput["subtasks"][number]>,
+  ) {
     setDraft((current) => ({
       ...current,
-      children: current.children.map((child, childIndex) =>
-        childIndex === index ? { ...child, ...next } : child,
+      subtasks: current.subtasks.map((subtask, subtaskIndex) =>
+        subtaskIndex === index ? { ...subtask, ...next } : subtask,
       ),
     }));
   }
@@ -76,14 +66,24 @@ export function TaskEditorDialog({
             </InlineMessage>
           ) : null}
           <div className="grid gap-3">
-            <TaskBasics darkMode={darkMode} pending={pending} draft={draft} setDraft={setDraft} />
-            <TaskMeta darkMode={darkMode} pending={pending} draft={draft} setDraft={setDraft} />
-            <TaskChildren
+            <TaskBasics
               darkMode={darkMode}
               pending={pending}
               draft={draft}
               setDraft={setDraft}
-              onChildChange={updateChild}
+            />
+            <TaskMeta
+              darkMode={darkMode}
+              pending={pending}
+              draft={draft}
+              setDraft={setDraft}
+            />
+            <TaskSubtasks
+              darkMode={darkMode}
+              pending={pending}
+              draft={draft}
+              setDraft={setDraft}
+              onSubtaskChange={updateSubtask}
             />
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -103,26 +103,6 @@ export function TaskEditorDialog({
             >
               Save
             </Button>
-            {draft.id ? (
-              <>
-                <Button
-                  darkMode={darkMode}
-                  disabled={pending}
-                  icon={<Archive size={14} aria-hidden="true" />}
-                  onClick={onArchive}
-                >
-                  Archive
-                </Button>
-                <Button
-                  darkMode={darkMode}
-                  disabled={pending}
-                  icon={<Trash2 size={14} aria-hidden="true" />}
-                  onClick={onDelete}
-                >
-                  Delete
-                </Button>
-              </>
-            ) : null}
           </div>
         </DialogFrame>
       </form>
@@ -138,8 +118,8 @@ function TaskBasics({
 }: {
   darkMode: boolean;
   pending: boolean;
-  draft: TaskInput;
-  setDraft: Dispatch<SetStateAction<TaskInput>>;
+  draft: ProjectTaskInput;
+  setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
 }) {
   return (
     <>
@@ -170,38 +150,6 @@ function TaskBasics({
           }
         />
       </FieldLabel>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <FieldLabel darkMode={darkMode} label="Plan" optional>
-          <TextInput
-            darkMode={darkMode}
-            value={draft.planTitle ?? ""}
-            maxLength={120}
-            disabled={pending}
-            placeholder="Plan name"
-            onChange={(event) =>
-              setDraft((current) => ({
-                ...current,
-                planTitle: event.target.value,
-              }))
-            }
-          />
-        </FieldLabel>
-        <FieldLabel darkMode={darkMode} label="Deadline" optional>
-          <TextInput
-            darkMode={darkMode}
-            type="text"
-            placeholder="YYYY-MM-DDTHH:MM"
-            value={draft.deadlineAt ?? ""}
-            disabled={pending}
-            onChange={(event) =>
-              setDraft((current) => ({
-                ...current,
-                deadlineAt: event.target.value,
-              }))
-            }
-          />
-        </FieldLabel>
-      </div>
     </>
   );
 }
@@ -214,103 +162,123 @@ function TaskMeta({
 }: {
   darkMode: boolean;
   pending: boolean;
-  draft: TaskInput;
-  setDraft: Dispatch<SetStateAction<TaskInput>>;
+  draft: ProjectTaskInput;
+  setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
 }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
-      <div className="grid gap-1.5">
-        <span className="text-xs font-semibold">Priority</span>
-        <div className="flex flex-wrap gap-2">
-          {priorityOptions.map((option) => (
-            <Button
-              key={option.value}
-              darkMode={darkMode}
-              size="xs"
-              active={draft.priority === option.value}
-              disabled={pending}
-              onClick={() =>
-                setDraft((current) => ({ ...current, priority: option.value }))
-              }
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
+    <>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <FieldLabel darkMode={darkMode} label="Scheduled date" optional>
+          <TextInput
+            darkMode={darkMode}
+            value={draft.scheduledDate}
+            placeholder="YYYY-MM-DD"
+            disabled={pending}
+            onChange={(event) =>
+              setDraft((current) => ({
+                ...current,
+                scheduledDate: event.target.value,
+              }))
+            }
+          />
+        </FieldLabel>
+        <FieldLabel darkMode={darkMode} label="Start date" optional>
+          <TextInput
+            darkMode={darkMode}
+            value={draft.startDate}
+            placeholder="YYYY-MM-DD"
+            disabled={pending}
+            onChange={(event) =>
+              setDraft((current) => ({
+                ...current,
+                startDate: event.target.value,
+              }))
+            }
+          />
+        </FieldLabel>
+        <FieldLabel darkMode={darkMode} label="Deadline" optional>
+          <TextInput
+            darkMode={darkMode}
+            value={draft.deadlineDate}
+            placeholder="YYYY-MM-DD"
+            disabled={pending}
+            onChange={(event) =>
+              setDraft((current) => ({
+                ...current,
+                deadlineDate: event.target.value,
+              }))
+            }
+          />
+        </FieldLabel>
       </div>
-      <FieldLabel darkMode={darkMode} label="Weight">
-        <NumberInput
+      <div className="grid gap-3 sm:grid-cols-2">
+        <SegmentedOptions
+          label="Priority"
           darkMode={darkMode}
-          min={0.001}
-          step={0.5}
-          value={draft.weight}
-          disabled={pending}
-          onChange={(event) =>
-            setDraft((current) => ({
-              ...current,
-              weight: Number(event.target.value),
-            }))
+          pending={pending}
+          value={draft.priority}
+          options={priorityOptions}
+          onChange={(priority) =>
+            setDraft((current) => ({ ...current, priority }))
           }
         />
-      </FieldLabel>
-      <FieldLabel darkMode={darkMode} label="Completed weight">
-        <NumberInput
+        <SegmentedOptions
+          label="Status"
           darkMode={darkMode}
-          min={0}
-          step={0.5}
-          value={draft.completedWeight}
-          disabled={pending}
-          onChange={(event) =>
-            setDraft((current) => ({
-              ...current,
-              completedWeight: Number(event.target.value),
-            }))
-          }
+          pending={pending}
+          value={draft.status}
+          options={taskStatusOptions}
+          onChange={(status) => setDraft((current) => ({ ...current, status }))}
         />
-      </FieldLabel>
-    </div>
+      </div>
+    </>
   );
 }
 
-function TaskChildren({
+function TaskSubtasks({
   darkMode,
   pending,
   draft,
   setDraft,
-  onChildChange,
+  onSubtaskChange,
 }: {
   darkMode: boolean;
   pending: boolean;
-  draft: TaskInput;
-  setDraft: Dispatch<SetStateAction<TaskInput>>;
-  onChildChange: (index: number, next: Partial<TaskInput["children"][number]>) => void;
+  draft: ProjectTaskInput;
+  setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
+  onSubtaskChange: (
+    index: number,
+    next: Partial<ProjectTaskInput["subtasks"][number]>,
+  ) => void;
 }) {
   return (
     <div className="grid gap-2">
       <span className="text-xs font-semibold">Subtasks</span>
       <div className="grid gap-2">
-        {draft.children.map((child, index) => (
+        {draft.subtasks.map((subtask, index) => (
           <div key={index} className="grid gap-2 rounded-md border border-slate-200 p-3">
-            <div className="grid gap-2 sm:grid-cols-[1fr_110px_auto]">
+            <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto]">
               <TextInput
                 darkMode={darkMode}
-                value={child.title}
+                value={subtask.title}
                 placeholder="Subtask title"
                 disabled={pending}
                 onChange={(event) =>
-                  onChildChange(index, { title: event.target.value })
+                  onSubtaskChange(index, { title: event.target.value })
                 }
               />
-              <NumberInput
-                darkMode={darkMode}
-                min={0.001}
-                step={0.5}
-                value={child.weight}
-                disabled={pending}
-                onChange={(event) =>
-                  onChildChange(index, { weight: Number(event.target.value) })
-                }
-              />
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  className="accent-emerald-500"
+                  type="checkbox"
+                  checked={subtask.isDone}
+                  disabled={pending}
+                  onChange={(event) =>
+                    onSubtaskChange(index, { isDone: event.target.checked })
+                  }
+                />
+                Done
+              </label>
               <Button
                 darkMode={darkMode}
                 disabled={pending}
@@ -318,8 +286,8 @@ function TaskChildren({
                 onClick={() =>
                   setDraft((current) => ({
                     ...current,
-                    children: current.children.filter(
-                      (_, childIndex) => childIndex !== index,
+                    subtasks: current.subtasks.filter(
+                      (_, subtaskIndex) => subtaskIndex !== index,
                     ),
                   }))
                 }
@@ -329,11 +297,11 @@ function TaskChildren({
             </div>
             <TextInput
               darkMode={darkMode}
-              value={child.description}
+              value={subtask.description}
               placeholder="Subtask description"
               disabled={pending}
               onChange={(event) =>
-                onChildChange(index, { description: event.target.value })
+                onSubtaskChange(index, { description: event.target.value })
               }
             />
           </div>
@@ -346,21 +314,51 @@ function TaskChildren({
         onClick={() =>
           setDraft((current) => ({
             ...current,
-            children: [
-              ...current.children,
-              {
-                title: "",
-                description: "",
-                weight: 1,
-                completedWeight: 0,
-                status: "todo",
-              },
+            subtasks: [
+              ...current.subtasks,
+              { title: "", description: "", isDone: false },
             ],
           }))
         }
       >
         Add subtask
       </Button>
+    </div>
+  );
+}
+
+function SegmentedOptions<T extends string>({
+  label,
+  darkMode,
+  pending,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  darkMode: boolean;
+  pending: boolean;
+  value: T;
+  options: Array<{ value: T; label: string }>;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <div className="grid gap-1.5">
+      <span className="text-xs font-semibold">{label}</span>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => (
+          <Button
+            key={option.value}
+            darkMode={darkMode}
+            size="xs"
+            active={value === option.value}
+            disabled={pending}
+            onClick={() => onChange(option.value)}
+          >
+            {option.label}
+          </Button>
+        ))}
+      </div>
     </div>
   );
 }

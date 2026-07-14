@@ -17,7 +17,6 @@ export function applyOptimisticTaskStatus(
       ? {
           ...task,
           status,
-          completedWeight: status === "done" ? task.weight : task.completedWeight,
         }
       : {
           ...task,
@@ -25,10 +24,8 @@ export function applyOptimisticTaskStatus(
             subtask.id === taskId
               ? {
                   ...subtask,
-                  status,
+                  isDone: status === "done",
                   done: status === "done",
-                  completedWeight:
-                    status === "done" ? subtask.weight : subtask.completedWeight,
                 }
               : subtask,
           ),

@@ -45,7 +45,7 @@ export function ReviewDialog({
 }) {
   const completedTasks = tasks.filter((task) => task.status === "done");
   const partialTasks = tasks.filter(
-    (task) => task.status !== "done" && task.completedWeight > 0,
+    (task) => task.status === "doing" || task.subtasks?.some((subtask) => subtask.done),
   );
   const unfinishedTasks = tasks.filter((task) =>
     ["todo", "doing", "blocked", "skipped"].includes(task.status),
@@ -122,12 +122,9 @@ export function ReviewDialog({
           />
           <ReviewGroup
             darkMode={darkMode}
-            title="Partial Progress"
-            items={partialTasks.map(
-              (task) =>
-                `${task.title}: ${task.completedWeight}/${task.weight} weight`,
-            )}
-            fallback="No partial progress recorded."
+            title="In Progress"
+            items={partialTasks.map((task) => `${task.title}: ${task.subtaskSummary}`)}
+            fallback="No in-progress tasks recorded."
           />
           <ReviewGroup
             darkMode={darkMode}

@@ -7,13 +7,13 @@ import { sectionBorderClass } from "@/components/ui/color";
 import { NotificationStack } from "@/components/ui/notification";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import { MemoriesPage } from "@/features/memories/components/MemoriesPage";
+import { ProjectsPage } from "@/features/projects/components/ProjectsPage";
 import { RoutinesPage } from "@/features/routines/components/RoutinesPage";
-import { TasksPage } from "@/features/tasks/components/TasksPage";
 import { rewardPreview } from "../dummy-data";
 import { useDashboardMemories } from "../hooks/useDashboardMemories";
 import { useDashboardNotifications } from "../hooks/useDashboardNotifications";
+import { useDashboardProjects } from "../hooks/useDashboardProjects";
 import { useDashboardRoutines } from "../hooks/useDashboardRoutines";
-import { useDashboardTasks } from "../hooks/useDashboardTasks";
 import type { DashboardView, Task } from "../types";
 import { DashboardHome } from "./DashboardHome";
 import { ReviewDialog } from "./ReviewDialog";
@@ -39,45 +39,44 @@ export function Dashboard({
     showErrorNotification,
     showInfoNotification,
   } = useDashboardNotifications();
-  const taskState = useDashboardTasks(showErrorNotification);
+  const projectState = useDashboardProjects(showErrorNotification);
   const routineState = useDashboardRoutines(showErrorNotification);
   const memoryState = useDashboardMemories(
     showErrorNotification,
     showMemoriesView,
   );
-  const { refreshTaskData } = taskState;
+  const { refreshProjectData } = projectState;
   const { refreshMemoryData } = memoryState;
   const { refreshRoutineData } = routineState;
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      void refreshTaskData();
+      void refreshProjectData();
       void refreshMemoryData();
       void refreshRoutineData();
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, [currentUser.id, refreshMemoryData, refreshRoutineData, refreshTaskData]);
+  }, [currentUser.id, refreshMemoryData, refreshProjectData, refreshRoutineData]);
 
   const stats = useMemo(() => {
-    const completedWeight = taskState.tasks.reduce(
-      (sum, task) => sum + task.completedWeight,
-      0,
-    );
+    const completedTasks = projectState.tasks.filter(
+      (task) => task.status === "done",
+    ).length;
     const completedRoutines = routineState.routines.filter(
       (routine) => routine.status === "completed",
     ).length;
     const gold =
       rewardPreview.baseGold +
-      completedWeight * rewardPreview.perWeightGold +
+      completedTasks * rewardPreview.perWeightGold +
       completedRoutines * rewardPreview.routineGold;
     const chestLevel = Math.min(
-      Math.max(1, Math.ceil((completedWeight + completedRoutines) / 3)),
+      Math.max(1, Math.ceil((completedTasks + completedRoutines) / 3)),
       5,
     );
 
     return { gold, chestLevel };
-  }, [routineState.routines, taskState.tasks]);
+  }, [projectState.tasks, routineState.routines]);
 
   function showMemoriesView() {
     setActiveView("memories");
@@ -92,21 +91,21 @@ export function Dashboard({
   }
 
   function handleTaskExpand(taskId: string) {
-    taskState.setExpandedTaskId((current) =>
+    projectState.setExpandedTaskId((current) =>
       current === taskId ? null : taskId,
     );
   }
 
   function handleSubtaskToggle(task: Task, subtaskId: string) {
-    taskState.toggleSubtask(
+    projectState.toggleSubtask(
       subtaskId,
       task.subtasks?.find((subtask) => subtask.id === subtaskId)?.done ??
         false,
     );
   }
 
-  function showTasksView() {
-    setActiveView("tasks");
+  function showProjectsView() {
+    setActiveView("projects");
     setSidebarOpen(false);
   }
 
@@ -125,8 +124,8 @@ export function Dashboard({
   const pageTitle =
     activeView === "dashboard"
       ? "Dashboard"
-      : activeView === "tasks"
-        ? "Tasks"
+      : activeView === "projects"
+        ? "Projects"
         : activeView === "routines"
           ? "Routines"
           : "Memories";
@@ -167,19 +166,18 @@ export function Dashboard({
             </h1>
           </header>
 
-          {activeView === "tasks" ? (
-            <TasksPage
+          {activeView === "projects" ? (
+            <ProjectsPage
               darkMode={darkMode}
-              tasks={taskState.taskRecords}
-              loading={taskState.taskLoading}
-              pending={taskState.taskActionPending}
-              message={taskState.taskMessage}
-              onTaskSave={taskState.saveTaskFromPage}
-              onTaskDelete={taskState.deleteTaskFromPage}
-              onTaskArchive={taskState.archiveTaskFromPage}
-              onTaskProgress={taskState.progressTaskFromPage}
-              onTaskStatus={taskState.statusTaskFromPage}
-              onMessageClear={taskState.clearTaskMessage}
+              projects={projectState.projects}
+              loading={projectState.projectLoading}
+              pending={projectState.projectActionPending}
+              message={projectState.projectMessage}
+              onProjectSave={projectState.saveProjectFromPage}
+              onMilestoneSave={projectState.saveMilestoneFromPage}
+              onTaskSave={projectState.saveTaskFromPage}
+              onTaskStatus={projectState.statusTaskFromPage}
+              onMessageClear={projectState.clearProjectMessage}
             />
           ) : activeView === "routines" ? (
             <RoutinesPage
@@ -218,10 +216,10 @@ export function Dashboard({
           ) : (
             <DashboardHome
               darkMode={darkMode}
-              tasks={taskState.tasks}
-              taskLoading={taskState.taskLoading}
-              taskActionPending={taskState.taskActionPending}
-              expandedTaskId={taskState.expandedTaskId}
+              tasks={projectState.tasks}
+              taskLoading={projectState.projectLoading}
+              taskActionPending={projectState.projectActionPending}
+              expandedTaskId={projectState.expandedTaskId}
               routines={routineState.routines}
               routineLoading={routineState.routineLoading}
               routineActionPending={routineState.routineActionPending}
@@ -233,9 +231,9 @@ export function Dashboard({
               memoryMessage={memoryState.memoryMessage}
               expandedMemoryId={memoryState.expandedMemoryId}
               onTaskExpand={handleTaskExpand}
-              onTaskStatus={taskState.updateTaskFromDashboard}
+              onTaskStatus={projectState.updateTaskFromDashboard}
               onSubtaskToggle={handleSubtaskToggle}
-              onTaskEdit={showTasksView}
+              onTaskEdit={showProjectsView}
               onRoutineExpand={handleRoutineExpand}
               onRoutineStatus={routineState.updateRoutine}
               onRoutineBusy={routineState.markRoutineBusy}
@@ -256,7 +254,7 @@ export function Dashboard({
       />
 
       <ReviewDialog
-        tasks={taskState.tasks}
+        tasks={projectState.tasks}
         routines={routineState.routines}
         darkMode={darkMode}
         open={reviewOpen}
