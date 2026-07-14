@@ -75,6 +75,13 @@ user.
   before adding more behavior.
 - Focus on the task implied by the branch name. For example, do not implement
   application code during documentation-only work on an `agent/docs-*` branch.
+- If the user asks for an unrelated bug fix or chore while another branch has
+  active work in progress, do not mix it into the current branch. Stash the
+  current work, switch back to `develop`, create a focused `agent/fix-*` or
+  `agent/chore-*` branch, fix and commit there, merge that branch back into
+  `develop` when the user has requested that workflow, then return to the
+  previous branch and restore the stash. Sync `develop` back into the previous
+  branch only when the change is worth carrying forward immediately.
 
 ## Generated Files
 
@@ -161,6 +168,13 @@ user.
   responds immediately after click, sends the backend request, keeps a
   successful database write silent, and shows a visible error only if the
   backend or database fails.
+- Lightweight product commands should allow concurrent updates when each action
+  can be tracked independently. Examples include `Done`, `Skip`, checklist
+  toggles, and `Replace` when a cached replacement candidate exists. Track
+  pending state per item instead of blocking the whole card list.
+- Heavyweight flows may remain blocking when rollback would be unclear or
+  closing the surface early would lose user context. Examples include login,
+  registration, and save/add/edit dialog submissions.
 - Failed optimistic commands should show the shared notification component, not
   a duplicated inline section error. Use a red notification at the bottom-right
   on desktop and at the bottom-center on mobile or tablet-sized viewports.
