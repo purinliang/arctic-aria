@@ -36,6 +36,43 @@ Dashboard task cards should not show:
 The atomic scheduled unit is the task. A task can last a few days, but subtasks
 should remain checklist details inside the task.
 
+### Dashboard Task Card Layout
+
+The dashboard project area is the main left dashboard panel. Routines and
+pinned memories stay in the right-side dashboard column.
+
+Panel header:
+
+- icon: `Check`
+- title: `Today's tasks to move projects forward`
+- meta: number of recommended tasks
+
+Collapsed task card layout:
+
+- parent surface: one full-width task card row
+- row direction: horizontal, with task text on the left and expand chevron on
+  the right
+- left text group direction: vertical
+- first text line: task title, priority tag, status tag
+- second text line: project title, milestone title, deadline, subtask summary
+- right icon: `ChevronDown`, rotated when expanded
+
+Expanded task card layout:
+
+- expanded content appends under the collapsed row
+- expanded content should share the same card surface and color as the collapsed
+  row
+- first line: task description
+- middle section: subtask checklist rows
+- each subtask row: checkbox on the left, title and description on the right
+- footer action row direction: horizontal with wrapping on small screens
+- actions in order: `Done` with `Check`, `Block` with `Ban`, `Skip` with
+  `SkipForward`, `Edit` with `Edit3`
+
+`Done` is an unfinished command while waiting for user input, so it should use
+the normal command-button style. Do not make it green before the task is
+completed.
+
 ## Projects Page
 
 The Projects page is the project management entry point.
@@ -64,6 +101,53 @@ Each project card should show:
 
 Clicking a project card opens a Project detail page. It should not open an edit
 dialog.
+
+### Projects Page Layout
+
+The page uses one shared `Panel` as the visible container for the management
+area.
+
+Desktop layout:
+
+- direction: horizontal
+- left column: project list, fixed around 360px
+- right column: selected project detail, flexible width
+
+Mobile and narrow layout:
+
+- direction: vertical
+- project list appears first
+- selected project detail appears below the list
+
+Project list layout:
+
+- parent section direction: vertical
+- header direction: horizontal with wrapping
+- header left group: `Projects` title, then description below it
+- header right group: `Add project` button with `Plus`
+- list direction: vertical
+- project item first line: title, status tag, priority tag
+- project item second line: truncated description
+- project item third line: timeline, current milestone, progress text
+- selected project item appends an `Edit project` button below the summary
+
+Selected project detail layout:
+
+- parent section direction: vertical
+- first group: project title and status tag on one wrapping line
+- second group: project description
+- third group: started date, deadline or duration, progress text
+- action group: `Add milestone` button with `Plus`
+- milestone list direction: vertical
+- milestone card header direction: horizontal with wrapping
+- milestone header left group: title and status tag, then objective or progress
+  text
+- milestone header right group: `Edit` with `Edit3`, then `Add task` with
+  `Plus`
+- task rows appear vertically under their milestone
+- task row left group: title, status tag, priority tag, then subtask summary and
+  deadline
+- task row right group: `Done` with `Check`, then `Edit`
 
 ## Add Project Flow
 
@@ -100,6 +184,21 @@ Milestone hint:
 - do not require milestones during first project creation
 - create a default milestone named `Project completion` if the user skips
   milestone setup
+
+Project dialog layout:
+
+- overlay: semi-transparent backdrop over the current page
+- frame direction: vertical
+- top row: dialog title and close button
+- optional message appears below the title row
+- field direction: vertical
+- fields in order: title, description, timeline, dates or duration, priority
+- timeline selector direction: horizontal with wrapping
+- timeline options: `Deadline`, `Duration`
+- date fields direction: two columns on desktop, stacked on mobile
+- priority selector direction: horizontal with wrapping
+- footer action row: `Save` button with `Save`; loading state uses
+  `LoaderCircle`
 
 ## Project Detail Page
 

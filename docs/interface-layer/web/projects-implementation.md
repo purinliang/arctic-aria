@@ -15,6 +15,7 @@ The current web implementation supports the first database-backed Project model:
 - add and edit milestones
 - add and edit tasks under milestones
 - add and edit subtask checklist items while editing a task
+- validate calendar dates before database writes
 - complete, skip, block, and reopen tasks through server actions
 - update subtask checklist state
 - return project database failures through normal action results instead of a
@@ -99,6 +100,170 @@ Dashboard task cards should not show standalone project progress visualization
 or editable numeric progress. They can show concise text such as `2 of 5
 subtasks done`.
 
+## Current UI Structure
+
+The dashboard shell owns navigation and page switching:
+
+```text
+Dashboard
+  Sidebar
+  page title bar
+  DashboardHome or ProjectsPage
+  NotificationStack
+```
+
+When `activeView` is `projects`, `Dashboard` renders `ProjectsPage` as the page
+body under the shared page title bar.
+
+### Projects Page Component Tree
+
+`ProjectsPage` owns project-management state for the selected project and open
+editor dialogs. Its visible page content is one shared `Panel`.
+
+```text
+ProjectsPage
+  Panel
+    optional InlineMessage
+    two-column management grid
+      ProjectsList
+      ProjectDetailPage
+  ProjectEditorDialog, when adding or editing a project
+  MilestoneEditorDialog, when adding or editing a milestone
+  ProjectTaskEditorDialog, when adding or editing a task
+```
+
+The management grid uses `lg:grid-cols-[360px_minmax(0,1fr)]`. On desktop, the
+project list is the left column and selected project detail is the right column.
+On smaller screens, the same children stack vertically with the list first.
+
+### Project List Layout
+
+`ProjectsList` is a vertical section inside the left grid column.
+
+Top header:
+
+- parent layout: horizontal flex with wrapping
+- left group: `Projects` title, then the descriptive sentence below it
+- right group: primary `Add project` button
+- icon: `Plus`
+
+List body:
+
+- parent layout: vertical grid
+- empty state: `No projects yet. Add a project for a larger goal.`
+- item parent component: shared `ListItem` with block layout
+- item first line: project title, status `Tag`, priority `Tag`
+- item second line: truncated description
+- item third line: timeline text, current milestone, progress text
+- selected item appends an `Edit project` button below the summary
+
+Clicking the item selects the project. Clicking `Edit project` opens
+`ProjectEditorDialog`.
+
+### Project Detail Layout
+
+`ProjectDetailPage` is a vertical section inside the right grid column.
+
+Project header:
+
+- first row: project title, then status `Tag`
+- second row: description
+- third row: started date, timeline text, progress text
+
+Action row:
+
+- layout: horizontal flex with wrapping
+- action: `Add milestone`
+- icon: `Plus`
+
+Milestone list:
+
+- parent layout: vertical grid
+- milestone parent component: shared `ListItem` with block layout
+- milestone header layout: horizontal flex with wrapping
+- milestone left group: title, status `Tag`, then objective or progress text
+- milestone right group: `Edit` with `Edit3`, then `Add task` with `Plus`
+- task rows append vertically below the milestone header
+
+Task row layout inside a milestone:
+
+- parent surface: rounded bordered row
+- row direction: horizontal with wrapping
+- left group: title, status `Tag`, priority `Tag`, then subtask summary and
+  deadline
+- right group: `Done` with `Check`, then `Edit`
+- `Done` uses the normal secondary button tone, not the green success tone,
+  because the task is not completed until the command succeeds
+
+### Project Editor Dialog Layout
+
+`ProjectEditorDialog` and `MilestoneEditorDialog` share `DialogShell`.
+
+Dialog shell:
+
+- parent overlay: `DialogOverlay`
+- backdrop: `DialogBackdrop`
+- frame: `DialogFrame`
+- top row: `DialogHeader`
+- optional `InlineMessage` below the header
+- field area: vertical grid
+- footer: horizontal action row with one primary `Save` button
+- save icon: `Save`
+- loading icon: animated `LoaderCircle`
+
+Project field order:
+
+- `Title` text input
+- `Description` textarea
+- `Timeline` segmented buttons: `Deadline`, `Duration`
+- date/duration fields: two columns on desktop, stacked on mobile
+- `Priority` segmented buttons: `High`, `Medium`, `Low`
+
+`ProjectTaskEditorDialog` uses its own vertical dialog layout:
+
+- basics group: title, description
+- meta group: scheduled date, start date, deadline, priority, status
+- subtasks group: vertical subtask cards
+- subtask card first row: title input, `Done` checkbox, `Remove` with `X`
+- subtask card second row: description input
+- bottom action: `Add subtask` with `Plus`
+
+### Dashboard Project Task Card Layout
+
+`DashboardHome` renders the project task panel as the main left dashboard panel:
+
+```text
+DashboardHome
+  main Panel
+    SectionHeader(Check, "Today's tasks to move projects forward")
+    ProjectTaskCard[]
+  right aside
+    routines Panel
+    pinned memories Panel
+```
+
+`ProjectTaskCard` owns the dashboard view of one task.
+
+Collapsed card:
+
+- parent element: full-width `article`
+- clickable row layout: two columns, task text then chevron
+- text group direction: vertical
+- first line: task title, priority label, status `Tag`
+- second line: project label, milestone label, deadline, subtask summary
+- right icon: `ChevronDown`, rotated when expanded
+
+Expanded card:
+
+- expanded content appends below the clickable row
+- first element: task description
+- middle elements: subtask checklist rows
+- subtask row layout: checkbox, then title and description
+- footer layout: horizontal flex with wrapping
+- actions in order: `Done` with `Check`, `Block` with `Ban`, `Skip` with
+  `SkipForward`, `Edit` with `Edit3`
+- `Done` uses the normal secondary button tone, not the green success tone
+
 ## Code Locations
 
 Project web UI:
@@ -116,6 +281,7 @@ Project server actions:
 
 ```text
 apps/web/src/features/projects/actions.ts
+apps/web/src/features/projects/project-date-validation.ts
 apps/web/src/features/projects/project-database-errors.ts
 ```
 
@@ -135,6 +301,7 @@ Tests:
 
 ```text
 apps/web/src/features/projects/__tests__/project-action-helpers.test.ts
+apps/web/src/features/projects/__tests__/postgres-project-save-queries.test.ts
 apps/web/src/features/projects/__tests__/project-service.test.ts
 ```
 
