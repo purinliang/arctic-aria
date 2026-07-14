@@ -34,6 +34,89 @@ export function applyOptimisticTaskStatus(
   );
 }
 
+export function applyOptimisticSubtaskDone(
+  tasks: Task[],
+  subtaskId: string,
+  done: boolean,
+): Task[] {
+  return tasks.map((task) => {
+    let changed = false;
+    const subtasks = task.subtasks?.map((subtask) => {
+      if (subtask.id !== subtaskId) {
+        return subtask;
+      }
+
+      changed = true;
+      return { ...subtask, isDone: done, done };
+    });
+
+    if (!subtasks || !changed) {
+      return task;
+    }
+
+    return {
+      ...task,
+      subtasks,
+      subtaskSummary: subtaskSummary(subtasks),
+    };
+  });
+}
+
+export function restoreTaskSnapshot(
+  tasks: Task[],
+  snapshot: Task[],
+  taskId: string,
+): Task[] {
+  const previousTask = snapshot.find((task) => task.id === taskId);
+
+  if (!previousTask) {
+    return tasks;
+  }
+
+  if (!tasks.some((task) => task.id === taskId)) {
+    const previousIndex = snapshot.findIndex((task) => task.id === taskId);
+    const restored = [...tasks];
+
+    restored.splice(Math.max(previousIndex, 0), 0, previousTask);
+    return restored;
+  }
+
+  return tasks.map((task) => (task.id === taskId ? previousTask : task));
+}
+
+export function restoreSubtaskSnapshot(
+  tasks: Task[],
+  snapshot: Task[],
+  subtaskId: string,
+): Task[] {
+  const previousTask = snapshot.find((task) =>
+    task.subtasks?.some((subtask) => subtask.id === subtaskId),
+  );
+  const previousSubtask = previousTask?.subtasks?.find(
+    (subtask) => subtask.id === subtaskId,
+  );
+
+  if (!previousTask || !previousSubtask) {
+    return tasks;
+  }
+
+  return tasks.map((task) => {
+    if (task.id !== previousTask.id || !task.subtasks) {
+      return task;
+    }
+
+    const subtasks = task.subtasks.map((subtask) =>
+      subtask.id === subtaskId ? previousSubtask : subtask,
+    );
+
+    return {
+      ...task,
+      subtasks,
+      subtaskSummary: subtaskSummary(subtasks),
+    };
+  });
+}
+
 export function applyOptimisticRoutineStatus(
   routines: Routine[],
   routineId: string,
@@ -95,4 +178,10 @@ export function removeMemorySuggestion(
   memoryId: string,
 ): MemorySuggestion[] {
   return suggestions.filter((suggestion) => suggestion.id !== memoryId);
+}
+
+function subtaskSummary(subtasks: NonNullable<Task["subtasks"]>) {
+  const doneCount = subtasks.filter((subtask) => subtask.done).length;
+
+  return `${doneCount} of ${subtasks.length} subtasks done`;
 }

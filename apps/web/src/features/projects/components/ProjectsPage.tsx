@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import type { SetStateAction } from "react";
-import { Panel } from "@/components/ui/panel";
 import { InlineMessage } from "@/components/ui/text";
 import type { TaskStatus } from "@/features/dashboard/types";
 import type {
@@ -38,6 +37,7 @@ export function ProjectsPage({
   onMilestoneSave,
   onTaskSave,
   onTaskStatus,
+  onSubtaskToggle,
   onMessageClear,
 }: {
   darkMode: boolean;
@@ -52,6 +52,7 @@ export function ProjectsPage({
     taskId: string,
     status: Exclude<TaskStatus, "archived">,
   ) => ProjectResult;
+  onSubtaskToggle: (subtaskId: string, done: boolean) => ProjectResult;
   onMessageClear: () => void;
 }) {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -62,9 +63,9 @@ export function ProjectsPage({
   const [taskDraft, setTaskDraft] = useState<ProjectTaskInput | null>(null);
   const selectedProject = useMemo(
     () =>
-      projects.find((project) => project.id === selectedProjectId) ??
-      projects[0] ??
-      null,
+      selectedProjectId
+        ? projects.find((project) => project.id === selectedProjectId) ?? null
+        : null,
     [projects, selectedProjectId],
   );
 
@@ -145,33 +146,25 @@ export function ProjectsPage({
 
   return (
     <>
-      <Panel darkMode={darkMode}>
+      <div className="grid gap-3">
         {message ? (
-          <InlineMessage darkMode={darkMode} className="m-4">
+          <InlineMessage darkMode={darkMode}>
             {message}
           </InlineMessage>
         ) : null}
-        <div className="grid gap-0 lg:grid-cols-[360px_minmax(0,1fr)]">
-          <ProjectsList
+
+        {selectedProject ? (
+          <ProjectDetailPage
             darkMode={darkMode}
-            loading={loading}
             pending={pending}
             projects={projects}
-            selectedProjectId={selectedProject?.id ?? null}
+            project={selectedProject}
+            onBackToList={() => setSelectedProjectId(null)}
             onSelectProject={setSelectedProjectId}
-            onAddProject={() => {
-              onMessageClear();
-              setProjectDraft(emptyProjectDraft());
-            }}
             onEditProject={(project) => {
               onMessageClear();
               setProjectDraft(projectToDraft(project));
             }}
-          />
-          <ProjectDetailPage
-            darkMode={darkMode}
-            pending={pending}
-            project={selectedProject}
             onAddMilestone={(projectId) => {
               onMessageClear();
               setMilestoneDraft(emptyMilestoneDraft(projectId));
@@ -189,9 +182,24 @@ export function ProjectsPage({
               setTaskDraft(taskToDraft(task));
             }}
             onTaskStatus={(taskId, status) => void onTaskStatus(taskId, status)}
+            onSubtaskToggle={(subtaskId, done) =>
+              void onSubtaskToggle(subtaskId, done)
+            }
           />
-        </div>
-      </Panel>
+        ) : (
+          <ProjectsList
+            darkMode={darkMode}
+            loading={loading}
+            pending={pending}
+            projects={projects}
+            onViewProject={setSelectedProjectId}
+            onAddProject={() => {
+              onMessageClear();
+              setProjectDraft(emptyProjectDraft());
+            }}
+          />
+        )}
+      </div>
 
       {projectDraft ? (
         <ProjectEditorDialog

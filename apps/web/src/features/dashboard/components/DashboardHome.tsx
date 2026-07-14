@@ -20,7 +20,8 @@ export function DashboardHome({
   darkMode,
   tasks,
   taskLoading,
-  taskActionPending,
+  pendingTaskIds,
+  pendingSubtaskIds,
   expandedTaskId,
   routines,
   routineLoading,
@@ -48,7 +49,8 @@ export function DashboardHome({
   darkMode: boolean;
   tasks: Task[];
   taskLoading: boolean;
-  taskActionPending: boolean;
+  pendingTaskIds: string[];
+  pendingSubtaskIds: string[];
   expandedTaskId: string | null;
   routines: Routine[];
   routineLoading: boolean;
@@ -97,7 +99,8 @@ export function DashboardHome({
               key={task.id}
               task={task}
               darkMode={darkMode}
-              disabled={taskActionPending}
+              taskPending={pendingTaskIds.includes(task.id)}
+              pendingSubtaskIds={pendingSubtaskIds}
               expanded={expandedTaskId === task.id}
               onToggleExpanded={() => onTaskExpand(task.id)}
               onSubtaskToggle={(subtaskId) => onSubtaskToggle(task, subtaskId)}

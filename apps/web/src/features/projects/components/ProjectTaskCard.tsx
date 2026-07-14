@@ -25,7 +25,8 @@ function priorityClass(priority: Task["priority"], darkMode: boolean) {
 export function ProjectTaskCard({
   task,
   darkMode,
-  disabled = false,
+  taskPending = false,
+  pendingSubtaskIds = [],
   expanded,
   onToggleExpanded,
   onSubtaskToggle,
@@ -36,7 +37,8 @@ export function ProjectTaskCard({
 }: {
   task: Task;
   darkMode: boolean;
-  disabled?: boolean;
+  taskPending?: boolean;
+  pendingSubtaskIds?: string[];
   expanded: boolean;
   onToggleExpanded: () => void;
   onSubtaskToggle: (subtaskId: string) => void;
@@ -104,7 +106,7 @@ export function ProjectTaskCard({
                 className="accent-emerald-500"
                 type="checkbox"
                 checked={subtask.done}
-                disabled={disabled}
+                disabled={pendingSubtaskIds.includes(subtask.id)}
                 onChange={() => onSubtaskToggle(subtask.id)}
               />
               <span className="min-w-0">
@@ -124,7 +126,7 @@ export function ProjectTaskCard({
           <div className="flex flex-wrap gap-2 pt-1">
             <Button
               darkMode={darkMode}
-              disabled={disabled || task.status === "done"}
+              disabled={taskPending || task.status === "done"}
               icon={<Check size={14} aria-hidden="true" />}
               onClick={onDone}
             >
@@ -132,7 +134,7 @@ export function ProjectTaskCard({
             </Button>
             <Button
               darkMode={darkMode}
-              disabled={disabled || task.status === "blocked"}
+              disabled={taskPending || task.status === "blocked"}
               icon={<Ban size={14} aria-hidden="true" />}
               onClick={onBlock}
             >
@@ -140,7 +142,7 @@ export function ProjectTaskCard({
             </Button>
             <Button
               darkMode={darkMode}
-              disabled={disabled || task.status === "skipped"}
+              disabled={taskPending || task.status === "skipped"}
               icon={<SkipForward size={14} aria-hidden="true" />}
               onClick={onSkip}
             >
@@ -148,6 +150,7 @@ export function ProjectTaskCard({
             </Button>
             <Button
               darkMode={darkMode}
+              disabled={taskPending}
               icon={<Edit3 size={14} aria-hidden="true" />}
               onClick={onEdit}
             >

@@ -177,6 +177,7 @@ export function Dashboard({
               onMilestoneSave={projectState.saveMilestoneFromPage}
               onTaskSave={projectState.saveTaskFromPage}
               onTaskStatus={projectState.statusTaskFromPage}
+              onSubtaskToggle={projectState.toggleSubtaskFromPage}
               onMessageClear={projectState.clearProjectMessage}
             />
           ) : activeView === "routines" ? (
@@ -218,7 +219,8 @@ export function Dashboard({
               darkMode={darkMode}
               tasks={projectState.tasks}
               taskLoading={projectState.projectLoading}
-              taskActionPending={projectState.projectActionPending}
+              pendingTaskIds={projectState.pendingTaskIds}
+              pendingSubtaskIds={projectState.pendingSubtaskIds}
               expandedTaskId={projectState.expandedTaskId}
               routines={routineState.routines}
               routineLoading={routineState.routineLoading}

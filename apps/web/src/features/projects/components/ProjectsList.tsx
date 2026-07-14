@@ -1,10 +1,9 @@
-import { Plus } from "lucide-react";
+import { ArrowRight, FolderKanban, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  mutedTextClass,
-  sectionBorderClass,
-} from "@/components/ui/color";
+import { CardHeader } from "@/components/ui/card";
+import { mutedTextClass } from "@/components/ui/color";
 import { ListItem } from "@/components/ui/list";
+import { Panel } from "@/components/ui/panel";
 import { Tag } from "@/components/ui/tag";
 import { cx } from "@/components/ui/utils";
 import type { ProjectView } from "@/features/projects/actions";
@@ -15,44 +14,35 @@ export function ProjectsList({
   loading,
   pending,
   projects,
-  selectedProjectId,
-  onSelectProject,
+  onViewProject,
   onAddProject,
-  onEditProject,
 }: {
   darkMode: boolean;
   loading: boolean;
   pending: boolean;
   projects: ProjectView[];
-  selectedProjectId: string | null;
-  onSelectProject: (projectId: string) => void;
+  onViewProject: (projectId: string) => void;
   onAddProject: () => void;
-  onEditProject: (project: ProjectView) => void;
 }) {
   return (
-    <section className="grid gap-3">
-      <div
-        className={cx(
-          "flex flex-wrap items-start justify-between gap-3 border-b px-4 py-3",
-          sectionBorderClass(darkMode),
-        )}
-      >
-        <div>
-          <h2 className="text-base font-semibold">Projects</h2>
-          <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
-            Track long-running goals and the tasks that move them forward.
-          </p>
-        </div>
-        <Button
-          darkMode={darkMode}
-          tone="primary"
-          disabled={pending}
-          icon={<Plus size={14} aria-hidden="true" />}
-          onClick={onAddProject}
-        >
-          Add project
-        </Button>
-      </div>
+    <Panel darkMode={darkMode} className="min-h-[60vh]">
+      <CardHeader
+        darkMode={darkMode}
+        icon={<FolderKanban size={18} aria-hidden="true" />}
+        title="Projects"
+        description="Track long-running goals and the tasks that move them forward."
+        action={
+          <Button
+            darkMode={darkMode}
+            tone="primary"
+            disabled={pending}
+            icon={<Plus size={15} aria-hidden="true" />}
+            onClick={onAddProject}
+          >
+            Add project
+          </Button>
+        }
+      />
 
       <div className="grid gap-2 px-4 pb-4">
         {loading ? (
@@ -70,32 +60,26 @@ export function ProjectsList({
             key={project.id}
             darkMode={darkMode}
             project={project}
-            selected={selectedProjectId === project.id}
-            onSelect={() => onSelectProject(project.id)}
-            onEdit={() => onEditProject(project)}
+            onView={() => onViewProject(project.id)}
           />
         ))}
       </div>
-    </section>
+    </Panel>
   );
 }
 
 function ProjectListItem({
   darkMode,
   project,
-  selected,
-  onSelect,
-  onEdit,
+  onView,
 }: {
   darkMode: boolean;
   project: ProjectView;
-  selected: boolean;
-  onSelect: () => void;
-  onEdit: () => void;
+  onView: () => void;
 }) {
   return (
-    <ListItem darkMode={darkMode} expanded={selected} layout="block">
-      <button className="w-full text-left" type="button" onClick={onSelect}>
+    <ListItem darkMode={darkMode} layout="block">
+      <button className="w-full text-left" type="button" onClick={onView}>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-semibold">{project.title}</span>
           <Tag darkMode={darkMode}>{titleCase(project.status)}</Tag>
@@ -111,14 +95,38 @@ function ProjectListItem({
           <span>{project.currentMilestone}</span>
           <span>{project.progressText}</span>
         </div>
-      </button>
-      {selected ? (
-        <div className="mt-3">
-          <Button darkMode={darkMode} size="xs" onClick={onEdit}>
-            Edit project
-          </Button>
+        <div className="mt-3 grid gap-2">
+          {project.milestones.map((milestone) => (
+            <div
+              key={milestone.id}
+              className={cx(
+                "grid gap-1 rounded-md border px-3 py-2",
+                darkMode
+                  ? "border-neutral-800 bg-black/40"
+                  : "border-slate-200 bg-white",
+              )}
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-semibold">{milestone.title}</span>
+                <Tag darkMode={darkMode}>{titleCase(milestone.status)}</Tag>
+              </div>
+              <span className={`text-xs ${mutedTextClass(darkMode)}`}>
+                {milestone.progressText}
+              </span>
+            </div>
+          ))}
         </div>
-      ) : null}
+      </button>
+      <div className="mt-3">
+        <Button
+          darkMode={darkMode}
+          size="xs"
+          icon={<ArrowRight size={13} aria-hidden="true" />}
+          onClick={onView}
+        >
+          View
+        </Button>
+      </div>
     </ListItem>
   );
 }
