@@ -15,8 +15,8 @@ becomes clearer.
   stable owner.
 - Add session persistence and logout so login survives refresh and users can
   explicitly leave the dashboard.
-- Define plans, tasks, subtasks, routines, ideas, scheduler data, reviews, and
-  completion events.
+- Define projects, milestones, tasks, subtasks, routines, ideas, memories,
+  scheduler data, reviews, and completion events.
 - Choose concrete database schema and migration tooling.
 - Define commands and events for task completion, partial completion, routine
   completion, idea capture, and daily review.
@@ -24,8 +24,8 @@ becomes clearer.
 ## Phase 2: Web Dashboard
 
 - Build the main web dashboard.
-- Show daily plan, backlog, deadlines, weighted progress, routines, timetable,
-  idea capture, and review history.
+- Show today's project tasks, project backlog, deadlines, derived progress,
+  routines, timetable, pinned memories, idea capture, and review history.
 - Support editing, rescheduling, completing, partially completing, skipping, and
   reviewing items.
 
@@ -52,8 +52,8 @@ becomes clearer.
 
 ## Phase 6: Future Life Plugins
 
-- Add cuisine and sightseeing suggestions.
-- Add movie and anime recommendations.
+- Add new cuisine and sightseeing suggestions beyond saved memories.
+- Add new movie and anime recommendations beyond saved memories.
 - Add research coach workflows.
 - Keep each plugin independent from core planning logic.
 

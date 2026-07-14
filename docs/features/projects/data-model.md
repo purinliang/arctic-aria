@@ -1,0 +1,241 @@
+# Projects Data Model
+
+This document defines the product entities and SQL direction for Projects,
+Milestones, Tasks, and Subtasks. UI behavior is documented in [ui.md](ui.md).
+
+## Entity Ownership
+
+All project records are user-owned.
+
+The Projects feature owns:
+
+- projects
+- milestones
+- tasks
+- subtasks
+- task dependencies
+- completion history
+
+The scheduler may select tasks for a day, but the scheduler must not own
+project structure.
+
+## Projects
+
+`projects` stores the top-level initiative.
+
+Recommended fields:
+
+- `id`
+- `user_id`
+- `title`
+- `description`
+- `status`
+- `priority`
+- `start_date`
+- `deadline_date`
+- `duration_range`
+- `created_at`
+- `updated_at`
+- `completed_at`
+- `archived_at`
+
+Field rules:
+
+- `title` is required.
+- `description` is required. It combines what the project is trying to
+  accomplish and why it matters to the user.
+- `start_date` is required.
+- `deadline_date` is optional.
+- `duration_range` is optional.
+- A project must use exactly one timeline mode: either `deadline_date` or
+  `duration_range`.
+- The first duration ranges are `1-3 months`, `3-6 months`, `6-12 months`, and
+  `1-3 years`.
+- Do not expose free numeric duration input in the first UI.
+
+Statuses:
+
+- `active`: currently relevant.
+- `paused`: intentionally stopped for now.
+- `completed`: finished.
+- `archived`: hidden from normal views.
+
+## Milestones
+
+`project_milestones` stores phase boundaries inside a project.
+
+Recommended fields:
+
+- `id`
+- `user_id`
+- `project_id`
+- `title`
+- `objective`
+- `status`
+- `sort_order`
+- `start_date`
+- `deadline_date`
+- `expected_duration_days`
+- `created_at`
+- `updated_at`
+- `completed_at`
+- `archived_at`
+
+Field rules:
+
+- Every task belongs to one milestone.
+- Every project should have at least one milestone.
+- If the user does not create a milestone, create a default milestone titled
+  `Project completion`.
+- Milestones can be renamed, reordered, archived, and completed.
+- Milestones should stay lightweight. They are phase boundaries, not full
+  independent projects.
+
+Statuses:
+
+- `active`
+- `paused`
+- `completed`
+- `archived`
+
+## Tasks
+
+`project_tasks` stores schedulable work under a milestone.
+
+Recommended fields:
+
+- `id`
+- `user_id`
+- `project_id`
+- `milestone_id`
+- `title`
+- `description`
+- `status`
+- `priority`
+- `scheduled_date`
+- `start_date`
+- `deadline_date`
+- `sort_order`
+- `created_at`
+- `updated_at`
+- `completed_at`
+- `skipped_at`
+- `blocked_at`
+- `archived_at`
+
+Field rules:
+
+- A task belongs to exactly one milestone.
+- A task inherits `project_id` through its milestone, but storing `project_id`
+  on the task can make common queries simpler.
+- A task is schedulable.
+- A task can span several days.
+- A task should not contain another task as a child. Use subtasks for checklist
+  detail.
+- Do not expose editable numeric progress fields.
+
+Statuses:
+
+- `todo`
+- `doing`
+- `blocked`
+- `skipped`
+- `done`
+- `archived`
+
+## Subtasks
+
+`project_subtasks` stores checklist items inside a task.
+
+Recommended fields:
+
+- `id`
+- `user_id`
+- `task_id`
+- `title`
+- `description`
+- `is_done`
+- `sort_order`
+- `created_at`
+- `updated_at`
+- `completed_at`
+
+Field rules:
+
+- A subtask belongs to exactly one task.
+- A subtask cannot contain another subtask.
+- A subtask is not schedulable.
+- A subtask should not have its own deadline, priority, dependencies, or
+  reminder delivery.
+- Subtask completion updates task progress display, but the scheduler should
+  still schedule the parent task.
+
+## Task Dependencies
+
+`project_task_dependencies` stores prerequisite relationships between tasks.
+
+Recommended fields:
+
+- `task_id`
+- `depends_on_task_id`
+- `created_at`
+
+Rules:
+
+- both tasks must belong to the same user
+- both tasks should usually belong to the same project
+- prevent self-dependency
+- prevent dependency cycles
+- the first UI can use simple prerequisite selection, not a graph visualization
+
+## Completion Events
+
+`completion_events` should support task-level history.
+
+Recommended target types:
+
+- `task`
+
+Recommended event types:
+
+- `completed`
+- `reopened`
+- `blocked`
+- `unblocked`
+- `skipped`
+
+Subtask toggles can be stored on `project_subtasks` first. Add subtask events
+only if review or audit behavior needs them later.
+
+## Migration Direction
+
+The current prototype migration created the previous task feature shape:
+
+- top-level grouping records from the previous prototype
+- task records that also represent child checklist items
+- editable numeric progress fields
+
+The next implementation should replace that shape with project-oriented tables:
+
+- `projects`
+- `project_milestones`
+- `project_tasks`
+- `project_subtasks`
+- `project_task_dependencies`
+
+Because some local and Neon databases may already have recorded
+`0004_create_tasks.sql` as applied, the current implementation uses
+`0005_create_projects.sql` to replace the prototype tables with the Project
+schema. The migration drops the old prototype `plans` and `tasks` tables and
+creates the Project tables above.
+
+Current compatibility note:
+
+- `0005_create_projects.sql` still has `objective`, `importance_reason`, and
+  `expected_duration_days` columns.
+- The web UI treats project description as one user-facing field and maps it
+  into the current columns until a later cleanup migration renames the storage
+  columns.
+- The web UI treats duration as a dropdown range and maps the selected range to
+  the current numeric `expected_duration_days` storage until the cleanup
+  migration adds a native `duration_range` column.

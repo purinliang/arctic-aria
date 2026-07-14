@@ -1,103 +1,144 @@
 # Architecture
 
-This document describes the high-level module architecture for Arctic Aria. It
-focuses on what each layer owns. Technology choices and repository layout are
-documented in [implementation.md](implementation.md).
+This document describes the high-level module architecture for Arctic Aria.
+Technology choices and repository layout are documented in
+[implementation.md](implementation.md).
 
-## Layer Overview
+## Module Overview
 
 ```text
-ArcticAria
-|-- Core layer
-|   |-- plan and task engine
-|   |-- routine engine
-|   |-- idea engine
-|   |-- scheduler
-|   `-- review engine
+Arctic Aria
+|-- Product features
+|   |-- Auth
+|   |-- Projects
+|   |-- Routines
+|   |-- Memories
+|   |-- Dashboard
+|   |-- Ideas
+|   |-- Scheduler
+|   `-- Reviews
 |
-|-- Plugin layer
-|   |-- reward system
-|   |-- english coach
-|   |-- future research coach
-|   `-- future life planners
+|-- Plugin workers
+|   |-- Reward system
+|   |-- English coach
+|   |-- Future research coach
+|   `-- Future life planners
 |
-|-- Interface layer
-|   |-- web dashboard
-|   `-- discord bot
+|-- App surfaces
+|   |-- Web app
+|   `-- Discord bot
 |
-`-- Infrastructure layer
-    |-- database
-    |-- event bus
-    `-- background jobs
+`-- Infrastructure services
+    |-- Database
+    |-- Event bus
+    `-- Background jobs
 ```
 
-The Core layer owns stable product logic. The Plugin layer adds optional
-specialized workflows. The Interface layer lets the user operate the same
-system through the web dashboard or Discord. The Infrastructure layer provides
-shared technical capabilities that other layers use, but it does not own product
-rules.
+Product features own user-visible rules and state transitions. Plugin workers
+add optional specialized workflows. App surfaces let the user operate the same
+system through web or Discord. Infrastructure services provide storage, event
+delivery, scheduling, and external adapters.
 
-## Core Layer
+Documentation follows the same shape:
 
-The Core layer is the source of truth for planning, routines, scheduling, ideas,
-and reviews. It should be deterministic, testable, and independent from any
-specific interface.
+- `docs/features/<feature>/`: feature design, UI behavior, and implementation
+  notes.
+- `docs/shared/`: shared web UI component rules.
+- `docs/infrastructure/`: database, event bus, migrations, jobs, and technical
+  service direction.
+- `docs/apps/`: app-specific notes such as Discord bot behavior.
 
-### Plan And Task Engine
+## Product Features
 
-A plan is a large goal that may last for weeks or months. A task is a smaller
-piece of work that usually takes a few hours to a few days. A task can contain
-subtasks, but subtasks are still tasks.
+Product features are the source of truth for user-visible entities, commands,
+validation, and status changes. They should be deterministic, testable, and
+usable from more than one app surface.
 
-The first model should use two conceptual levels:
+### Auth
 
-- Plan: long-running goal, deadline, overall progress, and grouped work.
-- Task: executable work item, optional parent task, weight, status, and
-  completion progress.
+Auth owns registration, login, session persistence, logout, user settings, and
+future account management. The current MVP uses username and password auth.
 
-The task engine owns:
+Detailed docs:
 
-- task capture and triage
-- parent-child task relationships
-- task weights
-- full completion and partial completion
-- deadline and progress calculation
-- status changes such as todo, doing, blocked, skipped, and done
+- [features/auth/design.md](features/auth/design.md)
+- [features/auth/ui.md](features/auth/ui.md)
+- [features/auth/settings.md](features/auth/settings.md)
+- [features/auth/web-implementation.md](features/auth/web-implementation.md)
 
-### Routine Engine
+### Projects
 
-A routine is not a plan. It represents repeated daily-life work, such as
-exercise, sleep preparation, English practice, review, or other recurring
-chores.
+Projects are long-running personal initiatives. A project may contain
+milestones, milestone tasks, and task subtasks.
 
-The routine engine owns:
+The first model uses four conceptual levels:
 
-- recurrence rules
-- routine instances for specific days
-- completion and skip states
-- reminder preferences used by the scheduler
-- simple routine categories, including fitness routines
+- Project: long-running objective, description, start date, optional deadline
+  or expected duration, and grouped milestones.
+- Milestone: phase boundary inside a project.
+- Task: executable schedulable work item.
+- Subtask: checklist item inside one task; it is not scheduled independently.
 
-Fitness belongs here by default. It should become a plugin only if a future
-fitness feature needs specialized recommendation, analysis, or external device
-integration.
+Detailed docs:
 
-### Idea Engine
+- [features/projects/overview.md](features/projects/overview.md)
+- [features/projects/data-model.md](features/projects/data-model.md)
+- [features/projects/ui.md](features/projects/ui.md)
+- [features/projects/web-implementation.md](features/projects/web-implementation.md)
 
-The idea engine stores quick thoughts before they become tasks, plans, routines,
-or plugin inputs.
+### Routines
 
-The idea engine owns:
+Routines represent repeated daily-life work such as exercise, sleep
+preparation, English practice, review, or recurring chores. A routine is not a
+project and does not use the project hierarchy.
+
+Detailed docs:
+
+- [features/routines/design.md](features/routines/design.md)
+- [features/routines/ui.md](features/routines/ui.md)
+
+### Memories
+
+Memories store repeatable personal experiences that the user may want to
+revisit, such as cuisine, sightseeing, anime, games, books, or shops. Memories
+are suggestions and personal records, not commitments, so they should not become
+overdue like tasks or routines.
+
+Detailed docs:
+
+- [features/memories/design.md](features/memories/design.md)
+- [features/memories/ui.md](features/memories/ui.md)
+- [features/memories/web-implementation.md](features/memories/web-implementation.md)
+
+### Dashboard
+
+The dashboard is the daily operating surface. It combines selected data from
+Projects, Routines, Memories, Reviews, and future reward features, but it should
+not redefine those feature rules.
+
+Detailed docs:
+
+- [features/dashboard/web-prototype.md](features/dashboard/web-prototype.md)
+- [features/dashboard/sidebar.md](features/dashboard/sidebar.md)
+- [features/dashboard/sidebar-ui.md](features/dashboard/sidebar-ui.md)
+
+### Ideas
+
+Ideas store quick thoughts before they become projects, tasks, routines, or
+plugin inputs.
+
+The Ideas feature owns:
 
 - quick capture records
 - source information, such as web, Discord, or mobile
 - triage state
-- conversion into a task, plan, routine, idea record, or plugin request
+- conversion into a project, task, routine, idea record, or plugin request
 
 ### Scheduler
 
 The scheduler selects tasks and routines for upcoming time windows and returns
-data for a timetable. It should not directly own Discord or web UI behavior.
+data for daily planning and reminders. It should produce commands or jobs for
+app surfaces instead of owning the app UI itself.
 
 The scheduler owns:
 
@@ -106,16 +147,12 @@ The scheduler owns:
 - producing timetable data for coming days
 - creating reminder jobs
 - handling retry and quiet-period rules
-- notifying the Interface layer when a reminder should be delivered
 
-The scheduler can send an internal job or API request to the Interface layer,
-but the Interface layer should deliver the actual notification.
+### Reviews
 
-### Review Engine
+Reviews manage feedback and reflection.
 
-The review engine manages feedback and reflection.
-
-The review engine owns:
+The Reviews feature owns:
 
 - daily reviews
 - weekly and monthly review summaries
@@ -124,26 +161,26 @@ The review engine owns:
 - adjustment suggestions
 - hooks that allow the reward plugin to grant rewards
 
-## Plugin Layer
+## Plugin Workers
 
-Plugins add specialized behavior without owning core product state directly.
-They should read core context through approved APIs and submit proposed actions
-back to the Core layer for validation.
+Plugin workers add specialized behavior without owning normal product state
+directly. They should read product context through approved APIs and submit
+proposed actions back through validated commands.
 
 ### Reward System
 
-The reward system is a plugin because it is a light game for positive feedback,
-not required for the core planning model.
+The reward system is a plugin because it is optional positive feedback, not
+required for the planner model.
 
 It owns:
 
 - money, boxes, gems, flowers, and inventory items
 - reward rules based on completion and review results
 - box opening logic
-- optional game-like progress such as building or repairing a small island
+- optional game-like progress
 
 The reward plugin should listen to review or completion events rather than
-being embedded in the task engine.
+being embedded in project or routine logic.
 
 ### English Coach
 
@@ -158,43 +195,38 @@ It owns:
 - daily learning review
 - learning memory and retrieval context
 
-It may create tasks or routines, but those actions must go through the Core
-layer.
+It may create tasks or routines, but those actions must go through product
+commands.
 
-### Future Research Coach
-
-The research coach can help collect sources, summarize material, and produce
-structured outputs. It should save outputs as plugin records or ideas that can
-be triaged later.
-
-### Future Life Planners
+### Future Planners
 
 Future planners can include cooking, shopping, sightseeing, anime
-recommendation, or other fun planning helpers. They should remain plugins unless
-their behavior becomes a stable part of the core planning model.
+recommendation, research support, or other specialized workflows. Saved personal
+experiences belong to Memories; new external recommendations belong in plugins
+until the feature shape is proven.
 
-## Interface Layer
+## App Surfaces
 
-The Interface layer is responsible for user interaction, not business rules.
+App surfaces are responsible for user interaction, not product rule ownership.
 
-### Web Dashboard
+### Web App
 
-The web dashboard is the primary interface. It should focus on desktop first,
-while remaining usable on iPhone Chrome.
+The web app is the primary surface. It should focus on desktop first while
+remaining usable on iPhone Chrome.
 
 It owns:
 
-- schedule editing UI
-- completion and partial-completion UI
-- plan and task management UI
+- dashboard layout
+- project and task management UI
 - routine management UI
+- memory management UI
 - review UI
 - reward and plugin screens
 
 ### Discord Bot
 
-The Discord bot is mainly for notification and quick interaction. It is
-important because the user may forget to open the web dashboard.
+The Discord bot is for notification and quick interaction. It is important
+because the user may forget to open the web app.
 
 It owns:
 
@@ -205,29 +237,28 @@ It owns:
 - review prompts
 - concise status updates
 
-The Discord bot should call Core APIs. It should not implement its own planning
-or routine logic.
+The Discord bot should call product commands. It should not implement its own
+planning or routine rules.
 
-## Infrastructure Layer
+## Infrastructure Services
 
-The Infrastructure layer supports the Core, Plugin, and Interface layers. It is
-where shared storage, event delivery, migrations, background jobs, and external
-service adapters belong.
+Infrastructure services support product features, plugin workers, and app
+surfaces. They own technical mechanisms, not product decisions.
 
-Infrastructure owns technical mechanisms, not product decisions. For example:
+Infrastructure owns:
 
-- The database owns persistence, migrations, indexes, and transaction support.
-- The event bus owns publishing, subscribing, retries, and delivery tracking.
-- Background jobs own durable execution for reminders, scheduled review work,
-  plugin runs, and notification delivery.
+- database persistence, migrations, indexes, and transaction support
+- event publishing, subscribing, retries, and delivery tracking
+- background execution for reminders, scheduled review work, plugin runs, and
+  notification delivery
+- external service adapters
 
-Core code should define product entities, commands, validations, and domain
-events. Infrastructure code should store those entities and move those events
-between modules.
+Product features define entities, commands, validations, and domain events.
+Infrastructure stores those entities and moves those events between modules.
 
 For the first version, the database and event bus can be simple. They still
-belong to Infrastructure because the Core layer should not depend on a specific
-storage engine, queue, or notification transport.
+belong in infrastructure because product features should not depend directly on
+a specific storage engine, queue, or notification transport.
 
 ## Data Flow
 
@@ -235,13 +266,13 @@ Typical daily flow:
 
 ```text
 User input
-  -> Interface layer
-  -> Core layer command
-  -> Core state change
-  -> Infrastructure persistence
-  -> Scheduler / review update
-  -> Future plugin or dataflow hook
-  -> Interface notification or dashboard update
+  -> app surface
+  -> product command
+  -> validated state change
+  -> infrastructure persistence
+  -> scheduler or review update
+  -> future plugin or dataflow hook
+  -> app notification or dashboard update
 ```
 
 Example reminder flow:
@@ -249,10 +280,10 @@ Example reminder flow:
 ```text
 Scheduler
   -> reminder job
-  -> Discord bot delivery
+  -> Discord delivery
   -> user button response
-  -> Core routine/task completion command
-  -> Infrastructure persistence
+  -> product routine/task command
+  -> infrastructure persistence
   -> completion event recorded
   -> review update
   -> optional future reward flow
@@ -261,10 +292,10 @@ Scheduler
 Example English coach flow:
 
 ```text
-Web dashboard
+Web app
   -> English coach plugin session
   -> plugin context lookup
   -> learning response and correction
   -> learning memory saved
-  -> optional task/routine suggestion through Core layer
+  -> optional task/routine suggestion through product command
 ```

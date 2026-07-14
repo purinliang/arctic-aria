@@ -1,45 +1,24 @@
 "use client";
 
-import { Bell, Check, ListChecks, LogOut, Menu } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Menu } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { sectionBorderClass } from "@/components/ui/color";
+import { NotificationStack } from "@/components/ui/notification";
 import type { AuthUser } from "@/features/auth/server/auth-service";
-import {
-  dayBoundary,
-  initialRoutines,
-  initialTasks,
-  rewardPreview,
-} from "../dummy-data";
-import type { Routine, RoutineStatus, Task, TaskStatus } from "../types";
+import { MemoriesPage } from "@/features/memories/components/MemoriesPage";
+import { ProjectPageTitle } from "@/features/projects/components/ProjectPageTitle";
+import { ProjectsPage } from "@/features/projects/components/ProjectsPage";
+import { RoutinesPage } from "@/features/routines/components/RoutinesPage";
+import { rewardPreview } from "../dummy-data";
+import { useDashboardMemories } from "../hooks/useDashboardMemories";
+import { useDashboardNotifications } from "../hooks/useDashboardNotifications";
+import { useDashboardProjects } from "../hooks/useDashboardProjects";
+import { useDashboardRoutines } from "../hooks/useDashboardRoutines";
+import type { DashboardView, Task } from "../types";
+import { DashboardHome } from "./DashboardHome";
 import { ReviewDialog } from "./ReviewDialog";
-import { RoutineCard } from "./RoutineCard";
-import { SectionHeader } from "./SectionHeader";
 import { Sidebar } from "./Sidebar";
-import { TaskCard } from "./TaskCard";
-
-const todayFormatter = new Intl.DateTimeFormat("en", {
-  weekday: "short",
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-});
-
-function statusForWeight(completedWeight: number, weight: number): TaskStatus {
-  if (completedWeight >= weight) {
-    return "done";
-  }
-
-  if (completedWeight > 0) {
-    return "partial";
-  }
-
-  return "todo";
-}
-
-function panelClass(darkMode: boolean) {
-  return darkMode
-    ? "border-neutral-800 bg-black text-white"
-    : "border-slate-300 bg-white text-slate-950";
-}
 
 export function Dashboard({
   currentUser,
@@ -50,77 +29,124 @@ export function Dashboard({
   logoutPending: boolean;
   onLogout: () => void;
 }) {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [routines, setRoutines] = useState<Routine[]>(initialRoutines);
+  const [activeView, setActiveView] = useState<DashboardView>("dashboard");
   const [reviewOpen, setReviewOpen] = useState(false);
-  const [reviewCount, setReviewCount] = useState(0);
+  const reviewCount = 0;
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
-  const [expandedTaskId, setExpandedTaskId] = useState<string | null>("task-1");
-  const [expandedRoutineId, setExpandedRoutineId] = useState<string | null>(
-    initialRoutines.find((routine) => routine.status === "reminding")?.id ??
-      null,
+  const [darkMode, setDarkMode] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
+    null,
   );
+  const {
+    notifications,
+    dismissNotification,
+    showErrorNotification,
+    showInfoNotification,
+  } = useDashboardNotifications();
+  const projectState = useDashboardProjects(showErrorNotification);
+  const routineState = useDashboardRoutines(showErrorNotification);
+  const memoryState = useDashboardMemories(
+    showErrorNotification,
+    showMemoriesView,
+  );
+  const { refreshProjectData } = projectState;
+  const { refreshMemoryData } = memoryState;
+  const { refreshRoutineData } = routineState;
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void refreshProjectData();
+      void refreshMemoryData();
+      void refreshRoutineData();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [currentUser.id, refreshMemoryData, refreshProjectData, refreshRoutineData]);
 
   const stats = useMemo(() => {
-    const completedWeight = tasks.reduce(
-      (sum, task) => sum + task.completedWeight,
-      0,
-    );
-    const completedRoutines = routines.filter(
-      (routine) => routine.status === "done",
+    const completedTasks = projectState.tasks.filter(
+      (task) => task.status === "done",
+    ).length;
+    const completedRoutines = routineState.routines.filter(
+      (routine) => routine.status === "completed",
     ).length;
     const gold =
       rewardPreview.baseGold +
-      completedWeight * rewardPreview.perWeightGold +
+      completedTasks * rewardPreview.perWeightGold +
       completedRoutines * rewardPreview.routineGold;
     const chestLevel = Math.min(
-      Math.max(1, Math.ceil((completedWeight + completedRoutines) / 3)),
+      Math.max(1, Math.ceil((completedTasks + completedRoutines) / 3)),
       5,
     );
 
     return { gold, chestLevel };
-  }, [routines, tasks]);
+  }, [projectState.tasks, routineState.routines]);
 
-  function toggleSubtask(taskId: string, subtaskId: string) {
-    setTasks((current) =>
-      current.map((task) => {
-        if (task.id !== taskId || !task.subtasks) {
-          return task;
-        }
+  function showMemoriesView() {
+    setActiveView("memories");
+    setSidebarOpen(false);
+  }
 
-        const subtasks = task.subtasks.map((subtask) =>
-          subtask.id === subtaskId
-            ? { ...subtask, done: !subtask.done }
-            : subtask,
-        );
-        const nextCompletedWeight = subtasks.reduce(
-          (sum, subtask) => sum + (subtask.done ? subtask.weight : 0),
-          0,
-        );
+  function showProjectsList() {
+    setSelectedProjectId(null);
+    setActiveView("projects");
+    setSidebarOpen(false);
+  }
 
-        return {
-          ...task,
-          subtasks,
-          completedWeight: nextCompletedWeight,
-          status: statusForWeight(nextCompletedWeight, task.weight),
-        };
-      }),
+  function handleViewChange(view: DashboardView) {
+    if (view === "projects") {
+      showProjectsList();
+      return;
+    }
+
+    setActiveView(view);
+    setSidebarOpen(false);
+  }
+
+  function showUnavailableFeature(featureName: string) {
+    showInfoNotification(
+      `${featureName} is not implemented in this prototype yet.`,
+      "Feature not ready",
     );
   }
 
-  function updateRoutine(routineId: string, status: RoutineStatus) {
-    setRoutines((current) =>
-      current.map((routine) =>
-        routine.id === routineId ? { ...routine, status } : routine,
-      ),
+  function handleTaskExpand(taskId: string) {
+    projectState.setExpandedTaskId((current) =>
+      current === taskId ? null : taskId,
     );
   }
 
-  function openReview() {
-    setReviewOpen(true);
-    setReviewCount((count) => count + 1);
+  function handleSubtaskToggle(task: Task, subtaskId: string) {
+    projectState.toggleSubtask(
+      subtaskId,
+      task.subtasks?.find((subtask) => subtask.id === subtaskId)?.done ??
+        false,
+    );
   }
+
+  function showProjectsView() {
+    setActiveView("projects");
+    setSidebarOpen(false);
+  }
+
+  function handleRoutineExpand(routineId: string) {
+    routineState.setExpandedRoutineId((current) =>
+      current === routineId ? null : routineId,
+    );
+  }
+
+  function handleMemoryExpand(pinnedMemoryId: string) {
+    memoryState.setExpandedMemoryId((current) =>
+      current === pinnedMemoryId ? null : pinnedMemoryId,
+    );
+  }
+
+  const pageTitle =
+    activeView === "dashboard"
+      ? "Dashboard"
+      : activeView === "routines"
+        ? "Routines"
+        : "Memories";
 
   return (
     <main
@@ -128,148 +154,140 @@ export function Dashboard({
         darkMode ? "bg-black text-white" : "bg-[#eef2f5] text-slate-950"
       }`}
     >
-      <div className="mx-auto flex max-w-[1500px] flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
-        <header
-          className={`flex flex-col gap-3 border-b pb-4 lg:flex-row lg:items-center lg:justify-between ${
-            darkMode ? "border-neutral-800" : "border-slate-300"
-          }`}
-        >
-          <div className="flex min-w-0 items-center gap-3">
-            <button
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md border transition ${
-                darkMode
-                  ? "border-neutral-800 bg-black text-white hover:border-white"
-                  : "border-slate-300 bg-white text-slate-700 hover:border-slate-500"
-              }`}
-              type="button"
+      <div className="lg:flex lg:items-start">
+        <Sidebar
+          open={sidebarOpen}
+          darkMode={darkMode}
+          activeView={activeView}
+          logoutPending={logoutPending}
+          onClose={() => setSidebarOpen(false)}
+          onViewChange={handleViewChange}
+          onThemeChange={setDarkMode}
+          onLogout={onLogout}
+          onUnavailableFeature={showUnavailableFeature}
+        />
+
+        <div className="mx-auto flex min-h-[105vh] min-w-0 flex-1 flex-col gap-4 px-4 py-4 sm:px-6 lg:max-w-[1200px] lg:px-8">
+          <header
+            className={`flex items-center gap-3 border-b pb-4 ${sectionBorderClass(darkMode)}`}
+          >
+            <Button
+              darkMode={darkMode}
+              size="icon-sm"
+              className="h-10 w-10 lg:hidden"
               aria-label="Open navigation"
+              icon={<Menu size={20} aria-hidden="true" />}
               onClick={() => setSidebarOpen(true)}
-            >
-              <Menu size={20} aria-hidden="true" />
-            </button>
-            <div className="min-w-0">
-              <p
-                className={`text-sm font-medium ${
-                  darkMode ? "text-neutral-500" : "text-slate-500"
-                }`}
-              >
-                Daily plan ends at {dayBoundary}
-              </p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-normal sm:text-3xl">
-                {todayFormatter.format(new Date())} Dashboard
+            />
+            {activeView === "projects" ? (
+              <ProjectPageTitle
+                darkMode={darkMode}
+                projects={projectState.projects}
+                selectedProjectId={selectedProjectId}
+                onBackToList={() => setSelectedProjectId(null)}
+                onProjectSelect={setSelectedProjectId}
+              />
+            ) : (
+              <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
+                {pageTitle}
               </h1>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={`max-w-[180px] truncate text-sm font-semibold ${
-                darkMode ? "text-neutral-300" : "text-slate-700"
-              }`}
-              title={currentUser.username}
-            >
-              {currentUser.displayName}
-            </span>
-            <button
-              className={`flex h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold shadow-sm transition ${
-                darkMode
-                  ? "bg-white text-black hover:bg-neutral-200"
-                  : "bg-slate-950 text-white hover:bg-slate-800"
-              }`}
-              type="button"
-              onClick={openReview}
-            >
-              <ListChecks size={18} aria-hidden="true" />
-              Review
-            </button>
-            <button
-              className={`flex h-11 items-center justify-center gap-2 rounded-md border px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                darkMode
-                  ? "border-neutral-700 text-white hover:border-white"
-                  : "border-slate-300 text-slate-700 hover:border-slate-500"
-              }`}
-              type="button"
-              disabled={logoutPending}
-              onClick={onLogout}
-            >
-              <LogOut size={17} aria-hidden="true" />
-              {logoutPending ? "Signing out..." : "Sign out"}
-            </button>
-          </div>
-        </header>
+            )}
+          </header>
 
-        <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <section className={`min-w-0 rounded-md border ${panelClass(darkMode)}`}>
-            <SectionHeader
-              icon={<Check size={18} aria-hidden="true" />}
-              title="Today's Tasks"
-              meta={`${tasks.length} recommended`}
+          {activeView === "projects" ? (
+            <ProjectsPage
               darkMode={darkMode}
+              projects={projectState.projects}
+              loading={projectState.projectLoading}
+              pending={projectState.projectActionPending}
+              message={projectState.projectMessage}
+              selectedProjectId={selectedProjectId}
+              onProjectSave={projectState.saveProjectFromPage}
+              onMilestoneSave={projectState.saveMilestoneFromPage}
+              onTaskSave={projectState.saveTaskFromPage}
+              onTaskStatus={projectState.statusTaskFromPage}
+              onSubtaskToggle={projectState.toggleSubtaskFromPage}
+              onProjectSelect={setSelectedProjectId}
+              onMessageClear={projectState.clearProjectMessage}
             />
-            <div
-              className={
-                darkMode ? "divide-y divide-neutral-900" : "divide-y divide-slate-200"
-              }
-            >
-              {tasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  darkMode={darkMode}
-                  expanded={expandedTaskId === task.id}
-                  onToggleExpanded={() =>
-                    setExpandedTaskId((current) =>
-                      current === task.id ? null : task.id,
-                    )
-                  }
-                  onSubtaskToggle={(subtaskId) =>
-                    toggleSubtask(task.id, subtaskId)
-                  }
-                />
-              ))}
-            </div>
-          </section>
-
-          <section className={`rounded-md border ${panelClass(darkMode)}`}>
-            <SectionHeader
-              icon={<Bell size={18} aria-hidden="true" />}
-              title="Routines"
-              meta={`${routines.length} scheduled`}
+          ) : activeView === "routines" ? (
+            <RoutinesPage
               darkMode={darkMode}
+              routines={routineState.routineDefinitions}
+              loading={routineState.routineLoading}
+              pending={routineState.routineActionPending}
+              message={routineState.routineMessage}
+              onRoutineSave={routineState.saveRoutineFromPage}
+              onRoutineDelete={routineState.deleteRoutineFromPage}
+              onMessageClear={routineState.clearRoutineMessage}
             />
-            <div
-              className={
-                darkMode ? "divide-y divide-neutral-900" : "divide-y divide-slate-200"
-              }
-            >
-              {routines.map((routine) => (
-                <RoutineCard
-                  key={routine.id}
-                  routine={routine}
-                  darkMode={darkMode}
-                  expanded={expandedRoutineId === routine.id}
-                  onToggleExpanded={() =>
-                    setExpandedRoutineId((current) =>
-                      current === routine.id ? null : routine.id,
-                    )
-                  }
-                  onStatusChange={(status) => updateRoutine(routine.id, status)}
-                />
-              ))}
-            </div>
-          </section>
-        </section>
+          ) : activeView === "memories" ? (
+            <MemoriesPage
+              darkMode={darkMode}
+              categories={memoryState.memoryCategories}
+              memoryRecords={memoryState.memoryRecords}
+              suggestions={memoryState.memorySuggestions}
+              pinnedSuggestionIds={memoryState.pinnedSuggestionIds}
+              pendingSuggestionIds={memoryState.pendingSuggestionIds}
+              loading={memoryState.memoryLoading}
+              pending={memoryState.memoryActionPending}
+              suggestionLoading={memoryState.suggestionLoading}
+              suggestionsRequested={memoryState.suggestionsRequested}
+              message={memoryState.memoryMessage}
+              selectedMemoryId={memoryState.selectedMemoryId}
+              onMemorySave={memoryState.saveMemoryFromPage}
+              onMemoryDelete={memoryState.deleteMemoryFromPage}
+              onCategorySave={memoryState.saveCategoryFromPage}
+              onCategoryDelete={memoryState.deleteCategoryFromPage}
+              onMessageClear={memoryState.clearMemoryMessage}
+              onSuggestionsRefresh={memoryState.refreshSuggestionsFromPage}
+              onSuggestionPin={memoryState.pinSuggestionFromPage}
+              onSuggestionCancel={memoryState.cancelSuggestionPinFromPage}
+            />
+          ) : (
+            <DashboardHome
+              darkMode={darkMode}
+              tasks={projectState.tasks}
+              taskLoading={projectState.projectLoading}
+              pendingTaskIds={projectState.pendingTaskIds}
+              pendingSubtaskIds={projectState.pendingSubtaskIds}
+              expandedTaskId={projectState.expandedTaskId}
+              routines={routineState.routines}
+              routineLoading={routineState.routineLoading}
+              routineActionPending={routineState.routineActionPending}
+              routineMessage={routineState.routineMessage}
+              expandedRoutineId={routineState.expandedRoutineId}
+              pinnedMemories={memoryState.pinnedMemories}
+              memoryLoading={memoryState.memoryLoading}
+              memoryActionPending={memoryState.memoryActionPending}
+              memoryMessage={memoryState.memoryMessage}
+              expandedMemoryId={memoryState.expandedMemoryId}
+              onTaskExpand={handleTaskExpand}
+              onTaskStatus={projectState.updateTaskFromDashboard}
+              onSubtaskToggle={handleSubtaskToggle}
+              onTaskEdit={showProjectsView}
+              onRoutineExpand={handleRoutineExpand}
+              onRoutineStatus={routineState.updateRoutine}
+              onRoutineBusy={routineState.markRoutineBusy}
+              onMemoryExpand={handleMemoryExpand}
+              onMemoryDone={memoryState.markMemoryDone}
+              onMemoryCancelDone={memoryState.cancelMemoryDone}
+              onMemoryReplace={memoryState.replaceMemory}
+              onMemoryView={memoryState.viewMemory}
+            />
+          )}
+        </div>
       </div>
 
-      <Sidebar
-        open={sidebarOpen}
+      <NotificationStack
+        notifications={notifications}
         darkMode={darkMode}
-        onClose={() => setSidebarOpen(false)}
-        onThemeChange={setDarkMode}
+        onDismiss={dismissNotification}
       />
 
       <ReviewDialog
-        tasks={tasks}
-        routines={routines}
+        tasks={projectState.tasks}
+        routines={routineState.routines}
         darkMode={darkMode}
         open={reviewOpen}
         reviewCount={reviewCount}

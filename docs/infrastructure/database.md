@@ -1,8 +1,9 @@
 # Database
 
 This document describes the first database direction for Arctic Aria. The
-database belongs to the Infrastructure layer. Core entities and rules are
-defined in [core-model.md](../core-model.md); the database stores them durably.
+database belongs to infrastructure. Product entities and rules are defined in
+[features/overview.md](../features/overview.md); the database stores them
+durably.
 
 Do not commit database files, local dumps, or secrets. Database schema files are
 safe to commit.
@@ -13,7 +14,7 @@ Use PostgreSQL as the main database.
 
 Reasons:
 
-- It can store relational Core data cleanly.
+- It can store relational product data cleanly.
 - It supports `jsonb` for flexible plugin metadata and agent outputs.
 - It can later support vector search through an extension if retrieval becomes
   important.
@@ -34,6 +35,13 @@ URLs, passwords, dumps, or generated local database files.
 
 Schema migration files are safe to commit. The current migration entry point is
 `apps/web/scripts/migrate.mjs`, exposed as `pnpm db:migrate` from `apps/web`.
+From the repository root, run the same migration entry point with
+`pnpm --dir apps/web db:migrate`.
+
+The Projects feature requires `0005_create_projects.sql`. If project server
+actions report missing `projects`, `project_milestones`, `project_tasks`, or
+`project_subtasks` tables, treat the database as not migrated and run the web
+database migration before manual testing.
 
 ## User Model
 
@@ -41,13 +49,15 @@ The first version should support username and password registration and login.
 
 Keep a user table because many records need a stable owner:
 
-- plans
+- projects
+- milestones
 - tasks
 - routines
 - ideas
+- memories and pinned memories
 - reminders
 - daily reviews
-- plugin memory and plugin run records
+- internal plugin context and plugin run records
 
 Recommended first tables:
 
@@ -65,42 +75,82 @@ Do not add OAuth until the username and password flow is stable.
 
 The first Core schema should support the Phase 1 and Phase 2 scope:
 
-- `plans`
-- `tasks`
-- `task_dependencies` if dependencies are needed later
+- `projects`
+- `project_milestones`
+- `project_tasks`
+- `project_subtasks`
+- `project_task_dependencies` if dependencies are needed later
 - `routines`
 - `routine_rules`
 - `routine_instances`
 - `ideas`
+- `memory_categories`
+- `memories`
+- `memory_events`
+- `pinned_memories`
 - `daily_plans`
 - `daily_plan_items`
 - `daily_reviews`
 - `completion_events`
 - `reminder_jobs`
 
-Tasks should support parent-child relationships through `parent_task_id`.
-Subtasks are tasks with a parent task.
+Projects should own milestones. Milestones should own tasks. Tasks may own
+subtasks, but subtasks are checklist records and are not independently
+scheduled.
 
-Task progress should be based on weight:
+Task progress should be status-derived in the next project refactor:
 
-- `weight`: total task weight, default `1`.
-- `completed_weight`: completed amount, default `0`.
 - `status`: `todo`, `doing`, `blocked`, `skipped`, or `done`.
+- subtask completion can summarize local task progress.
+- task completion determines milestone and project progress.
 
-Completion changes should also create immutable `completion_events` so daily
-review and reward plugins can reason about what happened.
+Do not expose editable numeric progress fields in the task UI. If old prototype
+columns exist from an earlier migration, treat them as temporary implementation
+details until a cleanup migration removes or ignores them safely.
+
+Task completion changes should also create immutable `completion_events` so
+daily review can reason about what happened.
+
+Detailed project and task rules are documented in
+[projects/overview.md](../features/projects/overview.md) and
+[projects/data-model.md](../features/projects/data-model.md).
+
+## Memory Tables
+
+Memories are product data. They represent user-visible repeatable experiences that
+can be suggested, pinned, ignored, completed, and deleted.
+
+Recommended first tables:
+
+- `memory_categories`: user-owned categories and suggestion base weight.
+- `memories`: canonical memory records, category, title, description, summary
+  timestamps, and done count.
+- `memory_events`: immutable history for `pinned`, `unpinned`, `ignored`,
+  `completed`, `completed_canceled`, `replaced`, and `deleted` events.
+- `pinned_memories`: current dashboard shortlist with category, position,
+  pin time, visible-until time, completion time, and completed cleanup time.
+
+Keep event history separate from current state. Do not store pin, ignore, or
+done timestamp arrays on `memories`; use `memory_events` for history and
+denormalized summary fields on `memories` for common queries.
+
+Detailed memory rules are documented in
+[memories/design.md](../features/memories/design.md).
 
 ## Routine Tables
 
-Routines are Core data. A routine is the repeatable definition, and a routine
+Routines are product data. A routine is the repeatable definition, and a routine
 instance is the concrete occurrence for a specific day or time window.
+
+Detailed routine rules are documented in
+[routines/design.md](../features/routines/design.md).
 
 `routines` should store:
 
 - user id
 - title
 - description
-- status: active, paused, or archived
+- status: active or deleted
 - first start date
 - optional end date, inclusive
 - created and updated timestamps
@@ -108,15 +158,14 @@ instance is the concrete occurrence for a specific day or time window.
 `routine_rules` should store recurrence settings:
 
 - repeat type, such as daily, weekly, bi-weekly, monthly by day of month, or
-  every N days
-- repeat interval, such as `7` days, `14` days, or `30` days when the rule uses
-  a day interval
+- exact day interval
+- repeat interval value, such as 3 months, 6 months, 12 months, or 30 days
 - day-of-month value when the rule means "each month on day X"
 - reminder time or preferred check time when needed
 - timezone
 
 The end date should be optional. If it is blank, the routine continues until the
-user pauses or archives it.
+user deletes it.
 
 `routine_instances` should store generated occurrences:
 
@@ -127,7 +176,7 @@ user pauses or archives it.
 - completed date and time, when completed
 - skipped date and time, when skipped
 
-The Core layer should create routine instances from routine rules. This can
+The Routine feature should create routine instances from routine rules. This can
 happen ahead of time for the next few days or lazily when the scheduler prepares
 the daily plan.
 
@@ -158,9 +207,9 @@ Discord reminder messages should show three actions:
 - `Busy`
 - `Skip`
 
-When the user clicks an action, the Discord bot should call a Core command. The
-Core command updates task or routine state, records a completion or skip event,
-and updates review data or future dataflow hooks.
+When the user clicks an action, the Discord bot should call a product command.
+The product command updates task or routine state, records a completion or skip
+event, and updates review data or future dataflow hooks.
 
 `Busy` should not be stored as a routine status. It should update the reminder
 job by snoozing or rescheduling the reminder.

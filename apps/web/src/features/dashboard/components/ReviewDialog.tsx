@@ -1,5 +1,6 @@
 import { Coins, Package, X } from "lucide-react";
 import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 import { rewardPreview } from "../dummy-data";
 import type { ChestItemRarity, Routine, Task } from "../types";
 
@@ -43,10 +44,14 @@ export function ReviewDialog({
   onClose: () => void;
 }) {
   const completedTasks = tasks.filter((task) => task.status === "done");
-  const partialTasks = tasks.filter((task) => task.status === "partial");
-  const unfinishedTasks = tasks.filter((task) => task.status === "todo");
+  const partialTasks = tasks.filter(
+    (task) => task.status === "doing" || task.subtasks?.some((subtask) => subtask.done),
+  );
+  const unfinishedTasks = tasks.filter((task) =>
+    ["todo", "doing", "blocked", "skipped"].includes(task.status),
+  );
   const completedRoutines = routines.filter(
-    (routine) => routine.status === "done",
+    (routine) => routine.status === "completed",
   );
   const interruptedRoutines = routines.filter(
     (routine) => routine.status === "skipped",
@@ -85,18 +90,14 @@ export function ReviewDialog({
               Current Review Card
             </h2>
           </div>
-          <button
-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md border transition ${
-              darkMode
-                ? "border-neutral-800 hover:border-white"
-                : "border-slate-300 hover:border-slate-500"
-            }`}
-            type="button"
+          <Button
+            darkMode={darkMode}
+            size="icon-sm"
+            className="shrink-0"
             aria-label="Close review"
+            icon={<X size={18} aria-hidden="true" />}
             onClick={onClose}
-          >
-            <X size={18} aria-hidden="true" />
-          </button>
+          />
         </div>
 
         <div className="grid gap-4 p-4">
@@ -121,12 +122,9 @@ export function ReviewDialog({
           />
           <ReviewGroup
             darkMode={darkMode}
-            title="Partial Progress"
-            items={partialTasks.map(
-              (task) =>
-                `${task.title}: ${task.completedWeight}/${task.weight} weight`,
-            )}
-            fallback="No partial progress recorded."
+            title="In Progress"
+            items={partialTasks.map((task) => `${task.title}: ${task.subtaskSummary}`)}
+            fallback="No in-progress tasks recorded."
           />
           <ReviewGroup
             darkMode={darkMode}
