@@ -105,9 +105,9 @@ export function SuggestionsPanel({
   darkMode,
   suggestions,
   suggestionLoading,
-  suggestionPending,
   suggestionsRequested,
   pinnedSuggestionIds,
+  pendingSuggestionIds,
   onSuggestionsRefresh,
   onSuggestionPin,
   onSuggestionCancel,
@@ -115,9 +115,9 @@ export function SuggestionsPanel({
   darkMode: boolean;
   suggestions: MemorySuggestion[];
   suggestionLoading: boolean;
-  suggestionPending: boolean;
   suggestionsRequested: boolean;
   pinnedSuggestionIds: string[];
+  pendingSuggestionIds: string[];
   onSuggestionsRefresh: () => Promise<void>;
   onSuggestionPin: (memoryId: string) => SuggestionResult;
   onSuggestionCancel: (memoryId: string) => SuggestionResult;
@@ -141,7 +141,7 @@ export function SuggestionsPanel({
         </div>
         <Button
           darkMode={darkMode}
-          disabled={suggestionLoading || suggestionPending}
+          disabled={suggestionLoading || pendingSuggestionIds.length > 0}
           icon={
             suggestionLoading ? (
               <LoaderCircle
@@ -179,7 +179,7 @@ export function SuggestionsPanel({
             key={suggestion.id}
             suggestion={suggestion}
             darkMode={darkMode}
-            pending={suggestionPending}
+            pending={pendingSuggestionIds.includes(suggestion.id)}
             pinned={pinnedSuggestionIds.includes(suggestion.id)}
             onPin={() => void onSuggestionPin(suggestion.id)}
             onCancel={() => void onSuggestionCancel(suggestion.id)}

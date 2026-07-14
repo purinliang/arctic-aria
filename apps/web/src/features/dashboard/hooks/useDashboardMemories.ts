@@ -16,7 +16,12 @@ import {
   type MemoryDashboardData,
   type MemoryInput,
 } from "@/features/memories/actions";
-import { applyOptimisticPinnedMemoryStatus } from "../optimistic-updates";
+import {
+  addPendingSuggestionId,
+  applyOptimisticPinnedMemoryStatus,
+  removeMemorySuggestion,
+  removePendingSuggestionId,
+} from "../optimistic-updates";
 import type {
   MemoryCategoryOption,
   MemoryRecord,
@@ -44,8 +49,8 @@ export function useDashboardMemories(
   const [memoryMessage, setMemoryMessage] = useState<string | null>(null);
   const [memoryActionPending, setMemoryActionPending] = useState(false);
   const [suggestionLoading, setSuggestionLoading] = useState(false);
-  const [suggestionPending, setSuggestionPending] = useState(false);
   const [pinnedSuggestionIds, setPinnedSuggestionIds] = useState<string[]>([]);
+  const [pendingSuggestionIds, setPendingSuggestionIds] = useState<string[]>([]);
   const [suggestionsRequested, setSuggestionsRequested] = useState(false);
   const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null);
   const [expandedMemoryId, setExpandedMemoryId] = useState<string | null>(null);
@@ -184,7 +189,10 @@ export function useDashboardMemories(
     setSuggestionLoading(true);
 
     try {
-      const pinnedSuggestionIdSet = new Set(pinnedSuggestionIds);
+      const pinnedSuggestionIdSet = new Set([
+        ...pinnedSuggestionIds,
+        ...pendingSuggestionIds,
+      ]);
       const ignoredMemoryIds = memorySuggestions
         .filter((suggestion) => !pinnedSuggestionIdSet.has(suggestion.id))
         .map((suggestion) => suggestion.id);
@@ -206,50 +214,55 @@ export function useDashboardMemories(
   }
 
   async function pinSuggestionFromPage(memoryId: string) {
-    const previousPinnedSuggestionIds = pinnedSuggestionIds;
-
-    setSuggestionPending(true);
-    setPinnedSuggestionIds((current) =>
-      current.includes(memoryId) ? current : [...current, memoryId],
+    setPendingSuggestionIds((current) =>
+      addPendingSuggestionId(current, memoryId),
     );
 
     try {
       const result = await pinMemorySuggestion(memoryId);
 
       if (!result.ok) {
-        setPinnedSuggestionIds(previousPinnedSuggestionIds);
         showErrorNotification(result.message);
         return false;
       }
 
       applyMemoryData(result.data.dashboardData);
+      setMemorySuggestions((current) =>
+        removeMemorySuggestion(current, memoryId),
+      );
+      setPinnedSuggestionIds((current) =>
+        current.filter((suggestionId) => suggestionId !== memoryId),
+      );
       return true;
     } finally {
-      setSuggestionPending(false);
+      setPendingSuggestionIds((current) =>
+        removePendingSuggestionId(current, memoryId),
+      );
     }
   }
 
   async function cancelSuggestionPinFromPage(memoryId: string) {
-    const previousPinnedSuggestionIds = pinnedSuggestionIds;
-
-    setSuggestionPending(true);
-    setPinnedSuggestionIds((current) =>
-      current.filter((suggestionId) => suggestionId !== memoryId),
+    setPendingSuggestionIds((current) =>
+      addPendingSuggestionId(current, memoryId),
     );
 
     try {
       const result = await cancelPinnedMemorySuggestion(memoryId);
 
       if (!result.ok) {
-        setPinnedSuggestionIds(previousPinnedSuggestionIds);
         showErrorNotification(result.message);
         return false;
       }
 
       applyMemoryData(result.data.dashboardData);
+      setPinnedSuggestionIds((current) =>
+        current.filter((suggestionId) => suggestionId !== memoryId),
+      );
       return true;
     } finally {
-      setSuggestionPending(false);
+      setPendingSuggestionIds((current) =>
+        removePendingSuggestionId(current, memoryId),
+      );
     }
   }
 
@@ -262,8 +275,8 @@ export function useDashboardMemories(
     memoryMessage,
     memoryActionPending,
     suggestionLoading,
-    suggestionPending,
     pinnedSuggestionIds,
+    pendingSuggestionIds,
     suggestionsRequested,
     selectedMemoryId,
     expandedMemoryId,

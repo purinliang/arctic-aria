@@ -197,10 +197,10 @@ export function Dashboard({
               memoryRecords={memoryState.memoryRecords}
               suggestions={memoryState.memorySuggestions}
               pinnedSuggestionIds={memoryState.pinnedSuggestionIds}
+              pendingSuggestionIds={memoryState.pendingSuggestionIds}
               loading={memoryState.memoryLoading}
               pending={memoryState.memoryActionPending}
               suggestionLoading={memoryState.suggestionLoading}
-              suggestionPending={memoryState.suggestionPending}
               suggestionsRequested={memoryState.suggestionsRequested}
               message={memoryState.memoryMessage}
               selectedMemoryId={memoryState.selectedMemoryId}

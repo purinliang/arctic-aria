@@ -51,7 +51,6 @@ export function MemoriesPage({
   loading,
   pending,
   suggestionLoading,
-  suggestionPending,
   suggestionsRequested,
   message,
   selectedMemoryId,
@@ -64,16 +63,17 @@ export function MemoriesPage({
   onSuggestionPin,
   onSuggestionCancel,
   pinnedSuggestionIds,
+  pendingSuggestionIds,
 }: {
   darkMode: boolean;
   categories: MemoryCategoryOption[];
   memoryRecords: MemoryRecord[];
   suggestions: MemorySuggestion[];
   pinnedSuggestionIds: string[];
+  pendingSuggestionIds: string[];
   loading: boolean;
   pending: boolean;
   suggestionLoading: boolean;
-  suggestionPending: boolean;
   suggestionsRequested: boolean;
   message: string | null;
   selectedMemoryId: string | null;
@@ -289,9 +289,9 @@ export function MemoriesPage({
           darkMode={darkMode}
           suggestions={suggestions}
           suggestionLoading={suggestionLoading}
-          suggestionPending={suggestionPending}
           suggestionsRequested={suggestionsRequested}
           pinnedSuggestionIds={pinnedSuggestionIds}
+          pendingSuggestionIds={pendingSuggestionIds}
           onSuggestionsRefresh={onSuggestionsRefresh}
           onSuggestionPin={onSuggestionPin}
           onSuggestionCancel={onSuggestionCancel}
