@@ -245,9 +245,18 @@ Project title switcher:
 Detail page layout:
 
 - parent surface: one shared `Panel`
-- direction: vertical
-- project summary group: title and status tag, description, dates, progress
-- action group: edit project, add milestone, and later lifecycle actions
+- direction: left-right on desktop, stacked on mobile
+- desktop split: flexible left panel and fixed `20rem` right panel
+- if available width cannot keep the left panel at least 20% wider than the
+  right panel, stack the panels vertically instead
+- left panel: milestone/task/subtask tree
+- right panel: project metadata and milestone overview
+- left header: `Milestones`, supporting text, and `Add milestone`
+- right header: `Project overview`
+- project metadata group: status, priority, start date, deadline or duration,
+  and derived progress
+- right action: `Edit project`
+- milestone overview list: each milestone title, status tag, and progress text
 - milestone list direction: vertical
 - milestone card header direction: horizontal with wrapping
 - milestone header left group: title and status tag, then objective or progress

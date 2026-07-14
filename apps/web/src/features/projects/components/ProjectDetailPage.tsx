@@ -1,6 +1,6 @@
 import { Check, Edit3, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { mutedTextClass } from "@/components/ui/color";
+import { mutedTextClass, sectionBorderClass } from "@/components/ui/color";
 import { List, ListItem } from "@/components/ui/list";
 import { Panel } from "@/components/ui/panel";
 import { Tag } from "@/components/ui/tag";
@@ -52,34 +52,15 @@ export function ProjectDetailPage({
 
   return (
     <Panel darkMode={darkMode} className="min-h-[60vh]">
-      <section className="grid gap-4">
+      <section className="grid lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="grid gap-4 px-4 py-4">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl font-semibold">{project.title}</h2>
-              <Tag darkMode={darkMode}>{titleCase(project.status)}</Tag>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold">Milestones</h2>
+              <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
+                Detailed tasks and subtasks grouped by project phase.
+              </p>
             </div>
-            <p className={`mt-2 text-sm leading-6 ${mutedTextClass(darkMode)}`}>
-              {project.description}
-            </p>
-            <div
-              className={`mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm ${mutedTextClass(darkMode)}`}
-            >
-              <span>Started {project.startDate}</span>
-              <span>{project.timelineText}</span>
-              <span>{project.progressText}</span>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Button
-              darkMode={darkMode}
-              disabled={pending}
-              icon={<Edit3 size={14} aria-hidden="true" />}
-              onClick={() => onEditProject(project)}
-            >
-              Edit project
-            </Button>
             <Button
               darkMode={darkMode}
               disabled={pending}
@@ -148,8 +129,98 @@ export function ProjectDetailPage({
             ))}
           </List>
         </div>
+
+        <aside
+          className={cx(
+            "grid content-start gap-5 border-t px-4 py-4 lg:border-l lg:border-t-0",
+            sectionBorderClass(darkMode),
+          )}
+        >
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-lg font-semibold">Project overview</h2>
+              <Tag darkMode={darkMode}>{titleCase(project.status)}</Tag>
+            </div>
+            <p className={`mt-2 text-sm leading-6 ${mutedTextClass(darkMode)}`}>
+              {project.description}
+            </p>
+          </div>
+
+          <dl className="grid gap-3 text-sm">
+            <ProjectMetadataRow
+              darkMode={darkMode}
+              label="Priority"
+              value={titleCase(project.priority)}
+            />
+            <ProjectMetadataRow
+              darkMode={darkMode}
+              label="Started"
+              value={project.startDate}
+            />
+            <ProjectMetadataRow
+              darkMode={darkMode}
+              label="Timeline"
+              value={project.timelineText}
+            />
+            <ProjectMetadataRow
+              darkMode={darkMode}
+              label="Current milestone"
+              value={project.currentMilestone}
+            />
+            <ProjectMetadataRow
+              darkMode={darkMode}
+              label="Progress"
+              value={project.progressText}
+            />
+          </dl>
+
+          <Button
+            darkMode={darkMode}
+            disabled={pending}
+            icon={<Edit3 size={14} aria-hidden="true" />}
+            onClick={() => onEditProject(project)}
+          >
+            Edit project
+          </Button>
+
+          <div>
+            <h3 className="text-sm font-semibold">Milestone overview</h3>
+            <div className="mt-2 grid gap-2">
+              {project.milestones.map((milestone) => (
+                <div key={milestone.id} className="grid gap-1 py-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-semibold">
+                      {milestone.title}
+                    </span>
+                    <Tag darkMode={darkMode}>{titleCase(milestone.status)}</Tag>
+                  </div>
+                  <span className={`text-xs ${mutedTextClass(darkMode)}`}>
+                    {milestone.progressText}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
       </section>
     </Panel>
+  );
+}
+
+function ProjectMetadataRow({
+  darkMode,
+  label,
+  value,
+}: {
+  darkMode: boolean;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="grid gap-1">
+      <dt className={`text-xs ${mutedTextClass(darkMode)}`}>{label}</dt>
+      <dd className="font-semibold">{value}</dd>
+    </div>
   );
 }
 

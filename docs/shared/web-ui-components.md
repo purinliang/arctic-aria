@@ -94,6 +94,11 @@ consistent. Page title bars, menu bars, and global navigation are not panels.
 Panel spacing should be controlled by the panel and the immediate layout, not
 recreated independently in each feature page.
 
+Desktop pages that use a left detail area and a right metadata panel should use
+the same split pattern: flexible left panel plus fixed `20rem` right panel. If
+the available width cannot keep the left panel at least 20% wider than the
+right panel, stack the panels vertically.
+
 ## Card
 
 `card.tsx` owns compact card structure.
