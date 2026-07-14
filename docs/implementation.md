@@ -5,36 +5,36 @@ module architecture is documented in [architecture.md](architecture.md).
 
 ## Technology Direction
 
-### Core Layer
+### Product Modules
 
-Use TypeScript for the first Core layer implementation.
+Use TypeScript for the first product module implementation.
 
 Reasons:
 
 - The main app is Next.js, so TypeScript keeps shared types and validation close
   to the UI and backend.
 - The Discord bot can also use TypeScript through `discord.js`.
-- Core rules should be deterministic and testable, not hidden inside agent
+- Product rules should be deterministic and testable, not hidden inside agent
   prompts.
 - The system can avoid cross-language duplication for early project, task,
   routine, scheduler, idea, and review logic.
 
 Python can be added later for plugin workers or agent services, but the first
-Core layer should not depend on Python.
+product modules should not depend on Python.
 
-### Plugin Layer
+### Plugin Workers
 
 Use Python for plugin workers when the plugin needs agent workflows, retrieval,
 document processing, speech practice, or ML/data tooling.
 
-The plugin layer should communicate with the Core layer through explicit APIs or
-jobs. A plugin should not directly mutate core tables without going through a
+Plugin workers should communicate with product modules through explicit APIs or
+jobs. A plugin should not directly mutate product tables without going through a
 validated command or service.
 
 Simple plugins can still be TypeScript if they do not need Python-specific
 libraries.
 
-### Interface Layer
+### App Surfaces
 
 Use Next.js for the web dashboard.
 
@@ -47,7 +47,7 @@ a concrete blocker.
 
 Reasons:
 
-- It keeps the interface layer in the same TypeScript workspace as the web app
+- It keeps app surfaces in the same TypeScript workspace as the web app
   and shared contracts.
 - The bot can share validation schemas, API clients, and command payload types.
 - `discord.js` supports slash commands and interaction handling in Node.js.
@@ -57,12 +57,12 @@ coupled to Python plugin workers. For this project, the bot is mostly an
 interface for reminders, quick capture, buttons, and status updates, so
 TypeScript is the cleaner first choice.
 
-### Infrastructure Layer
+### Infrastructure Services
 
 Treat the database, event bus, migrations, and background jobs as
-Infrastructure layer concerns.
+infrastructure concerns.
 
-The Core layer should expose commands and domain events. Infrastructure should
+Product modules should expose commands and domain events. Infrastructure should
 provide the technical implementation that persists command results, publishes
 events, schedules jobs, and records delivery state.
 
@@ -78,7 +78,7 @@ until the project has a concrete scaling or reliability need.
 
 ## Storage Strategy
 
-Use PostgreSQL as the system of record for Core layer data.
+Use PostgreSQL as the system of record for product data.
 
 PostgreSQL should store:
 
@@ -169,11 +169,21 @@ arctic-aria/
 |
 |-- docs/
 |   |-- architecture.md
-|   |-- core-model.md
+|   |-- features/
+|   |   |-- overview.md
+|   |   |-- auth/
+|   |   |-- dashboard/
+|   |   |-- memories/
+|   |   |-- projects/
+|   |   `-- routines/
 |   |-- implementation.md
 |   |-- infrastructure/
 |   |   |-- database.md
 |   |   `-- event-bus.md
+|   |-- shared/
+|   |   `-- web-ui-components.md
+|   |-- apps/
+|   |   `-- discord-bot/
 |   |-- roadmap.md
 |   `-- user-story.md
 |
@@ -196,7 +206,7 @@ The current implementation started with the smallest useful auth foundation:
 username and password registration, login, bcrypt password hashing, Neon
 PostgreSQL storage, and matching frontend/backend validation. Its implementation
 notes are documented in
-[interface-layer/web/auth-implementation.md](interface-layer/web/auth-implementation.md).
+[features/auth/web-implementation.md](features/auth/web-implementation.md).
 
 Auth, database-backed Memories, database-backed Routines, and a database-backed
 Project slice are now implemented in the web app.
@@ -231,7 +241,7 @@ cards. They should be separate branches after the Project contracts are stable.
 ## Open Decisions
 
 - Whether to keep direct SQL beyond the current auth prototype or move broader
-  Core data access to Prisma or Drizzle.
+  product data access to Prisma or Drizzle.
 - Whether the first deployment target should be Vercel plus managed PostgreSQL,
   a VPS, or a local Docker Compose setup.
 - Whether plugin workers should run as separate services, background jobs, or

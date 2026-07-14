@@ -1,8 +1,9 @@
 # Database
 
 This document describes the first database direction for Arctic Aria. The
-database belongs to the Infrastructure layer. Core entities and rules are
-defined in [core-model.md](../core-model.md); the database stores them durably.
+database belongs to infrastructure. Product entities and rules are defined in
+[features/overview.md](../features/overview.md); the database stores them
+durably.
 
 Do not commit database files, local dumps, or secrets. Database schema files are
 safe to commit.
@@ -13,7 +14,7 @@ Use PostgreSQL as the main database.
 
 Reasons:
 
-- It can store relational Core data cleanly.
+- It can store relational product data cleanly.
 - It supports `jsonb` for flexible plugin metadata and agent outputs.
 - It can later support vector search through an extension if retrieval becomes
   important.
@@ -111,12 +112,12 @@ Task completion changes should also create immutable `completion_events` so
 daily review can reason about what happened.
 
 Detailed project and task rules are documented in
-[projects/overview.md](../core-layer/projects/overview.md) and
-[projects/data-model.md](../core-layer/projects/data-model.md).
+[projects/overview.md](../features/projects/overview.md) and
+[projects/data-model.md](../features/projects/data-model.md).
 
 ## Memory Tables
 
-Memories are Core data. They represent user-visible repeatable experiences that
+Memories are product data. They represent user-visible repeatable experiences that
 can be suggested, pinned, ignored, completed, and deleted.
 
 Recommended first tables:
@@ -134,15 +135,15 @@ done timestamp arrays on `memories`; use `memory_events` for history and
 denormalized summary fields on `memories` for common queries.
 
 Detailed memory rules are documented in
-[memories.md](../core-layer/memories.md).
+[memories/design.md](../features/memories/design.md).
 
 ## Routine Tables
 
-Routines are Core data. A routine is the repeatable definition, and a routine
+Routines are product data. A routine is the repeatable definition, and a routine
 instance is the concrete occurrence for a specific day or time window.
 
 Detailed routine rules are documented in
-[routines.md](../core-layer/routines.md).
+[routines/design.md](../features/routines/design.md).
 
 `routines` should store:
 
@@ -175,7 +176,7 @@ user deletes it.
 - completed date and time, when completed
 - skipped date and time, when skipped
 
-The Core layer should create routine instances from routine rules. This can
+The Routine feature should create routine instances from routine rules. This can
 happen ahead of time for the next few days or lazily when the scheduler prepares
 the daily plan.
 
@@ -206,9 +207,9 @@ Discord reminder messages should show three actions:
 - `Busy`
 - `Skip`
 
-When the user clicks an action, the Discord bot should call a Core command. The
-Core command updates task or routine state, records a completion or skip event,
-and updates review data or future dataflow hooks.
+When the user clicks an action, the Discord bot should call a product command.
+The product command updates task or routine state, records a completion or skip
+event, and updates review data or future dataflow hooks.
 
 `Busy` should not be stored as a routine status. It should update the reminder
 job by snoozing or rescheduling the reminder.

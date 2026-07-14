@@ -1,8 +1,7 @@
 # Auth Implementation Notes
 
 This note records the current username and password auth prototype in the
-Next.js web app. The product rules still live in
-[user.md](../../core-layer/user.md).
+Next.js web app. The product rules still live in [design.md](design.md).
 
 The general dashboard prototype notes are documented in
 [prototype.md](prototype.md). Its "no authentication" boundary applies to the

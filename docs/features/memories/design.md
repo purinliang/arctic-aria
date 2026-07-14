@@ -364,5 +364,5 @@ Visibility timing:
 
 ## UI
 
-Memory UI behavior is documented in [memories-ui.md](memories-ui.md). Keep this
+Memory UI behavior is documented in [ui.md](ui.md). Keep this
 file focused on product rules and data behavior.

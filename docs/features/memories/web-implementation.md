@@ -1,7 +1,7 @@
 # Memories Web Implementation
 
 This document records the current user-detectable Memories web behavior. Product
-rules are defined in [memories.md](../../core-layer/memories.md).
+rules are defined in [design.md](design.md).
 
 ## Current Scope
 

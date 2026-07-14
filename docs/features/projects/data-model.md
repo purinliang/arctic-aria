@@ -7,7 +7,7 @@ Milestones, Tasks, and Subtasks. UI behavior is documented in [ui.md](ui.md).
 
 All project records are user-owned.
 
-The Core layer owns:
+The Projects feature owns:
 
 - projects
 - milestones

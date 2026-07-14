@@ -27,17 +27,17 @@ not a medical, therapy, or mental health treatment product.
 
 ## How It Works
 
-Arctic Aria has four layers:
+Arctic Aria is organized around features and supporting services:
 
-- Core layer: projects, milestones, tasks, routines, ideas, memories,
-  scheduler, and review.
-- Plugin layer: optional helpers such as rewards, English coach, research coach,
+- Features: auth, projects, routines, memories, dashboard, reviews, and future
+  idea capture.
+- Plugins: optional helpers such as rewards, English coach, research coach,
   cuisine and sightseeing planner, movie or anime recommender, and future
   specialized assistants.
-- Interface layer: web dashboard for full control and Discord bot for reminders,
-  quick capture, daily push messages, and review prompts.
-- Infrastructure layer: database, background jobs, event bus, and external
-  service adapters.
+- Apps: web dashboard for full control and Discord bot for reminders, quick
+  capture, daily push messages, and review prompts.
+- Infrastructure: database, background jobs, event bus, and external service
+  adapters.
 
 The web dashboard is the main workspace. The Discord bot is important because it
 can reach the user when they forget to open the app.
@@ -60,24 +60,25 @@ too complicated.
 ## Project Documents
 
 - [docs/user-story.md](docs/user-story.md): user problems and workflows.
-- [docs/architecture.md](docs/architecture.md): Core, Plugin, and Interface
-  layer responsibilities.
-- [docs/core-model.md](docs/core-model.md): first Core model for projects,
-  milestones, tasks, routines, daily plans, ideas, memories, and reviews.
-- [docs/core-layer/projects/overview.md](docs/core-layer/projects/overview.md):
+- [docs/architecture.md](docs/architecture.md): feature, plugin, app, and
+  infrastructure responsibilities.
+- [docs/features/overview.md](docs/features/overview.md): first feature model
+  for projects, milestones, tasks, routines, daily plans, ideas, memories, and
+  reviews.
+- [docs/features/projects/overview.md](docs/features/projects/overview.md):
   project, milestone, task, and subtask product rules.
-- [docs/core-layer/projects/data-model.md](docs/core-layer/projects/data-model.md):
+- [docs/features/projects/data-model.md](docs/features/projects/data-model.md):
   project feature data model and database direction.
-- [docs/core-layer/projects/ui.md](docs/core-layer/projects/ui.md): project
+- [docs/features/projects/ui.md](docs/features/projects/ui.md): project
   and task UI behavior.
-- [docs/core-layer/routines.md](docs/core-layer/routines.md): routine product
-  rules and data behavior.
+- [docs/features/routines/design.md](docs/features/routines/design.md):
+  routine product rules and data behavior.
 - [docs/implementation.md](docs/implementation.md): technology, storage, and
   repository structure.
 - [docs/infrastructure/database.md](docs/infrastructure/database.md): database
   direction and current Neon PostgreSQL prototype notes.
-- [docs/interface-layer/web/auth-implementation.md](docs/interface-layer/web/auth-implementation.md):
+- [docs/features/auth/web-implementation.md](docs/features/auth/web-implementation.md):
   current web auth implementation notes.
-- [docs/interface-layer/web/projects-implementation.md](docs/interface-layer/web/projects-implementation.md):
+- [docs/features/projects/web-implementation.md](docs/features/projects/web-implementation.md):
   current web project implementation notes.
 - [docs/roadmap.md](docs/roadmap.md): implementation phases.

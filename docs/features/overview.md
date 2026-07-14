@@ -1,13 +1,13 @@
-# Core Model
+# Feature Model Overview
 
-This document defines the first Core data model for projects, tasks, routines,
-and memories. It describes product entities and rules before SQL schema details.
-Database tables should follow this model unless a later design decision updates
-it.
+This document defines the first product data model for projects, tasks,
+routines, and memories. It describes product entities and rules before SQL
+schema details. Database tables should follow this model unless a later design
+decision updates it.
 
 ## Scope
 
-The first Core model should support:
+The first feature model should support:
 
 - user records for registration and login
 - long-running projects
@@ -20,7 +20,7 @@ The first Core model should support:
 - daily reviews
 - completion history for review
 
-The first Core model should not include:
+The first feature model should not include:
 
 - internal plugin or agent context, such as learning history or retrieval
   context
@@ -28,16 +28,15 @@ The first Core model should not include:
 - Discord-specific message details
 
 Detailed user registration and login rules are documented in
-[core-layer/user.md](core-layer/user.md). User settings are documented in
-[core-layer/user-settings.md](core-layer/user-settings.md). Project and task
-rules are documented in
-[core-layer/projects/overview.md](core-layer/projects/overview.md). Routine
-rules are documented in [core-layer/routines.md](core-layer/routines.md).
-Memory rules are documented in [core-layer/memories.md](core-layer/memories.md).
+[auth/design.md](auth/design.md). User settings are documented in
+[auth/settings.md](auth/settings.md). Project and task rules are documented in
+[projects/overview.md](projects/overview.md). Routine rules are documented in
+[routines/design.md](routines/design.md). Memory rules are documented in
+[memories/design.md](memories/design.md).
 
 ## User
 
-User records are Core data because projects, tasks, routines, ideas, daily
+User records are product data because projects, tasks, routines, ideas, daily
 plans, and reviews all need a stable owner.
 
 `users` should store:
@@ -113,7 +112,7 @@ items selected by the dashboard and scheduler. A task may last less than a day
 or up to a few weeks, depending on project scale.
 
 Detailed project and task behavior is documented in
-[core-layer/projects/overview.md](core-layer/projects/overview.md).
+[projects/overview.md](projects/overview.md).
 
 `project_tasks` should store:
 
@@ -186,7 +185,7 @@ A routine is repeatable daily-life work. It is not a project and should not use
 the project hierarchy.
 
 Detailed routine behavior is documented in
-[core-layer/routines.md](core-layer/routines.md).
+[routines/design.md](routines/design.md).
 
 `routines` should store:
 
@@ -257,7 +256,7 @@ Routine instance statuses:
 `Busy` is not a routine instance status. It is a reminder response that snoozes
 or reschedules notification delivery.
 
-The Core layer may generate routine instances ahead of time or lazily when the
+The routine feature may generate routine instances ahead of time or lazily when the
 scheduler prepares a daily plan. The same routine should not generate duplicate
 instances for the same scheduled date and scheduled time.
 
@@ -333,8 +332,9 @@ data should wait until that feature is designed.
 ## Memories
 
 Memories are repeatable personal experiences that the user may want to revisit,
-such as cuisine, sightseeing, anime, games, books, or shops. They are Core data
-because the user directly creates, manages, pins, completes, and deletes them.
+such as cuisine, sightseeing, anime, games, books, or shops. They are product
+data because the user directly creates, manages, pins, completes, and deletes
+them.
 
 Memories are not tasks or routines. They are soft candidates for enjoyment and
 should not become overdue.
@@ -348,7 +348,7 @@ The first model should include:
   and delete actions
 
 Detailed behavior and table attributes are documented in
-[core-layer/memories.md](core-layer/memories.md).
+[memories/design.md](memories/design.md).
 
 ## Completion Events
 
@@ -374,5 +374,5 @@ routine recurrence rules.
 `reminder_jobs` should target a task or routine instance and store delivery
 state such as pending, sent, answered, snoozed, failed, or expired.
 
-The Core model owns the task or routine instance result. Infrastructure owns
+The product model owns the task or routine instance result. Infrastructure owns
 whether a Discord reminder was sent, snoozed, retried, or failed.

@@ -1,8 +1,8 @@
 # Discord Bot Prototype
 
 This document describes the first Discord bot direction for Arctic Aria. The bot
-belongs to the Interface layer. It should deliver reminders and capture quick
-input, but it should not own Core planning, routine, scheduler, or review rules.
+is an app surface. It should deliver reminders and capture quick input, but it
+should not own product planning, routine, scheduler, or review rules.
 
 ## Scope
 
@@ -41,10 +41,10 @@ Reminder messages should contain three actions:
 - `Busy`
 - `Skip`
 
-When the user clicks `Done`, the bot should call a Core command that marks the
+When the user clicks `Done`, the bot should call a product command that marks the
 target task or routine instance complete.
 
-When the user clicks `Skip`, the bot should call a Core command that marks the
+When the user clicks `Skip`, the bot should call a product command that marks the
 target task or routine instance skipped.
 
 When the user clicks `Busy`, the bot should call a reminder command that snoozes
@@ -60,7 +60,7 @@ Reminder job due
   -> Discord bot sends or updates reminder message
   -> user clicks Done, Busy, or Skip
   -> bot validates Discord binding
-  -> bot calls Core or reminder command
+  -> bot calls product or reminder command
   -> database state changes
   -> review data updates
   -> future reward or plugin flow may react

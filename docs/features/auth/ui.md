@@ -1,7 +1,7 @@
 # User UI
 
 This document describes user-visible auth UI behavior. Product rules,
-validation, and persistence behavior are documented in [user.md](user.md).
+validation, and persistence behavior are documented in [design.md](design.md).
 
 ## Registration Tab
 

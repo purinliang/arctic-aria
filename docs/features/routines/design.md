@@ -176,5 +176,5 @@ happened.
 
 ## UI
 
-Routine UI behavior is documented in [routines-ui.md](routines-ui.md). Keep this
+Routine UI behavior is documented in [ui.md](ui.md). Keep this
 file focused on product rules and data behavior.
