@@ -1,4 +1,4 @@
-import { Check, Edit3, Flag, Info, ListChecks, Plus } from "lucide-react";
+import { Check, Edit3, Flag, Info, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { mutedTextClass } from "@/components/ui/color";
@@ -177,40 +177,7 @@ export function ProjectDetailPage({
                   label="Timeline"
                   value={project.timelineText}
                 />
-                <ProjectMetadataRow
-                  darkMode={darkMode}
-                  label="Current milestone"
-                  value={project.currentMilestone}
-                />
-                <ProjectMetadataRow
-                  darkMode={darkMode}
-                  label="Progress"
-                  value={project.progressText}
-                />
               </dl>
-            </div>
-          </Card>
-
-          <Card darkMode={darkMode}>
-            <CardHeader
-              darkMode={darkMode}
-              icon={<ListChecks size={18} aria-hidden="true" />}
-              title="Milestone overview"
-            />
-            <div className="grid gap-2 px-4 py-4">
-              {project.milestones.map((milestone) => (
-                <div key={milestone.id} className="grid gap-1 py-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold">
-                      {milestone.title}
-                    </span>
-                    <Tag darkMode={darkMode}>{titleCase(milestone.status)}</Tag>
-                  </div>
-                  <span className={`text-xs ${mutedTextClass(darkMode)}`}>
-                    {milestone.progressText}
-                  </span>
-                </div>
-              ))}
             </div>
           </Card>
         </aside>

@@ -36,9 +36,9 @@ input {
   align-items: start;
 }
 
-@container (min-width: 44rem) {
+@container (min-width: 53rem) {
   .aa-split-panel {
-    grid-template-columns: minmax(0, 1fr) 20rem;
+    grid-template-columns: minmax(0, 1fr) 24rem;
   }
 
   .aa-split-panel-sidebar {

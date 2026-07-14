@@ -244,21 +244,22 @@ Project title switcher:
 
 Detail page layout:
 
-- parent surface: one shared `Panel`
+- parent layout: shared split layout
 - direction: left-right on desktop, stacked on mobile
-- desktop split: flexible left panel and fixed `20rem` right panel
+- desktop split: flexible left panel and fixed `24rem` right panel
 - if available width cannot keep the left panel at least 20% wider than the
   right panel, stack the panels vertically instead
 - use the shared `aa-split-*` classes so the two-column layout activates only
-  when the detail container is at least `44rem` wide
+  when the detail container is at least `53rem` wide
 - left and right panels keep independent content-driven heights
 - left panel: milestone/task/subtask tree
-- right panel: project metadata and milestone overview
+- right panel: project metadata
 - left card: `Milestones` card with icon, supporting text, and `Add milestone`
-- right cards: `Project metadata` with `Edit project`, then `Milestone overview`
-- project metadata group: status, priority, start date, deadline or duration,
-  and derived progress
-- milestone overview list: each milestone title, status tag, and progress text
+- right card: `Project metadata` with `Edit project`
+- project metadata group: title, status, description, priority, start date, and
+  deadline or duration
+- do not show current milestone or progress in the metadata card; that
+  information is already visible in the milestone tree
 - milestone list direction: vertical
 - milestone card header direction: horizontal with wrapping
 - milestone header left group: title and status tag, then objective or progress

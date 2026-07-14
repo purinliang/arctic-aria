@@ -76,7 +76,7 @@ user.
 - Focus on the task implied by the branch name. For example, do not implement
   application code during documentation-only work on an `agent/docs-*` branch.
 - For desktop left-right page layouts, use the shared split pattern: flexible
-  left content panel and fixed `20rem` right metadata/action panel. If the
+  left content panel and fixed `24rem` right metadata/action panel. If the
   available width cannot keep the left panel at least 20% wider than the right
   panel, stack the panels vertically. In the web app, use
   `aa-split-container`, `aa-split-panel`, and `aa-split-panel-sidebar` for this
