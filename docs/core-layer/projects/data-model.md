@@ -224,7 +224,8 @@ The next implementation should replace that shape with project-oriented tables:
 - `project_subtasks`
 - `project_task_dependencies`
 
-Because the current branch is still a feature branch, it is acceptable to redo
-the migration before merging. Prefer replacing `0004_create_tasks.sql` with the
-project schema instead of adding permanent compatibility tables, unless user
-data must be preserved.
+Because some local and Neon databases may already have recorded
+`0004_create_tasks.sql` as applied, the current implementation uses
+`0005_create_projects.sql` to replace the prototype tables with the Project
+schema. The migration drops the old prototype `plans` and `tasks` tables and
+creates the Project tables above.

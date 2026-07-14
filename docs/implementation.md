@@ -199,29 +199,24 @@ notes are documented in
 [interface-layer/web/auth-implementation.md](interface-layer/web/auth-implementation.md).
 
 Auth, database-backed Memories, database-backed Routines, and a database-backed
-task prototype are now implemented in the web app.
+Project slice are now implemented in the web app.
 
-The current task slice is prototype debt and should be refactored into the
-Project model before it becomes a stable contract. It currently includes:
-
-- prototype grouping and task capture
-- child task records
-- editable numeric progress fields
-- complete, partial-complete, skip, block, archive, and reopen commands
-- database-backed dashboard task cards
-- a basic prototype Projects management page
-- PostgreSQL schema for those entities
-- completion events for task completion, partial completion, and skip actions
-
-The next project refactor should replace the prototype with:
+The current Project slice includes:
 
 - project capture
-- milestone capture and ordering
+- default milestone creation
+- milestone capture
 - task capture under one milestone
 - subtask checklists under one task
-- no user-facing numeric progress fields
-- dashboard cards focused on today's scheduled tasks, not project progress
-  rings
+- status commands for dashboard tasks
+- subtask checklist updates
+- database-backed dashboard task cards
+- Project management page and detail tree
+- completion events for task completion, skip, block, unblock, and reopen
+  actions
+
+The Project slice intentionally does not expose editable numeric progress
+fields. Progress text is derived from task and subtask completion.
 
 Web source organization should follow the feature directories under
 `apps/web/src/features`. Feature pages, cards, dialogs, actions, repositories,
@@ -229,9 +224,9 @@ and tests live with their owning feature. Dashboard composition can import
 feature-owned cards, but it should not own memory, routine, or project page
 implementations. Shared primitives remain in `apps/web/src/components/ui`.
 
-The task slice intentionally excludes Discord reminder delivery, reward
+The Project slice intentionally excludes Discord reminder delivery, reward
 inventory, English coach, automatic daily plan optimization, and full review
-cards. They should be separate branches after the task contracts are stable.
+cards. They should be separate branches after the Project contracts are stable.
 
 ## Open Decisions
 
