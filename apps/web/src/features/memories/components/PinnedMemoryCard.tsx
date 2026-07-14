@@ -1,10 +1,11 @@
-import { Check, ChevronDown, Eye, Repeat2, RotateCcw } from "lucide-react";
+import { Check, ChevronDown, Eye, RefreshCw, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mutedTextClass } from "@/components/ui/color";
 import { Tag } from "@/components/ui/tag";
 import type { PinnedMemory } from "@/features/dashboard/types";
 
 const actionIconSize = 15;
+const actionButtonClass = "basis-[96px] grow px-2";
 
 export function PinnedMemoryCard({
   memory,
@@ -48,11 +49,7 @@ export function PinnedMemoryCard({
       >
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h3
-              className={`min-w-0 text-sm font-semibold ${
-                completed ? "line-through decoration-emerald-500/70" : ""
-              }`}
-            >
+            <h3 className="min-w-0 text-sm font-semibold">
               {memory.title}
             </h3>
             <Tag darkMode={darkMode} tone={categoryTone(memory.category)}>
@@ -88,18 +85,19 @@ export function PinnedMemoryCard({
 
       {expanded ? (
         <div
-          className={`mx-4 mb-4 grid gap-2 rounded-md border p-3 ${
-            darkMode
-              ? "border-neutral-800 bg-black"
-              : "border-slate-200 bg-slate-50"
+          className={`grid gap-2 px-4 pb-4 ${
+            completed
+              ? darkMode
+                ? "bg-emerald-500/5"
+                : "bg-emerald-50/60"
+              : ""
           }`}
         >
-          <div className="grid grid-cols-3 gap-2">
+          <div className="flex flex-wrap gap-2">
             {completed ? (
               <Button
                 darkMode={darkMode}
-                tone="success"
-                className="px-2"
+                className={actionButtonClass}
                 disabled={disabled}
                 icon={<RotateCcw size={actionIconSize} aria-hidden="true" />}
                 onClick={onCancelDone}
@@ -109,7 +107,7 @@ export function PinnedMemoryCard({
             ) : (
               <Button
                 darkMode={darkMode}
-                className="px-2"
+                className={actionButtonClass}
                 disabled={disabled}
                 icon={<Check size={actionIconSize} aria-hidden="true" />}
                 onClick={onDone}
@@ -119,16 +117,16 @@ export function PinnedMemoryCard({
             )}
             <Button
               darkMode={darkMode}
-              className="px-2"
+              className={actionButtonClass}
               disabled={disabled}
-              icon={<Repeat2 size={actionIconSize} aria-hidden="true" />}
+              icon={<RefreshCw size={actionIconSize} aria-hidden="true" />}
               onClick={onReplace}
             >
               Replace
             </Button>
             <Button
               darkMode={darkMode}
-              className="px-2"
+              className={actionButtonClass}
               disabled={disabled}
               icon={<Eye size={actionIconSize} aria-hidden="true" />}
               onClick={onView}
@@ -136,10 +134,6 @@ export function PinnedMemoryCard({
               View
             </Button>
           </div>
-          <p className={`text-xs ${mutedTextClass(darkMode)}`}>
-            Visible for a soft window; completed items can be canceled before
-            cleanup.
-          </p>
         </div>
       ) : null}
     </article>
