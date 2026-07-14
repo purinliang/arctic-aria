@@ -1,7 +1,6 @@
 import { Check, Edit3, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { mutedTextClass, sectionBorderClass } from "@/components/ui/color";
-import { SelectInput } from "@/components/ui/input-field";
+import { mutedTextClass } from "@/components/ui/color";
 import { List, ListItem } from "@/components/ui/list";
 import { Panel } from "@/components/ui/panel";
 import { Tag } from "@/components/ui/tag";
@@ -16,10 +15,7 @@ import { titleCase } from "./project-page-helpers";
 export function ProjectDetailPage({
   darkMode,
   pending,
-  projects,
   project,
-  onBackToList,
-  onSelectProject,
   onEditProject,
   onAddMilestone,
   onEditMilestone,
@@ -30,10 +26,7 @@ export function ProjectDetailPage({
 }: {
   darkMode: boolean;
   pending: boolean;
-  projects: ProjectView[];
   project: ProjectView | null;
-  onBackToList: () => void;
-  onSelectProject: (projectId: string) => void;
   onEditProject: (project: ProjectView) => void;
   onAddMilestone: (projectId: string) => void;
   onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
@@ -49,10 +42,7 @@ export function ProjectDetailPage({
     return (
       <Panel darkMode={darkMode} className="min-h-[60vh]">
         <div className="px-4 py-4">
-          <Button darkMode={darkMode} size="xs" onClick={onBackToList}>
-            Projects
-          </Button>
-          <p className={`mt-3 text-sm ${mutedTextClass(darkMode)}`}>
+          <p className={`text-sm ${mutedTextClass(darkMode)}`}>
             Select a project to view milestones and tasks.
           </p>
         </div>
@@ -63,41 +53,7 @@ export function ProjectDetailPage({
   return (
     <Panel darkMode={darkMode} className="min-h-[60vh]">
       <section className="grid gap-4">
-        <nav
-          className={cx(
-            "flex flex-wrap items-center gap-2 border-b px-4 py-3",
-            sectionBorderClass(darkMode),
-          )}
-          aria-label="Project breadcrumb"
-        >
-          <Button
-            darkMode={darkMode}
-            size="xs"
-            tone="ghost"
-            onClick={onBackToList}
-          >
-            Projects
-          </Button>
-          <span className={`text-sm ${mutedTextClass(darkMode)}`}>/</span>
-          <label className="sr-only" htmlFor="project-switcher">
-            Current project
-          </label>
-          <SelectInput
-            id="project-switcher"
-            darkMode={darkMode}
-            className="h-9 min-w-[min(260px,100%)] font-semibold"
-            value={project.id}
-            onChange={(event) => onSelectProject(event.target.value)}
-          >
-            {projects.map((projectOption) => (
-              <option key={projectOption.id} value={projectOption.id}>
-                {projectOption.title}
-              </option>
-            ))}
-          </SelectInput>
-        </nav>
-
-        <div className="grid gap-4 px-4 pb-4">
+        <div className="grid gap-4 px-4 py-4">
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-xl font-semibold">{project.title}</h2>

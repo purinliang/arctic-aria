@@ -5,7 +5,6 @@ import { mutedTextClass } from "@/components/ui/color";
 import { List, ListItem } from "@/components/ui/list";
 import { Panel } from "@/components/ui/panel";
 import { Tag } from "@/components/ui/tag";
-import { cx } from "@/components/ui/utils";
 import type { ProjectView } from "@/features/projects/actions";
 import { titleCase } from "./project-page-helpers";
 
@@ -99,12 +98,7 @@ function ProjectListItem({
           {project.milestones.map((milestone) => (
             <div
               key={milestone.id}
-              className={cx(
-                "grid gap-1 rounded-md border px-3 py-2",
-                darkMode
-                  ? "border-neutral-800 bg-black/40"
-                  : "border-slate-200 bg-white",
-              )}
+              className="grid gap-1 py-1"
             >
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-semibold">{milestone.title}</span>

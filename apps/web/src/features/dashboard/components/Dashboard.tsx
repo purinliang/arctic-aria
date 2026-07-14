@@ -7,6 +7,7 @@ import { sectionBorderClass } from "@/components/ui/color";
 import { NotificationStack } from "@/components/ui/notification";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import { MemoriesPage } from "@/features/memories/components/MemoriesPage";
+import { ProjectPageTitle } from "@/features/projects/components/ProjectPageTitle";
 import { ProjectsPage } from "@/features/projects/components/ProjectsPage";
 import { RoutinesPage } from "@/features/routines/components/RoutinesPage";
 import { rewardPreview } from "../dummy-data";
@@ -33,6 +34,9 @@ export function Dashboard({
   const reviewCount = 0;
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
+    null,
+  );
   const {
     notifications,
     dismissNotification,
@@ -83,6 +87,22 @@ export function Dashboard({
     setSidebarOpen(false);
   }
 
+  function showProjectsList() {
+    setSelectedProjectId(null);
+    setActiveView("projects");
+    setSidebarOpen(false);
+  }
+
+  function handleViewChange(view: DashboardView) {
+    if (view === "projects") {
+      showProjectsList();
+      return;
+    }
+
+    setActiveView(view);
+    setSidebarOpen(false);
+  }
+
   function showUnavailableFeature(featureName: string) {
     showInfoNotification(
       `${featureName} is not implemented in this prototype yet.`,
@@ -124,11 +144,9 @@ export function Dashboard({
   const pageTitle =
     activeView === "dashboard"
       ? "Dashboard"
-      : activeView === "projects"
-        ? "Projects"
-        : activeView === "routines"
-          ? "Routines"
-          : "Memories";
+      : activeView === "routines"
+        ? "Routines"
+        : "Memories";
 
   return (
     <main
@@ -143,7 +161,7 @@ export function Dashboard({
           activeView={activeView}
           logoutPending={logoutPending}
           onClose={() => setSidebarOpen(false)}
-          onViewChange={setActiveView}
+          onViewChange={handleViewChange}
           onThemeChange={setDarkMode}
           onLogout={onLogout}
           onUnavailableFeature={showUnavailableFeature}
@@ -161,9 +179,19 @@ export function Dashboard({
               icon={<Menu size={20} aria-hidden="true" />}
               onClick={() => setSidebarOpen(true)}
             />
-            <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
-              {pageTitle}
-            </h1>
+            {activeView === "projects" ? (
+              <ProjectPageTitle
+                darkMode={darkMode}
+                projects={projectState.projects}
+                selectedProjectId={selectedProjectId}
+                onBackToList={() => setSelectedProjectId(null)}
+                onProjectSelect={setSelectedProjectId}
+              />
+            ) : (
+              <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
+                {pageTitle}
+              </h1>
+            )}
           </header>
 
           {activeView === "projects" ? (
@@ -173,11 +201,13 @@ export function Dashboard({
               loading={projectState.projectLoading}
               pending={projectState.projectActionPending}
               message={projectState.projectMessage}
+              selectedProjectId={selectedProjectId}
               onProjectSave={projectState.saveProjectFromPage}
               onMilestoneSave={projectState.saveMilestoneFromPage}
               onTaskSave={projectState.saveTaskFromPage}
               onTaskStatus={projectState.statusTaskFromPage}
               onSubtaskToggle={projectState.toggleSubtaskFromPage}
+              onProjectSelect={setSelectedProjectId}
               onMessageClear={projectState.clearProjectMessage}
             />
           ) : activeView === "routines" ? (
