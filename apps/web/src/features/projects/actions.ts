@@ -1,6 +1,7 @@
 "use server";
 
 import { getCurrentUser } from "@/features/auth/actions";
+import { projectDatabaseErrorMessage } from "./project-database-errors";
 import {
   loadProjectDashboardData,
   unauthorizedResult,
@@ -38,16 +39,20 @@ async function withProjectData(
     return unauthorizedResult();
   }
 
-  const ok = await action(user.id);
+  try {
+    const ok = await action(user.id);
 
-  if (!ok) {
-    return { ok: false, message: notFoundMessage };
+    if (!ok) {
+      return { ok: false, message: notFoundMessage };
+    }
+
+    return {
+      ok: true,
+      data: await loadProjectDashboardData(user.id),
+    };
+  } catch (error) {
+    return { ok: false, message: projectDatabaseErrorMessage(error) };
   }
-
-  return {
-    ok: true,
-    data: await loadProjectDashboardData(user.id),
-  };
 }
 
 export async function getProjectDashboardData(): Promise<
@@ -59,10 +64,14 @@ export async function getProjectDashboardData(): Promise<
     return unauthorizedResult();
   }
 
-  return {
-    ok: true,
-    data: await loadProjectDashboardData(user.id),
-  };
+  try {
+    return {
+      ok: true,
+      data: await loadProjectDashboardData(user.id),
+    };
+  } catch (error) {
+    return { ok: false, message: projectDatabaseErrorMessage(error) };
+  }
 }
 
 export async function saveProject(
@@ -80,25 +89,29 @@ export async function saveProject(
     return { ok: false, message: validation.message };
   }
 
-  const projectId = await projectService.saveProject(user.id, {
-    projectId: input.id,
-    title: validation.title,
-    objective: validation.objective,
-    importanceReason: validation.importanceReason,
-    priority: input.priority,
-    startDate: validation.startDate,
-    deadlineDate: validation.deadlineDate,
-    expectedDurationDays: validation.expectedDurationDays,
-  });
+  try {
+    const projectId = await projectService.saveProject(user.id, {
+      projectId: input.id,
+      title: validation.title,
+      objective: validation.objective,
+      importanceReason: validation.importanceReason,
+      priority: input.priority,
+      startDate: validation.startDate,
+      deadlineDate: validation.deadlineDate,
+      expectedDurationDays: validation.expectedDurationDays,
+    });
 
-  if (!projectId) {
-    return { ok: false, message: "Project was not found." };
+    if (!projectId) {
+      return { ok: false, message: "Project was not found." };
+    }
+
+    return {
+      ok: true,
+      data: await loadProjectDashboardData(user.id),
+    };
+  } catch (error) {
+    return { ok: false, message: projectDatabaseErrorMessage(error) };
   }
-
-  return {
-    ok: true,
-    data: await loadProjectDashboardData(user.id),
-  };
 }
 
 export async function saveMilestone(
@@ -116,24 +129,28 @@ export async function saveMilestone(
     return { ok: false, message: validation.message };
   }
 
-  const milestoneId = await projectService.saveMilestone(user.id, {
-    milestoneId: input.id,
-    projectId: input.projectId,
-    title: validation.title,
-    objective: validation.objective,
-    startDate: validation.startDate,
-    deadlineDate: validation.deadlineDate,
-    expectedDurationDays: validation.expectedDurationDays,
-  });
+  try {
+    const milestoneId = await projectService.saveMilestone(user.id, {
+      milestoneId: input.id,
+      projectId: input.projectId,
+      title: validation.title,
+      objective: validation.objective,
+      startDate: validation.startDate,
+      deadlineDate: validation.deadlineDate,
+      expectedDurationDays: validation.expectedDurationDays,
+    });
 
-  if (!milestoneId) {
-    return { ok: false, message: "Project or milestone was not found." };
+    if (!milestoneId) {
+      return { ok: false, message: "Project or milestone was not found." };
+    }
+
+    return {
+      ok: true,
+      data: await loadProjectDashboardData(user.id),
+    };
+  } catch (error) {
+    return { ok: false, message: projectDatabaseErrorMessage(error) };
   }
-
-  return {
-    ok: true,
-    data: await loadProjectDashboardData(user.id),
-  };
 }
 
 export async function saveProjectTask(
@@ -151,28 +168,35 @@ export async function saveProjectTask(
     return { ok: false, message: validation.message };
   }
 
-  const saved = await projectService.saveTask(user.id, {
-    taskId: input.id,
-    projectId: input.projectId,
-    milestoneId: input.milestoneId,
-    title: validation.title,
-    description: validation.description,
-    priority: input.priority,
-    status: input.status,
-    scheduledDate: validation.scheduledDate,
-    startDate: validation.startDate,
-    deadlineDate: validation.deadlineDate,
-    subtasks: validation.subtasks,
-  });
+  try {
+    const saved = await projectService.saveTask(user.id, {
+      taskId: input.id,
+      projectId: input.projectId,
+      milestoneId: input.milestoneId,
+      title: validation.title,
+      description: validation.description,
+      priority: input.priority,
+      status: input.status,
+      scheduledDate: validation.scheduledDate,
+      startDate: validation.startDate,
+      deadlineDate: validation.deadlineDate,
+      subtasks: validation.subtasks,
+    });
 
-  if (!saved) {
-    return { ok: false, message: "Project, milestone, or task was not found." };
+    if (!saved) {
+      return {
+        ok: false,
+        message: "Project, milestone, or task was not found.",
+      };
+    }
+
+    return {
+      ok: true,
+      data: await loadProjectDashboardData(user.id),
+    };
+  } catch (error) {
+    return { ok: false, message: projectDatabaseErrorMessage(error) };
   }
-
-  return {
-    ok: true,
-    data: await loadProjectDashboardData(user.id),
-  };
 }
 
 export async function archiveProject(
