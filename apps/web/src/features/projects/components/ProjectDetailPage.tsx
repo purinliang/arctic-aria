@@ -137,7 +137,7 @@ export function ProjectDetailPage({
             <CardHeader
               darkMode={darkMode}
               icon={<Info size={18} aria-hidden="true" />}
-              title="Project metadata"
+              title="Overview"
               action={
                 <Button
                   darkMode={darkMode}

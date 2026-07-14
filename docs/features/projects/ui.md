@@ -253,10 +253,10 @@ Detail page layout:
   when the detail container is at least `53rem` wide
 - left and right panels keep independent content-driven heights
 - left panel: milestone/task/subtask tree
-- right panel: project metadata
+- right panel: project overview
 - left card: `Milestones` card with icon, supporting text, and `Add milestone`
-- right card: `Project metadata` with `Edit project`
-- project metadata group: title, status, description, priority, start date, and
+- right card: `Overview` with `Edit project`
+- overview metadata group: title, status, description, priority, start date, and
   deadline or duration
 - do not show current milestone or progress in the metadata card; that
   information is already visible in the milestone tree
