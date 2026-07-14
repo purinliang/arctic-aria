@@ -1,5 +1,6 @@
 import { Ban, Check, ChevronDown, Edit3, SkipForward } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ExpandableListItem } from "@/components/ui/list";
 import { Tag } from "@/components/ui/tag";
 import type { Task } from "@/features/dashboard/types";
 import { titleCase } from "./project-page-helpers";
@@ -48,117 +49,112 @@ export function ProjectTaskCard({
   onEdit: () => void;
 }) {
   return (
-    <article>
-      <button
-        className={`grid w-full grid-cols-[1fr_auto] items-center gap-3 px-4 py-4 text-left transition ${
-          darkMode ? "hover:bg-neutral-900" : "hover:bg-slate-50"
-        }`}
-        type="button"
-        aria-expanded={expanded}
-        onClick={onToggleExpanded}
-      >
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="min-w-0 text-base font-semibold">{task.title}</h3>
-            <span
-              className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${priorityClass(task.priority, darkMode)}`}
-            >
-              {titleCase(task.priority)}
-            </span>
-            <Tag darkMode={darkMode}>{titleCase(task.status)}</Tag>
-          </div>
-          <div
-            className={`mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm ${
-              darkMode ? "text-neutral-400" : "text-slate-500"
-            }`}
-          >
-            <span>{task.projectLabel}</span>
-            <span>{task.milestoneLabel}</span>
-            <span>Deadline {task.deadline}</span>
-            <span>{task.subtaskSummary}</span>
-          </div>
-        </div>
-        <ChevronDown
-          className={`shrink-0 transition ${expanded ? "rotate-180" : ""}`}
-          size={18}
-          aria-hidden="true"
-        />
-      </button>
-
-      {expanded ? (
-        <div className="grid gap-3 px-4 pb-4">
-          <p
-            className={`text-sm leading-6 ${
-              darkMode ? "text-neutral-300" : "text-slate-600"
-            }`}
-          >
-            {task.description || "No description."}
-          </p>
-          {task.subtasks?.map((subtask) => (
-            <label
-              key={subtask.id}
-              className={`grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-md px-2 py-2 text-sm ${
-                darkMode ? "text-neutral-200" : "text-slate-700"
-              }`}
-              onClick={(event) => event.stopPropagation()}
-            >
-              <input
-                className="accent-emerald-500"
-                type="checkbox"
-                checked={subtask.done}
-                disabled={pendingSubtaskIds.includes(subtask.id)}
-                onChange={() => onSubtaskToggle(subtask.id)}
-              />
-              <span className="min-w-0">
-                <span className="block truncate font-semibold">
-                  {subtask.title}
-                </span>
-                <span
-                  className={`block truncate text-xs ${
-                    darkMode ? "text-neutral-500" : "text-slate-500"
-                  }`}
-                >
-                  {subtask.description || "No description."}
-                </span>
+    <ExpandableListItem
+      darkMode={darkMode}
+      expanded={expanded}
+      headerClassName="items-center"
+      bodyClassName="grid gap-3"
+      onToggle={onToggleExpanded}
+      header={
+        <>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="min-w-0 text-base font-semibold">{task.title}</h3>
+              <span
+                className={`rounded-md border px-2 py-0.5 text-xs font-semibold ${priorityClass(task.priority, darkMode)}`}
+              >
+                {titleCase(task.priority)}
               </span>
-            </label>
-          ))}
-          <div className="flex flex-wrap gap-2 pt-1">
-            <Button
-              darkMode={darkMode}
-              disabled={taskPending || task.status === "done"}
-              icon={<Check size={14} aria-hidden="true" />}
-              onClick={onDone}
+              <Tag darkMode={darkMode}>{titleCase(task.status)}</Tag>
+            </div>
+            <div
+              className={`mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm ${
+                darkMode ? "text-neutral-400" : "text-slate-500"
+              }`}
             >
-              Done
-            </Button>
-            <Button
-              darkMode={darkMode}
-              disabled={taskPending || task.status === "blocked"}
-              icon={<Ban size={14} aria-hidden="true" />}
-              onClick={onBlock}
-            >
-              Block
-            </Button>
-            <Button
-              darkMode={darkMode}
-              disabled={taskPending || task.status === "skipped"}
-              icon={<SkipForward size={14} aria-hidden="true" />}
-              onClick={onSkip}
-            >
-              Skip
-            </Button>
-            <Button
-              darkMode={darkMode}
-              disabled={taskPending}
-              icon={<Edit3 size={14} aria-hidden="true" />}
-              onClick={onEdit}
-            >
-              Edit
-            </Button>
+              <span>{task.projectLabel}</span>
+              <span>{task.milestoneLabel}</span>
+              <span>Deadline {task.deadline}</span>
+              <span>{task.subtaskSummary}</span>
+            </div>
           </div>
-        </div>
-      ) : null}
-    </article>
+          <ChevronDown
+            className={`shrink-0 transition ${expanded ? "rotate-180" : ""}`}
+            size={18}
+            aria-hidden="true"
+          />
+        </>
+      }
+    >
+      <p
+        className={`text-sm leading-6 ${
+          darkMode ? "text-neutral-300" : "text-slate-600"
+        }`}
+      >
+        {task.description || "No description."}
+      </p>
+      {task.subtasks?.map((subtask) => (
+        <label
+          key={subtask.id}
+          className={`grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-md px-2 py-2 text-sm ${
+            darkMode ? "text-neutral-200" : "text-slate-700"
+          }`}
+        >
+          <input
+            className="accent-emerald-500"
+            type="checkbox"
+            checked={subtask.done}
+            disabled={pendingSubtaskIds.includes(subtask.id)}
+            onChange={() => onSubtaskToggle(subtask.id)}
+          />
+          <span className="min-w-0">
+            <span className="block truncate font-semibold">
+              {subtask.title}
+            </span>
+            <span
+              className={`block truncate text-xs ${
+                darkMode ? "text-neutral-500" : "text-slate-500"
+              }`}
+            >
+              {subtask.description || "No description."}
+            </span>
+          </span>
+        </label>
+      ))}
+      <div className="flex flex-wrap gap-2 pt-1">
+        <Button
+          darkMode={darkMode}
+          disabled={taskPending || task.status === "done"}
+          icon={<Check size={14} aria-hidden="true" />}
+          onClick={onDone}
+        >
+          Done
+        </Button>
+        <Button
+          darkMode={darkMode}
+          disabled={taskPending || task.status === "blocked"}
+          icon={<Ban size={14} aria-hidden="true" />}
+          onClick={onBlock}
+        >
+          Block
+        </Button>
+        <Button
+          darkMode={darkMode}
+          disabled={taskPending || task.status === "skipped"}
+          icon={<SkipForward size={14} aria-hidden="true" />}
+          onClick={onSkip}
+        >
+          Skip
+        </Button>
+        <Button
+          darkMode={darkMode}
+          disabled={taskPending}
+          icon={<Edit3 size={14} aria-hidden="true" />}
+          onClick={onEdit}
+        >
+          Edit
+        </Button>
+      </div>
+    </ExpandableListItem>
   );
 }

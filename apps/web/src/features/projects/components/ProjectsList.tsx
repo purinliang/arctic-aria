@@ -2,7 +2,7 @@ import { ArrowRight, FolderKanban, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CardHeader } from "@/components/ui/card";
 import { mutedTextClass } from "@/components/ui/color";
-import { ListItem } from "@/components/ui/list";
+import { List, ListItem } from "@/components/ui/list";
 import { Panel } from "@/components/ui/panel";
 import { Tag } from "@/components/ui/tag";
 import { cx } from "@/components/ui/utils";
@@ -44,14 +44,14 @@ export function ProjectsList({
         }
       />
 
-      <div className="grid gap-2 px-4 pb-4">
+      <List darkMode={darkMode}>
         {loading ? (
-          <p className={`text-sm ${mutedTextClass(darkMode)}`}>
+          <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
             Loading projects...
           </p>
         ) : null}
         {!loading && projects.length === 0 ? (
-          <p className={`text-sm ${mutedTextClass(darkMode)}`}>
+          <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
             No projects yet. Add a project for a larger goal.
           </p>
         ) : null}
@@ -63,7 +63,7 @@ export function ProjectsList({
             onView={() => onViewProject(project.id)}
           />
         ))}
-      </div>
+      </List>
     </Panel>
   );
 }

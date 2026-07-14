@@ -1,6 +1,8 @@
-import type { ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { dividerClass } from "./color";
 import { cx } from "./utils";
+
+type ListItemTone = "default" | "success";
 
 export function List({
   darkMode,
@@ -19,6 +21,7 @@ export function ListItem({
   selected = false,
   expanded = false,
   layout = "row",
+  tone = "default",
   className,
   children,
 }: {
@@ -26,6 +29,7 @@ export function ListItem({
   selected?: boolean;
   expanded?: boolean;
   layout?: "row" | "block";
+  tone?: ListItemTone;
   className?: string;
   children: ReactNode;
 }) {
@@ -37,12 +41,80 @@ export function ListItem({
         layout === "row"
           ? "flex items-start justify-between gap-3 px-4 py-4"
           : "px-4 py-4",
-        !active && (darkMode ? "hover:bg-neutral-950" : "hover:bg-slate-50"),
-        active && (darkMode ? "bg-white/10" : "bg-slate-100"),
+        itemToneClass(darkMode, tone, active),
         className,
       )}
     >
       {children}
     </article>
   );
+}
+
+export function ExpandableListItem({
+  darkMode,
+  expanded,
+  disabled = false,
+  selected = false,
+  tone = "default",
+  header,
+  children,
+  className,
+  headerClassName,
+  bodyClassName,
+  onToggle,
+}: {
+  darkMode: boolean;
+  expanded: boolean;
+  disabled?: boolean;
+  selected?: boolean;
+  tone?: ListItemTone;
+  header: ReactNode;
+  children?: ReactNode;
+  className?: string;
+  headerClassName?: string;
+  bodyClassName?: string;
+  onToggle: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
+}) {
+  return (
+    <ListItem
+      darkMode={darkMode}
+      expanded={expanded}
+      selected={selected}
+      tone={tone}
+      layout="block"
+      className={cx("transition", className)}
+    >
+      <button
+        className={cx(
+          "grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-left",
+          headerClassName,
+        )}
+        type="button"
+        aria-expanded={expanded}
+        disabled={disabled}
+        onClick={onToggle}
+      >
+        {header}
+      </button>
+      {expanded && children ? (
+        <div className={cx("mt-3", bodyClassName)}>{children}</div>
+      ) : null}
+    </ListItem>
+  );
+}
+
+function itemToneClass(
+  darkMode: boolean,
+  tone: ListItemTone,
+  active: boolean,
+) {
+  if (tone === "success") {
+    return darkMode ? "bg-emerald-500/5" : "bg-emerald-50/60";
+  }
+
+  if (active) {
+    return darkMode ? "bg-white/10" : "bg-slate-100";
+  }
+
+  return darkMode ? "hover:bg-neutral-950" : "hover:bg-slate-50";
 }

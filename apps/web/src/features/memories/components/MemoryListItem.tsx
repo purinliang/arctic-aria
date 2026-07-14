@@ -1,7 +1,7 @@
 import { ChevronDown, Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mutedTextClass } from "@/components/ui/color";
-import { ListItem } from "@/components/ui/list";
+import { ExpandableListItem } from "@/components/ui/list";
 import { Tag } from "@/components/ui/tag";
 import type { MemoryRecord } from "@/features/dashboard/types";
 import { categoryTone } from "./memory-page-helpers";
@@ -22,19 +22,14 @@ export function MemoryListItem({
   onEdit: () => void;
 }) {
   return (
-    <ListItem
+    <ExpandableListItem
       darkMode={darkMode}
-      layout="block"
       expanded={expanded}
       selected={selected}
-    >
-      <button
-        className="grid w-full gap-3 text-left"
-        type="button"
-        aria-expanded={expanded}
-        onClick={onToggle}
-      >
-        <div className="flex min-w-0 items-start justify-between gap-3">
+      bodyClassName="flex justify-end"
+      onToggle={onToggle}
+      header={
+        <>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-sm font-semibold">{memory.title}</h3>
@@ -59,19 +54,16 @@ export function MemoryListItem({
             size={16}
             aria-hidden="true"
           />
-        </div>
-      </button>
-      {expanded ? (
-        <div className="mt-3 flex justify-end">
-          <Button
-            darkMode={darkMode}
-            icon={<Edit3 size={15} aria-hidden="true" />}
-            onClick={onEdit}
-          >
-            Edit
-          </Button>
-        </div>
-      ) : null}
-    </ListItem>
+        </>
+      }
+    >
+      <Button
+        darkMode={darkMode}
+        icon={<Edit3 size={15} aria-hidden="true" />}
+        onClick={onEdit}
+      >
+        Edit
+      </Button>
+    </ExpandableListItem>
   );
 }

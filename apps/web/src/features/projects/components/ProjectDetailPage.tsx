@@ -2,7 +2,7 @@ import { Check, Edit3, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mutedTextClass, sectionBorderClass } from "@/components/ui/color";
 import { SelectInput } from "@/components/ui/input-field";
-import { ListItem } from "@/components/ui/list";
+import { List, ListItem } from "@/components/ui/list";
 import { Panel } from "@/components/ui/panel";
 import { Tag } from "@/components/ui/tag";
 import { cx } from "@/components/ui/utils";
@@ -134,7 +134,7 @@ export function ProjectDetailPage({
             </Button>
           </div>
 
-          <div className="grid gap-3">
+          <List darkMode={darkMode}>
             {project.milestones.map((milestone) => (
               <ListItem key={milestone.id} darkMode={darkMode} layout="block">
                 <div className="flex flex-wrap items-start justify-between gap-3">
@@ -190,7 +190,7 @@ export function ProjectDetailPage({
                 </div>
               </ListItem>
             ))}
-          </div>
+          </List>
         </div>
       </section>
     </Panel>
