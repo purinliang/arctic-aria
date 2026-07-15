@@ -126,10 +126,16 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
       return memories.listCategories(userId);
     },
 
-    async createCategory(userId: string, name: string, baseWeight: number) {
+    async createCategory(
+      userId: string,
+      name: string,
+      description: string,
+      baseWeight: number,
+    ) {
       return memories.createCategory({
         userId,
         name,
+        description,
         baseWeight,
         occurredAt: now(),
       });
@@ -139,12 +145,14 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
       userId: string,
       categoryId: string,
       name: string,
+      description: string,
       baseWeight: number,
     ) {
       return memories.updateCategory({
         userId,
         categoryId,
         name,
+        description,
         baseWeight,
         occurredAt: now(),
       });

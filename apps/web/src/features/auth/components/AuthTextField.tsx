@@ -1,11 +1,12 @@
 "use client";
 
+// Auth Page - Auth Text Field.
 import type { ReactNode } from "react";
 import {
   FieldError,
   FieldLabel,
   TextInput,
-} from "@/components/ui/input-field";
+} from "@/components/forms/input-field";
 
 type AuthTextFieldProps = {
   label: string;

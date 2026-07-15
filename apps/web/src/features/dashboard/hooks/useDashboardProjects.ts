@@ -1,6 +1,8 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
+  archiveMilestone,
   archiveProject,
+  archiveProjectTask,
   blockProjectTask,
   completeProjectTask,
   getProjectDashboardData,
@@ -9,7 +11,6 @@ import {
   saveProject,
   saveProjectTask,
   skipProjectTask,
-  updateProjectSubtaskDone,
   updateProjectTaskStatus,
   type MilestoneInput,
   type ProjectActionResult,
@@ -19,9 +20,7 @@ import {
   type ProjectView,
 } from "@/features/projects/actions";
 import {
-  applyOptimisticSubtaskDone,
   applyOptimisticTaskStatus,
-  restoreSubtaskSnapshot,
   restoreTaskSnapshot,
 } from "../optimistic-updates";
 import type { Task, TaskStatus } from "../types";
@@ -39,27 +38,13 @@ export function useDashboardProjects(
   const [projectMessage, setProjectMessage] = useState<string | null>(null);
   const [projectActionPending, setProjectActionPending] = useState(false);
   const [pendingTaskIds, setPendingTaskIds] = useState<string[]>([]);
-  const [pendingSubtaskIds, setPendingSubtaskIds] = useState<string[]>([]);
-  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  const pageTaskRequestChains = useRef(new Map<string, Promise<void>>());
+  const pageTaskRequestVersions = useRef(new Map<string, number>());
 
-  const applyProjectData = useCallback(
-    (data: ProjectDashboardData, nextExpandedTaskId?: string | null) => {
-      setTasks(data.tasks);
-      setProjects(data.projects);
-      setExpandedTaskId((current) => {
-        if (nextExpandedTaskId !== undefined) {
-          return nextExpandedTaskId;
-        }
-
-        if (current && data.tasks.some((task) => task.id === current)) {
-          return current;
-        }
-
-        return data.tasks[0]?.id ?? null;
-      });
-    },
-    [],
-  );
+  const applyProjectData = useCallback((data: ProjectDashboardData) => {
+    setTasks(data.tasks);
+    setProjects(data.projects);
+  }, []);
 
   const refreshProjectData = useCallback(async () => {
     const result = await getProjectDashboardData();
@@ -68,9 +53,7 @@ export function useDashboardProjects(
       setProjectMessage(result.message);
       setTasks([]);
       setProjects([]);
-      setExpandedTaskId(null);
       setPendingTaskIds([]);
-      setPendingSubtaskIds([]);
       setProjectLoading(false);
       return;
     }
@@ -94,7 +77,10 @@ export function useDashboardProjects(
     }
   }
 
-  async function runProjectManagementAction(action: ProjectDataAction) {
+  async function runProjectManagementAction(
+    action: ProjectDataAction,
+    failureTitle: string,
+  ) {
     setProjectMessage(null);
     setProjectActionPending(true);
 
@@ -102,7 +88,7 @@ export function useDashboardProjects(
       const result = await action();
 
       if (!result.ok) {
-        setProjectMessage(result.message);
+        showErrorNotification(result.message, failureTitle);
         return false;
       }
 
@@ -119,7 +105,6 @@ export function useDashboardProjects(
   ) {
     let previousTasks: Task[] = [];
 
-    setExpandedTaskId(null);
     setPendingTaskIds((current) => addPendingId(current, taskId));
     setTasks((current) => {
       previousTasks = current;
@@ -140,23 +125,59 @@ export function useDashboardProjects(
     );
   }
 
-  function toggleSubtask(subtaskId: string, done: boolean) {
+  function updateTaskFromPage(
+    taskId: string,
+    status: Exclude<TaskStatus, "archived">,
+  ) {
     let previousTasks: Task[] = [];
+    let previousProjects: ProjectView[] = [];
+    const requestVersion =
+      (pageTaskRequestVersions.current.get(taskId) ?? 0) + 1;
 
-    setPendingSubtaskIds((current) => addPendingId(current, subtaskId));
+    pageTaskRequestVersions.current.set(taskId, requestVersion);
+    setProjectMessage(null);
+
     setTasks((current) => {
       previousTasks = current;
-      return applyOptimisticSubtaskDone(current, subtaskId, !done);
+      const updated = applyOptimisticTaskStatus(current, taskId, status);
+
+      return status === "done"
+        ? updated.filter((task) => task.id !== taskId)
+        : updated;
     });
-    void runDashboardProjectAction(
-      () => updateProjectSubtaskDone(subtaskId, !done),
-      () =>
+    setProjects((current) => {
+      previousProjects = current;
+      return applyOptimisticProjectTaskStatus(current, taskId, status);
+    });
+
+    const previousRequest =
+      pageTaskRequestChains.current.get(taskId) ?? Promise.resolve();
+    const request = previousRequest
+      .catch(() => undefined)
+      .then(async () => {
+        const result = await updateProjectTaskStatus(taskId, status);
+
+        if (result.ok) {
+          return;
+        }
+
+        if (pageTaskRequestVersions.current.get(taskId) !== requestVersion) {
+          return;
+        }
+
         setTasks((current) =>
-          restoreSubtaskSnapshot(current, previousTasks, subtaskId),
-        ),
-    ).finally(() =>
-      setPendingSubtaskIds((current) => removePendingId(current, subtaskId)),
-    );
+          restoreTaskSnapshot(current, previousTasks, taskId),
+        );
+        setProjects(previousProjects);
+        showErrorNotification(result.message);
+      });
+
+    pageTaskRequestChains.current.set(taskId, request);
+    void request.finally(() => {
+      if (pageTaskRequestChains.current.get(taskId) === request) {
+        pageTaskRequestChains.current.delete(taskId);
+      }
+    });
   }
 
   return {
@@ -166,28 +187,35 @@ export function useDashboardProjects(
     projectMessage,
     projectActionPending,
     pendingTaskIds,
-    pendingSubtaskIds,
-    expandedTaskId,
-    setExpandedTaskId,
     refreshProjectData,
     updateTaskFromDashboard,
-    toggleSubtask,
     saveProjectFromPage: (input: ProjectInput) =>
-      runProjectManagementAction(() => saveProject(input)),
+      runProjectManagementAction(() => saveProject(input), "Project save failed"),
     archiveProjectFromPage: (projectId: string) =>
-      runProjectManagementAction(() => archiveProject(projectId)),
+      runProjectManagementAction(
+        () => archiveProject(projectId),
+        "Project archive failed",
+      ),
+    archiveMilestoneFromPage: (milestoneId: string) =>
+      runProjectManagementAction(
+        () => archiveMilestone(milestoneId),
+        "Milestone delete failed",
+      ),
+    archiveTaskFromPage: (taskId: string) =>
+      runProjectManagementAction(
+        () => archiveProjectTask(taskId),
+        "Task delete failed",
+      ),
     saveMilestoneFromPage: (input: MilestoneInput) =>
-      runProjectManagementAction(() => saveMilestone(input)),
+      runProjectManagementAction(
+        () => saveMilestone(input),
+        "Milestone save failed",
+      ),
     saveTaskFromPage: (input: ProjectTaskInput) =>
-      runProjectManagementAction(() => saveProjectTask(input)),
-    statusTaskFromPage: (
-      taskId: string,
-      status: Exclude<TaskStatus, "archived">,
-    ) => runProjectManagementAction(() => updateProjectTaskStatus(taskId, status)),
-    toggleSubtaskFromPage: (subtaskId: string, done: boolean) =>
-      runProjectManagementAction(() => updateProjectSubtaskDone(subtaskId, !done)),
+      runProjectManagementAction(() => saveProjectTask(input), "Task save failed"),
+    statusTaskFromPage: updateTaskFromPage,
     reopenTaskFromPage: (taskId: string) =>
-      runProjectManagementAction(() => reopenProjectTask(taskId)),
+      runProjectManagementAction(() => reopenProjectTask(taskId), "Task reopen failed"),
     clearProjectMessage: () => setProjectMessage(null),
   };
 }
@@ -217,4 +245,42 @@ function addPendingId(ids: string[], id: string) {
 
 function removePendingId(ids: string[], id: string) {
   return ids.filter((currentId) => currentId !== id);
+}
+
+function applyOptimisticProjectTaskStatus(
+  projects: ProjectView[],
+  taskId: string,
+  status: Exclude<TaskStatus, "archived">,
+) {
+  return projects.map((project) => {
+    const projectTasks = project.tasks.map((task) =>
+      task.id === taskId ? { ...task, status } : task,
+    );
+    const milestones = project.milestones.map((milestone) => {
+      const tasks = projectTasks.filter(
+        (task) => task.milestoneId === milestone.id,
+      ).map((task) =>
+        task.id === taskId ? { ...task, status } : task,
+      );
+
+      return {
+        ...milestone,
+        tasks,
+        progressText: taskProgressText(tasks),
+      };
+    });
+
+    return {
+      ...project,
+      tasks: projectTasks,
+      milestones,
+      progressText: taskProgressText(projectTasks),
+    };
+  });
+}
+
+function taskProgressText(tasks: Task[]) {
+  const doneCount = tasks.filter((task) => task.status === "done").length;
+
+  return `${doneCount} of ${tasks.length} tasks done`;
 }

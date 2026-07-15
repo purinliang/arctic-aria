@@ -42,7 +42,12 @@ test("creates memory in a newly created custom category", async () => {
     now: () => now,
   });
 
-  const category = await service.createCategory(userId, "Custom", 1.2);
+  const category = await service.createCategory(
+    userId,
+    "Custom",
+    "Personal experiments.",
+    1.2,
+  );
   const createdMemory = await service.createMemory(
     userId,
     category.id,
@@ -141,6 +146,7 @@ test("dashboard pinned memories only include supported default categories", asyn
         id: "category-custom",
         userId,
         name: "Anime",
+        description: "",
         baseWeight: 1,
         createdAt: new Date("2026-06-01T00:00:00.000Z"),
         updatedAt: new Date("2026-06-01T00:00:00.000Z"),

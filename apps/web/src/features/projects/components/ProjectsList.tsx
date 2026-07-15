@@ -1,12 +1,12 @@
-import { ArrowRight, FolderKanban, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { CardHeader } from "@/components/ui/card";
-import { mutedTextClass } from "@/components/ui/color";
-import { List, ListItem } from "@/components/ui/list";
-import { Panel } from "@/components/ui/panel";
-import { Tag } from "@/components/ui/tag";
+// Projects Page - Projects List.
+import { FolderKanban, Plus } from "lucide-react";
+import { Button } from "@/components/button";
+import { CardHeader } from "@/components/card";
+import { mutedTextClass } from "@/components/color";
+import { List, ListItem } from "@/components/list";
+import { Panel } from "@/components/panel";
+import { DescriptionText, SupportingText } from "@/components/text";
 import type { ProjectView } from "@/features/projects/actions";
-import { titleCase } from "./project-page-helpers";
 
 export function ProjectsList({
   darkMode,
@@ -24,7 +24,7 @@ export function ProjectsList({
   onAddProject: () => void;
 }) {
   return (
-    <Panel darkMode={darkMode} className="min-h-[60vh]">
+    <Panel darkMode={darkMode}>
       <CardHeader
         darkMode={darkMode}
         icon={<FolderKanban size={18} aria-hidden="true" />}
@@ -33,12 +33,11 @@ export function ProjectsList({
         action={
           <Button
             darkMode={darkMode}
-            tone="primary"
             disabled={pending}
             icon={<Plus size={15} aria-hidden="true" />}
             onClick={onAddProject}
           >
-            Add project
+            New
           </Button>
         }
       />
@@ -81,46 +80,14 @@ function ProjectListItem({
       <button className="w-full text-left" type="button" onClick={onView}>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-semibold">{project.title}</span>
-          <Tag darkMode={darkMode}>{titleCase(project.status)}</Tag>
-          <Tag darkMode={darkMode}>{titleCase(project.priority)}</Tag>
         </div>
-        <p className={`mt-1 line-clamp-2 text-sm ${mutedTextClass(darkMode)}`}>
+        <DescriptionText darkMode={darkMode} className="mt-1 line-clamp-2">
           {project.description}
-        </p>
-        <div
-          className={`mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs ${mutedTextClass(darkMode)}`}
-        >
-          <span>{project.timelineText}</span>
-          <span>{project.currentMilestone}</span>
-          <span>{project.progressText}</span>
-        </div>
-        <div className="mt-3 grid gap-2">
-          {project.milestones.map((milestone) => (
-            <div
-              key={milestone.id}
-              className="grid gap-1 py-1"
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold">{milestone.title}</span>
-                <Tag darkMode={darkMode}>{titleCase(milestone.status)}</Tag>
-              </div>
-              <span className={`text-xs ${mutedTextClass(darkMode)}`}>
-                {milestone.progressText}
-              </span>
-            </div>
-          ))}
-        </div>
+        </DescriptionText>
+        <SupportingText darkMode={darkMode} className="mt-2 block">
+          {project.timelineText} · {project.progressText}
+        </SupportingText>
       </button>
-      <div className="mt-3">
-        <Button
-          darkMode={darkMode}
-          size="xs"
-          icon={<ArrowRight size={13} aria-hidden="true" />}
-          onClick={onView}
-        >
-          View
-        </Button>
-      </div>
     </ListItem>
   );
 }

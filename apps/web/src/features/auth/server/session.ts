@@ -98,8 +98,6 @@ export function getAuthSessionSecret() {
   return (
     process.env.AUTH_SESSION_SECRET ??
     process.env.NEON_POSTGRES_URL ??
-    process.env.NEON_DATABASE_URL ??
-    process.env.DATABASE_URL ??
     "arctic-aria-development-session-secret"
   );
 }

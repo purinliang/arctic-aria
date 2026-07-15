@@ -1,7 +1,8 @@
 # User UI
 
 This document describes user-visible auth UI behavior. Product rules,
-validation, and persistence behavior are documented in [design.md](design.md).
+validation, and persistence behavior are documented in [overview.md](overview.md)
+and [data-model.md](data-model.md).
 
 ## Session Loading State
 
@@ -9,8 +10,8 @@ validation, and persistence behavior are documented in [design.md](design.md).
   page.
 - Use the same brand row as the login and sidebar surfaces: Sparkles icon plus
   `Arctic Aria`.
-- Show a visible loading spinner below the brand row.
-- Show the loading text `Opening your workspace...`.
+- Show a visible loading spinner and the text `Opening your workspace...` in
+  one horizontal row below the brand row.
 - Do not show the login/register panel until the session check finishes.
 
 ## Registration Tab
@@ -29,17 +30,20 @@ validation, and persistence behavior are documented in [design.md](design.md).
   - Show an error bubble with a tail pointing from the related text box.
   - The error bubble can overlay other components and should not affect layout
     height.
-  - The error bubble should appear only after the user has focused the field at
-    least once. If the user has not focused an empty required field, do not show
-    the field-level bubble yet.
+  - Required-empty bubbles, such as `Username can't be empty.`, should appear
+    only after the user clicks the main `Sign up` or `Sign in` button.
+  - Non-empty typing errors, such as length or character errors, can appear
+    while the user types.
   - If a field is optional, show `(Optional)` beside its label. Required fields
     do not need extra label text.
   - Apply the same field layout rules to every field.
 - The main button should say `Sign up` and include a right arrow icon to imply
   forward navigation.
-- When the main button is disabled, hovering over it should show the first
-  remaining validation error by rule priority. This includes hidden errors for
-  untouched fields, such as `Username is required`.
+- Empty required fields should not disable the main button before the first
+  submit attempt. The first submit attempt should reveal the empty-field
+  bubbles.
+- When the main button is disabled by a non-empty typing error, hovering over it
+  should show the first remaining validation error by rule priority.
 - Show small text `Already have an account?` and link-style text `Sign in`.
   Clicking the link is equivalent to switching tabs.
 - Do not show unrelated actions or information, such as `Open dashboard without
@@ -63,8 +67,46 @@ Then show a placeholder Google action:
 
 - Google logo
 - `Continue with Google`
+- Clicking it should show a shared info notification that Google sign-in is not
+  implemented yet.
 
 Also show a placeholder password reset line above `New here? Sign up`:
 
 - `Forgot your password?`
 - link-style text `Reset password`
+- Clicking it should show a shared info notification that password reset is not
+  implemented yet.
+
+## Interaction Behavior
+
+Tab behavior:
+
+- Switching between `Sign in` and `Sign up` is local UI state.
+- Switching tabs should not call the backend.
+- Switching tabs should clear submit-only required-empty bubbles for the
+  previous mode.
+
+Field behavior:
+
+- Required-empty bubbles appear only after the main submit button is clicked.
+- Non-empty typing errors can appear while typing.
+- Field bubbles should point to the related field and must not resize the form.
+
+Submit behavior:
+
+- Clicking `Sign in` or `Sign up` is a blocking auth action.
+- Auth submit is not optimistic.
+- While submitting, show a loading state on the main button and prevent
+  duplicate submit.
+- Keep the auth form visible until the backend confirms success.
+- On success, show a shared success notification and open the authenticated
+  app.
+- On backend validation or persistence failure, keep the user on the auth page
+  and show the backend message through the shared notification stack.
+
+Placeholder action behavior:
+
+- Clicking `Continue with Google` does not call OAuth yet. It shows a shared
+  info notification.
+- Clicking `Reset password` does not open a reset form yet. It shows a shared
+  info notification.

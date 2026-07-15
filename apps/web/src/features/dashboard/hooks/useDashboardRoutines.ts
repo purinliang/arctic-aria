@@ -3,6 +3,7 @@ import {
   completeRoutineInstance,
   deleteRoutine,
   getRoutineDashboardData,
+  reopenRoutineInstance,
   saveRoutine,
   skipRoutineInstance,
   type RoutineActionResult,
@@ -30,30 +31,11 @@ export function useDashboardRoutines(
   const [routineLoading, setRoutineLoading] = useState(true);
   const [routineMessage, setRoutineMessage] = useState<string | null>(null);
   const [routineActionPending, setRoutineActionPending] = useState(false);
-  const [expandedRoutineId, setExpandedRoutineId] = useState<string | null>(null);
 
-  const applyRoutineData = useCallback(
-    (data: RoutineDashboardData, nextExpandedRoutineId?: string | null) => {
-      setRoutines(data.routines);
-      setRoutineDefinitions(data.routineDefinitions);
-      setExpandedRoutineId((current) => {
-        if (nextExpandedRoutineId !== undefined) {
-          return nextExpandedRoutineId;
-        }
-
-        if (current && data.routines.some((routine) => routine.id === current)) {
-          return current;
-        }
-
-        return (
-          data.routines.find(
-            (routine) => routine.reminderState === "reminding",
-          )?.id ?? null
-        );
-      });
-    },
-    [],
-  );
+  const applyRoutineData = useCallback((data: RoutineDashboardData) => {
+    setRoutines(data.routines);
+    setRoutineDefinitions(data.routineDefinitions);
+  }, []);
 
   const refreshRoutineData = useCallback(async () => {
     const result = await getRoutineDashboardData();
@@ -62,7 +44,6 @@ export function useDashboardRoutines(
       setRoutineMessage(result.message);
       setRoutines([]);
       setRoutineDefinitions([]);
-      setExpandedRoutineId(null);
       setRoutineLoading(false);
       return;
     }
@@ -73,7 +54,6 @@ export function useDashboardRoutines(
 
   async function runRoutineAction(
     action: RoutineDataAction,
-    nextExpandedRoutineId: string | null,
     onFailure?: () => void,
   ) {
     setRoutineMessage(null);
@@ -88,7 +68,7 @@ export function useDashboardRoutines(
         return;
       }
 
-      applyRoutineData(result.data, nextExpandedRoutineId);
+      applyRoutineData(result.data);
     } finally {
       setRoutineActionPending(false);
     }
@@ -116,7 +96,6 @@ export function useDashboardRoutines(
   function updateRoutine(routineId: string, status: RoutineStatus) {
     const previousRoutines = routines;
 
-    setExpandedRoutineId(null);
     setRoutines((current) =>
       applyOptimisticRoutineStatus(current, routineId, status),
     );
@@ -124,8 +103,9 @@ export function useDashboardRoutines(
       () =>
         status === "completed"
           ? completeRoutineInstance(routineId)
-          : skipRoutineInstance(routineId),
-      null,
+          : status === "skipped"
+            ? skipRoutineInstance(routineId)
+            : reopenRoutineInstance(routineId),
       () => setRoutines(previousRoutines),
     );
   }
@@ -136,8 +116,6 @@ export function useDashboardRoutines(
     routineLoading,
     routineMessage,
     routineActionPending,
-    expandedRoutineId,
-    setExpandedRoutineId,
     refreshRoutineData,
     updateRoutine,
     saveRoutineFromPage: (input: RoutineInput) =>
@@ -149,7 +127,6 @@ export function useDashboardRoutines(
       setRoutineMessage(
         "Busy will snooze reminders after reminder jobs are implemented.",
       );
-      setExpandedRoutineId(null);
     },
   };
 }

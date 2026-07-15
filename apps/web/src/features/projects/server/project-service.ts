@@ -70,6 +70,22 @@ export function createProjectService(options: ProjectServiceOptions = {}) {
       });
     },
 
+    async archiveMilestone(userId: string, milestoneId: string) {
+      return projects.archiveMilestone({
+        userId,
+        milestoneId,
+        occurredAt: now(),
+      });
+    },
+
+    async archiveTask(userId: string, taskId: string) {
+      return projects.archiveTask({
+        userId,
+        taskId,
+        occurredAt: now(),
+      });
+    },
+
     async updateTaskStatus(
       userId: string,
       taskId: string,
@@ -83,18 +99,6 @@ export function createProjectService(options: ProjectServiceOptions = {}) {
       });
     },
 
-    async updateSubtaskDone(
-      userId: string,
-      subtaskId: string,
-      isDone: boolean,
-    ) {
-      return projects.updateSubtaskDone({
-        userId,
-        subtaskId,
-        isDone,
-        occurredAt: now(),
-      });
-    },
   };
 }
 

@@ -15,7 +15,7 @@ becomes clearer.
   stable owner.
 - Add session persistence and logout so login survives refresh and users can
   explicitly leave the dashboard.
-- Define projects, milestones, tasks, subtasks, routines, ideas, memories,
+- Define projects, milestones, tasks, routines, ideas, memories,
   scheduler data, reviews, and completion events.
 - Choose concrete database schema and migration tooling.
 - Define commands and events for task completion, partial completion, routine
@@ -63,3 +63,23 @@ becomes clearer.
 - Decide the production hosting model for the web app, backend, database, and
   Discord bot.
 - Add backup, sync, and account strategy when the data model is stable.
+
+## Future Infrastructure
+
+- Keep Neon PostgreSQL as the only implemented infrastructure service for now.
+- Consider Redis later as a cache, short-lived coordination store, or queue
+  helper only after a concrete performance or reminder-delivery need exists.
+  Planned Redis rules are documented in
+  [infrastructure/redis.md](infrastructure/redis.md).
+- Design event/dataflow infrastructure later; do not reference a concrete event
+  bus implementation until there is a real module and document for it.
+
+## Post-v1.0.0 Security Review
+
+- Rotate any database URLs, Neon credentials, auth secrets, API keys, and
+  deployment tokens that were pasted into chat, logs, local notes, or other
+  non-secret storage during development.
+- Confirm production uses explicit secrets such as `AUTH_SESSION_SECRET` instead
+  of development fallbacks.
+- Review ignored local files, deployment environment variables, Vercel project
+  links, and database access settings before treating the release as stable.

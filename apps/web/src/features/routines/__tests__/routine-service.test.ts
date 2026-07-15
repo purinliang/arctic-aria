@@ -111,7 +111,7 @@ test("deleted routines do not generate instances", async () => {
   assert.equal(instances.length, 0);
 });
 
-test("complete and skip update routine instance status", async () => {
+test("complete, skip, and reopen update routine instance status", async () => {
   const instance: RoutineInstanceRecord = {
     id: "instance-1",
     userId,
@@ -151,4 +151,10 @@ test("complete and skip update routine instance status", async () => {
   assert.equal(skipped?.status, "skipped");
   assert.equal(skipped?.completedAt, null);
   assert.deepEqual(skipped?.skippedAt, now);
+
+  const reopened = await service.reopenRoutineInstance(userId, "instance-1");
+
+  assert.equal(reopened?.status, "pending");
+  assert.equal(reopened?.completedAt, null);
+  assert.equal(reopened?.skippedAt, null);
 });

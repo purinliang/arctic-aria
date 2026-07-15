@@ -172,7 +172,7 @@ export async function saveProjectTask(
     const saved = await projectService.saveTask(user.id, {
       taskId: input.id,
       projectId: input.projectId,
-      milestoneId: input.milestoneId,
+      milestoneId: input.milestoneId || null,
       title: validation.title,
       description: validation.description,
       priority: input.priority,
@@ -180,7 +180,6 @@ export async function saveProjectTask(
       scheduledDate: validation.scheduledDate,
       startDate: validation.startDate,
       deadlineDate: validation.deadlineDate,
-      subtasks: validation.subtasks,
     });
 
     if (!saved) {
@@ -205,6 +204,24 @@ export async function archiveProject(
   return withProjectData(
     (userId) => projectService.archiveProject(userId, projectId),
     "Project was not found.",
+  );
+}
+
+export async function archiveMilestone(
+  milestoneId: string,
+): Promise<ProjectActionResult<ProjectDashboardData>> {
+  return withProjectData(
+    (userId) => projectService.archiveMilestone(userId, milestoneId),
+    "Milestone was not found.",
+  );
+}
+
+export async function archiveProjectTask(
+  taskId: string,
+): Promise<ProjectActionResult<ProjectDashboardData>> {
+  return withProjectData(
+    (userId) => projectService.archiveTask(userId, taskId),
+    "Task was not found.",
   );
 }
 
@@ -239,15 +256,5 @@ export async function updateProjectTaskStatus(
   return withProjectData(
     (userId) => projectService.updateTaskStatus(userId, taskId, status),
     "Task was not found.",
-  );
-}
-
-export async function updateProjectSubtaskDone(
-  subtaskId: string,
-  isDone: boolean,
-): Promise<ProjectActionResult<ProjectDashboardData>> {
-  return withProjectData(
-    (userId) => projectService.updateSubtaskDone(userId, subtaskId, isDone),
-    "Subtask was not found.",
   );
 }

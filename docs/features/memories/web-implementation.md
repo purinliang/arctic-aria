@@ -1,7 +1,9 @@
 # Memories Web Implementation
 
 This document records the current user-detectable Memories web behavior. Product
-rules are defined in [design.md](design.md).
+rules are defined in [overview.md](overview.md), data rules are defined in
+[data-model.md](data-model.md), and visible UI behavior is defined in
+[ui.md](ui.md).
 
 ## Current Scope
 
@@ -16,8 +18,7 @@ The current web implementation supports database-backed memory testing:
 - cancel pinned memory done
 - replace a pinned memory with another same-category memory when available
 
-The current project task prototype is database-backed.
-Routines are database-backed.
+Projects and Routines are database-backed.
 
 ## Current User Flow
 
@@ -26,16 +27,16 @@ The user opens the Memories page from the sidebar.
 The page should show:
 
 - memory list
-- category filter chips
-- `Add` action
-- `Categories` action
+- category filter buttons
+- `New` action
+- `Manage` action
 - suggestions panel on the right side on desktop and below the list on mobile
 
-`Add` opens memory creation UI.
+`New` opens memory creation UI.
 
 Memory `Edit` opens memory editing UI.
 
-`Categories` opens category management UI.
+`Manage` opens category management UI.
 
 ## Suggestions Panel
 
@@ -46,15 +47,15 @@ Location and alignment:
 - On desktop, the panel appears in the right column beside the memory list.
 - On mobile and narrow screens, it appears below the memory list.
 - The panel header aligns with the top of the memory list panel.
-- The panel is a single card with a border and the same radius as other
+- The panel is a single bordered panel with the same radius as other
   dashboard panels.
 
 Header:
 
-- The left side shows the `RefreshCw` icon.
+- The left side shows the `Lightbulb` icon.
 - The title text is `Suggestions`.
 - Under the title, show short muted text:
-  `Refresh saved memories when you want an option.`
+  `To reexperience in a few days.`
 - The right side shows a compact `Refresh` button.
 - The `Refresh` button includes the `RefreshCw` icon and the text `Refresh`.
 
@@ -69,9 +70,8 @@ Suggestion list:
 - Each suggestion appears as a simple row, not a nested card.
 - Each row shows:
   - title
-  - category chip
   - short description
-  - last-done text and done count
+  - supporting metadata as `category · last-done text · done count`
   - `Pin` button
 
 Button behavior:
@@ -84,8 +84,9 @@ Button behavior:
 - When `Refresh` is clicked, currently visible suggestions that were not pinned
   are recorded as ignored suggestion signals before the new list is loaded.
 - A failed `Pin` keeps the suggestion visible and shows the backend message in
-  the panel.
-- Buttons are disabled while a suggestion action is pending.
+  the shared notification stack.
+- A pending pin disables only that suggestion's action. `Refresh` is disabled
+  while suggestions are loading or while any suggestion action is pending.
 - `Pin` should refresh the database-backed memory list and dashboard pinned
   state after success.
 - `Refresh` should refresh memory list summary fields after recording ignored
@@ -111,18 +112,31 @@ The visible behavior should be deterministic:
 - Closing the dialog without saving preserves persisted data.
 - Successful save closes the dialog.
 - Successful delete closes the dialog.
-- Failed save/delete keeps the dialog open and shows the error message.
+- Failed save/delete keeps the dialog open and shows the backend message through
+  the shared notification stack.
 - After success, the memory list and category filters refresh from the database.
 - Buttons are disabled while the action is pending.
+- Memory and category editor dialogs use the shared dialog shell, shared field
+  labels, shared text inputs/text areas, shared single-choice controls, and the
+  shared list primitive for category rows.
+- Category records include optional descriptions. Manage Categories shows `New`
+  in the header row, category rows as `ListItem` title/description/metadata,
+  and `Delete` only inside the edit category dialog.
 
 ## Code Locations
 
 Memory web UI:
 
 ```text
-apps/web/src/features/dashboard/components/MemoriesPage.tsx
-apps/web/src/features/dashboard/components/Dashboard.tsx
+apps/web/src/features/memories/components/MemoriesPage.tsx
+apps/web/src/features/memories/components/MemoriesPanel.tsx
+apps/web/src/features/memories/components/SuggestionsPanel.tsx
+apps/web/src/features/memories/components/PinnedMemoriesPanel.tsx
+apps/web/src/app-shell/AppShell.tsx
 ```
+
+Memory page backend and load failures should use the shared notification stack,
+not a page-local inline message row.
 
 Memory server actions:
 
@@ -140,6 +154,7 @@ Database migration:
 
 ```text
 apps/web/database/migrations/0002_create_memories.sql
+apps/web/database/migrations/0007_add_memory_category_description.sql
 ```
 
 ## Verification

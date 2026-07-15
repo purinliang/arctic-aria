@@ -31,6 +31,7 @@ export type ProjectView = {
   timelineText: string;
   currentMilestone: string;
   progressText: string;
+  tasks: ProjectTaskView[];
   milestones: MilestoneView[];
 };
 
@@ -69,8 +70,9 @@ export type MilestoneInput = {
   title: string;
   objective: string;
   startDate: string;
+  timelineType: ProjectTimelineType;
   deadlineDate: string;
-  expectedDurationDays: string;
+  durationRange: ProjectDurationRange;
 };
 
 export type ProjectTaskInput = {
@@ -84,12 +86,6 @@ export type ProjectTaskInput = {
   scheduledDate: string;
   startDate: string;
   deadlineDate: string;
-  subtasks: Array<{
-    id?: string;
-    title: string;
-    description: string;
-    isDone: boolean;
-  }>;
 };
 
 export type ProjectDashboardData = {
@@ -193,9 +189,9 @@ export function validateProjectInput(input: ProjectInput) {
 export function validateMilestoneInput(input: MilestoneInput) {
   const title = input.title.trim();
   const objective = input.objective.trim();
-  const startDate = input.startDate.trim() || null;
-  const deadlineDate = input.deadlineDate.trim() || null;
-  const expectedDurationDays = parseOptionalInteger(input.expectedDurationDays);
+  const startDate = input.startDate.trim();
+  let deadlineDate: string | null = null;
+  let expectedDurationDays: number | null = null;
 
   if (title.length < 1 || title.length > 120) {
     return { ok: false as const, message: "Milestone title must be 1-120 characters." };
@@ -205,26 +201,32 @@ export function validateMilestoneInput(input: MilestoneInput) {
     return { ok: false as const, message: "Milestone objective must be 500 characters or fewer." };
   }
 
-  if (startDate && !validateDate(startDate)) {
+  if (!validateDate(startDate)) {
     return {
       ok: false as const,
       message: "Start date must be a real date in YYYY-MM-DD format.",
     };
   }
 
-  if (deadlineDate && !validateDate(deadlineDate)) {
-    return {
-      ok: false as const,
-      message: "Deadline date must be a real date in YYYY-MM-DD format.",
-    };
-  }
+  if (input.timelineType === "deadline") {
+    deadlineDate = input.deadlineDate.trim();
 
-  if (startDate && deadlineDate && deadlineDate < startDate) {
-    return { ok: false as const, message: "Deadline cannot be before start date." };
-  }
+    if (!deadlineDate || !validateDate(deadlineDate)) {
+      return {
+        ok: false as const,
+        message: "Deadline date must be a real date in YYYY-MM-DD format.",
+      };
+    }
 
-  if (expectedDurationDays !== null && expectedDurationDays <= 0) {
-    return { ok: false as const, message: "Expected duration must be positive." };
+    if (deadlineDate < startDate) {
+      return { ok: false as const, message: "Deadline cannot be before start date." };
+    }
+  } else {
+    expectedDurationDays = durationDaysForRange(input.durationRange);
+
+    if (!expectedDurationDays) {
+      return { ok: false as const, message: "Choose an expected duration." };
+    }
   }
 
   return {
@@ -243,14 +245,6 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
   const scheduledDate = input.scheduledDate.trim() || null;
   const startDate = input.startDate.trim() || null;
   const deadlineDate = input.deadlineDate.trim() || null;
-  const subtasks = input.subtasks
-    .map((subtask) => ({
-      id: subtask.id,
-      title: subtask.title.trim(),
-      description: subtask.description.trim(),
-      isDone: subtask.isDone,
-    }))
-    .filter((subtask) => subtask.title.length > 0);
 
   if (title.length < 1 || title.length > 120) {
     return { ok: false as const, message: "Task title must be 1-120 characters." };
@@ -273,16 +267,6 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
     return { ok: false as const, message: "Deadline cannot be before start date." };
   }
 
-  for (const subtask of subtasks) {
-    if (subtask.title.length > 120) {
-      return { ok: false as const, message: "Subtask title must be 120 characters or fewer." };
-    }
-
-    if (subtask.description.length > 2000) {
-      return { ok: false as const, message: "Subtask description must be 2000 characters or fewer." };
-    }
-  }
-
   return {
     ok: true as const,
     title,
@@ -290,12 +274,11 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
     scheduledDate,
     startDate,
     deadlineDate,
-    subtasks,
   };
 }
 
 function toProjectView(project: ProjectRecord): ProjectView {
-  const tasks = project.milestones.flatMap((milestone) => milestone.tasks);
+  const tasks = [...project.tasks].sort(compareProjectTasks);
   const doneCount = tasks.filter((task) => task.status === "done").length;
   const activeMilestone = project.milestones.find(
     (milestone) => milestone.status === "active",
@@ -318,6 +301,7 @@ function toProjectView(project: ProjectRecord): ProjectView {
         : "Open-ended",
     currentMilestone: activeMilestone?.title ?? "No active milestone",
     progressText: `${doneCount} of ${tasks.length} tasks done`,
+    tasks: tasks.map(toTaskView),
     milestones: project.milestones.map(toMilestoneView),
   };
 }
@@ -335,17 +319,15 @@ function toMilestoneView(milestone: ProjectMilestoneRecord): MilestoneView {
     deadlineDate: milestone.deadlineDate ?? "",
     expectedDurationDays: milestone.expectedDurationDays?.toString() ?? "",
     progressText: `${doneCount} of ${milestone.tasks.length} tasks done`,
-    tasks: milestone.tasks.map(toTaskView),
+    tasks: [...milestone.tasks].sort(compareProjectTasks).map(toTaskView),
   };
 }
 
 function toTaskView(task: ProjectTaskRecord): ProjectTaskView {
-  const doneCount = task.subtasks.filter((subtask) => subtask.isDone).length;
-
   return {
     id: task.id,
     projectId: task.projectId,
-    milestoneId: task.milestoneId,
+    milestoneId: task.milestoneId ?? "",
     title: task.title,
     description: task.description,
     projectLabel: task.projectTitle,
@@ -356,14 +338,6 @@ function toTaskView(task: ProjectTaskRecord): ProjectTaskView {
     scheduledDate: task.scheduledDate ?? "",
     startDate: task.startDate ?? "",
     deadlineDate: task.deadlineDate ?? "",
-    subtaskSummary: `${doneCount} of ${task.subtasks.length} subtasks done`,
-    subtasks: task.subtasks.map((subtask) => ({
-      id: subtask.id,
-      title: subtask.title,
-      description: subtask.description,
-      isDone: subtask.isDone,
-      done: subtask.isDone,
-    })),
   };
 }
 
@@ -371,18 +345,27 @@ function formatDate(date: string) {
   return dateFormatter.format(new Date(`${date}T00:00:00.000Z`));
 }
 
-function parseOptionalInteger(value: string) {
-  const trimmed = value.trim();
-
-  if (!trimmed) {
-    return null;
-  }
-
-  const parsed = Number(trimmed);
-
-  return Number.isInteger(parsed) ? parsed : Number.NaN;
-}
-
 function validateDate(value: string) {
   return isValidProjectDate(value);
+}
+
+function compareProjectTasks(
+  left: ProjectTaskRecord,
+  right: ProjectTaskRecord,
+) {
+  const statusDifference = statusSortValue(left.status) - statusSortValue(right.status);
+
+  return (
+    statusDifference ||
+    dateSortValue(left.deadlineDate) - dateSortValue(right.deadlineDate) ||
+    dateSortValue(left.startDate) - dateSortValue(right.startDate)
+  );
+}
+
+function statusSortValue(status: ProjectTaskStatus) {
+  return status === "done" ? 1 : 0;
+}
+
+function dateSortValue(date: string | null) {
+  return date ? Date.parse(date) : Number.POSITIVE_INFINITY;
 }

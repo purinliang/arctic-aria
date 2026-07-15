@@ -37,14 +37,6 @@ export async function saveProject(sql: Sql, input: SaveProjectInput) {
     return null;
   }
 
-  await sql.query(
-    `INSERT INTO project_milestones (
-       user_id, project_id, title, sort_order, created_at, updated_at
-     )
-     VALUES ($1, $2, 'Project completion', 0, $3, $3)`,
-    [input.userId, projectId, input.occurredAt],
-  );
-
   return projectId;
 }
 
@@ -92,7 +84,6 @@ export async function saveTask(sql: Sql, input: SaveProjectTaskInput) {
     return false;
   }
 
-  await replaceSubtasks(sql, input, taskId);
   return true;
 }
 
@@ -186,6 +177,10 @@ function createTaskParams(input: SaveProjectTaskInput) {
 }
 
 async function milestoneExists(sql: Sql, input: SaveProjectTaskInput) {
+  if (!input.milestoneId) {
+    return true;
+  }
+
   const rows = (await sql.query(
     `SELECT id
      FROM project_milestones
@@ -235,38 +230,4 @@ async function updateTask(sql: Sql, input: SaveProjectTaskInput) {
   )) as Array<{ id: string }>;
 
   return rows[0]?.id ?? null;
-}
-
-async function replaceSubtasks(
-  sql: Sql,
-  input: SaveProjectTaskInput,
-  taskId: string,
-) {
-  await sql`
-    DELETE FROM project_subtasks
-    WHERE user_id = ${input.userId}
-      AND task_id = ${taskId}
-  `;
-
-  for (const [index, subtask] of input.subtasks.entries()) {
-    await sql.query(
-      `INSERT INTO project_subtasks (
-         user_id, task_id, title, description, is_done, sort_order,
-         completed_at, created_at, updated_at
-       )
-       VALUES (
-         $1, $2, $3, $4, $5, $6,
-         CASE WHEN $5 THEN $7::timestamptz ELSE NULL END, $7, $7
-       )`,
-      [
-        input.userId,
-        taskId,
-        subtask.title,
-        subtask.description,
-        subtask.isDone,
-        index,
-        input.occurredAt,
-      ],
-    );
-  }
 }

@@ -99,6 +99,11 @@ export type RoutineRepository = {
     instanceId: string;
     occurredAt: Date;
   }): Promise<RoutineInstanceRecord | null>;
+  reopenRoutineInstance(input: {
+    userId: string;
+    instanceId: string;
+    occurredAt: Date;
+  }): Promise<RoutineInstanceRecord | null>;
 };
 
 export class InMemoryRoutineRepository implements RoutineRepository {
@@ -263,6 +268,14 @@ export class InMemoryRoutineRepository implements RoutineRepository {
     occurredAt: Date;
   }) {
     return this.updateInstance(input.userId, input.instanceId, "skipped", input.occurredAt);
+  }
+
+  async reopenRoutineInstance(input: {
+    userId: string;
+    instanceId: string;
+    occurredAt: Date;
+  }) {
+    return this.updateInstance(input.userId, input.instanceId, "pending", input.occurredAt);
   }
 
   private updateInstance(

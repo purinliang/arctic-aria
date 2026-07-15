@@ -1,6 +1,9 @@
+// Projects Page.
+import { Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import type { SetStateAction } from "react";
-import { InlineMessage } from "@/components/ui/text";
+import type { Dispatch, SetStateAction } from "react";
+import { ConfirmDialog } from "@/components/dialog";
+import { InlineMessage } from "@/components/text";
 import type { TaskStatus } from "@/features/dashboard/types";
 import type {
   MilestoneInput,
@@ -21,24 +24,32 @@ import {
   emptyProjectDraft,
   emptyTaskDraft,
   milestoneToDraft,
-  projectToDraft,
   taskToDraft,
 } from "./project-page-helpers";
 
 type ProjectResult = Promise<boolean>;
+type ConfirmationTarget = {
+  type: "project" | "milestone" | "task";
+  id: string;
+  title: string;
+};
 
 export function ProjectsPage({
   darkMode,
   projects,
   loading,
   pending,
+  projectDraft,
+  setProjectDraft,
   message,
   selectedProjectId,
   onProjectSave,
+  onProjectDelete,
   onMilestoneSave,
+  onMilestoneDelete,
   onTaskSave,
+  onTaskDelete,
   onTaskStatus,
-  onSubtaskToggle,
   onProjectSelect,
   onMessageClear,
 }: {
@@ -46,24 +57,29 @@ export function ProjectsPage({
   projects: ProjectView[];
   loading: boolean;
   pending: boolean;
+  projectDraft: ProjectInput | null;
+  setProjectDraft: Dispatch<SetStateAction<ProjectInput | null>>;
   message: string | null;
   selectedProjectId: string | null;
   onProjectSave: (input: ProjectInput) => ProjectResult;
+  onProjectDelete: (projectId: string) => ProjectResult;
   onMilestoneSave: (input: MilestoneInput) => ProjectResult;
+  onMilestoneDelete: (milestoneId: string) => ProjectResult;
   onTaskSave: (input: ProjectTaskInput) => ProjectResult;
+  onTaskDelete: (taskId: string) => ProjectResult;
   onTaskStatus: (
     taskId: string,
     status: Exclude<TaskStatus, "archived">,
-  ) => ProjectResult;
-  onSubtaskToggle: (subtaskId: string, done: boolean) => ProjectResult;
+  ) => void;
   onProjectSelect: (projectId: string | null) => void;
   onMessageClear: () => void;
 }) {
-  const [projectDraft, setProjectDraft] = useState<ProjectInput | null>(null);
   const [milestoneDraft, setMilestoneDraft] = useState<MilestoneInput | null>(
     null,
   );
   const [taskDraft, setTaskDraft] = useState<ProjectTaskInput | null>(null);
+  const [confirmationTarget, setConfirmationTarget] =
+    useState<ConfirmationTarget | null>(null);
   const selectedProject = useMemo(
     () =>
       selectedProjectId
@@ -83,6 +99,7 @@ export function ProjectsPage({
       setProjectDraft(null);
       setMilestoneDraft(null);
       setTaskDraft(null);
+      setConfirmationTarget(null);
       onMessageClear();
     }
   }
@@ -106,13 +123,7 @@ export function ProjectsPage({
   function updateTaskDraft(next: SetStateAction<ProjectTaskInput>) {
     setTaskDraft((current) =>
       typeof next === "function"
-        ? next(
-            current ??
-              emptyTaskDraft(
-                selectedProject?.id ?? "",
-                selectedProject?.milestones[0]?.id ?? "",
-              ),
-          )
+        ? next(current ?? emptyTaskDraft(selectedProject?.id ?? ""))
         : next,
     );
   }
@@ -153,6 +164,38 @@ export function ProjectsPage({
     }
   }
 
+  async function confirmDelete() {
+    if (!confirmationTarget) {
+      return;
+    }
+
+    const deleted =
+      confirmationTarget.type === "project"
+        ? await onProjectDelete(confirmationTarget.id)
+        : confirmationTarget.type === "milestone"
+          ? await onMilestoneDelete(confirmationTarget.id)
+          : await onTaskDelete(confirmationTarget.id);
+
+    if (!deleted) {
+      return;
+    }
+
+    if (confirmationTarget.type === "project") {
+      onProjectSelect(null);
+      setProjectDraft(null);
+    }
+
+    if (confirmationTarget.type === "milestone") {
+      setMilestoneDraft(null);
+    }
+
+    if (confirmationTarget.type === "task") {
+      setTaskDraft(null);
+    }
+
+    setConfirmationTarget(null);
+  }
+
   return (
     <>
       <div className="grid gap-3">
@@ -167,10 +210,6 @@ export function ProjectsPage({
             darkMode={darkMode}
             pending={pending}
             project={selectedProject}
-            onEditProject={(project) => {
-              onMessageClear();
-              setProjectDraft(projectToDraft(project));
-            }}
             onAddMilestone={(projectId) => {
               onMessageClear();
               setMilestoneDraft(emptyMilestoneDraft(projectId));
@@ -179,18 +218,15 @@ export function ProjectsPage({
               onMessageClear();
               setMilestoneDraft(milestoneToDraft(milestone));
             }}
-            onAddTask={(projectId, milestoneId) => {
+            onAddTask={(projectId) => {
               onMessageClear();
-              setTaskDraft(emptyTaskDraft(projectId, milestoneId));
+              setTaskDraft(emptyTaskDraft(projectId));
             }}
             onEditTask={(task: ProjectTaskView) => {
               onMessageClear();
               setTaskDraft(taskToDraft(task));
             }}
-            onTaskStatus={(taskId, status) => void onTaskStatus(taskId, status)}
-            onSubtaskToggle={(subtaskId, done) =>
-              void onSubtaskToggle(subtaskId, done)
-            }
+            onTaskStatus={onTaskStatus}
           />
         ) : (
           <ProjectsList
@@ -211,11 +247,20 @@ export function ProjectsPage({
         <ProjectEditorDialog
           darkMode={darkMode}
           pending={pending}
-          message={message}
           draft={projectDraft}
           setDraft={updateProjectDraft}
           onClose={closeDialogs}
           onSubmit={() => void submitProject()}
+          onDelete={
+            projectDraft.id
+              ? () =>
+                  setConfirmationTarget({
+                    type: "project",
+                    id: projectDraft.id ?? "",
+                    title: projectDraft.title || "this project",
+                  })
+              : undefined
+          }
         />
       ) : null}
 
@@ -223,11 +268,20 @@ export function ProjectsPage({
         <MilestoneEditorDialog
           darkMode={darkMode}
           pending={pending}
-          message={message}
           draft={milestoneDraft}
           setDraft={updateMilestoneDraft}
           onClose={closeDialogs}
           onSubmit={() => void submitMilestone()}
+          onDelete={
+            milestoneDraft.id
+              ? () =>
+                  setConfirmationTarget({
+                    type: "milestone",
+                    id: milestoneDraft.id ?? "",
+                    title: milestoneDraft.title || "this milestone",
+                  })
+              : undefined
+          }
         />
       ) : null}
 
@@ -235,11 +289,37 @@ export function ProjectsPage({
         <ProjectTaskEditorDialog
           darkMode={darkMode}
           pending={pending}
-          message={message}
           draft={taskDraft}
+          milestones={selectedProject?.milestones ?? []}
           setDraft={updateTaskDraft}
           onClose={closeDialogs}
           onSubmit={() => void submitTask()}
+          onDelete={
+            taskDraft.id
+              ? () =>
+                  setConfirmationTarget({
+                    type: "task",
+                    id: taskDraft.id ?? "",
+                    title: taskDraft.title || "this task",
+                  })
+              : undefined
+          }
+        />
+      ) : null}
+
+      {confirmationTarget ? (
+        <ConfirmDialog
+          darkMode={darkMode}
+          pending={pending}
+          title={`Delete ${confirmationTarget.type}`}
+          description={`Delete "${confirmationTarget.title}"? It will be removed from normal views.`}
+          confirmIcon={<Trash2 size={14} aria-hidden="true" />}
+          onCancel={() => {
+            if (!pending) {
+              setConfirmationTarget(null);
+            }
+          }}
+          onConfirm={() => void confirmDelete()}
         />
       ) : null}
     </>

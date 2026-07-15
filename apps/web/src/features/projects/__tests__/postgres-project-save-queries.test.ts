@@ -52,7 +52,6 @@ const taskInput: SaveProjectTaskInput = {
   scheduledDate: "2026-07-14",
   startDate: null,
   deadlineDate: null,
-  subtasks: [],
   occurredAt,
 };
 
@@ -60,6 +59,10 @@ test("project creation queries use contiguous SQL parameters", async () => {
   const { records, sql } = createSqlStub();
 
   assert.equal(await saveProject(sql, projectInput), "project-1");
+  assert.equal(
+    records.some((record) => record.text.includes("INSERT INTO project_milestones")),
+    false,
+  );
   assertQueriesUseContiguousParams(records);
 });
 
@@ -74,6 +77,17 @@ test("task creation queries use contiguous SQL parameters", async () => {
   const { records, sql } = createSqlStub();
 
   assert.equal(await saveTask(sql, taskInput), true);
+  assertQueriesUseContiguousParams(records);
+});
+
+test("task creation can omit milestone lookup", async () => {
+  const { records, sql } = createSqlStub();
+
+  assert.equal(await saveTask(sql, { ...taskInput, milestoneId: null }), true);
+  assert.equal(
+    records.some((record) => record.text.includes("FROM project_milestones")),
+    false,
+  );
   assertQueriesUseContiguousParams(records);
 });
 
