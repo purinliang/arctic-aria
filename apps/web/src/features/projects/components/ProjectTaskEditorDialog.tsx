@@ -10,7 +10,7 @@ import {
   DialogPrimaryButton,
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
-import { CheckboxField, SelectInput } from "@/components/forms/selection-field";
+import { SelectInput } from "@/components/forms/selection-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import type {
   ProjectTaskInput,
@@ -193,20 +193,6 @@ function TaskMeta({
             }
           />
         </FieldLabel>
-      </div>
-      <div className="grid gap-3">
-        <CheckboxField
-          darkMode={darkMode}
-          label="Done"
-          checked={draft.status === "done"}
-          disabled={pending}
-          onChange={(event) =>
-            setDraft((current) => ({
-              ...current,
-              status: event.target.checked ? "done" : "todo",
-            }))
-          }
-        />
       </div>
     </>
   );

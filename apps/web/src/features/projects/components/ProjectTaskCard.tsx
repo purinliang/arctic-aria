@@ -41,7 +41,7 @@ export function ProjectTaskCard({
             >
               <span>{task.projectLabel}</span>
               <span>{task.milestoneLabel}</span>
-              <span>Deadline {task.deadline}</span>
+              <span>{deadlineText(task.deadline)}</span>
             </div>
           </div>
           <ChevronDown
@@ -78,4 +78,8 @@ export function ProjectTaskCard({
       </div>
     </ExpandableListItem>
   );
+}
+
+function deadlineText(deadline: string) {
+  return deadline === "No deadline" ? deadline : `Deadline ${deadline}`;
 }

@@ -244,10 +244,12 @@ overlaps:
 `ProjectTaskEditorDialog` uses its own vertical dialog layout:
 
 - basics group: title, description
-- meta group: milestone selector, start date, deadline, `Done` checkbox
+- meta group: milestone selector, start date, deadline
 - milestone selector defaults to the milestone named `Completion`; if it does
   not exist, fall back to the first active milestone, then the first milestone
 - do not render a scheduled date field in the task dialog
+- do not render done/not-done controls in the task dialog; completion belongs
+  to task rows and dashboard task cards
 - do not render priority, status tag, or child checklist fields in the task
   dialog
 

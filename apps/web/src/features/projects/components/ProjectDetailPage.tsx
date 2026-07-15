@@ -265,7 +265,7 @@ function ProjectTaskRow({
             <span className="text-sm font-semibold">{task.title}</span>
           </div>
           <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
-            {milestoneTitle} · Deadline {task.deadline}
+            {milestoneTitle} · {deadlineText(task.deadline)}
           </p>
         </div>
         <Button
@@ -279,4 +279,8 @@ function ProjectTaskRow({
       </div>
     </div>
   );
+}
+
+function deadlineText(deadline: string) {
+  return deadline === "No deadline" ? deadline : `Deadline ${deadline}`;
 }

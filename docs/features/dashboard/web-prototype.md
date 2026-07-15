@@ -142,6 +142,12 @@ Task card behavior:
 - Expanded details should show task description and available actions.
 - Partial completion should not appear in the current task UI.
 
+Future dashboard cleanup:
+
+- Routine, pinned memory, and dashboard task `Done` controls should use the
+  same checkbox-left-of-title UI direction as Project task rows, instead of a
+  separate strong green primary button style.
+
 ## Interactions
 
 The dashboard should support:

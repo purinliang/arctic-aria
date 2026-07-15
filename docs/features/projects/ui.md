@@ -305,7 +305,6 @@ New task fields:
 - milestone selector, defaulting to `Completion`
 - start date
 - deadline date
-- done checkbox
 - prerequisite tasks
 
 Do not show:
@@ -313,6 +312,7 @@ Do not show:
 - priority selector or priority tag
 - task status tag or multi-status selector
 - block/skip task actions
+- done/not-done selector inside add/edit dialogs
 - scheduled date field
 - editable numeric progress fields
 - colored tag chips
