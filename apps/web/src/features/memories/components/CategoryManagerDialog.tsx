@@ -87,7 +87,7 @@ export function CategoryManagerDialog({
             icon={<Plus size={14} aria-hidden="true" />}
             onClick={onOpenNew}
           >
-            New category
+            New
           </Button>
           <div className={`mt-3 ${dividerClass(darkMode)}`}>
             {categories.map((category) => (

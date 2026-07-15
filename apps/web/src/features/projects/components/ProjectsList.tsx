@@ -33,12 +33,11 @@ export function ProjectsList({
         action={
           <Button
             darkMode={darkMode}
-            tone="primary"
             disabled={pending}
             icon={<Plus size={15} aria-hidden="true" />}
             onClick={onAddProject}
           >
-            Add project
+            New
           </Button>
         }
       />

@@ -27,11 +27,11 @@ The page should show:
 
 - memory list
 - category filter chips
-- `Add` action
+- `New` action
 - `Categories` action
 - suggestions panel on the right side on desktop and below the list on mobile
 
-`Add` opens memory creation UI.
+`New` opens memory creation UI.
 
 Memory `Edit` opens memory editing UI.
 

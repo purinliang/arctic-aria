@@ -90,7 +90,7 @@ The title section is at the top of the Memories page.
 Layout:
 
 - Left side: Lucide `ClipboardList` icon, title, and description.
-- Right side: `Add` button with a plus icon.
+- Right side: `New` button with a plus icon, using secondary styling.
 - The title text is `Memories`.
 - The description text is `Saved experiences to revisit when the day needs a gentle option.`
 
@@ -297,7 +297,7 @@ show weights in the edit list because they are internal.
 
 ### Add a New Category
 
-Clicking `New category` should open an add-category dialog. Use the same style
+Clicking `New` should open an add-category dialog. Use the same style
 as the Add Memory dialog.
 
 Use a clear label: `Category name`.

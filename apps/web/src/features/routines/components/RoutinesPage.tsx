@@ -175,7 +175,7 @@ function RoutinesPageHeader({
         icon={<Plus size={15} aria-hidden="true" />}
         onClick={onAdd}
       >
-        Add
+        New
       </Button>
     </div>
   );

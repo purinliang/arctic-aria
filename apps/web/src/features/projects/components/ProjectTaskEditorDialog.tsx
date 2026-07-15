@@ -315,7 +315,7 @@ function TaskSubtasks({
           }))
         }
       >
-        Add subtask
+        New subtask
       </Button>
     </div>
   );

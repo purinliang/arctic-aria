@@ -84,7 +84,7 @@ Top section:
 
 - title: `Projects`
 - description: `Track long-running goals and the tasks that move them forward.`
-- primary action: `Add project`
+- header action: `New` with `Plus`, using secondary button styling
 
 Main content:
 
@@ -123,16 +123,16 @@ Page layout:
 
 - parent surface: one shared `Panel`
 - direction: vertical
-- top header: title and description on the left, `Add project` on the right
+- top header: title and description on the left, `New` on the right
 - project list: vertical list of project cards
-- project creation: `Add project` opens the project editor dialog
+- project creation: `New` opens the project editor dialog
 
 Project list layout:
 
 - parent section direction: vertical
 - header direction: horizontal with wrapping
 - header left group: `Projects` title, then description below it
-- header right group: `Add project` button with `Plus`
+- header right group: `New` button with `Plus`, not primary
 - list direction: vertical
 - project item first line: title, status tag, priority tag
 - project item second line: truncated description
@@ -256,7 +256,7 @@ Detail page layout:
 - left and right panels keep independent content-driven heights
 - left panel: milestone/task/subtask tree
 - right panel: project overview
-- left card: `Milestones` card with icon, supporting text, and `Add milestone`
+- left card: `Milestones` card with icon, supporting text, and `New`
 - right card: `Overview` with `Edit project`
 - overview metadata group: title, status, description, priority, start date, and
   deadline or duration
@@ -266,9 +266,10 @@ Detail page layout:
 - milestone card header direction: horizontal with wrapping
 - milestone header left group: title and status tag, then objective or progress
   text
-- milestone header right group: `Edit` with `Edit3`, then `Add task` with
-  `Plus`
+- milestone header right group: `Edit` with `Edit3`
 - task rows appear vertically under their milestone
+- task create action appears below that milestone's existing task rows as
+  `New task` with `Plus`
 - task row left group: title, status tag, priority tag, then subtask summary and
   deadline
 - task row right group: `Done` with `Check`, then `Edit`
@@ -325,7 +326,7 @@ project in detail.
 
 Tasks belong under milestones.
 
-Add task fields:
+New task fields:
 
 - title
 - description

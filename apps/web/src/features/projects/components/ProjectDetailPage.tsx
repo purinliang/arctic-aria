@@ -67,7 +67,7 @@ export function ProjectDetailPage({
                 icon={<Plus size={14} aria-hidden="true" />}
                 onClick={() => onAddMilestone(project.id)}
               >
-                Add milestone
+                New
               </Button>
             }
           />
@@ -98,15 +98,6 @@ export function ProjectDetailPage({
                     >
                       Edit
                     </Button>
-                    <Button
-                      darkMode={darkMode}
-                      size="xs"
-                      disabled={pending}
-                      icon={<Plus size={13} aria-hidden="true" />}
-                      onClick={() => onAddTask(project.id, milestone.id)}
-                    >
-                      Add task
-                    </Button>
                   </div>
                 </div>
                 <div className="mt-3 grid gap-2">
@@ -126,6 +117,16 @@ export function ProjectDetailPage({
                       onSubtaskToggle={onSubtaskToggle}
                     />
                   ))}
+                  <Button
+                    darkMode={darkMode}
+                    size="xs"
+                    className="justify-self-start"
+                    disabled={pending}
+                    icon={<Plus size={13} aria-hidden="true" />}
+                    onClick={() => onAddTask(project.id, milestone.id)}
+                  >
+                    New task
+                  </Button>
                 </div>
               </ListItem>
             ))}

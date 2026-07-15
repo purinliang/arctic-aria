@@ -50,11 +50,15 @@ The first Routines page should allow the user to:
 
 - view routine definitions
 - view recent or upcoming instances
-- add a routine
+- create a routine from a `New` header button
 - edit a routine
 - delete a routine
 - choose a recurrence rule
 - choose a preferred reminder time
+
+The `Routines` page header action should be a secondary `New` button with a
+plus icon. Do not label this button `Add` or `New routine`, because the card
+title already says `Routines`.
 
 Use the same modal direction as the Memories add/edit dialogs and category
 add/edit dialogs so routine management feels consistent with existing

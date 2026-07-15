@@ -51,7 +51,7 @@ The Projects page should show:
 
 - project list
 - milestone summaries inside each project list item
-- `Add project` action
+- `New` action
 
 The Project detail page should show:
 
@@ -60,7 +60,7 @@ The Project detail page should show:
 - milestone, task, and subtask tree
 - project, milestone, and task add/edit actions
 
-`Add project` should open project creation.
+`New` should open project creation.
 
 Project creation and editing should use one `Description` textarea instead of
 separate objective and importance fields. The prompt should guide the user to
@@ -146,7 +146,7 @@ Top header:
 
 - parent layout: horizontal flex with wrapping
 - left group: `Projects` title, then the descriptive sentence below it
-- right group: primary `Add project` button
+- right group: secondary `New` button
 - icon: `Plus`
 
 List body:
@@ -185,7 +185,7 @@ Project header:
 Action row:
 
 - layout: horizontal flex with wrapping
-- actions: `Edit project`, then `Add milestone`
+- actions: `Edit project`, then `New`
 - icons: `Edit3`, `Plus`
 
 Milestone list:
@@ -194,8 +194,10 @@ Milestone list:
 - milestone parent component: shared `ListItem` with block layout
 - milestone header layout: horizontal flex with wrapping
 - milestone left group: title, status `Tag`, then objective or progress text
-- milestone right group: `Edit` with `Edit3`, then `Add task` with `Plus`
+- milestone right group: `Edit` with `Edit3`
 - task rows append vertically below the milestone header
+- task create action appears below that milestone's existing task rows as
+  `New task` with `Plus`
 
 Task row layout inside a milestone:
 
@@ -248,7 +250,7 @@ overlaps:
 - subtasks group: vertical subtask cards
 - subtask card first row: title input, `Done` checkbox, `Remove` with `X`
 - subtask card second row: description input
-- bottom action: `Add subtask` with `Plus`
+- bottom action: `New subtask` with `Plus`
 
 ### Dashboard Project Task Card Layout
 

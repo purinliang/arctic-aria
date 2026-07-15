@@ -75,6 +75,13 @@ Buttons support:
 
 Feature pages should not define local button class helpers.
 
+Create buttons in card or panel headers should use secondary styling and the
+label `New` when the header title already names the object being created, such
+as `Projects`, `Routines`, `Memories`, or `Milestones`. Do not use primary
+styling for these header create buttons. Use a more specific label, such as
+`New task`, only when the surrounding row or section does not already name the
+created object clearly.
+
 ## Input Field
 
 `forms/input-field.tsx` owns the appearance of single-line text inputs and
