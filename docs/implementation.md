@@ -1,9 +1,13 @@
 # Implementation
 
-This document records the current Arctic Aria implementation and the intended
-technical direction. Product ownership is documented in
-[architecture.md](architecture.md). Feature behavior is documented under
-[features/](features/).
+This document is the implementation overview for Arctic Aria. It records what is
+implemented, where the code lives, which docs own the detailed rules, and which
+technical directions are still planned.
+
+Product responsibilities are documented in [architecture.md](architecture.md).
+Feature behavior is documented under [features/](features/). Persistence,
+credential, and data-protection policy are documented in
+[infrastructure/database.md](infrastructure/database.md).
 
 ## Current Status
 
@@ -11,16 +15,15 @@ The only implemented app is the Next.js web app in `apps/web`.
 
 Implemented:
 
-- username/password auth
-- signed 30-day auth session cookie
+- username/password auth with signed 30-day session cookies
 - authenticated app shell with sidebar, theme, page title bar, and shared
   notification stack
-- database-backed dashboard panels
-- database-backed Projects, Milestones, and Tasks
-- database-backed Routines and routine instances
-- database-backed Memories, categories, suggestions, and pinned memories
+- Dashboard panels for project tasks, routines, and pinned memories
+- Projects, Milestones, and Tasks
+- Routines and routine instances
+- Memories, categories, suggestions, and pinned memories
 - shared web UI primitives and form controls
-- Neon PostgreSQL migrations and direct SQL repositories
+- SQL migrations and direct SQL repositories
 - focused Node test coverage for validation, services, repositories, database
   helpers, and selected action helpers
 
@@ -42,7 +45,7 @@ as [user-story.md](user-story.md), [roadmap.md](roadmap.md), and feature
 overview files. Do not delete future requirements only because the current web
 slice has not implemented them yet.
 
-## Current Technology
+## Technology Snapshot
 
 Web app:
 
@@ -55,16 +58,9 @@ Web app:
 Backend inside the web app:
 
 - Next.js server actions
-- direct SQL through `@neondatabase/serverless`
-- repository/service modules under each feature
-- shared Neon database client in `apps/web/src/server/database`
-
-Auth and security:
-
-- `bcryptjs` for password hashing
-- signed HTTP-only session cookie
-- `AUTH_SESSION_SECRET` for production session signing
-- `NEON_POSTGRES_URL` as the single web database URL variable
+- feature-local services and repositories
+- direct SQL repository adapters
+- shared database connection helper
 
 Verification:
 
@@ -73,7 +69,7 @@ Verification:
 - Next.js production build through `pnpm build`
 - migration runner through `pnpm db:migrate`
 
-## Current Repository Structure
+## Repository Shape
 
 The repository is intentionally smaller than the future target. There is no
 root `package.json`, no root `pnpm-workspace.yaml`, and no shared package
@@ -119,7 +115,7 @@ arctic-aria/
 `-- AGENTS.md
 ```
 
-## Current Web Code Organization
+## Web Code Organization
 
 `apps/web/src/app` owns Next.js route entry points, global CSS, layout, and the
 404 page.
@@ -176,68 +172,67 @@ business rules for projects, routines, or memories.
 `apps/web/src/server/database` owns shared database connection helpers. Feature
 repositories should import the database client; UI components should not.
 
-## Data And Persistence
+## Implementation References
 
-Persistence policy lives in [infrastructure/database.md](infrastructure/database.md).
-Feature schemas and constraints live in each feature `data-model.md`. This file
-only records the implementation entry points.
+Current feature implementation docs:
 
-Current database entry points:
+- [features/auth/web-implementation.md](features/auth/web-implementation.md)
+- [features/dashboard/web-implementation.md](features/dashboard/web-implementation.md)
+- [features/memories/web-implementation.md](features/memories/web-implementation.md)
+- [features/projects/web-implementation.md](features/projects/web-implementation.md)
+- [features/routines/web-implementation.md](features/routines/web-implementation.md)
 
-- shared Neon client: `apps/web/src/server/database/neon.ts`
-- migration directory: `apps/web/database/migrations`
-- migration runner: `apps/web/scripts/migrate.mjs`
-- feature repositories: `apps/web/src/features/<feature>/server`
+Current feature data-model docs:
 
-Run migrations from `apps/web`:
+- [features/auth/data-model.md](features/auth/data-model.md)
+- [features/memories/data-model.md](features/memories/data-model.md)
+- [features/projects/data-model.md](features/projects/data-model.md)
+- [features/routines/data-model.md](features/routines/data-model.md)
 
-```bash
-pnpm db:migrate
-```
+Shared web docs:
 
-From the repository root:
+- [ui.md](ui.md)
+- [web/ui-components.md](web/ui-components.md)
+- [web/sidebar.md](web/sidebar.md)
+- [web/sidebar-ui.md](web/sidebar-ui.md)
+- [web/theme.md](web/theme.md)
 
-```bash
-pnpm --dir apps/web db:migrate
-```
+Infrastructure docs:
 
-The migration runner and web app read `NEON_POSTGRES_URL`. Local `.env*` files
-must stay untracked.
+- [infrastructure/database.md](infrastructure/database.md)
+- [infrastructure/redis.md](infrastructure/redis.md)
 
-## Delete And Archive Strategy
+## Current Entry Points
 
-Delete and archive rules are documented in
-[infrastructure/database.md](infrastructure/database.md) and the owning feature
-`data-model.md`. Do not add a new delete command without updating those docs.
+Auth entry points:
 
-## Credential And Data Protection
+- `apps/web/src/features/auth/components/AuthGate.tsx`
+- `apps/web/src/features/auth/actions.ts`
+- `apps/web/src/features/auth/server`
 
-Credential and product-data protection rules are documented in
-[infrastructure/database.md](infrastructure/database.md) and
-[features/auth/data-model.md](features/auth/data-model.md). Implementation
-entry points are `apps/web/src/features/auth/server/password.ts` and
-`apps/web/src/features/auth/server/session.ts`.
+App shell entry points:
 
-## Infrastructure Direction
+- `apps/web/src/app-shell/AppShell.tsx`
+- `apps/web/src/app-shell/Sidebar.tsx`
 
-Implemented infrastructure:
+Feature page and panel entry points:
 
-- Neon PostgreSQL
-- SQL migration runner
+- `apps/web/src/features/dashboard/components/Dashboard.tsx`
+- `apps/web/src/features/projects/components/ProjectsPage.tsx`
+- `apps/web/src/features/projects/components/ProjectDetailPage.tsx`
+- `apps/web/src/features/routines/components/RoutinesPage.tsx`
+- `apps/web/src/features/routines/components/RoutinesPanel.tsx`
+- `apps/web/src/features/memories/components/MemoriesPage.tsx`
+- `apps/web/src/features/memories/components/PinnedMemoriesPanel.tsx`
 
-Planned infrastructure:
+Persistence entry points:
 
-- Redis for cache, rate limiting, idempotency keys, or short-lived coordination
-  after a measured need appears
-- background jobs for reminders, plugin work, and notification delivery
-- event/dataflow support after reminder, review, and plugin flows become clear
-- deployment environment management
+- `apps/web/src/server/database/neon.ts`
+- `apps/web/database/migrations`
+- `apps/web/scripts/migrate.mjs`
+- `apps/web/src/features/<feature>/server`
 
-Redis planning is documented in [infrastructure/redis.md](infrastructure/redis.md).
-Redis must not become the source of truth for product data. The backend should
-remain stateless across requests; Redis may hold rebuildable ephemeral state.
-
-## Future Repository Direction
+## Future Direction
 
 Keep the current single web app structure until another implemented surface
 needs shared code.
@@ -251,6 +246,14 @@ Add shared packages only when they remove real duplication:
 - `packages/database` only if database access becomes shared by multiple apps or
   workers
 - `packages/ui` only if another web surface needs the same component library
+
+Planned infrastructure:
+
+- Redis for cache, rate limiting, idempotency keys, or short-lived coordination
+  after a measured need appears
+- background jobs for reminders, plugin work, and notification delivery
+- event/dataflow support after reminder, review, and plugin flows become clear
+- deployment environment management
 
 The Discord bot should likely use TypeScript and `discord.js` because it will
 share command contracts with the web app. Python remains a good fit for future
