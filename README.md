@@ -65,8 +65,10 @@ too complicated.
 - [docs/features/overview.md](docs/features/overview.md): first feature model
   for settings, projects, milestones, tasks, routines, daily plans, ideas,
   memories, and reviews.
-- [docs/features/settings/design.md](docs/features/settings/design.md):
+- [docs/features/settings/overview.md](docs/features/settings/overview.md):
   user-facing settings and preference rules.
+- [docs/features/auth/overview.md](docs/features/auth/overview.md):
+  auth product rules for registration, login, sessions, and future OAuth.
 - [docs/features/auth/data-model.md](docs/features/auth/data-model.md):
   auth persistence, validation, and database constraints.
 - [docs/features/projects/overview.md](docs/features/projects/overview.md):
@@ -75,12 +77,14 @@ too complicated.
   project feature data model and database direction.
 - [docs/features/projects/ui.md](docs/features/projects/ui.md): project
   and task UI behavior.
-- [docs/features/routines/design.md](docs/features/routines/design.md):
+- [docs/features/routines/overview.md](docs/features/routines/overview.md):
   routine product rules and data behavior.
 - [docs/features/routines/data-model.md](docs/features/routines/data-model.md):
   routine persistence, validation, and database constraints.
 - [docs/features/routines/web-implementation.md](docs/features/routines/web-implementation.md):
   current web routine implementation notes.
+- [docs/features/memories/overview.md](docs/features/memories/overview.md):
+  memory product rules and suggestion behavior.
 - [docs/features/memories/data-model.md](docs/features/memories/data-model.md):
   memory persistence, validation, and database constraints.
 - [docs/features/dashboard/ui.md](docs/features/dashboard/ui.md): current

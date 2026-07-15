@@ -1,7 +1,7 @@
 # Memories UI
 
 This document describes user-visible Memories UI behavior. Product rules,
-tables, and recommendation behavior are documented in [design.md](design.md)
+tables, and recommendation behavior are documented in [overview.md](overview.md)
 and [data-model.md](data-model.md).
 
 ## Dashboard

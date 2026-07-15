@@ -1,7 +1,7 @@
 # User UI
 
 This document describes user-visible auth UI behavior. Product rules,
-validation, and persistence behavior are documented in [design.md](design.md)
+validation, and persistence behavior are documented in [overview.md](overview.md)
 and [data-model.md](data-model.md).
 
 ## Session Loading State

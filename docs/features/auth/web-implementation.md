@@ -1,7 +1,7 @@
 # Auth Implementation Notes
 
 This note records the current username and password auth implementation in the
-Next.js web app. Product rules live in [design.md](design.md), data rules live
+Next.js web app. Product rules live in [overview.md](overview.md), data rules live
 in [data-model.md](data-model.md), and UI rules live in [ui.md](ui.md).
 
 ## Current Status

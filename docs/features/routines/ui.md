@@ -1,7 +1,7 @@
 # Routines UI
 
 This document describes user-visible Routine UI behavior. Product rules and
-table attributes are documented in [design.md](design.md) and
+table attributes are documented in [overview.md](overview.md) and
 [data-model.md](data-model.md).
 
 ## Dashboard

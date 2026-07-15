@@ -28,16 +28,17 @@ The first feature model should not include:
 - infrastructure event/dataflow design
 - Discord-specific message details
 
-Detailed user registration and login rules are documented in
-[auth/design.md](auth/design.md), with persistence details in
-[auth/data-model.md](auth/data-model.md). User settings are documented in
-[settings/design.md](settings/design.md). Project and task rules are documented
-in [projects/overview.md](projects/overview.md), with persistence details in
-[projects/data-model.md](projects/data-model.md). Routine rules are documented
-in [routines/design.md](routines/design.md), with persistence details in
-[routines/data-model.md](routines/data-model.md). Memory rules are documented in
-[memories/design.md](memories/design.md), with persistence details in
-[memories/data-model.md](memories/data-model.md).
+Detailed feature docs:
+
+- Auth rules: [auth/overview.md](auth/overview.md)
+- Auth persistence: [auth/data-model.md](auth/data-model.md)
+- Settings rules: [settings/overview.md](settings/overview.md)
+- Project and task rules: [projects/overview.md](projects/overview.md)
+- Project and task persistence: [projects/data-model.md](projects/data-model.md)
+- Routine rules: [routines/overview.md](routines/overview.md)
+- Routine persistence: [routines/data-model.md](routines/data-model.md)
+- Memory rules: [memories/overview.md](memories/overview.md)
+- Memory persistence: [memories/data-model.md](memories/data-model.md)
 
 ## User
 
@@ -164,7 +165,7 @@ A routine is repeatable daily-life work. It is not a project and should not use
 the project hierarchy.
 
 Detailed routine behavior is documented in
-[routines/design.md](routines/design.md).
+[routines/overview.md](routines/overview.md).
 
 `routines` should store:
 
@@ -327,7 +328,7 @@ The first model should include:
   and delete actions
 
 Detailed behavior and table attributes are documented in
-[memories/design.md](memories/design.md).
+[memories/overview.md](memories/overview.md).
 
 ## Completion Events
 

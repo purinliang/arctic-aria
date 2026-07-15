@@ -1,7 +1,7 @@
 # Memories Data Model
 
 This document defines memory persistence, backend validation, and database
-constraints. Product behavior is documented in [design.md](design.md), and UI
+constraints. Product behavior is documented in [overview.md](overview.md), and UI
 behavior is documented in [ui.md](ui.md).
 
 ## Validation And Consistency
