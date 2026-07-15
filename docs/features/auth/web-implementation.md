@@ -79,12 +79,10 @@ apps/web/src/server/database/__tests__/neon.test.ts
 Use `apps/web/src/features/auth/validation.ts` as the implementation source for
 both frontend and backend auth field validation.
 
-Current rules:
+Current typing rules:
 
-- Username is required.
 - Username must be 4 to 16 characters.
 - Username must contain visible non-blank ASCII characters only.
-- Password is required.
 - Password must be 8 to 32 characters.
 - Password must contain visible non-blank ASCII characters only.
 - Repeated password must match password during sign up.
@@ -92,6 +90,15 @@ Current rules:
 - A provided display name is trimmed before validation.
 - A provided display name must be 1 to 24 characters.
 - Display name can contain UTF-8 text and blanks inside the trimmed value.
+
+Current submit-required rules:
+
+- Username is required.
+- Password is required.
+- Repeated password is required during sign up.
+- Required-empty field bubbles use direct messages such as
+  `Username can't be empty.` and appear only after the user clicks the relevant
+  submit button.
 
 The database cannot validate the raw password because only the bcrypt hash is
 stored. Password validation must happen before hashing.
@@ -134,9 +141,12 @@ Auth UI should follow the existing web rules:
 
 - Keep the auth panel centered.
 - Keep `Sign in` and `Sign up` as the two tabs.
-- Use field-level error bubbles after a field has been focused.
-- Disable submit while typing validation fails.
-- Show the first hidden validation error when hovering a disabled submit button.
+- Use field-level error bubbles for non-empty typing validation and
+  submit-triggered required-empty validation.
+- Do not show required-empty field bubbles while typing.
+- Disable submit while non-empty typing validation fails.
+- Show the first non-empty typing validation error when hovering a disabled
+  submit button.
 - Keep OAuth as a placeholder until the username and password flow is stable.
 - Use `lucide-react` icons for normal UI icons when a suitable icon exists.
 - Use the Google-provided multicolor logo component for the Google placeholder.

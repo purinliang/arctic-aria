@@ -1,14 +1,18 @@
 import { LoaderCircle, Plus, Save, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
+import { SingleChoiceGroup } from "@/components/choice-group";
+import { DatePickerField } from "@/components/date-picker-field";
 import {
   DialogBackdrop,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
 } from "@/components/dialog";
-import { FieldLabel, TextArea, TextInput } from "@/components/input-field";
+import { FieldLabel, TextInput } from "@/components/input-field";
+import { CheckboxField } from "@/components/selection-field";
 import { InlineMessage } from "@/components/text";
+import { TextArea } from "@/components/text-area-field";
 import type { ProjectTaskInput } from "@/features/projects/actions";
 import {
   priorityOptions,
@@ -169,43 +173,43 @@ function TaskMeta({
     <>
       <div className="grid gap-3 sm:grid-cols-3">
         <FieldLabel darkMode={darkMode} label="Scheduled date" optional>
-          <TextInput
+          <DatePickerField
             darkMode={darkMode}
             value={draft.scheduledDate}
-            placeholder="YYYY-MM-DD"
+            placeholder="Select date"
             disabled={pending}
-            onChange={(event) =>
+            onChange={(scheduledDate) =>
               setDraft((current) => ({
                 ...current,
-                scheduledDate: event.target.value,
+                scheduledDate,
               }))
             }
           />
         </FieldLabel>
         <FieldLabel darkMode={darkMode} label="Start date" optional>
-          <TextInput
+          <DatePickerField
             darkMode={darkMode}
             value={draft.startDate}
-            placeholder="YYYY-MM-DD"
+            placeholder="Select start date"
             disabled={pending}
-            onChange={(event) =>
+            onChange={(startDate) =>
               setDraft((current) => ({
                 ...current,
-                startDate: event.target.value,
+                startDate,
               }))
             }
           />
         </FieldLabel>
         <FieldLabel darkMode={darkMode} label="Deadline" optional>
-          <TextInput
+          <DatePickerField
             darkMode={darkMode}
             value={draft.deadlineDate}
-            placeholder="YYYY-MM-DD"
+            placeholder="Select deadline"
             disabled={pending}
-            onChange={(event) =>
+            onChange={(deadlineDate) =>
               setDraft((current) => ({
                 ...current,
-                deadlineDate: event.target.value,
+                deadlineDate,
               }))
             }
           />
@@ -267,18 +271,15 @@ function TaskSubtasks({
                   onSubtaskChange(index, { title: event.target.value })
                 }
               />
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  className="accent-emerald-500"
-                  type="checkbox"
-                  checked={subtask.isDone}
-                  disabled={pending}
-                  onChange={(event) =>
-                    onSubtaskChange(index, { isDone: event.target.checked })
-                  }
-                />
-                Done
-              </label>
+              <CheckboxField
+                darkMode={darkMode}
+                label="Done"
+                checked={subtask.isDone}
+                disabled={pending}
+                onChange={(event) =>
+                  onSubtaskChange(index, { isDone: event.target.checked })
+                }
+              />
               <Button
                 darkMode={darkMode}
                 disabled={pending}
@@ -345,20 +346,13 @@ function SegmentedOptions<T extends string>({
   return (
     <div className="grid gap-1.5">
       <span className="text-xs font-semibold">{label}</span>
-      <div className="flex flex-wrap gap-2">
-        {options.map((option) => (
-          <Button
-            key={option.value}
-            darkMode={darkMode}
-            size="xs"
-            active={value === option.value}
-            disabled={pending}
-            onClick={() => onChange(option.value)}
-          >
-            {option.label}
-          </Button>
-        ))}
-      </div>
+      <SingleChoiceGroup
+        darkMode={darkMode}
+        disabled={pending}
+        value={value}
+        options={options}
+        onChange={(nextValue) => onChange(nextValue as T)}
+      />
     </div>
   );
 }

@@ -72,10 +72,8 @@ Use `register` in code. The UI can say `Sign up`.
 
 ### Validation when typing
 
-- Username is required.
 - Username must be at least 4 characters and at most 16 characters.
 - Username must contain visible non-blank ASCII characters only.
-- Password is required.
 - Password must be at least 8 characters and at most 32 characters.
 - Password must contain visible non-blank ASCII characters only.
 - Password and repeated password must match.
@@ -89,23 +87,32 @@ Use `register` in code. The UI can say `Sign up`.
 When a typing validation rule fails:
 
 - The UI should show a field-level error near the matching input.
-- The user can type invalid characters, but the UI should respond immediately
+- The user can type invalid characters, but the UI should respond while typing
   with a hint so the user understands what is wrong.
+- Empty required fields should not show field-level errors while typing. Empty
+  required-field messages are submit validation.
 - If multiple rules fail for the same field, show the first rule in the order
   listed above.
-- The confirm button should be disabled while any typing validation rule fails.
+- The confirm button should be disabled while any non-empty typing validation
+  rule fails.
 
 ### Validation when submitting
 
 - Trim all fields before backend validation.
 - Run all typing validation rules again on the backend to protect against
   frontend mistakes or request tampering.
+- Username is required.
+- Password is required.
+- Repeated password is required for registration.
 - Username must be unique.
 - If display name is empty, use the username as the display name.
 
 When a submit validation rule fails:
 
-- Show an error dialog or toast separate from field-level typing hints.
+- Show required-empty errors, such as `Username can't be empty.`, as field-level
+  bubbles after the user clicks the confirm button.
+- Show backend or persistence errors in an error dialog or notification separate
+  from field-level typing hints.
 - Keep the user on the current page.
 - Preserve the user's input except for password fields if the implementation
   chooses to clear them for safety.

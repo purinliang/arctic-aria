@@ -1,20 +1,19 @@
 import { LoaderCircle, Save } from "lucide-react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { Button } from "@/components/button";
+import { SingleChoiceGroup } from "@/components/choice-group";
+import { DatePickerField } from "@/components/date-picker-field";
 import {
   DialogBackdrop,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
 } from "@/components/dialog";
-import {
-  FieldLabel,
-  NumberInput,
-  SelectInput,
-  TextArea,
-  TextInput,
-} from "@/components/input-field";
+import { FieldLabel, TextInput } from "@/components/input-field";
+import { NumberInput } from "@/components/number-field";
+import { SelectInput } from "@/components/selection-field";
 import { InlineMessage } from "@/components/text";
+import { TextArea } from "@/components/text-area-field";
 import type {
   MilestoneInput,
   ProjectInput,
@@ -166,64 +165,50 @@ function ProjectDateFields({
     <>
       <div className="grid gap-1.5">
         <span className="text-xs font-semibold">Timeline</span>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            darkMode={darkMode}
-            size="xs"
-            active={draft.timelineType === "deadline"}
-            disabled={pending}
-            onClick={() =>
-              setDraft((current) => ({
-                ...current,
-                timelineType: "deadline",
-              }))
-            }
-          >
-            Deadline
-          </Button>
-          <Button
-            darkMode={darkMode}
-            size="xs"
-            active={draft.timelineType === "duration"}
-            disabled={pending}
-            onClick={() =>
-              setDraft((current) => ({
-                ...current,
-                timelineType: "duration",
-                deadlineDate: "",
-              }))
-            }
-          >
-            Duration
-          </Button>
-        </div>
+        <SingleChoiceGroup
+          darkMode={darkMode}
+          disabled={pending}
+          value={draft.timelineType}
+          options={[
+            { value: "deadline", label: "Deadline" },
+            { value: "duration", label: "Duration" },
+          ]}
+          onChange={(timelineType) =>
+            setDraft((current) => ({
+              ...current,
+              timelineType: timelineType as ProjectInput["timelineType"],
+              deadlineDate:
+                timelineType === "duration" ? "" : current.deadlineDate,
+            }))
+          }
+        />
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <FieldLabel darkMode={darkMode} label="Start date">
-          <TextInput
+          <DatePickerField
             darkMode={darkMode}
             value={draft.startDate}
-            placeholder="YYYY-MM-DD"
+            placeholder="Select start date"
             disabled={pending}
-            onChange={(event) =>
+            onChange={(startDate) =>
               setDraft((current) => ({
                 ...current,
-                startDate: event.target.value,
+                startDate,
               }))
             }
           />
         </FieldLabel>
         {draft.timelineType === "deadline" ? (
           <FieldLabel darkMode={darkMode} label="Deadline">
-            <TextInput
+            <DatePickerField
               darkMode={darkMode}
               value={draft.deadlineDate}
-              placeholder="YYYY-MM-DD"
+              placeholder="Select deadline"
               disabled={pending}
-              onChange={(event) =>
+              onChange={(deadlineDate) =>
                 setDraft((current) => ({
                   ...current,
-                  deadlineDate: event.target.value,
+                  deadlineDate,
                 }))
               }
             />
@@ -253,22 +238,18 @@ function ProjectDateFields({
       </div>
       <div className="grid gap-1.5">
         <span className="text-xs font-semibold">Priority</span>
-        <div className="flex flex-wrap gap-2">
-          {priorityOptions.map((option) => (
-            <Button
-              key={option.value}
-              darkMode={darkMode}
-              size="xs"
-              active={draft.priority === option.value}
-              disabled={pending}
-              onClick={() =>
-                setDraft((current) => ({ ...current, priority: option.value }))
-              }
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
+        <SingleChoiceGroup
+          darkMode={darkMode}
+          disabled={pending}
+          value={draft.priority}
+          options={priorityOptions}
+          onChange={(priority) =>
+            setDraft((current) => ({
+              ...current,
+              priority: priority as ProjectInput["priority"],
+            }))
+          }
+        />
       </div>
     </>
   );
@@ -288,26 +269,26 @@ function MilestoneDateFields({
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       <FieldLabel darkMode={darkMode} label="Start date" optional>
-        <TextInput
+        <DatePickerField
           darkMode={darkMode}
           value={draft.startDate}
-          placeholder="YYYY-MM-DD"
+          placeholder="Select start date"
           disabled={pending}
-          onChange={(event) =>
-            setDraft((current) => ({ ...current, startDate: event.target.value }))
+          onChange={(startDate) =>
+            setDraft((current) => ({ ...current, startDate }))
           }
         />
       </FieldLabel>
       <FieldLabel darkMode={darkMode} label="Deadline" optional>
-        <TextInput
+        <DatePickerField
           darkMode={darkMode}
           value={draft.deadlineDate}
-          placeholder="YYYY-MM-DD"
+          placeholder="Select deadline"
           disabled={pending}
-          onChange={(event) =>
+          onChange={(deadlineDate) =>
             setDraft((current) => ({
               ...current,
-              deadlineDate: event.target.value,
+              deadlineDate,
             }))
           }
         />

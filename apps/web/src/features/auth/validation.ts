@@ -52,9 +52,9 @@ export function normalizeLoginInput(input: LoginInput): LoginInput {
   };
 }
 
-function validateUsername(username: string): string | null {
+function validateUsernameTypingRule(username: string): string | null {
   if (!username) {
-    return "Username is required.";
+    return null;
   }
 
   if (username.length < minimumUsernameLength) {
@@ -72,9 +72,17 @@ function validateUsername(username: string): string | null {
   return null;
 }
 
-function validatePassword(password: string): string | null {
+function validateUsernameSubmitRule(username: string): string | null {
+  if (!username) {
+    return "Username can't be empty.";
+  }
+
+  return validateUsernameTypingRule(username);
+}
+
+function validatePasswordTypingRule(password: string): string | null {
   if (!password) {
-    return "Password is required.";
+    return null;
   }
 
   if (password.length < minimumPasswordLength) {
@@ -90,6 +98,14 @@ function validatePassword(password: string): string | null {
   }
 
   return null;
+}
+
+function validatePasswordSubmitRule(password: string): string | null {
+  if (!password) {
+    return "Password can't be empty.";
+  }
+
+  return validatePasswordTypingRule(password);
 }
 
 function validateDisplayName(displayName: string): string | null {
@@ -112,9 +128,9 @@ function validateDisplayName(displayName: string): string | null {
 
 export function validateRegisterTyping(input: RegisterInput): AuthFieldErrors {
   const errors: AuthFieldErrors = {};
-  const usernameError = validateUsername(input.username);
+  const usernameError = validateUsernameTypingRule(input.username);
   const displayNameError = validateDisplayName(input.displayName);
-  const passwordError = validatePassword(input.password);
+  const passwordError = validatePasswordTypingRule(input.password);
 
   if (usernameError) {
     errors.username = usernameError;
@@ -128,8 +144,28 @@ export function validateRegisterTyping(input: RegisterInput): AuthFieldErrors {
     errors.password = passwordError;
   }
 
+  if (input.password && input.repeatPassword && input.password !== input.repeatPassword) {
+    errors.repeatPassword = "Passwords must match.";
+  }
+
+  return errors;
+}
+
+export function validateRegisterSubmit(input: RegisterInput): AuthFieldErrors {
+  const errors = validateRegisterTyping(input);
+  const usernameError = validateUsernameSubmitRule(input.username);
+  const passwordError = validatePasswordSubmitRule(input.password);
+
+  if (usernameError) {
+    errors.username = usernameError;
+  }
+
+  if (passwordError) {
+    errors.password = passwordError;
+  }
+
   if (!input.repeatPassword) {
-    errors.repeatPassword = "Repeat password is required.";
+    errors.repeatPassword = "Repeat password can't be empty.";
   } else if (input.password !== input.repeatPassword) {
     errors.repeatPassword = "Passwords must match.";
   }
@@ -139,8 +175,24 @@ export function validateRegisterTyping(input: RegisterInput): AuthFieldErrors {
 
 export function validateLoginTyping(input: LoginInput): AuthFieldErrors {
   const errors: AuthFieldErrors = {};
-  const usernameError = validateUsername(input.username);
-  const passwordError = validatePassword(input.password);
+  const usernameError = validateUsernameTypingRule(input.username);
+  const passwordError = validatePasswordTypingRule(input.password);
+
+  if (usernameError) {
+    errors.username = usernameError;
+  }
+
+  if (passwordError) {
+    errors.password = passwordError;
+  }
+
+  return errors;
+}
+
+export function validateLoginSubmit(input: LoginInput): AuthFieldErrors {
+  const errors = validateLoginTyping(input);
+  const usernameError = validateUsernameSubmitRule(input.username);
+  const passwordError = validatePasswordSubmitRule(input.password);
 
   if (usernameError) {
     errors.username = usernameError;

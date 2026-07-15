@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   normalizeRegisterInput,
+  validateLoginSubmit,
   validateLoginTyping,
+  validateRegisterSubmit,
   validateRegisterTyping,
 } from "../validation.ts";
 
@@ -29,6 +31,35 @@ test("register validation accepts optional display name", () => {
   });
 
   assert.deepEqual(errors, {});
+});
+
+test("typing validation does not reject empty required fields", () => {
+  const registerErrors = validateRegisterTyping({
+    username: "",
+    displayName: "",
+    password: "",
+    repeatPassword: "",
+  });
+  const loginErrors = validateLoginTyping({ username: "", password: "" });
+
+  assert.deepEqual(registerErrors, {});
+  assert.deepEqual(loginErrors, {});
+});
+
+test("submit validation rejects empty required fields", () => {
+  const registerErrors = validateRegisterSubmit({
+    username: "",
+    displayName: "",
+    password: "",
+    repeatPassword: "",
+  });
+  const loginErrors = validateLoginSubmit({ username: "", password: "" });
+
+  assert.equal(registerErrors.username, "Username can't be empty.");
+  assert.equal(registerErrors.password, "Password can't be empty.");
+  assert.equal(registerErrors.repeatPassword, "Repeat password can't be empty.");
+  assert.equal(loginErrors.username, "Username can't be empty.");
+  assert.equal(loginErrors.password, "Password can't be empty.");
 });
 
 test("register validation enforces maximum field lengths", () => {

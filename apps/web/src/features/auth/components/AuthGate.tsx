@@ -8,7 +8,9 @@ import { getCurrentUser, loginUser, logoutUser, registerUser } from "../actions"
 import type { AuthUser } from "../server/auth-service";
 import {
   hasAuthErrors,
+  validateLoginSubmit,
   validateLoginTyping,
+  validateRegisterSubmit,
   validateRegisterTyping,
   type AuthFieldErrors,
   type LoginInput,
@@ -39,6 +41,7 @@ export function AuthGate() {
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [serverErrors, setServerErrors] = useState<AuthFieldErrors>({});
+  const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -97,7 +100,7 @@ export function AuthGate() {
           startTransition(async () => {
             await logoutUser();
             setCurrentUser(null);
-            resetSubmitState();
+            resetSubmitState(true);
           });
         }}
       />
@@ -108,17 +111,26 @@ export function AuthGate() {
     mode === "register"
       ? validateRegisterTyping(registerInput)
       : validateLoginTyping(loginInput);
-  const activeErrors = { ...typingErrors, ...serverErrors };
+  const submitErrors = submitAttempted
+    ? mode === "register"
+      ? validateRegisterSubmit(registerInput)
+      : validateLoginSubmit(loginInput)
+    : {};
+  const activeErrors = { ...typingErrors, ...submitErrors, ...serverErrors };
 
-  function resetSubmitState() {
+  function resetSubmitState(resetAttempt = false) {
     setSubmitMessage(null);
     setSubmitError(null);
     setServerErrors({});
+
+    if (resetAttempt) {
+      setSubmitAttempted(false);
+    }
   }
 
   function switchMode(nextMode: AuthMode) {
     setMode(nextMode);
-    resetSubmitState();
+    resetSubmitState(true);
   }
 
   function updateRegister<K extends keyof RegisterInput>(
@@ -136,6 +148,17 @@ export function AuthGate() {
 
   function handleSubmit() {
     resetSubmitState();
+    setSubmitAttempted(true);
+
+    const fieldErrors =
+      mode === "register"
+        ? validateRegisterSubmit(registerInput)
+        : validateLoginSubmit(loginInput);
+
+    if (hasAuthErrors(fieldErrors)) {
+      setSubmitError("Please fix the highlighted fields.");
+      return;
+    }
 
     startTransition(async () => {
       const result =
@@ -172,6 +195,7 @@ export function AuthGate() {
       errors={activeErrors}
       disabled={isPending || hasAuthErrors(activeErrors)}
       pending={isPending}
+      submitAttempted={submitAttempted}
       submitMessage={submitMessage}
       submitError={submitError}
       onModeChange={switchMode}

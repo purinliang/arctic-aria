@@ -29,17 +29,20 @@ validation, and persistence behavior are documented in [design.md](design.md).
   - Show an error bubble with a tail pointing from the related text box.
   - The error bubble can overlay other components and should not affect layout
     height.
-  - The error bubble should appear only after the user has focused the field at
-    least once. If the user has not focused an empty required field, do not show
-    the field-level bubble yet.
+  - Required-empty bubbles, such as `Username can't be empty.`, should appear
+    only after the user clicks the main `Sign up` or `Sign in` button.
+  - Non-empty typing errors, such as length or character errors, can appear
+    while the user types.
   - If a field is optional, show `(Optional)` beside its label. Required fields
     do not need extra label text.
   - Apply the same field layout rules to every field.
 - The main button should say `Sign up` and include a right arrow icon to imply
   forward navigation.
-- When the main button is disabled, hovering over it should show the first
-  remaining validation error by rule priority. This includes hidden errors for
-  untouched fields, such as `Username is required`.
+- Empty required fields should not disable the main button before the first
+  submit attempt. The first submit attempt should reveal the empty-field
+  bubbles.
+- When the main button is disabled by a non-empty typing error, hovering over it
+  should show the first remaining validation error by rule priority.
 - Show small text `Already have an account?` and link-style text `Sign in`.
   Clicking the link is equivalent to switching tabs.
 - Do not show unrelated actions or information, such as `Open dashboard without

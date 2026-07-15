@@ -71,20 +71,57 @@ Feature pages should not define local button class helpers.
 
 ## Input Field
 
-`input-field.tsx` owns text inputs, number inputs, date inputs, time inputs,
-password inputs, and text areas.
-
-Date and time inputs should use explicit English labels and helper text. Browser
-date pickers may still follow the user's device locale, so the app should not
-depend on picker-localized text for meaning.
+`input-field.tsx` owns the appearance of single-line text inputs and
+single-line password inputs.
 
 Input fields support:
 
 - labels
 - optional markers
-- helper text
-- validation errors
+- placeholders
 - trailing controls such as password visibility buttons
+- clear field-level hint or error bubbles
+
+Input field components must stay presentational. They should accept the current
+visual state, bubble text, and bubble visibility from the caller, but they should
+not decide validation rules or validation timing.
+
+Required-empty messages, such as `Username can't be empty.`, are submit/form
+logic. They should appear only after the user clicks the relevant confirm,
+login, or save button. Other field rules, such as length, allowed characters, or
+password match, may be checked while typing by the owning feature or form logic.
+
+Date, time, number, select, and text-area controls should be separate form
+control components instead of being treated as generic input fields.
+
+## Date And Time Pickers
+
+`date-picker-field.tsx` owns date selection. It must render an app-styled
+calendar popup with English month names and weekday labels. Do not use native
+browser `type=date` controls for primary UI, because the popup can follow the
+user's browser or operating-system locale and cannot be styled consistently.
+
+`time-picker-field.tsx` owns time selection. It must render an app-styled
+English option list and return normalized `HH:mm` values. Do not use native
+browser `type=time` controls for primary UI.
+
+Date and time pickers are still controlled form components. Feature code owns
+the current value, validation rules, and validation timing.
+
+## Number, Text Area, And Selection Fields
+
+`number-field.tsx` owns numeric input styling. Use it when a number must still
+be typed.
+
+`text-area-field.tsx` owns multi-line text entry. Do not implement text areas as
+expanded single-line inputs.
+
+`selection-field.tsx` owns standard single-select dropdowns, checkbox rows, and
+checkbox groups. Use checkbox rows for checklist-style multiple selection.
+
+`choice-group.tsx` owns visible button-group choices for single and multiple
+selection. Use it when the user should clearly see a compact set of choices.
+Tags are passive labels; do not use tag components as selectable buttons.
 
 ## Switch
 

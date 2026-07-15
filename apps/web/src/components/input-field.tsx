@@ -1,10 +1,8 @@
 import type {
   InputHTMLAttributes,
   ReactNode,
-  SelectHTMLAttributes,
-  TextareaHTMLAttributes,
 } from "react";
-import { inputColorClass } from "./color";
+import { formControlClass } from "./form-control-style";
 import { LabelText } from "./text";
 import { cx } from "./utils";
 
@@ -50,7 +48,7 @@ export function TextInput({
     <span className="relative block">
       <input
         className={cx(
-          inputBaseClass(darkMode, hasError),
+          formControlClass(darkMode, hasError),
           trailing ? "pr-11" : false,
           className,
         )}
@@ -66,33 +64,6 @@ export function TextInput({
   );
 }
 
-export function NumberInput(
-  props: Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
-    darkMode: boolean;
-    hasError?: boolean;
-  },
-) {
-  return <TextInput {...props} type="number" />;
-}
-
-export function DateInput(
-  props: Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
-    darkMode: boolean;
-    hasError?: boolean;
-  },
-) {
-  return <TextInput {...props} type="date" />;
-}
-
-export function TimeInput(
-  props: Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
-    darkMode: boolean;
-    hasError?: boolean;
-  },
-) {
-  return <TextInput {...props} type="time" />;
-}
-
 export function PasswordInput(
   props: Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
     darkMode: boolean;
@@ -101,45 +72,6 @@ export function PasswordInput(
   },
 ) {
   return <TextInput {...props} type="password" />;
-}
-
-export function TextArea({
-  darkMode,
-  hasError = false,
-  className,
-  ...props
-}: TextareaHTMLAttributes<HTMLTextAreaElement> & {
-  darkMode: boolean;
-  hasError?: boolean;
-}) {
-  return (
-    <textarea
-      className={cx(inputBaseClass(darkMode, hasError), "resize-y", className)}
-      aria-invalid={hasError || undefined}
-      {...props}
-    />
-  );
-}
-
-export function SelectInput({
-  darkMode,
-  hasError = false,
-  className,
-  children,
-  ...props
-}: SelectHTMLAttributes<HTMLSelectElement> & {
-  darkMode: boolean;
-  hasError?: boolean;
-}) {
-  return (
-    <select
-      className={cx(inputBaseClass(darkMode, hasError), className)}
-      aria-invalid={hasError || undefined}
-      {...props}
-    >
-      {children}
-    </select>
-  );
 }
 
 export function FieldError({
@@ -168,12 +100,5 @@ export function FieldError({
       />
       {children}
     </span>
-  );
-}
-
-function inputBaseClass(darkMode: boolean, hasError: boolean) {
-  return cx(
-    "h-11 w-full rounded-md border px-3 text-sm shadow-sm outline-none transition placeholder:text-slate-400",
-    inputColorClass(darkMode, hasError),
   );
 }

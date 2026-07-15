@@ -23,6 +23,7 @@ type AuthFormProps = {
   errors: AuthFieldErrors;
   disabled: boolean;
   pending: boolean;
+  submitAttempted: boolean;
   submitMessage: string | null;
   submitError: string | null;
   onModeChange: (mode: AuthMode) => void;
@@ -49,6 +50,7 @@ export function AuthForm({
   errors,
   disabled,
   pending,
+  submitAttempted,
   submitMessage,
   submitError,
   onModeChange,
@@ -85,6 +87,7 @@ export function AuthForm({
     mode === "register" ? "Already have an account?" : "New here?";
   const switchLabel = mode === "register" ? "Sign in" : "Sign up";
   const switchTarget = mode === "register" ? "login" : "register";
+  const showSubmitErrors = submitAttempted || Boolean(submitError);
 
   return (
     <main className="min-h-screen bg-[#eef2f5] text-slate-950">
@@ -132,7 +135,7 @@ export function AuthForm({
               label="Username"
               value={mode === "register" ? registerInput.username : loginInput.username}
               error={errors.username}
-              touched={Boolean(touched.username)}
+              touched={Boolean(touched.username || showSubmitErrors)}
               autoComplete="username"
               onBlur={() => markTouched("username")}
               onChange={(value) =>
@@ -148,7 +151,7 @@ export function AuthForm({
                 optional
                 value={registerInput.displayName}
                 error={errors.displayName}
-                touched={Boolean(touched.displayName)}
+                touched={Boolean(touched.displayName || showSubmitErrors)}
                 autoComplete="name"
                 onBlur={() => markTouched("displayName")}
                 onChange={(value) => onRegisterChange("displayName", value)}
@@ -161,7 +164,7 @@ export function AuthForm({
                 mode === "register" ? registerInput.password : loginInput.password
               }
               error={errors.password}
-              touched={Boolean(touched.password)}
+              touched={Boolean(touched.password || showSubmitErrors)}
               type={showPassword ? "text" : "password"}
               autoComplete={mode === "register" ? "new-password" : "current-password"}
               trailingButton={
@@ -194,7 +197,7 @@ export function AuthForm({
                 label="Repeat password"
                 value={registerInput.repeatPassword}
                 error={errors.repeatPassword}
-                touched={Boolean(touched.repeatPassword)}
+                touched={Boolean(touched.repeatPassword || showSubmitErrors)}
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 trailingButton={

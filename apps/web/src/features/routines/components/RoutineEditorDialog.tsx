@@ -1,9 +1,17 @@
 import { LoaderCircle, Save, Trash2, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
+import {
+  MultipleChoiceGroup,
+  SingleChoiceGroup,
+} from "@/components/choice-group";
+import { DatePickerField } from "@/components/date-picker-field";
 import { dialogFrameClass } from "@/components/dialog";
-import { FieldLabel, TextArea, TextInput } from "@/components/input-field";
+import { FieldLabel, TextInput } from "@/components/input-field";
+import { NumberInput } from "@/components/number-field";
 import { InlineMessage } from "@/components/text";
+import { TextArea } from "@/components/text-area-field";
+import { TimePickerField } from "@/components/time-picker-field";
 import type { RoutineInput } from "@/features/routines/actions";
 import { ruleOptions, weekdayOptions } from "./routine-page-helpers";
 
@@ -26,19 +34,6 @@ export function RoutineEditorDialog({
   onSubmit: () => void;
   onDelete: () => void;
 }) {
-  function toggleWeekday(day: number) {
-    setDraft((current) => {
-      const weekdays = current.weekdays ?? [];
-
-      return {
-        ...current,
-        weekdays: weekdays.includes(day)
-          ? weekdays.filter((weekday) => weekday !== day)
-          : [...weekdays, day].sort(),
-      };
-    });
-  }
-
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/65 px-4 py-6">
       <button
@@ -84,7 +79,6 @@ export function RoutineEditorDialog({
             pending={pending}
             draft={draft}
             setDraft={setDraft}
-            onWeekdayToggle={toggleWeekday}
           />
           <RoutineScheduleFields
             darkMode={darkMode}
@@ -178,52 +172,50 @@ function RecurrenceFields({
   pending,
   draft,
   setDraft,
-  onWeekdayToggle,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: RoutineInput;
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
-  onWeekdayToggle: (day: number) => void;
 }) {
   return (
     <>
       <div className="grid gap-2">
         <span className="text-xs font-semibold">Recurrence</span>
-        <div className="flex flex-wrap gap-2">
-          {ruleOptions.map((option) => (
-            <Button
-              key={option.type}
-              darkMode={darkMode}
-              size="xs"
-              active={draft.ruleType === option.type}
-              disabled={pending}
-              onClick={() =>
-                setDraft((current) => ({ ...current, ruleType: option.type }))
-              }
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
+        <SingleChoiceGroup
+          darkMode={darkMode}
+          disabled={pending}
+          value={draft.ruleType}
+          options={ruleOptions.map((option) => ({
+            value: option.type,
+            label: option.label,
+          }))}
+          onChange={(ruleType) =>
+            setDraft((current) => ({
+              ...current,
+              ruleType: ruleType as RoutineInput["ruleType"],
+            }))
+          }
+        />
       </div>
       {draft.ruleType === "weekly" ? (
         <div className="grid gap-2">
           <span className="text-xs font-semibold">Weekdays</span>
-          <div className="flex flex-wrap gap-2">
-            {weekdayOptions.map((weekday) => (
-              <Button
-                key={weekday.value}
-                darkMode={darkMode}
-                size="xs"
-                active={draft.weekdays?.includes(weekday.value) ?? false}
-                disabled={pending}
-                onClick={() => onWeekdayToggle(weekday.value)}
-              >
-                {weekday.label}
-              </Button>
-            ))}
-          </div>
+          <MultipleChoiceGroup
+            darkMode={darkMode}
+            disabled={pending}
+            values={(draft.weekdays ?? []).map(String)}
+            options={weekdayOptions.map((weekday) => ({
+              value: String(weekday.value),
+              label: weekday.label,
+            }))}
+            onChange={(values) =>
+              setDraft((current) => ({
+                ...current,
+                weekdays: values.map(Number).sort((left, right) => left - right),
+              }))
+            }
+          />
         </div>
       ) : null}
       {draft.ruleType === "monthly_by_date" ||
@@ -253,9 +245,8 @@ function IntervalFields({
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <FieldLabel darkMode={darkMode} label="Interval">
-        <TextInput
+        <NumberInput
           darkMode={darkMode}
-          type="number"
           min={1}
           value={draft.intervalValue ?? 1}
           disabled={pending}
@@ -269,9 +260,8 @@ function IntervalFields({
       </FieldLabel>
       {draft.ruleType === "monthly_by_date" ? (
         <FieldLabel darkMode={darkMode} label="Day of month">
-          <TextInput
+          <NumberInput
             darkMode={darkMode}
-            type="number"
             min={1}
             max={31}
             value={draft.dayOfMonth ?? 1}
@@ -303,46 +293,40 @@ function RoutineScheduleFields({
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       <FieldLabel darkMode={darkMode} label="First start date">
-        <TextInput
+        <DatePickerField
           darkMode={darkMode}
-          type="text"
-          inputMode="numeric"
-          placeholder="YYYY-MM-DD"
+          placeholder="Select first date"
           value={draft.firstStartDate}
           disabled={pending}
-          onChange={(event) =>
+          onChange={(firstStartDate) =>
             setDraft((current) => ({
               ...current,
-              firstStartDate: event.target.value,
+              firstStartDate,
             }))
           }
         />
       </FieldLabel>
       <FieldLabel darkMode={darkMode} label="End date" optional>
-        <TextInput
+        <DatePickerField
           darkMode={darkMode}
-          type="text"
-          inputMode="numeric"
-          placeholder="YYYY-MM-DD"
+          placeholder="Select end date"
           value={draft.endDate ?? ""}
           disabled={pending}
-          onChange={(event) =>
-            setDraft((current) => ({ ...current, endDate: event.target.value }))
+          onChange={(endDate) =>
+            setDraft((current) => ({ ...current, endDate }))
           }
         />
       </FieldLabel>
       <FieldLabel darkMode={darkMode} label="Preferred time" optional>
-        <TextInput
+        <TimePickerField
           darkMode={darkMode}
-          type="text"
-          inputMode="numeric"
-          placeholder="HH:MM"
+          placeholder="Select time"
           value={draft.preferredTime ?? ""}
           disabled={pending}
-          onChange={(event) =>
+          onChange={(preferredTime) =>
             setDraft((current) => ({
               ...current,
-              preferredTime: event.target.value,
+              preferredTime,
             }))
           }
         />

@@ -8,8 +8,9 @@ import {
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
 import { dialogFrameClass } from "@/components/dialog";
-import { TextArea, TextInput } from "@/components/input-field";
+import { TextInput } from "@/components/input-field";
 import { InlineMessage } from "@/components/text";
+import { TextArea } from "@/components/text-area-field";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryInput } from "@/features/memories/actions";
 
