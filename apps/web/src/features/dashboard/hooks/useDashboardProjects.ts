@@ -1,6 +1,8 @@
 import { useCallback, useRef, useState } from "react";
 import {
+  archiveMilestone,
   archiveProject,
+  archiveProjectTask,
   blockProjectTask,
   completeProjectTask,
   getProjectDashboardData,
@@ -36,28 +38,13 @@ export function useDashboardProjects(
   const [projectMessage, setProjectMessage] = useState<string | null>(null);
   const [projectActionPending, setProjectActionPending] = useState(false);
   const [pendingTaskIds, setPendingTaskIds] = useState<string[]>([]);
-  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const pageTaskRequestChains = useRef(new Map<string, Promise<void>>());
   const pageTaskRequestVersions = useRef(new Map<string, number>());
 
-  const applyProjectData = useCallback(
-    (data: ProjectDashboardData, nextExpandedTaskId?: string | null) => {
-      setTasks(data.tasks);
-      setProjects(data.projects);
-      setExpandedTaskId((current) => {
-        if (nextExpandedTaskId !== undefined) {
-          return nextExpandedTaskId;
-        }
-
-        if (current && data.tasks.some((task) => task.id === current)) {
-          return current;
-        }
-
-        return data.tasks[0]?.id ?? null;
-      });
-    },
-    [],
-  );
+  const applyProjectData = useCallback((data: ProjectDashboardData) => {
+    setTasks(data.tasks);
+    setProjects(data.projects);
+  }, []);
 
   const refreshProjectData = useCallback(async () => {
     const result = await getProjectDashboardData();
@@ -66,7 +53,6 @@ export function useDashboardProjects(
       setProjectMessage(result.message);
       setTasks([]);
       setProjects([]);
-      setExpandedTaskId(null);
       setPendingTaskIds([]);
       setProjectLoading(false);
       return;
@@ -119,7 +105,6 @@ export function useDashboardProjects(
   ) {
     let previousTasks: Task[] = [];
 
-    setExpandedTaskId(null);
     setPendingTaskIds((current) => addPendingId(current, taskId));
     setTasks((current) => {
       previousTasks = current;
@@ -202,8 +187,6 @@ export function useDashboardProjects(
     projectMessage,
     projectActionPending,
     pendingTaskIds,
-    expandedTaskId,
-    setExpandedTaskId,
     refreshProjectData,
     updateTaskFromDashboard,
     saveProjectFromPage: (input: ProjectInput) =>
@@ -212,6 +195,16 @@ export function useDashboardProjects(
       runProjectManagementAction(
         () => archiveProject(projectId),
         "Project archive failed",
+      ),
+    archiveMilestoneFromPage: (milestoneId: string) =>
+      runProjectManagementAction(
+        () => archiveMilestone(milestoneId),
+        "Milestone delete failed",
+      ),
+    archiveTaskFromPage: (taskId: string) =>
+      runProjectManagementAction(
+        () => archiveProjectTask(taskId),
+        "Task delete failed",
       ),
     saveMilestoneFromPage: (input: MilestoneInput) =>
       runProjectManagementAction(
@@ -260,8 +253,13 @@ function applyOptimisticProjectTaskStatus(
   status: Exclude<TaskStatus, "archived">,
 ) {
   return projects.map((project) => {
+    const projectTasks = project.tasks.map((task) =>
+      task.id === taskId ? { ...task, status } : task,
+    );
     const milestones = project.milestones.map((milestone) => {
-      const tasks = milestone.tasks.map((task) =>
+      const tasks = projectTasks.filter(
+        (task) => task.milestoneId === milestone.id,
+      ).map((task) =>
         task.id === taskId ? { ...task, status } : task,
       );
 
@@ -274,10 +272,9 @@ function applyOptimisticProjectTaskStatus(
 
     return {
       ...project,
+      tasks: projectTasks,
       milestones,
-      progressText: taskProgressText(
-        milestones.flatMap((milestone) => milestone.tasks),
-      ),
+      progressText: taskProgressText(projectTasks),
     };
   });
 }

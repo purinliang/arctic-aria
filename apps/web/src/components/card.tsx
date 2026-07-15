@@ -40,7 +40,7 @@ export function CardHeader({
   return (
     <div
       className={cx(
-        "flex flex-col gap-3 rounded-t-md border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col gap-3 rounded-t-md border-b px-4 py-3 sm:flex-row sm:items-start sm:justify-between",
         headerSurfaceClass(darkMode),
         className,
       )}
@@ -58,13 +58,15 @@ export function CardHeader({
           </p>
         ) : null}
       </div>
-      {action ?? (
-        meta ? (
-          <span className={`shrink-0 text-sm ${mutedTextClass(darkMode)}`}>
-            {meta}
-          </span>
-        ) : null
-      )}
+      {action || meta ? (
+        <div className="shrink-0">
+          {action ?? (
+            <span className={`text-sm ${mutedTextClass(darkMode)}`}>
+              {meta}
+            </span>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }

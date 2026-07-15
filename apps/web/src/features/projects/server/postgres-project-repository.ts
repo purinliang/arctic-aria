@@ -49,7 +49,10 @@ export class PostgresProjectRepository implements ProjectRepository {
        WHERE project_tasks.user_id = $1
          AND project_tasks.status NOT IN ('archived', 'done')
          AND projects.status = 'active'
-         AND project_milestones.status = 'active'
+         AND (
+           project_tasks.milestone_id IS NULL
+           OR project_milestones.status = 'active'
+         )
        ORDER BY
          project_tasks.deadline_date NULLS LAST,
          project_tasks.start_date NULLS LAST,
@@ -87,6 +90,57 @@ export class PostgresProjectRepository implements ProjectRepository {
         AND status != 'archived'
       RETURNING id
     `) as Array<{ id: string }>;
+
+    return rows.length > 0;
+  }
+
+  async archiveMilestone(input: {
+    userId: string;
+    milestoneId: string;
+    occurredAt: Date;
+  }) {
+    const rows = (await this.getSql().query(
+      `WITH archived_milestone AS (
+         UPDATE project_milestones
+         SET status = 'archived',
+             archived_at = $3::timestamptz,
+             updated_at = $3::timestamptz
+         WHERE user_id = $1
+           AND id = $2
+           AND status != 'archived'
+         RETURNING id
+       ),
+       detached_tasks AS (
+         UPDATE project_tasks
+         SET milestone_id = NULL,
+             updated_at = $3::timestamptz
+         WHERE user_id = $1
+           AND milestone_id IN (SELECT id FROM archived_milestone)
+         RETURNING id
+       )
+       SELECT id FROM archived_milestone`,
+      [input.userId, input.milestoneId, input.occurredAt],
+    )) as Array<{ id: string }>;
+
+    return rows.length > 0;
+  }
+
+  async archiveTask(input: {
+    userId: string;
+    taskId: string;
+    occurredAt: Date;
+  }) {
+    const rows = (await this.getSql().query(
+      `UPDATE project_tasks
+       SET status = 'archived',
+           archived_at = $3::timestamptz,
+           updated_at = $3::timestamptz
+       WHERE user_id = $1
+         AND id = $2
+         AND status != 'archived'
+       RETURNING id`,
+      [input.userId, input.taskId, input.occurredAt],
+    )) as Array<{ id: string }>;
 
     return rows.length > 0;
   }
@@ -158,7 +212,10 @@ export class PostgresProjectRepository implements ProjectRepository {
        WHERE project_tasks.user_id = $1
          AND project_tasks.status != 'archived'
          AND projects.status != 'archived'
-         AND project_milestones.status != 'archived'
+         AND (
+           project_tasks.milestone_id IS NULL
+           OR project_milestones.status != 'archived'
+         )
        ORDER BY project_tasks.sort_order, project_tasks.created_at`,
       [userId],
     )) as ProjectTaskRow[];
@@ -180,7 +237,11 @@ function assembleProjects(
   );
 
   tasks.forEach((task) => {
-    milestoneById.get(task.milestoneId)?.tasks.push(task);
+    projectById.get(task.projectId)?.tasks.push(task);
+
+    if (task.milestoneId) {
+      milestoneById.get(task.milestoneId)?.tasks.push(task);
+    }
   });
 
   milestones.forEach((milestone) => {

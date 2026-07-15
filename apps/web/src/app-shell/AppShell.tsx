@@ -49,10 +49,7 @@ export function AppShell({
   const [projectDraft, setProjectDraft] = useState<ProjectInput | null>(null);
   const projectState = useDashboardProjects(showErrorNotification);
   const routineState = useDashboardRoutines(showErrorNotification);
-  const memoryState = useDashboardMemories(
-    showErrorNotification,
-    showMemoriesView,
-  );
+  const memoryState = useDashboardMemories(showErrorNotification);
   const { refreshProjectData } = projectState;
   const { refreshMemoryData } = memoryState;
   const { refreshRoutineData } = routineState;
@@ -68,11 +65,6 @@ export function AppShell({
   }, [currentUser.id, refreshMemoryData, refreshProjectData, refreshRoutineData]);
 
   useDocumentTheme(darkMode);
-
-  function showMemoriesView() {
-    setActiveView("memories");
-    setSidebarOpen(false);
-  }
 
   function showProjectsList() {
     setSelectedProjectId(null);
@@ -94,29 +86,6 @@ export function AppShell({
     showInfoNotification(
       `${featureName} is not implemented in this prototype yet.`,
       "Feature not ready",
-    );
-  }
-
-  function handleTaskExpand(taskId: string) {
-    projectState.setExpandedTaskId((current) =>
-      current === taskId ? null : taskId,
-    );
-  }
-
-  function showProjectsView() {
-    setActiveView("projects");
-    setSidebarOpen(false);
-  }
-
-  function handleRoutineExpand(routineId: string) {
-    routineState.setExpandedRoutineId((current) =>
-      current === routineId ? null : routineId,
-    );
-  }
-
-  function handleMemoryExpand(pinnedMemoryId: string) {
-    memoryState.setExpandedMemoryId((current) =>
-      current === pinnedMemoryId ? null : pinnedMemoryId,
     );
   }
 
@@ -142,7 +111,7 @@ export function AppShell({
           onUnavailableFeature={showUnavailableFeature}
         />
 
-        <div className="mx-auto flex min-h-[105vh] min-w-0 flex-1 flex-col gap-4 px-4 py-4 sm:px-6 lg:max-w-[1200px] lg:px-8">
+        <div className="mx-auto flex min-h-[110vh] min-w-0 flex-1 flex-col gap-4 px-4 pb-12 pt-4 sm:px-6 sm:pb-16 lg:max-w-[1200px] lg:px-8 lg:pb-20">
           <header
             className={`flex items-center gap-3 border-b pb-4 ${sectionBorderClass(darkMode)}`}
           >
@@ -185,8 +154,11 @@ export function AppShell({
               message={projectState.projectMessage}
               selectedProjectId={selectedProjectId}
               onProjectSave={projectState.saveProjectFromPage}
+              onProjectDelete={projectState.archiveProjectFromPage}
               onMilestoneSave={projectState.saveMilestoneFromPage}
+              onMilestoneDelete={projectState.archiveMilestoneFromPage}
               onTaskSave={projectState.saveTaskFromPage}
+              onTaskDelete={projectState.archiveTaskFromPage}
               onTaskStatus={projectState.statusTaskFromPage}
               onProjectSelect={setSelectedProjectId}
               onMessageClear={projectState.clearProjectMessage}
@@ -215,7 +187,6 @@ export function AppShell({
               suggestionLoading={memoryState.suggestionLoading}
               suggestionsRequested={memoryState.suggestionsRequested}
               message={memoryState.memoryMessage}
-              selectedMemoryId={memoryState.selectedMemoryId}
               onMemorySave={memoryState.saveMemoryFromPage}
               onMemoryDelete={memoryState.deleteMemoryFromPage}
               onCategorySave={memoryState.saveCategoryFromPage}
@@ -231,28 +202,19 @@ export function AppShell({
               tasks={projectState.tasks}
               taskLoading={projectState.projectLoading}
               pendingTaskIds={projectState.pendingTaskIds}
-              expandedTaskId={projectState.expandedTaskId}
               routines={routineState.routines}
               routineLoading={routineState.routineLoading}
               routineActionPending={routineState.routineActionPending}
               routineMessage={routineState.routineMessage}
-              expandedRoutineId={routineState.expandedRoutineId}
               pinnedMemories={memoryState.pinnedMemories}
               memoryLoading={memoryState.memoryLoading}
               memoryActionPending={memoryState.memoryActionPending}
               memoryMessage={memoryState.memoryMessage}
-              expandedMemoryId={memoryState.expandedMemoryId}
-              onTaskExpand={handleTaskExpand}
               onTaskStatus={projectState.updateTaskFromDashboard}
-              onTaskEdit={showProjectsView}
-              onRoutineExpand={handleRoutineExpand}
               onRoutineStatus={routineState.updateRoutine}
-              onRoutineBusy={routineState.markRoutineBusy}
-              onMemoryExpand={handleMemoryExpand}
               onMemoryDone={memoryState.markMemoryDone}
               onMemoryCancelDone={memoryState.cancelMemoryDone}
               onMemoryReplace={memoryState.replaceMemory}
-              onMemoryView={memoryState.viewMemory}
             />
           )}
         </div>

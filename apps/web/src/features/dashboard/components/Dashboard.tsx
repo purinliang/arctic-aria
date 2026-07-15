@@ -21,58 +21,40 @@ export function Dashboard({
   tasks,
   taskLoading,
   pendingTaskIds,
-  expandedTaskId,
   routines,
   routineLoading,
   routineActionPending,
   routineMessage,
-  expandedRoutineId,
   pinnedMemories,
   memoryLoading,
   memoryActionPending,
   memoryMessage,
-  expandedMemoryId,
-  onTaskExpand,
   onTaskStatus,
-  onTaskEdit,
-  onRoutineExpand,
   onRoutineStatus,
-  onRoutineBusy,
-  onMemoryExpand,
   onMemoryDone,
   onMemoryCancelDone,
   onMemoryReplace,
-  onMemoryView,
 }: {
   darkMode: boolean;
   tasks: Task[];
   taskLoading: boolean;
   pendingTaskIds: string[];
-  expandedTaskId: string | null;
   routines: Routine[];
   routineLoading: boolean;
   routineActionPending: boolean;
   routineMessage: string | null;
-  expandedRoutineId: string | null;
   pinnedMemories: PinnedMemory[];
   memoryLoading: boolean;
   memoryActionPending: boolean;
   memoryMessage: string | null;
-  expandedMemoryId: string | null;
-  onTaskExpand: (taskId: string) => void;
   onTaskStatus: (
     taskId: string,
     status: Exclude<TaskStatus, "archived">,
   ) => void;
-  onTaskEdit: () => void;
-  onRoutineExpand: (routineId: string) => void;
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
-  onRoutineBusy: () => void;
-  onMemoryExpand: (pinnedMemoryId: string) => void;
   onMemoryDone: (pinnedMemoryId: string) => void;
   onMemoryCancelDone: (pinnedMemoryId: string) => void;
   onMemoryReplace: (pinnedMemoryId: string) => void;
-  onMemoryView: (memoryId: string) => void;
 }) {
   return (
     <section className="aa-split-container">
@@ -97,10 +79,7 @@ export function Dashboard({
                 task={task}
                 darkMode={darkMode}
                 taskPending={pendingTaskIds.includes(task.id)}
-                expanded={expandedTaskId === task.id}
-                onToggleExpanded={() => onTaskExpand(task.id)}
                 onDone={() => onTaskStatus(task.id, "done")}
-                onEdit={onTaskEdit}
               />
             ))}
           </div>
@@ -128,10 +107,7 @@ export function Dashboard({
                   routine={routine}
                   darkMode={darkMode}
                   disabled={routineActionPending}
-                  expanded={expandedRoutineId === routine.id}
-                  onToggleExpanded={() => onRoutineExpand(routine.id)}
                   onStatusChange={(status) => onRoutineStatus(routine.id, status)}
-                  onBusy={onRoutineBusy}
                 />
               ))}
             </div>
@@ -158,12 +134,9 @@ export function Dashboard({
                   memory={memory}
                   darkMode={darkMode}
                   disabled={memoryActionPending}
-                  expanded={expandedMemoryId === memory.id}
                   onDone={() => onMemoryDone(memory.id)}
                   onCancelDone={() => onMemoryCancelDone(memory.id)}
                   onReplace={() => onMemoryReplace(memory.id)}
-                  onView={() => onMemoryView(memory.memoryId)}
-                  onToggleExpanded={() => onMemoryExpand(memory.id)}
                 />
               ))}
             </div>

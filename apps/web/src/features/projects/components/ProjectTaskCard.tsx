@@ -1,34 +1,33 @@
-import { ChevronDown, Edit3 } from "lucide-react";
-import { Button } from "@/components/button";
-import { mutedTextClass } from "@/components/color";
 import { CheckboxControl } from "@/components/forms/selection-field";
-import { ExpandableListItem } from "@/components/list";
+import { ListItem } from "@/components/list";
+import { DescriptionText, SupportingText } from "@/components/text";
 import type { Task } from "@/features/dashboard/types";
 
 export function ProjectTaskCard({
   task,
   darkMode,
   taskPending = false,
-  expanded,
-  onToggleExpanded,
   onDone,
-  onEdit,
 }: {
   task: Task;
   darkMode: boolean;
   taskPending?: boolean;
-  expanded: boolean;
-  onToggleExpanded: () => void;
   onDone: () => void;
-  onEdit: () => void;
 }) {
+  const metadata = [
+    task.projectLabel,
+    task.milestoneLabel,
+    deadlineText(task.deadline),
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
-    <ExpandableListItem
-      darkMode={darkMode}
-      expanded={expanded}
-      leading={
+    <ListItem darkMode={darkMode} className="items-start">
+      <div className="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] gap-3">
         <CheckboxControl
           darkMode={darkMode}
+          className="mt-1"
           checked={task.status === "done"}
           disabled={taskPending || task.status === "done"}
           aria-label={`Mark ${task.title} done`}
@@ -38,41 +37,17 @@ export function ProjectTaskCard({
             }
           }}
         />
-      }
-      headerClassName="items-center"
-      bodyClassName="flex flex-wrap gap-2"
-      onToggle={onToggleExpanded}
-      header={
-        <>
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="min-w-0 text-base font-semibold">{task.title}</h3>
-            </div>
-            <p className={`mt-1 text-sm leading-6 ${mutedTextClass(darkMode)}`}>
-              {task.description || "No description."}
-            </p>
-            <p className={`mt-2 text-xs ${mutedTextClass(darkMode)}`}>
-              {task.projectLabel} · {task.milestoneLabel} ·{" "}
-              {deadlineText(task.deadline)}
-            </p>
-          </div>
-          <ChevronDown
-            className={`shrink-0 transition ${expanded ? "rotate-180" : ""}`}
-            size={18}
-            aria-hidden="true"
-          />
-        </>
-      }
-    >
-      <Button
-        darkMode={darkMode}
-        disabled={taskPending}
-        icon={<Edit3 size={14} aria-hidden="true" />}
-        onClick={onEdit}
-      >
-        Edit
-      </Button>
-    </ExpandableListItem>
+        <div className="min-w-0">
+          <h3 className="min-w-0 text-base font-semibold">{task.title}</h3>
+          <DescriptionText darkMode={darkMode} className="mt-1">
+            {task.description || "No description."}
+          </DescriptionText>
+          <SupportingText darkMode={darkMode} className="mt-2 block">
+            {metadata}
+          </SupportingText>
+        </div>
+      </div>
+    </ListItem>
   );
 }
 

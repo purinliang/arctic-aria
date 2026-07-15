@@ -68,7 +68,7 @@ export function milestoneToDraft(
 
 export function emptyTaskDraft(
   projectId: string,
-  milestoneId: string,
+  milestoneId = "",
 ): ProjectTaskInput {
   return {
     projectId,

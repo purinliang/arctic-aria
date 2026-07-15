@@ -53,6 +53,7 @@ export class InMemoryMemoryRepository implements MemoryRepository {
           id: crypto.randomUUID(),
           userId,
           name: category.name,
+          description: category.description,
           baseWeight: category.baseWeight,
           createdAt: now,
           updatedAt: now,
@@ -78,6 +79,7 @@ export class InMemoryMemoryRepository implements MemoryRepository {
       id: crypto.randomUUID(),
       userId: input.userId,
       name: input.name,
+      description: input.description,
       baseWeight: input.baseWeight,
       createdAt: input.occurredAt,
       updatedAt: input.occurredAt,
@@ -99,6 +101,7 @@ export class InMemoryMemoryRepository implements MemoryRepository {
     }
 
     category.name = input.name;
+    category.description = input.description;
     category.baseWeight = input.baseWeight;
     category.updatedAt = input.occurredAt;
 

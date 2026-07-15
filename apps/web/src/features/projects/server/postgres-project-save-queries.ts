@@ -37,14 +37,6 @@ export async function saveProject(sql: Sql, input: SaveProjectInput) {
     return null;
   }
 
-  await sql.query(
-    `INSERT INTO project_milestones (
-       user_id, project_id, title, sort_order, start_date, created_at, updated_at
-     )
-     VALUES ($1, $2, 'Completion', 0, $3::date, $3, $3)`,
-    [input.userId, projectId, input.occurredAt],
-  );
-
   return projectId;
 }
 
@@ -185,6 +177,10 @@ function createTaskParams(input: SaveProjectTaskInput) {
 }
 
 async function milestoneExists(sql: Sql, input: SaveProjectTaskInput) {
+  if (!input.milestoneId) {
+    return true;
+  }
+
   const rows = (await sql.query(
     `SELECT id
      FROM project_milestones

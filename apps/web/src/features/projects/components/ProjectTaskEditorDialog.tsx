@@ -1,4 +1,5 @@
-import { LoaderCircle, Save } from "lucide-react";
+import { LoaderCircle, Save, Trash2 } from "lucide-react";
+import { Button } from "@/components/button";
 import type { Dispatch, SetStateAction } from "react";
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import {
@@ -25,6 +26,7 @@ export function ProjectTaskEditorDialog({
   setDraft,
   onClose,
   onSubmit,
+  onDelete,
 }: {
   darkMode: boolean;
   pending: boolean;
@@ -33,6 +35,7 @@ export function ProjectTaskEditorDialog({
   setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
   onClose: () => void;
   onSubmit: () => void;
+  onDelete?: () => void;
 }) {
   return (
     <DialogOverlay>
@@ -81,6 +84,17 @@ export function ProjectTaskEditorDialog({
             >
               Save
             </DialogPrimaryButton>
+            {onDelete ? (
+              <Button
+                darkMode={darkMode}
+                disabled={pending}
+                className="w-full"
+                icon={<Trash2 size={14} aria-hidden="true" />}
+                onClick={onDelete}
+              >
+                Delete
+              </Button>
+            ) : null}
           </DialogActionRow>
         </DialogFrame>
       </form>
@@ -147,15 +161,18 @@ function TaskMeta({
 }) {
   return (
     <>
-      <FieldLabel darkMode={darkMode} label="Milestone">
+      <FieldLabel darkMode={darkMode} label="Milestone" optional>
         <SelectInput
           darkMode={darkMode}
           value={draft.milestoneId}
-          disabled={pending || milestones.length === 0}
-          options={milestones.map((milestone) => ({
-            value: milestone.id,
-            label: milestone.title,
-          }))}
+          disabled={pending}
+          options={[
+            { value: "", label: "No milestone" },
+            ...milestones.map((milestone) => ({
+              value: milestone.id,
+              label: milestone.title,
+            })),
+          ]}
           onChange={(milestoneId) =>
             setDraft((current) => ({
               ...current,

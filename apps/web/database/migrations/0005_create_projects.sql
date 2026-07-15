@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS project_tasks (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   project_id uuid NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  milestone_id uuid NOT NULL REFERENCES project_milestones(id) ON DELETE CASCADE,
+  milestone_id uuid REFERENCES project_milestones(id) ON DELETE SET NULL,
   title text NOT NULL,
   description text NOT NULL DEFAULT '',
   status text NOT NULL DEFAULT 'todo',

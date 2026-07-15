@@ -43,17 +43,19 @@ export function DialogBackdrop({
 export function DialogFrame({
   darkMode,
   size = "md",
+  padding = "md",
   className,
   children,
 }: {
   darkMode: boolean;
   size?: "md" | "sm";
+  padding?: "md" | "none";
   className?: string;
   children: ReactNode;
 }) {
   return (
     <section
-      className={cx(dialogFrameClass(darkMode, size), className)}
+      className={cx(dialogFrameClass(darkMode, size, padding), className)}
     >
       {children}
     </section>
@@ -63,9 +65,11 @@ export function DialogFrame({
 export function dialogFrameClass(
   darkMode: boolean,
   size: "md" | "sm" = "md",
+  padding: "md" | "none" = "md",
 ) {
   return cx(
-    "relative rounded-md border p-4 shadow-2xl",
+    "relative rounded-md border shadow-2xl",
+    padding === "md" ? "p-4" : "",
     size === "sm"
       ? "w-[min(calc(100vw-2rem),28rem)]"
       : "w-[min(calc(100vw-2rem),42rem)]",

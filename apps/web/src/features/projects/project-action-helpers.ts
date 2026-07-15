@@ -31,6 +31,7 @@ export type ProjectView = {
   timelineText: string;
   currentMilestone: string;
   progressText: string;
+  tasks: ProjectTaskView[];
   milestones: MilestoneView[];
 };
 
@@ -277,7 +278,7 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
 }
 
 function toProjectView(project: ProjectRecord): ProjectView {
-  const tasks = project.milestones.flatMap((milestone) => milestone.tasks);
+  const tasks = [...project.tasks].sort(compareProjectTasks);
   const doneCount = tasks.filter((task) => task.status === "done").length;
   const activeMilestone = project.milestones.find(
     (milestone) => milestone.status === "active",
@@ -300,6 +301,7 @@ function toProjectView(project: ProjectRecord): ProjectView {
         : "Open-ended",
     currentMilestone: activeMilestone?.title ?? "No active milestone",
     progressText: `${doneCount} of ${tasks.length} tasks done`,
+    tasks: tasks.map(toTaskView),
     milestones: project.milestones.map(toMilestoneView),
   };
 }
@@ -325,7 +327,7 @@ function toTaskView(task: ProjectTaskRecord): ProjectTaskView {
   return {
     id: task.id,
     projectId: task.projectId,
-    milestoneId: task.milestoneId,
+    milestoneId: task.milestoneId ?? "",
     title: task.title,
     description: task.description,
     projectLabel: task.projectTitle,

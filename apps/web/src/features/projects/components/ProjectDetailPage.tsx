@@ -5,6 +5,7 @@ import { mutedTextClass } from "@/components/color";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
+import { DescriptionText, LabelText, SupportingText } from "@/components/text";
 import type {
   ProjectTaskView,
   ProjectView,
@@ -51,13 +52,6 @@ export function ProjectDetailPage({
     );
   }
 
-  const taskRows = project.milestones.flatMap((milestone) =>
-    milestone.tasks.map((task) => ({
-      task,
-      milestoneTitle: milestone.title,
-    })),
-  );
-
   return (
     <section className="aa-split-container">
       <div className="aa-split-panel gap-4">
@@ -79,18 +73,17 @@ export function ProjectDetailPage({
             }
           />
           <List darkMode={darkMode}>
-            {taskRows.length === 0 ? (
+            {project.tasks.length === 0 ? (
               <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
                 No tasks yet. Add the next concrete task.
               </p>
             ) : null}
-            {taskRows.map(({ task, milestoneTitle }) => (
+            {project.tasks.map((task) => (
               <ListItem key={task.id} darkMode={darkMode} layout="block">
                 <ProjectTaskRow
                   darkMode={darkMode}
                   pending={pending}
                   task={task}
-                  milestoneTitle={milestoneTitle}
                   onEdit={() => onEditTask(task)}
                   onTaskStatus={onTaskStatus}
                 />
@@ -108,14 +101,10 @@ export function ProjectDetailPage({
             />
             <div className="grid gap-4 px-4 py-4">
               <div className="grid gap-1">
-                <p className={`text-xs ${mutedTextClass(darkMode)}`}>
-                  Description
-                </p>
-                <p
-                  className={`text-sm leading-6 ${mutedTextClass(darkMode)}`}
-                >
+                <LabelText darkMode={darkMode}>Description</LabelText>
+                <DescriptionText darkMode={darkMode}>
                   {project.description}
-                </p>
+                </DescriptionText>
               </div>
               <dl className="grid gap-3 text-sm">
                 <ProjectMetadataRow
@@ -150,6 +139,11 @@ export function ProjectDetailPage({
               }
             />
             <List darkMode={darkMode}>
+              {project.milestones.length === 0 ? (
+                <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+                  No milestones yet. Add one when the project needs a phase boundary.
+                </p>
+              ) : null}
               {project.milestones.map((milestone) => (
                 <ListItem
                   key={milestone.id}
@@ -196,8 +190,12 @@ function ProjectMetadataRow({
 }) {
   return (
     <div className="grid gap-1">
-      <dt className={`text-xs ${mutedTextClass(darkMode)}`}>{label}</dt>
-      <dd className="font-semibold">{value}</dd>
+      <dt>
+        <LabelText darkMode={darkMode}>{label}</LabelText>
+      </dt>
+      <dd>
+        <DescriptionText darkMode={darkMode}>{value}</DescriptionText>
+      </dd>
     </div>
   );
 }
@@ -206,20 +204,22 @@ function ProjectTaskRow({
   darkMode,
   pending,
   task,
-  milestoneTitle,
   onEdit,
   onTaskStatus,
 }: {
   darkMode: boolean;
   pending: boolean;
   task: ProjectTaskView;
-  milestoneTitle: string;
   onEdit: () => void;
   onTaskStatus: (
     taskId: string,
     status: Exclude<TaskStatus, "archived">,
   ) => void;
 }) {
+  const metadata = [task.milestoneLabel, deadlineText(task.deadline)]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <div className="grid gap-3">
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3">
@@ -236,12 +236,14 @@ function ProjectTaskRow({
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-semibold">{task.title}</span>
           </div>
-          <p className={`mt-1 text-sm leading-6 ${mutedTextClass(darkMode)}`}>
+          <DescriptionText darkMode={darkMode} className="mt-1">
             {task.description || "No description."}
-          </p>
-          <p className={`mt-2 text-xs ${mutedTextClass(darkMode)}`}>
-            {milestoneTitle} · {deadlineText(task.deadline)}
-          </p>
+          </DescriptionText>
+          {metadata ? (
+            <SupportingText darkMode={darkMode} className="mt-2 block">
+              {metadata}
+            </SupportingText>
+          ) : null}
         </div>
         <Button
           darkMode={darkMode}

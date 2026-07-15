@@ -52,7 +52,13 @@ export function LabelText({
   className?: string;
 }) {
   return (
-    <span className={cx("text-left text-sm font-medium", darkMode ? "text-neutral-200" : "text-slate-700", className)}>
+    <span
+      className={cx(
+        "text-left text-sm font-semibold leading-6",
+        darkMode ? "text-neutral-200" : "text-slate-700",
+        className,
+      )}
+    >
       {children}
     </span>
   );
@@ -68,7 +74,7 @@ export function SupportingText({
   className?: string;
 }) {
   return (
-    <span className={cx("text-sm", mutedTextClass(darkMode), className)}>
+    <span className={cx("text-xs leading-5", mutedTextClass(darkMode), className)}>
       {children}
     </span>
   );

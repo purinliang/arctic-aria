@@ -11,6 +11,7 @@ export const categoryPeriodWeights: Record<CategoryPeriod, number> = {
 
 export const emptyCategoryDraft: MemoryCategoryInput = {
   name: "",
+  description: "",
   baseWeight: categoryPeriodWeights.Weekly,
 };
 

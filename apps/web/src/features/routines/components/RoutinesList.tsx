@@ -2,6 +2,7 @@ import { Edit3 } from "lucide-react";
 import { Button } from "@/components/button";
 import { mutedTextClass } from "@/components/color";
 import { List, ListItem } from "@/components/list";
+import { DescriptionText, SupportingText } from "@/components/text";
 import type { RoutineDefinition } from "@/features/dashboard/types";
 import { ruleSummary } from "./routine-page-helpers";
 
@@ -36,15 +37,12 @@ export function RoutinesList({
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-sm font-semibold">{routine.title}</h3>
             </div>
-            <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
-              {routine.preferredTime ?? "Flexible"}
-            </p>
-            <p className={`mt-1 text-sm leading-6 ${mutedTextClass(darkMode)}`}>
+            <DescriptionText darkMode={darkMode} className="mt-1">
               {routine.description || "No description."}
-            </p>
-            <p className={`mt-2 text-xs ${mutedTextClass(darkMode)}`}>
-              {ruleSummary(routine)}
-            </p>
+            </DescriptionText>
+            <SupportingText darkMode={darkMode} className="mt-2 block">
+              {routine.preferredTime ?? "Flexible"} · {ruleSummary(routine)}
+            </SupportingText>
           </div>
           <Button
             darkMode={darkMode}

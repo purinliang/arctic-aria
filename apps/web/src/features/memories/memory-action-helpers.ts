@@ -33,6 +33,7 @@ export type MemorySuggestionRefreshData = {
 export type MemoryCategoryInput = {
   id?: string;
   name: string;
+  description: string;
   baseWeight: number;
 };
 
@@ -82,6 +83,7 @@ export async function loadMemoryDashboardData(
     categories: categories.map((category) => ({
       id: category.id,
       name: category.name,
+      description: category.description,
       baseWeight: category.baseWeight,
     })),
     pinnedMemories: pinnedMemories.map(toPinnedMemory),
@@ -93,6 +95,7 @@ export async function loadMemoryDashboardData(
 
 export function validateCategoryInput(input: MemoryCategoryInput) {
   const name = input.name.trim();
+  const description = input.description.trim();
   const baseWeight = Number(input.baseWeight);
 
   if (name.length < 1 || name.length > 40) {
@@ -109,7 +112,14 @@ export function validateCategoryInput(input: MemoryCategoryInput) {
     };
   }
 
-  return { ok: true as const, name, baseWeight };
+  if (description.length > 500) {
+    return {
+      ok: false as const,
+      message: "Category description must be 500 characters or fewer.",
+    };
+  }
+
+  return { ok: true as const, name, description, baseWeight };
 }
 
 export function validateMemoryInput(input: MemoryInput) {

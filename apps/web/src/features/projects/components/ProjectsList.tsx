@@ -4,6 +4,7 @@ import { CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
 import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
+import { DescriptionText, SupportingText } from "@/components/text";
 import type { ProjectView } from "@/features/projects/actions";
 
 export function ProjectsList({
@@ -79,15 +80,12 @@ function ProjectListItem({
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-semibold">{project.title}</span>
         </div>
-        <p className={`mt-1 line-clamp-2 text-sm ${mutedTextClass(darkMode)}`}>
+        <DescriptionText darkMode={darkMode} className="mt-1 line-clamp-2">
           {project.description}
-        </p>
-        <div
-          className={`mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs ${mutedTextClass(darkMode)}`}
-        >
-          <span>{project.timelineText}</span>
-          <span>{project.progressText}</span>
-        </div>
+        </DescriptionText>
+        <SupportingText darkMode={darkMode} className="mt-2 block">
+          {project.timelineText} · {project.progressText}
+        </SupportingText>
       </button>
     </ListItem>
   );

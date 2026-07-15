@@ -1,5 +1,6 @@
-import { LoaderCircle, Save } from "lucide-react";
+import { LoaderCircle, Save, Trash2 } from "lucide-react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
+import { Button } from "@/components/button";
 import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import {
@@ -26,6 +27,7 @@ export function ProjectEditorDialog({
   setDraft,
   onClose,
   onSubmit,
+  onDelete,
 }: {
   darkMode: boolean;
   pending: boolean;
@@ -33,6 +35,7 @@ export function ProjectEditorDialog({
   setDraft: Dispatch<SetStateAction<ProjectInput>>;
   onClose: () => void;
   onSubmit: () => void;
+  onDelete?: () => void;
 }) {
   return (
     <DialogShell
@@ -42,6 +45,7 @@ export function ProjectEditorDialog({
       closeLabel="Close project editor"
       onClose={onClose}
       onSubmit={onSubmit}
+      onDelete={onDelete}
     >
       <FieldLabel darkMode={darkMode} label="Title">
         <TextInput
@@ -88,6 +92,7 @@ export function MilestoneEditorDialog({
   setDraft,
   onClose,
   onSubmit,
+  onDelete,
 }: {
   darkMode: boolean;
   pending: boolean;
@@ -95,6 +100,7 @@ export function MilestoneEditorDialog({
   setDraft: Dispatch<SetStateAction<MilestoneInput>>;
   onClose: () => void;
   onSubmit: () => void;
+  onDelete?: () => void;
 }) {
   return (
     <DialogShell
@@ -104,6 +110,7 @@ export function MilestoneEditorDialog({
       closeLabel="Close milestone editor"
       onClose={onClose}
       onSubmit={onSubmit}
+      onDelete={onDelete}
     >
       <FieldLabel darkMode={darkMode} label="Title">
         <TextInput
@@ -316,6 +323,7 @@ function DialogShell({
   children,
   onClose,
   onSubmit,
+  onDelete,
 }: {
   darkMode: boolean;
   pending: boolean;
@@ -324,6 +332,7 @@ function DialogShell({
   children: ReactNode;
   onClose: () => void;
   onSubmit: () => void;
+  onDelete?: () => void;
 }) {
   return (
     <DialogOverlay>
@@ -358,6 +367,17 @@ function DialogShell({
             >
               Save
             </DialogPrimaryButton>
+            {onDelete ? (
+              <Button
+                darkMode={darkMode}
+                disabled={pending}
+                className="w-full"
+                icon={<Trash2 size={14} aria-hidden="true" />}
+                onClick={onDelete}
+              >
+                Delete
+              </Button>
+            ) : null}
           </DialogActionRow>
         </DialogFrame>
       </form>

@@ -122,7 +122,7 @@ function SidebarFrame({
           : "border-slate-200 bg-white text-slate-950"
       }`}
     >
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 pl-4">
         <div className="flex min-w-0 items-center gap-2">
           <Sparkles size={22} aria-hidden="true" />
           <h2 className="truncate text-2xl font-semibold tracking-normal">

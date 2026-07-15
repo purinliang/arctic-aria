@@ -21,14 +21,14 @@ type Sql = NeonQueryFunction<false, false>;
 export async function ensureDefaultCategories(sql: Sql, userId: string) {
   for (const category of getDefaultMemoryCategories()) {
     await sql`
-      INSERT INTO memory_categories (user_id, name, base_weight)
-      VALUES (${userId}, ${category.name}, ${category.baseWeight})
+      INSERT INTO memory_categories (user_id, name, description, base_weight)
+      VALUES (${userId}, ${category.name}, ${category.description}, ${category.baseWeight})
       ON CONFLICT (user_id, name) DO NOTHING
     `;
   }
 
   const rows = (await sql`
-    SELECT id, user_id, name, base_weight, created_at, updated_at
+    SELECT id, user_id, name, description, base_weight, created_at, updated_at
     FROM memory_categories
     WHERE user_id = ${userId}
     ORDER BY name
@@ -41,7 +41,7 @@ export async function listCategories(sql: Sql, userId: string) {
   await ensureDefaultCategories(sql, userId);
 
   const rows = (await sql`
-    SELECT id, user_id, name, base_weight, created_at, updated_at
+    SELECT id, user_id, name, description, base_weight, created_at, updated_at
     FROM memory_categories
     WHERE user_id = ${userId}
     ORDER BY name
@@ -52,9 +52,14 @@ export async function listCategories(sql: Sql, userId: string) {
 
 export async function createCategory(sql: Sql, input: CreateMemoryCategoryInput) {
   const rows = (await sql`
-    INSERT INTO memory_categories (user_id, name, base_weight, created_at, updated_at)
-    VALUES (${input.userId}, ${input.name}, ${input.baseWeight}, ${input.occurredAt}, ${input.occurredAt})
-    RETURNING id, user_id, name, base_weight, created_at, updated_at
+    INSERT INTO memory_categories (
+      user_id, name, description, base_weight, created_at, updated_at
+    )
+    VALUES (
+      ${input.userId}, ${input.name}, ${input.description}, ${input.baseWeight},
+      ${input.occurredAt}, ${input.occurredAt}
+    )
+    RETURNING id, user_id, name, description, base_weight, created_at, updated_at
   `) as MemoryCategoryRow[];
 
   return mapCategory(rows[0]);
@@ -63,10 +68,13 @@ export async function createCategory(sql: Sql, input: CreateMemoryCategoryInput)
 export async function updateCategory(sql: Sql, input: UpdateMemoryCategoryInput) {
   const rows = (await sql`
     UPDATE memory_categories
-    SET name = ${input.name}, base_weight = ${input.baseWeight}, updated_at = ${input.occurredAt}
+    SET name = ${input.name},
+      description = ${input.description},
+      base_weight = ${input.baseWeight},
+      updated_at = ${input.occurredAt}
     WHERE id = ${input.categoryId}
       AND user_id = ${input.userId}
-    RETURNING id, user_id, name, base_weight, created_at, updated_at
+    RETURNING id, user_id, name, description, base_weight, created_at, updated_at
   `) as MemoryCategoryRow[];
 
   return rows[0] ? mapCategory(rows[0]) : null;
@@ -134,7 +142,7 @@ export async function updateMemory(sql: Sql, input: UpdateMemoryInput) {
        SET category_id = target_category.id, title = $4, description = $5,
          updated_at = $6
        FROM target_category
-       WHERE id = $2 AND memories.user_id = $1
+       WHERE memories.id = $2 AND memories.user_id = $1
        RETURNING memories.id, memories.user_id, memories.category_id,
          memories.title, memories.description, memories.last_done_at,
          memories.done_count, memories.last_pinned_at, memories.last_ignored_at,

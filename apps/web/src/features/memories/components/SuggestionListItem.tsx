@@ -1,7 +1,7 @@
 import { LoaderCircle, Pin, PinOff } from "lucide-react";
 import { Button } from "@/components/button";
-import { mutedTextClass } from "@/components/color";
 import { ListItem } from "@/components/list";
+import { DescriptionText, SupportingText } from "@/components/text";
 import type { MemorySuggestion } from "@/features/dashboard/types";
 
 export function SuggestionListItem({
@@ -19,21 +19,24 @@ export function SuggestionListItem({
   onPin: () => void;
   onCancel: () => void;
 }) {
+  const metadata = [
+    suggestion.category,
+    suggestion.lastDoneText,
+    `Done ${suggestion.doneCount} times`,
+  ].join(" · ");
+
   return (
     <ListItem darkMode={darkMode} className="gap-3">
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="text-sm font-semibold">{suggestion.title}</h3>
         </div>
-        <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
-          {suggestion.category}
-        </p>
-        <p className={`mt-1 text-xs leading-5 ${mutedTextClass(darkMode)}`}>
+        <DescriptionText darkMode={darkMode} className="mt-1">
           {suggestion.description}
-        </p>
-        <p className={`mt-2 text-xs ${mutedTextClass(darkMode)}`}>
-          {suggestion.lastDoneText} · Done {suggestion.doneCount} times
-        </p>
+        </DescriptionText>
+        <SupportingText darkMode={darkMode} className="mt-2 block">
+          {metadata}
+        </SupportingText>
       </div>
       <div className="shrink-0">
         <Button

@@ -172,7 +172,7 @@ export async function saveProjectTask(
     const saved = await projectService.saveTask(user.id, {
       taskId: input.id,
       projectId: input.projectId,
-      milestoneId: input.milestoneId,
+      milestoneId: input.milestoneId || null,
       title: validation.title,
       description: validation.description,
       priority: input.priority,
@@ -204,6 +204,24 @@ export async function archiveProject(
   return withProjectData(
     (userId) => projectService.archiveProject(userId, projectId),
     "Project was not found.",
+  );
+}
+
+export async function archiveMilestone(
+  milestoneId: string,
+): Promise<ProjectActionResult<ProjectDashboardData>> {
+  return withProjectData(
+    (userId) => projectService.archiveMilestone(userId, milestoneId),
+    "Milestone was not found.",
+  );
+}
+
+export async function archiveProjectTask(
+  taskId: string,
+): Promise<ProjectActionResult<ProjectDashboardData>> {
+  return withProjectData(
+    (userId) => projectService.archiveTask(userId, taskId),
+    "Task was not found.",
   );
 }
 

@@ -46,8 +46,8 @@ export type ProjectTaskRow = {
   user_id: string;
   project_id: string;
   project_title: string;
-  milestone_id: string;
-  milestone_title: string;
+  milestone_id: string | null;
+  milestone_title: string | null;
   title: string;
   description: string;
   status: ProjectTaskStatus;
@@ -88,7 +88,7 @@ export const projectTaskSelect = `
     project_tasks.archived_at
   FROM project_tasks
   INNER JOIN projects ON projects.id = project_tasks.project_id
-  INNER JOIN project_milestones ON project_milestones.id = project_tasks.milestone_id
+  LEFT JOIN project_milestones ON project_milestones.id = project_tasks.milestone_id
 `;
 
 export function mapProject(row: ProjectRow): ProjectRecord {
@@ -107,6 +107,7 @@ export function mapProject(row: ProjectRow): ProjectRecord {
     updatedAt: toDate(row.updated_at),
     completedAt: toNullableDate(row.completed_at),
     archivedAt: toNullableDate(row.archived_at),
+    tasks: [],
     milestones: [],
   };
 }
@@ -138,7 +139,7 @@ export function mapProjectTask(row: ProjectTaskRow): ProjectTaskRecord {
     projectId: row.project_id,
     projectTitle: row.project_title,
     milestoneId: row.milestone_id,
-    milestoneTitle: row.milestone_title,
+    milestoneTitle: row.milestone_title ?? "",
     title: row.title,
     description: row.description,
     status: row.status,

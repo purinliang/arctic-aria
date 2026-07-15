@@ -13,7 +13,7 @@ export type ProjectTaskRecord = {
   userId: string;
   projectId: string;
   projectTitle: string;
-  milestoneId: string;
+  milestoneId: string | null;
   milestoneTitle: string;
   title: string;
   description: string;
@@ -64,6 +64,7 @@ export type ProjectRecord = {
   updatedAt: Date;
   completedAt: Date | null;
   archivedAt: Date | null;
+  tasks: ProjectTaskRecord[];
   milestones: ProjectMilestoneRecord[];
 };
 
@@ -96,7 +97,7 @@ export type SaveProjectTaskInput = {
   userId: string;
   taskId?: string;
   projectId: string;
-  milestoneId: string;
+  milestoneId: string | null;
   title: string;
   description: string;
   priority: ProjectPriority;
@@ -116,6 +117,16 @@ export type ProjectRepository = {
   archiveProject(input: {
     userId: string;
     projectId: string;
+    occurredAt: Date;
+  }): Promise<boolean>;
+  archiveMilestone(input: {
+    userId: string;
+    milestoneId: string;
+    occurredAt: Date;
+  }): Promise<boolean>;
+  archiveTask(input: {
+    userId: string;
+    taskId: string;
     occurredAt: Date;
   }): Promise<boolean>;
   updateTaskStatus(input: {

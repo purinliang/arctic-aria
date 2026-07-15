@@ -53,7 +53,6 @@ export function MemoriesPage({
   suggestionLoading,
   suggestionsRequested,
   message,
-  selectedMemoryId,
   onMemorySave,
   onMemoryDelete,
   onCategorySave,
@@ -76,7 +75,6 @@ export function MemoriesPage({
   suggestionLoading: boolean;
   suggestionsRequested: boolean;
   message: string | null;
-  selectedMemoryId: string | null;
   onMemorySave: (input: MemoryInput) => EditorResult;
   onMemoryDelete: (memoryId: string) => EditorResult;
   onCategorySave: (input: MemoryCategoryInput) => CategoryEditorResult;
@@ -87,9 +85,6 @@ export function MemoriesPage({
   onSuggestionCancel: (memoryId: string) => SuggestionResult;
 }) {
   const [filter, setFilter] = useState<MemoryFilter>("All");
-  const [expandedMemoryId, setExpandedMemoryId] = useState<string | null>(
-    selectedMemoryId,
-  );
   const [memoryEditorOpen, setMemoryEditorOpen] = useState(false);
   const [categoryEditorOpen, setCategoryEditorOpen] = useState(false);
   const [categoryFormOpen, setCategoryFormOpen] = useState(false);
@@ -174,6 +169,7 @@ export function MemoriesPage({
     setCategoryDraft({
       id: category.id,
       name: category.name,
+      description: category.description,
       baseWeight: category.baseWeight,
     });
     onMessageClear();
@@ -273,13 +269,6 @@ export function MemoriesPage({
                   key={memory.id}
                   memory={memory}
                   darkMode={darkMode}
-                  selected={memory.id === selectedMemoryId}
-                  expanded={expandedMemoryId === memory.id}
-                  onToggle={() =>
-                    setExpandedMemoryId((current) =>
-                      current === memory.id ? null : memory.id,
-                    )
-                  }
                   onEdit={() => openMemoryEditor(memory)}
                 />
               ))}

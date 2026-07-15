@@ -11,8 +11,10 @@ import {
   dividerClass,
   headerSurfaceClass,
   mutedTextClass,
+  sectionBorderClass,
 } from "@/components/color";
 import { Panel } from "@/components/panel";
+import { LabelText } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { MemorySuggestion } from "@/features/dashboard/types";
 import { SuggestionListItem } from "./SuggestionListItem";
@@ -73,10 +75,10 @@ export function MemoryFilters({
   onManage: () => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-2 px-4 py-3">
-      <span className={`text-xs font-semibold ${mutedTextClass(darkMode)}`}>
-        Categories:
-      </span>
+    <div
+      className={`flex flex-wrap items-center gap-2 border-b px-4 py-3 ${sectionBorderClass(darkMode)}`}
+    >
+      <LabelText darkMode={darkMode}>Categories:</LabelText>
       {filters.map((item) => (
         <Button
           key={item}

@@ -35,7 +35,6 @@ type MemoryDataAction = () => Promise<
 
 export function useDashboardMemories(
   showErrorNotification: (message: string, title?: string) => void,
-  showMemoriesView: (memoryId?: string) => void,
 ) {
   const [pinnedMemories, setPinnedMemories] = useState<PinnedMemory[]>([]);
   const [memoryCategories, setMemoryCategories] = useState<
@@ -52,31 +51,12 @@ export function useDashboardMemories(
   const [pinnedSuggestionIds, setPinnedSuggestionIds] = useState<string[]>([]);
   const [pendingSuggestionIds, setPendingSuggestionIds] = useState<string[]>([]);
   const [suggestionsRequested, setSuggestionsRequested] = useState(false);
-  const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null);
-  const [expandedMemoryId, setExpandedMemoryId] = useState<string | null>(null);
 
-  const applyMemoryData = useCallback(
-    (data: MemoryDashboardData, nextExpandedMemoryId?: string | null) => {
-      setPinnedMemories(data.pinnedMemories);
-      setMemoryCategories(data.categories);
-      setMemoryRecords(data.memoryRecords);
-      setExpandedMemoryId((current) => {
-        if (nextExpandedMemoryId !== undefined) {
-          return nextExpandedMemoryId;
-        }
-
-        if (
-          current &&
-          data.pinnedMemories.some((memory) => memory.id === current)
-        ) {
-          return current;
-        }
-
-        return data.pinnedMemories[0]?.id ?? null;
-      });
-    },
-    [],
-  );
+  const applyMemoryData = useCallback((data: MemoryDashboardData) => {
+    setPinnedMemories(data.pinnedMemories);
+    setMemoryCategories(data.categories);
+    setMemoryRecords(data.memoryRecords);
+  }, []);
 
   const refreshMemoryData = useCallback(async () => {
     const result = await getMemoryDashboardData();
@@ -86,7 +66,6 @@ export function useDashboardMemories(
       setPinnedMemories([]);
       setMemoryCategories([]);
       setMemoryRecords([]);
-      setExpandedMemoryId(null);
       setMemoryLoading(false);
       return;
     }
@@ -97,7 +76,6 @@ export function useDashboardMemories(
 
   async function runMemoryAction(
     action: MemoryDataAction,
-    nextExpandedMemoryId: string | null,
     onFailure?: () => void,
   ) {
     setMemoryMessage(null);
@@ -112,7 +90,7 @@ export function useDashboardMemories(
         return;
       }
 
-      applyMemoryData(result.data, nextExpandedMemoryId);
+      applyMemoryData(result.data);
     } finally {
       setMemoryActionPending(false);
     }
@@ -159,13 +137,11 @@ export function useDashboardMemories(
   function markMemoryDone(pinnedMemoryId: string) {
     const previousPinnedMemories = pinnedMemories;
 
-    setExpandedMemoryId(null);
     setPinnedMemories((current) =>
       applyOptimisticPinnedMemoryStatus(current, pinnedMemoryId, "completed"),
     );
     void runMemoryAction(
       () => completePinnedMemory(pinnedMemoryId),
-      null,
       () => setPinnedMemories(previousPinnedMemories),
     );
   }
@@ -173,13 +149,11 @@ export function useDashboardMemories(
   function cancelMemoryDone(pinnedMemoryId: string) {
     const previousPinnedMemories = pinnedMemories;
 
-    setExpandedMemoryId(null);
     setPinnedMemories((current) =>
       applyOptimisticPinnedMemoryStatus(current, pinnedMemoryId, "active"),
     );
     void runMemoryAction(
       () => cancelPinnedMemoryDone(pinnedMemoryId),
-      null,
       () => setPinnedMemories(previousPinnedMemories),
     );
   }
@@ -278,20 +252,11 @@ export function useDashboardMemories(
     pinnedSuggestionIds,
     pendingSuggestionIds,
     suggestionsRequested,
-    selectedMemoryId,
-    expandedMemoryId,
-    setExpandedMemoryId,
     refreshMemoryData,
     markMemoryDone,
     cancelMemoryDone,
-    replaceMemory: (pinnedMemoryId: string) => {
-      setExpandedMemoryId(null);
-      void runMemoryAction(() => replacePinnedMemory(pinnedMemoryId), null);
-    },
-    viewMemory: (memoryId: string) => {
-      setSelectedMemoryId(memoryId);
-      showMemoriesView(memoryId);
-    },
+    replaceMemory: (pinnedMemoryId: string) =>
+      void runMemoryAction(() => replacePinnedMemory(pinnedMemoryId)),
     saveMemoryFromPage: (input: MemoryInput) =>
       runMemoryManagementAction(() => saveMemory(input)),
     deleteMemoryFromPage: (memoryId: string) =>
