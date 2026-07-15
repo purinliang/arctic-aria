@@ -111,9 +111,13 @@ The visible behavior should be deterministic:
 - Closing the dialog without saving preserves persisted data.
 - Successful save closes the dialog.
 - Successful delete closes the dialog.
-- Failed save/delete keeps the dialog open and shows the error message.
+- Failed save/delete keeps the dialog open and shows the backend message through
+  the shared notification stack.
 - After success, the memory list and category filters refresh from the database.
 - Buttons are disabled while the action is pending.
+- Memory and category editor dialogs use the shared dialog shell, shared field
+  labels, shared text inputs/text areas, shared single-choice controls, and the
+  shared list primitive for category rows.
 
 ## Code Locations
 

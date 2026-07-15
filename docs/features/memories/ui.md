@@ -231,12 +231,13 @@ Save/delete behavior:
 
 - After a successful save or delete, close the active dialog.
 - Refresh the Memories page data immediately after the backend action succeeds.
-- Keep the dialog open and show a clear message if validation or database
-  update fails.
+- Keep the dialog open and show validation or database update failures through
+  the shared notification component. Do not add inline error boxes inside the
+  memory/category dialogs for submit failures.
 - Disable action buttons while the backend action is pending so duplicate
   submits are avoided.
 - Category delete can fail when the category is still used by memories; show the
-  backend message and keep the dialog open.
+  backend message in the shared notification component and keep the dialog open.
 
 ### Add Memory Dialog
 
@@ -250,11 +251,12 @@ Close button: cross icon button without an outline.
 
 List fields vertically.
 
-Use a title label, title text box, and hint placeholder.
+Use the shared field-label, text-input, and multiline text-area components for
+memory title and description.
 
-Category selection should not be a dropdown list. Use the same tag style as the
-category filters in the Memories card. Nothing should be selected by default.
-Include the `Manage` button.
+Category selection should not be a dropdown list. Use the shared single-choice
+component with the same visual language as app selection buttons. Nothing should
+be selected by default. Include the `Manage` button beside the selection group.
 
 #### Confirm Button
 
@@ -302,9 +304,11 @@ as the Add Memory dialog.
 
 Use a clear label: `Category name`.
 
-Suggestion period should be selected with tag-style options: `Weekly` and
-`Monthly`. Sightseeing defaults to monthly; Cuisine defaults to weekly. The
-selection should automatically translate into the internal weight.
+Use the shared field-label and text-input components for the category name.
+
+Suggestion period should be selected with the shared single-choice component:
+`Weekly` and `Monthly`. Sightseeing defaults to monthly; Cuisine defaults to
+weekly. The selection should automatically translate into the internal weight.
 
 Always keep the same design as the Add Memory dialog for consistency.
 
@@ -317,5 +321,5 @@ The Manage Categories dialog should not turn into an inline edit form when the
 user clicks edit.
 
 When clicking the delete button, show a confirmation dialog with two buttons.
-If the category is still used by memories, show the backend error and keep the
-dialog open.
+If the category is still used by memories, show the backend error in the shared
+notification component and keep the dialog open.

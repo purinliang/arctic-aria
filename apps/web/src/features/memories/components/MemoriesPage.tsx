@@ -304,7 +304,6 @@ export function MemoriesPage({
         <MemoryEditorDialog
           darkMode={darkMode}
           pending={pending}
-          message={message}
           editingMemory={editingMemory}
           memoryDraft={memoryDraft}
           categories={categories}
@@ -328,7 +327,6 @@ export function MemoriesPage({
         <CategoryManagerDialog
           darkMode={darkMode}
           pending={pending}
-          message={message}
           categories={categories}
           categoryDraft={categoryDraft}
           categoryFormOpen={categoryFormOpen}

@@ -4,19 +4,22 @@ import {
   Plus,
   Save,
   Trash2,
-  X,
 } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
-import { dividerClass } from "@/components/color";
+import { sectionBorderClass } from "@/components/color";
 import {
   DialogActionRow,
+  DialogBackdrop,
+  DialogFrame,
+  DialogHeader,
+  DialogOverlay,
   DialogPrimaryButton,
-  dialogFrameClass,
 } from "@/components/dialog";
-import { TextInput } from "@/components/forms/input-field";
-import { ListItem } from "@/components/list";
-import { InlineMessage } from "@/components/text";
+import { SingleChoiceGroup } from "@/components/forms/choice-group";
+import { FieldLabel, TextInput } from "@/components/forms/input-field";
+import { List, ListItem } from "@/components/list";
+import { LabelText } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryCategoryInput } from "@/features/memories/actions";
@@ -29,7 +32,6 @@ import {
 export function CategoryManagerDialog({
   darkMode,
   pending,
-  message,
   categories,
   categoryDraft,
   categoryFormOpen,
@@ -43,7 +45,6 @@ export function CategoryManagerDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
-  message: string | null;
   categories: MemoryCategoryOption[];
   categoryDraft: MemoryCategoryInput;
   categoryFormOpen: boolean;
@@ -57,30 +58,18 @@ export function CategoryManagerDialog({
 }) {
   return (
     <>
-      <div className="fixed inset-0 z-50 grid place-items-center bg-black/65 px-4 py-6">
-        <button
-          className="absolute inset-0 cursor-default"
-          type="button"
-          aria-label="Close category editor"
+      <DialogOverlay>
+        <DialogBackdrop
+          label="Close category editor"
           onClick={onCloseEditor}
         />
-        <section className={dialogFrameClass(darkMode)}>
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h3 className="text-base font-semibold">Manage Categories</h3>
-            <Button
-              darkMode={darkMode}
-              tone="ghost"
-              size="icon-sm"
-              aria-label="Close category editor"
-              icon={<X size={16} aria-hidden="true" />}
-              onClick={onCloseEditor}
-            />
-          </div>
-          {message ? (
-            <InlineMessage darkMode={darkMode} className="mb-3">
-              {message}
-            </InlineMessage>
-          ) : null}
+        <DialogFrame darkMode={darkMode}>
+          <DialogHeader
+            darkMode={darkMode}
+            title="Manage Categories"
+            closeLabel="Close category editor"
+            onClose={onCloseEditor}
+          />
           <Button
             darkMode={darkMode}
             disabled={pending}
@@ -89,12 +78,15 @@ export function CategoryManagerDialog({
           >
             New
           </Button>
-          <div className={`mt-3 ${dividerClass(darkMode)}`}>
+          <List
+            darkMode={darkMode}
+            className={cx("-mx-4 mt-4 border-y", sectionBorderClass(darkMode))}
+          >
             {categories.map((category) => (
               <ListItem
                 key={category.id}
                 darkMode={darkMode}
-                className="items-center px-0 py-3"
+                className="items-center"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold">
@@ -123,15 +115,14 @@ export function CategoryManagerDialog({
                 </div>
               </ListItem>
             ))}
-          </div>
-        </section>
-      </div>
+          </List>
+        </DialogFrame>
+      </DialogOverlay>
 
       {categoryFormOpen ? (
         <CategoryFormDialog
           darkMode={darkMode}
           pending={pending}
-          message={message}
           categoryDraft={categoryDraft}
           setCategoryDraft={setCategoryDraft}
           onClose={onCloseForm}
@@ -145,7 +136,6 @@ export function CategoryManagerDialog({
 function CategoryFormDialog({
   darkMode,
   pending,
-  message,
   categoryDraft,
   setCategoryDraft,
   onClose,
@@ -153,106 +143,102 @@ function CategoryFormDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
-  message: string | null;
   categoryDraft: MemoryCategoryInput;
   setCategoryDraft: Dispatch<SetStateAction<MemoryCategoryInput>>;
   onClose: () => void;
   onSubmit: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-[60] grid place-items-center bg-black/65 px-4 py-6">
-      <button
-        className="absolute inset-0 cursor-default"
-        type="button"
-        aria-label="Close category form"
-        onClick={onClose}
-      />
+    <DialogOverlay zIndex="z-[60]">
+      <DialogBackdrop label="Close category form" onClick={onClose} />
       <form
-        className={cx(dialogFrameClass(darkMode), "max-w-md")}
         onSubmit={(event) => {
           event.preventDefault();
           onSubmit();
         }}
       >
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-base font-semibold">
-            {categoryDraft.id ? "Edit category" : "Add category"}
-          </h3>
-          <Button
+        <DialogFrame darkMode={darkMode}>
+          <DialogHeader
             darkMode={darkMode}
-            tone="ghost"
-            size="icon-sm"
-            aria-label="Close category form"
-            icon={<X size={16} aria-hidden="true" />}
-            onClick={onClose}
+            title={categoryDraft.id ? "Edit category" : "Add category"}
+            closeLabel="Close category form"
+            onClose={onClose}
           />
-        </div>
-        {message ? (
-          <InlineMessage darkMode={darkMode} className="mb-3">
-            {message}
-          </InlineMessage>
-        ) : null}
-        <div className="grid gap-3">
-          <label className="grid gap-1 text-xs font-semibold">
-            Category name
-            <TextInput
+          <div className="grid gap-3">
+            <FieldLabel darkMode={darkMode} label="Category name">
+              <TextInput
+                darkMode={darkMode}
+                value={categoryDraft.name}
+                maxLength={40}
+                placeholder="Category name"
+                disabled={pending}
+                onChange={(event) =>
+                  setCategoryDraft((current) => ({
+                    ...current,
+                    name: event.target.value,
+                  }))
+                }
+              />
+            </FieldLabel>
+            <CategoryPeriodField
               darkMode={darkMode}
-              value={categoryDraft.name}
-              maxLength={40}
-              placeholder="Category name"
-              disabled={pending}
-              onChange={(event) =>
+              pending={pending}
+              value={categoryPeriodFromWeight(categoryDraft.baseWeight)}
+              onChange={(period) =>
                 setCategoryDraft((current) => ({
                   ...current,
-                  name: event.target.value,
+                  baseWeight: categoryPeriodWeights[period],
                 }))
               }
             />
-          </label>
-          <div className="grid gap-2">
-            <span className="text-xs font-semibold">Suggestion period</span>
-            <div className="flex flex-wrap gap-2">
-              {(["Weekly", "Monthly"] as CategoryPeriod[]).map((period) => (
-                <Button
-                  key={period}
-                  darkMode={darkMode}
-                  size="xs"
-                  active={
-                    categoryPeriodFromWeight(categoryDraft.baseWeight) ===
-                    period
-                  }
-                  disabled={pending}
-                  onClick={() =>
-                    setCategoryDraft((current) => ({
-                      ...current,
-                      baseWeight: categoryPeriodWeights[period],
-                    }))
-                  }
-                >
-                  {period}
-                </Button>
-              ))}
-            </div>
           </div>
-        </div>
-        <DialogActionRow>
-          <DialogPrimaryButton
-            darkMode={darkMode}
-            type="submit"
-            loading={pending}
-            icon={<Save size={14} aria-hidden="true" />}
-            loadingIcon={
-              <LoaderCircle
-                className="animate-spin"
-                size={14}
-                aria-hidden="true"
-              />
-            }
-          >
-            Save
-          </DialogPrimaryButton>
-        </DialogActionRow>
+          <DialogActionRow>
+            <DialogPrimaryButton
+              darkMode={darkMode}
+              type="submit"
+              loading={pending}
+              icon={<Save size={14} aria-hidden="true" />}
+              loadingIcon={
+                <LoaderCircle
+                  className="animate-spin"
+                  size={14}
+                  aria-hidden="true"
+                />
+              }
+            >
+              Save
+            </DialogPrimaryButton>
+          </DialogActionRow>
+        </DialogFrame>
       </form>
+    </DialogOverlay>
+  );
+}
+
+function CategoryPeriodField({
+  darkMode,
+  pending,
+  value,
+  onChange,
+}: {
+  darkMode: boolean;
+  pending: boolean;
+  value: CategoryPeriod;
+  onChange: (period: CategoryPeriod) => void;
+}) {
+  return (
+    <div className="grid gap-1.5">
+      <LabelText darkMode={darkMode}>Suggestion period</LabelText>
+      <SingleChoiceGroup
+        darkMode={darkMode}
+        disabled={pending}
+        value={value}
+        options={(["Weekly", "Monthly"] as CategoryPeriod[]).map((period) => ({
+          value: period,
+          label: period,
+        }))}
+        onChange={(nextValue) => onChange(nextValue as CategoryPeriod)}
+      />
     </div>
   );
 }

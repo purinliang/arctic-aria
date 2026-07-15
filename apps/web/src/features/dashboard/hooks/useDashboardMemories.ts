@@ -126,7 +126,7 @@ export function useDashboardMemories(
       const result = await action();
 
       if (!result.ok) {
-        setMemoryMessage(result.message);
+        showErrorNotification(result.message);
         return false;
       }
 
@@ -145,7 +145,7 @@ export function useDashboardMemories(
       const result = await action();
 
       if (!result.ok) {
-        setMemoryMessage(result.message);
+        showErrorNotification(result.message);
         return null;
       }
 
