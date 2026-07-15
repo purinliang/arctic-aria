@@ -66,8 +66,12 @@ Then show a placeholder Google action:
 
 - Google logo
 - `Continue with Google`
+- Clicking it should show a shared info notification that Google sign-in is not
+  implemented yet.
 
 Also show a placeholder password reset line above `New here? Sign up`:
 
 - `Forgot your password?`
 - link-style text `Reset password`
+- Clicking it should show a shared info notification that password reset is not
+  implemented yet.

@@ -1,51 +1,98 @@
-import { AlertCircle, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { AlertCircle, CheckCircle2, Info, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { toneClass, type Tone } from "./color";
 import { cx } from "./utils";
+
+const maxVisibleNotifications = 3;
+const dismissAnimationMs = 220;
 
 export type NotificationItem = {
   id: number;
-  tone: "error" | "info";
+  tone: "error" | "info" | "success";
   title: string;
   message: string;
+  dismissing?: boolean;
 };
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const nextNotificationId = useRef(0);
 
   const dismissNotification = useCallback((notificationId: number) => {
     setNotifications((current) =>
-      current.filter((notification) => notification.id !== notificationId),
+      current.map((notification) =>
+        notification.id === notificationId
+          ? { ...notification, dismissing: true }
+          : notification,
+      ),
     );
+
+    window.setTimeout(() => {
+      setNotifications((current) =>
+        current.filter((notification) => notification.id !== notificationId),
+      );
+    }, dismissAnimationMs);
   }, []);
 
-  const showErrorNotification = useCallback(
-    (message: string, title = "Action failed") => {
-      setNotifications((current) => [
-        ...current.slice(-2),
-        {
-          id: Date.now(),
-          tone: "error",
-          title,
-          message,
-        },
-      ]);
+  const showNotification = useCallback(
+    (tone: NotificationItem["tone"], message: string, title: string) => {
+      const notification: NotificationItem = {
+        id: Date.now() * 1000 + nextNotificationId.current,
+        tone,
+        title,
+        message,
+      };
+
+      nextNotificationId.current += 1;
+
+      setNotifications((current) => {
+        const next = [...current, notification];
+        let overflowCount =
+          next.filter((item) => !item.dismissing).length -
+          maxVisibleNotifications;
+
+        if (overflowCount <= 0) {
+          return next;
+        }
+
+        return next.map((item) => {
+          if (item.dismissing || overflowCount <= 0) {
+            return item;
+          }
+
+          overflowCount -= 1;
+          return { ...item, dismissing: true };
+        });
+      });
+
+      window.setTimeout(() => {
+        setNotifications((current) =>
+          current.filter((notification) => !notification.dismissing),
+        );
+      }, dismissAnimationMs);
     },
     [],
   );
 
+  const showErrorNotification = useCallback(
+    (message: string, title = "Action failed") => {
+      showNotification("error", message, title);
+    },
+    [showNotification],
+  );
+
   const showInfoNotification = useCallback(
     (message: string, title = "Not available yet") => {
-      setNotifications((current) => [
-        ...current.slice(-2),
-        {
-          id: Date.now(),
-          tone: "info",
-          title,
-          message,
-        },
-      ]);
+      showNotification("info", message, title);
     },
-    [],
+    [showNotification],
+  );
+
+  const showSuccessNotification = useCallback(
+    (message: string, title = "Done") => {
+      showNotification("success", message, title);
+    },
+    [showNotification],
   );
 
   return {
@@ -53,6 +100,7 @@ export function useNotifications() {
     dismissNotification,
     showErrorNotification,
     showInfoNotification,
+    showSuccessNotification,
   };
 }
 
@@ -97,65 +145,47 @@ function NotificationToast({
   onDismiss: (notificationId: number) => void;
 }) {
   useEffect(() => {
+    if (notification.dismissing) {
+      return;
+    }
+
     const timeoutId = window.setTimeout(() => {
       onDismiss(notification.id);
     }, 6000);
 
     return () => window.clearTimeout(timeoutId);
-  }, [notification.id, onDismiss]);
+  }, [notification.dismissing, notification.id, onDismiss]);
+
+  const Icon =
+    notification.tone === "success"
+      ? CheckCircle2
+      : notification.tone === "info"
+        ? Info
+        : AlertCircle;
 
   return (
     <section
+      data-dismissing={notification.dismissing ? "true" : "false"}
       className={cx(
-        "grid grid-cols-[auto_1fr_auto] gap-3 rounded-md border px-4 py-3 shadow-2xl",
-        notification.tone === "error"
-          ? darkMode
-            ? "border-red-400/40 bg-red-950 text-red-50"
-            : "border-red-200 bg-red-50 text-red-900"
-          : darkMode
-            ? "border-blue-400/40 bg-blue-950 text-blue-50"
-            : "border-blue-200 bg-blue-50 text-blue-900",
+        "aa-notification-toast grid grid-cols-[auto_1fr_auto] gap-x-3 gap-y-2 rounded-md border px-4 py-3 shadow-2xl",
+        toneClass(darkMode, notificationTone(notification.tone)),
       )}
       role="status"
     >
-      <AlertCircle
-        className={
-          notification.tone === "error"
-            ? darkMode
-              ? "text-red-200"
-              : "text-red-600"
-            : darkMode
-              ? "text-blue-200"
-              : "text-blue-600"
-        }
+      <Icon
+        className="self-center"
         size={18}
         aria-hidden="true"
       />
-      <div className="min-w-0">
-        <h2 className="text-sm font-semibold">{notification.title}</h2>
-        <p
-          className={cx(
-            "mt-1 text-sm leading-5",
-            notification.tone === "error"
-              ? darkMode
-                ? "text-red-100"
-                : "text-red-800"
-              : darkMode
-                ? "text-blue-100"
-                : "text-blue-800",
-          )}
-        >
-          {notification.message}
-        </p>
-      </div>
+      <h2 className="min-w-0 self-center text-sm font-semibold">
+        {notification.title}
+      </h2>
       <button
         className={cx(
           "flex h-7 w-7 items-center justify-center rounded-md transition",
           darkMode
-            ? "text-white/80 hover:bg-white/10"
-            : notification.tone === "error"
-              ? "text-red-700 hover:bg-red-100"
-              : "text-blue-700 hover:bg-blue-100",
+            ? "text-current opacity-80 hover:bg-white/10 hover:opacity-100"
+            : "text-current opacity-80 hover:bg-black/5 hover:opacity-100",
         )}
         type="button"
         aria-label="Dismiss notification"
@@ -163,6 +193,25 @@ function NotificationToast({
       >
         <X size={14} aria-hidden="true" />
       </button>
+      <p
+        className={cx(
+          "col-span-3 text-sm leading-5 opacity-90",
+        )}
+      >
+        {notification.message}
+      </p>
     </section>
   );
+}
+
+function notificationTone(tone: NotificationItem["tone"]): Tone {
+  if (tone === "success") {
+    return "emerald";
+  }
+
+  if (tone === "info") {
+    return "blue";
+  }
+
+  return "red";
 }

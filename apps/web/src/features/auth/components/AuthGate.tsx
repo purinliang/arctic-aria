@@ -3,6 +3,7 @@
 import { LoaderCircle, Sparkles } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { AppShell } from "@/app-shell/AppShell";
+import { NotificationStack, useNotifications } from "@/components/notification";
 import { SupportingText } from "@/components/text";
 import { getCurrentUser, loginUser, logoutUser, registerUser } from "../actions";
 import type { AuthUser } from "../server/auth-service";
@@ -38,11 +39,16 @@ export function AuthGate() {
   const [mode, setMode] = useState<AuthMode>("login");
   const [registerInput, setRegisterInput] = useState<RegisterInput>(emptyRegister);
   const [loginInput, setLoginInput] = useState<LoginInput>(emptyLogin);
-  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const [serverErrors, setServerErrors] = useState<AuthFieldErrors>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const {
+    notifications,
+    dismissNotification,
+    showErrorNotification,
+    showInfoNotification,
+    showSuccessNotification,
+  } = useNotifications();
 
   useEffect(() => {
     let active = true;
@@ -96,6 +102,7 @@ export function AuthGate() {
       <AppShell
         currentUser={currentUser}
         logoutPending={isPending}
+        notifications={notifications}
         onLogout={() => {
           startTransition(async () => {
             await logoutUser();
@@ -103,6 +110,9 @@ export function AuthGate() {
             resetSubmitState(true);
           });
         }}
+        onNotificationDismiss={dismissNotification}
+        showErrorNotification={showErrorNotification}
+        showInfoNotification={showInfoNotification}
       />
     );
   }
@@ -119,8 +129,6 @@ export function AuthGate() {
   const activeErrors = { ...typingErrors, ...submitErrors, ...serverErrors };
 
   function resetSubmitState(resetAttempt = false) {
-    setSubmitMessage(null);
-    setSubmitError(null);
     setServerErrors({});
 
     if (resetAttempt) {
@@ -156,7 +164,10 @@ export function AuthGate() {
         : validateLoginSubmit(loginInput);
 
     if (hasAuthErrors(fieldErrors)) {
-      setSubmitError("Please fix the highlighted fields.");
+      showErrorNotification(
+        "Please fix the highlighted fields.",
+        "Check the form",
+      );
       return;
     }
 
@@ -167,41 +178,65 @@ export function AuthGate() {
           : await loginUser(loginInput);
 
       if (!result.ok) {
-        setSubmitError(result.message);
         setServerErrors(result.fieldErrors ?? {});
+        showErrorNotification(
+          result.message,
+          mode === "register" ? "Sign up failed" : "Sign in failed",
+        );
         console.warn("[auth-ui]", `${mode}_failed`, {
           fields: result.fieldErrors ? Object.keys(result.fieldErrors) : [],
         });
         return;
       }
 
-      setSubmitMessage(result.message);
+      showSuccessNotification(
+        result.message,
+        mode === "register" ? "Account created" : "Signed in",
+      );
       console.info("[auth-ui]", `${mode}_success`, {
         displayName: result.displayName,
       });
 
-      window.setTimeout(() => {
-        setSubmitMessage(null);
-        setCurrentUser(result.user);
-      }, 2000);
+      setCurrentUser(result.user);
     });
   }
 
+  function showGooglePlaceholder() {
+    showInfoNotification(
+      "Google sign-in is not implemented in this prototype yet.",
+      "Google sign-in unavailable",
+    );
+  }
+
+  function showPasswordResetPlaceholder() {
+    showInfoNotification(
+      "Password reset is not implemented in this prototype yet.",
+      "Password reset unavailable",
+    );
+  }
+
   return (
-    <AuthForm
-      mode={mode}
-      registerInput={registerInput}
-      loginInput={loginInput}
-      errors={activeErrors}
-      disabled={isPending || hasAuthErrors(activeErrors)}
-      pending={isPending}
-      submitAttempted={submitAttempted}
-      submitMessage={submitMessage}
-      submitError={submitError}
-      onModeChange={switchMode}
-      onRegisterChange={updateRegister}
-      onLoginChange={updateLogin}
-      onSubmit={handleSubmit}
-    />
+    <>
+      <AuthForm
+        mode={mode}
+        registerInput={registerInput}
+        loginInput={loginInput}
+        errors={activeErrors}
+        disabled={isPending || hasAuthErrors(activeErrors)}
+        pending={isPending}
+        submitAttempted={submitAttempted}
+        onModeChange={switchMode}
+        onRegisterChange={updateRegister}
+        onLoginChange={updateLogin}
+        onSubmit={handleSubmit}
+        onGoogleLogin={showGooglePlaceholder}
+        onPasswordReset={showPasswordResetPlaceholder}
+      />
+      <NotificationStack
+        notifications={notifications}
+        darkMode={false}
+        onDismiss={dismissNotification}
+      />
+    </>
   );
 }

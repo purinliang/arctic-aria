@@ -4,7 +4,10 @@ import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import { sectionBorderClass } from "@/components/color";
-import { NotificationStack, useNotifications } from "@/components/notification";
+import {
+  NotificationStack,
+  type NotificationItem,
+} from "@/components/notification";
 import { appShellClass, useDocumentTheme } from "@/components/theme";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
@@ -21,11 +24,19 @@ import { Sidebar } from "./Sidebar";
 export function AppShell({
   currentUser,
   logoutPending,
+  notifications,
   onLogout,
+  onNotificationDismiss,
+  showErrorNotification,
+  showInfoNotification,
 }: {
   currentUser: AuthUser;
   logoutPending: boolean;
+  notifications: NotificationItem[];
   onLogout: () => void;
+  onNotificationDismiss: (notificationId: number) => void;
+  showErrorNotification: (message: string, title?: string) => void;
+  showInfoNotification: (message: string, title?: string) => void;
 }) {
   const [activeView, setActiveView] = useState<DashboardView>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -33,12 +44,6 @@ export function AppShell({
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
     null,
   );
-  const {
-    notifications,
-    dismissNotification,
-    showErrorNotification,
-    showInfoNotification,
-  } = useNotifications();
   const projectState = useDashboardProjects(showErrorNotification);
   const routineState = useDashboardRoutines(showErrorNotification);
   const memoryState = useDashboardMemories(
@@ -257,7 +262,7 @@ export function AppShell({
       <NotificationStack
         notifications={notifications}
         darkMode={darkMode}
-        onDismiss={dismissNotification}
+        onDismiss={onNotificationDismiss}
       />
     </main>
   );

@@ -52,3 +52,43 @@ input:focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 2px;
 }
+
+.aa-notification-toast {
+  animation: aa-notification-pop 180ms ease-out both;
+  transform-origin: bottom center;
+}
+
+.aa-notification-toast[data-dismissing="true"] {
+  animation: aa-notification-fade 220ms ease-in both;
+}
+
+@keyframes aa-notification-pop {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes aa-notification-fade {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aa-notification-toast,
+  .aa-notification-toast[data-dismissing="true"] {
+    animation: none;
+  }
+}

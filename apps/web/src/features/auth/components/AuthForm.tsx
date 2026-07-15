@@ -4,7 +4,6 @@ import { ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/button";
 import { Panel } from "@/components/panel";
-import { InlineMessage } from "@/components/text";
 import type { AuthMode } from "./AuthGate";
 import {
   authFieldOrder,
@@ -24,8 +23,6 @@ type AuthFormProps = {
   disabled: boolean;
   pending: boolean;
   submitAttempted: boolean;
-  submitMessage: string | null;
-  submitError: string | null;
   onModeChange: (mode: AuthMode) => void;
   onRegisterChange: <K extends keyof RegisterInput>(
     key: K,
@@ -36,6 +33,8 @@ type AuthFormProps = {
     value: LoginInput[K],
   ) => void;
   onSubmit: () => void;
+  onGoogleLogin: () => void;
+  onPasswordReset: () => void;
 };
 
 const visibleFields: Record<AuthMode, AuthField[]> = {
@@ -51,12 +50,12 @@ export function AuthForm({
   disabled,
   pending,
   submitAttempted,
-  submitMessage,
-  submitError,
   onModeChange,
   onRegisterChange,
   onLoginChange,
   onSubmit,
+  onGoogleLogin,
+  onPasswordReset,
 }: AuthFormProps) {
   const [touched, setTouched] = useState<Partial<Record<AuthField, boolean>>>({});
   const [showPassword, setShowPassword] = useState(false);
@@ -87,7 +86,7 @@ export function AuthForm({
     mode === "register" ? "Already have an account?" : "New here?";
   const switchLabel = mode === "register" ? "Sign in" : "Sign up";
   const switchTarget = mode === "register" ? "login" : "register";
-  const showSubmitErrors = submitAttempted || Boolean(submitError);
+  const showSubmitErrors = submitAttempted;
 
   return (
     <main className="min-h-screen bg-[#eef2f5] text-slate-950">
@@ -222,18 +221,6 @@ export function AuthForm({
               />
             ) : null}
 
-            {submitError ? (
-              <InlineMessage darkMode={false} tone="red">
-                {submitError}
-              </InlineMessage>
-            ) : null}
-
-            {submitMessage ? (
-              <InlineMessage darkMode={false} tone="emerald">
-                {submitMessage}
-              </InlineMessage>
-            ) : null}
-
             <span
               className="mt-1 block"
               title={disabled && firstError ? errors[firstError] : undefined}
@@ -263,6 +250,7 @@ export function AuthForm({
                   darkMode={false}
                   size="md"
                   icon={<GoogleIcon />}
+                  onClick={onGoogleLogin}
                 >
                   Continue with Google
                 </Button>
@@ -274,6 +262,7 @@ export function AuthForm({
                     tone="ghost"
                     size="xs"
                     className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"
+                    onClick={onPasswordReset}
                   >
                     Reset password
                   </Button>

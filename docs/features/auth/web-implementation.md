@@ -147,9 +147,15 @@ Auth UI should follow the existing web rules:
 - Disable submit while non-empty typing validation fails.
 - Show the first non-empty typing validation error when hovering a disabled
   submit button.
+- Use the shared notification stack for login/register success, login/register
+  failure, and unavailable auth actions. Do not render separate auth-only
+  success or failure messages inside the form.
 - Keep OAuth as a placeholder until the username and password flow is stable.
 - Use `lucide-react` icons for normal UI icons when a suitable icon exists.
 - Use the Google-provided multicolor logo component for the Google placeholder.
+- Clicking the placeholder Google action should show a shared info notification.
+- Clicking the placeholder password reset action should show a shared info
+  notification.
 - Avoid unrelated actions on the auth screen.
 
 ## Useful Commands

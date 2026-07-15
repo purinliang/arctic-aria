@@ -111,7 +111,7 @@ When a submit validation rule fails:
 
 - Show required-empty errors, such as `Username can't be empty.`, as field-level
   bubbles after the user clicks the confirm button.
-- Show backend or persistence errors in an error dialog or notification separate
+- Show backend or persistence errors in the shared notification stack separate
   from field-level typing hints.
 - Keep the user on the current page.
 - Preserve the user's input except for password fields if the implementation
@@ -120,9 +120,10 @@ When a submit validation rule fails:
 
 When registration succeeds:
 
-- Show a small dialog or toast.
-- After about 2 seconds, dismiss the notification and navigate to the dashboard
-  or main page.
+- Show a shared success notification.
+- Open the dashboard or main page after the session is created. The notification
+  should use the shared notification stack so it can persist across the auth to
+  dashboard transition.
 
 For success, validation failure, and internal failure, both frontend and backend
 should write useful logs. Logs must not include raw passwords or other sensitive

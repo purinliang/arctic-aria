@@ -225,9 +225,9 @@ Use notifications for optimistic command failures and other non-blocking status
 messages.
 
 The shared `useNotifications` hook owns app-level notification state and helper
-commands such as error and info notifications. Feature-specific code should
-receive notification callbacks from the app shell instead of owning a separate
-notification stack.
+commands such as error, info, and success notifications. Feature-specific code
+should receive notification callbacks from the auth gate or app shell instead
+of owning a separate notification stack.
 
 Placement:
 
@@ -236,6 +236,10 @@ Placement:
 
 Notifications should be visually lighter than dialogs and should not block the
 current workflow.
+
+Notifications should animate as a stack: a new notification pops up from the
+bottom, existing notifications move upward with the stack, and dismissed or
+overflow notifications fade upward before they are removed.
 
 ## Tags
 
