@@ -114,8 +114,10 @@ and do not use a long scroll list for routine time selection.
 
 Date and time pickers are still controlled form components. Feature code owns
 the current value, validation rules, and validation timing. Picker popovers
-should be positioned overlays with stable widths so opening them does not change
-the parent card, dialog, list item, or field layout.
+should render as absolute overlays inside the field wrapper with stable widths
+so opening them does not change the parent card, dialog, list item, or field
+layout. Do not render picker popovers through a viewport portal unless there is
+a specific clipping bug that cannot be solved in the dialog/layout component.
 
 ## Number, Text Area, And Selection Fields
 
@@ -125,9 +127,11 @@ still be typed.
 `forms/text-area-field.tsx` owns multi-line text entry. Do not implement text
 areas as expanded single-line inputs.
 
-`forms/selection-field.tsx` owns standard single-select dropdowns, checkbox
-rows, and checkbox groups. Use checkbox rows for checklist-style multiple
-selection.
+`forms/selection-field.tsx` owns app-styled single-select dropdowns, checkbox
+rows, and checkbox groups. Single-select dropdowns should use the same rounded
+absolute popover surface as date and time pickers. Do not rely on native
+`select` popup styling for primary UI, because the opened menu can inherit
+browser or operating-system colors, corners, and spacing.
 
 `forms/choice-group.tsx` owns visible button-group choices for single and
 multiple selection. Use it when the user should clearly see a compact set of
@@ -216,6 +220,11 @@ Use it for:
 
 Dialogs are stronger than notifications. Use dialogs when the user must make a
 decision or when the current workflow cannot safely continue.
+
+Dialog frames use the same `px-4 py-4` padding rhythm as card headers and
+notifications. Form dialogs should use the default dialog width so input fields,
+date pickers, and other long controls do not collapse into a narrow column.
+Small confirmation dialogs may use the `sm` size.
 
 ## Notification
 

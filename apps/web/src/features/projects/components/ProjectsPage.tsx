@@ -211,7 +211,6 @@ export function ProjectsPage({
         <ProjectEditorDialog
           darkMode={darkMode}
           pending={pending}
-          message={message}
           draft={projectDraft}
           setDraft={updateProjectDraft}
           onClose={closeDialogs}
@@ -223,7 +222,6 @@ export function ProjectsPage({
         <MilestoneEditorDialog
           darkMode={darkMode}
           pending={pending}
-          message={message}
           draft={milestoneDraft}
           setDraft={updateMilestoneDraft}
           onClose={closeDialogs}
@@ -235,7 +233,6 @@ export function ProjectsPage({
         <ProjectTaskEditorDialog
           darkMode={darkMode}
           pending={pending}
-          message={message}
           draft={taskDraft}
           setDraft={updateTaskDraft}
           onClose={closeDialogs}

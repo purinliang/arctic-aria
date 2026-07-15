@@ -12,7 +12,6 @@ import {
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { NumberInput } from "@/components/forms/number-field";
 import { SelectInput } from "@/components/forms/selection-field";
-import { InlineMessage } from "@/components/text";
 import { TextArea } from "@/components/forms/text-area-field";
 import type {
   MilestoneInput,
@@ -24,7 +23,6 @@ import { priorityOptions } from "./project-page-helpers";
 export function ProjectEditorDialog({
   darkMode,
   pending,
-  message,
   draft,
   setDraft,
   onClose,
@@ -32,7 +30,6 @@ export function ProjectEditorDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
-  message: string | null;
   draft: ProjectInput;
   setDraft: Dispatch<SetStateAction<ProjectInput>>;
   onClose: () => void;
@@ -42,7 +39,6 @@ export function ProjectEditorDialog({
     <DialogShell
       darkMode={darkMode}
       pending={pending}
-      message={message}
       title={draft.id ? "Edit project" : "Add project"}
       closeLabel="Close project editor"
       onClose={onClose}
@@ -89,7 +85,6 @@ export function ProjectEditorDialog({
 export function MilestoneEditorDialog({
   darkMode,
   pending,
-  message,
   draft,
   setDraft,
   onClose,
@@ -97,7 +92,6 @@ export function MilestoneEditorDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
-  message: string | null;
   draft: MilestoneInput;
   setDraft: Dispatch<SetStateAction<MilestoneInput>>;
   onClose: () => void;
@@ -107,7 +101,6 @@ export function MilestoneEditorDialog({
     <DialogShell
       darkMode={darkMode}
       pending={pending}
-      message={message}
       title={draft.id ? "Edit milestone" : "Add milestone"}
       closeLabel="Close milestone editor"
       onClose={onClose}
@@ -219,20 +212,14 @@ function ProjectDateFields({
               darkMode={darkMode}
               value={draft.durationRange}
               disabled={pending}
-              onChange={(event) =>
+              options={projectDurationOptions}
+              onChange={(durationRange) =>
                 setDraft((current) => ({
                   ...current,
-                  durationRange: event.target
-                    .value as ProjectInput["durationRange"],
+                  durationRange: durationRange as ProjectInput["durationRange"],
                 }))
               }
-            >
-              {projectDurationOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </SelectInput>
+            />
           </FieldLabel>
         )}
       </div>
@@ -315,7 +302,6 @@ function MilestoneDateFields({
 function DialogShell({
   darkMode,
   pending,
-  message,
   title,
   closeLabel,
   children,
@@ -324,7 +310,6 @@ function DialogShell({
 }: {
   darkMode: boolean;
   pending: boolean;
-  message: string | null;
   title: string;
   closeLabel: string;
   children: ReactNode;
@@ -347,11 +332,6 @@ function DialogShell({
             closeLabel={closeLabel}
             onClose={onClose}
           />
-          {message ? (
-            <InlineMessage darkMode={darkMode} className="mb-3">
-              {message}
-            </InlineMessage>
-          ) : null}
           <div className="grid gap-3">{children}</div>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button

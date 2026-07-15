@@ -94,7 +94,10 @@ export function useDashboardProjects(
     }
   }
 
-  async function runProjectManagementAction(action: ProjectDataAction) {
+  async function runProjectManagementAction(
+    action: ProjectDataAction,
+    failureTitle: string,
+  ) {
     setProjectMessage(null);
     setProjectActionPending(true);
 
@@ -102,7 +105,7 @@ export function useDashboardProjects(
       const result = await action();
 
       if (!result.ok) {
-        setProjectMessage(result.message);
+        showErrorNotification(result.message, failureTitle);
         return false;
       }
 
@@ -173,21 +176,34 @@ export function useDashboardProjects(
     updateTaskFromDashboard,
     toggleSubtask,
     saveProjectFromPage: (input: ProjectInput) =>
-      runProjectManagementAction(() => saveProject(input)),
+      runProjectManagementAction(() => saveProject(input), "Project save failed"),
     archiveProjectFromPage: (projectId: string) =>
-      runProjectManagementAction(() => archiveProject(projectId)),
+      runProjectManagementAction(
+        () => archiveProject(projectId),
+        "Project archive failed",
+      ),
     saveMilestoneFromPage: (input: MilestoneInput) =>
-      runProjectManagementAction(() => saveMilestone(input)),
+      runProjectManagementAction(
+        () => saveMilestone(input),
+        "Milestone save failed",
+      ),
     saveTaskFromPage: (input: ProjectTaskInput) =>
-      runProjectManagementAction(() => saveProjectTask(input)),
+      runProjectManagementAction(() => saveProjectTask(input), "Task save failed"),
     statusTaskFromPage: (
       taskId: string,
       status: Exclude<TaskStatus, "archived">,
-    ) => runProjectManagementAction(() => updateProjectTaskStatus(taskId, status)),
+    ) =>
+      runProjectManagementAction(
+        () => updateProjectTaskStatus(taskId, status),
+        "Task update failed",
+      ),
     toggleSubtaskFromPage: (subtaskId: string, done: boolean) =>
-      runProjectManagementAction(() => updateProjectSubtaskDone(subtaskId, !done)),
+      runProjectManagementAction(
+        () => updateProjectSubtaskDone(subtaskId, !done),
+        "Subtask update failed",
+      ),
     reopenTaskFromPage: (taskId: string) =>
-      runProjectManagementAction(() => reopenProjectTask(taskId)),
+      runProjectManagementAction(() => reopenProjectTask(taskId), "Task reopen failed"),
     clearProjectMessage: () => setProjectMessage(null),
   };
 }

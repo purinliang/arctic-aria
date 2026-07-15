@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp, Clock, X } from "lucide-react";
 import { Button } from "../button";
 import {
   formControlClass,
   formControlPopupClass,
 } from "./form-control-style";
+import {
+  popoverPlacementClass,
+  usePopoverPlacement,
+} from "./use-popover-placement";
 import { cx } from "../utils";
 
 type Period = "AM" | "PM";
@@ -46,8 +50,8 @@ export function TimePickerField({
   stepMinutes?: number;
   className?: string;
 }) {
-  const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const { placement, popoverRef, rootRef } = usePopoverPlacement(open);
   const selectedParts = parseTimeValue(value) ?? defaultTimeParts;
   const formattedValue = formatTimeValue(value);
 
@@ -57,7 +61,9 @@ export function TimePickerField({
     }
 
     function handlePointerDown(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node;
+
+      if (!rootRef.current?.contains(target)) {
         setOpen(false);
       }
     }
@@ -67,7 +73,7 @@ export function TimePickerField({
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
     };
-  }, [open]);
+  }, [open, rootRef]);
 
   return (
     <div ref={rootRef} className="relative min-w-0">
@@ -90,7 +96,16 @@ export function TimePickerField({
       </button>
 
       {open ? (
-        <div className={formControlPopupClass(darkMode, "w-64")}>
+        <div
+          ref={popoverRef}
+          className={formControlPopupClass(
+            darkMode,
+            cx(
+              "w-[min(16rem,calc(100vw-2rem))]",
+              popoverPlacementClass(placement),
+            ),
+          )}
+        >
           <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
             <NumberStepper
               darkMode={darkMode}

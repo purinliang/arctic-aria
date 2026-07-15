@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ButtonHTMLAttributes } from "react";
 import { Calendar, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Button } from "../button";
@@ -8,6 +8,10 @@ import {
   formControlClass,
   formControlPopupClass,
 } from "./form-control-style";
+import {
+  popoverPlacementClass,
+  usePopoverPlacement,
+} from "./use-popover-placement";
 import { cx } from "../utils";
 
 const monthNames = [
@@ -70,11 +74,11 @@ export function DatePickerField({
   max?: string;
   className?: string;
 }) {
-  const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [visibleMonth, setVisibleMonth] = useState<VisibleMonth>(() =>
     monthFromValue(value),
   );
+  const { placement, popoverRef, rootRef } = usePopoverPlacement(open);
 
   useEffect(() => {
     if (!open) {
@@ -82,7 +86,9 @@ export function DatePickerField({
     }
 
     function handlePointerDown(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node;
+
+      if (!rootRef.current?.contains(target)) {
         setOpen(false);
       }
     }
@@ -92,7 +98,7 @@ export function DatePickerField({
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
     };
-  }, [open]);
+  }, [open, rootRef]);
 
   const days = useMemo(() => buildMonthDays(visibleMonth), [visibleMonth]);
   const formattedValue = formatDateValue(value);
@@ -124,7 +130,16 @@ export function DatePickerField({
       </button>
 
       {open ? (
-        <div className={formControlPopupClass(darkMode, "w-72")}>
+        <div
+          ref={popoverRef}
+          className={formControlPopupClass(
+            darkMode,
+            cx(
+              "w-[min(18rem,calc(100vw-2rem))]",
+              popoverPlacementClass(placement),
+            ),
+          )}
+        >
           <div className="mb-2 flex items-center justify-between gap-2">
             <PickerIconButton
               darkMode={darkMode}

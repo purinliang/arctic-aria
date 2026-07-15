@@ -12,7 +12,12 @@ export function DialogOverlay({
   children: ReactNode;
 }) {
   return (
-    <div className={cx("fixed inset-0 grid place-items-center bg-black/65 px-4 py-6", zIndex)}>
+    <div
+      className={cx(
+        "fixed inset-0 grid place-items-center overflow-y-auto bg-black/65 px-4 py-6",
+        zIndex,
+      )}
+    >
       {children}
     </div>
   );
@@ -60,8 +65,10 @@ export function dialogFrameClass(
   size: "md" | "sm" = "md",
 ) {
   return cx(
-    "relative max-h-[88vh] w-full overflow-y-auto rounded-md border p-4 shadow-2xl",
-    size === "sm" ? "max-w-md" : "max-w-2xl",
+    "relative rounded-md border p-4 shadow-2xl",
+    size === "sm"
+      ? "w-[min(calc(100vw-2rem),28rem)]"
+      : "w-[min(calc(100vw-2rem),42rem)]",
     surfaceClass(darkMode),
   );
 }

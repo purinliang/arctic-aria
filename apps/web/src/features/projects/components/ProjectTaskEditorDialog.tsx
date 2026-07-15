@@ -11,7 +11,6 @@ import {
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { CheckboxField } from "@/components/forms/selection-field";
-import { InlineMessage } from "@/components/text";
 import { TextArea } from "@/components/forms/text-area-field";
 import type { ProjectTaskInput } from "@/features/projects/actions";
 import {
@@ -22,7 +21,6 @@ import {
 export function ProjectTaskEditorDialog({
   darkMode,
   pending,
-  message,
   draft,
   setDraft,
   onClose,
@@ -30,7 +28,6 @@ export function ProjectTaskEditorDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
-  message: string | null;
   draft: ProjectTaskInput;
   setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
   onClose: () => void;
@@ -64,11 +61,6 @@ export function ProjectTaskEditorDialog({
             closeLabel="Close task editor"
             onClose={onClose}
           />
-          {message ? (
-            <InlineMessage darkMode={darkMode} className="mb-3">
-              {message}
-            </InlineMessage>
-          ) : null}
           <div className="grid gap-3">
             <TaskBasics
               darkMode={darkMode}
