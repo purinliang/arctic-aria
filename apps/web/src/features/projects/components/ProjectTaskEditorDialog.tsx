@@ -4,10 +4,12 @@ import { Button } from "@/components/button";
 import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import {
+  DialogActionRow,
   DialogBackdrop,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
+  DialogPrimaryButton,
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { CheckboxField } from "@/components/forms/selection-field";
@@ -82,10 +84,9 @@ export function ProjectTaskEditorDialog({
               onSubtaskChange={updateSubtask}
             />
           </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button
+          <DialogActionRow>
+            <DialogPrimaryButton
               darkMode={darkMode}
-              tone="primary"
               type="submit"
               loading={pending}
               icon={<Save size={14} aria-hidden="true" />}
@@ -98,8 +99,8 @@ export function ProjectTaskEditorDialog({
               }
             >
               Save
-            </Button>
-          </div>
+            </DialogPrimaryButton>
+          </DialogActionRow>
         </DialogFrame>
       </form>
     </DialogOverlay>

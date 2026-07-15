@@ -142,7 +142,8 @@ Project list layout:
 - milestone preview row: milestone title, status tag, progress text
 - milestone preview rows should stay transparent, without their own outlined box
   or background fill
-- footer action: `View` with a forward navigation icon
+- click target: the whole project list item opens the project detail page
+- do not add a separate `View` button or footer band inside project list items
 
 ## Add Project Flow
 
@@ -170,7 +171,8 @@ Description prompt:
 
 - label: `Description`
 - placeholder should guide the user to write both the goal and life reason,
-  such as `Objective: to ... How and why is it important to you?`
+  using concise product copy such as
+  `Describe the goal, context, and why it matters.`
 
 Milestone hint:
 
@@ -192,7 +194,7 @@ Project dialog layout:
 - timeline options: `Deadline`, `Duration`
 - date fields direction: two columns on desktop, stacked on mobile
 - priority selector direction: horizontal with wrapping
-- footer action row: `Save` button with `Save`; loading state uses
+- footer action row: full-width primary `Save` button with `Save`; loading state uses
   `LoaderCircle`
 
 ## Project Detail Page

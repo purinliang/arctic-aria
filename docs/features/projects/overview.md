@@ -48,8 +48,8 @@ change after the user starts.
 
 Project description replaces the previous separate objective and importance
 reason fields. It should prompt the user to describe what the project is trying
-to accomplish and why it matters in real life, such as `Objective: to ...` and
-`How and why is it important to you?`.
+to accomplish and why it matters in real life. UI copy should use natural
+product text, not literal prompt-template fragments.
 
 ### Milestone
 

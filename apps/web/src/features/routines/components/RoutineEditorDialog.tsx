@@ -6,7 +6,11 @@ import {
   SingleChoiceGroup,
 } from "@/components/forms/choice-group";
 import { DatePickerField } from "@/components/forms/date-picker-field";
-import { dialogFrameClass } from "@/components/dialog";
+import {
+  DialogActionRow,
+  DialogPrimaryButton,
+  dialogFrameClass,
+} from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { NumberInput } from "@/components/forms/number-field";
 import { InlineMessage } from "@/components/text";
@@ -87,26 +91,22 @@ export function RoutineEditorDialog({
             setDraft={setDraft}
           />
         </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button
+        <DialogActionRow>
+          <DialogPrimaryButton
             darkMode={darkMode}
-            tone="primary"
             type="submit"
-            disabled={pending}
-            icon={
-              pending ? (
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              ) : (
-                <Save size={14} aria-hidden="true" />
-              )
+            loading={pending}
+            icon={<Save size={14} aria-hidden="true" />}
+            loadingIcon={
+              <LoaderCircle
+                className="animate-spin"
+                size={14}
+                aria-hidden="true"
+              />
             }
           >
             Save
-          </Button>
+          </DialogPrimaryButton>
           {draft.id ? (
             <Button
               darkMode={darkMode}
@@ -117,7 +117,7 @@ export function RoutineEditorDialog({
               Delete
             </Button>
           ) : null}
-        </div>
+        </DialogActionRow>
       </form>
     </div>
   );

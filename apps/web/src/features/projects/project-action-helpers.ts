@@ -69,8 +69,9 @@ export type MilestoneInput = {
   title: string;
   objective: string;
   startDate: string;
+  timelineType: ProjectTimelineType;
   deadlineDate: string;
-  expectedDurationDays: string;
+  durationRange: ProjectDurationRange;
 };
 
 export type ProjectTaskInput = {
@@ -193,9 +194,9 @@ export function validateProjectInput(input: ProjectInput) {
 export function validateMilestoneInput(input: MilestoneInput) {
   const title = input.title.trim();
   const objective = input.objective.trim();
-  const startDate = input.startDate.trim() || null;
-  const deadlineDate = input.deadlineDate.trim() || null;
-  const expectedDurationDays = parseOptionalInteger(input.expectedDurationDays);
+  const startDate = input.startDate.trim();
+  let deadlineDate: string | null = null;
+  let expectedDurationDays: number | null = null;
 
   if (title.length < 1 || title.length > 120) {
     return { ok: false as const, message: "Milestone title must be 1-120 characters." };
@@ -205,26 +206,32 @@ export function validateMilestoneInput(input: MilestoneInput) {
     return { ok: false as const, message: "Milestone objective must be 500 characters or fewer." };
   }
 
-  if (startDate && !validateDate(startDate)) {
+  if (!validateDate(startDate)) {
     return {
       ok: false as const,
       message: "Start date must be a real date in YYYY-MM-DD format.",
     };
   }
 
-  if (deadlineDate && !validateDate(deadlineDate)) {
-    return {
-      ok: false as const,
-      message: "Deadline date must be a real date in YYYY-MM-DD format.",
-    };
-  }
+  if (input.timelineType === "deadline") {
+    deadlineDate = input.deadlineDate.trim();
 
-  if (startDate && deadlineDate && deadlineDate < startDate) {
-    return { ok: false as const, message: "Deadline cannot be before start date." };
-  }
+    if (!deadlineDate || !validateDate(deadlineDate)) {
+      return {
+        ok: false as const,
+        message: "Deadline date must be a real date in YYYY-MM-DD format.",
+      };
+    }
 
-  if (expectedDurationDays !== null && expectedDurationDays <= 0) {
-    return { ok: false as const, message: "Expected duration must be positive." };
+    if (deadlineDate < startDate) {
+      return { ok: false as const, message: "Deadline cannot be before start date." };
+    }
+  } else {
+    expectedDurationDays = durationDaysForRange(input.durationRange);
+
+    if (!expectedDurationDays) {
+      return { ok: false as const, message: "Choose an expected duration." };
+    }
   }
 
   return {
@@ -369,18 +376,6 @@ function toTaskView(task: ProjectTaskRecord): ProjectTaskView {
 
 function formatDate(date: string) {
   return dateFormatter.format(new Date(`${date}T00:00:00.000Z`));
-}
-
-function parseOptionalInteger(value: string) {
-  const trimmed = value.trim();
-
-  if (!trimmed) {
-    return null;
-  }
-
-  const parsed = Number(trimmed);
-
-  return Number.isInteger(parsed) ? parsed : Number.NaN;
 }
 
 function validateDate(value: string) {

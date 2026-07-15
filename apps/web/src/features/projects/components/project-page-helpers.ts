@@ -43,6 +43,10 @@ export function emptyProjectDraft(): ProjectInput {
   };
 }
 
+function todayDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export function projectToDraft(project: ProjectView): ProjectInput {
   return {
     id: project.id,
@@ -61,9 +65,10 @@ export function emptyMilestoneDraft(projectId: string): MilestoneInput {
     projectId,
     title: "",
     objective: "",
-    startDate: "",
+    startDate: todayDate(),
+    timelineType: "duration",
     deadlineDate: "",
-    expectedDurationDays: "",
+    durationRange: defaultProjectDurationRange,
   };
 }
 
@@ -75,9 +80,10 @@ export function milestoneToDraft(
     projectId: milestone.projectId,
     title: milestone.title,
     objective: milestone.objective,
-    startDate: milestone.startDate,
+    startDate: milestone.startDate || todayDate(),
+    timelineType: milestone.deadlineDate ? "deadline" : "duration",
     deadlineDate: milestone.deadlineDate,
-    expectedDurationDays: milestone.expectedDurationDays,
+    durationRange: durationRangeForDays(Number(milestone.expectedDurationDays)),
   };
 }
 

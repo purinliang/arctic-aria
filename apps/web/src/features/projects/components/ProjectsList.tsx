@@ -1,4 +1,4 @@
-import { ArrowRight, FolderKanban, Plus } from "lucide-react";
+import { FolderKanban, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
@@ -24,7 +24,7 @@ export function ProjectsList({
   onAddProject: () => void;
 }) {
   return (
-    <Panel darkMode={darkMode} className="min-h-[60vh]">
+    <Panel darkMode={darkMode}>
       <CardHeader
         darkMode={darkMode}
         icon={<FolderKanban size={18} aria-hidden="true" />}
@@ -94,14 +94,13 @@ function ProjectListItem({
           <span>{project.currentMilestone}</span>
           <span>{project.progressText}</span>
         </div>
-        <div className="mt-3 grid gap-2">
+        <div className="mt-2 grid gap-1">
           {project.milestones.map((milestone) => (
-            <div
-              key={milestone.id}
-              className="grid gap-1 py-1"
-            >
+            <div key={milestone.id} className="grid gap-0.5 py-0.5">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold">{milestone.title}</span>
+                <span className="text-xs font-semibold">
+                  {milestone.title}
+                </span>
                 <Tag darkMode={darkMode}>{titleCase(milestone.status)}</Tag>
               </div>
               <span className={`text-xs ${mutedTextClass(darkMode)}`}>
@@ -111,16 +110,6 @@ function ProjectListItem({
           ))}
         </div>
       </button>
-      <div className="mt-3">
-        <Button
-          darkMode={darkMode}
-          size="xs"
-          icon={<ArrowRight size={13} aria-hidden="true" />}
-          onClick={onView}
-        >
-          View
-        </Button>
-      </div>
     </ListItem>
   );
 }

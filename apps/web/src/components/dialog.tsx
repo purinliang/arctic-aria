@@ -99,6 +99,24 @@ export function DialogHeader({
   );
 }
 
+export function DialogActionRow({ children }: { children: ReactNode }) {
+  return <div className="mt-5 grid gap-2">{children}</div>;
+}
+
+export function DialogPrimaryButton({
+  className,
+  ...props
+}: Parameters<typeof Button>[0]) {
+  return (
+    <Button
+      {...props}
+      tone="primary"
+      size="md"
+      className={cx("w-full", className)}
+    />
+  );
+}
+
 export function ConfirmDialog({
   darkMode,
   pending,

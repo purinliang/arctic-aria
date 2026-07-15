@@ -159,10 +159,10 @@ List body:
 - item third line: timeline text, current milestone, progress text
 - milestone preview: vertical rows below the project summary
 - milestone preview row: milestone title, status `Tag`, progress text
-- footer action: `View`, which opens the detail page
 
-Clicking the item or its `View` action opens the detail page. The list page does
-not show task or subtask rows.
+Clicking the project item opens the detail page. Do not add a separate `View`
+button or footer action inside project list items. The list page does not show
+task or subtask rows.
 
 ### Project Detail Layout
 
@@ -219,17 +219,27 @@ Dialog shell:
 - top row: `DialogHeader`
 - optional `InlineMessage` below the header
 - field area: vertical grid
-- footer: horizontal action row with one primary `Save` button
+- footer: `DialogActionRow` with one full-width primary `Save` button
 - save icon: `Save`
 - loading icon: animated `LoaderCircle`
 
 Project field order:
 
 - `Title` text input
-- `Description` textarea
+- `Description` textarea with neutral placeholder copy, such as
+  `Describe the goal, context, and why it matters.`
 - `Timeline` segmented buttons: `Deadline`, `Duration`
 - date/duration fields: two columns on desktop, stacked on mobile
 - `Priority` segmented buttons: `High`, `Medium`, `Low`
+
+Milestone field order should mirror the project editor where the data model
+overlaps:
+
+- `Title` text input
+- `Objective` textarea
+- `Timeline` segmented buttons: `Deadline`, `Duration`
+- date/duration fields: two columns on desktop, stacked on mobile
+- do not use a typed `Duration days` number field in the milestone dialog
 
 `ProjectTaskEditorDialog` uses its own vertical dialog layout:
 

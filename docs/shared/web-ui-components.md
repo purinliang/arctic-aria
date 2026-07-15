@@ -226,6 +226,11 @@ notifications. Form dialogs should use the default dialog width so input fields,
 date pickers, and other long controls do not collapse into a narrow column.
 Small confirmation dialogs may use the `sm` size.
 
+Add/edit form dialogs should use `DialogActionRow` and `DialogPrimaryButton`
+for the save action. The primary save button should be full width with clear
+top spacing, matching the login submit button pattern. Secondary destructive
+actions may appear below it with secondary styling.
+
 ## Notification
 
 `notification.tsx` owns non-blocking notifications.

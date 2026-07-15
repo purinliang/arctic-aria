@@ -7,7 +7,11 @@ import {
 } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
-import { dialogFrameClass } from "@/components/dialog";
+import {
+  DialogActionRow,
+  DialogPrimaryButton,
+  dialogFrameClass,
+} from "@/components/dialog";
 import { TextInput } from "@/components/forms/input-field";
 import { InlineMessage } from "@/components/text";
 import { TextArea } from "@/components/forms/text-area-field";
@@ -138,26 +142,22 @@ export function MemoryEditorDialog({
             />
           </label>
         </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button
+        <DialogActionRow>
+          <DialogPrimaryButton
             darkMode={darkMode}
-            tone="primary"
             type="submit"
-            disabled={pending}
-            icon={
-              pending ? (
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              ) : (
-                <Save size={14} aria-hidden="true" />
-              )
+            loading={pending}
+            icon={<Save size={14} aria-hidden="true" />}
+            loadingIcon={
+              <LoaderCircle
+                className="animate-spin"
+                size={14}
+                aria-hidden="true"
+              />
             }
           >
             Save
-          </Button>
+          </DialogPrimaryButton>
           {editingMemory ? (
             <Button
               darkMode={darkMode}
@@ -168,7 +168,7 @@ export function MemoryEditorDialog({
               Delete
             </Button>
           ) : null}
-        </div>
+        </DialogActionRow>
       </form>
     </div>
   );
