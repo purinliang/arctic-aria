@@ -36,7 +36,6 @@ export function useDashboardProjects(
   const [tasks, setTasks] = useState<Task[]>([]);
   const [projects, setProjects] = useState<ProjectView[]>([]);
   const [projectLoading, setProjectLoading] = useState(true);
-  const [projectMessage, setProjectMessage] = useState<string | null>(null);
   const [projectActionPending, setProjectActionPending] = useState(false);
   const [pendingTaskIds, setPendingTaskIds] = useState<string[]>([]);
   const pageTaskRequestChains = useRef(new Map<string, Promise<void>>());
@@ -51,7 +50,7 @@ export function useDashboardProjects(
     const result = await getProjectDashboardData();
 
     if (!result.ok) {
-      setProjectMessage(result.message);
+      showErrorNotification(result.message, "Projects unavailable");
       setTasks([]);
       setProjects([]);
       setPendingTaskIds([]);
@@ -61,14 +60,12 @@ export function useDashboardProjects(
 
     applyProjectData(result.data);
     setProjectLoading(false);
-  }, [applyProjectData]);
+  }, [applyProjectData, showErrorNotification]);
 
   async function runDashboardProjectAction(
     action: ProjectDataAction,
     onFailure?: () => void,
   ) {
-    setProjectMessage(null);
-
     const result = await action();
 
     if (!result.ok) {
@@ -82,7 +79,6 @@ export function useDashboardProjects(
     action: ProjectDataAction,
     failureTitle: string,
   ) {
-    setProjectMessage(null);
     setProjectActionPending(true);
 
     try {
@@ -132,7 +128,6 @@ export function useDashboardProjects(
       (pageTaskRequestVersions.current.get(taskId) ?? 0) + 1;
 
     pageTaskRequestVersions.current.set(taskId, requestVersion);
-    setProjectMessage(null);
 
     setTasks((current) => {
       previousTasks = current;
@@ -181,7 +176,6 @@ export function useDashboardProjects(
     tasks,
     projects,
     projectLoading,
-    projectMessage,
     projectActionPending,
     pendingTaskIds,
     refreshProjectData,
@@ -213,7 +207,6 @@ export function useDashboardProjects(
     statusTaskFromPage: updateTaskFromPage,
     reopenTaskFromPage: (taskId: string) =>
       runProjectManagementAction(() => reopenProjectTask(taskId), "Task reopen failed"),
-    clearProjectMessage: () => setProjectMessage(null),
   };
 }
 

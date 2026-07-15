@@ -29,7 +29,6 @@ export function useDashboardRoutines(
     RoutineDefinition[]
   >([]);
   const [routineLoading, setRoutineLoading] = useState(true);
-  const [routineMessage, setRoutineMessage] = useState<string | null>(null);
   const [routineActionPending, setRoutineActionPending] = useState(false);
 
   const applyRoutineData = useCallback((data: RoutineDashboardData) => {
@@ -41,7 +40,7 @@ export function useDashboardRoutines(
     const result = await getRoutineDashboardData();
 
     if (!result.ok) {
-      setRoutineMessage(result.message);
+      showErrorNotification(result.message, "Routines unavailable");
       setRoutines([]);
       setRoutineDefinitions([]);
       setRoutineLoading(false);
@@ -50,13 +49,12 @@ export function useDashboardRoutines(
 
     applyRoutineData(result.data);
     setRoutineLoading(false);
-  }, [applyRoutineData]);
+  }, [applyRoutineData, showErrorNotification]);
 
   async function runRoutineAction(
     action: RoutineDataAction,
     onFailure?: () => void,
   ) {
-    setRoutineMessage(null);
     setRoutineActionPending(true);
 
     try {
@@ -74,15 +72,17 @@ export function useDashboardRoutines(
     }
   }
 
-  async function runRoutineManagementAction(action: RoutineDataAction) {
-    setRoutineMessage(null);
+  async function runRoutineManagementAction(
+    action: RoutineDataAction,
+    failureTitle: string,
+  ) {
     setRoutineActionPending(true);
 
     try {
       const result = await action();
 
       if (!result.ok) {
-        setRoutineMessage(result.message);
+        showErrorNotification(result.message, failureTitle);
         return false;
       }
 
@@ -114,19 +114,15 @@ export function useDashboardRoutines(
     routines,
     routineDefinitions,
     routineLoading,
-    routineMessage,
     routineActionPending,
     refreshRoutineData,
     updateRoutine,
     saveRoutineFromPage: (input: RoutineInput) =>
-      runRoutineManagementAction(() => saveRoutine(input)),
+      runRoutineManagementAction(() => saveRoutine(input), "Routine save failed"),
     deleteRoutineFromPage: (routineId: string) =>
-      runRoutineManagementAction(() => deleteRoutine(routineId)),
-    clearRoutineMessage: () => setRoutineMessage(null),
-    markRoutineBusy: () => {
-      setRoutineMessage(
-        "Busy will snooze reminders after reminder jobs are implemented.",
-      );
-    },
+      runRoutineManagementAction(
+        () => deleteRoutine(routineId),
+        "Routine delete failed",
+      ),
   };
 }
