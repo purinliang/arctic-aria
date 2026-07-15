@@ -1,7 +1,8 @@
 # User UI
 
 This document describes user-visible auth UI behavior. Product rules,
-validation, and persistence behavior are documented in [design.md](design.md).
+validation, and persistence behavior are documented in [design.md](design.md)
+and [data-model.md](data-model.md).
 
 ## Session Loading State
 
@@ -75,3 +76,37 @@ Also show a placeholder password reset line above `New here? Sign up`:
 - link-style text `Reset password`
 - Clicking it should show a shared info notification that password reset is not
   implemented yet.
+
+## Interaction Behavior
+
+Tab behavior:
+
+- Switching between `Sign in` and `Sign up` is local UI state.
+- Switching tabs should not call the backend.
+- Switching tabs should clear submit-only required-empty bubbles for the
+  previous mode.
+
+Field behavior:
+
+- Required-empty bubbles appear only after the main submit button is clicked.
+- Non-empty typing errors can appear while typing.
+- Field bubbles should point to the related field and must not resize the form.
+
+Submit behavior:
+
+- Clicking `Sign in` or `Sign up` is a blocking auth action.
+- Auth submit is not optimistic.
+- While submitting, show a loading state on the main button and prevent
+  duplicate submit.
+- Keep the auth form visible until the backend confirms success.
+- On success, show a shared success notification and open the authenticated
+  app.
+- On backend validation or persistence failure, keep the user on the auth page
+  and show the backend message through the shared notification stack.
+
+Placeholder action behavior:
+
+- Clicking `Continue with Google` does not call OAuth yet. It shows a shared
+  info notification.
+- Clicking `Reset password` does not open a reset form yet. It shows a shared
+  info notification.

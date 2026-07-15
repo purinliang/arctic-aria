@@ -1,7 +1,8 @@
 # Memories UI
 
 This document describes user-visible Memories UI behavior. Product rules,
-tables, and recommendation behavior are documented in [design.md](design.md).
+tables, and recommendation behavior are documented in [design.md](design.md)
+and [data-model.md](data-model.md).
 
 ## Dashboard
 
@@ -38,6 +39,10 @@ backend message in the shared notification component.
 
 If the user clicks `Replace`, replace only that one item and keep other
 positions unchanged after the backend returns the replacement data.
+
+`Replace` is lightweight but may need backend replacement data. Show loading on
+the clicked row's replace button while it is pending. Do not block unrelated
+pinned memory rows when the command can be tracked per row.
 
 On dashboard load or reload:
 
@@ -110,6 +115,7 @@ Click behavior:
 - Clicking a category filter button filters the memory list.
 - Clicking `All` removes the category filter.
 - Clicking `Manage` opens category management.
+- Category filtering is local UI state and should not call the backend.
 
 ### Memory List Section
 
@@ -128,6 +134,7 @@ Memory item behavior:
 - The edit action is always visible on the right side, where an expand icon
   would otherwise appear.
 - The edit action uses a pencil icon and opens the edit-memory dialog.
+- Clicking `Edit` opens the dialog without changing persisted data.
 
 ## Suggestions Panel
 
@@ -184,6 +191,8 @@ Refresh behavior:
 - Only unpinned visible suggestions should be counted as ignored.
 - Refreshing suggestions should not affect pinned suggestions except by keeping
   them out of the new suggestion list.
+- If refresh fails, keep the page open and show the backend message through the
+  shared notification stack.
 
 ## Memory Management
 

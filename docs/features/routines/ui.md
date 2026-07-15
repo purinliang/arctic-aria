@@ -1,7 +1,8 @@
 # Routines UI
 
 This document describes user-visible Routine UI behavior. Product rules and
-table attributes are documented in [design.md](design.md).
+table attributes are documented in [design.md](design.md) and
+[data-model.md](data-model.md).
 
 ## Dashboard
 
@@ -62,6 +63,14 @@ The first Routines page does not need:
 - AI coaching
 - analytics charts
 
+Page interaction behavior:
+
+- Clicking `New` opens the Add Routine dialog without calling the backend.
+- Clicking a routine row's `Edit` action opens the Edit Routine dialog with the
+  current routine values.
+- Opening or closing a dialog should not change persisted data.
+- Management save/delete actions are blocking, not optimistic.
+
 ## Add Routine Dialog
 
 Use a modal dialog over the Routines page.
@@ -80,6 +89,16 @@ Fields:
 The recurrence rule control should use simple option buttons or segmented
 controls first. Avoid a dense cron expression UI.
 
+Save behavior:
+
+- Clicking `Save` validates the current draft and sends it to the backend.
+- While saving, show loading state on the save button and prevent duplicate
+  submit.
+- On success, close the dialog and refresh visible routine data from the
+  backend response.
+- On validation or persistence failure, keep the dialog open and show the
+  backend message through the shared notification stack.
+
 ## Edit Routine Dialog
 
 Use the same layout as the Add Routine dialog.
@@ -93,10 +112,18 @@ The dialog should include actions for:
 
 Successful save closes the dialog and refreshes visible routine data
 immediately from the backend response; do not require a manual reload. Failed
-save keeps the dialog open and shows the backend message.
+save keeps the dialog open and shows the backend message through the shared
+notification stack.
 
-Clicking `Delete` should show a confirmation dialog. Successful delete closes
-the dialog and removes the routine from normal views.
+Delete behavior:
+
+- Clicking `Delete` should show a confirmation dialog.
+- Canceling the confirmation returns to the edit dialog without changing data.
+- Confirming delete is blocking.
+- Successful delete closes the confirmation and edit dialogs and removes the
+  routine from normal views.
+- Failed delete keeps the edit dialog open and shows the backend message
+  through the shared notification stack.
 
 ## Status Text
 

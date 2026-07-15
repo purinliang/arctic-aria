@@ -1,8 +1,9 @@
 # Routines Web Implementation
 
 This document records the current user-detectable Routines web behavior.
-Product rules are defined in [design.md](design.md), and visible UI behavior is
-defined in [ui.md](ui.md).
+Product rules are defined in [design.md](design.md), data rules are defined in
+[data-model.md](data-model.md), and visible UI behavior is defined in
+[ui.md](ui.md).
 
 ## Current Scope
 

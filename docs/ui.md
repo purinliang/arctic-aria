@@ -31,6 +31,34 @@ Important shared docs:
 - [web/sidebar.md](web/sidebar.md)
 - [web/sidebar-ui.md](web/sidebar-ui.md)
 
+## UI Documentation Contract
+
+Feature UI docs should describe both how the UI is drawn and how the user
+interacts with it.
+
+For visible structure, document:
+
+- page, panel, card, row, dialog, and control layout
+- top-to-bottom or left-to-right order
+- icons, button labels, field labels, placeholder text, and empty states
+- text style family, such as label, description, or supporting metadata
+- responsive behavior when desktop and mobile differ
+
+For interactions, document:
+
+- what happens when each important button, checkbox, row, link, field, or menu
+  is clicked or changed
+- whether the action is blocking, loading, optimistic, or local-only
+- what becomes disabled while pending, and what stays interactive
+- what closes immediately, what closes only after backend success, and what
+  remains open after failure
+- whether data refreshes, rolls back, re-sorts, or stays in the same visible
+  order after the action
+- whether failures use field bubbles, inline messages, confirmation dialogs, or
+  the shared notification stack
+- what must not happen, such as expanding a dashboard row or showing a
+  management action in a read-only dashboard panel
+
 ## Interaction Defaults
 
 - Dashboard actions should be lightweight, usually optimistic, and tracked per

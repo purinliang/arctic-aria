@@ -18,6 +18,52 @@ The Projects feature owns:
 The scheduler may select tasks for a day, but the scheduler must not own
 project structure.
 
+## Validation And Consistency
+
+Projects uses the shared database integrity rules from
+[../../infrastructure/database.md](../../infrastructure/database.md).
+
+Backend validation should check single-row user input before persistence:
+
+- required title and description fields
+- title and description length
+- valid status values exposed by the current command
+- valid date strings
+- deadline not before start date
+- exactly one project timeline mode: deadline or duration
+- milestone and task ownership before user-visible edits
+
+Database constraints should protect durable consistency:
+
+- `project_milestones.project_id` must reference an existing project.
+- `project_tasks.project_id` must reference an existing project.
+- `project_tasks.milestone_id`, when present, must reference an existing
+  milestone.
+- status and priority columns should be constrained to allowed values.
+- date-order and positive-duration rules should be protected with check
+  constraints where practical.
+- task dependencies should prevent duplicate dependency pairs and self
+  dependency.
+
+When the database rejects a write, the backend should translate known failures
+into user-facing messages. Do not expose raw SQL errors in the UI.
+
+Deletion behavior:
+
+- The current web UI uses archive commands for project, milestone, and task
+  deletion.
+- A future hard-delete command should refuse deleting a non-empty project or
+  milestone by default.
+- Cascade cleanup must be explicitly documented before it is used for
+  user-visible project data.
+
+Concurrency behavior:
+
+- Do not rely on read-before-write checks alone for future unique project data.
+- If a future feature adds unique project names, unique milestone slugs, task
+  dependency keys, or ordering keys, protect them with database constraints and
+  handle conflicts in backend actions.
+
 ## Projects
 
 `projects` stores the top-level initiative.

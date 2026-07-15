@@ -1,6 +1,8 @@
 # Routines
 
-This document defines the Core product rules for routines.
+This document defines the Core product rules for routines. Routine persistence,
+backend validation, and database constraints are documented in
+[data-model.md](data-model.md).
 
 Routines are repeatable daily-life work such as medication, walking, evening
 shutdown, English practice, exercise, or review. A routine is not a project, and
@@ -45,18 +47,6 @@ The first routines feature should not include:
 
 A routine definition stores the repeatable behavior.
 
-Recommended fields:
-
-- `id`
-- `user_id`
-- `title`
-- `description`
-- `status`
-- `first_start_date`
-- `end_date`
-- `created_at`
-- `updated_at`
-
 Routine statuses:
 
 - `active`: can generate future instances.
@@ -81,19 +71,6 @@ Supported first rule types:
   routines that should repeat after exactly 30, 60, or 90 days instead of on a
   calendar date.
 
-Recommended fields:
-
-- `id`
-- `routine_id`
-- `rule_type`
-- `interval_value`
-- `weekdays`
-- `day_of_month`
-- `preferred_time`
-- `timezone`
-- `created_at`
-- `updated_at`
-
 Rule constraints:
 
 - `interval_value` stores either a month interval for `monthly_by_date` or a
@@ -110,19 +87,6 @@ does not exist in a month, use the last day of that month.
 
 A routine instance is the concrete occurrence generated for one date and
 optional time.
-
-Recommended fields:
-
-- `id`
-- `user_id`
-- `routine_id`
-- `scheduled_date`
-- `scheduled_time`
-- `status`
-- `completed_at`
-- `skipped_at`
-- `created_at`
-- `updated_at`
 
 Routine instance statuses:
 

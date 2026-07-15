@@ -1,6 +1,8 @@
 # Memories
 
-This document defines the Memories feature for Arctic Aria.
+This document defines the Memories feature for Arctic Aria. Memory persistence,
+backend validation, and database constraints are documented in
+[data-model.md](data-model.md).
 
 Memories are repeatable personal experiences that the user considers worth
 revisiting. They are not tasks, routines, or long-term dreams. A memory can be a
@@ -139,127 +141,6 @@ The user can:
 - unpin a memory
 
 Pinned memory dashboard rows do not expand or collapse in the current UI.
-
-## Suggested Table Design
-
-Use normalized relational tables for the first implementation. Avoid storing
-timestamp lists on the `memories` row because arrays are harder to query,
-constrain, paginate, and update safely.
-
-### `memory_categories`
-
-Stores user-owned categories and suggestion weights.
-
-Recommended fields:
-
-- `id`
-- `user_id`
-- `name`
-- `description`
-- `base_weight`
-- `created_at`
-- `updated_at`
-
-Constraints:
-
-- `user_id` references `users.id`.
-- `name` should be unique per user.
-- `description` is optional and should be 500 characters or fewer.
-- `base_weight` should be greater than `0`.
-
-Suggested defaults:
-
-- Cuisine: `base_weight = 1.2`
-- Sightseeing: `base_weight = 0.8`
-
-### `memories`
-
-Stores the canonical memory record.
-
-Recommended fields:
-
-- `id`
-- `user_id`
-- `category_id`
-- `title`
-- `description`
-- `last_done_at`
-- `done_count`
-- `last_pinned_at`
-- `last_ignored_at`
-- `created_at`
-- `updated_at`
-
-Field notes:
-
-- Delete actions should physically delete the memory.
-- Deleting a memory should also remove its current pinned record and related
-  memory events.
-- `done_count`, `last_done_at`, `last_pinned_at`, and `last_ignored_at` are
-  denormalized summary fields. The source of truth for history is
-  `memory_events`.
-
-Constraints:
-
-- `user_id` references `users.id`.
-- `category_id` references `memory_categories.id`.
-- `title` is required.
-- `done_count` should be greater than or equal to `0`.
-
-### `memory_events`
-
-Stores immutable history for recommendation signals and audits.
-
-Recommended fields:
-
-- `id`
-- `user_id`
-- `memory_id`
-- `event_type`
-- `occurred_at`
-
-Allowed first event types:
-
-- `pinned`
-- `unpinned`
-- `ignored`
-- `completed`
-- `completed_canceled`
-- `replaced`
-- `deleted`
-
-### `pinned_memories`
-
-Stores the current soft shortlist shown on the dashboard.
-
-Recommended fields:
-
-- `id`
-- `user_id`
-- `memory_id`
-- `position`
-- `pinned_at`
-- `last_shown_at`
-- `visible_until`
-- `completed_at`
-- `completed_cleanup_at`
-- `created_at`
-- `updated_at`
-
-Field notes:
-
-- `position` preserves dashboard order.
-- `visible_until` controls when a pinned memory should stop appearing if it is
-  not completed.
-- `completed_cleanup_at` should normally be 2 hours after `completed_at`.
-- The first dashboard should show at most 3 Cuisine memories and 3 Sightseeing
-  memories.
-
-Constraints:
-
-- `user_id` references `users.id`.
-- `memory_id` references `memories.id`.
-- There should be at most one current pinned record for the same `memory_id`.
 
 ### Optional Later Tables
 

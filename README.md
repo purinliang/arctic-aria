@@ -67,6 +67,8 @@ too complicated.
   memories, and reviews.
 - [docs/features/settings/design.md](docs/features/settings/design.md):
   user-facing settings and preference rules.
+- [docs/features/auth/data-model.md](docs/features/auth/data-model.md):
+  auth persistence, validation, and database constraints.
 - [docs/features/projects/overview.md](docs/features/projects/overview.md):
   project, milestone, and task product rules.
 - [docs/features/projects/data-model.md](docs/features/projects/data-model.md):
@@ -75,8 +77,12 @@ too complicated.
   and task UI behavior.
 - [docs/features/routines/design.md](docs/features/routines/design.md):
   routine product rules and data behavior.
+- [docs/features/routines/data-model.md](docs/features/routines/data-model.md):
+  routine persistence, validation, and database constraints.
 - [docs/features/routines/web-implementation.md](docs/features/routines/web-implementation.md):
   current web routine implementation notes.
+- [docs/features/memories/data-model.md](docs/features/memories/data-model.md):
+  memory persistence, validation, and database constraints.
 - [docs/features/dashboard/ui.md](docs/features/dashboard/ui.md): current
   dashboard UI behavior.
 - [docs/features/dashboard/web-implementation.md](docs/features/dashboard/web-implementation.md):

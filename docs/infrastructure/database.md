@@ -47,6 +47,46 @@ The Projects feature requires `0005_create_projects.sql` and the cleanup
 `projects`, `project_milestones`, or `project_tasks` tables, treat the database
 as not migrated and run the web database migration before manual testing.
 
+## Integrity And Validation
+
+The database is the final consistency boundary for product data.
+
+Use the layers this way:
+
+- Frontend validation helps the user correct input early.
+- Backend validation owns trusted field-level checks and user-facing messages.
+- Database constraints protect consistency when requests race, clients bypass
+  the UI, or backend code has a bug.
+
+Database schema should enforce cross-row and cross-command safety where
+practical:
+
+- Use foreign keys for ownership and references.
+- Use unique constraints for values that must be unique, such as username or a
+  future per-user unique key.
+- Use check constraints for simple allowed values, status sets, positive
+  numbers, and date ordering.
+- Use transactions when one command must update several related rows together.
+
+Do not rely on a `SELECT` before `INSERT` as the only protection for uniqueness
+or references. The backend may pre-check to produce a nicer message, but a
+database constraint must still protect concurrent inserts or updates when the
+data rule requires uniqueness.
+
+For user-visible parent-child data, prefer archive or soft-delete commands.
+When a feature supports hard delete, the default behavior should refuse deleting
+a non-empty parent. Use cascade delete only when the feature explicitly
+documents that cleanup behavior, such as account-level removal of all owned
+data.
+
+Backend actions should catch known constraint failures and translate them into
+clear messages. Examples:
+
+- duplicate unique value
+- referenced parent not found
+- deleting a parent that still has children
+- invalid status or date range rejected by a check constraint
+
 ## User Model
 
 The first version should support username and password registration and login.
@@ -136,7 +176,8 @@ done timestamp arrays on `memories`; use `memory_events` for history and
 denormalized summary fields on `memories` for common queries.
 
 Detailed memory rules are documented in
-[memories/design.md](../features/memories/design.md).
+[memories/design.md](../features/memories/design.md) and
+[memories/data-model.md](../features/memories/data-model.md).
 
 ## Routine Tables
 
@@ -144,7 +185,8 @@ Routines are product data. A routine is the repeatable definition, and a routine
 instance is the concrete occurrence for a specific day or time window.
 
 Detailed routine rules are documented in
-[routines/design.md](../features/routines/design.md).
+[routines/design.md](../features/routines/design.md) and
+[routines/data-model.md](../features/routines/data-model.md).
 
 `routines` should store:
 

@@ -69,6 +69,10 @@ they apply:
   lists, cards, text, or tags inside feature pages is prohibited. If the shared
   component is missing a needed pattern, extend or add a shared UI component
   first, then use it from the feature page.
+- Feature UI docs must specify both visual structure and interaction behavior:
+  layout, labels, icons, responsive behavior, click/change results, pending
+  state, blocking versus optimistic flow, rollback, refresh, disabled controls,
+  notifications, dialogs, and what must not happen.
 - Static field labels must use the shared `LabelText` style. Descriptive body
   copy must use the shared `DescriptionText` style. Supporting metadata must use
   the shared `SupportingText` style: same muted visual family as descriptions,

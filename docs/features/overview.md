@@ -29,11 +29,15 @@ The first feature model should not include:
 - Discord-specific message details
 
 Detailed user registration and login rules are documented in
-[auth/design.md](auth/design.md). User settings are documented in
+[auth/design.md](auth/design.md), with persistence details in
+[auth/data-model.md](auth/data-model.md). User settings are documented in
 [settings/design.md](settings/design.md). Project and task rules are documented
-in [projects/overview.md](projects/overview.md). Routine rules are documented
-in [routines/design.md](routines/design.md). Memory rules are documented in
-[memories/design.md](memories/design.md).
+in [projects/overview.md](projects/overview.md), with persistence details in
+[projects/data-model.md](projects/data-model.md). Routine rules are documented
+in [routines/design.md](routines/design.md), with persistence details in
+[routines/data-model.md](routines/data-model.md). Memory rules are documented in
+[memories/design.md](memories/design.md), with persistence details in
+[memories/data-model.md](memories/data-model.md).
 
 ## User
 

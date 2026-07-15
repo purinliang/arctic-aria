@@ -66,6 +66,7 @@ security, and future OAuth. The current MVP uses username and password auth.
 Detailed docs:
 
 - [features/auth/design.md](features/auth/design.md)
+- [features/auth/data-model.md](features/auth/data-model.md)
 - [features/auth/ui.md](features/auth/ui.md)
 - [features/auth/web-implementation.md](features/auth/web-implementation.md)
 
@@ -108,6 +109,7 @@ project and does not use the project hierarchy.
 Detailed docs:
 
 - [features/routines/design.md](features/routines/design.md)
+- [features/routines/data-model.md](features/routines/data-model.md)
 - [features/routines/ui.md](features/routines/ui.md)
 - [features/routines/web-implementation.md](features/routines/web-implementation.md)
 
@@ -121,6 +123,7 @@ overdue like tasks or routines.
 Detailed docs:
 
 - [features/memories/design.md](features/memories/design.md)
+- [features/memories/data-model.md](features/memories/data-model.md)
 - [features/memories/ui.md](features/memories/ui.md)
 - [features/memories/web-implementation.md](features/memories/web-implementation.md)
 

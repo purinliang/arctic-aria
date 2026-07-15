@@ -4,11 +4,12 @@ This document defines the first auth feature. It covers registration, login,
 session behavior, and future OAuth. Broader user preferences belong to the
 separate Settings feature.
 
-User-facing auth UI behavior is documented in [ui.md](ui.md). The
+User-facing auth UI behavior is documented in [ui.md](ui.md). Auth persistence
+and database constraints are documented in [data-model.md](data-model.md). The
 current web implementation notes are documented in
-[web-implementation.md](web-implementation.md). Keep
-this file as the product rule source and use the implementation note for code
-locations, commands, and current implementation status.
+[web-implementation.md](web-implementation.md). Keep this file as the product
+rule source and use the implementation note for code locations, commands, and
+current implementation status.
 
 ## Scope
 
@@ -26,36 +27,6 @@ The first user feature should not include:
 - changing password
 - account deletion
 - multi-factor authentication
-
-## Suggested Table Design
-
-### `users`
-
-Should be stored in the `users` SQL table.
-
-Recommended fields:
-
-- `id`
-- `username`
-- `password_hash`
-- `display_name`
-- `created_at`
-- `updated_at`
-
-Recommended constraints:
-
-- `id` is the primary key.
-- `username` is unique.
-- `username` must follow the registration username validation rules.
-- `display_name` must follow the registration display name validation rules.
-- `password_hash` is required.
-
-Do not store raw passwords. Password hashing secrets, salts, pepper values, and
-environment variables must not be committed to git.
-
-Use bcrypt for password hashing. Bcrypt handles per-password salts internally.
-If a pepper value is added, it must come from an environment variable or secret
-manager, not from tracked files.
 
 ## Registration
 

@@ -104,6 +104,32 @@ user.
 - If a refactor area has no direct automated coverage, say so in the commit or
   final report and use `lint` plus `build` as the minimum safety check.
 
+## Data Integrity Discipline
+
+- Feature overview docs describe hierarchy, ownership, cross-feature
+  interaction, dashboard behavior, and code ownership. Feature `data-model.md`
+  docs describe persistent entities, schema direction, backend validation, and
+  database constraints.
+- Use frontend validation for guidance, backend validation for trusted
+  user-facing rule checks, and database constraints for final consistency.
+- Protect cross-row invariants in the database whenever practical. Use foreign
+  keys for ownership and references, unique constraints for uniqueness, check
+  constraints for simple allowed values or ranges, and transactions when a
+  command changes multiple related rows.
+- Do not rely on a preflight read as the only protection for uniqueness or
+  references. Concurrent requests must still be safe because the database
+  rejects conflicting writes.
+- For parent-child product data, prefer archive or soft-delete commands for
+  user-visible deletion. If hard delete is required, the default behavior is to
+  refuse deleting a non-empty parent unless the feature explicitly documents a
+  cascade cleanup.
+- Backend actions should translate database constraint failures into clear
+  user-facing messages instead of exposing raw database errors or generic
+  failures when the cause is known.
+- Redis or another cache may help with fast checks later, but it is not the
+  source of truth for product integrity. The database remains the final
+  consistency boundary.
+
 ## Web App Work
 
 Web-specific source organization, TypeScript style, UI component rules,
