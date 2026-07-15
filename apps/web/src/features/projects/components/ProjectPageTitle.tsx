@@ -33,8 +33,10 @@ export function ProjectPageTitle({
     <h1 className="flex min-w-0 items-center gap-2 text-2xl font-semibold tracking-normal sm:text-3xl">
       <button
         className={cx(
-          "relative shrink-0 text-left outline-none transition before:absolute before:-inset-x-1 before:-inset-y-0.5 before:-z-10 before:rounded-md before:opacity-0 before:transition hover:before:opacity-100 focus-visible:before:opacity-100",
-          darkMode ? "before:bg-white/10" : "before:bg-slate-200",
+          "shrink-0 rounded-sm text-left outline-none transition hover:shadow-[0_0_0_4px_rgba(226,232,240,0.95)] focus-visible:shadow-[0_0_0_4px_rgba(226,232,240,0.95)]",
+          darkMode
+            ? "hover:shadow-[0_0_0_4px_rgba(255,255,255,0.12)] focus-visible:shadow-[0_0_0_4px_rgba(255,255,255,0.12)]"
+            : false,
         )}
         type="button"
         onClick={() => {
@@ -48,8 +50,10 @@ export function ProjectPageTitle({
       <span className="relative min-w-0">
         <button
           className={cx(
-            "relative flex min-w-0 max-w-[min(58vw,42rem)] items-center gap-2 text-left outline-none transition before:absolute before:-inset-x-1 before:-inset-y-0.5 before:-z-10 before:rounded-md before:opacity-0 before:transition hover:before:opacity-100 focus-visible:before:opacity-100",
-            darkMode ? "before:bg-white/10" : "before:bg-slate-200",
+            "flex min-w-0 max-w-[min(58vw,42rem)] items-center gap-2 rounded-sm text-left outline-none transition hover:shadow-[0_0_0_4px_rgba(226,232,240,0.95)] focus-visible:shadow-[0_0_0_4px_rgba(226,232,240,0.95)]",
+            darkMode
+              ? "hover:shadow-[0_0_0_4px_rgba(255,255,255,0.12)] focus-visible:shadow-[0_0_0_4px_rgba(255,255,255,0.12)]"
+              : false,
           )}
           type="button"
           aria-expanded={open}

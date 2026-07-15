@@ -226,8 +226,9 @@ Breadcrumb behavior:
 - the page title bar, not the detail panel, shows `Projects / project name`
 - `Projects` in the page title bar returns to the project list page
 - clicking or focusing the project name opens a menu-style project switcher
-- breadcrumb hover/focus backgrounds should not add visible padding that shifts
-  alignment against normal page titles
+- breadcrumb hover/focus effects should use non-layout effects, such as an
+  outer shadow halo, and must not add visible padding that shifts alignment
+  against normal page titles
 - switching projects should keep the user on the detail page
 - the breadcrumb should not force the user to return to the list page before
   opening another project
