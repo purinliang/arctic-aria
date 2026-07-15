@@ -1,5 +1,6 @@
 // Dashboard - Project Tasks Panel.
-import { Check } from "lucide-react";
+import { Check, ChevronRight } from "lucide-react";
+import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { dividerClass, mutedTextClass } from "@/components/color";
 import { CheckboxControl } from "@/components/forms/selection-field";
@@ -14,12 +15,14 @@ export function ProjectTasksPanel({
   loading,
   pendingTaskIds,
   onTaskDone,
+  onTaskOpen,
 }: {
   darkMode: boolean;
   tasks: Task[];
   loading: boolean;
   pendingTaskIds: string[];
   onTaskDone: (taskId: string) => void;
+  onTaskOpen: (projectId: string) => void;
 }) {
   return (
     <Panel darkMode={darkMode} className="min-w-0">
@@ -43,6 +46,7 @@ export function ProjectTasksPanel({
             darkMode={darkMode}
             taskPending={pendingTaskIds.includes(task.id)}
             onDone={() => onTaskDone(task.id)}
+            onOpen={() => onTaskOpen(task.projectId)}
           />
         ))}
       </div>
@@ -56,11 +60,13 @@ function ProjectTaskRow({
   darkMode,
   taskPending = false,
   onDone,
+  onOpen,
 }: {
   task: Task;
   darkMode: boolean;
   taskPending?: boolean;
   onDone: () => void;
+  onOpen: () => void;
 }) {
   const metadata = [
     task.projectLabel,
@@ -95,6 +101,14 @@ function ProjectTaskRow({
           </SupportingText>
         </div>
       </div>
+      <Button
+        darkMode={darkMode}
+        tone="ghost"
+        size="icon-sm"
+        aria-label={`Open project for ${task.title}`}
+        icon={<ChevronRight size={16} aria-hidden="true" />}
+        onClick={onOpen}
+      />
     </ListItem>
   );
 }

@@ -73,6 +73,12 @@ export function AppShell({
     setSidebarOpen(false);
   }
 
+  function showProjectDetail(projectId: string) {
+    setSelectedProjectId(projectId);
+    setActiveView("projects");
+    setSidebarOpen(false);
+  }
+
   function handleViewChange(view: DashboardView) {
     if (view === "projects") {
       showProjectsList();
@@ -213,6 +219,15 @@ export function AppShell({
               onMemoryDone={memoryState.markMemoryDone}
               onMemoryCancelDone={memoryState.cancelMemoryDone}
               onMemoryReplace={memoryState.replaceMemory}
+              onTaskOpen={showProjectDetail}
+              onRoutineOpen={() => {
+                setActiveView("routines");
+                setSidebarOpen(false);
+              }}
+              onMemoryOpen={() => {
+                setActiveView("memories");
+                setSidebarOpen(false);
+              }}
             />
           )}
         </div>

@@ -27,6 +27,9 @@ export function Dashboard({
   onMemoryDone,
   onMemoryCancelDone,
   onMemoryReplace,
+  onTaskOpen,
+  onRoutineOpen,
+  onMemoryOpen,
 }: {
   darkMode: boolean;
   tasks: Task[];
@@ -47,6 +50,9 @@ export function Dashboard({
   onMemoryDone: (pinnedMemoryId: string) => void;
   onMemoryCancelDone: (pinnedMemoryId: string) => void;
   onMemoryReplace: (pinnedMemoryId: string) => void;
+  onTaskOpen: (projectId: string) => void;
+  onRoutineOpen: () => void;
+  onMemoryOpen: () => void;
 }) {
   return (
     <section className="aa-split-container">
@@ -57,6 +63,7 @@ export function Dashboard({
           loading={taskLoading}
           pendingTaskIds={pendingTaskIds}
           onTaskDone={(taskId) => onTaskStatus(taskId, "done")}
+          onTaskOpen={onTaskOpen}
         />
 
         <aside className="grid content-start gap-4">
@@ -67,6 +74,7 @@ export function Dashboard({
             disabled={routineActionPending}
             message={routineMessage}
             onRoutineStatus={onRoutineStatus}
+            onRoutineOpen={onRoutineOpen}
           />
 
           <PinnedMemoriesPanel
@@ -77,6 +85,7 @@ export function Dashboard({
             onDone={onMemoryDone}
             onCancelDone={onMemoryCancelDone}
             onReplace={onMemoryReplace}
+            onMemoryOpen={onMemoryOpen}
           />
         </aside>
       </div>

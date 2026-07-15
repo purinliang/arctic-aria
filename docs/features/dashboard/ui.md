@@ -85,6 +85,11 @@ Checking a task is a lightweight Dashboard action. The visible row should update
 optimistically and backend failure should be reported through the shared
 notification stack.
 
+Clicking the row's outlineless right-arrow button opens the Projects detail page
+for that task's project. It should not open the Projects list page. The whole
+row is not clickable. Clicking the checkbox only changes completion state and
+must not navigate.
+
 ## Routines Panel
 
 The Routines panel shows routine instances for the current personal day. It
@@ -104,6 +109,10 @@ buttons in the Dashboard UI. Those are future reminder-response actions.
 Checking a routine is a lightweight Dashboard action. The visible row should
 update optimistically and backend failure should be reported through the shared
 notification stack.
+
+Clicking the row's outlineless right-arrow button opens the Routines page. The
+whole row is not clickable. Clicking the checkbox only changes completion state
+and must not navigate.
 
 ## Pinned Memories Panel
 
@@ -128,6 +137,10 @@ cleanup, restore the active state. If the backend rejects either command, roll
 back the visible state and show the shared notification.
 
 `Replace` affects only the clicked pinned memory row.
+
+Clicking the row's outlineless right-arrow button opens the Memories page. The
+whole row is not clickable. Clicking the checkbox or `Replace` button must not
+navigate.
 
 ## Review And Rewards
 

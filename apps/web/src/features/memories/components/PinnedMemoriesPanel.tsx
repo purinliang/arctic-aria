@@ -1,5 +1,5 @@
 // Dashboard - Pinned Memories Panel.
-import { ClipboardList, RefreshCw } from "lucide-react";
+import { ChevronRight, ClipboardList, RefreshCw } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { dividerClass, mutedTextClass } from "@/components/color";
@@ -17,6 +17,7 @@ export function PinnedMemoriesPanel({
   onDone,
   onCancelDone,
   onReplace,
+  onMemoryOpen,
 }: {
   darkMode: boolean;
   pinnedMemories: PinnedMemory[];
@@ -25,6 +26,7 @@ export function PinnedMemoriesPanel({
   onDone: (pinnedMemoryId: string) => void;
   onCancelDone: (pinnedMemoryId: string) => void;
   onReplace: (pinnedMemoryId: string) => void;
+  onMemoryOpen: () => void;
 }) {
   return (
     <Panel darkMode={darkMode}>
@@ -50,6 +52,7 @@ export function PinnedMemoriesPanel({
             onDone={() => onDone(memory.id)}
             onCancelDone={() => onCancelDone(memory.id)}
             onReplace={() => onReplace(memory.id)}
+            onOpen={onMemoryOpen}
           />
         ))}
       </div>
@@ -65,6 +68,7 @@ function PinnedMemoryRow({
   onDone,
   onCancelDone,
   onReplace,
+  onOpen,
 }: {
   memory: PinnedMemory;
   darkMode: boolean;
@@ -72,6 +76,7 @@ function PinnedMemoryRow({
   onDone: () => void;
   onCancelDone: () => void;
   onReplace: () => void;
+  onOpen: () => void;
 }) {
   const completed = memory.status === "completed";
 
@@ -103,14 +108,24 @@ function PinnedMemoryRow({
           </SupportingText>
         </div>
       </div>
-      <Button
-        darkMode={darkMode}
-        size="icon-sm"
-        disabled={disabled}
-        aria-label={`Replace ${memory.title}`}
-        icon={<RefreshCw size={15} aria-hidden="true" />}
-        onClick={onReplace}
-      />
+      <div className="flex shrink-0 items-center gap-1">
+        <Button
+          darkMode={darkMode}
+          size="icon-sm"
+          disabled={disabled}
+          aria-label={`Replace ${memory.title}`}
+          icon={<RefreshCw size={15} aria-hidden="true" />}
+          onClick={onReplace}
+        />
+        <Button
+          darkMode={darkMode}
+          tone="ghost"
+          size="icon-sm"
+          aria-label="Open memories"
+          icon={<ChevronRight size={16} aria-hidden="true" />}
+          onClick={onOpen}
+        />
+      </div>
     </ListItem>
   );
 }

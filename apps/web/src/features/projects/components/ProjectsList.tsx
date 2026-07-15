@@ -1,5 +1,5 @@
 // Projects Page - Projects List.
-import { FolderKanban, Plus } from "lucide-react";
+import { ChevronRight, FolderKanban, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
@@ -76,8 +76,8 @@ function ProjectListItem({
   onView: () => void;
 }) {
   return (
-    <ListItem darkMode={darkMode} layout="block">
-      <button className="w-full text-left" type="button" onClick={onView}>
+    <ListItem darkMode={darkMode} className="items-start">
+      <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-semibold">{project.title}</span>
         </div>
@@ -87,7 +87,15 @@ function ProjectListItem({
         <SupportingText darkMode={darkMode} className="mt-2 block">
           {project.timelineText} · {project.progressText}
         </SupportingText>
-      </button>
+      </div>
+      <Button
+        darkMode={darkMode}
+        tone="ghost"
+        size="icon-sm"
+        aria-label={`Open ${project.title}`}
+        icon={<ChevronRight size={16} aria-hidden="true" />}
+        onClick={onView}
+      />
     </ListItem>
   );
 }

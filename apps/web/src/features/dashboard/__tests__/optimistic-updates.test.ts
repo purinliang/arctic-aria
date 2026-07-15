@@ -79,6 +79,7 @@ const memorySuggestions: MemorySuggestion[] = [
 const projectTasks: Task[] = [
   {
     id: "task-1",
+    projectId: "project-1",
     title: "Prepare resume",
     description: "",
     projectLabel: "Find a job",
@@ -92,6 +93,7 @@ const projectTasks: Task[] = [
   },
   {
     id: "task-2",
+    projectId: "project-1",
     title: "Draft email",
     description: "",
     projectLabel: "Find a job",
