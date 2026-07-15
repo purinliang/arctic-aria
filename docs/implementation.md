@@ -241,6 +241,10 @@ root document background syncing, and app-level notifications. Feature pages
 such as Dashboard, Projects, Routines, and Memories should behave like normal
 page bodies inside that shell.
 
+The app shell is not a generic global-state module. Put state there only when it
+belongs to the whole authenticated web surface. Feature domain state should stay
+inside the owning feature or be passed in through explicit app-shell wiring.
+
 The Project slice intentionally excludes Discord reminder delivery, reward
 inventory, English coach, automatic daily plan optimization, and full review
 cards. They should be separate branches after the Project contracts are stable.

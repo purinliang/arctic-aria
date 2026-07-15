@@ -2,7 +2,7 @@
 
 import { LoaderCircle, Sparkles } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
-import { AppShell } from "@/app-shell/components/AppShell";
+import { AppShell } from "@/app-shell/AppShell";
 import { SupportingText } from "@/components/text";
 import { getCurrentUser, loginUser, logoutUser, registerUser } from "../actions";
 import type { AuthUser } from "../server/auth-service";

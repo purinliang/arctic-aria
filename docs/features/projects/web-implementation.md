@@ -286,7 +286,7 @@ apps/web/src/features/projects/components/ProjectDetailPage.tsx
 apps/web/src/features/projects/components/ProjectsList.tsx
 apps/web/src/features/projects/components/ProjectTaskCard.tsx
 apps/web/src/features/dashboard/components/Dashboard.tsx
-apps/web/src/app-shell/components/AppShell.tsx
+apps/web/src/app-shell/AppShell.tsx
 ```
 
 Project server actions:

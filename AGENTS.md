@@ -114,12 +114,13 @@ user.
 
 ## Web Source Organization
 
-- Keep reusable web UI primitives and theme helpers in `apps/web/src/components/`. This
-  includes buttons, cards, panels, dialogs, notifications, inputs, text,
-  tags, lists, switches, color helpers, and app-shell theme helpers.
-- Keep app-shell components at the same level as feature modules when they are
-  not owned by one product feature. Examples include sidebar, theme mode,
-  layout shell, route guards, and shared navigation.
+- Keep reusable web UI primitives and theme helpers in
+  `apps/web/src/components/`. This includes buttons, cards, panels, dialogs,
+  notifications, inputs, text, tags, lists, switches, color helpers, and
+  app-shell theme helpers.
+- Keep authenticated app-shell files in `apps/web/src/app-shell/`, not inside
+  a product feature. App shell owns sidebar, page switching, root page title
+  bar, theme mode, route guards, and app-level notifications.
 - Keep product feature code under its own feature directory, such as
   `features/auth`, `features/memories`, `features/routines`, and future
   `features/projects`.

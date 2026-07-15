@@ -1,5 +1,5 @@
 import { AlertCircle, X } from "lucide-react";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { cx } from "./utils";
 
 export type NotificationItem = {
@@ -8,6 +8,53 @@ export type NotificationItem = {
   title: string;
   message: string;
 };
+
+export function useNotifications() {
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+
+  const dismissNotification = useCallback((notificationId: number) => {
+    setNotifications((current) =>
+      current.filter((notification) => notification.id !== notificationId),
+    );
+  }, []);
+
+  const showErrorNotification = useCallback(
+    (message: string, title = "Action failed") => {
+      setNotifications((current) => [
+        ...current.slice(-2),
+        {
+          id: Date.now(),
+          tone: "error",
+          title,
+          message,
+        },
+      ]);
+    },
+    [],
+  );
+
+  const showInfoNotification = useCallback(
+    (message: string, title = "Not available yet") => {
+      setNotifications((current) => [
+        ...current.slice(-2),
+        {
+          id: Date.now(),
+          tone: "info",
+          title,
+          message,
+        },
+      ]);
+    },
+    [],
+  );
+
+  return {
+    notifications,
+    dismissNotification,
+    showErrorNotification,
+    showInfoNotification,
+  };
+}
 
 export function NotificationStack({
   notifications,

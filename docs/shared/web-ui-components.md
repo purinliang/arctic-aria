@@ -176,6 +176,11 @@ decision or when the current workflow cannot safely continue.
 Use notifications for optimistic command failures and other non-blocking status
 messages.
 
+The shared `useNotifications` hook owns app-level notification state and helper
+commands such as error and info notifications. Feature-specific code should
+receive notification callbacks from the app shell instead of owning a separate
+notification stack.
+
 Placement:
 
 - desktop: bottom-right

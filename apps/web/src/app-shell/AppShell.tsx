@@ -4,11 +4,10 @@ import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import { sectionBorderClass } from "@/components/color";
-import { NotificationStack } from "@/components/notification";
+import { NotificationStack, useNotifications } from "@/components/notification";
 import { appShellClass, useDocumentTheme } from "@/components/theme";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
-import { useDashboardNotifications } from "@/features/dashboard/hooks/useDashboardNotifications";
 import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardProjects";
 import { useDashboardRoutines } from "@/features/dashboard/hooks/useDashboardRoutines";
 import type { DashboardView, Task } from "@/features/dashboard/types";
@@ -39,7 +38,7 @@ export function AppShell({
     dismissNotification,
     showErrorNotification,
     showInfoNotification,
-  } = useDashboardNotifications();
+  } = useNotifications();
   const projectState = useDashboardProjects(showErrorNotification);
   const routineState = useDashboardRoutines(showErrorNotification);
   const memoryState = useDashboardMemories(

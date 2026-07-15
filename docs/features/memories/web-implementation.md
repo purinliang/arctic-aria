@@ -121,7 +121,7 @@ Memory web UI:
 
 ```text
 apps/web/src/features/memories/components/MemoriesPage.tsx
-apps/web/src/app-shell/components/AppShell.tsx
+apps/web/src/app-shell/AppShell.tsx
 ```
 
 Memory server actions:
