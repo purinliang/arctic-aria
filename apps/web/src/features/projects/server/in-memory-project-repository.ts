@@ -22,7 +22,7 @@ export class InMemoryProjectRepository implements ProjectRepository {
       .map(cloneProject);
   }
 
-  async listDashboardTasks(userId: string, today: string) {
+  async listDashboardTasks(userId: string) {
     return this.projects
       .filter((project) => project.userId === userId && project.status === "active")
       .flatMap((project) =>
@@ -31,7 +31,7 @@ export class InMemoryProjectRepository implements ProjectRepository {
           .flatMap((milestone) => milestone.tasks),
       )
       .filter((task) => task.status !== "archived" && task.status !== "done")
-      .sort((left, right) => taskRank(left, today) - taskRank(right, today))
+      .sort(compareDashboardTasks)
       .slice(0, 8)
       .map(cloneTask);
   }
@@ -174,18 +174,6 @@ export class InMemoryProjectRepository implements ProjectRepository {
       skippedAt: input.status === "skipped" ? input.occurredAt : null,
       blockedAt: input.status === "blocked" ? input.occurredAt : null,
       archivedAt: input.status === "archived" ? input.occurredAt : null,
-      subtasks: input.subtasks.map((subtask, index) => ({
-        id: subtask.id ?? crypto.randomUUID(),
-        userId: input.userId,
-        taskId,
-        title: subtask.title,
-        description: subtask.description,
-        isDone: subtask.isDone,
-        sortOrder: index,
-        createdAt: input.occurredAt,
-        updatedAt: input.occurredAt,
-        completedAt: subtask.isDone ? input.occurredAt : null,
-      })),
     };
 
     target.milestone.tasks = [
@@ -232,29 +220,6 @@ export class InMemoryProjectRepository implements ProjectRepository {
     return true;
   }
 
-  async updateSubtaskDone(input: {
-    userId: string;
-    subtaskId: string;
-    isDone: boolean;
-    occurredAt: Date;
-  }) {
-    const subtask = this.projects
-      .filter((project) => project.userId === input.userId)
-      .flatMap((project) => project.milestones)
-      .flatMap((milestone) => milestone.tasks)
-      .flatMap((task) => task.subtasks)
-      .find((current) => current.id === input.subtaskId);
-
-    if (!subtask) {
-      return false;
-    }
-
-    subtask.isDone = input.isDone;
-    subtask.completedAt = input.isDone ? input.occurredAt : null;
-    subtask.updatedAt = input.occurredAt;
-    return true;
-  }
-
   private findProject(userId: string, projectId: string) {
     return this.projects.find(
       (project) => project.userId === userId && project.id === projectId,
@@ -292,11 +257,11 @@ export function createDefaultMilestone(
     id: crypto.randomUUID(),
     userId,
     projectId,
-    title: "Project completion",
+    title: "Completion",
     objective: "",
     status: "active",
     sortOrder: 0,
-    startDate: null,
+    startDate: occurredAt.toISOString().slice(0, 10),
     deadlineDate: null,
     expectedDurationDays: null,
     createdAt: occurredAt,
@@ -318,28 +283,19 @@ function cloneProject(project: ProjectRecord): ProjectRecord {
 }
 
 function cloneTask(task: ProjectTaskRecord): ProjectTaskRecord {
-  return {
-    ...task,
-    subtasks: task.subtasks.map((subtask) => ({ ...subtask })),
-  };
+  return { ...task };
 }
 
-function taskRank(task: ProjectTaskRecord, today: string) {
-  if (task.scheduledDate === today) {
-    return 0;
-  }
+function compareDashboardTasks(
+  left: ProjectTaskRecord,
+  right: ProjectTaskRecord,
+) {
+  return (
+    dateSortValue(left.deadlineDate) - dateSortValue(right.deadlineDate) ||
+    dateSortValue(left.startDate) - dateSortValue(right.startDate)
+  );
+}
 
-  if (task.deadlineDate && task.deadlineDate <= today) {
-    return 1;
-  }
-
-  if (task.priority === "high") {
-    return 2;
-  }
-
-  if (task.status === "doing") {
-    return 3;
-  }
-
-  return 4;
+function dateSortValue(date: string | null) {
+  return date ? Date.parse(date) : Number.POSITIVE_INFINITY;
 }

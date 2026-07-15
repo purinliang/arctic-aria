@@ -85,12 +85,6 @@ export type ProjectTaskInput = {
   scheduledDate: string;
   startDate: string;
   deadlineDate: string;
-  subtasks: Array<{
-    id?: string;
-    title: string;
-    description: string;
-    isDone: boolean;
-  }>;
 };
 
 export type ProjectDashboardData = {
@@ -250,14 +244,6 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
   const scheduledDate = input.scheduledDate.trim() || null;
   const startDate = input.startDate.trim() || null;
   const deadlineDate = input.deadlineDate.trim() || null;
-  const subtasks = input.subtasks
-    .map((subtask) => ({
-      id: subtask.id,
-      title: subtask.title.trim(),
-      description: subtask.description.trim(),
-      isDone: subtask.isDone,
-    }))
-    .filter((subtask) => subtask.title.length > 0);
 
   if (title.length < 1 || title.length > 120) {
     return { ok: false as const, message: "Task title must be 1-120 characters." };
@@ -280,16 +266,6 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
     return { ok: false as const, message: "Deadline cannot be before start date." };
   }
 
-  for (const subtask of subtasks) {
-    if (subtask.title.length > 120) {
-      return { ok: false as const, message: "Subtask title must be 120 characters or fewer." };
-    }
-
-    if (subtask.description.length > 2000) {
-      return { ok: false as const, message: "Subtask description must be 2000 characters or fewer." };
-    }
-  }
-
   return {
     ok: true as const,
     title,
@@ -297,7 +273,6 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
     scheduledDate,
     startDate,
     deadlineDate,
-    subtasks,
   };
 }
 
@@ -347,8 +322,6 @@ function toMilestoneView(milestone: ProjectMilestoneRecord): MilestoneView {
 }
 
 function toTaskView(task: ProjectTaskRecord): ProjectTaskView {
-  const doneCount = task.subtasks.filter((subtask) => subtask.isDone).length;
-
   return {
     id: task.id,
     projectId: task.projectId,
@@ -363,14 +336,6 @@ function toTaskView(task: ProjectTaskRecord): ProjectTaskView {
     scheduledDate: task.scheduledDate ?? "",
     startDate: task.startDate ?? "",
     deadlineDate: task.deadlineDate ?? "",
-    subtaskSummary: `${doneCount} of ${task.subtasks.length} subtasks done`,
-    subtasks: task.subtasks.map((subtask) => ({
-      id: subtask.id,
-      title: subtask.title,
-      description: subtask.description,
-      isDone: subtask.isDone,
-      done: subtask.isDone,
-    })),
   };
 }
 

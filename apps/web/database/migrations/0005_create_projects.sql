@@ -145,28 +145,6 @@ CREATE INDEX IF NOT EXISTS project_tasks_dashboard_idx
 CREATE INDEX IF NOT EXISTS project_tasks_milestone_order_idx
   ON project_tasks (milestone_id, status, sort_order, created_at);
 
-CREATE TABLE IF NOT EXISTS project_subtasks (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  task_id uuid NOT NULL REFERENCES project_tasks(id) ON DELETE CASCADE,
-  title text NOT NULL,
-  description text NOT NULL DEFAULT '',
-  is_done boolean NOT NULL DEFAULT false,
-  sort_order integer NOT NULL DEFAULT 0,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  completed_at timestamptz,
-  CONSTRAINT project_subtasks_title_length CHECK (
-    char_length(title) BETWEEN 1 AND 120
-  ),
-  CONSTRAINT project_subtasks_description_length CHECK (
-    char_length(description) <= 2000
-  )
-);
-
-CREATE INDEX IF NOT EXISTS project_subtasks_task_order_idx
-  ON project_subtasks (task_id, sort_order, created_at);
-
 CREATE TABLE IF NOT EXISTS project_task_dependencies (
   task_id uuid NOT NULL REFERENCES project_tasks(id) ON DELETE CASCADE,
   depends_on_task_id uuid NOT NULL REFERENCES project_tasks(id) ON DELETE CASCADE,

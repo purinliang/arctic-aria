@@ -2,7 +2,6 @@ import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/button";
 import { mutedTextClass } from "@/components/color";
 import { ExpandableListItem } from "@/components/list";
-import { Tag } from "@/components/tag";
 import type { Routine, RoutineStatus } from "@/features/dashboard/types";
 
 export function RoutineCard({
@@ -43,12 +42,6 @@ export function RoutineCard({
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <Tag darkMode={darkMode} tone={routineStatusTone(routine.status)}>
-              {routine.status}
-            </Tag>
-            {routine.reminderState !== "idle" ? (
-              <Tag darkMode={darkMode}>{routine.reminderState}</Tag>
-            ) : null}
             <ChevronDown
               className={`transition ${expanded ? "rotate-180" : ""}`}
               size={18}
@@ -84,16 +77,4 @@ export function RoutineCard({
       </Button>
     </ExpandableListItem>
   );
-}
-
-function routineStatusTone(status: RoutineStatus) {
-  if (status === "completed") {
-    return "emerald";
-  }
-
-  if (status === "skipped") {
-    return "neutral";
-  }
-
-  return "blue";
 }

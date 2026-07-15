@@ -106,6 +106,7 @@ export function AuthGate() {
         onLogout={() => {
           startTransition(async () => {
             await logoutUser();
+            showSuccessNotification("You have signed out.", "Signed out");
             setCurrentUser(null);
             resetSubmitState(true);
           });

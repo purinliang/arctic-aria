@@ -38,7 +38,6 @@ export function ProjectsPage({
   onMilestoneSave,
   onTaskSave,
   onTaskStatus,
-  onSubtaskToggle,
   onProjectSelect,
   onMessageClear,
 }: {
@@ -55,7 +54,6 @@ export function ProjectsPage({
     taskId: string,
     status: Exclude<TaskStatus, "archived">,
   ) => ProjectResult;
-  onSubtaskToggle: (subtaskId: string, done: boolean) => ProjectResult;
   onProjectSelect: (projectId: string | null) => void;
   onMessageClear: () => void;
 }) {
@@ -110,7 +108,7 @@ export function ProjectsPage({
             current ??
               emptyTaskDraft(
                 selectedProject?.id ?? "",
-                selectedProject?.milestones[0]?.id ?? "",
+                defaultTaskMilestoneId(selectedProject),
               ),
           )
         : next,
@@ -179,18 +177,20 @@ export function ProjectsPage({
               onMessageClear();
               setMilestoneDraft(milestoneToDraft(milestone));
             }}
-            onAddTask={(projectId, milestoneId) => {
+            onAddTask={(projectId) => {
               onMessageClear();
-              setTaskDraft(emptyTaskDraft(projectId, milestoneId));
+              setTaskDraft(
+                emptyTaskDraft(
+                  projectId,
+                  defaultTaskMilestoneId(selectedProject),
+                ),
+              );
             }}
             onEditTask={(task: ProjectTaskView) => {
               onMessageClear();
               setTaskDraft(taskToDraft(task));
             }}
             onTaskStatus={(taskId, status) => void onTaskStatus(taskId, status)}
-            onSubtaskToggle={(subtaskId, done) =>
-              void onSubtaskToggle(subtaskId, done)
-            }
           />
         ) : (
           <ProjectsList
@@ -234,11 +234,23 @@ export function ProjectsPage({
           darkMode={darkMode}
           pending={pending}
           draft={taskDraft}
+          milestones={selectedProject?.milestones ?? []}
           setDraft={updateTaskDraft}
           onClose={closeDialogs}
           onSubmit={() => void submitTask()}
         />
       ) : null}
     </>
+  );
+}
+
+function defaultTaskMilestoneId(project: ProjectView | null) {
+  return (
+    project?.milestones.find((milestone) => milestone.title === "Completion")
+      ?.id ??
+    project?.milestones.find((milestone) => milestone.status === "active")
+      ?.id ??
+    project?.milestones[0]?.id ??
+    ""
   );
 }

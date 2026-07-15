@@ -4,11 +4,9 @@ import {
   mapMilestone,
   mapProject,
   mapProjectTask,
-  mapSubtask,
   projectTaskSelect,
   type MilestoneRow,
   type ProjectRow,
-  type ProjectSubtaskRow,
   type ProjectTaskRow,
 } from "./postgres-project-mappers.ts";
 import {
@@ -36,18 +34,16 @@ export class PostgresProjectRepository implements ProjectRepository {
   }
 
   async listProjects(userId: string) {
-    const [projectRows, milestoneRows, taskRows, subtaskRows] =
-      await Promise.all([
-        this.getProjectRows(userId),
-        this.getMilestoneRows(userId),
-        this.getProjectTaskRows(userId),
-        this.getSubtaskRows(userId),
-      ]);
+    const [projectRows, milestoneRows, taskRows] = await Promise.all([
+      this.getProjectRows(userId),
+      this.getMilestoneRows(userId),
+      this.getProjectTaskRows(userId),
+    ]);
 
-    return assembleProjects(projectRows, milestoneRows, taskRows, subtaskRows);
+    return assembleProjects(projectRows, milestoneRows, taskRows);
   }
 
-  async listDashboardTasks(userId: string, today: string) {
+  async listDashboardTasks(userId: string) {
     const taskRows = (await this.getSql().query(
       `${projectTaskSelect}
        WHERE project_tasks.user_id = $1
@@ -55,23 +51,13 @@ export class PostgresProjectRepository implements ProjectRepository {
          AND projects.status = 'active'
          AND project_milestones.status = 'active'
        ORDER BY
-         CASE
-           WHEN project_tasks.scheduled_date = $2::date THEN 0
-           WHEN project_tasks.deadline_date IS NOT NULL
-             AND project_tasks.deadline_date <= $2::date THEN 1
-           WHEN project_tasks.priority = 'high' THEN 2
-           WHEN project_tasks.status = 'doing' THEN 3
-           ELSE 4
-         END,
          project_tasks.deadline_date NULLS LAST,
+         project_tasks.start_date NULLS LAST,
          project_tasks.updated_at DESC
        LIMIT 8`,
-      [userId, today],
+      [userId],
     )) as ProjectTaskRow[];
-    const tasks = taskRows.map(mapProjectTask);
-
-    await this.attachSubtasks(userId, tasks);
-    return tasks;
+    return taskRows.map(mapProjectTask);
   }
 
   saveProject(input: SaveProjectInput) {
@@ -144,25 +130,6 @@ export class PostgresProjectRepository implements ProjectRepository {
     return rows.length > 0;
   }
 
-  async updateSubtaskDone(input: {
-    userId: string;
-    subtaskId: string;
-    isDone: boolean;
-    occurredAt: Date;
-  }) {
-    const rows = (await this.getSql().query(
-      `UPDATE project_subtasks
-       SET is_done = $3,
-         completed_at = CASE WHEN $3 THEN $4::timestamptz ELSE NULL END,
-         updated_at = $4::timestamptz
-       WHERE user_id = $1 AND id = $2
-       RETURNING id`,
-      [input.userId, input.subtaskId, input.isDone, input.occurredAt],
-    )) as Array<{ id: string }>;
-
-    return rows.length > 0;
-  }
-
   private async getProjectRows(userId: string) {
     return (await this.getSql()`
       SELECT *
@@ -197,43 +164,12 @@ export class PostgresProjectRepository implements ProjectRepository {
     )) as ProjectTaskRow[];
   }
 
-  private async getSubtaskRows(userId: string) {
-    return (await this.getSql()`
-      SELECT project_subtasks.*
-      FROM project_subtasks
-      INNER JOIN project_tasks ON project_tasks.id = project_subtasks.task_id
-      WHERE project_subtasks.user_id = ${userId}
-        AND project_tasks.status != 'archived'
-      ORDER BY project_subtasks.sort_order, project_subtasks.created_at
-    `) as ProjectSubtaskRow[];
-  }
-
-  private async attachSubtasks(userId: string, tasks: ReturnType<typeof mapProjectTask>[]) {
-    if (tasks.length === 0) {
-      return;
-    }
-
-    const subtasks = (await this.getSql().query(
-      `SELECT *
-       FROM project_subtasks
-       WHERE user_id = $1
-         AND task_id = ANY($2::uuid[])
-       ORDER BY sort_order, created_at`,
-      [userId, tasks.map((task) => task.id)],
-    )) as ProjectSubtaskRow[];
-    const byTaskId = groupSubtasks(subtasks);
-
-    tasks.forEach((task) => {
-      task.subtasks = byTaskId.get(task.id) ?? [];
-    });
-  }
 }
 
 function assembleProjects(
   projectRows: ProjectRow[],
   milestoneRows: MilestoneRow[],
   taskRows: ProjectTaskRow[],
-  subtaskRows: ProjectSubtaskRow[],
 ) {
   const projects = projectRows.map(mapProject);
   const milestones = milestoneRows.map(mapMilestone);
@@ -242,10 +178,8 @@ function assembleProjects(
   const milestoneById = new Map(
     milestones.map((milestone) => [milestone.id, milestone]),
   );
-  const subtasksByTaskId = groupSubtasks(subtaskRows);
 
   tasks.forEach((task) => {
-    task.subtasks = subtasksByTaskId.get(task.id) ?? [];
     milestoneById.get(task.milestoneId)?.tasks.push(task);
   });
 
@@ -254,19 +188,6 @@ function assembleProjects(
   });
 
   return projects;
-}
-
-function groupSubtasks(rows: ProjectSubtaskRow[]) {
-  const byTaskId = new Map<string, ReturnType<typeof mapSubtask>[]>();
-
-  rows.forEach((row) => {
-    const subtasks = byTaskId.get(row.task_id) ?? [];
-
-    subtasks.push(mapSubtask(row));
-    byTaskId.set(row.task_id, subtasks);
-  });
-
-  return byTaskId;
 }
 
 function eventTypeForStatus(status: Exclude<ProjectTaskStatus, "archived">) {

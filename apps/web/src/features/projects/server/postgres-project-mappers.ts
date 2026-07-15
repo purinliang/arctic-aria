@@ -3,7 +3,6 @@ import type {
   ProjectPriority,
   ProjectRecord,
   ProjectStatus,
-  ProjectSubtaskRecord,
   ProjectTaskRecord,
   ProjectTaskStatus,
 } from "./project-repository.ts";
@@ -63,19 +62,6 @@ export type ProjectTaskRow = {
   skipped_at: Date | string | null;
   blocked_at: Date | string | null;
   archived_at: Date | string | null;
-};
-
-export type ProjectSubtaskRow = {
-  id: string;
-  user_id: string;
-  task_id: string;
-  title: string;
-  description: string;
-  is_done: boolean;
-  sort_order: number;
-  created_at: Date | string;
-  updated_at: Date | string;
-  completed_at: Date | string | null;
 };
 
 export const projectTaskSelect = `
@@ -167,22 +153,6 @@ export function mapProjectTask(row: ProjectTaskRow): ProjectTaskRecord {
     skippedAt: toNullableDate(row.skipped_at),
     blockedAt: toNullableDate(row.blocked_at),
     archivedAt: toNullableDate(row.archived_at),
-    subtasks: [],
-  };
-}
-
-export function mapSubtask(row: ProjectSubtaskRow): ProjectSubtaskRecord {
-  return {
-    id: row.id,
-    userId: row.user_id,
-    taskId: row.task_id,
-    title: row.title,
-    description: row.description,
-    isDone: row.is_done,
-    sortOrder: row.sort_order,
-    createdAt: toDate(row.created_at),
-    updatedAt: toDate(row.updated_at),
-    completedAt: toNullableDate(row.completed_at),
   };
 }
 

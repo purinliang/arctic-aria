@@ -1,7 +1,7 @@
 # Projects UI
 
-This document describes user-visible UI behavior for Projects, Milestones,
-Tasks, and Subtasks. Product data rules are documented in [data-model.md](data-model.md).
+This document describes user-visible UI behavior for Projects, Milestones, and
+Tasks. Product data rules are documented in [data-model.md](data-model.md).
 
 ## Sidebar
 
@@ -24,10 +24,8 @@ Dashboard task cards should show:
 - task title
 - project title
 - milestone title
-- status
-- priority
-- deadline or scheduled date
-- short subtask summary, such as `2 of 5 subtasks done`
+- done checkbox
+- deadline
 
 Dashboard task cards should not show:
 
@@ -36,8 +34,7 @@ Dashboard task cards should not show:
 - full project tree
 - project edit forms
 
-The atomic scheduled unit is the task. A task can last a few days, but subtasks
-should remain checklist details inside the task.
+The atomic scheduled unit is the task. A task can last a few days.
 
 ### Dashboard Task Card Layout
 
@@ -56,8 +53,8 @@ Collapsed task card layout:
 - row direction: horizontal, with task text on the left and expand chevron on
   the right
 - left text group direction: vertical
-- first text line: task title, priority tag, status tag
-- second text line: project title, milestone title, deadline, subtask summary
+- first text line: task title
+- second text line: project title, milestone title, deadline
 - right icon: `ChevronDown`, rotated when expanded
 
 Expanded task card layout:
@@ -66,15 +63,9 @@ Expanded task card layout:
 - expanded content should share the same card surface and color as the collapsed
   row
 - first line: task description
-- middle section: subtask checklist rows
-- each subtask row: checkbox on the left, title and description on the right
 - footer action row direction: horizontal with wrapping on small screens
-- actions in order: `Done` with `Check`, `Block` with `Ban`, `Skip` with
-  `SkipForward`, `Edit` with `Edit3`
-
-`Done` is an unfinished command while waiting for user input, so it should use
-the normal command-button style. Do not make it green before the task is
-completed.
+- actions in order: `Done` checkbox, then `Edit` with `Edit3`
+- do not show `Block`, `Skip`, or a multi-status selector in the first UI
 
 ## Projects Page
 
@@ -90,8 +81,7 @@ Main content:
 
 - active project list
 - archived or completed projects hidden by default
-- project cards with milestone summaries
-- tasks and subtasks hidden by default
+- project cards without milestone or task details
 
 Each project card should show:
 
@@ -99,20 +89,11 @@ Each project card should show:
 - description, truncated when long
 - start date
 - deadline or expected duration
-- current milestone
 - derived progress
-- status
-- milestone summaries
+- no colored status, priority, or category-like tags in the current UI
 
-Each milestone summary should show:
-
-- milestone title
-- status
-- derived progress
-
-The project list page should not show task rows or subtask rows. Clicking a
-project card or its `View` action opens a Project detail page. It should not
-open an edit dialog.
+The project list page should not show milestone rows or task rows. Clicking a
+project card opens a Project detail page. It should not open an edit dialog.
 
 ### Projects Page Layout
 
@@ -134,14 +115,10 @@ Project list layout:
 - header left group: `Projects` title, then description below it
 - header right group: `New` button with `Plus`, not primary
 - list direction: vertical
-- project item first line: title, status tag, priority tag
+- project item first line: title only
 - project item second line: truncated description
-- project item third line: timeline, current milestone, progress text
-- milestone preview appears below the project summary
-- milestone preview direction: vertical
-- milestone preview row: milestone title, status tag, progress text
-- milestone preview rows should stay transparent, without their own outlined box
-  or background fill
+- project item third line: timeline and progress text
+- do not show milestone preview rows
 - click target: the whole project list item opens the project detail page
 - do not add a separate `View` button or footer band inside project list items
 
@@ -179,7 +156,7 @@ Milestone hint:
 - if the expected duration or deadline range is longer than about one month,
   show a non-blocking hint suggesting milestones
 - do not require milestones during first project creation
-- create a default milestone named `Project completion` if the user skips
+- create a default milestone named `Completion` if the user skips
   milestone setup
 
 Project dialog layout:
@@ -189,11 +166,10 @@ Project dialog layout:
 - top row: dialog title and close button
 - optional message appears below the title row
 - field direction: vertical
-- fields in order: title, description, timeline, dates or duration, priority
+- fields in order: title, description, timeline, dates or duration
 - timeline selector direction: horizontal with wrapping
 - timeline options: `Deadline`, `Duration`
 - date fields direction: two columns on desktop, stacked on mobile
-- priority selector direction: horizontal with wrapping
 - footer action row: full-width primary `Save` button with `Save`; loading state uses
   `LoaderCircle`
 
@@ -209,7 +185,7 @@ The project detail page should show:
 - deadline or expected duration
 - derived progress
 - project actions
-- milestone/task/subtask tree
+- task list and milestone management
 
 Project actions:
 
@@ -257,43 +233,38 @@ Detail page layout:
 - use the shared `aa-split-*` classes so the two-column layout activates only
   when the detail container is at least `53rem` wide
 - left and right panels keep independent content-driven heights
-- left panel: milestone/task/subtask tree
-- right panel: project overview
-- left card: `Milestones` card with icon, supporting text, and `New`
-- right card: `Overview` with `Edit project`
-- overview metadata group: title, status, description, priority, start date, and
-  deadline or duration
-- do not show current milestone or progress in the metadata card; that
-  information is already visible in the milestone tree
-- milestone list direction: vertical
-- milestone card header direction: horizontal with wrapping
-- milestone header left group: title and status tag, then objective or progress
-  text
-- milestone header right group: `Edit` with `Edit3`
-- task rows appear vertically under their milestone
-- task create action appears below that milestone's existing task rows as
-  `New task` with `Plus`
-- task row left group: title, status tag, priority tag, then subtask summary and
-  deadline
-- task row right group: `Done` with `Check`, then `Edit`
+- left panel: flat task list
+- right panel: project overview and milestone management
+- left card: `Tasks` card with icon, supporting text, and `New`
+- right top card: `Overview` with `Edit project`
+- right bottom card: `Milestones` with `New`
+- overview metadata group: title, description, start date, and deadline or
+  duration
+- do not show current milestone or progress in the metadata card
+- milestone card list direction: vertical
+- milestone row left group: title, then objective or progress text
+- milestone row right group: `Edit` with `Edit3`
+- milestone rows do not show task details
+- task rows appear as a flat list in the `Tasks` card
+- task create action appears in the `Tasks` card header as `New` with `Plus`
+- task row layout: `Done` checkbox on the left, then title/milestone/deadline,
+  then `Edit` on the right
+- task sort order: not-done tasks before done tasks, then deadline from nearest
+  to farthest, then start date from oldest to newest
+- tasks without a deadline sort after tasks with a deadline
 
-## Tree Structure
+## Structure
 
-The detail page should render:
+The data model remains:
 
 ```text
 Milestone
   Task
-    Subtask
 ```
 
-Milestones should be expandable sections.
-
-Tasks should be list rows under a milestone.
-
-Subtasks should be checklist rows inside a task.
-
-Subtasks cannot have nested subtasks.
+The detail page should not render that full hierarchy as nested milestone
+sections. It should flatten tasks in the main `Tasks` card and keep milestones
+as a simple management list in the right panel.
 
 ## Milestones UI
 
@@ -303,7 +274,6 @@ Milestone row should show:
 
 - title
 - objective, when present
-- status
 - deadline or expected duration, when present
 - derived progress
 
@@ -313,11 +283,10 @@ Actions:
 - edit milestone
 - complete milestone
 - archive milestone
-- add task under milestone
 
 Default milestone:
 
-- title: `Project completion`
+- title: `Completion`
 - created automatically when a project has no explicit milestone
 - user can rename it
 
@@ -333,47 +302,27 @@ New task fields:
 
 - title
 - description
-- priority
-- scheduled date
+- milestone selector, defaulting to `Completion`
 - start date
 - deadline date
+- done checkbox
 - prerequisite tasks
-- subtasks
 
 Do not show:
 
+- priority selector or priority tag
+- task status tag or multi-status selector
+- block/skip task actions
+- scheduled date field
 - editable numeric progress fields
-- subtask scheduling fields
+- colored tag chips
 
 Task actions:
 
-- done
-- reopen
-- block
-- skip
+- done / not done
 - edit
 - archive
 - delete
-
-## Subtasks UI
-
-Subtasks are simple checklist items.
-
-Subtask fields:
-
-- title
-- description
-- done state
-
-Subtask rules:
-
-- no nested subtasks
-- no independent schedule
-- no priority
-- no deadline
-- no dependencies
-
-Subtask checkboxes should update immediately in the task UI.
 
 ## Progress UI
 
@@ -383,12 +332,10 @@ Progress should be displayed as simple text or compact bars only where useful:
 
 - project progress from milestones/tasks
 - milestone progress from tasks
-- task progress from subtasks
 
 For first implementation, text is enough:
 
 - `2 of 5 tasks done`
-- `3 of 8 subtasks done`
 
 ## Empty States
 
@@ -398,7 +345,7 @@ Projects page:
 
 Project detail page without tasks:
 
-`No tasks in this milestone yet. Add the next concrete task.`
+`No tasks yet. Add the next concrete task.`
 
 Dashboard without tasks:
 

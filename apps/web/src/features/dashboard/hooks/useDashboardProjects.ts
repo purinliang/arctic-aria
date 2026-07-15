@@ -9,7 +9,6 @@ import {
   saveProject,
   saveProjectTask,
   skipProjectTask,
-  updateProjectSubtaskDone,
   updateProjectTaskStatus,
   type MilestoneInput,
   type ProjectActionResult,
@@ -19,9 +18,7 @@ import {
   type ProjectView,
 } from "@/features/projects/actions";
 import {
-  applyOptimisticSubtaskDone,
   applyOptimisticTaskStatus,
-  restoreSubtaskSnapshot,
   restoreTaskSnapshot,
 } from "../optimistic-updates";
 import type { Task, TaskStatus } from "../types";
@@ -39,7 +36,6 @@ export function useDashboardProjects(
   const [projectMessage, setProjectMessage] = useState<string | null>(null);
   const [projectActionPending, setProjectActionPending] = useState(false);
   const [pendingTaskIds, setPendingTaskIds] = useState<string[]>([]);
-  const [pendingSubtaskIds, setPendingSubtaskIds] = useState<string[]>([]);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
 
   const applyProjectData = useCallback(
@@ -70,7 +66,6 @@ export function useDashboardProjects(
       setProjects([]);
       setExpandedTaskId(null);
       setPendingTaskIds([]);
-      setPendingSubtaskIds([]);
       setProjectLoading(false);
       return;
     }
@@ -143,25 +138,6 @@ export function useDashboardProjects(
     );
   }
 
-  function toggleSubtask(subtaskId: string, done: boolean) {
-    let previousTasks: Task[] = [];
-
-    setPendingSubtaskIds((current) => addPendingId(current, subtaskId));
-    setTasks((current) => {
-      previousTasks = current;
-      return applyOptimisticSubtaskDone(current, subtaskId, !done);
-    });
-    void runDashboardProjectAction(
-      () => updateProjectSubtaskDone(subtaskId, !done),
-      () =>
-        setTasks((current) =>
-          restoreSubtaskSnapshot(current, previousTasks, subtaskId),
-        ),
-    ).finally(() =>
-      setPendingSubtaskIds((current) => removePendingId(current, subtaskId)),
-    );
-  }
-
   return {
     tasks,
     projects,
@@ -169,12 +145,10 @@ export function useDashboardProjects(
     projectMessage,
     projectActionPending,
     pendingTaskIds,
-    pendingSubtaskIds,
     expandedTaskId,
     setExpandedTaskId,
     refreshProjectData,
     updateTaskFromDashboard,
-    toggleSubtask,
     saveProjectFromPage: (input: ProjectInput) =>
       runProjectManagementAction(() => saveProject(input), "Project save failed"),
     archiveProjectFromPage: (projectId: string) =>
@@ -196,11 +170,6 @@ export function useDashboardProjects(
       runProjectManagementAction(
         () => updateProjectTaskStatus(taskId, status),
         "Task update failed",
-      ),
-    toggleSubtaskFromPage: (subtaskId: string, done: boolean) =>
-      runProjectManagementAction(
-        () => updateProjectSubtaskDone(subtaskId, !done),
-        "Subtask update failed",
       ),
     reopenTaskFromPage: (taskId: string) =>
       runProjectManagementAction(() => reopenProjectTask(taskId), "Task reopen failed"),

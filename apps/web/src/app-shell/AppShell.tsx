@@ -13,7 +13,7 @@ import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
 import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardProjects";
 import { useDashboardRoutines } from "@/features/dashboard/hooks/useDashboardRoutines";
-import type { DashboardView, Task } from "@/features/dashboard/types";
+import type { DashboardView } from "@/features/dashboard/types";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import { MemoriesPage } from "@/features/memories/components/MemoriesPage";
 import { ProjectPageTitle } from "@/features/projects/components/ProjectPageTitle";
@@ -100,14 +100,6 @@ export function AppShell({
     );
   }
 
-  function handleSubtaskToggle(task: Task, subtaskId: string) {
-    projectState.toggleSubtask(
-      subtaskId,
-      task.subtasks?.find((subtask) => subtask.id === subtaskId)?.done ??
-        false,
-    );
-  }
-
   function showProjectsView() {
     setActiveView("projects");
     setSidebarOpen(false);
@@ -186,7 +178,6 @@ export function AppShell({
               onMilestoneSave={projectState.saveMilestoneFromPage}
               onTaskSave={projectState.saveTaskFromPage}
               onTaskStatus={projectState.statusTaskFromPage}
-              onSubtaskToggle={projectState.toggleSubtaskFromPage}
               onProjectSelect={setSelectedProjectId}
               onMessageClear={projectState.clearProjectMessage}
             />
@@ -230,7 +221,6 @@ export function AppShell({
               tasks={projectState.tasks}
               taskLoading={projectState.projectLoading}
               pendingTaskIds={projectState.pendingTaskIds}
-              pendingSubtaskIds={projectState.pendingSubtaskIds}
               expandedTaskId={projectState.expandedTaskId}
               routines={routineState.routines}
               routineLoading={routineState.routineLoading}
@@ -244,7 +234,6 @@ export function AppShell({
               expandedMemoryId={memoryState.expandedMemoryId}
               onTaskExpand={handleTaskExpand}
               onTaskStatus={projectState.updateTaskFromDashboard}
-              onSubtaskToggle={handleSubtaskToggle}
               onTaskEdit={showProjectsView}
               onRoutineExpand={handleRoutineExpand}
               onRoutineStatus={routineState.updateRoutine}

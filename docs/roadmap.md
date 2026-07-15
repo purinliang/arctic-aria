@@ -15,7 +15,7 @@ becomes clearer.
   stable owner.
 - Add session persistence and logout so login survives refresh and users can
   explicitly leave the dashboard.
-- Define projects, milestones, tasks, subtasks, routines, ideas, memories,
+- Define projects, milestones, tasks, routines, ideas, memories,
   scheduler data, reviews, and completion events.
 - Choose concrete database schema and migration tooling.
 - Define commands and events for task completion, partial completion, routine

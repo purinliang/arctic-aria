@@ -4,9 +4,7 @@ import { CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
 import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
-import { Tag } from "@/components/tag";
 import type { ProjectView } from "@/features/projects/actions";
-import { titleCase } from "./project-page-helpers";
 
 export function ProjectsList({
   darkMode,
@@ -80,8 +78,6 @@ function ProjectListItem({
       <button className="w-full text-left" type="button" onClick={onView}>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-semibold">{project.title}</span>
-          <Tag darkMode={darkMode}>{titleCase(project.status)}</Tag>
-          <Tag darkMode={darkMode}>{titleCase(project.priority)}</Tag>
         </div>
         <p className={`mt-1 line-clamp-2 text-sm ${mutedTextClass(darkMode)}`}>
           {project.description}
@@ -90,23 +86,7 @@ function ProjectListItem({
           className={`mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs ${mutedTextClass(darkMode)}`}
         >
           <span>{project.timelineText}</span>
-          <span>{project.currentMilestone}</span>
           <span>{project.progressText}</span>
-        </div>
-        <div className="mt-2 grid gap-1">
-          {project.milestones.map((milestone) => (
-            <div key={milestone.id} className="grid gap-0.5 py-0.5">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold">
-                  {milestone.title}
-                </span>
-                <Tag darkMode={darkMode}>{titleCase(milestone.status)}</Tag>
-              </div>
-              <span className={`text-xs ${mutedTextClass(darkMode)}`}>
-                {milestone.progressText}
-              </span>
-            </div>
-          ))}
         </div>
       </button>
     </ListItem>

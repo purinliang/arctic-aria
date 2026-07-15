@@ -1,7 +1,7 @@
 # Projects Data Model
 
 This document defines the product entities and SQL direction for Projects,
-Milestones, Tasks, and Subtasks. UI behavior is documented in [ui.md](ui.md).
+Milestones, and Tasks. UI behavior is documented in [ui.md](ui.md).
 
 ## Entity Ownership
 
@@ -12,7 +12,6 @@ The Projects feature owns:
 - projects
 - milestones
 - tasks
-- subtasks
 - task dependencies
 - completion history
 
@@ -52,6 +51,9 @@ Field rules:
 - The first duration ranges are `1-3 months`, `3-6 months`, `6-12 months`, and
   `1-3 years`.
 - Do not expose free numeric duration input in the first UI.
+- `priority` is retained in storage for now, but the first UI must not expose a
+  priority selector or priority tag. New hidden project priority defaults to
+  `medium`.
 
 Statuses:
 
@@ -86,7 +88,7 @@ Field rules:
 - Every task belongs to one milestone.
 - Every project should have at least one milestone.
 - If the user does not create a milestone, create a default milestone titled
-  `Project completion`.
+  `Completion` with today's date as its start date.
 - Milestones can be renamed, reordered, archived, and completed.
 - Milestones should stay lightweight. They are phase boundaries, not full
   independent projects.
@@ -130,9 +132,13 @@ Field rules:
   on the task can make common queries simpler.
 - A task is schedulable.
 - A task can span several days.
-- A task should not contain another task as a child. Use subtasks for checklist
-  detail.
+- A task should not contain another task as a child.
 - Do not expose editable numeric progress fields.
+- `scheduled_date` is retained in storage for compatibility, but the first UI
+  must not expose a scheduled-date selector.
+- `priority` is retained in storage for now, but the first UI must not expose a
+  priority selector or priority tag. New hidden task priority defaults to
+  `medium`.
 
 Statuses:
 
@@ -143,32 +149,11 @@ Statuses:
 - `done`
 - `archived`
 
-## Subtasks
+First-stage UI rule:
 
-`project_subtasks` stores checklist items inside a task.
-
-Recommended fields:
-
-- `id`
-- `user_id`
-- `task_id`
-- `title`
-- `description`
-- `is_done`
-- `sort_order`
-- `created_at`
-- `updated_at`
-- `completed_at`
-
-Field rules:
-
-- A subtask belongs to exactly one task.
-- A subtask cannot contain another subtask.
-- A subtask is not schedulable.
-- A subtask should not have its own deadline, priority, dependencies, or
-  reminder delivery.
-- Subtask completion updates task progress display, but the scheduler should
-  still schedule the parent task.
+- Keep the stored status enum for compatibility, but expose only a done/not-done
+  checkbox for tasks. The UI should map checked to `done` and unchecked to
+  `todo`.
 
 ## Task Dependencies
 
@@ -204,8 +189,8 @@ Recommended event types:
 - `unblocked`
 - `skipped`
 
-Subtask toggles can be stored on `project_subtasks` first. Add subtask events
-only if review or audit behavior needs them later.
+Do not add task-child completion events in the current design. The current
+schedulable unit is the task.
 
 ## Migration Direction
 
@@ -220,7 +205,6 @@ The next implementation should replace that shape with project-oriented tables:
 - `projects`
 - `project_milestones`
 - `project_tasks`
-- `project_subtasks`
 - `project_task_dependencies`
 
 Because some local and Neon databases may already have recorded
@@ -228,6 +212,9 @@ Because some local and Neon databases may already have recorded
 `0005_create_projects.sql` to replace the prototype tables with the Project
 schema. The migration drops the old prototype `plans` and `tasks` tables and
 creates the Project tables above.
+
+`0006_drop_project_subtasks.sql` drops the removed `project_subtasks` table for
+development databases that already ran the earlier project migration.
 
 Current compatibility note:
 

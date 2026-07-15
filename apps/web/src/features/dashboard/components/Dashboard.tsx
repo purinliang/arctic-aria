@@ -21,7 +21,6 @@ export function Dashboard({
   tasks,
   taskLoading,
   pendingTaskIds,
-  pendingSubtaskIds,
   expandedTaskId,
   routines,
   routineLoading,
@@ -35,7 +34,6 @@ export function Dashboard({
   expandedMemoryId,
   onTaskExpand,
   onTaskStatus,
-  onSubtaskToggle,
   onTaskEdit,
   onRoutineExpand,
   onRoutineStatus,
@@ -50,7 +48,6 @@ export function Dashboard({
   tasks: Task[];
   taskLoading: boolean;
   pendingTaskIds: string[];
-  pendingSubtaskIds: string[];
   expandedTaskId: string | null;
   routines: Routine[];
   routineLoading: boolean;
@@ -67,7 +64,6 @@ export function Dashboard({
     taskId: string,
     status: Exclude<TaskStatus, "archived">,
   ) => void;
-  onSubtaskToggle: (task: Task, subtaskId: string) => void;
   onTaskEdit: () => void;
   onRoutineExpand: (routineId: string) => void;
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
@@ -101,13 +97,9 @@ export function Dashboard({
                 task={task}
                 darkMode={darkMode}
                 taskPending={pendingTaskIds.includes(task.id)}
-                pendingSubtaskIds={pendingSubtaskIds}
                 expanded={expandedTaskId === task.id}
                 onToggleExpanded={() => onTaskExpand(task.id)}
-                onSubtaskToggle={(subtaskId) => onSubtaskToggle(task, subtaskId)}
                 onDone={() => onTaskStatus(task.id, "done")}
-                onBlock={() => onTaskStatus(task.id, "blocked")}
-                onSkip={() => onTaskStatus(task.id, "skipped")}
                 onEdit={onTaskEdit}
               />
             ))}

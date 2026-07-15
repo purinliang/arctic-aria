@@ -104,17 +104,17 @@ list.
 Layout:
 
 - Show the text `Categories:`, which is the same font size as category buttons.
-- Show filter tags starting with `All`, followed by user categories such as
+- Show filter buttons starting with `All`, followed by user categories such as
   `Cuisine`.
-- If there are too many categories, the filter tags should wrap onto multiple
+- If there are too many categories, the filter buttons should wrap onto multiple
   lines.
 - Show a Lucide `Settings2` button with text `Manage`.
 - The `Manage` button should use the same style as filter items and be listed
-  with the filter tags.
+  with the filter buttons.
 
 Click behavior:
 
-- Clicking a category tag filters the memory list.
+- Clicking a category filter button filters the memory list.
 - Clicking `All` removes the category filter.
 - Clicking `Manage` opens category management.
 
@@ -125,7 +125,7 @@ The memory list is vertical.
 Each memory list item should show:
 
 - title
-- category tag beside the title
+- category as muted text below the title
 - description
 - meta-information such as last done time, done count, and pinned state
 
@@ -161,7 +161,7 @@ The suggestion list is vertical.
 Each suggestion item should show:
 
 - title
-- category tag beside the title
+- category as muted text below the title
 - description
 - a circular outline button on the right side, with only the Lucide `Pin` icon
   and no text

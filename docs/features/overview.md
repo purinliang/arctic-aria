@@ -11,7 +11,7 @@ The first feature model should support:
 
 - user records for registration and login
 - long-running projects
-- milestones, tasks, and subtasks with status-derived progress
+- milestones and tasks with status-derived progress
 - recurring routines
 - generated routine instances
 - daily plans
@@ -78,8 +78,8 @@ Project statuses:
 - `completed`: finished.
 - `archived`: hidden from normal planning views.
 
-A project's progress should be derived from milestone, task, and subtask state.
-Avoid storing manual project progress in the first version.
+A project's progress should be derived from milestone and task state. Avoid
+storing manual project progress in the first version.
 
 ## Milestones
 
@@ -103,7 +103,7 @@ avoid planning too far into the future and focus on the first or current phase.
 - archived timestamp, if archived
 
 Every project should have at least one milestone. If the user does not create a
-specific milestone, create a default milestone named `Project completion`.
+specific milestone, create a default milestone named `Completion`.
 
 ## Tasks
 
@@ -142,42 +142,15 @@ Task statuses:
 - `done`: completed.
 - `archived`: hidden from normal planning views.
 
-Tasks can depend on other tasks, but they should not contain child tasks. Use
-subtasks for checklist-level breakdowns inside a task.
+Tasks can depend on other tasks, but they should not contain child tasks in the
+current model.
 
 Task progress rules:
 
 - Tasks are either open or done at scheduler level.
-- Local task progress may be derived from checked subtasks.
-- Milestone and project progress should be derived from task completion and
-  optional subtask completion summaries.
+- Milestone and project progress should be derived from task completion.
 - Do not expose editable numeric progress fields in the first user-facing
   workflow.
-
-## Subtasks
-
-A subtask is a checklist item inside a task. It is useful for breaking down a
-task, but it is not scheduled independently and cannot contain smaller
-subtasks.
-
-`project_subtasks` should store:
-
-- user id
-- task id
-- title
-- optional description
-- done flag
-- sort order
-- created and updated timestamps
-- completed timestamp, if completed
-
-Subtask rules:
-
-- Subtasks belong to exactly one task.
-- Subtasks do not have their own deadlines, priorities, dependencies,
-  reminders, or scheduler records.
-- Subtasks can be stored in SQL for persistence and history, but they are not a
-  separate Core scheduling entity.
 
 ## Routines
 

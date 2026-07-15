@@ -52,7 +52,6 @@ const taskInput: SaveProjectTaskInput = {
   scheduledDate: "2026-07-14",
   startDate: null,
   deadlineDate: null,
-  subtasks: [],
   occurredAt,
 };
 

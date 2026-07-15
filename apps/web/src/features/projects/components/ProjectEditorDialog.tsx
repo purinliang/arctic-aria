@@ -18,7 +18,6 @@ import type {
   ProjectInput,
 } from "@/features/projects/actions";
 import { projectDurationOptions } from "@/features/projects/project-duration";
-import { priorityOptions } from "./project-page-helpers";
 
 export function ProjectEditorDialog({
   darkMode,
@@ -222,21 +221,6 @@ function ProjectDateFields({
             />
           </FieldLabel>
         )}
-      </div>
-      <div className="grid gap-1.5">
-        <span className="text-xs font-semibold">Priority</span>
-        <SingleChoiceGroup
-          darkMode={darkMode}
-          disabled={pending}
-          value={draft.priority}
-          options={priorityOptions}
-          onChange={(priority) =>
-            setDraft((current) => ({
-              ...current,
-              priority: priority as ProjectInput["priority"],
-            }))
-          }
-        />
       </div>
     </>
   );

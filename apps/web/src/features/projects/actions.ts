@@ -180,7 +180,6 @@ export async function saveProjectTask(
       scheduledDate: validation.scheduledDate,
       startDate: validation.startDate,
       deadlineDate: validation.deadlineDate,
-      subtasks: validation.subtasks,
     });
 
     if (!saved) {
@@ -239,15 +238,5 @@ export async function updateProjectTaskStatus(
   return withProjectData(
     (userId) => projectService.updateTaskStatus(userId, taskId, status),
     "Task was not found.",
-  );
-}
-
-export async function updateProjectSubtaskDone(
-  subtaskId: string,
-  isDone: boolean,
-): Promise<ProjectActionResult<ProjectDashboardData>> {
-  return withProjectData(
-    (userId) => projectService.updateSubtaskDone(userId, subtaskId, isDone),
-    "Subtask was not found.",
   );
 }

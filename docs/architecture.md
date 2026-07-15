@@ -69,15 +69,14 @@ Detailed docs:
 ### Projects
 
 Projects are long-running personal initiatives. A project may contain
-milestones, milestone tasks, and task subtasks.
+milestones and milestone tasks.
 
-The first model uses four conceptual levels:
+The first model uses three conceptual levels:
 
 - Project: long-running objective, description, start date, optional deadline
   or expected duration, and grouped milestones.
 - Milestone: phase boundary inside a project.
 - Task: executable schedulable work item.
-- Subtask: checklist item inside one task; it is not scheduled independently.
 
 Detailed docs:
 

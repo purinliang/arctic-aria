@@ -83,18 +83,6 @@ export function createProjectService(options: ProjectServiceOptions = {}) {
       });
     },
 
-    async updateSubtaskDone(
-      userId: string,
-      subtaskId: string,
-      isDone: boolean,
-    ) {
-      return projects.updateSubtaskDone({
-        userId,
-        subtaskId,
-        isDone,
-        occurredAt: now(),
-      });
-    },
   };
 }
 

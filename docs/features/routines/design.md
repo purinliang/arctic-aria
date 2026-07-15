@@ -39,7 +39,7 @@ The first routines feature should not include:
 - archive-only user flows
 - health-device integration
 - AI-generated routine coaching
-- task subtasks inside routines
+- task child checklists inside routines
 
 ## Routine Definition
 

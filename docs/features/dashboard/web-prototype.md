@@ -23,8 +23,7 @@ The dashboard prototype currently includes:
 
 - A single dashboard page for today's daily plan.
 - A fixed day boundary of `04:00`.
-- Dummy project tasks with project labels, deadlines, priority, status, and
-  optional subtasks.
+- Dummy project tasks with project labels, deadlines, priority, and status.
 - Dummy routines with scheduled time, reminder state, status, and streak text.
 - Local React state for all interactions.
 - Database-backed pinned memories from the Memories implementation.
@@ -51,7 +50,7 @@ For task, routine, review, and reward prototype work, do not add:
 The dashboard may display task, routine, review, and reward concepts, but it
 should not own their real rules.
 
-- Project, task, and subtask status, deadlines, and priority are Project feature
+- Project and task status, deadlines, and priority are Project feature
   concepts.
 - Routine instance completion, skip, and pending status are Routine feature
   concepts. Reminder delivery state is a scheduler and infrastructure concept.
@@ -71,7 +70,7 @@ The desktop layout should include:
 
 - Persistent app-shell sidebar navigation on desktop.
 - A page title bar that shows only the current page title.
-- A primary task column for today's recommended tasks and subtasks.
+- A primary task column for today's recommended tasks.
 - A routine and reminder column for scheduled routines.
 
 The top summary bar should not include task progress or routine progress. The
@@ -140,18 +139,15 @@ Task card behavior:
 - Do not add duplicate progress visualization.
 - Click the task card to expand details.
 - Click the task card again to collapse details.
-- Expanded details should show subtasks with checkboxes and descriptions.
-- Partial completion should be represented by checked subtasks, not editable
-  numeric progress fields or a separate `Partial` button.
+- Expanded details should show task description and available actions.
+- Partial completion should not appear in the current task UI.
 
 ## Interactions
 
 The dashboard should support:
 
 - Expanding and collapsing task details by clicking the task card.
-- Updating task progress from expanded details.
-- Toggling subtasks with checkboxes.
-- Reflecting local task progress through checked subtasks.
+- Marking task-level completion from expanded details.
 - Expanding and collapsing routine details by clicking the routine card.
 - Marking routines as done, skipped, or pending through reminder actions.
 
@@ -183,7 +179,6 @@ has a stable navigation and data design.
 Future review UI may show:
 
 - Completed project tasks and routines.
-- Partial task progress derived from subtasks.
 - Unfinished tasks and skipped routines.
 - Expected rewards so far.
 
@@ -290,7 +285,6 @@ Run the app locally and inspect:
 - Sidebar open and close behavior.
 - Daytime mode default and theme mode menu action.
 - Project task expand and collapse behavior.
-- Subtask checkbox behavior.
 - Routine status changes.
 - Routine auto-expand behavior when a reminder is active.
 - Pinned memory done behavior.
@@ -306,11 +300,10 @@ After this direction is accepted, refactor the existing prototype in this order:
 4. Remove task checkbox progress bars and standalone task progress visuals.
 5. Change task deadlines to date-time values in dummy data.
 6. Make task cards expand and collapse on card click.
-7. Move subtask checkboxes and descriptions into expanded task details.
-8. Remove the timeline section from the dashboard.
-9. Make routine cards expand and collapse, with active reminders open by
+7. Remove the timeline section from the dashboard.
+8. Make routine cards expand and collapse, with active reminders open by
    default.
-10. Move routine `Done`, `Busy`, and `Skip` buttons into expanded routine
+9. Move routine `Done`, `Busy`, and `Skip` buttons into expanded routine
     details.
-11. Defer review and reward UI until those features have current docs.
-12. Run lint, build, `git diff --check`, and viewport inspection.
+10. Defer review and reward UI until those features have current docs.
+11. Run lint, build, `git diff --check`, and viewport inspection.

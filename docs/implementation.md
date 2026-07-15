@@ -83,7 +83,7 @@ Use PostgreSQL as the system of record for product data.
 PostgreSQL should store:
 
 - users and accounts
-- projects, milestones, tasks, subtasks, and derived progress
+- projects, milestones, tasks, and derived progress
 - ideas and triage state
 - memories, memory events, and pinned memories
 - routines, routine rules, and routine instances
@@ -218,16 +218,14 @@ The current Project slice includes:
 - default milestone creation
 - milestone capture
 - task capture under one milestone
-- subtask checklists under one task
 - status commands for dashboard tasks
-- subtask checklist updates
 - database-backed dashboard task cards
-- Project management page and detail tree
+- Project management page and detail pages
 - completion events for task completion, skip, block, unblock, and reopen
   actions
 
 The Project slice intentionally does not expose editable numeric progress
-fields. Progress text is derived from task and subtask completion.
+fields. Progress text is derived from task completion.
 
 Web source organization should follow the feature directories under
 `apps/web/src/features`. Feature pages, cards, dialogs, actions, repositories,

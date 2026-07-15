@@ -24,7 +24,6 @@ function isMissingProjectTableError(error: unknown) {
       "projects",
       "project_milestones",
       "project_tasks",
-      "project_subtasks",
     ].some((tableName) =>
       message.includes(`relation "${tableName}" does not exist`),
     )

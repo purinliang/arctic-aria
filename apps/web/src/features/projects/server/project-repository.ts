@@ -5,7 +5,6 @@ export type {
   ProjectRecord,
   ProjectRepository,
   ProjectStatus,
-  ProjectSubtaskRecord,
   ProjectTaskRecord,
   ProjectTaskStatus,
   SaveMilestoneInput,

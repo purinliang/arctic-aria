@@ -2,7 +2,6 @@ import { Check, ChevronDown, Eye, RefreshCw, RotateCcw } from "lucide-react";
 import { Button } from "@/components/button";
 import { mutedTextClass } from "@/components/color";
 import { ExpandableListItem } from "@/components/list";
-import { Tag } from "@/components/tag";
 import type { PinnedMemory } from "@/features/dashboard/types";
 
 const actionIconSize = 15;
@@ -46,10 +45,10 @@ export function PinnedMemoryCard({
               <h3 className="min-w-0 text-sm font-semibold">
                 {memory.title}
               </h3>
-              <Tag darkMode={darkMode} tone={categoryTone(memory.category)}>
-                {memory.category}
-              </Tag>
             </div>
+            <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
+              {memory.category}
+            </p>
             <p
               className={`mt-1 line-clamp-2 text-xs leading-5 ${mutedTextClass(darkMode)}`}
             >
@@ -119,8 +118,4 @@ export function PinnedMemoryCard({
       </Button>
     </ExpandableListItem>
   );
-}
-
-function categoryTone(category: PinnedMemory["category"]) {
-  return category === "Cuisine" ? "amber" : "cyan";
 }

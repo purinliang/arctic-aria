@@ -10,14 +10,6 @@ export type DashboardView = "dashboard" | "projects" | "routines" | "memories";
 
 export type Priority = "high" | "medium" | "low";
 
-export type Subtask = {
-  id: string;
-  title: string;
-  description: string;
-  isDone: boolean;
-  done: boolean;
-};
-
 export type Task = {
   id: string;
   title: string;
@@ -30,8 +22,6 @@ export type Task = {
   scheduledDate: string;
   startDate: string;
   deadlineDate: string;
-  subtaskSummary: string;
-  subtasks?: Subtask[];
 };
 
 export type RoutineStatus = "pending" | "completed" | "skipped";

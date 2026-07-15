@@ -14,10 +14,6 @@ export const emptyCategoryDraft: MemoryCategoryInput = {
   baseWeight: categoryPeriodWeights.Weekly,
 };
 
-export function categoryTone(category: MemoryCategory) {
-  return category === "Cuisine" ? "amber" : "cyan";
-}
-
 export function categoryPeriodFromWeight(baseWeight: number): CategoryPeriod {
   return Math.abs(baseWeight - categoryPeriodWeights.Monthly) <
     Math.abs(baseWeight - categoryPeriodWeights.Weekly)

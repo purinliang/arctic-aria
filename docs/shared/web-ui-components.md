@@ -142,8 +142,7 @@ browser or operating-system colors, corners, and spacing.
 
 `forms/choice-group.tsx` owns visible button-group choices for single and
 multiple selection. Use it when the user should clearly see a compact set of
-choices. Tags are passive labels; do not use tag components as selectable
-buttons.
+choices. Do not use passive label chips as selectable buttons.
 
 ## Switch
 
@@ -262,15 +261,17 @@ Notifications should animate as a stack: a new notification pops up from the
 bottom, existing notifications move upward with the stack, and dismissed or
 overflow notifications fade upward before they are removed.
 
-## Tags
+## Label Chips
 
-`tag.tsx` owns small status and category labels.
+Avoid visible colored label chips in the current web UI. They have proven too
+distracting for project status, task status, memory category, pinned markers,
+and reminder state labels.
 
-Use tags for:
+Use quieter alternatives:
 
-- category labels
-- status labels
-- pinned markers
-- reminder state labels
+- muted text for passive category/status metadata
+- shared buttons or choice groups for selectable filters
+- shared notifications for transient state feedback
 
-Do not repeat tag color classes in feature pages.
+Do not add feature-local colored chip classes. If label chips return later,
+revise this section first and keep them as a shared primitive.

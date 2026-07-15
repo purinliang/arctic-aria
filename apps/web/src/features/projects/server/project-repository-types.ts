@@ -8,19 +8,6 @@ export type ProjectTaskStatus =
   | "done"
   | "archived";
 
-export type ProjectSubtaskRecord = {
-  id: string;
-  userId: string;
-  taskId: string;
-  title: string;
-  description: string;
-  isDone: boolean;
-  sortOrder: number;
-  createdAt: Date;
-  updatedAt: Date;
-  completedAt: Date | null;
-};
-
 export type ProjectTaskRecord = {
   id: string;
   userId: string;
@@ -42,7 +29,6 @@ export type ProjectTaskRecord = {
   skippedAt: Date | null;
   blockedAt: Date | null;
   archivedAt: Date | null;
-  subtasks: ProjectSubtaskRecord[];
 };
 
 export type ProjectMilestoneRecord = {
@@ -118,12 +104,6 @@ export type SaveProjectTaskInput = {
   scheduledDate: string | null;
   startDate: string | null;
   deadlineDate: string | null;
-  subtasks: Array<{
-    id?: string;
-    title: string;
-    description: string;
-    isDone: boolean;
-  }>;
   occurredAt: Date;
 };
 
@@ -142,12 +122,6 @@ export type ProjectRepository = {
     userId: string;
     taskId: string;
     status: Exclude<ProjectTaskStatus, "archived">;
-    occurredAt: Date;
-  }): Promise<boolean>;
-  updateSubtaskDone(input: {
-    userId: string;
-    subtaskId: string;
-    isDone: boolean;
     occurredAt: Date;
   }): Promise<boolean>;
 };

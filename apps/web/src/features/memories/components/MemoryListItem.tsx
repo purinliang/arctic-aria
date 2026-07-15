@@ -2,9 +2,7 @@ import { ChevronDown, Edit3 } from "lucide-react";
 import { Button } from "@/components/button";
 import { mutedTextClass } from "@/components/color";
 import { ExpandableListItem } from "@/components/list";
-import { Tag } from "@/components/tag";
 import type { MemoryRecord } from "@/features/dashboard/types";
-import { categoryTone } from "./memory-page-helpers";
 
 export function MemoryListItem({
   memory,
@@ -33,15 +31,11 @@ export function MemoryListItem({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-sm font-semibold">{memory.title}</h3>
-              <Tag darkMode={darkMode} tone={categoryTone(memory.category)}>
-                {memory.category}
-              </Tag>
-              {memory.pinned ? (
-                <Tag darkMode={darkMode} tone="emerald">
-                  Pinned
-                </Tag>
-              ) : null}
             </div>
+            <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
+              {memory.category}
+              {memory.pinned ? " · Pinned" : ""}
+            </p>
             <p className={`mt-1 text-sm leading-6 ${mutedTextClass(darkMode)}`}>
               {memory.description}
             </p>

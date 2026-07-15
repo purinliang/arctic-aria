@@ -26,7 +26,7 @@ The user opens the Memories page from the sidebar.
 The page should show:
 
 - memory list
-- category filter chips
+- category filter buttons
 - `New` action
 - `Categories` action
 - suggestions panel on the right side on desktop and below the list on mobile
@@ -69,7 +69,7 @@ Suggestion list:
 - Each suggestion appears as a simple row, not a nested card.
 - Each row shows:
   - title
-  - category chip
+  - category as muted text
   - short description
   - last-done text and done count
   - `Pin` button

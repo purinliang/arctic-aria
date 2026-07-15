@@ -38,10 +38,10 @@ Schema migration files are safe to commit. The current migration entry point is
 From the repository root, run the same migration entry point with
 `pnpm --dir apps/web db:migrate`.
 
-The Projects feature requires `0005_create_projects.sql`. If project server
-actions report missing `projects`, `project_milestones`, `project_tasks`, or
-`project_subtasks` tables, treat the database as not migrated and run the web
-database migration before manual testing.
+The Projects feature requires `0005_create_projects.sql` and the cleanup
+`0006_drop_project_subtasks.sql`. If project server actions report missing
+`projects`, `project_milestones`, or `project_tasks` tables, treat the database
+as not migrated and run the web database migration before manual testing.
 
 ## User Model
 
@@ -78,7 +78,6 @@ The first Core schema should support the Phase 1 and Phase 2 scope:
 - `projects`
 - `project_milestones`
 - `project_tasks`
-- `project_subtasks`
 - `project_task_dependencies` if dependencies are needed later
 - `routines`
 - `routine_rules`
@@ -94,14 +93,12 @@ The first Core schema should support the Phase 1 and Phase 2 scope:
 - `completion_events`
 - `reminder_jobs`
 
-Projects should own milestones. Milestones should own tasks. Tasks may own
-subtasks, but subtasks are checklist records and are not independently
-scheduled.
+Projects should own milestones. Milestones should own tasks. Tasks are the
+current lowest project-management unit.
 
 Task progress should be status-derived in the next project refactor:
 
 - `status`: `todo`, `doing`, `blocked`, `skipped`, or `done`.
-- subtask completion can summarize local task progress.
 - task completion determines milestone and project progress.
 
 Do not expose editable numeric progress fields in the task UI. If old prototype

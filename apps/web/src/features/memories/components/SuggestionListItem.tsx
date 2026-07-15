@@ -2,9 +2,7 @@ import { LoaderCircle, Pin, PinOff } from "lucide-react";
 import { Button } from "@/components/button";
 import { mutedTextClass } from "@/components/color";
 import { ListItem } from "@/components/list";
-import { Tag } from "@/components/tag";
 import type { MemorySuggestion } from "@/features/dashboard/types";
-import { categoryTone } from "./memory-page-helpers";
 
 export function SuggestionListItem({
   suggestion,
@@ -26,10 +24,10 @@ export function SuggestionListItem({
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="text-sm font-semibold">{suggestion.title}</h3>
-          <Tag darkMode={darkMode} tone={categoryTone(suggestion.category)}>
-            {suggestion.category}
-          </Tag>
         </div>
+        <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
+          {suggestion.category}
+        </p>
         <p className={`mt-1 text-xs leading-5 ${mutedTextClass(darkMode)}`}>
           {suggestion.description}
         </p>
