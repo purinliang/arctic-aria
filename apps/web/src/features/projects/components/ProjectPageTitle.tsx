@@ -33,8 +33,8 @@ export function ProjectPageTitle({
     <h1 className="flex min-w-0 items-center gap-2 text-2xl font-semibold tracking-normal sm:text-3xl">
       <button
         className={cx(
-          "shrink-0 rounded-md px-1 text-left transition",
-          darkMode ? "hover:bg-white/10" : "hover:bg-slate-200",
+          "relative shrink-0 text-left outline-none transition before:absolute before:-inset-x-1 before:-inset-y-0.5 before:-z-10 before:rounded-md before:opacity-0 before:transition hover:before:opacity-100 focus-visible:before:opacity-100",
+          darkMode ? "before:bg-white/10" : "before:bg-slate-200",
         )}
         type="button"
         onClick={() => {
@@ -48,8 +48,8 @@ export function ProjectPageTitle({
       <span className="relative min-w-0">
         <button
           className={cx(
-            "flex h-10 min-w-0 max-w-[min(58vw,42rem)] items-center gap-2 rounded-md px-1 text-left transition",
-            darkMode ? "hover:bg-white/10" : "hover:bg-slate-200",
+            "relative flex min-w-0 max-w-[min(58vw,42rem)] items-center gap-2 text-left outline-none transition before:absolute before:-inset-x-1 before:-inset-y-0.5 before:-z-10 before:rounded-md before:opacity-0 before:transition hover:before:opacity-100 focus-visible:before:opacity-100",
+            darkMode ? "before:bg-white/10" : "before:bg-slate-200",
           )}
           type="button"
           aria-expanded={open}
