@@ -317,7 +317,7 @@ function toMilestoneView(milestone: ProjectMilestoneRecord): MilestoneView {
     deadlineDate: milestone.deadlineDate ?? "",
     expectedDurationDays: milestone.expectedDurationDays?.toString() ?? "",
     progressText: `${doneCount} of ${milestone.tasks.length} tasks done`,
-    tasks: milestone.tasks.map(toTaskView),
+    tasks: [...milestone.tasks].sort(compareProjectTasks).map(toTaskView),
   };
 }
 
@@ -345,4 +345,25 @@ function formatDate(date: string) {
 
 function validateDate(value: string) {
   return isValidProjectDate(value);
+}
+
+function compareProjectTasks(
+  left: ProjectTaskRecord,
+  right: ProjectTaskRecord,
+) {
+  const statusDifference = statusSortValue(left.status) - statusSortValue(right.status);
+
+  return (
+    statusDifference ||
+    dateSortValue(left.deadlineDate) - dateSortValue(right.deadlineDate) ||
+    dateSortValue(left.startDate) - dateSortValue(right.startDate)
+  );
+}
+
+function statusSortValue(status: ProjectTaskStatus) {
+  return status === "done" ? 1 : 0;
+}
+
+function dateSortValue(date: string | null) {
+  return date ? Date.parse(date) : Number.POSITIVE_INFINITY;
 }

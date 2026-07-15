@@ -1,6 +1,7 @@
 import { ChevronDown, Edit3 } from "lucide-react";
 import { Button } from "@/components/button";
-import { CheckboxField } from "@/components/forms/selection-field";
+import { mutedTextClass } from "@/components/color";
+import { CheckboxControl } from "@/components/forms/selection-field";
 import { ExpandableListItem } from "@/components/list";
 import type { Task } from "@/features/dashboard/types";
 
@@ -25,8 +26,21 @@ export function ProjectTaskCard({
     <ExpandableListItem
       darkMode={darkMode}
       expanded={expanded}
+      leading={
+        <CheckboxControl
+          darkMode={darkMode}
+          checked={task.status === "done"}
+          disabled={taskPending || task.status === "done"}
+          aria-label={`Mark ${task.title} done`}
+          onChange={(event) => {
+            if (event.target.checked) {
+              onDone();
+            }
+          }}
+        />
+      }
       headerClassName="items-center"
-      bodyClassName="grid gap-3"
+      bodyClassName="flex flex-wrap gap-2"
       onToggle={onToggleExpanded}
       header={
         <>
@@ -34,15 +48,13 @@ export function ProjectTaskCard({
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="min-w-0 text-base font-semibold">{task.title}</h3>
             </div>
-            <div
-              className={`mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm ${
-                darkMode ? "text-neutral-400" : "text-slate-500"
-              }`}
-            >
-              <span>{task.projectLabel}</span>
-              <span>{task.milestoneLabel}</span>
-              <span>{deadlineText(task.deadline)}</span>
-            </div>
+            <p className={`mt-1 text-sm leading-6 ${mutedTextClass(darkMode)}`}>
+              {task.description || "No description."}
+            </p>
+            <p className={`mt-2 text-xs ${mutedTextClass(darkMode)}`}>
+              {task.projectLabel} · {task.milestoneLabel} ·{" "}
+              {deadlineText(task.deadline)}
+            </p>
           </div>
           <ChevronDown
             className={`shrink-0 transition ${expanded ? "rotate-180" : ""}`}
@@ -52,30 +64,14 @@ export function ProjectTaskCard({
         </>
       }
     >
-      <p
-        className={`text-sm leading-6 ${
-          darkMode ? "text-neutral-300" : "text-slate-600"
-        }`}
+      <Button
+        darkMode={darkMode}
+        disabled={taskPending}
+        icon={<Edit3 size={14} aria-hidden="true" />}
+        onClick={onEdit}
       >
-        {task.description || "No description."}
-      </p>
-      <div className="flex flex-wrap gap-2 pt-1">
-        <CheckboxField
-          darkMode={darkMode}
-          label="Done"
-          checked={task.status === "done"}
-          disabled={taskPending || task.status === "done"}
-          onChange={() => onDone()}
-        />
-        <Button
-          darkMode={darkMode}
-          disabled={taskPending}
-          icon={<Edit3 size={14} aria-hidden="true" />}
-          onClick={onEdit}
-        >
-          Edit
-        </Button>
-      </div>
+        Edit
+      </Button>
     </ExpandableListItem>
   );
 }

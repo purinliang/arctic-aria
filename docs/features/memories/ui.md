@@ -25,21 +25,22 @@ feature designs that behavior.
 
 For each pinned memory, show:
 
+- done checkbox on the left
 - title
 - short description
 - category
 
 Clicking or focusing a pinned memory should expand it like the current routine
-cards. Only the expanded state should show:
+cards. Only the expanded state should show secondary actions:
 
-- `Done`
 - `Replace`
 - `View`
 
 Clicking the pinned memory again should collapse it.
 
-If the user clicks `Done`, collapse the card immediately and optimistically show
-the completed state. If the backend later rejects the command, restore the
+If the user checks the done checkbox, collapse the card immediately and
+optimistically show the completed state. If the user unchecks it before cleanup,
+cancel the completion. If the backend later rejects the command, restore the
 previous visible state and show the backend message in the shared notification
 component.
 

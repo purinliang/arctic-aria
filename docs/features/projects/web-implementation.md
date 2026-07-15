@@ -87,7 +87,7 @@ load task candidates from the database for signed-in users.
 Dashboard task cards support:
 
 - expand and collapse
-- `Done` checkbox
+- left-side `Done` checkbox in the collapsed row
 - `Edit`, which opens the Projects page for management
 
 Checking `Done` collapses the card immediately and uses optimistic UI. If the
@@ -167,14 +167,18 @@ Breadcrumb row:
 - divider: `/`
 - second item: project name switcher
 - switching through the project name keeps the user on the detail page
+- title action: `Edit3` icon plus `Edit`, placed to the right of the
+  breadcrumb and opening the project editor dialog
 
 Project overview card:
 
 - card title: `Overview`
-- first row: project title
-- second row: description
-- metadata rows: started date and timeline text
-- action: `Edit project` with `Edit3`
+- first row: labeled description block with label `Description`
+- metadata rows: `Start date` and `Timeline`
+- start date value uses English display format, not raw `YYYY-MM-DD`
+- do not repeat the project title inside this card because the page title
+  already shows it
+- no card-level edit action; project edit belongs beside the page title
 - do not show colored status or priority tags
 
 Milestone management card:
@@ -195,16 +199,22 @@ Task list:
 - rows are flat task rows, not nested under milestone sections
 - task sort order: not-done tasks first, then `deadlineDate` ascending with
   empty deadlines last, then `startDate` ascending
+- sorting happens when data is loaded/refreshed or after adding/editing a task;
+  checking or unchecking `Done` must keep the current visible row order
 
 Task row layout:
 
 - parent surface: shared `ListItem`
 - row direction: three columns
 - left column: `Done` checkbox
-- middle column: title, milestone name, and deadline
+- middle column: title, description, then `milestone · deadline` metadata
 - right column: `Edit`
 - do not show task status tags, priority tags, or Block/Skip actions in the
   first UI
+- checking `Done` or unchecking it uses optimistic UI without disabling the row,
+  the clicked checkbox, or other controls, updates derived task progress text
+  immediately, and rolls back with a shared notification if the backend rejects
+  the latest command
 
 ### Project Editor Dialog Layout
 
@@ -272,18 +282,19 @@ Dashboard
 Collapsed card:
 
 - parent element: full-width `article`
-- clickable row layout: two columns, task text then chevron
+- row layout: left completion checkbox, then clickable task content with
+  chevron
 - text group direction: vertical
 - first line: task title
-- second line: project label, milestone label, deadline
+- second line: task description, always visible
+- third line: supporting metadata as `project · milestone · deadline`
 - right icon: `ChevronDown`, rotated when expanded
 
 Expanded card:
 
 - expanded content appends below the clickable row
-- first element: task description
 - footer layout: horizontal flex with wrapping
-- actions in order: `Done` checkbox, then `Edit` with `Edit3`
+- actions: `Edit` with `Edit3`
 
 ## Code Locations
 

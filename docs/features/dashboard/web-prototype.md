@@ -137,25 +137,24 @@ Task card behavior:
 - Do not show standalone progress visualization for task completion.
 - Do not show a horizontal progress bar.
 - Do not add duplicate progress visualization.
+- Show the task completion checkbox on the left of the collapsed task row.
+- Show task description in the collapsed row below the title.
+- Show supporting metadata below the description as
+  `project · milestone · deadline`.
 - Click the task card to expand details.
 - Click the task card again to collapse details.
-- Expanded details should show task description and available actions.
+- Expanded details should show secondary actions only.
 - Partial completion should not appear in the current task UI.
-
-Future dashboard cleanup:
-
-- Routine, pinned memory, and dashboard task `Done` controls should use the
-  same checkbox-left-of-title UI direction as Project task rows, instead of a
-  separate strong green primary button style.
 
 ## Interactions
 
 The dashboard should support:
 
 - Expanding and collapsing task details by clicking the task card.
-- Marking task-level completion from expanded details.
+- Marking task-level completion from the left checkbox.
 - Expanding and collapsing routine details by clicking the routine card.
-- Marking routines as done, skipped, or pending through reminder actions.
+- Marking routines done or pending from the left checkbox.
+- Marking routines skipped through expanded reminder actions.
 
 ## Routine Cards
 
@@ -167,7 +166,8 @@ Routine card behavior:
 
 - Click the routine card to expand details.
 - Click the routine card again to collapse details.
-- Expanded details should show three action buttons: `Done`, `Busy`, and `Skip`.
+- The completion checkbox appears on the left of the collapsed routine row.
+- Expanded details should show secondary actions: `Busy` and `Skip`.
 - Dummy routine instance statuses are `completed`, `pending`, and `skipped`.
 - `reminding` is a UI delivery state for a currently visible reminder, not a
   Core routine status.
@@ -309,7 +309,7 @@ After this direction is accepted, refactor the existing prototype in this order:
 7. Remove the timeline section from the dashboard.
 8. Make routine cards expand and collapse, with active reminders open by
    default.
-9. Move routine `Done`, `Busy`, and `Skip` buttons into expanded routine
-    details.
+9. Use left-side completion checkboxes for dashboard task, routine, and pinned
+   memory rows; keep expanded details for secondary actions.
 10. Defer review and reward UI until those features have current docs.
 11. Run lint, build, `git diff --check`, and viewport inspection.

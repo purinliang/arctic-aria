@@ -12,6 +12,7 @@ not show every routine definition.
 
 Each routine card should show:
 
+- completion checkbox on the left
 - title
 - scheduled time, if present
 - status
@@ -20,22 +21,24 @@ Each routine card should show:
 Clicking or focusing a routine card should expand it. Clicking it again should
 collapse it.
 
-Expanded state should show:
+Expanded state should show secondary actions:
 
-- `Done`
 - `Busy`
 - `Skip`
 
 Click behavior:
 
-- `Done` marks the instance completed.
+- Checking the left checkbox marks the instance completed.
+- Unchecking the left checkbox reopens the instance as pending.
 - `Skip` marks the instance skipped.
 - `Busy` snoozes reminder delivery when reminder jobs exist. It should not set
   the routine instance status to busy.
-- After `Done`, `Skip`, or `Busy`, collapse the routine card immediately.
-- `Done` and `Skip` should optimistically update the visible routine status.
-  If the backend later rejects the command, restore the previous visible state
-  and show the backend message in the shared notification component.
+- After checkbox changes, `Skip`, or `Busy`, collapse the routine card
+  immediately.
+- Checkbox changes and `Skip` should optimistically update the visible routine
+  status. If the backend later rejects the command, restore the previous
+  visible state and show the backend message in the shared notification
+  component.
 - `Busy` shows a temporary reminder message and does not wait for backend
   persistence until reminder jobs exist.
 
@@ -109,7 +112,7 @@ the dialog and removes the routine from normal views.
 
 Use user-facing text that matches the action:
 
-- Button text: `Done`
+- Checkbox checked: `completed`
 - Persisted instance status: `completed`
 - Button text: `Skip`
 - Persisted instance status: `skipped`

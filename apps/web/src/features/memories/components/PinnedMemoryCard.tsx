@@ -1,6 +1,7 @@
-import { Check, ChevronDown, Eye, RefreshCw, RotateCcw } from "lucide-react";
+import { ChevronDown, Eye, RefreshCw } from "lucide-react";
 import { Button } from "@/components/button";
 import { mutedTextClass } from "@/components/color";
+import { CheckboxControl } from "@/components/forms/selection-field";
 import { ExpandableListItem } from "@/components/list";
 import type { PinnedMemory } from "@/features/dashboard/types";
 
@@ -35,6 +36,21 @@ export function PinnedMemoryCard({
       darkMode={darkMode}
       expanded={expanded}
       disabled={disabled}
+      leading={
+        <CheckboxControl
+          darkMode={darkMode}
+          checked={completed}
+          disabled={disabled}
+          aria-label={
+            completed
+              ? `Cancel completion for ${memory.title}`
+              : `Mark ${memory.title} done`
+          }
+          onChange={(event) =>
+            event.target.checked ? onDone() : onCancelDone()
+          }
+        />
+      }
       bodyClassName="flex flex-wrap gap-2"
       onToggle={onToggleExpanded}
       header={
@@ -66,27 +82,6 @@ export function PinnedMemoryCard({
         </>
       }
     >
-      {completed ? (
-        <Button
-          darkMode={darkMode}
-          className={actionButtonClass}
-          disabled={disabled}
-          icon={<RotateCcw size={actionIconSize} aria-hidden="true" />}
-          onClick={onCancelDone}
-        >
-          Cancel
-        </Button>
-      ) : (
-        <Button
-          darkMode={darkMode}
-          className={actionButtonClass}
-          disabled={disabled}
-          icon={<Check size={actionIconSize} aria-hidden="true" />}
-          onClick={onDone}
-        >
-          Done
-        </Button>
-      )}
       <Button
         darkMode={darkMode}
         className={actionButtonClass}

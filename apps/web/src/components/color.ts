@@ -14,6 +14,12 @@ export function surfaceClass(darkMode: boolean) {
     : "border-slate-300 bg-white text-slate-950";
 }
 
+export function headerSurfaceClass(darkMode: boolean) {
+  return darkMode
+    ? "border-neutral-800 bg-neutral-950"
+    : "border-slate-200 bg-slate-50";
+}
+
 export function mutedTextClass(darkMode: boolean) {
   return darkMode ? "text-neutral-400" : "text-slate-500";
 }

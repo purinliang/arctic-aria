@@ -9,8 +9,8 @@ import {
 import { Button } from "@/components/button";
 import {
   dividerClass,
+  headerSurfaceClass,
   mutedTextClass,
-  sectionBorderClass,
 } from "@/components/color";
 import { Panel } from "@/components/panel";
 import { cx } from "@/components/utils";
@@ -32,8 +32,8 @@ export function MemoryPanelHeader({
   return (
     <div
       className={cx(
-        "flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between",
-        sectionBorderClass(darkMode),
+        "flex flex-col gap-3 rounded-t-md border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
+        headerSurfaceClass(darkMode),
       )}
     >
       <div className="min-w-0">
@@ -126,8 +126,8 @@ export function SuggestionsPanel({
     <Panel darkMode={darkMode}>
       <div
         className={cx(
-          "flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-start sm:justify-between",
-          sectionBorderClass(darkMode),
+          "flex flex-col gap-3 rounded-t-md border-b px-4 py-3 sm:flex-row sm:items-start sm:justify-between",
+          headerSurfaceClass(darkMode),
         )}
       >
         <div className="min-w-0">

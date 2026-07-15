@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { InlineMessage } from "@/components/text";
 import type { TaskStatus } from "@/features/dashboard/types";
 import type {
@@ -21,7 +21,6 @@ import {
   emptyProjectDraft,
   emptyTaskDraft,
   milestoneToDraft,
-  projectToDraft,
   taskToDraft,
 } from "./project-page-helpers";
 
@@ -32,6 +31,8 @@ export function ProjectsPage({
   projects,
   loading,
   pending,
+  projectDraft,
+  setProjectDraft,
   message,
   selectedProjectId,
   onProjectSave,
@@ -45,6 +46,8 @@ export function ProjectsPage({
   projects: ProjectView[];
   loading: boolean;
   pending: boolean;
+  projectDraft: ProjectInput | null;
+  setProjectDraft: Dispatch<SetStateAction<ProjectInput | null>>;
   message: string | null;
   selectedProjectId: string | null;
   onProjectSave: (input: ProjectInput) => ProjectResult;
@@ -53,11 +56,10 @@ export function ProjectsPage({
   onTaskStatus: (
     taskId: string,
     status: Exclude<TaskStatus, "archived">,
-  ) => ProjectResult;
+  ) => void;
   onProjectSelect: (projectId: string | null) => void;
   onMessageClear: () => void;
 }) {
-  const [projectDraft, setProjectDraft] = useState<ProjectInput | null>(null);
   const [milestoneDraft, setMilestoneDraft] = useState<MilestoneInput | null>(
     null,
   );
@@ -165,10 +167,6 @@ export function ProjectsPage({
             darkMode={darkMode}
             pending={pending}
             project={selectedProject}
-            onEditProject={(project) => {
-              onMessageClear();
-              setProjectDraft(projectToDraft(project));
-            }}
             onAddMilestone={(projectId) => {
               onMessageClear();
               setMilestoneDraft(emptyMilestoneDraft(projectId));
@@ -190,7 +188,7 @@ export function ProjectsPage({
               onMessageClear();
               setTaskDraft(taskToDraft(task));
             }}
-            onTaskStatus={(taskId, status) => void onTaskStatus(taskId, status)}
+            onTaskStatus={onTaskStatus}
           />
         ) : (
           <ProjectsList

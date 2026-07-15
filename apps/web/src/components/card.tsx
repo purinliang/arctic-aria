@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { mutedTextClass, surfaceClass } from "./color";
+import { headerSurfaceClass, mutedTextClass, surfaceClass } from "./color";
 import { cx } from "./utils";
 
 export function Card({
@@ -40,8 +40,8 @@ export function CardHeader({
   return (
     <div
       className={cx(
-        "flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between",
-        darkMode ? "border-neutral-800" : "border-slate-200",
+        "flex flex-col gap-3 rounded-t-md border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
+        headerSurfaceClass(darkMode),
         className,
       )}
     >

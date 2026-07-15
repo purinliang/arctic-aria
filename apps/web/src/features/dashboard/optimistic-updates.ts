@@ -56,7 +56,7 @@ export function applyOptimisticRoutineStatus(
           ...routine,
           status,
           reminderState: "idle" as const,
-          streakText: "Answered today",
+          streakText: status === "pending" ? "Due today" : "Answered today",
         }
       : routine,
   );

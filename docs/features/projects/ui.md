@@ -54,7 +54,8 @@ Collapsed task card layout:
   the right
 - left text group direction: vertical
 - first text line: task title
-- second text line: project title, milestone title, deadline
+- second text line: task description, always visible
+- third text line: supporting metadata as `project · milestone · deadline`
 - right icon: `ChevronDown`, rotated when expanded
 
 Expanded task card layout:
@@ -62,9 +63,8 @@ Expanded task card layout:
 - expanded content appends under the collapsed row
 - expanded content should share the same card surface and color as the collapsed
   row
-- first line: task description
 - footer action row direction: horizontal with wrapping on small screens
-- actions in order: `Done` checkbox, then `Edit` with `Edit3`
+- actions: `Edit` with `Edit3`
 - do not show `Block`, `Skip`, or a multi-status selector in the first UI
 
 ## Projects Page
@@ -236,10 +236,16 @@ Detail page layout:
 - left panel: flat task list
 - right panel: project overview and milestone management
 - left card: `Tasks` card with icon, supporting text, and `New`
-- right top card: `Overview` with `Edit project`
+- title action: `Edit3` icon plus `Edit`, placed to the right of
+  `Projects / project_name`
+- right top card: `Overview`
 - right bottom card: `Milestones` with `New`
-- overview metadata group: title, description, start date, and deadline or
-  duration
+- overview metadata group: description, start date, and timeline
+- overview description row label: `Description`
+- overview start date should display in English date format, not raw
+  `YYYY-MM-DD`
+- do not repeat project title inside the Overview card; the title is already in
+  the page title
 - do not show current milestone or progress in the metadata card
 - milestone card list direction: vertical
 - milestone row left group: title, then objective or progress text
@@ -247,11 +253,15 @@ Detail page layout:
 - milestone rows do not show task details
 - task rows appear as a flat list in the `Tasks` card
 - task create action appears in the `Tasks` card header as `New` with `Plus`
-- task row layout: `Done` checkbox on the left, then title/milestone/deadline,
-  then `Edit` on the right
+- task row layout: `Done` checkbox on the left, then title, description,
+  milestone/deadline metadata, then `Edit` on the right
+- project detail task rows do not show project name in metadata because the
+  page title already identifies the project
 - task sort order: not-done tasks before done tasks, then deadline from nearest
   to farthest, then start date from oldest to newest
 - tasks without a deadline sort after tasks with a deadline
+- completion checkbox changes must not re-sort the current visible list; sort
+  only when entering or refreshing the page, or after adding or editing a task
 
 ## Structure
 

@@ -191,6 +191,10 @@ Use `CardHeader` for card and panel headers that need an icon, title,
 description, metadata, or a right-side action. Do not create feature-local
 header components for the same shape.
 
+Card and panel headers should use `px-4 py-3`, a bottom border, and a subtle
+header background that differs from the content surface. The tighter vertical
+padding keeps dashboard and management cards compact.
+
 Use cards for repeated compact objects. Do not use cards as page sections or as
 containers around other cards.
 
@@ -227,10 +231,10 @@ Use it for:
 Dialogs are stronger than notifications. Use dialogs when the user must make a
 decision or when the current workflow cannot safely continue.
 
-Dialog frames use the same `px-4 py-4` padding rhythm as card headers and
-notifications. Form dialogs should use the default dialog width so input fields,
-date pickers, and other long controls do not collapse into a narrow column.
-Small confirmation dialogs may use the `sm` size.
+Dialog frames use the same `px-4 py-4` padding rhythm as notifications. Form
+dialogs should use the default dialog width so input fields, date pickers, and
+other long controls do not collapse into a narrow column. Small confirmation
+dialogs may use the `sm` size.
 
 Add/edit form dialogs should use `DialogActionRow` and `DialogPrimaryButton`
 for the save action. The primary save button should be full width with clear

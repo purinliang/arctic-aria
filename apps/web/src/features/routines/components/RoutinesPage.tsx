@@ -2,8 +2,8 @@ import { Bell, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/button";
 import {
+  headerSurfaceClass,
   mutedTextClass,
-  sectionBorderClass,
 } from "@/components/color";
 import { ConfirmDialog } from "@/components/dialog";
 import { Panel } from "@/components/panel";
@@ -156,8 +156,8 @@ function RoutinesPageHeader({
   return (
     <div
       className={cx(
-        "flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between",
-        sectionBorderClass(darkMode),
+        "flex flex-col gap-3 rounded-t-md border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
+        headerSurfaceClass(darkMode),
       )}
     >
       <div className="min-w-0">

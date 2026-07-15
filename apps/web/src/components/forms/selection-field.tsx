@@ -218,6 +218,34 @@ export function CheckboxField({
   );
 }
 
+export function CheckboxControl({
+  darkMode,
+  className,
+  ...props
+}: Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
+  darkMode: boolean;
+}) {
+  return (
+    <label
+      className={cx(
+        "inline-flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded border transition",
+        props.disabled ? "cursor-not-allowed opacity-60" : "",
+        props.checked
+          ? darkMode
+            ? "border-white bg-white text-black"
+            : "border-slate-950 bg-slate-950 text-white"
+          : darkMode
+            ? "border-neutral-600 hover:border-neutral-400"
+            : "border-slate-300 hover:border-slate-500",
+        className,
+      )}
+    >
+      {props.checked ? <Check className="h-3.5 w-3.5" /> : null}
+      <input className="sr-only" type="checkbox" {...props} />
+    </label>
+  );
+}
+
 export function CheckboxGroup({
   children,
   className,

@@ -56,6 +56,7 @@ export function ExpandableListItem({
   disabled = false,
   selected = false,
   tone = "default",
+  leading,
   header,
   children,
   className,
@@ -68,6 +69,7 @@ export function ExpandableListItem({
   disabled?: boolean;
   selected?: boolean;
   tone?: ListItemTone;
+  leading?: ReactNode;
   header: ReactNode;
   children?: ReactNode;
   className?: string;
@@ -84,18 +86,26 @@ export function ExpandableListItem({
       layout="block"
       className={cx("transition", className)}
     >
-      <button
+      <div
         className={cx(
-          "grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-left",
-          headerClassName,
+          "grid w-full items-start gap-3",
+          leading ? "grid-cols-[auto_minmax(0,1fr)]" : "grid-cols-1",
         )}
-        type="button"
-        aria-expanded={expanded}
-        disabled={disabled}
-        onClick={onToggle}
       >
-        {header}
-      </button>
+        {leading ? <div className="mt-1">{leading}</div> : null}
+        <button
+          className={cx(
+            "grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-left",
+            headerClassName,
+          )}
+          type="button"
+          aria-expanded={expanded}
+          disabled={disabled}
+          onClick={onToggle}
+        >
+          {header}
+        </button>
+      </div>
       {expanded && children ? (
         <div className={cx("mt-3", bodyClassName)}>{children}</div>
       ) : null}

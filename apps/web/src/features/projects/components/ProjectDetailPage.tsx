@@ -2,6 +2,7 @@ import { ClipboardList, Edit3, Flag, Info, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { Card, CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
+import { CheckboxControl } from "@/components/forms/selection-field";
 import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
 import type {
@@ -10,11 +11,16 @@ import type {
 } from "@/features/projects/actions";
 import type { TaskStatus } from "@/features/dashboard/types";
 
+const overviewDateFormatter = new Intl.DateTimeFormat("en", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
+
 export function ProjectDetailPage({
   darkMode,
   pending,
   project,
-  onEditProject,
   onAddMilestone,
   onEditMilestone,
   onAddTask,
@@ -24,7 +30,6 @@ export function ProjectDetailPage({
   darkMode: boolean;
   pending: boolean;
   project: ProjectView | null;
-  onEditProject: (project: ProjectView) => void;
   onAddMilestone: (projectId: string) => void;
   onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
   onAddTask: (projectId: string) => void;
@@ -51,7 +56,7 @@ export function ProjectDetailPage({
       task,
       milestoneTitle: milestone.title,
     })),
-  ).sort(compareTaskRows);
+  );
 
   return (
     <section className="aa-split-container">
@@ -100,24 +105,14 @@ export function ProjectDetailPage({
               darkMode={darkMode}
               icon={<Info size={18} aria-hidden="true" />}
               title="Overview"
-              action={
-                <Button
-                  darkMode={darkMode}
-                  disabled={pending}
-                  icon={<Edit3 size={14} aria-hidden="true" />}
-                  onClick={() => onEditProject(project)}
-                >
-                  Edit project
-                </Button>
-              }
             />
             <div className="grid gap-4 px-4 py-4">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-lg font-semibold">{project.title}</h2>
-                </div>
+              <div className="grid gap-1">
+                <p className={`text-xs ${mutedTextClass(darkMode)}`}>
+                  Description
+                </p>
                 <p
-                  className={`mt-2 text-sm leading-6 ${mutedTextClass(darkMode)}`}
+                  className={`text-sm leading-6 ${mutedTextClass(darkMode)}`}
                 >
                   {project.description}
                 </p>
@@ -125,8 +120,8 @@ export function ProjectDetailPage({
               <dl className="grid gap-3 text-sm">
                 <ProjectMetadataRow
                   darkMode={darkMode}
-                  label="Started"
-                  value={project.startDate}
+                  label="Start date"
+                  value={formatOverviewDate(project.startDate)}
                 />
                 <ProjectMetadataRow
                   darkMode={darkMode}
@@ -190,28 +185,6 @@ export function ProjectDetailPage({
   );
 }
 
-function compareTaskRows(
-  left: { task: ProjectTaskView; milestoneTitle: string },
-  right: { task: ProjectTaskView; milestoneTitle: string },
-) {
-  const leftStatusRank = left.task.status === "done" ? 1 : 0;
-  const rightStatusRank = right.task.status === "done" ? 1 : 0;
-
-  if (leftStatusRank !== rightStatusRank) {
-    return leftStatusRank - rightStatusRank;
-  }
-
-  return (
-    dateSortValue(left.task.deadlineDate) -
-      dateSortValue(right.task.deadlineDate) ||
-    dateSortValue(left.task.startDate) - dateSortValue(right.task.startDate)
-  );
-}
-
-function dateSortValue(date: string) {
-  return date ? Date.parse(date) : Number.POSITIVE_INFINITY;
-}
-
 function ProjectMetadataRow({
   darkMode,
   label,
@@ -250,11 +223,10 @@ function ProjectTaskRow({
   return (
     <div className="grid gap-3">
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3">
-        <input
-          className="mt-1 accent-emerald-500"
-          type="checkbox"
+        <CheckboxControl
+          darkMode={darkMode}
+          className="mt-1"
           checked={task.status === "done"}
-          disabled={pending}
           aria-label={`Mark ${task.title} done`}
           onChange={(event) =>
             onTaskStatus(task.id, event.target.checked ? "done" : "todo")
@@ -264,7 +236,10 @@ function ProjectTaskRow({
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-semibold">{task.title}</span>
           </div>
-          <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
+          <p className={`mt-1 text-sm leading-6 ${mutedTextClass(darkMode)}`}>
+            {task.description || "No description."}
+          </p>
+          <p className={`mt-2 text-xs ${mutedTextClass(darkMode)}`}>
             {milestoneTitle} · {deadlineText(task.deadline)}
           </p>
         </div>
@@ -272,6 +247,7 @@ function ProjectTaskRow({
           darkMode={darkMode}
           size="xs"
           disabled={pending}
+          icon={<Edit3 size={14} aria-hidden="true" />}
           onClick={onEdit}
         >
           Edit
@@ -283,4 +259,10 @@ function ProjectTaskRow({
 
 function deadlineText(deadline: string) {
   return deadline === "No deadline" ? deadline : `Deadline ${deadline}`;
+}
+
+function formatOverviewDate(date: string) {
+  return date
+    ? overviewDateFormatter.format(new Date(`${date}T00:00:00.000Z`))
+    : "Not set";
 }

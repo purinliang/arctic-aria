@@ -16,8 +16,10 @@ import { useDashboardRoutines } from "@/features/dashboard/hooks/useDashboardRou
 import type { DashboardView } from "@/features/dashboard/types";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import { MemoriesPage } from "@/features/memories/components/MemoriesPage";
+import type { ProjectInput } from "@/features/projects/actions";
 import { ProjectPageTitle } from "@/features/projects/components/ProjectPageTitle";
 import { ProjectsPage } from "@/features/projects/components/ProjectsPage";
+import { projectToDraft } from "@/features/projects/components/project-page-helpers";
 import { RoutinesPage } from "@/features/routines/components/RoutinesPage";
 import { Sidebar } from "./Sidebar";
 
@@ -44,6 +46,7 @@ export function AppShell({
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
     null,
   );
+  const [projectDraft, setProjectDraft] = useState<ProjectInput | null>(null);
   const projectState = useDashboardProjects(showErrorNotification);
   const routineState = useDashboardRoutines(showErrorNotification);
   const memoryState = useDashboardMemories(
@@ -156,8 +159,13 @@ export function AppShell({
                 darkMode={darkMode}
                 projects={projectState.projects}
                 selectedProjectId={selectedProjectId}
+                editDisabled={projectState.projectActionPending}
                 onBackToList={() => setSelectedProjectId(null)}
                 onProjectSelect={setSelectedProjectId}
+                onEditProject={(project) => {
+                  projectState.clearProjectMessage();
+                  setProjectDraft(projectToDraft(project));
+                }}
               />
             ) : (
               <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
@@ -172,6 +180,8 @@ export function AppShell({
               projects={projectState.projects}
               loading={projectState.projectLoading}
               pending={projectState.projectActionPending}
+              projectDraft={projectDraft}
+              setProjectDraft={setProjectDraft}
               message={projectState.projectMessage}
               selectedProjectId={selectedProjectId}
               onProjectSave={projectState.saveProjectFromPage}

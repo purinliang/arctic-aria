@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   archiveProject,
   blockProjectTask,
@@ -37,6 +37,8 @@ export function useDashboardProjects(
   const [projectActionPending, setProjectActionPending] = useState(false);
   const [pendingTaskIds, setPendingTaskIds] = useState<string[]>([]);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  const pageTaskRequestChains = useRef(new Map<string, Promise<void>>());
+  const pageTaskRequestVersions = useRef(new Map<string, number>());
 
   const applyProjectData = useCallback(
     (data: ProjectDashboardData, nextExpandedTaskId?: string | null) => {
@@ -138,6 +140,61 @@ export function useDashboardProjects(
     );
   }
 
+  function updateTaskFromPage(
+    taskId: string,
+    status: Exclude<TaskStatus, "archived">,
+  ) {
+    let previousTasks: Task[] = [];
+    let previousProjects: ProjectView[] = [];
+    const requestVersion =
+      (pageTaskRequestVersions.current.get(taskId) ?? 0) + 1;
+
+    pageTaskRequestVersions.current.set(taskId, requestVersion);
+    setProjectMessage(null);
+
+    setTasks((current) => {
+      previousTasks = current;
+      const updated = applyOptimisticTaskStatus(current, taskId, status);
+
+      return status === "done"
+        ? updated.filter((task) => task.id !== taskId)
+        : updated;
+    });
+    setProjects((current) => {
+      previousProjects = current;
+      return applyOptimisticProjectTaskStatus(current, taskId, status);
+    });
+
+    const previousRequest =
+      pageTaskRequestChains.current.get(taskId) ?? Promise.resolve();
+    const request = previousRequest
+      .catch(() => undefined)
+      .then(async () => {
+        const result = await updateProjectTaskStatus(taskId, status);
+
+        if (result.ok) {
+          return;
+        }
+
+        if (pageTaskRequestVersions.current.get(taskId) !== requestVersion) {
+          return;
+        }
+
+        setTasks((current) =>
+          restoreTaskSnapshot(current, previousTasks, taskId),
+        );
+        setProjects(previousProjects);
+        showErrorNotification(result.message);
+      });
+
+    pageTaskRequestChains.current.set(taskId, request);
+    void request.finally(() => {
+      if (pageTaskRequestChains.current.get(taskId) === request) {
+        pageTaskRequestChains.current.delete(taskId);
+      }
+    });
+  }
+
   return {
     tasks,
     projects,
@@ -163,14 +220,7 @@ export function useDashboardProjects(
       ),
     saveTaskFromPage: (input: ProjectTaskInput) =>
       runProjectManagementAction(() => saveProjectTask(input), "Task save failed"),
-    statusTaskFromPage: (
-      taskId: string,
-      status: Exclude<TaskStatus, "archived">,
-    ) =>
-      runProjectManagementAction(
-        () => updateProjectTaskStatus(taskId, status),
-        "Task update failed",
-      ),
+    statusTaskFromPage: updateTaskFromPage,
     reopenTaskFromPage: (taskId: string) =>
       runProjectManagementAction(() => reopenProjectTask(taskId), "Task reopen failed"),
     clearProjectMessage: () => setProjectMessage(null),
@@ -202,4 +252,38 @@ function addPendingId(ids: string[], id: string) {
 
 function removePendingId(ids: string[], id: string) {
   return ids.filter((currentId) => currentId !== id);
+}
+
+function applyOptimisticProjectTaskStatus(
+  projects: ProjectView[],
+  taskId: string,
+  status: Exclude<TaskStatus, "archived">,
+) {
+  return projects.map((project) => {
+    const milestones = project.milestones.map((milestone) => {
+      const tasks = milestone.tasks.map((task) =>
+        task.id === taskId ? { ...task, status } : task,
+      );
+
+      return {
+        ...milestone,
+        tasks,
+        progressText: taskProgressText(tasks),
+      };
+    });
+
+    return {
+      ...project,
+      milestones,
+      progressText: taskProgressText(
+        milestones.flatMap((milestone) => milestone.tasks),
+      ),
+    };
+  });
+}
+
+function taskProgressText(tasks: Task[]) {
+  const doneCount = tasks.filter((task) => task.status === "done").length;
+
+  return `${doneCount} of ${tasks.length} tasks done`;
 }

@@ -152,11 +152,13 @@ The first dashboard can keep the existing expanded-card behavior:
 
 - clicking a routine expands or collapses it
 - a currently active reminder can start expanded
-- expanded state shows `Done`, `Busy`, and `Skip`
+- the completion checkbox appears on the left of the collapsed row
+- expanded state shows `Busy` and `Skip`
 
 Action behavior:
 
-- `Done` marks the routine instance `completed`.
+- Checking the left checkbox marks the routine instance `completed`.
+- Unchecking the left checkbox reopens the routine instance as `pending`.
 - `Skip` marks the routine instance `skipped`.
 - `Busy` should not change the instance status. It should create or update
   reminder delivery state when reminder jobs are implemented.

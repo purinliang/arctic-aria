@@ -3,6 +3,7 @@ import {
   completeRoutineInstance,
   deleteRoutine,
   getRoutineDashboardData,
+  reopenRoutineInstance,
   saveRoutine,
   skipRoutineInstance,
   type RoutineActionResult,
@@ -124,7 +125,9 @@ export function useDashboardRoutines(
       () =>
         status === "completed"
           ? completeRoutineInstance(routineId)
-          : skipRoutineInstance(routineId),
+          : status === "skipped"
+            ? skipRoutineInstance(routineId)
+            : reopenRoutineInstance(routineId),
       null,
       () => setRoutines(previousRoutines),
     );

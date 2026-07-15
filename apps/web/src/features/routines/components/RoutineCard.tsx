@@ -1,6 +1,7 @@
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/button";
 import { mutedTextClass } from "@/components/color";
+import { CheckboxControl } from "@/components/forms/selection-field";
 import { ExpandableListItem } from "@/components/list";
 import type { Routine, RoutineStatus } from "@/features/dashboard/types";
 
@@ -26,6 +27,21 @@ export function RoutineCard({
       darkMode={darkMode}
       expanded={expanded}
       disabled={disabled}
+      leading={
+        <CheckboxControl
+          darkMode={darkMode}
+          checked={routine.status === "completed"}
+          disabled={disabled}
+          aria-label={
+            routine.status === "completed"
+              ? `Reopen ${routine.title}`
+              : `Mark ${routine.title} done`
+          }
+          onChange={(event) =>
+            onStatusChange(event.target.checked ? "completed" : "pending")
+          }
+        />
+      }
       bodyClassName="flex flex-wrap gap-2"
       onToggle={onToggleExpanded}
       header={
@@ -51,14 +67,6 @@ export function RoutineCard({
         </>
       }
     >
-      <Button
-        darkMode={darkMode}
-        className="basis-[88px] px-2"
-        disabled={disabled}
-        onClick={() => onStatusChange("completed")}
-      >
-        Done
-      </Button>
       <Button
         darkMode={darkMode}
         className="basis-[88px] px-2"
