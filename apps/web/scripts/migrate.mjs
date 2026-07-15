@@ -6,13 +6,7 @@ import { neon } from "@neondatabase/serverless";
 const appRoot = process.cwd();
 const migrationsDir = path.join(appRoot, "database", "migrations");
 const envFiles = [".env.local", ".env.development.local"];
-const databaseUrlKeys = [
-  "NEON_POSTGRES_URL_NON_POOLING",
-  "NEON_DATABASE_URL_UNPOOLED",
-  "NEON_POSTGRES_URL",
-  "NEON_DATABASE_URL",
-  "DATABASE_URL",
-];
+const databaseUrlKey = "NEON_POSTGRES_URL";
 
 function loadEnvFiles() {
   for (const file of envFiles) {
@@ -49,13 +43,11 @@ function loadEnvFiles() {
 }
 
 function getMigrationDatabaseUrl() {
-  for (const key of databaseUrlKeys) {
-    if (process.env[key]) {
-      return process.env[key];
-    }
+  if (process.env[databaseUrlKey]) {
+    return process.env[databaseUrlKey];
   }
 
-  throw new Error(`Missing database URL. Set one of: ${databaseUrlKeys.join(", ")}.`);
+  throw new Error(`Missing database URL. Set ${databaseUrlKey}.`);
 }
 
 function splitStatements(sqlText) {
