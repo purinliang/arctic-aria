@@ -47,6 +47,56 @@ The Projects feature requires `0005_create_projects.sql` and the cleanup
 `projects`, `project_milestones`, or `project_tasks` tables, treat the database
 as not migrated and run the web database migration before manual testing.
 
+## Operational Notes
+
+Record database operation details here when they are known. Do not commit
+connection strings, passwords, Neon project ids, Vercel project ids, or other
+secret or account-identifying values.
+
+Provider facts to record:
+
+- database provider: Neon
+- database engine: PostgreSQL
+- database region, when confirmed
+- backend hosting provider and backend region, when confirmed
+- whether the app uses Neon pooled or direct connections
+- migration command used for the active environment
+
+Latency facts to record:
+
+- backend-to-database latency, because every server action depends on this path
+- frontend-to-backend latency, because the user experiences this before any
+  database work can start
+- full user action latency for important flows, such as login, adding a project,
+  checking a dashboard task, or refreshing memory suggestions
+
+Use concrete measurements instead of guesses. Prefer dated measurements with a
+small table:
+
+```text
+Date | Environment | Region path | Operation | p50 | p95 | Notes
+```
+
+Example operation labels:
+
+- `backend -> database: SELECT 1`
+- `backend -> database: login lookup`
+- `frontend -> backend: login action`
+- `frontend -> backend -> database: add project`
+
+Database size facts to record:
+
+- current Neon storage used
+- plan storage limit, only after checking the active Neon plan
+- largest tables by size
+- approximate row counts for important tables
+- date when the numbers were measured
+
+Do not hard-code Neon pricing, storage quotas, or performance claims unless
+they were checked for the active plan and include a date. If those values are
+important for release planning, record them as measured operational notes, not
+as product rules.
+
 ## Integrity And Validation
 
 The database is the final consistency boundary for product data.
