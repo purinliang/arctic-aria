@@ -1,5 +1,6 @@
 "use client";
 
+import { LoaderCircle, Sparkles } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { SupportingText } from "@/components/ui/text";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
@@ -62,10 +63,25 @@ export function AuthGate() {
 
   if (!sessionChecked) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[#eef2f5] text-slate-600">
-        <SupportingText darkMode={false} className="font-medium">
-          Opening Arctic Aria...
-        </SupportingText>
+      <main className="grid min-h-screen place-items-center bg-[#eef2f5] px-4 text-slate-950">
+        <div
+          className="grid justify-items-center gap-4 text-center"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex items-center justify-center gap-2">
+            <Sparkles size={22} aria-hidden="true" />
+            <h1 className="text-2xl font-semibold tracking-normal">Arctic Aria</h1>
+          </div>
+          <LoaderCircle
+            size={24}
+            className="animate-spin text-slate-500"
+            aria-hidden="true"
+          />
+          <SupportingText darkMode={false} className="font-medium">
+            Opening your workspace...
+          </SupportingText>
+        </div>
       </main>
     );
   }

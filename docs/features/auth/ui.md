@@ -3,6 +3,16 @@
 This document describes user-visible auth UI behavior. Product rules,
 validation, and persistence behavior are documented in [design.md](design.md).
 
+## Session Loading State
+
+- While the app checks the existing session, center the loading state on the
+  page.
+- Use the same brand row as the login and sidebar surfaces: Sparkles icon plus
+  `Arctic Aria`.
+- Show a visible loading spinner below the brand row.
+- Show the loading text `Opening your workspace...`.
+- Do not show the login/register panel until the session check finishes.
+
 ## Registration Tab
 
 - Keep the auth panel centered on the page.

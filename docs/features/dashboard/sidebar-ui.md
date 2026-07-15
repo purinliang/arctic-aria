@@ -23,6 +23,10 @@ Use the hamburger button only on mobile and tablet-sized viewports. The opened
 sidebar overlays the page and can be dismissed by clicking the overlay or the
 close button.
 
+The browser pull-down and pull-up overscroll background must match the current
+dashboard theme. Dark mode should not expose a light page background behind the
+app shell.
+
 ## Navigation Items
 
 Navigation items use the shared button component. Active items use the primary
