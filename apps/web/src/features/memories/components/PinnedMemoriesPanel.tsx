@@ -1,11 +1,64 @@
-import { RefreshCw } from "lucide-react";
+// Dashboard - Pinned Memories Panel.
+import { ClipboardList, RefreshCw } from "lucide-react";
 import { Button } from "@/components/button";
+import { CardHeader } from "@/components/card";
+import { dividerClass, mutedTextClass } from "@/components/color";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { ListItem } from "@/components/list";
+import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { PinnedMemory } from "@/features/dashboard/types";
 
-export function PinnedMemoryCard({
+export function PinnedMemoriesPanel({
+  darkMode,
+  pinnedMemories,
+  loading,
+  disabled,
+  onDone,
+  onCancelDone,
+  onReplace,
+}: {
+  darkMode: boolean;
+  pinnedMemories: PinnedMemory[];
+  loading: boolean;
+  disabled: boolean;
+  onDone: (pinnedMemoryId: string) => void;
+  onCancelDone: (pinnedMemoryId: string) => void;
+  onReplace: (pinnedMemoryId: string) => void;
+}) {
+  return (
+    <Panel darkMode={darkMode}>
+      <CardHeader
+        icon={<ClipboardList size={18} aria-hidden="true" />}
+        title="Pinned Memories"
+        meta={`${pinnedMemories.length} saved`}
+        darkMode={darkMode}
+      />
+      <div className={dividerClass(darkMode)}>
+        {loading ? (
+          <EmptyLine darkMode={darkMode} text="Loading pinned memories..." />
+        ) : null}
+        {!loading && pinnedMemories.length === 0 ? (
+          <EmptyLine darkMode={darkMode} text="No pinned memories yet." />
+        ) : null}
+        {pinnedMemories.map((memory) => (
+          <PinnedMemoryRow
+            key={memory.id}
+            memory={memory}
+            darkMode={darkMode}
+            disabled={disabled}
+            onDone={() => onDone(memory.id)}
+            onCancelDone={() => onCancelDone(memory.id)}
+            onReplace={() => onReplace(memory.id)}
+          />
+        ))}
+      </div>
+    </Panel>
+  );
+}
+
+// Dashboard - Pinned Memories Panel - Pinned memory row.
+function PinnedMemoryRow({
   memory,
   darkMode,
   disabled,
@@ -59,5 +112,13 @@ export function PinnedMemoryCard({
         onClick={onReplace}
       />
     </ListItem>
+  );
+}
+
+function EmptyLine({ darkMode, text }: { darkMode: boolean; text: string }) {
+  return (
+    <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+      {text}
+    </p>
   );
 }

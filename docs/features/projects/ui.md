@@ -19,7 +19,7 @@ Section title:
 
 `Today's tasks to move projects forward`
 
-Dashboard task cards should show:
+Dashboard task rows should show:
 
 - task title
 - project title
@@ -27,7 +27,7 @@ Dashboard task cards should show:
 - done checkbox
 - deadline
 
-Dashboard task cards should not show:
+Dashboard task rows should not show:
 
 - editable numeric progress fields
 - standalone progress visualization
@@ -36,7 +36,7 @@ Dashboard task cards should not show:
 
 The atomic scheduled unit is the task. A task can last a few days.
 
-### Dashboard Task Card Layout
+### Dashboard Task Panel Layout
 
 The dashboard project area is the main left dashboard panel. Routines and
 pinned memories stay in the right-side dashboard column.
@@ -47,9 +47,9 @@ Panel header:
 - title: `Today's tasks to move projects forward`
 - meta: number of recommended tasks
 
-Collapsed task card layout:
+Task row layout:
 
-- parent surface: one full-width task card row
+- parent surface: one full-width task row
 - row direction: horizontal, with checkbox on the left and task text on the
   right
 - left text group direction: vertical

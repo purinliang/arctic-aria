@@ -1,5 +1,6 @@
 "use client";
 
+// Auth Gate.
 import { LoaderCircle, Sparkles } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { AppShell } from "@/app-shell/AppShell";
@@ -17,7 +18,7 @@ import {
   type LoginInput,
   type RegisterInput,
 } from "../validation";
-import { AuthForm } from "./AuthForm";
+import { AuthPage } from "./AuthPage";
 
 export type AuthMode = "login" | "register";
 
@@ -218,7 +219,7 @@ export function AuthGate() {
 
   return (
     <>
-      <AuthForm
+      <AuthPage
         mode={mode}
         registerInput={registerInput}
         loginInput={loginInput}

@@ -1,107 +1,18 @@
-import {
-  ClipboardList,
-  Lightbulb,
-  LoaderCircle,
-  Plus,
-  RefreshCw,
-  Settings2,
-} from "lucide-react";
+// Memories Page - Suggestions Panel.
+import { Lightbulb, LoaderCircle, Pin, PinOff, RefreshCw } from "lucide-react";
 import { Button } from "@/components/button";
 import {
   dividerClass,
   headerSurfaceClass,
   mutedTextClass,
-  sectionBorderClass,
 } from "@/components/color";
+import { ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
-import { LabelText } from "@/components/text";
+import { DescriptionText, SupportingText } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { MemorySuggestion } from "@/features/dashboard/types";
-import { SuggestionListItem } from "./SuggestionListItem";
-import type { MemoryFilter } from "./memory-page-helpers";
 
 type SuggestionResult = Promise<boolean>;
-
-export function MemoryPanelHeader({
-  darkMode,
-  pending,
-  onAdd,
-}: {
-  darkMode: boolean;
-  pending: boolean;
-  onAdd: () => void;
-}) {
-  return (
-    <div
-      className={cx(
-        "flex flex-col gap-3 rounded-t-md border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
-        headerSurfaceClass(darkMode),
-      )}
-    >
-      <div className="min-w-0">
-        <div className="flex items-center gap-2">
-          <ClipboardList size={18} aria-hidden="true" />
-          <h2 className="text-base font-semibold">Memories</h2>
-        </div>
-        <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
-          Saved experiences to revisit when the day needs a gentle option.
-        </p>
-      </div>
-      <Button
-        darkMode={darkMode}
-        disabled={pending}
-        icon={<Plus size={15} aria-hidden="true" />}
-        onClick={onAdd}
-      >
-        New
-      </Button>
-    </div>
-  );
-}
-
-export function MemoryFilters({
-  darkMode,
-  filter,
-  filters,
-  pending,
-  onFilterChange,
-  onManage,
-}: {
-  darkMode: boolean;
-  filter: MemoryFilter;
-  filters: MemoryFilter[];
-  pending: boolean;
-  onFilterChange: (filter: MemoryFilter) => void;
-  onManage: () => void;
-}) {
-  return (
-    <div
-      className={`flex flex-wrap items-center gap-2 border-b px-4 py-3 ${sectionBorderClass(darkMode)}`}
-    >
-      <LabelText darkMode={darkMode}>Categories:</LabelText>
-      {filters.map((item) => (
-        <Button
-          key={item}
-          darkMode={darkMode}
-          size="xs"
-          active={filter === item}
-          onClick={() => onFilterChange(item)}
-        >
-          {item}
-        </Button>
-      ))}
-      <Button
-        darkMode={darkMode}
-        size="xs"
-        disabled={pending}
-        icon={<Settings2 size={14} aria-hidden="true" />}
-        onClick={onManage}
-      >
-        Manage
-      </Button>
-    </div>
-  );
-}
 
 export function SuggestionsPanel({
   darkMode,
@@ -163,7 +74,10 @@ export function SuggestionsPanel({
 
       <div className={dividerClass(darkMode)}>
         {!suggestionsRequested && !suggestionLoading ? (
-          <EmptyLine darkMode={darkMode} text="Click Refresh to load suggestions." />
+          <EmptyLine
+            darkMode={darkMode}
+            text="Click Refresh to load suggestions."
+          />
         ) : null}
         {suggestionLoading ? (
           <EmptyLine darkMode={darkMode} text="Loading suggestions..." />
@@ -177,7 +91,7 @@ export function SuggestionsPanel({
           />
         ) : null}
         {suggestions.map((suggestion) => (
-          <SuggestionListItem
+          <SuggestionRow
             key={suggestion.id}
             suggestion={suggestion}
             darkMode={darkMode}
@@ -192,35 +106,70 @@ export function SuggestionsPanel({
   );
 }
 
-export function PageMessage({
+// Memories Page - Suggestions Panel - Suggestion row.
+function SuggestionRow({
+  suggestion,
   darkMode,
-  message,
+  pending,
+  pinned,
+  onPin,
+  onCancel,
 }: {
+  suggestion: MemorySuggestion;
   darkMode: boolean;
-  message: string | null;
+  pending: boolean;
+  pinned: boolean;
+  onPin: () => void;
+  onCancel: () => void;
 }) {
-  if (!message) {
-    return null;
-  }
+  const metadata = [
+    suggestion.category,
+    suggestion.lastDoneText,
+    `Done ${suggestion.doneCount} times`,
+  ].join(" · ");
 
   return (
-    <p
-      className={`px-4 py-4 text-sm ${
-        darkMode ? "text-amber-200" : "text-amber-700"
-      }`}
-    >
-      {message}
-    </p>
+    <ListItem darkMode={darkMode} className="gap-3">
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="text-sm font-semibold">{suggestion.title}</h3>
+        </div>
+        <DescriptionText darkMode={darkMode} className="mt-1">
+          {suggestion.description}
+        </DescriptionText>
+        <SupportingText darkMode={darkMode} className="mt-2 block">
+          {metadata}
+        </SupportingText>
+      </div>
+      <div className="shrink-0">
+        <Button
+          darkMode={darkMode}
+          size="icon-sm"
+          active={!pinned}
+          className="rounded-full"
+          disabled={pending}
+          aria-label={pinned ? "Cancel pin" : "Pin suggestion"}
+          icon={
+            pending ? (
+              <LoaderCircle
+                className="animate-spin"
+                size={15}
+                aria-hidden="true"
+              />
+            ) : pinned ? (
+              <PinOff size={14} aria-hidden="true" />
+            ) : (
+              <Pin size={14} aria-hidden="true" />
+            )
+          }
+          onClick={pinned ? onCancel : onPin}
+        />
+      </div>
+    </ListItem>
   );
 }
 
-export function EmptyLine({
-  darkMode,
-  text,
-}: {
-  darkMode: boolean;
-  text: string;
-}) {
+function EmptyLine({ darkMode, text }: { darkMode: boolean; text: string }) {
   return (
     <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
       {text}

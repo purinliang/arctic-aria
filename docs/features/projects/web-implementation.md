@@ -19,7 +19,7 @@ The current web implementation supports the first database-backed Project model:
   Next.js runtime overlay
 - record task completion, skip, block, unblock, and reopen events
 - show task command failure through shared notifications
-- show dashboard task cards for today's selected tasks
+- show dashboard task rows for today's selected tasks
 
 The current implementation does not include:
 
@@ -84,7 +84,7 @@ numeric progress fields.
 The dashboard should show `Today's tasks to move projects forward`. It should
 load task candidates from the database for signed-in users.
 
-Dashboard task cards support:
+Dashboard task rows support:
 
 - static read-only task summary rows
 - left-side `Done` checkbox
@@ -95,7 +95,7 @@ expand, collapse, or task-management detail controls. If the backend rejects
 the command, the previous visible state is restored and the shared notification
 component shows the error.
 
-Dashboard task cards should not show standalone project progress visualization,
+Dashboard task rows should not show standalone project progress visualization,
 editable numeric progress, or colored tag chips.
 
 ## Current UI Structure
@@ -265,27 +265,28 @@ overlaps:
   optional
 - do not render a scheduled date field in the task dialog
 - do not render done/not-done controls in the task dialog; completion belongs
-  to task rows and dashboard task cards
+  to task rows and the dashboard Project Tasks panel
 - do not render priority, status tag, or child checklist fields in the task
   dialog
 
-### Dashboard Project Task Card Layout
+### Dashboard Project Tasks Panel Layout
 
 `Dashboard` renders the project task panel as the main left dashboard panel:
 
 ```text
 Dashboard
-  main Panel
+  ProjectTasksPanel
     CardHeader(Check, "Today's tasks to move projects forward")
-    ProjectTaskCard[]
+    ProjectTaskRow[]
   right aside
     routines Panel
-    pinned memories Panel
+    PinnedMemoriesPanel
 ```
 
-`ProjectTaskCard` owns the dashboard view of one task.
+`ProjectTasksPanel` owns the dashboard task section. `ProjectTaskRow` owns the
+dashboard view of one task.
 
-Collapsed card:
+Task row:
 
 - parent element: full-width `article`
 - row layout: left completion checkbox, then task content
@@ -306,7 +307,7 @@ Project web UI:
 apps/web/src/features/projects/components/ProjectsPage.tsx
 apps/web/src/features/projects/components/ProjectDetailPage.tsx
 apps/web/src/features/projects/components/ProjectsList.tsx
-apps/web/src/features/projects/components/ProjectTaskCard.tsx
+apps/web/src/features/projects/components/ProjectTasksPanel.tsx
 apps/web/src/features/dashboard/components/Dashboard.tsx
 apps/web/src/app-shell/AppShell.tsx
 ```

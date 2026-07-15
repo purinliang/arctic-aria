@@ -89,7 +89,7 @@ can decide whether it is the right thing to work on today.
 - Implementation details under a milestone should be easy to change.
 - Today's dashboard should focus on today's tasks to move projects forward.
 - Editable numeric progress fields should not appear in the UI.
-- Dashboard task cards should avoid standalone progress visuals.
+- Dashboard task rows should avoid standalone progress visuals.
 - Child checklist rows are intentionally removed from the current design. Add
   them back only if task-only management proves insufficient.
 

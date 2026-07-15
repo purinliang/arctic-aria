@@ -5,12 +5,12 @@ table attributes are documented in [routines.md](routines.md).
 
 ## Dashboard
 
-The home dashboard should continue showing a compact `Routines` section.
+The home dashboard should continue showing a compact `Routines` panel.
 
 The dashboard shows routine instances for the current personal day. It should
 not show every routine definition.
 
-Each routine card should show:
+Each routine row should show:
 
 - completion checkbox on the left
 - title

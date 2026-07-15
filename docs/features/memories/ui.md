@@ -5,7 +5,7 @@ tables, and recommendation behavior are documented in [memories.md](memories.md)
 
 ## Dashboard
 
-The home dashboard should show a compact `Pinned Memories` section. Its icon
+The home dashboard should show a compact `Pinned Memories` panel. Its icon
 should match the Memories item in the hamburger menu. Use the Lucide
 `ClipboardList` icon.
 
@@ -64,16 +64,16 @@ The page should allow the user to:
 - manage categories
 - refresh suggested memories
 
-Cards may have different heights, but their styling should stay consistent with
-the dashboard cards. Shared dashboard and Memories page card styles should be
-implemented in one reusable place.
+Panels may have different heights, but their styling should stay consistent
+with the dashboard panels. Shared dashboard and Memories page panel styles
+should be implemented in one reusable place.
 
 The bottom padding can be increased slightly. Keep dashboard and Memories page
-spacing consistent through the same reusable card design.
+spacing consistent through the same reusable panel design.
 
-## Memories Card
+## Memories Panel
 
-The memories card is the main content in the memories page.
+The Memories panel is the main content in the Memories page.
 
 ### Title Section
 
@@ -130,10 +130,10 @@ Memory item behavior:
   would otherwise appear.
 - The edit action uses a pencil icon and opens the edit-memory dialog.
 
-## Suggestions Card
+## Suggestions Panel
 
 Suggested memories are part of the Memories page and are shown in the
-Suggestions card.
+Suggestions panel.
 
 ### Title Section
 
@@ -217,7 +217,7 @@ Modal behavior:
   overlay.
 - Clicking outside the dialog or pressing a visible close button should dismiss
   the dialog without saving.
-- The dialog should not be nested inside a page card or list item.
+- The dialog should not be nested inside a page panel or list item.
 - The dialog should fit on mobile and scroll internally when content is taller
   than the viewport.
 

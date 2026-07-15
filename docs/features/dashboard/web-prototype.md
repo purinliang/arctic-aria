@@ -113,7 +113,7 @@ does not need persistence.
 Placeholder sidebar items should show a non-blocking notification instead of
 silently doing nothing.
 
-## Task Cards
+## Task Rows
 
 Project product and UI rules are now documented in
 [../projects/overview.md](../projects/overview.md),
@@ -153,11 +153,11 @@ The dashboard should support:
 - Marking task-level completion from the left checkbox.
 - Marking routines done or pending from the left checkbox.
 
-## Routine Cards
+## Routines Panel
 
-Routine cards should render as static rows.
+Routine rows should render as static rows.
 
-Routine card behavior:
+Routine row behavior:
 
 - The completion checkbox appears on the left of the routine row.
 - Do not render expand/collapse controls.
@@ -236,7 +236,7 @@ The database-backed Memories page implementation is now tracked separately in
 Suggested refactor shape:
 
 - Keep `Dashboard` as the larger stateful component.
-- Split project task cards, routine cards, review dialog, sidebar, and small
+- Split project task rows, routine rows, review dialog, sidebar, and small
   shared UI into separate components.
 - Keep dashboard-specific types in `features/dashboard/types.ts`.
 - Keep only remaining prototype records in `features/dashboard/dummy-data.ts`.
@@ -252,9 +252,9 @@ Suggested refactor shape:
 ## Visual Direction
 
 Use restrained styling, clear spacing, and scan-friendly information density.
-Cards are appropriate for individual task and routine items or functional
-panels. Avoid decorative nested cards, marketing hero sections, or purely
-illustrative UI.
+Rows are appropriate for individual task and routine items. Panels are
+appropriate for functional page sections. Avoid decorative nested cards,
+marketing hero sections, or purely illustrative UI.
 
 Use Tailwind utilities and simple React components. If `lucide-react` is
 available in the scaffold, use it for compact icon buttons. Otherwise, use
@@ -299,10 +299,10 @@ After this direction is accepted, refactor the existing prototype in this order:
 3. Simplify the page title bar to page title only.
 4. Remove task checkbox progress bars and standalone task progress visuals.
 5. Change task deadlines to date-time values in dummy data.
-6. Keep dashboard task cards as static read-only rows with a completion
+6. Keep dashboard task rows as static read-only rows with a completion
    checkbox.
 7. Remove the timeline section from the dashboard.
-8. Keep routine cards as static rows with a completion checkbox.
+8. Keep routine rows as static rows with a completion checkbox.
 9. Use left-side completion checkboxes for dashboard task, routine, and pinned
    memory rows.
 10. Defer review and reward UI until those features have current docs.

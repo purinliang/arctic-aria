@@ -1,8 +1,7 @@
+// Memories Page.
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import { dividerClass } from "@/components/color";
 import { ConfirmDialog } from "@/components/dialog";
-import { Panel } from "@/components/panel";
 import type {
   MemoryCategoryOption,
   MemoryRecord,
@@ -15,18 +14,10 @@ import type {
 } from "@/features/memories/actions";
 import { CategoryManagerDialog } from "./CategoryManagerDialog";
 import { MemoryEditorDialog } from "./MemoryEditorDialog";
-import {
-  EmptyLine,
-  MemoryFilters,
-  MemoryPanelHeader,
-  PageMessage,
-  SuggestionsPanel,
-} from "./MemoriesPanels";
-import { MemoryListItem } from "./MemoryListItem";
-import {
-  emptyCategoryDraft,
-  type MemoryFilter,
-} from "./memory-page-helpers";
+import { MemoriesPanel } from "./MemoriesPanel";
+import { SuggestionsPanel } from "./SuggestionsPanel";
+import { emptyCategoryDraft } from "./memory-page-helpers";
+import type { MemoryFilter } from "./memory-page-helpers";
 
 type EditorResult = Promise<boolean>;
 type CategoryEditorResult = Promise<MemoryDashboardData | null>;
@@ -52,12 +43,10 @@ export function MemoriesPage({
   pending,
   suggestionLoading,
   suggestionsRequested,
-  message,
   onMemorySave,
   onMemoryDelete,
   onCategorySave,
   onCategoryDelete,
-  onMessageClear,
   onSuggestionsRefresh,
   onSuggestionPin,
   onSuggestionCancel,
@@ -74,12 +63,10 @@ export function MemoriesPage({
   pending: boolean;
   suggestionLoading: boolean;
   suggestionsRequested: boolean;
-  message: string | null;
   onMemorySave: (input: MemoryInput) => EditorResult;
   onMemoryDelete: (memoryId: string) => EditorResult;
   onCategorySave: (input: MemoryCategoryInput) => CategoryEditorResult;
   onCategoryDelete: (categoryId: string) => EditorResult;
-  onMessageClear: () => void;
   onSuggestionsRefresh: () => Promise<void>;
   onSuggestionPin: (memoryId: string) => SuggestionResult;
   onSuggestionCancel: (memoryId: string) => SuggestionResult;
@@ -110,7 +97,6 @@ export function MemoriesPage({
   function closeMemoryEditor() {
     if (!pending) {
       setMemoryEditorOpen(false);
-      onMessageClear();
     }
   }
 
@@ -119,7 +105,6 @@ export function MemoriesPage({
       setCategoryEditorOpen(false);
       setCategoryFormOpen(false);
       setCategoryDraft(emptyCategoryDraft);
-      onMessageClear();
     }
   }
 
@@ -127,7 +112,6 @@ export function MemoriesPage({
     if (!pending) {
       setCategoryFormOpen(false);
       setCategoryDraft(emptyCategoryDraft);
-      onMessageClear();
     }
   }
 
@@ -138,7 +122,6 @@ export function MemoriesPage({
       title: "",
       description: "",
     });
-    onMessageClear();
     setMemoryEditorOpen(true);
   }
 
@@ -150,18 +133,15 @@ export function MemoriesPage({
       title: memory.title,
       description: memory.description,
     });
-    onMessageClear();
     setMemoryEditorOpen(true);
   }
 
   function openManageCategories() {
-    onMessageClear();
     setCategoryEditorOpen(true);
   }
 
   function openNewCategoryEditor() {
     setCategoryDraft(emptyCategoryDraft);
-    onMessageClear();
     setCategoryFormOpen(true);
   }
 
@@ -172,7 +152,6 @@ export function MemoriesPage({
       description: category.description,
       baseWeight: category.baseWeight,
     });
-    onMessageClear();
     setCategoryFormOpen(true);
   }
 
@@ -239,41 +218,18 @@ export function MemoriesPage({
     <>
       <section className="aa-split-container">
         <div className="aa-split-panel gap-4">
-          <Panel darkMode={darkMode} className="min-w-0">
-            <MemoryPanelHeader
-              darkMode={darkMode}
-              pending={pending}
-              onAdd={openNewMemoryEditor}
-            />
-            <MemoryFilters
-              darkMode={darkMode}
-              filter={filter}
-              filters={filters}
-              pending={pending}
-              onFilterChange={setFilter}
-              onManage={openManageCategories}
-            />
-            <div className={dividerClass(darkMode)}>
-              <PageMessage darkMode={darkMode} message={message} />
-              {loading ? (
-                <EmptyLine darkMode={darkMode} text="Loading memories..." />
-              ) : null}
-              {!loading && visibleMemories.length === 0 ? (
-                <EmptyLine
-                  darkMode={darkMode}
-                  text="No memories found for this filter."
-                />
-              ) : null}
-              {visibleMemories.map((memory) => (
-                <MemoryListItem
-                  key={memory.id}
-                  memory={memory}
-                  darkMode={darkMode}
-                  onEdit={() => openMemoryEditor(memory)}
-                />
-              ))}
-            </div>
-          </Panel>
+          <MemoriesPanel
+            darkMode={darkMode}
+            loading={loading}
+            pending={pending}
+            filter={filter}
+            filters={filters}
+            memories={visibleMemories}
+            onAdd={openNewMemoryEditor}
+            onFilterChange={setFilter}
+            onManage={openManageCategories}
+            onEditMemory={openMemoryEditor}
+          />
 
           <SuggestionsPanel
             darkMode={darkMode}

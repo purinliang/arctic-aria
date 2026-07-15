@@ -45,7 +45,6 @@ export function useDashboardMemories(
     [],
   );
   const [memoryLoading, setMemoryLoading] = useState(true);
-  const [memoryMessage, setMemoryMessage] = useState<string | null>(null);
   const [memoryActionPending, setMemoryActionPending] = useState(false);
   const [suggestionLoading, setSuggestionLoading] = useState(false);
   const [pinnedSuggestionIds, setPinnedSuggestionIds] = useState<string[]>([]);
@@ -62,7 +61,7 @@ export function useDashboardMemories(
     const result = await getMemoryDashboardData();
 
     if (!result.ok) {
-      setMemoryMessage(result.message);
+      showErrorNotification(result.message, "Memories unavailable");
       setPinnedMemories([]);
       setMemoryCategories([]);
       setMemoryRecords([]);
@@ -72,13 +71,12 @@ export function useDashboardMemories(
 
     applyMemoryData(result.data);
     setMemoryLoading(false);
-  }, [applyMemoryData]);
+  }, [applyMemoryData, showErrorNotification]);
 
   async function runMemoryAction(
     action: MemoryDataAction,
     onFailure?: () => void,
   ) {
-    setMemoryMessage(null);
     setMemoryActionPending(true);
 
     try {
@@ -97,7 +95,6 @@ export function useDashboardMemories(
   }
 
   async function runMemoryManagementAction(action: MemoryDataAction) {
-    setMemoryMessage(null);
     setMemoryActionPending(true);
 
     try {
@@ -116,7 +113,6 @@ export function useDashboardMemories(
   }
 
   async function runMemoryManagementDataAction(action: MemoryDataAction) {
-    setMemoryMessage(null);
     setMemoryActionPending(true);
 
     try {
@@ -246,7 +242,6 @@ export function useDashboardMemories(
     memoryRecords,
     memorySuggestions,
     memoryLoading,
-    memoryMessage,
     memoryActionPending,
     suggestionLoading,
     pinnedSuggestionIds,
@@ -265,7 +260,6 @@ export function useDashboardMemories(
       runMemoryManagementDataAction(() => saveMemoryCategory(input)),
     deleteCategoryFromPage: (categoryId: string) =>
       runMemoryManagementAction(() => deleteMemoryCategory(categoryId)),
-    clearMemoryMessage: () => setMemoryMessage(null),
     refreshSuggestionsFromPage,
     pinSuggestionFromPage,
     cancelSuggestionPinFromPage,

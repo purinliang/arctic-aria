@@ -186,12 +186,10 @@ export function AppShell({
               pending={memoryState.memoryActionPending}
               suggestionLoading={memoryState.suggestionLoading}
               suggestionsRequested={memoryState.suggestionsRequested}
-              message={memoryState.memoryMessage}
               onMemorySave={memoryState.saveMemoryFromPage}
               onMemoryDelete={memoryState.deleteMemoryFromPage}
               onCategorySave={memoryState.saveCategoryFromPage}
               onCategoryDelete={memoryState.deleteCategoryFromPage}
-              onMessageClear={memoryState.clearMemoryMessage}
               onSuggestionsRefresh={memoryState.refreshSuggestionsFromPage}
               onSuggestionPin={memoryState.pinSuggestionFromPage}
               onSuggestionCancel={memoryState.cancelSuggestionPinFromPage}
@@ -209,7 +207,6 @@ export function AppShell({
               pinnedMemories={memoryState.pinnedMemories}
               memoryLoading={memoryState.memoryLoading}
               memoryActionPending={memoryState.memoryActionPending}
-              memoryMessage={memoryState.memoryMessage}
               onTaskStatus={projectState.updateTaskFromDashboard}
               onRoutineStatus={routineState.updateRoutine}
               onMemoryDone={memoryState.markMemoryDone}

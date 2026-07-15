@@ -130,6 +130,10 @@ user.
 - Feature pages, feature dialogs, feature cards, feature actions, feature
   repositories, and feature tests should live with that feature unless they are
   truly shared by multiple features.
+- Feature component files should include one short location comment near the
+  top, such as `// Memories Page - Memories Panel`, so the visible page area is
+  clear during later UI refactors. If the file needs `"use client"`, keep that
+  directive first and place the location comment immediately after it.
 - The dashboard feature should own dashboard composition and dashboard-only
   sections. Dashboard cards that are thin summaries of another feature should
   delegate data shape, commands, and reusable card content to that feature when

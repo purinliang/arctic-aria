@@ -46,15 +46,15 @@ Location and alignment:
 - On desktop, the panel appears in the right column beside the memory list.
 - On mobile and narrow screens, it appears below the memory list.
 - The panel header aligns with the top of the memory list panel.
-- The panel is a single card with a border and the same radius as other
+- The panel is a single bordered panel with the same radius as other
   dashboard panels.
 
 Header:
 
-- The left side shows the `RefreshCw` icon.
+- The left side shows the `Lightbulb` icon.
 - The title text is `Suggestions`.
 - Under the title, show short muted text:
-  `Refresh saved memories when you want an option.`
+  `To reexperience in a few days.`
 - The right side shows a compact `Refresh` button.
 - The `Refresh` button includes the `RefreshCw` icon and the text `Refresh`.
 
@@ -83,7 +83,7 @@ Button behavior:
 - When `Refresh` is clicked, currently visible suggestions that were not pinned
   are recorded as ignored suggestion signals before the new list is loaded.
 - A failed `Pin` keeps the suggestion visible and shows the backend message in
-  the panel.
+  the shared notification stack.
 - Buttons are disabled while a suggestion action is pending.
 - `Pin` should refresh the database-backed memory list and dashboard pinned
   state after success.
@@ -127,8 +127,14 @@ Memory web UI:
 
 ```text
 apps/web/src/features/memories/components/MemoriesPage.tsx
+apps/web/src/features/memories/components/MemoriesPanel.tsx
+apps/web/src/features/memories/components/SuggestionsPanel.tsx
+apps/web/src/features/memories/components/PinnedMemoriesPanel.tsx
 apps/web/src/app-shell/AppShell.tsx
 ```
+
+Memory page backend and load failures should use the shared notification stack,
+not a page-local inline message row.
 
 Memory server actions:
 

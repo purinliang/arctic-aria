@@ -34,10 +34,17 @@ Auth UI:
 ```text
 apps/web/src/features/auth/components/
 |-- AuthGate.tsx
+|-- AuthPage.tsx
 |-- AuthForm.tsx
 |-- AuthTextField.tsx
 `-- GoogleIcon.tsx
 ```
+
+`AuthGate` checks the current session and chooses between `AppShell` and the
+signed-out auth UI. `AuthPage` owns the signed-out page shell, brand header,
+and centered panel. `AuthForm` owns credential fields, tab switching, submit
+actions, and auth-related placeholder actions such as Google sign-in and
+password reset.
 
 Auth actions and shared validation:
 
@@ -107,9 +114,10 @@ stored. Password validation must happen before hashing.
 
 The selected database for the current prototype is Neon PostgreSQL.
 
-The app reads the database URL from environment variables through
-`apps/web/src/server/database/neon.ts`. Keep local `.env*` files untracked and
-do not commit connection strings.
+The app reads the database URL from `NEON_POSTGRES_URL` through
+`apps/web/src/server/database/neon.ts`. Use the same key locally and in
+production. Keep local `.env*` files untracked and do not commit connection
+strings.
 
 Run migrations from `apps/web`:
 
@@ -118,8 +126,7 @@ pnpm db:migrate
 ```
 
 The migration runner loads `.env.local` and `.env.development.local` before it
-connects. Prefer an unpooled or direct Neon URL for migrations when one is
-available.
+connects, and it also requires `NEON_POSTGRES_URL`.
 
 ## Session Notes
 
@@ -127,9 +134,9 @@ The current prototype stores login state in an HTTP-only signed cookie named
 `arctic_aria_session`. The cookie lasts 30 days.
 
 The session token is signed with `AUTH_SESSION_SECRET` when it is set. For local
-development, the app falls back to available database URL environment variables
-or a development-only fallback secret. A deployed environment should set
-`AUTH_SESSION_SECRET` explicitly.
+development, the app falls back to `NEON_POSTGRES_URL` or a development-only
+fallback secret. A deployed environment should set `AUTH_SESSION_SECRET`
+explicitly.
 
 The current session payload stores user id, username, display name, and expiry.
 It is not stored in the database, so there is no server-side session revocation
