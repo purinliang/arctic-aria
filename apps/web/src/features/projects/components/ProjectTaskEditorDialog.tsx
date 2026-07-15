@@ -1,14 +1,14 @@
 import { LoaderCircle, Plus, Save, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/button";
 import {
   DialogBackdrop,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
-} from "@/components/ui/dialog";
-import { FieldLabel, TextArea, TextInput } from "@/components/ui/input-field";
-import { InlineMessage } from "@/components/ui/text";
+} from "@/components/dialog";
+import { FieldLabel, TextArea, TextInput } from "@/components/input-field";
+import { InlineMessage } from "@/components/text";
 import type { ProjectTaskInput } from "@/features/projects/actions";
 import {
   priorityOptions,

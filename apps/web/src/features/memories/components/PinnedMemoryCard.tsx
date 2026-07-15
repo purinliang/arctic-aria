@@ -1,8 +1,8 @@
 import { Check, ChevronDown, Eye, RefreshCw, RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { mutedTextClass } from "@/components/ui/color";
-import { ExpandableListItem } from "@/components/ui/list";
-import { Tag } from "@/components/ui/tag";
+import { Button } from "@/components/button";
+import { mutedTextClass } from "@/components/color";
+import { ExpandableListItem } from "@/components/list";
+import { Tag } from "@/components/tag";
 import type { PinnedMemory } from "@/features/dashboard/types";
 
 const actionIconSize = 15;

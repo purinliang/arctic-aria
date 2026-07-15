@@ -6,14 +6,14 @@ import {
   RefreshCw,
   Settings2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/button";
 import {
   dividerClass,
   mutedTextClass,
   sectionBorderClass,
-} from "@/components/ui/color";
-import { Panel } from "@/components/ui/panel";
-import { cx } from "@/components/ui/utils";
+} from "@/components/color";
+import { Panel } from "@/components/panel";
+import { cx } from "@/components/utils";
 import type { MemorySuggestion } from "@/features/dashboard/types";
 import { SuggestionListItem } from "./SuggestionListItem";
 import type { MemoryFilter } from "./memory-page-helpers";

@@ -1,7 +1,7 @@
 import { Ban, Check, ChevronDown, Edit3, SkipForward } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ExpandableListItem } from "@/components/ui/list";
-import { Tag } from "@/components/ui/tag";
+import { Button } from "@/components/button";
+import { ExpandableListItem } from "@/components/list";
+import { Tag } from "@/components/tag";
 import type { Task } from "@/features/dashboard/types";
 import { titleCase } from "./project-page-helpers";
 

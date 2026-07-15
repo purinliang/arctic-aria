@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { SetStateAction } from "react";
-import { InlineMessage } from "@/components/ui/text";
+import { InlineMessage } from "@/components/text";
 import type { TaskStatus } from "@/features/dashboard/types";
 import type {
   MilestoneInput,

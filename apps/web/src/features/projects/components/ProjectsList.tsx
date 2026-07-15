@@ -1,10 +1,10 @@
 import { ArrowRight, FolderKanban, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { CardHeader } from "@/components/ui/card";
-import { mutedTextClass } from "@/components/ui/color";
-import { List, ListItem } from "@/components/ui/list";
-import { Panel } from "@/components/ui/panel";
-import { Tag } from "@/components/ui/tag";
+import { Button } from "@/components/button";
+import { CardHeader } from "@/components/card";
+import { mutedTextClass } from "@/components/color";
+import { List, ListItem } from "@/components/list";
+import { Panel } from "@/components/panel";
+import { Tag } from "@/components/tag";
 import type { ProjectView } from "@/features/projects/actions";
 import { titleCase } from "./project-page-helpers";
 

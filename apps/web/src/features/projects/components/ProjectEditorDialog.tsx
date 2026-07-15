@@ -1,20 +1,20 @@
 import { LoaderCircle, Save } from "lucide-react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/button";
 import {
   DialogBackdrop,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
-} from "@/components/ui/dialog";
+} from "@/components/dialog";
 import {
   FieldLabel,
   NumberInput,
   SelectInput,
   TextArea,
   TextInput,
-} from "@/components/ui/input-field";
-import { InlineMessage } from "@/components/ui/text";
+} from "@/components/input-field";
+import { InlineMessage } from "@/components/text";
 import type {
   MilestoneInput,
   ProjectInput,

@@ -2,9 +2,9 @@
 
 import { ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Panel } from "@/components/ui/panel";
-import { InlineMessage } from "@/components/ui/text";
+import { Button } from "@/components/button";
+import { Panel } from "@/components/panel";
+import { InlineMessage } from "@/components/text";
 import type { AuthMode } from "./AuthGate";
 import {
   authFieldOrder,

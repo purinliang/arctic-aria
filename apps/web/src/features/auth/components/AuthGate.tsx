@@ -2,7 +2,7 @@
 
 import { LoaderCircle, Sparkles } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
-import { SupportingText } from "@/components/ui/text";
+import { SupportingText } from "@/components/text";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { getCurrentUser, loginUser, logoutUser, registerUser } from "../actions";
 import type { AuthUser } from "../server/auth-service";

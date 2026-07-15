@@ -7,13 +7,13 @@ import {
   X,
 } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
-import { Button } from "@/components/ui/button";
-import { dividerClass } from "@/components/ui/color";
-import { dialogFrameClass } from "@/components/ui/dialog";
-import { TextInput } from "@/components/ui/input-field";
-import { ListItem } from "@/components/ui/list";
-import { InlineMessage } from "@/components/ui/text";
-import { cx } from "@/components/ui/utils";
+import { Button } from "@/components/button";
+import { dividerClass } from "@/components/color";
+import { dialogFrameClass } from "@/components/dialog";
+import { TextInput } from "@/components/input-field";
+import { ListItem } from "@/components/list";
+import { InlineMessage } from "@/components/text";
+import { cx } from "@/components/utils";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryCategoryInput } from "@/features/memories/actions";
 import {

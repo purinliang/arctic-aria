@@ -7,7 +7,7 @@ extend a component in the shared UI library before implementing one-off styling.
 Shared components live in:
 
 ```text
-apps/web/src/components/ui/
+apps/web/src/components/
 ```
 
 ## Color

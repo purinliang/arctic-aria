@@ -232,7 +232,7 @@ Web source organization should follow the feature directories under
 `apps/web/src/features`. Feature pages, cards, dialogs, actions, repositories,
 and tests live with their owning feature. Dashboard composition can import
 feature-owned cards, but it should not own memory, routine, or project page
-implementations. Shared primitives remain in `apps/web/src/components/ui`.
+implementations. Shared primitives remain in `apps/web/src/components`.
 
 The Project slice intentionally excludes Discord reminder delivery, reward
 inventory, English coach, automatic daily plan optimization, and full review

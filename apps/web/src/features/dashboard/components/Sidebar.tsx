@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/button";
 import type { DashboardView } from "../types";
 
 export function Sidebar({

@@ -1,6 +1,6 @@
 import { Coins, Package, X } from "lucide-react";
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/button";
 import { rewardPreview } from "../dummy-data";
 import type { ChestItemRarity, Routine, Task } from "../types";
 

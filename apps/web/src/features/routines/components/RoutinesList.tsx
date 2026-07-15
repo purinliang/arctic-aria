@@ -1,8 +1,8 @@
 import { Edit3 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { mutedTextClass } from "@/components/ui/color";
-import { List, ListItem } from "@/components/ui/list";
-import { Tag } from "@/components/ui/tag";
+import { Button } from "@/components/button";
+import { mutedTextClass } from "@/components/color";
+import { List, ListItem } from "@/components/list";
+import { Tag } from "@/components/tag";
 import type { RoutineDefinition } from "@/features/dashboard/types";
 import { ruleSummary } from "./routine-page-helpers";
 

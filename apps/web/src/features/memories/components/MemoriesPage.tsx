@@ -1,8 +1,8 @@
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import { dividerClass } from "@/components/ui/color";
-import { ConfirmDialog } from "@/components/ui/dialog";
-import { Panel } from "@/components/ui/panel";
+import { dividerClass } from "@/components/color";
+import { ConfirmDialog } from "@/components/dialog";
+import { Panel } from "@/components/panel";
 import type {
   MemoryCategoryOption,
   MemoryRecord,

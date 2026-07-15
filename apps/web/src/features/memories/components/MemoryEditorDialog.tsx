@@ -6,10 +6,10 @@ import {
   X,
 } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
-import { Button } from "@/components/ui/button";
-import { dialogFrameClass } from "@/components/ui/dialog";
-import { TextArea, TextInput } from "@/components/ui/input-field";
-import { InlineMessage } from "@/components/ui/text";
+import { Button } from "@/components/button";
+import { dialogFrameClass } from "@/components/dialog";
+import { TextArea, TextInput } from "@/components/input-field";
+import { InlineMessage } from "@/components/text";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryInput } from "@/features/memories/actions";
 

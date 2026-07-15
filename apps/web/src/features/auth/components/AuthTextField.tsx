@@ -5,7 +5,7 @@ import {
   FieldError,
   FieldLabel,
   TextInput,
-} from "@/components/ui/input-field";
+} from "@/components/input-field";
 
 type AuthTextFieldProps = {
   label: string;

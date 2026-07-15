@@ -2,9 +2,9 @@
 
 import { Menu } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { sectionBorderClass } from "@/components/ui/color";
-import { NotificationStack } from "@/components/ui/notification";
+import { Button } from "@/components/button";
+import { sectionBorderClass } from "@/components/color";
+import { NotificationStack } from "@/components/notification";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import { MemoriesPage } from "@/features/memories/components/MemoriesPage";
 import { ProjectPageTitle } from "@/features/projects/components/ProjectPageTitle";

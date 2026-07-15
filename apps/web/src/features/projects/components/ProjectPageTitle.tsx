@@ -1,7 +1,7 @@
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { mutedTextClass, surfaceClass } from "@/components/ui/color";
-import { cx } from "@/components/ui/utils";
+import { mutedTextClass, surfaceClass } from "@/components/color";
+import { cx } from "@/components/utils";
 import type { ProjectView } from "@/features/projects/actions";
 
 export function ProjectPageTitle({

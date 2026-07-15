@@ -1,9 +1,9 @@
 import { LoaderCircle, Save, Trash2, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
-import { Button } from "@/components/ui/button";
-import { dialogFrameClass } from "@/components/ui/dialog";
-import { FieldLabel, TextArea, TextInput } from "@/components/ui/input-field";
-import { InlineMessage } from "@/components/ui/text";
+import { Button } from "@/components/button";
+import { dialogFrameClass } from "@/components/dialog";
+import { FieldLabel, TextArea, TextInput } from "@/components/input-field";
+import { InlineMessage } from "@/components/text";
 import type { RoutineInput } from "@/features/routines/actions";
 import { ruleOptions, weekdayOptions } from "./routine-page-helpers";
 

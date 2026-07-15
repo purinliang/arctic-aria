@@ -1,13 +1,13 @@
 import { Bell, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/button";
 import {
   mutedTextClass,
   sectionBorderClass,
-} from "@/components/ui/color";
-import { ConfirmDialog } from "@/components/ui/dialog";
-import { Panel } from "@/components/ui/panel";
-import { cx } from "@/components/ui/utils";
+} from "@/components/color";
+import { ConfirmDialog } from "@/components/dialog";
+import { Panel } from "@/components/panel";
+import { cx } from "@/components/utils";
 import type { RoutineDefinition } from "@/features/dashboard/types";
 import type { RoutineInput } from "@/features/routines/actions";
 import { RoutineEditorDialog } from "./RoutineEditorDialog";

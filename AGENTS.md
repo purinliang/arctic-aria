@@ -114,7 +114,7 @@ user.
 
 ## Web Source Organization
 
-- Keep reusable web UI primitives in `apps/web/src/components/ui/`. This
+- Keep reusable web UI primitives in `apps/web/src/components/`. This
   includes buttons, cards, panels, dialogs, notifications, inputs, text,
   tags, lists, switches, and color helpers.
 - Keep app-shell components at the same level as feature modules when they are
@@ -130,8 +130,8 @@ user.
   sections. Dashboard cards that are thin summaries of another feature should
   delegate data shape, commands, and reusable card content to that feature when
   practical.
-- Do not create feature-local `components/ui` folders for shared primitives.
-  Add missing primitives to `apps/web/src/components/ui/` instead.
+- Do not create feature-local shared primitive folders. Add missing primitives
+  to `apps/web/src/components/` instead.
 - Do not keep dummy data after the matching real feature data is available.
   Temporary dummy data must be clearly scoped to prototype-only surfaces and
   removed during the feature refactor.
@@ -158,7 +158,7 @@ user.
 
 ## UI Interaction Defaults
 
-- Web UI must use the shared components under `apps/web/src/components/ui/`.
+- Web UI must use the shared components under `apps/web/src/components/`.
   Creating one-off styled buttons, panels, inputs, dialogs, notifications,
   lists, cards, text, or tags inside feature pages is prohibited. If the shared
   component is missing a needed pattern, extend or add a shared UI component

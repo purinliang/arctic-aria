@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { NotificationItem } from "@/components/ui/notification";
+import type { NotificationItem } from "@/components/notification";
 
 export function useDashboardNotifications() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);

@@ -2,8 +2,8 @@ import { Bell, Check, ClipboardList } from "lucide-react";
 import {
   dividerClass,
   mutedTextClass,
-} from "@/components/ui/color";
-import { Panel } from "@/components/ui/panel";
+} from "@/components/color";
+import { Panel } from "@/components/panel";
 import { PinnedMemoryCard } from "@/features/memories/components/PinnedMemoryCard";
 import { ProjectTaskCard } from "@/features/projects/components/ProjectTaskCard";
 import { RoutineCard } from "@/features/routines/components/RoutineCard";

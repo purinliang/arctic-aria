@@ -1,8 +1,8 @@
 import { LoaderCircle, Pin, PinOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { mutedTextClass } from "@/components/ui/color";
-import { ListItem } from "@/components/ui/list";
-import { Tag } from "@/components/ui/tag";
+import { Button } from "@/components/button";
+import { mutedTextClass } from "@/components/color";
+import { ListItem } from "@/components/list";
+import { Tag } from "@/components/tag";
 import type { MemorySuggestion } from "@/features/dashboard/types";
 import { categoryTone } from "./memory-page-helpers";
 
