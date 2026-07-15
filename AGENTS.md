@@ -120,6 +120,14 @@ user.
 - Backend validation should normalize form-shaped input before it reaches
   persistence code. Empty optional relation ids must become `null`, not empty
   strings.
+- Treat empty strings, `null`, blank-only strings, unsupported characters, and
+  malformed identifiers as separate input cases during validation. Trim only
+  when the field semantics allow it, and reject unsupported characters with a
+  clear message instead of letting the database fail later.
+- SQL must stay parameterized. Never build SQL text by concatenating or
+  interpolating user-provided values, identifiers, filters, sort keys, or raw
+  search text. Whitelist dynamic SQL fragments when a query genuinely needs
+  them.
 - Backend actions should distinguish expected business failures from database
   or infrastructure defects. Return specific user-facing messages for expected
   validation, ownership, not-found, or constraint cases, and keep database
