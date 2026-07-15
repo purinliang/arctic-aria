@@ -72,19 +72,30 @@ export async function saveMilestone(sql: Sql, input: SaveMilestoneInput) {
 }
 
 export async function saveTask(sql: Sql, input: SaveProjectTaskInput) {
-  if (!(await milestoneExists(sql, input))) {
+  const normalizedInput = normalizeTaskInput(input);
+
+  if (!(await milestoneExists(sql, normalizedInput))) {
     return false;
   }
 
-  const taskId = input.taskId
-    ? await updateTask(sql, input)
-    : await createTask(sql, input);
+  const taskId = normalizedInput.taskId
+    ? await updateTask(sql, normalizedInput)
+    : await createTask(sql, normalizedInput);
 
   if (!taskId) {
     return false;
   }
 
   return true;
+}
+
+function normalizeTaskInput(
+  input: SaveProjectTaskInput,
+): SaveProjectTaskInput {
+  return {
+    ...input,
+    milestoneId: input.milestoneId?.trim() || null,
+  };
 }
 
 function projectParams(input: SaveProjectInput) {

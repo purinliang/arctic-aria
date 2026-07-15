@@ -104,6 +104,33 @@ user.
 - If a refactor area has no direct automated coverage, say so in the commit or
   final report and use `lint` plus `build` as the minimum safety check.
 
+## Bug Fix Discipline
+
+- When the user reports a bug, reproduce the reported behavior with a focused
+  automated test whenever practical before changing the implementation.
+- Think one step beyond the exact report and cover the closest related edge
+  case when it is cheap and meaningful.
+- Fix the smallest responsible layer, then rerun the focused test that exposed
+  the bug and the relevant broader check.
+- After the fix, inspect nearby code and migration history for the same class
+  of bug before committing.
+
+## Backend Development Discipline
+
+- Backend validation should normalize form-shaped input before it reaches
+  persistence code. Empty optional relation ids must become `null`, not empty
+  strings.
+- Backend actions should distinguish expected business failures from database
+  or infrastructure defects. Return specific user-facing messages for expected
+  validation, ownership, not-found, or constraint cases, and keep database
+  defects identifiable instead of collapsing everything into a vague failure.
+- For unexpected backend or database errors, prefer structured server logs with
+  the feature name, command name, error code, and safe identifiers needed for
+  debugging. Do not log secrets, passwords, auth cookies, or full database URLs.
+- When adding or changing persistence behavior, inspect the relevant migration
+  history and repository tests for nearby constraints, nullable fields, foreign
+  keys, and delete/archive behavior.
+
 ## Data Integrity Discipline
 
 - Feature overview docs describe hierarchy, ownership, cross-feature
