@@ -63,6 +63,18 @@ export function Dashboard({
     return () => window.clearTimeout(timeoutId);
   }, [currentUser.id, refreshMemoryData, refreshProjectData, refreshRoutineData]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+
+    root.style.setProperty("--background", darkMode ? "#000000" : "#eef2f5");
+    root.style.setProperty("--foreground", darkMode ? "#ffffff" : "#0f172a");
+
+    return () => {
+      root.style.removeProperty("--background");
+      root.style.removeProperty("--foreground");
+    };
+  }, [darkMode]);
+
   const stats = useMemo(() => {
     const completedTasks = projectState.tasks.filter(
       (task) => task.status === "done",
