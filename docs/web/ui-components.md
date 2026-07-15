@@ -161,7 +161,9 @@ browser or operating-system colors, corners, and spacing.
 
 `forms/choice-group.tsx` owns visible button-group choices for single and
 multiple selection. Use it when the user should clearly see a compact set of
-choices. Do not use passive label chips as selectable buttons.
+choices. Do not use passive label chips as selectable buttons. Selected choices
+show the check icon on the left, before the label, matching normal icon-plus-text
+button direction.
 
 ## Switch
 
