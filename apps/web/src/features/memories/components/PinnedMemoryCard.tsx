@@ -35,7 +35,6 @@ export function PinnedMemoryCard({
       darkMode={darkMode}
       expanded={expanded}
       disabled={disabled}
-      tone={completed ? "success" : "default"}
       bodyClassName="flex flex-wrap gap-2"
       onToggle={onToggleExpanded}
       header={
@@ -54,17 +53,7 @@ export function PinnedMemoryCard({
             >
               {memory.description}
             </p>
-            <p
-              className={`mt-2 text-xs ${
-                completed
-                  ? darkMode
-                    ? "text-emerald-300"
-                    : "text-emerald-700"
-                  : darkMode
-                    ? "text-neutral-500"
-                    : "text-slate-500"
-              }`}
-            >
+            <p className={`mt-2 text-xs ${mutedTextClass(darkMode)}`}>
               {completed ? "Completed in this prototype" : memory.meta}
             </p>
           </div>
