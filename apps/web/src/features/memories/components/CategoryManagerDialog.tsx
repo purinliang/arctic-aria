@@ -108,7 +108,7 @@ export function CategoryManagerDialog({
                 <Button
                   darkMode={darkMode}
                   disabled={pending}
-                  icon={<Edit3 size={14} aria-hidden="true" />}
+                  icon={<Edit3 size={15} aria-hidden="true" />}
                   onClick={() => onOpenEdit(category)}
                 >
                   Edit

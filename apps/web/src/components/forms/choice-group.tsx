@@ -100,7 +100,7 @@ function ChoiceButton({
   return (
     <button
       className={cx(
-        "inline-flex min-h-9 items-center gap-2 rounded-md border px-3 py-2 text-left text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
+        "inline-flex min-h-11 items-center gap-2 rounded-md border px-3 py-2 text-left text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
         selected
           ? darkMode
             ? "border-white bg-white text-black"

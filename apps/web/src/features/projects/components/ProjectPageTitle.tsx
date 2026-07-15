@@ -137,7 +137,7 @@ export function ProjectPageTitle({
           darkMode={darkMode}
           className="shrink-0"
           disabled={editDisabled}
-          icon={<Edit3 size={14} aria-hidden="true" />}
+          icon={<Edit3 size={15} aria-hidden="true" />}
           onClick={() => onEditProject(selectedProject)}
         >
           Edit

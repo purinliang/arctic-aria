@@ -163,9 +163,8 @@ export function ProjectDetailPage({
                   </div>
                   <Button
                     darkMode={darkMode}
-                    size="xs"
                     disabled={pending}
-                    icon={<Edit3 size={13} aria-hidden="true" />}
+                    icon={<Edit3 size={15} aria-hidden="true" />}
                     onClick={() => onEditMilestone(milestone)}
                   >
                     Edit
@@ -248,9 +247,8 @@ function ProjectTaskRow({
         </div>
         <Button
           darkMode={darkMode}
-          size="xs"
           disabled={pending}
-          icon={<Edit3 size={14} aria-hidden="true" />}
+          icon={<Edit3 size={15} aria-hidden="true" />}
           onClick={onEdit}
         >
           Edit

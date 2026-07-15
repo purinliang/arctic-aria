@@ -102,9 +102,9 @@ export function MemoryEditorDialog({
                 />
                 <Button
                   darkMode={darkMode}
-                  size="xs"
+                  size="md"
                   disabled={pending}
-                  icon={<Settings2 size={14} aria-hidden="true" />}
+                  icon={<Settings2 size={15} aria-hidden="true" />}
                   onClick={onManageCategories}
                 >
                   Manage

@@ -1,15 +1,11 @@
 // Memories Page - Suggestions Panel.
 import { Lightbulb, LoaderCircle, Pin, PinOff, RefreshCw } from "lucide-react";
 import { Button } from "@/components/button";
-import {
-  dividerClass,
-  headerSurfaceClass,
-  mutedTextClass,
-} from "@/components/color";
+import { CardHeader } from "@/components/card";
+import { dividerClass, mutedTextClass } from "@/components/color";
 import { ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
-import { cx } from "@/components/utils";
 import type { MemorySuggestion } from "@/features/dashboard/types";
 
 type SuggestionResult = Promise<boolean>;
@@ -37,40 +33,32 @@ export function SuggestionsPanel({
 }) {
   return (
     <Panel darkMode={darkMode}>
-      <div
-        className={cx(
-          "flex flex-col gap-3 rounded-t-md border-b px-4 py-3 sm:flex-row sm:items-start sm:justify-between",
-          headerSurfaceClass(darkMode),
-        )}
-      >
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <Lightbulb size={17} aria-hidden="true" />
-            <h2 className="text-base font-semibold">Suggestions</h2>
-          </div>
-          <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
-            To reexperience in a few days.
-          </p>
-        </div>
-        <Button
-          darkMode={darkMode}
-          disabled={suggestionLoading || pendingSuggestionIds.length > 0}
-          icon={
-            suggestionLoading ? (
-              <LoaderCircle
-                className="animate-spin"
-                size={14}
-                aria-hidden="true"
-              />
-            ) : (
-              <RefreshCw size={14} aria-hidden="true" />
-            )
-          }
-          onClick={() => void onSuggestionsRefresh()}
-        >
-          Refresh
-        </Button>
-      </div>
+      <CardHeader
+        darkMode={darkMode}
+        icon={<Lightbulb size={17} aria-hidden="true" />}
+        title="Suggestions"
+        description="To reexperience in a few days."
+        action={
+          <Button
+            darkMode={darkMode}
+            disabled={suggestionLoading || pendingSuggestionIds.length > 0}
+            icon={
+              suggestionLoading ? (
+                <LoaderCircle
+                  className="animate-spin"
+                  size={14}
+                  aria-hidden="true"
+                />
+              ) : (
+                <RefreshCw size={14} aria-hidden="true" />
+              )
+            }
+            onClick={() => void onSuggestionsRefresh()}
+          >
+            Refresh
+          </Button>
+        }
+      />
 
       <div className={dividerClass(darkMode)}>
         {!suggestionsRequested && !suggestionLoading ? (

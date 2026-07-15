@@ -1,12 +1,13 @@
 // Memories Page - Memories Panel.
 import { ClipboardList, Edit3, Plus, Settings2 } from "lucide-react";
 import { Button } from "@/components/button";
+import { CardHeader } from "@/components/card";
 import {
   dividerClass,
-  headerSurfaceClass,
   mutedTextClass,
   sectionBorderClass,
 } from "@/components/color";
+import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
 import {
@@ -14,7 +15,6 @@ import {
   LabelText,
   SupportingText,
 } from "@/components/text";
-import { cx } from "@/components/utils";
 import type { MemoryRecord } from "@/features/dashboard/types";
 import type { MemoryFilter } from "./memory-page-helpers";
 
@@ -43,51 +43,41 @@ export function MemoriesPanel({
 }) {
   return (
     <Panel darkMode={darkMode} className="min-w-0">
-      <div
-        className={cx(
-          "flex flex-col gap-3 rounded-t-md border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
-          headerSurfaceClass(darkMode),
-        )}
-      >
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <ClipboardList size={18} aria-hidden="true" />
-            <h2 className="text-base font-semibold">Memories</h2>
-          </div>
-          <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
-            Saved experiences to revisit when the day needs a gentle option.
-          </p>
-        </div>
-        <Button
-          darkMode={darkMode}
-          disabled={pending}
-          icon={<Plus size={15} aria-hidden="true" />}
-          onClick={onAdd}
-        >
-          New
-        </Button>
-      </div>
+      <CardHeader
+        darkMode={darkMode}
+        icon={<ClipboardList size={18} aria-hidden="true" />}
+        title="Memories"
+        description="Saved experiences to revisit when the day needs a gentle option."
+        action={
+          <Button
+            darkMode={darkMode}
+            disabled={pending}
+            icon={<Plus size={15} aria-hidden="true" />}
+            onClick={onAdd}
+          >
+            New
+          </Button>
+        }
+      />
 
       <div
         className={`flex flex-wrap items-center gap-2 border-b px-4 py-3 ${sectionBorderClass(darkMode)}`}
       >
         <LabelText darkMode={darkMode}>Categories:</LabelText>
-        {filters.map((item) => (
-          <Button
-            key={item}
-            darkMode={darkMode}
-            size="xs"
-            active={filter === item}
-            onClick={() => onFilterChange(item)}
-          >
-            {item}
-          </Button>
-        ))}
+        <SingleChoiceGroup
+          darkMode={darkMode}
+          value={filter}
+          options={filters.map((item) => ({
+            value: item,
+            label: item,
+          }))}
+          onChange={(value) => onFilterChange(value as MemoryFilter)}
+        />
         <Button
           darkMode={darkMode}
-          size="xs"
+          size="md"
           disabled={pending}
-          icon={<Settings2 size={14} aria-hidden="true" />}
+          icon={<Settings2 size={15} aria-hidden="true" />}
           onClick={onManage}
         >
           Manage
