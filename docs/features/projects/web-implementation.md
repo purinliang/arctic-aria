@@ -20,6 +20,7 @@ The current web implementation supports the first database-backed Project model:
 - record task completion, skip, block, unblock, and reopen events
 - show task command failure through shared notifications
 - show dashboard task rows for today's selected tasks
+- pin up to three active projects into the sidebar
 
 The current implementation does not include:
 
@@ -36,6 +37,9 @@ The current implementation does not include:
 
 The user opens the Projects page from the sidebar.
 
+The main sidebar `Projects` item opens the Projects list. Pinned project
+shortcuts, when present, appear below it and open their detail page directly.
+
 ## Component Naming
 
 Use `ProjectsPage` for the list and management entry point because it shows the
@@ -49,6 +53,7 @@ The Projects page should show:
 
 - project list
 - `New` action
+- pin and unpin actions for sidebar shortcuts
 
 The Project detail page should show:
 
@@ -56,6 +61,7 @@ The Project detail page should show:
 - selected project detail
 - flat task list and milestone management
 - project, milestone, and task add/edit actions
+- project pin or unpin action beside the title edit action
 
 `New` should open project creation.
 
@@ -151,12 +157,13 @@ List body:
 - item first line: project title only
 - item second line: truncated description
 - item third line: timeline text and progress text
-- item right action: outlineless right-arrow button
+- item right actions: `Pin` or `Unpin`, then outlineless right-arrow button
 - do not render milestone preview rows or task rows on the list page
 
 Clicking only the right-arrow button opens the detail page. The whole project
 item is not clickable. Do not add a text `View` button or footer action inside
-project list items. The list page does not show task rows.
+project list items. `Pin` and `Unpin` only update sidebar shortcuts and must not
+navigate. The list page does not show task rows.
 
 ### Project Detail Layout
 
@@ -171,6 +178,8 @@ Breadcrumb row:
 - switching through the project name keeps the user on the detail page
 - title action: `Edit3` icon plus `Edit`, placed to the right of the
   breadcrumb and opening the project editor dialog
+- adjacent title action: `Pin` or `Unpin`, updating the sidebar shortcut state
+  for the selected project
 
 Project overview card:
 

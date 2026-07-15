@@ -36,6 +36,12 @@ state. Inactive items use the ghost state.
 When a feature is not implemented, clicking its item shows the shared
 notification component. Do not use a dialog for this case.
 
+Pinned project shortcuts appear directly below the main `Projects` navigation
+item. They should use the same shared button component, but with a smaller,
+indented row so they read as children of Projects instead of top-level pages.
+The project title should truncate on one line when long. The active pinned
+project shortcut uses the active state when that project detail page is open.
+
 ## Bottom Controls
 
 The bottom controls are not a card. Use a top border separator and compact

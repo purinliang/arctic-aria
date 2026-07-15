@@ -36,6 +36,7 @@ The main navigation area should contain:
 
 - Dashboard
 - Projects
+  - up to three pinned project shortcuts, shown as indented children when set
 - Routines
 - Memories
 - Settings
@@ -43,6 +44,10 @@ The main navigation area should contain:
 Implemented items should navigate or open the intended dialog. Placeholder
 items should show a non-blocking notification instead of silently doing
 nothing.
+
+The main `Projects` item always opens the Projects list page. Pinned project
+shortcuts below it open that specific Project detail page directly. Pinned
+project shortcuts are optional and should not replace the main Projects item.
 
 Review is hidden from the sidebar until the review feature has a stable
 navigation design.
