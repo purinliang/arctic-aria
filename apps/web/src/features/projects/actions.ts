@@ -172,7 +172,7 @@ export async function saveProjectTask(
     const saved = await projectService.saveTask(user.id, {
       taskId: input.id,
       projectId: input.projectId,
-      milestoneId: input.milestoneId || null,
+      milestoneId: validation.milestoneId,
       title: validation.title,
       description: validation.description,
       priority: input.priority,

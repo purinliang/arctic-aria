@@ -242,6 +242,7 @@ export function validateMilestoneInput(input: MilestoneInput) {
 export function validateProjectTaskInput(input: ProjectTaskInput) {
   const title = input.title.trim();
   const description = input.description.trim();
+  const milestoneId = input.milestoneId.trim() || null;
   const scheduledDate = input.scheduledDate.trim() || null;
   const startDate = input.startDate.trim() || null;
   const deadlineDate = input.deadlineDate.trim() || null;
@@ -269,6 +270,7 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
 
   return {
     ok: true as const,
+    milestoneId,
     title,
     description,
     scheduledDate,
