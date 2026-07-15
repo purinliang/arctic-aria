@@ -10,6 +10,12 @@ Shared components live in:
 apps/web/src/components/
 ```
 
+Form controls live under:
+
+```text
+apps/web/src/components/forms/
+```
+
 ## Color
 
 `color.ts` owns reusable color and border class helpers.
@@ -71,7 +77,7 @@ Feature pages should not define local button class helpers.
 
 ## Input Field
 
-`input-field.tsx` owns the appearance of single-line text inputs and
+`forms/input-field.tsx` owns the appearance of single-line text inputs and
 single-line password inputs.
 
 Input fields support:
@@ -96,32 +102,37 @@ control components instead of being treated as generic input fields.
 
 ## Date And Time Pickers
 
-`date-picker-field.tsx` owns date selection. It must render an app-styled
+`forms/date-picker-field.tsx` owns date selection. It must render an app-styled
 calendar popup with English month names and weekday labels. Do not use native
 browser `type=date` controls for primary UI, because the popup can follow the
 user's browser or operating-system locale and cannot be styled consistently.
 
-`time-picker-field.tsx` owns time selection. It must render an app-styled
-English option list and return normalized `HH:mm` values. Do not use native
-browser `type=time` controls for primary UI.
+`forms/time-picker-field.tsx` owns time selection. It must render a compact
+app-styled picker with hour, minute, and AM/PM controls, then return normalized
+`HH:mm` values. Do not use native browser `type=time` controls for primary UI
+and do not use a long scroll list for routine time selection.
 
 Date and time pickers are still controlled form components. Feature code owns
-the current value, validation rules, and validation timing.
+the current value, validation rules, and validation timing. Picker popovers
+should be positioned overlays with stable widths so opening them does not change
+the parent card, dialog, list item, or field layout.
 
 ## Number, Text Area, And Selection Fields
 
-`number-field.tsx` owns numeric input styling. Use it when a number must still
-be typed.
+`forms/number-field.tsx` owns numeric input styling. Use it when a number must
+still be typed.
 
-`text-area-field.tsx` owns multi-line text entry. Do not implement text areas as
-expanded single-line inputs.
+`forms/text-area-field.tsx` owns multi-line text entry. Do not implement text
+areas as expanded single-line inputs.
 
-`selection-field.tsx` owns standard single-select dropdowns, checkbox rows, and
-checkbox groups. Use checkbox rows for checklist-style multiple selection.
+`forms/selection-field.tsx` owns standard single-select dropdowns, checkbox
+rows, and checkbox groups. Use checkbox rows for checklist-style multiple
+selection.
 
-`choice-group.tsx` owns visible button-group choices for single and multiple
-selection. Use it when the user should clearly see a compact set of choices.
-Tags are passive labels; do not use tag components as selectable buttons.
+`forms/choice-group.tsx` owns visible button-group choices for single and
+multiple selection. Use it when the user should clearly see a compact set of
+choices. Tags are passive labels; do not use tag components as selectable
+buttons.
 
 ## Switch
 

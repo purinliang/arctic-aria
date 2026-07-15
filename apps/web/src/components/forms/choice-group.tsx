@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Check } from "lucide-react";
-import { cx } from "./utils";
+import { cx } from "../utils";
 
 export type ChoiceOption = {
   value: string;

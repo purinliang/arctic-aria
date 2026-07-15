@@ -1,5 +1,5 @@
-import { inputColorClass } from "./color";
-import { cx } from "./utils";
+import { inputColorClass } from "../color";
+import { cx } from "../utils";
 
 export function formControlClass(
   darkMode: boolean,

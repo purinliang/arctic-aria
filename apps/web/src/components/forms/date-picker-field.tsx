@@ -3,12 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ButtonHTMLAttributes } from "react";
 import { Calendar, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { Button } from "./button";
+import { Button } from "../button";
 import {
   formControlClass,
   formControlPopupClass,
 } from "./form-control-style";
-import { cx } from "./utils";
+import { cx } from "../utils";
 
 const monthNames = [
   "January",
@@ -98,7 +98,7 @@ export function DatePickerField({
   const formattedValue = formatDateValue(value);
 
   return (
-    <div ref={rootRef} className="relative">
+    <div ref={rootRef} className="relative min-w-0">
       <button
         className={cx(
           formControlClass(darkMode, hasError),

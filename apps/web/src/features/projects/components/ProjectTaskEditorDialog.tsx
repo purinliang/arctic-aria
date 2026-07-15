@@ -1,18 +1,18 @@
 import { LoaderCircle, Plus, Save, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
-import { SingleChoiceGroup } from "@/components/choice-group";
-import { DatePickerField } from "@/components/date-picker-field";
+import { SingleChoiceGroup } from "@/components/forms/choice-group";
+import { DatePickerField } from "@/components/forms/date-picker-field";
 import {
   DialogBackdrop,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
 } from "@/components/dialog";
-import { FieldLabel, TextInput } from "@/components/input-field";
-import { CheckboxField } from "@/components/selection-field";
+import { FieldLabel, TextInput } from "@/components/forms/input-field";
+import { CheckboxField } from "@/components/forms/selection-field";
 import { InlineMessage } from "@/components/text";
-import { TextArea } from "@/components/text-area-field";
+import { TextArea } from "@/components/forms/text-area-field";
 import type { ProjectTaskInput } from "@/features/projects/actions";
 import {
   priorityOptions,

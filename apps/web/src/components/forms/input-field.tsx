@@ -3,8 +3,8 @@ import type {
   ReactNode,
 } from "react";
 import { formControlClass } from "./form-control-style";
-import { LabelText } from "./text";
-import { cx } from "./utils";
+import { LabelText } from "../text";
+import { cx } from "../utils";
 
 export function FieldLabel({
   darkMode,

@@ -1,19 +1,19 @@
 import { LoaderCircle, Save } from "lucide-react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { Button } from "@/components/button";
-import { SingleChoiceGroup } from "@/components/choice-group";
-import { DatePickerField } from "@/components/date-picker-field";
+import { SingleChoiceGroup } from "@/components/forms/choice-group";
+import { DatePickerField } from "@/components/forms/date-picker-field";
 import {
   DialogBackdrop,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
 } from "@/components/dialog";
-import { FieldLabel, TextInput } from "@/components/input-field";
-import { NumberInput } from "@/components/number-field";
-import { SelectInput } from "@/components/selection-field";
+import { FieldLabel, TextInput } from "@/components/forms/input-field";
+import { NumberInput } from "@/components/forms/number-field";
+import { SelectInput } from "@/components/forms/selection-field";
 import { InlineMessage } from "@/components/text";
-import { TextArea } from "@/components/text-area-field";
+import { TextArea } from "@/components/forms/text-area-field";
 import type {
   MilestoneInput,
   ProjectInput,

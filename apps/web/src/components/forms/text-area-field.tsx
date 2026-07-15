@@ -1,6 +1,6 @@
 import type { TextareaHTMLAttributes } from "react";
 import { formControlClass } from "./form-control-style";
-import { cx } from "./utils";
+import { cx } from "../utils";
 
 export function TextArea({
   darkMode,

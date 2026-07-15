@@ -5,7 +5,7 @@ import type {
 } from "react";
 import { Check } from "lucide-react";
 import { formControlClass } from "./form-control-style";
-import { cx } from "./utils";
+import { cx } from "../utils";
 
 export function SelectInput({
   darkMode,

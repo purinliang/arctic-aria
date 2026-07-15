@@ -4,14 +4,14 @@ import { Button } from "@/components/button";
 import {
   MultipleChoiceGroup,
   SingleChoiceGroup,
-} from "@/components/choice-group";
-import { DatePickerField } from "@/components/date-picker-field";
+} from "@/components/forms/choice-group";
+import { DatePickerField } from "@/components/forms/date-picker-field";
 import { dialogFrameClass } from "@/components/dialog";
-import { FieldLabel, TextInput } from "@/components/input-field";
-import { NumberInput } from "@/components/number-field";
+import { FieldLabel, TextInput } from "@/components/forms/input-field";
+import { NumberInput } from "@/components/forms/number-field";
 import { InlineMessage } from "@/components/text";
-import { TextArea } from "@/components/text-area-field";
-import { TimePickerField } from "@/components/time-picker-field";
+import { TextArea } from "@/components/forms/text-area-field";
+import { TimePickerField } from "@/components/forms/time-picker-field";
 import type { RoutineInput } from "@/features/routines/actions";
 import { ruleOptions, weekdayOptions } from "./routine-page-helpers";
 
