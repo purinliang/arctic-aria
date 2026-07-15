@@ -23,6 +23,14 @@ export function applyOptimisticTaskStatus(
   );
 }
 
+export function applyDashboardTaskStatus(
+  tasks: Task[],
+  taskId: string,
+  status: TaskStatus,
+): Task[] {
+  return applyOptimisticTaskStatus(tasks, taskId, status);
+}
+
 export function restoreTaskSnapshot(
   tasks: Task[],
   snapshot: Task[],

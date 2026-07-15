@@ -161,7 +161,9 @@ browser or operating-system colors, corners, and spacing.
 
 `forms/choice-group.tsx` owns visible button-group choices for single and
 multiple selection. Use it when the user should clearly see a compact set of
-choices. Do not use passive label chips as selectable buttons.
+choices. Do not use passive label chips as selectable buttons. Selected choices
+show the check icon on the left, before the label, matching normal icon-plus-text
+button direction.
 
 ## Switch
 
@@ -172,6 +174,12 @@ build one-off toggle switches inside feature pages.
 
 Do not use a switch in the sidebar theme row. Sidebar actions should use the
 same menu-item button style as navigation items.
+
+## Loading
+
+`loading.tsx` owns shared loading indicators. List, panel, and card loading rows
+should use `LoadingLine` with a spinning progress circle instead of plain
+loading text. Empty states can remain simple text.
 
 ## Panel
 

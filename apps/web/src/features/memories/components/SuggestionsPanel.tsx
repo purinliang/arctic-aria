@@ -4,6 +4,7 @@ import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { dividerClass, mutedTextClass } from "@/components/color";
 import { ListItem } from "@/components/list";
+import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { MemorySuggestion } from "@/features/dashboard/types";
@@ -68,7 +69,7 @@ export function SuggestionsPanel({
           />
         ) : null}
         {suggestionLoading ? (
-          <EmptyLine darkMode={darkMode} text="Loading suggestions..." />
+          <LoadingLine darkMode={darkMode} text="Loading suggestions..." />
         ) : null}
         {suggestionsRequested &&
         !suggestionLoading &&

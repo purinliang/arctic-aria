@@ -1,9 +1,11 @@
 // Dashboard - Routines Panel.
-import { Bell } from "lucide-react";
+import { Bell, ChevronRight } from "lucide-react";
+import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { dividerClass, mutedTextClass } from "@/components/color";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { ListItem } from "@/components/list";
+import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { Routine, RoutineStatus } from "@/features/dashboard/types";
@@ -15,6 +17,7 @@ export function RoutinesPanel({
   disabled,
   message,
   onRoutineStatus,
+  onRoutineOpen,
 }: {
   darkMode: boolean;
   routines: Routine[];
@@ -22,6 +25,7 @@ export function RoutinesPanel({
   disabled: boolean;
   message: string | null;
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
+  onRoutineOpen: () => void;
 }) {
   return (
     <Panel darkMode={darkMode}>
@@ -34,7 +38,7 @@ export function RoutinesPanel({
       <RoutinesPanelMessage darkMode={darkMode} message={message} />
       <div className={dividerClass(darkMode)}>
         {loading ? (
-          <EmptyLine darkMode={darkMode} text="Loading routines..." />
+          <LoadingLine darkMode={darkMode} text="Loading routines..." />
         ) : null}
         {!loading && routines.length === 0 ? (
           <EmptyLine darkMode={darkMode} text="No routines due today." />
@@ -46,6 +50,7 @@ export function RoutinesPanel({
             darkMode={darkMode}
             disabled={disabled}
             onStatusChange={(status) => onRoutineStatus(routine.id, status)}
+            onOpen={onRoutineOpen}
           />
         ))}
       </div>
@@ -59,11 +64,13 @@ function RoutineRow({
   darkMode,
   disabled,
   onStatusChange,
+  onOpen,
 }: {
   routine: Routine;
   darkMode: boolean;
   disabled: boolean;
   onStatusChange: (status: RoutineStatus) => void;
+  onOpen: () => void;
 }) {
   return (
     <ListItem darkMode={darkMode} className="items-start">
@@ -92,6 +99,14 @@ function RoutineRow({
           </SupportingText>
         </div>
       </div>
+      <Button
+        darkMode={darkMode}
+        tone="ghost"
+        size="icon-sm"
+        aria-label="Open routines"
+        icon={<ChevronRight size={16} aria-hidden="true" />}
+        onClick={onOpen}
+      />
     </ListItem>
   );
 }

@@ -113,6 +113,7 @@ function ChoiceButton({
       type="button"
       {...props}
     >
+      {selected ? <Check className="h-3.5 w-3.5 shrink-0" /> : null}
       {option.icon}
       <span className="grid gap-0.5">
         <span>{option.label}</span>
@@ -133,7 +134,6 @@ function ChoiceButton({
           </span>
         ) : null}
       </span>
-      {selected ? <Check className="h-3.5 w-3.5" /> : null}
     </button>
   );
 }

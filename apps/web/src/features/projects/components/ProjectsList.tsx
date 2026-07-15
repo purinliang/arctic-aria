@@ -1,9 +1,10 @@
 // Projects Page - Projects List.
-import { FolderKanban, Plus } from "lucide-react";
+import { ChevronRight, FolderKanban, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
 import { List, ListItem } from "@/components/list";
+import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { ProjectView } from "@/features/projects/actions";
@@ -44,9 +45,7 @@ export function ProjectsList({
 
       <List darkMode={darkMode}>
         {loading ? (
-          <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
-            Loading projects...
-          </p>
+          <LoadingLine darkMode={darkMode} text="Loading projects..." />
         ) : null}
         {!loading && projects.length === 0 ? (
           <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
@@ -76,8 +75,8 @@ function ProjectListItem({
   onView: () => void;
 }) {
   return (
-    <ListItem darkMode={darkMode} layout="block">
-      <button className="w-full text-left" type="button" onClick={onView}>
+    <ListItem darkMode={darkMode} className="items-start">
+      <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-semibold">{project.title}</span>
         </div>
@@ -87,7 +86,15 @@ function ProjectListItem({
         <SupportingText darkMode={darkMode} className="mt-2 block">
           {project.timelineText} · {project.progressText}
         </SupportingText>
-      </button>
+      </div>
+      <Button
+        darkMode={darkMode}
+        tone="ghost"
+        size="icon-sm"
+        aria-label={`Open ${project.title}`}
+        icon={<ChevronRight size={16} aria-hidden="true" />}
+        onClick={onView}
+      />
     </ListItem>
   );
 }

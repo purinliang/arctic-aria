@@ -87,8 +87,8 @@ Each project list item should show:
 - no colored status, priority, or category-like tags in the current UI
 
 The project list page should not show milestone rows or task rows. Clicking a
-project list item opens a Project detail page. It should not open an edit
-dialog.
+project row's outlineless right-arrow button opens the Project detail page. The
+whole row is not clickable, and the row should not open an edit dialog.
 
 ### Projects Page Layout
 
@@ -114,8 +114,8 @@ Project list layout:
 - project item second line: truncated description
 - project item third line: timeline and progress text
 - do not show milestone preview rows
-- click target: the whole project list item opens the project detail page
-- do not add a separate `View` button or footer band inside project list items
+- click target: right-arrow ghost button only
+- do not add a text `View` button or footer band inside project list items
 
 ## Add Project Flow
 
@@ -169,7 +169,7 @@ Project dialog layout:
 
 ## Project Detail Page
 
-Clicking a project opens a detail page.
+Clicking a project row's right-arrow button opens a detail page.
 
 The project detail page should show:
 

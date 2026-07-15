@@ -20,6 +20,7 @@ import {
   type ProjectView,
 } from "@/features/projects/actions";
 import {
+  applyDashboardTaskStatus,
   applyOptimisticTaskStatus,
   restoreTaskSnapshot,
 } from "../optimistic-updates";
@@ -108,11 +109,7 @@ export function useDashboardProjects(
     setPendingTaskIds((current) => addPendingId(current, taskId));
     setTasks((current) => {
       previousTasks = current;
-      const updated = applyOptimisticTaskStatus(current, taskId, status);
-
-      return status === "done"
-        ? updated.filter((task) => task.id !== taskId)
-        : updated;
+      return applyDashboardTaskStatus(current, taskId, status);
     });
     void runDashboardProjectAction(
       () => dashboardTaskStatusAction(taskId, status),

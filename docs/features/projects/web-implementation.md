@@ -147,15 +147,16 @@ List body:
 
 - parent layout: vertical grid
 - empty state: `No projects yet. Add a project for a larger goal.`
-- item parent component: shared `ListItem` with block layout
+- item parent component: shared `ListItem` with row layout
 - item first line: project title only
 - item second line: truncated description
 - item third line: timeline text and progress text
+- item right action: outlineless right-arrow button
 - do not render milestone preview rows or task rows on the list page
 
-Clicking the project item opens the detail page. Do not add a separate `View`
-button or footer action inside project list items. The list page does not show
-task rows.
+Clicking only the right-arrow button opens the detail page. The whole project
+item is not clickable. Do not add a text `View` button or footer action inside
+project list items. The list page does not show task rows.
 
 ### Project Detail Layout
 
