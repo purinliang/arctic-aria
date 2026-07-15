@@ -133,12 +133,12 @@ explicitly designed.
 
 The user can:
 
-- expand and collapse a pinned memory
-- open the memory detail page
 - mark a pinned memory as done
 - cancel done if it was a misclick
 - replace a pinned memory with another memory from the same category
 - unpin a memory
+
+Pinned memory dashboard rows do not expand or collapse in the current UI.
 
 ## Suggested Table Design
 
@@ -155,6 +155,7 @@ Recommended fields:
 - `id`
 - `user_id`
 - `name`
+- `description`
 - `base_weight`
 - `created_at`
 - `updated_at`
@@ -163,6 +164,7 @@ Constraints:
 
 - `user_id` references `users.id`.
 - `name` should be unique per user.
+- `description` is optional and should be 500 characters or fewer.
 - `base_weight` should be greater than `0`.
 
 Suggested defaults:
@@ -350,8 +352,7 @@ Dashboard behavior:
 - Replacing a pinned memory selects a new memory from the same category and
   position. The replacement should not already be showing and should not already
   be completed.
-- The new replacement should stay expanded so the user can immediately inspect
-  it.
+- The replacement should update only the clicked row position.
 
 Visibility timing:
 

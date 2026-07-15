@@ -85,10 +85,10 @@ Recommended fields:
 
 Field rules:
 
-- Every task belongs to one milestone.
-- Every project should have at least one milestone.
-- If the user does not create a milestone, create a default milestone titled
-  `Completion` with today's date as its start date.
+- Milestones are optional phase boundaries.
+- A project can have zero milestones.
+- Project creation must not create a default milestone.
+- Tasks can exist without a milestone.
 - Milestones can be renamed, reordered, archived, and completed.
 - Milestones should stay lightweight. They are phase boundaries, not full
   independent projects.
@@ -102,14 +102,15 @@ Statuses:
 
 ## Tasks
 
-`project_tasks` stores schedulable work under a milestone.
+`project_tasks` stores schedulable work under a project, with an optional
+milestone pointer.
 
 Recommended fields:
 
 - `id`
 - `user_id`
 - `project_id`
-- `milestone_id`
+- `milestone_id`, nullable
 - `title`
 - `description`
 - `status`
@@ -127,9 +128,9 @@ Recommended fields:
 
 Field rules:
 
-- A task belongs to exactly one milestone.
-- A task inherits `project_id` through its milestone, but storing `project_id`
-  on the task can make common queries simpler.
+- A task belongs to exactly one project.
+- A task can optionally point to one milestone in the same project.
+- If `milestone_id` is null, UI metadata should omit the milestone segment.
 - A task is schedulable.
 - A task can span several days.
 - A task should not contain another task as a child.

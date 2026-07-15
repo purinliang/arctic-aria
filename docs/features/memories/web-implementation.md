@@ -69,9 +69,8 @@ Suggestion list:
 - Each suggestion appears as a simple row, not a nested card.
 - Each row shows:
   - title
-  - category as muted text
   - short description
-  - last-done text and done count
+  - supporting metadata as `category · last-done text · done count`
   - `Pin` button
 
 Button behavior:
@@ -118,6 +117,9 @@ The visible behavior should be deterministic:
 - Memory and category editor dialogs use the shared dialog shell, shared field
   labels, shared text inputs/text areas, shared single-choice controls, and the
   shared list primitive for category rows.
+- Category records include optional descriptions. Manage Categories shows `New`
+  in the header row, category rows as `ListItem` title/description/metadata,
+  and `Delete` only inside the edit category dialog.
 
 ## Code Locations
 
@@ -144,6 +146,7 @@ Database migration:
 
 ```text
 apps/web/database/migrations/0002_create_memories.sql
+apps/web/database/migrations/0007_add_memory_category_description.sql
 ```
 
 ## Verification

@@ -18,29 +18,18 @@ Each routine card should show:
 - status
 - short metadata such as streak or due text when available
 
-Clicking or focusing a routine card should expand it. Clicking it again should
-collapse it.
-
-Expanded state should show secondary actions:
-
-- `Busy`
-- `Skip`
+Dashboard routine rows should not expand or collapse. Do not show `Busy` or
+`Skip` buttons in the current dashboard UI.
 
 Click behavior:
 
 - Checking the left checkbox marks the instance completed.
 - Unchecking the left checkbox reopens the instance as pending.
-- `Skip` marks the instance skipped.
-- `Busy` snoozes reminder delivery when reminder jobs exist. It should not set
-  the routine instance status to busy.
-- After checkbox changes, `Skip`, or `Busy`, collapse the routine card
-  immediately.
-- Checkbox changes and `Skip` should optimistically update the visible routine
-  status. If the backend later rejects the command, restore the previous
-  visible state and show the backend message in the shared notification
-  component.
-- `Busy` shows a temporary reminder message and does not wait for backend
-  persistence until reminder jobs exist.
+- Checkbox changes should optimistically update the visible routine status. If
+  the backend later rejects the command, restore the previous visible state and
+  show the backend message in the shared notification component.
+- `Busy` and `Skip` are deferred reminder-response actions, not dashboard
+  controls in the current UI.
 
 The UI may show a temporary reminder delivery state, but the persisted Core
 instance statuses are only `pending`, `completed`, and `skipped`.
@@ -102,7 +91,8 @@ The dialog should include actions for:
 - Save
 - Delete
 
-Successful save closes the dialog and refreshes visible routine data. Failed
+Successful save closes the dialog and refreshes visible routine data
+immediately from the backend response; do not require a manual reload. Failed
 save keeps the dialog open and shows the backend message.
 
 Clicking `Delete` should show a confirmation dialog. Successful delete closes
@@ -114,9 +104,9 @@ Use user-facing text that matches the action:
 
 - Checkbox checked: `completed`
 - Persisted instance status: `completed`
-- Button text: `Skip`
+- Future button text: `Skip`
 - Persisted instance status: `skipped`
-- Button text: `Busy`
+- Future button text: `Busy`
 - Later reminder state: snoozed or rescheduled
 
 Do not expose `reminding` as a Core routine status. It can appear only as a

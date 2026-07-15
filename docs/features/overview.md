@@ -102,14 +102,16 @@ avoid planning too far into the future and focus on the first or current phase.
 - completed timestamp, if completed
 - archived timestamp, if archived
 
-Every project should have at least one milestone. If the user does not create a
-specific milestone, create a default milestone named `Completion`.
+Milestones are optional. A project can have zero milestones, and project
+creation must not create a default milestone. Tasks can exist directly under a
+project without a milestone.
 
 ## Tasks
 
-A task is executable work under one project milestone. Tasks are the atomic
-items selected by the dashboard and scheduler. A task may last less than a day
-or up to a few weeks, depending on project scale.
+A task is executable work under one project, optionally assigned to one
+milestone. Tasks are the atomic items selected by the dashboard and scheduler.
+A task may last less than a day or up to a few weeks, depending on project
+scale.
 
 Detailed project and task behavior is documented in
 [projects/overview.md](projects/overview.md).

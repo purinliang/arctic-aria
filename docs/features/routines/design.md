@@ -148,20 +148,19 @@ Each routine instance should show:
 - current instance status
 - useful small metadata such as streak or due text when available
 
-The first dashboard can keep the existing expanded-card behavior:
+The first dashboard should use static routine rows:
 
-- clicking a routine expands or collapses it
-- a currently active reminder can start expanded
-- the completion checkbox appears on the left of the collapsed row
-- expanded state shows `Busy` and `Skip`
+- the completion checkbox appears on the left of the row
+- rows do not expand or collapse
+- `Busy` and `Skip` are not exposed in the current dashboard UI
 
 Action behavior:
 
 - Checking the left checkbox marks the routine instance `completed`.
 - Unchecking the left checkbox reopens the routine instance as `pending`.
-- `Skip` marks the routine instance `skipped`.
-- `Busy` should not change the instance status. It should create or update
-  reminder delivery state when reminder jobs are implemented.
+- `Skip` and `Busy` remain future reminder-response actions. `Busy` should not
+  change the instance status; it should create or update reminder delivery state
+  when reminder jobs are implemented.
 
 ## Events
 

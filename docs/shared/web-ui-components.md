@@ -59,6 +59,13 @@ Use it for:
 Placeholder text belongs to the input component API, but it should follow the
 same plain English style as other helper text.
 
+Use `LabelText` for static field labels. Use `DescriptionText` for descriptive
+body copy. Use `SupportingText` for supporting metadata lines; it should keep
+the same muted visual family and line height direction as descriptions, but one
+size smaller. Supporting metadata should usually be a single `A · B · C` line.
+Feature rows should not hand-code label, description, or metadata font size,
+line height, or muted color.
+
 ## Button
 
 `button.tsx` owns shared button styling.
@@ -189,7 +196,9 @@ Cards may include:
 
 Use `CardHeader` for card and panel headers that need an icon, title,
 description, metadata, or a right-side action. Do not create feature-local
-header components for the same shape.
+header components for the same shape. Header action placement, including the
+top and right inset for buttons, belongs to `CardHeader`; feature code should
+only pass the action component.
 
 Card and panel headers should use `px-4 py-3`, a bottom border, and a subtle
 header background that differs from the content surface. The tighter vertical

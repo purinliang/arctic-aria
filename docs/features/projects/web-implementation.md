@@ -86,13 +86,14 @@ load task candidates from the database for signed-in users.
 
 Dashboard task cards support:
 
-- expand and collapse
-- left-side `Done` checkbox in the collapsed row
-- `Edit`, which opens the Projects page for management
+- static read-only task summary rows
+- left-side `Done` checkbox
+- title, description, and supporting metadata
 
-Checking `Done` collapses the card immediately and uses optimistic UI. If the
-backend rejects the command, the previous visible state is restored and the
-shared notification component shows the error.
+Checking `Done` uses optimistic UI. Dashboard task rows must not expose edit,
+expand, collapse, or task-management detail controls. If the backend rejects
+the command, the previous visible state is restored and the shared notification
+component shows the error.
 
 Dashboard task cards should not show standalone project progress visualization,
 editable numeric progress, or colored tag chips.
@@ -207,7 +208,8 @@ Task row layout:
 - parent surface: shared `ListItem`
 - row direction: three columns
 - left column: `Done` checkbox
-- middle column: title, description, then `milestone · deadline` metadata
+- middle column: title, description, then optional `milestone · deadline`
+  metadata
 - right column: `Edit`
 - do not show task status tags, priority tags, or Block/Skip actions in the
   first UI
@@ -231,6 +233,10 @@ Dialog shell:
 - footer: `DialogActionRow` with one full-width primary `Save` button
 - save icon: `Save`
 - loading icon: animated `LoaderCircle`
+- existing project, milestone, and task edit dialogs also show a full-width
+  secondary `Delete` button below `Save`
+- `Delete` opens shared `ConfirmDialog`; confirmation uses the standard primary
+  button style and deletes only after backend success
 
 Project field order:
 
@@ -255,8 +261,8 @@ overlaps:
 
 - basics group: title, description
 - meta group: milestone selector, start date, deadline
-- milestone selector defaults to the milestone named `Completion`; if it does
-  not exist, fall back to the first active milestone, then the first milestone
+- milestone selector defaults to `No milestone`; choosing a milestone is
+  optional
 - do not render a scheduled date field in the task dialog
 - do not render done/not-done controls in the task dialog; completion belongs
   to task rows and dashboard task cards
@@ -282,19 +288,15 @@ Dashboard
 Collapsed card:
 
 - parent element: full-width `article`
-- row layout: left completion checkbox, then clickable task content with
-  chevron
+- row layout: left completion checkbox, then task content
 - text group direction: vertical
 - first line: task title
 - second line: task description, always visible
-- third line: supporting metadata as `project · milestone · deadline`
-- right icon: `ChevronDown`, rotated when expanded
-
-Expanded card:
-
-- expanded content appends below the clickable row
-- footer layout: horizontal flex with wrapping
-- actions: `Edit` with `Edit3`
+- third line: supporting metadata as `project · milestone · deadline`,
+  omitting the milestone segment when the task has no milestone
+- no chevron
+- no expanded content
+- no dashboard edit action
 
 ## Code Locations
 

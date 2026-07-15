@@ -23,7 +23,7 @@ Dashboard task cards should show:
 
 - task title
 - project title
-- milestone title
+- milestone title, only when the task has one
 - done checkbox
 - deadline
 
@@ -50,21 +50,15 @@ Panel header:
 Collapsed task card layout:
 
 - parent surface: one full-width task card row
-- row direction: horizontal, with task text on the left and expand chevron on
-  the right
+- row direction: horizontal, with checkbox on the left and task text on the
+  right
 - left text group direction: vertical
 - first text line: task title
 - second text line: task description, always visible
-- third text line: supporting metadata as `project · milestone · deadline`
-- right icon: `ChevronDown`, rotated when expanded
-
-Expanded task card layout:
-
-- expanded content appends under the collapsed row
-- expanded content should share the same card surface and color as the collapsed
-  row
-- footer action row direction: horizontal with wrapping on small screens
-- actions: `Edit` with `Edit3`
+- third text line: supporting metadata as `project · milestone · deadline`,
+  omitting the milestone segment when the task has no milestone
+- no expand/collapse behavior
+- no dashboard edit action
 - do not show `Block`, `Skip`, or a multi-status selector in the first UI
 
 ## Projects Page
@@ -156,8 +150,7 @@ Milestone hint:
 - if the expected duration or deadline range is longer than about one month,
   show a non-blocking hint suggesting milestones
 - do not require milestones during first project creation
-- create a default milestone named `Completion` if the user skips
-  milestone setup
+- do not create a default milestone when a project is created
 
 Project dialog layout:
 
@@ -242,6 +235,8 @@ Detail page layout:
 - right bottom card: `Milestones` with `New`
 - overview metadata group: description, start date, and timeline
 - overview description row label: `Description`
+- overview labels use shared `LabelText`
+- overview values use shared `DescriptionText`
 - overview start date should display in English date format, not raw
   `YYYY-MM-DD`
 - do not repeat project title inside the Overview card; the title is already in
@@ -254,9 +249,11 @@ Detail page layout:
 - task rows appear as a flat list in the `Tasks` card
 - task create action appears in the `Tasks` card header as `New` with `Plus`
 - task row layout: `Done` checkbox on the left, then title, description,
-  milestone/deadline metadata, then `Edit` on the right
+  optional milestone/deadline metadata, then `Edit` on the right
 - project detail task rows do not show project name in metadata because the
   page title already identifies the project
+- if a task has no milestone, omit the milestone segment and separator from the
+  metadata line
 - task sort order: not-done tasks before done tasks, then deadline from nearest
   to farthest, then start date from oldest to newest
 - tasks without a deadline sort after tasks with a deadline
@@ -268,13 +265,14 @@ Detail page layout:
 The data model remains:
 
 ```text
-Milestone
+Project
+  optional Milestone
   Task
 ```
 
-The detail page should not render that full hierarchy as nested milestone
-sections. It should flatten tasks in the main `Tasks` card and keep milestones
-as a simple management list in the right panel.
+The detail page should not render tasks as nested milestone sections. It should
+flatten tasks in the main `Tasks` card and keep milestones as a simple
+management list in the right panel.
 
 ## Milestones UI
 
@@ -294,25 +292,17 @@ Actions:
 - complete milestone
 - archive milestone
 
-Default milestone:
-
-- title: `Completion`
-- created automatically when a project has no explicit milestone
-- user can rename it
-
-The current or first active milestone should be visually emphasized because the
-user should usually focus on near-term work instead of planning the whole
-project in detail.
+Projects do not create a default milestone. The milestone list can be empty.
 
 ## Tasks UI
 
-Tasks belong under milestones.
+Tasks belong under a project and can optionally point to a milestone.
 
 New task fields:
 
 - title
 - description
-- milestone selector, defaulting to `Completion`
+- milestone selector, defaulting to `No milestone`
 - start date
 - deadline date
 - prerequisite tasks
@@ -333,6 +323,15 @@ Task actions:
 - edit
 - archive
 - delete
+
+Delete behavior:
+
+- project, milestone, and task edit dialogs should show a `Delete` action below
+  the full-width `Save` button
+- clicking `Delete` opens a confirmation dialog before changing data
+- the confirm button uses standard primary button styling and is labeled
+  `Delete`
+- canceling the confirmation returns to the edit dialog without changing data
 
 ## Progress UI
 

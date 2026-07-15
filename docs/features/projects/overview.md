@@ -64,9 +64,9 @@ Milestone examples:
 - for a one-month project: one to three milestones, often one to two weeks each
 - for a three-year project: six or more milestones, often about half a year each
 
-If the user does not want to create milestones, the system should create a
-default milestone so every task still has a phase boundary. The first default
-name should be `Completion`. The user can rename it later.
+Milestones are optional. A project starts with no milestones, and the user can
+add milestones only when phase boundaries are useful. A task can also have no
+milestone.
 
 ### Task
 
@@ -85,7 +85,7 @@ can decide whether it is the right thing to work on today.
 
 - The user manages projects.
 - The user can add milestones when phase boundaries are useful.
-- The user creates tasks under milestones.
+- The user creates tasks under a project, optionally assigning a milestone.
 - Implementation details under a milestone should be easy to change.
 - Today's dashboard should focus on today's tasks to move projects forward.
 - Editable numeric progress fields should not appear in the UI.

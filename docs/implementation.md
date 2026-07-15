@@ -215,9 +215,8 @@ Project slice are now implemented in the web app.
 The current Project slice includes:
 
 - project capture
-- default milestone creation
 - milestone capture
-- task capture under one milestone
+- task capture under a project, with optional milestone assignment
 - status commands for dashboard tasks
 - database-backed dashboard task cards
 - Project management page and detail pages
@@ -238,6 +237,10 @@ sidebar navigation, active page switching, the root page title bar, theme mode,
 root document background syncing, and app-level notifications. Feature pages
 such as Dashboard, Projects, Routines, and Memories should behave like normal
 page bodies inside that shell.
+
+The app shell content column owns page-level minimum height and bottom spacing.
+Keep it at least `110vh` tall with shared bottom padding so all pages have
+consistent scroll behavior.
 
 The app shell is not a generic global-state module. Put state there only when it
 belongs to the whole authenticated web surface. Feature domain state should stay

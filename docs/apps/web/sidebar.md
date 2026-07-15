@@ -14,8 +14,10 @@ The sidebar and page content may scroll independently. If the sidebar does not
 have enough vertical space, the sidebar content should scroll inside the
 sidebar instead of being clipped.
 
-The page content area should keep a minimum height of `105vh` so the right page
-keeps its own scroll surface visible during normal desktop inspection.
+The page content area should keep a minimum height of `110vh` so the right page
+keeps its own scroll surface visible during normal desktop inspection. Shared
+bottom padding belongs to the app shell content column, not individual feature
+pages.
 
 The desktop page title bar should show only the current page title. It should
 not show the current user, sign out button, current time, day boundary, or review

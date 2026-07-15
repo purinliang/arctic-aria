@@ -9,10 +9,7 @@ The home dashboard should show a compact `Pinned Memories` section. Its icon
 should match the Memories item in the hamburger menu. Use the Lucide
 `ClipboardList` icon.
 
-The dashboard's required first behavior is to show pinned memories only. The
-expanded controls below are specified in [memories.md](memories.md) under
-Pinned Memory Behavior so the user can quickly act on a pinned memory without
-opening the Memories page.
+The dashboard's required first behavior is to show pinned memories only.
 
 The first dashboard should show pinned memories from supported dashboard
 categories only:
@@ -28,25 +25,19 @@ For each pinned memory, show:
 - done checkbox on the left
 - title
 - short description
-- category
+- category and status metadata
+- right-side icon-only `Replace` button with `RefreshCw`
 
-Clicking or focusing a pinned memory should expand it like the current routine
-cards. Only the expanded state should show secondary actions:
+Pinned memory dashboard rows should not expand or collapse. Do not show a
+dashboard `View` button.
 
-- `Replace`
-- `View`
+If the user checks the done checkbox, optimistically show the completed state.
+If the user unchecks it before cleanup, cancel the completion. If the backend
+later rejects the command, restore the previous visible state and show the
+backend message in the shared notification component.
 
-Clicking the pinned memory again should collapse it.
-
-If the user checks the done checkbox, collapse the card immediately and
-optimistically show the completed state. If the user unchecks it before cleanup,
-cancel the completion. If the backend later rejects the command, restore the
-previous visible state and show the backend message in the shared notification
-component.
-
-If the user clicks `Replace`, collapse the card immediately. Replace only that
-one item and keep other positions unchanged after the backend returns the
-replacement data.
+If the user clicks `Replace`, replace only that one item and keep other
+positions unchanged after the backend returns the replacement data.
 
 On dashboard load or reload:
 
@@ -104,7 +95,7 @@ list.
 
 Layout:
 
-- Show the text `Categories:`, which is the same font size as category buttons.
+- Show the text `Categories:` using shared `LabelText`.
 - Show filter buttons starting with `All`, followed by user categories such as
   `Cuisine`.
 - If there are too many categories, the filter buttons should wrap onto multiple
@@ -112,6 +103,8 @@ Layout:
 - Show a Lucide `Settings2` button with text `Manage`.
 - The `Manage` button should use the same style as filter items and be listed
   with the filter buttons.
+- The categories strip should use the same horizontal separator line as list
+  rows, but it is not itself a list item.
 
 Click behavior:
 
@@ -126,17 +119,16 @@ The memory list is vertical.
 Each memory list item should show:
 
 - title
-- category as muted text below the title
 - description
-- meta-information such as last done time, done count, and pinned state
+- supporting metadata as one line, such as
+  `category · pinned · last done time · done count`
 
 Memory item behavior:
 
-- Clicking a memory item expands it.
-- Clicking the expanded item again collapses it.
-- The edit action is shown only in the expanded state.
-- The edit action uses a pencil icon.
-- Clicking the pencil icon opens the edit-memory dialog or detail page.
+- Memory list items do not expand or collapse.
+- The edit action is always visible on the right side, where an expand icon
+  would otherwise appear.
+- The edit action uses a pencil icon and opens the edit-memory dialog.
 
 ## Suggestions Card
 
@@ -162,8 +154,9 @@ The suggestion list is vertical.
 Each suggestion item should show:
 
 - title
-- category as muted text below the title
 - description
+- supporting metadata as one line, such as
+  `category · last done time · done count`
 - a circular outline button on the right side, with only the Lucide `Pin` icon
   and no text
 
@@ -298,6 +291,16 @@ Clicking the `Manage` button should show a Manage Categories dialog. Keep the
 current dialog direction, but document and implement the details below. Do not
 show weights in the edit list because they are internal.
 
+Manage Categories dialog layout:
+
+- top row: `Manage Categories` title on the left
+- top row right side: `New` button with `Plus`, then close icon button
+- category list rows use the shared `ListItem`
+- each category row shows title, `DescriptionText`, and one `SupportingText`
+  line for the suggestion period
+- each category row has an `Edit` button with `Edit3` and text `Edit`
+- category rows do not show a delete button
+
 ### Add a New Category
 
 Clicking `New` should open an add-category dialog. Use the same style
@@ -305,7 +308,8 @@ as the Add Memory dialog.
 
 Use a clear label: `Category name`.
 
-Use the shared field-label and text-input components for the category name.
+Use the shared field-label and text-input components for the category name. Use
+the shared multiline text-area component for optional category description.
 
 Suggestion period should be selected with the shared single-choice component:
 `Weekly` and `Monthly`. Sightseeing defaults to monthly; Cuisine defaults to
@@ -321,6 +325,7 @@ Add Category dialog.
 The Manage Categories dialog should not turn into an inline edit form when the
 user clicks edit.
 
-When clicking the delete button, show a confirmation dialog with two buttons.
+The category delete action lives inside the edit category dialog, below the
+`Save` button. Clicking `Delete` shows a confirmation dialog with two buttons.
 If the category is still used by memories, show the backend error in the shared
-notification component and keep the dialog open.
+notification component and keep the edit dialog open.

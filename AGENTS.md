@@ -82,6 +82,9 @@ user.
   `aa-split-container`, `aa-split-panel`, and `aa-split-panel-sidebar` for this
   width behavior. The split must not equalize panel heights; left and right
   panels keep independent content-driven heights.
+- Page-level minimum height and bottom breathing room belong in the app shell,
+  not feature pages. Keep the authenticated content column at least `110vh`
+  tall with shared bottom padding so all pages scroll consistently.
 - If the user asks for an unrelated bug fix or chore while another branch has
   active work in progress, do not mix it into the current branch. Stash the
   current work, switch back to `develop`, create a focused `agent/fix-*` or
@@ -164,9 +167,19 @@ user.
   lists, cards, text, or tags inside feature pages is prohibited. If the shared
   component is missing a needed pattern, extend or add a shared UI component
   first, then use it from the feature page.
+- Static field labels must use the shared `LabelText` style. Descriptive body
+  copy must use the shared `DescriptionText` style. Supporting metadata must use
+  the shared `SupportingText` style: same muted visual family as descriptions,
+  one size smaller, and usually a single `A · B · C` line. Do not hand-code
+  label, description, or metadata font size, line height, or muted color in
+  feature rows.
+- Card and panel title actions must be placed by the shared `CardHeader`.
+  Feature code should pass an action component and must not hand-align header
+  button top/right padding locally.
 - For dashboard cards and lightweight product commands, command actions should
-  normally resolve the active surface immediately. Examples: collapse an
-  expanded card after `Done`, `Skip`, `Replace`, or similar command buttons.
+  normally resolve the active surface immediately. Dashboard rows should stay
+  lightweight and avoid edit/detail management actions unless a feature spec
+  explicitly allows them.
 - Modal-based CRUD save/delete flows are different: close dialogs only after a
   successful backend response, and keep the dialog open when validation or
   database updates fail.
@@ -177,9 +190,9 @@ user.
   successful database write silent, and shows a visible error only if the
   backend or database fails.
 - Lightweight product commands should allow concurrent updates when each action
-  can be tracked independently. Examples include `Done`, `Skip`, checklist
-  toggles, and `Replace` when a cached replacement candidate exists. Track
-  pending state per item instead of blocking the whole card list.
+  can be tracked independently. Examples include `Done`, checklist toggles, and
+  `Replace` when a cached replacement candidate exists. Track pending state per
+  item instead of blocking the whole card list.
 - Heavyweight flows may remain blocking when rollback would be unclear or
   closing the surface early would lose user context. Examples include login,
   registration, and save/add/edit dialog submissions.
