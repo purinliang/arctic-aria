@@ -167,22 +167,25 @@ function NotificationToast({
     <section
       data-dismissing={notification.dismissing ? "true" : "false"}
       className={cx(
-        "aa-notification-toast grid grid-cols-[auto_1fr_auto] gap-x-3 gap-y-2 rounded-md border px-4 py-3 shadow-2xl",
+        "aa-notification-toast grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-md border px-4 py-4 shadow-2xl",
         toneClass(darkMode, notificationTone(notification.tone)),
       )}
       role="status"
     >
-      <Icon
-        className="self-center"
-        size={18}
-        aria-hidden="true"
-      />
-      <h2 className="min-w-0 self-center text-sm font-semibold">
-        {notification.title}
-      </h2>
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <Icon size={18} aria-hidden="true" />
+          <h2 className="min-w-0 text-sm font-semibold">
+            {notification.title}
+          </h2>
+        </div>
+        <p className="mt-1 text-sm leading-5 opacity-90">
+          {notification.message}
+        </p>
+      </div>
       <button
         className={cx(
-          "flex h-7 w-7 items-center justify-center rounded-md transition",
+          "flex h-[18px] w-[18px] items-center justify-center self-start rounded transition",
           darkMode
             ? "text-current opacity-80 hover:bg-white/10 hover:opacity-100"
             : "text-current opacity-80 hover:bg-black/5 hover:opacity-100",
@@ -193,13 +196,6 @@ function NotificationToast({
       >
         <X size={14} aria-hidden="true" />
       </button>
-      <p
-        className={cx(
-          "col-span-3 text-sm leading-5 opacity-90",
-        )}
-      >
-        {notification.message}
-      </p>
     </section>
   );
 }
