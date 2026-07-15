@@ -20,6 +20,9 @@ export function ProjectPageTitle({
   const [open, setOpen] = useState(false);
   const selectedProject =
     projects.find((project) => project.id === selectedProjectId) ?? null;
+  const breadcrumbButtonClass = darkMode
+    ? "hover:bg-white/10 hover:shadow-[0_0_0_5px_rgba(255,255,255,0.12)] focus-visible:bg-white/10 focus-visible:shadow-[0_0_0_5px_rgba(255,255,255,0.12)]"
+    : "hover:bg-slate-200 hover:shadow-[0_0_0_5px_rgb(226,232,240)] focus-visible:bg-slate-200 focus-visible:shadow-[0_0_0_5px_rgb(226,232,240)]";
 
   if (!selectedProject) {
     return (
@@ -33,10 +36,8 @@ export function ProjectPageTitle({
     <h1 className="flex min-w-0 items-center gap-2 text-2xl font-semibold tracking-normal sm:text-3xl">
       <button
         className={cx(
-          "shrink-0 rounded-sm text-left outline-none transition hover:shadow-[0_0_0_4px_rgba(226,232,240,0.95)] focus-visible:shadow-[0_0_0_4px_rgba(226,232,240,0.95)]",
-          darkMode
-            ? "hover:shadow-[0_0_0_4px_rgba(255,255,255,0.12)] focus-visible:shadow-[0_0_0_4px_rgba(255,255,255,0.12)]"
-            : false,
+          "shrink-0 rounded-sm text-left outline-none transition",
+          breadcrumbButtonClass,
         )}
         type="button"
         onClick={() => {
@@ -50,10 +51,8 @@ export function ProjectPageTitle({
       <span className="relative min-w-0">
         <button
           className={cx(
-            "flex min-w-0 max-w-[min(58vw,42rem)] items-center gap-2 rounded-sm text-left outline-none transition hover:shadow-[0_0_0_4px_rgba(226,232,240,0.95)] focus-visible:shadow-[0_0_0_4px_rgba(226,232,240,0.95)]",
-            darkMode
-              ? "hover:shadow-[0_0_0_4px_rgba(255,255,255,0.12)] focus-visible:shadow-[0_0_0_4px_rgba(255,255,255,0.12)]"
-              : false,
+            "flex min-w-0 max-w-[min(58vw,42rem)] items-center gap-2 rounded-sm text-left outline-none transition",
+            breadcrumbButtonClass,
           )}
           type="button"
           aria-expanded={open}
