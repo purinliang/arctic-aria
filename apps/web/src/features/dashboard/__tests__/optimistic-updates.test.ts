@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   addPendingSuggestionId,
+  applyDashboardTaskStatus,
   applyOptimisticPinnedMemoryStatus,
   applyOptimisticRoutineStatus,
   removeMemorySuggestion,
@@ -140,6 +141,14 @@ test("restores one failed project task without rolling back other tasks", () => 
 
   assert.equal(restored[0].status, "todo");
   assert.equal(restored[1].status, "blocked");
+});
+
+test("dashboard task checkbox keeps the row in its current position", () => {
+  const updated = applyDashboardTaskStatus(projectTasks, "task-1", "done");
+
+  assert.deepEqual(updated.map((task) => task.id), ["task-1", "task-2"]);
+  assert.equal(updated[0].status, "done");
+  assert.equal(updated[1], projectTasks[1]);
 });
 
 test("restores a failed project task that was optimistically removed", () => {
