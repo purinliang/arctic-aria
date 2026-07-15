@@ -73,14 +73,16 @@ export function AuthGate() {
             <Sparkles size={22} aria-hidden="true" />
             <h1 className="text-2xl font-semibold tracking-normal">Arctic Aria</h1>
           </div>
-          <LoaderCircle
-            size={24}
-            className="animate-spin text-slate-500"
-            aria-hidden="true"
-          />
-          <SupportingText darkMode={false} className="font-medium">
-            Opening your workspace...
-          </SupportingText>
+          <div className="flex items-center justify-center gap-2">
+            <LoaderCircle
+              size={18}
+              className="animate-spin text-slate-500"
+              aria-hidden="true"
+            />
+            <SupportingText darkMode={false} className="font-medium">
+              Opening your workspace...
+            </SupportingText>
+          </div>
         </div>
       </main>
     );

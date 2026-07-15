@@ -9,8 +9,8 @@ validation, and persistence behavior are documented in [design.md](design.md).
   page.
 - Use the same brand row as the login and sidebar surfaces: Sparkles icon plus
   `Arctic Aria`.
-- Show a visible loading spinner below the brand row.
-- Show the loading text `Opening your workspace...`.
+- Show a visible loading spinner and the text `Opening your workspace...` in
+  one horizontal row below the brand row.
 - Do not show the login/register panel until the session check finishes.
 
 ## Registration Tab
