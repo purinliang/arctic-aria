@@ -1,7 +1,7 @@
 # Routines UI
 
 This document describes user-visible Routine UI behavior. Product rules and
-table attributes are documented in [routines.md](routines.md).
+table attributes are documented in [design.md](design.md).
 
 ## Dashboard
 
@@ -36,7 +36,7 @@ instance statuses are only `pending`, `completed`, and `skipped`.
 
 ## Routines Page
 
-The sidebar `Routines` item should eventually open a full management page.
+The sidebar `Routines` item opens the full routine management page.
 
 The first Routines page should allow the user to:
 
@@ -49,7 +49,7 @@ The first Routines page should allow the user to:
 - choose a preferred reminder time
 
 The `Routines` page header action should be a secondary `New` button with a
-plus icon. Do not label this button `Add` or `New routine`, because the card
+plus icon. Do not label this button `Add` or `New routine`, because the panel
 title already says `Routines`.
 
 Use the same modal direction as the Memories add/edit dialogs and category

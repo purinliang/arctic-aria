@@ -16,8 +16,7 @@ The current web implementation supports database-backed memory testing:
 - cancel pinned memory done
 - replace a pinned memory with another same-category memory when available
 
-The current project task prototype is database-backed.
-Routines are database-backed.
+Projects and Routines are database-backed.
 
 ## Current User Flow
 
@@ -28,14 +27,14 @@ The page should show:
 - memory list
 - category filter buttons
 - `New` action
-- `Categories` action
+- `Manage` action
 - suggestions panel on the right side on desktop and below the list on mobile
 
 `New` opens memory creation UI.
 
 Memory `Edit` opens memory editing UI.
 
-`Categories` opens category management UI.
+`Manage` opens category management UI.
 
 ## Suggestions Panel
 
@@ -84,7 +83,8 @@ Button behavior:
   are recorded as ignored suggestion signals before the new list is loaded.
 - A failed `Pin` keeps the suggestion visible and shows the backend message in
   the shared notification stack.
-- Buttons are disabled while a suggestion action is pending.
+- A pending pin disables only that suggestion's action. `Refresh` is disabled
+  while suggestions are loading or while any suggestion action is pending.
 - `Pin` should refresh the database-backed memory list and dashboard pinned
   state after success.
 - `Refresh` should refresh memory list summary fields after recording ignored

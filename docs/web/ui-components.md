@@ -43,6 +43,8 @@ Use it for:
 Feature pages should not write root CSS variables directly. App surfaces should
 call the shared theme helper and pass `darkMode` into shared UI components.
 
+User-visible theme behavior is documented in [theme.md](theme.md).
+
 ## Text
 
 `text.tsx` owns shared text styles and message components.
@@ -88,6 +90,16 @@ as `Projects`, `Routines`, `Memories`, or `Milestones`. Do not use primary
 styling for these header create buttons. Use a more specific label, such as
 `New task`, only when the surrounding row or section does not already name the
 created object clearly.
+
+## Icon
+
+Use `lucide-react` icons for normal UI icons when a suitable icon exists.
+Feature UI docs may name exact Lucide icons when a repeated surface needs
+consistent meaning, such as `Check` for project tasks or `ClipboardList` for
+memories.
+
+Use official brand artwork instead of Lucide for brand identities, such as the
+Google sign-in placeholder icon.
 
 ## Input Field
 

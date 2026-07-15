@@ -25,13 +25,17 @@ SQLite can still be useful for throwaway local experiments, but it should not be
 the main design target. If a local SQLite file is created during experiments, it
 must be gitignored.
 
-## Current Prototype Provider
+## Current Provider
 
-The current web auth prototype uses Neon PostgreSQL.
+The current web app uses Neon PostgreSQL for auth, projects, routines,
+memories, and dashboard-backed feature data.
 
 Local connection strings belong in untracked files such as
 `apps/web/.env.local` or `apps/web/.env.development.local`. Do not commit Neon
 URLs, passwords, dumps, or generated local database files.
+
+Use `NEON_POSTGRES_URL` as the single database URL environment variable for the
+web app and migration runner.
 
 Schema migration files are safe to commit. The current migration entry point is
 `apps/web/scripts/migrate.mjs`, exposed as `pnpm db:migrate` from `apps/web`.
@@ -211,6 +215,9 @@ event, and updates review data or future dataflow hooks.
 `Busy` should not be stored as a routine status. It should update the reminder
 job by snoozing or rescheduling the reminder.
 
-## Event Storage
+## Future Cache And Dataflow
 
-Intentionally left blank for now.
+There is no event-bus implementation or standalone event-bus document yet.
+Redis is a likely future cache or lightweight coordination direction, but it
+should not be added until a concrete read-performance, session, queue, or
+reminder-delivery need appears.

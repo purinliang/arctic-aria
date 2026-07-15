@@ -288,7 +288,7 @@ dashboard view of one task.
 
 Task row:
 
-- parent element: full-width `article`
+- parent element: shared `ListItem`
 - row layout: left completion checkbox, then task content
 - text group direction: vertical
 - first line: task title

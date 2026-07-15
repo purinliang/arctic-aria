@@ -1,3 +1,4 @@
+// Projects Page - Project Detail Page.
 import { ClipboardList, Edit3, Flag, Info, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { Card, CardHeader } from "@/components/card";

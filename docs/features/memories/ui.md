@@ -1,7 +1,7 @@
 # Memories UI
 
 This document describes user-visible Memories UI behavior. Product rules,
-tables, and recommendation behavior are documented in [memories.md](memories.md).
+tables, and recommendation behavior are documented in [design.md](design.md).
 
 ## Dashboard
 
@@ -58,7 +58,6 @@ The page should allow the user to:
 
 - view all memories
 - filter by category
-- open a memory detail page
 - add a memory
 - edit or delete a memory
 - manage categories
@@ -163,14 +162,17 @@ Each suggestion item should show:
 Click behavior:
 
 - Clicking `Pin` pins that suggestion. While processing, show a loading icon
-  inside the button and disable it.
-- After clicking `Pin`, optimistically change the icon to an unpin state with no
-  text. If the backend rejects the command, restore the previous icon state and
-  show the backend message in the shared notification component.
+  inside only that suggestion's button and disable only that suggestion's
+  action.
+- After the backend succeeds, remove the pinned suggestion from the visible
+  suggestion list and refresh database-backed memory summaries. If the backend
+  rejects the command, keep the suggestion visible and show the backend message
+  in the shared notification component.
 - Clicking `Cancel` should undo that pending pin state when supported by the
-  implementation. While processing, show a loading icon inside the button and
-  disable it. If the backend rejects the command, restore the previous icon
-  state and show the backend message in the shared notification component.
+  implementation. While processing, show a loading icon inside only that
+  suggestion's button and disable only that suggestion's action. If the backend
+  rejects the command, restore the previous icon state and show the backend
+  message in the shared notification component.
 - Do not show a separate `Ignore` button.
 
 Refresh behavior:
@@ -212,7 +214,7 @@ Modal behavior:
 
 - Opening `Add` should show an add-memory dialog.
 - Opening `Edit` on a memory should show an edit-memory dialog.
-- Opening `Categories` should show a category-management dialog.
+- Opening `Manage` should show a category-management dialog.
 - The page behind the dialog should be covered by a semi-transparent black
   overlay.
 - Clicking outside the dialog or pressing a visible close button should dismiss

@@ -75,9 +75,9 @@ Main content:
 
 - active project list
 - archived or completed projects hidden by default
-- project cards without milestone or task details
+- project list items without milestone or task details
 
-Each project card should show:
+Each project list item should show:
 
 - project title
 - description, truncated when long
@@ -87,7 +87,8 @@ Each project card should show:
 - no colored status, priority, or category-like tags in the current UI
 
 The project list page should not show milestone rows or task rows. Clicking a
-project card opens a Project detail page. It should not open an edit dialog.
+project list item opens a Project detail page. It should not open an edit
+dialog.
 
 ### Projects Page Layout
 
@@ -99,7 +100,7 @@ Page layout:
 - parent surface: one shared `Panel`
 - direction: vertical
 - top header: title and description on the left, `New` on the right
-- project list: vertical list of project cards
+- project list: vertical list of project rows
 - project creation: `New` opens the project editor dialog
 
 Project list layout:
@@ -305,7 +306,6 @@ New task fields:
 - milestone selector, defaulting to `No milestone`
 - start date
 - deadline date
-- prerequisite tasks
 
 Do not show:
 
@@ -314,6 +314,7 @@ Do not show:
 - block/skip task actions
 - done/not-done selector inside add/edit dialogs
 - scheduled date field
+- prerequisite/dependency selector in the current first UI
 - editable numeric progress fields
 - colored tag chips
 

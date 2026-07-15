@@ -15,7 +15,7 @@ not a medical, therapy, or mental health treatment product.
 
 ## What It Helps With
 
-- Break a long-term project into milestones, tasks, and subtasks.
+- Break a long-term project into milestones and tasks.
 - Choose what to do today based on priority, urgency, progress, and deadlines.
 - Remember routines with reminders and quick completion checks.
 - Capture ideas, possible tasks, and possible routines before they are lost.
@@ -29,15 +29,15 @@ not a medical, therapy, or mental health treatment product.
 
 Arctic Aria is organized around features and supporting services:
 
-- Features: auth, projects, routines, memories, dashboard, reviews, and future
-  idea capture.
+- Features: auth, settings, projects, routines, memories, dashboard, reviews,
+  and future idea capture.
 - Plugins: optional helpers such as rewards, English coach, research coach,
   cuisine and sightseeing planner, movie or anime recommender, and future
   specialized assistants.
 - Apps: web dashboard for full control and Discord bot for reminders, quick
   capture, daily push messages, and review prompts.
-- Infrastructure: database, background jobs, event bus, and external service
-  adapters.
+- Infrastructure: Neon PostgreSQL now, with future cache, background job,
+  dataflow, and external service adapters added only when needed.
 
 The web dashboard is the main workspace. The Discord bot is important because it
 can reach the user when they forget to open the app.
@@ -63,20 +63,30 @@ too complicated.
 - [docs/architecture.md](docs/architecture.md): feature, plugin, app, and
   infrastructure responsibilities.
 - [docs/features/overview.md](docs/features/overview.md): first feature model
-  for projects, milestones, tasks, routines, daily plans, ideas, memories, and
-  reviews.
+  for settings, projects, milestones, tasks, routines, daily plans, ideas,
+  memories, and reviews.
+- [docs/features/settings/design.md](docs/features/settings/design.md):
+  user-facing settings and preference rules.
 - [docs/features/projects/overview.md](docs/features/projects/overview.md):
-  project, milestone, task, and subtask product rules.
+  project, milestone, and task product rules.
 - [docs/features/projects/data-model.md](docs/features/projects/data-model.md):
   project feature data model and database direction.
 - [docs/features/projects/ui.md](docs/features/projects/ui.md): project
   and task UI behavior.
 - [docs/features/routines/design.md](docs/features/routines/design.md):
   routine product rules and data behavior.
+- [docs/features/routines/web-implementation.md](docs/features/routines/web-implementation.md):
+  current web routine implementation notes.
+- [docs/features/dashboard/ui.md](docs/features/dashboard/ui.md): current
+  dashboard UI behavior.
+- [docs/features/dashboard/web-implementation.md](docs/features/dashboard/web-implementation.md):
+  current web dashboard implementation notes.
+- [docs/ui.md](docs/ui.md): shared UI terminology and links to web component
+  rules.
 - [docs/implementation.md](docs/implementation.md): technology, storage, and
   repository structure.
 - [docs/infrastructure/database.md](docs/infrastructure/database.md): database
-  direction and current Neon PostgreSQL prototype notes.
+  direction and current Neon PostgreSQL notes.
 - [docs/features/auth/web-implementation.md](docs/features/auth/web-implementation.md):
   current web auth implementation notes.
 - [docs/features/projects/web-implementation.md](docs/features/projects/web-implementation.md):

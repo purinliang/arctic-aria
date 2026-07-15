@@ -14,6 +14,7 @@ The first feature model should support:
 - milestones and tasks with status-derived progress
 - recurring routines
 - generated routine instances
+- user settings
 - daily plans
 - quick idea capture
 - personal memories for repeatable enjoyable experiences
@@ -24,14 +25,14 @@ The first feature model should not include:
 
 - internal plugin or agent context, such as learning history or retrieval
   context
-- event bus design
+- infrastructure event/dataflow design
 - Discord-specific message details
 
 Detailed user registration and login rules are documented in
 [auth/design.md](auth/design.md). User settings are documented in
-[auth/settings.md](auth/settings.md). Project and task rules are documented in
-[projects/overview.md](projects/overview.md). Routine rules are documented in
-[routines/design.md](routines/design.md). Memory rules are documented in
+[settings/design.md](settings/design.md). Project and task rules are documented
+in [projects/overview.md](projects/overview.md). Routine rules are documented
+in [routines/design.md](routines/design.md). Memory rules are documented in
 [memories/design.md](memories/design.md).
 
 ## User
@@ -60,8 +61,7 @@ a degree, applying for a visa, or finishing a study/work objective.
 
 - user id
 - title
-- target or objective
-- importance reason
+- description, combining the objective and why it matters
 - status
 - priority
 - start date

@@ -1,11 +1,7 @@
 # Auth Implementation Notes
 
-This note records the current username and password auth prototype in the
+This note records the current username and password auth implementation in the
 Next.js web app. The product rules still live in [design.md](design.md).
-
-The general dashboard prototype notes are documented in
-[prototype.md](prototype.md). Its "no authentication" boundary applies to the
-dashboard-only prototype work, not to this auth feature branch.
 
 ## Current Status
 
@@ -112,7 +108,7 @@ stored. Password validation must happen before hashing.
 
 ## Database Notes
 
-The selected database for the current prototype is Neon PostgreSQL.
+The selected database for the current web app is Neon PostgreSQL.
 
 The app reads the database URL from `NEON_POSTGRES_URL` through
 `apps/web/src/server/database/neon.ts`. Use the same key locally and in
@@ -130,7 +126,7 @@ connects, and it also requires `NEON_POSTGRES_URL`.
 
 ## Session Notes
 
-The current prototype stores login state in an HTTP-only signed cookie named
+The current implementation stores login state in an HTTP-only signed cookie named
 `arctic_aria_session`. The cookie lasts 30 days.
 
 The session token is signed with `AUTH_SESSION_SECRET` when it is set. For local
@@ -158,7 +154,6 @@ Auth UI should follow the existing web rules:
   failure, and unavailable auth actions. Do not render separate auth-only
   success or failure messages inside the form.
 - Keep OAuth as a placeholder until the username and password flow is stable.
-- Use `lucide-react` icons for normal UI icons when a suitable icon exists.
 - Use the Google-provided multicolor logo component for the Google placeholder.
 - Clicking the placeholder Google action should show a shared info notification.
 - Clicking the placeholder password reset action should show a shared info

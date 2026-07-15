@@ -1,3 +1,4 @@
+// Memories Page - Category Manager Dialog.
 import { Edit3, LoaderCircle, Plus, Save, Trash2, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";

@@ -1,3 +1,4 @@
+// Projects Page - Projects List.
 import { FolderKanban, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";

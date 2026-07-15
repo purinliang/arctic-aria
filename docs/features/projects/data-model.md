@@ -172,7 +172,8 @@ Rules:
 - both tasks should usually belong to the same project
 - prevent self-dependency
 - prevent dependency cycles
-- the first UI can use simple prerequisite selection, not a graph visualization
+- prerequisite selection is planned for later; the current first UI does not
+  expose dependency editing
 
 ## Completion Events
 
@@ -215,7 +216,9 @@ schema. The migration drops the old prototype `plans` and `tasks` tables and
 creates the Project tables above.
 
 `0006_drop_project_subtasks.sql` drops the removed `project_subtasks` table for
-development databases that already ran the earlier project migration.
+development databases that already ran the earlier project migration. Task
+dependency storage remains a future direction; the current first UI does not
+expose dependency editing.
 
 Current compatibility note:
 

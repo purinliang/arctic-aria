@@ -10,6 +10,7 @@ Technology choices and repository layout are documented in
 Arctic Aria
 |-- Product features
 |   |-- Auth
+|   |-- Settings
 |   |-- Projects
 |   |-- Routines
 |   |-- Memories
@@ -30,22 +31,25 @@ Arctic Aria
 |
 `-- Infrastructure services
     |-- Database
-    |-- Event bus
-    `-- Background jobs
+    |-- Future cache
+    |-- Future dataflow
+    `-- Future background jobs
 ```
 
 Product features own user-visible rules and state transitions. Plugin workers
 add optional specialized workflows. App surfaces let the user operate the same
-system through web or Discord. Infrastructure services provide storage, event
-delivery, scheduling, and external adapters.
+system through web or Discord. Infrastructure services provide storage now and
+can later provide cache, dataflow, scheduling, and external adapters.
 
 Documentation follows the same shape:
 
 - `docs/features/<feature>/`: feature design, UI behavior, and implementation
   notes.
-- `docs/shared/`: shared web UI component rules.
-- `docs/infrastructure/`: database, event bus, migrations, jobs, and technical
-  service direction.
+- `docs/web/`: shared web UI component rules.
+- `docs/ui.md`: shared UI terminology and UI documentation index.
+- `docs/infrastructure/`: database, migrations, and technical service
+  direction. Current infrastructure is Neon PostgreSQL; Redis/cache and event
+  dataflow are future directions.
 - `docs/apps/`: app-specific notes such as Discord bot behavior.
 
 ## Product Features
@@ -56,15 +60,25 @@ usable from more than one app surface.
 
 ### Auth
 
-Auth owns registration, login, session persistence, logout, user settings, and
-future account management. The current MVP uses username and password auth.
+Auth owns registration, login, session persistence, logout, credential
+security, and future OAuth. The current MVP uses username and password auth.
 
 Detailed docs:
 
 - [features/auth/design.md](features/auth/design.md)
 - [features/auth/ui.md](features/auth/ui.md)
-- [features/auth/settings.md](features/auth/settings.md)
 - [features/auth/web-implementation.md](features/auth/web-implementation.md)
+
+### Settings
+
+Settings owns user-facing preferences and profile configuration such as
+timezone, day boundary, display name editing, and future settings-page
+behavior. Auth still owns credential update commands, such as changing a
+password, because those commands must enforce auth security rules.
+
+Detailed docs:
+
+- [features/settings/design.md](features/settings/design.md)
 
 ### Projects
 
@@ -95,6 +109,7 @@ Detailed docs:
 
 - [features/routines/design.md](features/routines/design.md)
 - [features/routines/ui.md](features/routines/ui.md)
+- [features/routines/web-implementation.md](features/routines/web-implementation.md)
 
 ### Memories
 
@@ -117,7 +132,8 @@ not redefine those feature rules.
 
 Detailed docs:
 
-- [features/dashboard/web-prototype.md](features/dashboard/web-prototype.md)
+- [features/dashboard/ui.md](features/dashboard/ui.md)
+- [features/dashboard/web-implementation.md](features/dashboard/web-implementation.md)
 
 ### Ideas
 
@@ -225,8 +241,9 @@ It owns:
 
 Detailed docs:
 
-- [apps/web/sidebar.md](apps/web/sidebar.md)
-- [apps/web/sidebar-ui.md](apps/web/sidebar-ui.md)
+- [web/theme.md](web/theme.md)
+- [web/sidebar.md](web/sidebar.md)
+- [web/sidebar-ui.md](web/sidebar-ui.md)
 
 ### Discord Bot
 
@@ -253,17 +270,22 @@ surfaces. They own technical mechanisms, not product decisions.
 Infrastructure owns:
 
 - database persistence, migrations, indexes, and transaction support
-- event publishing, subscribing, retries, and delivery tracking
-- background execution for reminders, scheduled review work, plugin runs, and
-  notification delivery
+- future cache support, likely Redis, when repeated read paths or ephemeral
+  coordination need it
+- future event publishing, subscribing, retries, and delivery tracking
+- future background execution for reminders, scheduled review work, plugin
+  runs, and notification delivery
 - external service adapters
 
 Product features define entities, commands, validations, and domain events.
-Infrastructure stores those entities and moves those events between modules.
+Infrastructure stores those entities now. Future infrastructure may move events
+between modules when reminder, review, plugin, or cache flows need it.
 
-For the first version, the database and event bus can be simple. They still
-belong in infrastructure because product features should not depend directly on
-a specific storage engine, queue, or notification transport.
+For the first version, only Neon PostgreSQL is implemented. Redis/cache,
+event/dataflow, queues, and background workers are future infrastructure
+directions. They still belong in infrastructure because product features should
+not depend directly on a specific storage engine, queue, or notification
+transport.
 
 ## Data Flow
 

@@ -1,5 +1,6 @@
 "use client";
 
+// App Shell.
 import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";

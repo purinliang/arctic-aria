@@ -59,22 +59,25 @@ TypeScript is the cleaner first choice.
 
 ### Infrastructure Services
 
-Treat the database, event bus, migrations, and background jobs as
-infrastructure concerns.
+Treat the database, migrations, future cache, future event/dataflow, and future
+background jobs as infrastructure concerns.
 
 Product modules should expose commands and domain events. Infrastructure should
-provide the technical implementation that persists command results, publishes
-events, schedules jobs, and records delivery state.
+provide the technical implementation that persists command results and, later,
+publishes events, schedules jobs, and records delivery state.
 
 For the first version, keep infrastructure simple:
 
 - PostgreSQL for durable storage.
 - Background jobs for reminders and plugin work when a direct request is not
   reliable enough.
-- An event bus design can be added later when the event flow is clearer.
+- Redis can be considered later for caching, short-lived coordination, or queue
+  support when a concrete need appears.
+- Event/dataflow design can be added later when the reminder and plugin flows
+  are clearer.
 
-Do not introduce Kafka, RabbitMQ, Redis Streams, or a separate document database
-until the project has a concrete scaling or reliability need.
+Do not introduce Redis, Kafka, RabbitMQ, Redis Streams, or a separate document
+database until the project has a concrete scaling or reliability need.
 
 ## Storage Strategy
 
@@ -106,7 +109,7 @@ This keeps deployment simpler while leaving room for document-like plugin data.
 A separate document database can be added later if internal plugin or agent
 context becomes large, independent, or hard to model in PostgreSQL.
 
-## Proposed Repository Structure
+## Target Repository Structure
 
 ```text
 arctic-aria/
@@ -132,7 +135,6 @@ arctic-aria/
 |   |-- core/
 |   |   |-- src/
 |   |   |   |-- projects/
-|   |   |   |-- tasks/
 |   |   |   |-- routines/
 |   |   |   |-- ideas/
 |   |   |   |-- memories/
@@ -176,13 +178,16 @@ arctic-aria/
 |   |   |-- dashboard/
 |   |   |-- memories/
 |   |   |-- projects/
+|   |   |-- settings/
 |   |   `-- routines/
 |   |-- implementation.md
 |   |-- infrastructure/
 |   |   |-- database.md
-|   |   `-- event-bus.md
-|   |-- shared/
-|   |   `-- web-ui-components.md
+|   |-- web/
+|   |   |-- sidebar.md
+|   |   |-- sidebar-ui.md
+|   |   |-- theme.md
+|   |   `-- ui-components.md
 |   |-- apps/
 |   |   `-- discord-bot/
 |   |-- roadmap.md
@@ -201,6 +206,18 @@ another web surface needs the same components.
 Each plugin can have its own `README.md` later to describe setup, commands,
 dependencies, and integration contracts.
 
+## Current Repository Structure
+
+The current repository is intentionally smaller than the target structure:
+
+- `apps/web/`: the Next.js web app, migrations, feature code, shared web
+  components, app shell, and web tests.
+- `docs/`: product, architecture, infrastructure, feature, and UI rules.
+- `AGENTS.md`: root agent workflow rules.
+
+There is no implemented Discord bot, plugin service, shared package workspace,
+event bus, Redis cache, or background-worker package yet.
+
 ## Implementation Boundary
 
 The current implementation started with the smallest useful auth foundation:
@@ -218,7 +235,7 @@ The current Project slice includes:
 - milestone capture
 - task capture under a project, with optional milestone assignment
 - status commands for dashboard tasks
-- database-backed dashboard task cards
+- database-backed dashboard task rows
 - Project management page and detail pages
 - completion events for task completion, skip, block, unblock, and reopen
   actions
@@ -227,10 +244,11 @@ The Project slice intentionally does not expose editable numeric progress
 fields. Progress text is derived from task completion.
 
 Web source organization should follow the feature directories under
-`apps/web/src/features`. Feature pages, cards, dialogs, actions, repositories,
-and tests live with their owning feature. Dashboard composition can import
-feature-owned cards, but it should not own memory, routine, or project page
-implementations. Shared primitives remain in `apps/web/src/components`.
+`apps/web/src/features`. Feature pages, panels, rows, dialogs, actions,
+repositories, and tests live with their owning feature. Dashboard composition
+can import feature-owned panels and rows, but it should not own memory,
+routine, or project page implementations. Shared primitives remain in
+`apps/web/src/components`.
 
 The authenticated web app shell lives in `apps/web/src/app-shell`. It owns
 sidebar navigation, active page switching, the root page title bar, theme mode,
@@ -252,7 +270,7 @@ cards. They should be separate branches after the Project contracts are stable.
 
 ## Open Decisions
 
-- Whether to keep direct SQL beyond the current auth prototype or move broader
+- Whether to keep direct SQL beyond the current auth slice or move broader
   product data access to Prisma or Drizzle.
 - Whether the first deployment target should be Vercel plus managed PostgreSQL,
   a VPS, or a local Docker Compose setup.
@@ -260,5 +278,5 @@ cards. They should be separate branches after the Project contracts are stable.
   manually triggered scripts in the first version.
 - Whether retrieval should start with PostgreSQL `jsonb` and full-text search,
   PostgreSQL vector search, or a later external vector database.
-- What event bus or dataflow mechanism should be used once the first reminder
-  and plugin flows are clearer.
+- What cache, queue, event, or dataflow mechanism should be used once the first
+  reminder and plugin flows are clearer.

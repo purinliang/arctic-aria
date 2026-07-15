@@ -1,14 +1,14 @@
 # User
 
-This document defines the first user feature. It covers registration, login,
-and future OAuth. User settings are documented separately in
-[settings.md](settings.md).
+This document defines the first auth feature. It covers registration, login,
+session behavior, and future OAuth. Broader user preferences belong to the
+separate Settings feature.
 
 User-facing auth UI behavior is documented in [ui.md](ui.md). The
 current web implementation notes are documented in
 [web-implementation.md](web-implementation.md). Keep
 this file as the product rule source and use the implementation note for code
-locations, commands, and current prototype status.
+locations, commands, and current implementation status.
 
 ## Scope
 
@@ -59,7 +59,7 @@ manager, not from tracked files.
 
 ## Registration
 
-Progress: planned
+Progress: implemented in the current web app.
 
 Use `register` in code. The UI can say `Sign up`.
 
@@ -131,7 +131,7 @@ values.
 
 ## Login
 
-Progress: planned
+Progress: implemented in the current web app.
 
 Use `login` in code. The UI can say `Sign in`.
 

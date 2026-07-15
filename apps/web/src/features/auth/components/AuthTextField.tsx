@@ -1,5 +1,6 @@
 "use client";
 
+// Auth Page - Auth Text Field.
 import type { ReactNode } from "react";
 import {
   FieldError,

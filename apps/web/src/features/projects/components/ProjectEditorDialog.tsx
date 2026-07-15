@@ -1,3 +1,4 @@
+// Projects Page - Project Editor Dialog.
 import { LoaderCircle, Save, Trash2 } from "lucide-react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { Button } from "@/components/button";

@@ -62,7 +62,8 @@ Order from top to bottom:
 The theme mode and sign out actions should look like other sidebar menu items:
 same left alignment, icon position, row height, and button surface. Do not use a
 separate switch control in the sidebar. Do not show the current user display
-name in the sidebar or page title bar.
+name in the sidebar or page title bar. Theme behavior is documented in
+[theme.md](theme.md).
 
 ## Brand
 

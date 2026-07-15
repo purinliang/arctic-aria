@@ -1,3 +1,4 @@
+// App Shell - Sidebar.
 import {
   Bell,
   ClipboardList,
