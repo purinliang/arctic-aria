@@ -63,3 +63,13 @@ becomes clearer.
 - Decide the production hosting model for the web app, backend, database, and
   Discord bot.
 - Add backup, sync, and account strategy when the data model is stable.
+
+## Post-v1.0.0 Security Review
+
+- Rotate any database URLs, Neon credentials, auth secrets, API keys, and
+  deployment tokens that were pasted into chat, logs, local notes, or other
+  non-secret storage during development.
+- Confirm production uses explicit secrets such as `AUTH_SESSION_SECRET` instead
+  of development fallbacks.
+- Review ignored local files, deployment environment variables, Vercel project
+  links, and database access settings before treating the release as stable.
