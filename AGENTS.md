@@ -84,6 +84,14 @@ user.
   `develop` when the user has requested that workflow, then return to the
   previous branch and restore the stash. Sync `develop` back into the previous
   branch only when the change is worth carrying forward immediately.
+- If the user sends a sequence of bug reports before a commit is made, fix small
+  independent bugs one by one and commit each coherent fix separately. If the
+  bugs clearly share the same cause or must be changed together, one shared bug
+  fix branch is acceptable, but the branch name should describe the affected
+  area and each commit title/body must state which reported bug or bugs it fixes.
+- Do not hide unrelated bug fixes inside a broad commit. A branch may group
+  several small bugs only when the commits inside the branch remain separately
+  reviewable.
 
 ## Generated Files
 
