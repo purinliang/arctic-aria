@@ -52,6 +52,12 @@ Deletion behavior:
 
 - The current web UI uses archive commands for project, milestone, and task
   deletion.
+- Archived project records stay in the database but are hidden from normal
+  project lists, project detail views, dashboard task rows, and scheduler
+  candidates.
+- Archiving a milestone should also archive or detach the visible task rows
+  according to the implemented repository behavior; the current PostgreSQL
+  repository archives tasks assigned to the archived milestone.
 - A future hard-delete command should refuse deleting a non-empty project or
   milestone by default.
 - Cascade cleanup must be explicitly documented before it is used for

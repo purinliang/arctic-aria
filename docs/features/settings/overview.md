@@ -15,9 +15,12 @@ behaves for one user.
 
 Should be stored in the `user_settings` SQL table.
 
-- timezone
-> to avoid daytime saving...
+- timezone, to handle daylight-saving changes and personal-day calculations
 - day boundary time, default `04:00`
+- default theme, such as light or dark
+- language preference, such as English or Chinese
+- date format preference
+- future auto-translation preference
 
 The day boundary matters because a routine completed at `03:59` may still belong
 to the previous personal day.
@@ -40,5 +43,3 @@ Progress: suspended
 Changing password is shown from the Settings page, but the credential update
 command belongs to Auth because it must enforce password validation, hashing,
 session, and security rules.
-
-> Default theme (Dark/light) and language (Chinese/ English), auto translate and supprt date format

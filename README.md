@@ -94,9 +94,13 @@ too complicated.
 - [docs/ui.md](docs/ui.md): shared UI terminology and links to web component
   rules.
 - [docs/implementation.md](docs/implementation.md): technology, storage, and
-  repository structure.
+  current repository structure.
 - [docs/infrastructure/database.md](docs/infrastructure/database.md): database
-  direction and current Neon PostgreSQL notes.
+  direction, data lifecycle, credential/data protection, and current Neon
+  PostgreSQL notes.
+- [docs/infrastructure/redis.md](docs/infrastructure/redis.md): planned Redis
+  direction for latency, cache, rate limiting, idempotency, and short-lived
+  coordination.
 - [docs/features/auth/web-implementation.md](docs/features/auth/web-implementation.md):
   current web auth implementation notes.
 - [docs/features/projects/web-implementation.md](docs/features/projects/web-implementation.md):

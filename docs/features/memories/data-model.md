@@ -64,6 +64,7 @@ Delete behavior:
   category.
 - The backend should translate that database refusal into a clear user-facing
   message.
+- Empty category delete is a hard delete.
 
 ## `memories`
 
@@ -96,6 +97,18 @@ Current database protection:
 denormalized summary fields. The source of truth for history is
 `memory_events`.
 
+Delete behavior:
+
+- Current memory delete is a hard delete.
+- Deleting a memory removes that memory from normal views and removes related
+  pinned-memory rows.
+- In PostgreSQL, linked `memory_events` rows are removed by foreign-key cascade
+  when their memory is hard-deleted. Therefore memory events are immutable
+  history only while the memory record still exists.
+- If long-term audit history for deleted memories becomes important, change
+  memories to soft delete before relying on `memory_events` as permanent audit
+  records.
+
 ## `memory_events`
 
 Stores immutable history for recommendation signals and audits.
@@ -117,6 +130,15 @@ Current event types:
 - `completed_canceled`
 - `replaced`
 - `deleted`
+
+Retention behavior:
+
+- Events are append-only during normal memory interactions.
+- Events attached to a hard-deleted memory are deleted by database cascade in
+  the current schema.
+- The `deleted` event type is allowed by the schema, but the current PostgreSQL
+  hard-delete command does not preserve a durable delete event because the
+  memory row is removed.
 
 ## `pinned_memories`
 
@@ -147,3 +169,9 @@ Current database protection:
 The dashboard should still enforce category limits and replacement rules in the
 backend service because those rules depend on current visible rows and
 candidate selection.
+
+Lifecycle behavior:
+
+- Pinned rows are dashboard shortlist state, not the canonical memory record.
+- Completing, canceling, replacing, or cleaning up pinned memories should update
+  or remove pinned rows while leaving the memory record intact.

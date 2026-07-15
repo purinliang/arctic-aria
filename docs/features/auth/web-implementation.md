@@ -136,8 +136,9 @@ fallback secret. A deployed environment should set `AUTH_SESSION_SECRET`
 explicitly.
 
 The current session payload stores user id, username, display name, and expiry.
-It is not stored in the database, so there is no server-side session revocation
-yet.
+It is signed to prevent tampering, but it is not encrypted. Do not add
+sensitive data to the session payload. It is not stored in the database, so
+there is no server-side session revocation yet.
 
 ## UI Rules
 

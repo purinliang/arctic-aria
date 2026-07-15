@@ -41,15 +41,19 @@ add optional specialized workflows. App surfaces let the user operate the same
 system through web or Discord. Infrastructure services provide storage now and
 can later provide cache, dataflow, scheduling, and external adapters.
 
+Currently implemented product features are Auth, Projects, Routines, Memories,
+and Dashboard. Settings, Ideas, Scheduler, Reviews, Discord bot, plugin
+workers, Redis/cache, dataflow, and background jobs are planned directions.
+
 Documentation follows the same shape:
 
-- `docs/features/<feature>/`: feature design, UI behavior, and implementation
-  notes.
+- `docs/features/<feature>/`: feature overview, data model, UI behavior, and
+  implementation notes.
 - `docs/web/`: shared web UI component rules.
 - `docs/ui.md`: shared UI terminology and UI documentation index.
-- `docs/infrastructure/`: database, migrations, and technical service
-  direction. Current infrastructure is Neon PostgreSQL; Redis/cache and event
-  dataflow are future directions.
+- `docs/infrastructure/`: database, migrations, Redis planning, and technical
+  service direction. Current infrastructure is Neon PostgreSQL; Redis/cache and
+  event dataflow are future directions.
 - `docs/apps/`: app-specific notes such as Discord bot behavior.
 
 ## Product Features
@@ -92,6 +96,11 @@ The first model uses three conceptual levels:
   or expected duration, and grouped milestones.
 - Milestone: phase boundary inside a project.
 - Task: executable schedulable work item.
+
+Future AI-assisted project breakdown belongs to the Projects feature, Scheduler,
+or a future planner assistant. It is not infrastructure by itself. Infrastructure
+may later run the background job that performs the analysis, but Projects owns
+the resulting project, milestone, and task rules.
 
 Detailed docs:
 
@@ -150,6 +159,8 @@ The Ideas feature owns:
 - triage state
 - conversion into a project, task, routine, idea record, or plugin request
 
+Ideas is planned but not implemented yet.
+
 ### Scheduler
 
 The scheduler selects tasks and routines for upcoming time windows and returns
@@ -164,6 +175,8 @@ The scheduler owns:
 - creating reminder jobs
 - handling retry and quiet-period rules
 
+Scheduler is planned but not implemented yet.
+
 ### Reviews
 
 Reviews manage feedback and reflection.
@@ -177,11 +190,16 @@ The Reviews feature owns:
 - adjustment suggestions
 - hooks that allow the reward plugin to grant rewards
 
+Reviews is planned but not implemented yet.
+
 ## Plugin Workers
 
 Plugin workers add specialized behavior without owning normal product state
 directly. They should read product context through approved APIs and submit
 proposed actions back through validated commands.
+
+Plugin workers are a long-term direction. They are not expected during the
+current refactor, schema, documentation, and bug-fix phase.
 
 ### Reward System
 
@@ -289,6 +307,11 @@ event/dataflow, queues, and background workers are future infrastructure
 directions. They still belong in infrastructure because product features should
 not depend directly on a specific storage engine, queue, or notification
 transport.
+
+Detailed docs:
+
+- [infrastructure/database.md](infrastructure/database.md)
+- [infrastructure/redis.md](infrastructure/redis.md)
 
 ## Data Flow
 

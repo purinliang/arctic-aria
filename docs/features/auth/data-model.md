@@ -58,14 +58,29 @@ Current database constraints:
 Security rules:
 
 - Never store raw passwords.
-- Hash passwords with bcrypt before storing them.
+- Hash passwords with bcrypt before storing them. The current implementation
+  uses cost `12`.
+- Treat `password_hash` as a one-way verifier, not as encrypted password data.
+  It should never be decrypted because there is no original password to recover.
 - Do not commit password hashing secrets, peppers, auth secrets, or database
   credentials.
+- If a future password pepper is added, keep it outside the database and outside
+  committed files.
 
 ## Sessions
 
 The current web implementation stores session state in a signed HTTP-only
 cookie. Session persistence is not stored in a database table yet.
+
+Current session rules:
+
+- The cookie name is `arctic_aria_session`.
+- The cookie max age is 30 days.
+- The token payload stores only user id, username, display name, and expiry.
+- The token is signed with HMAC SHA-256 to prevent tampering.
+- The token is not encrypted, so do not add sensitive data to the payload.
+- The cookie is `httpOnly`, `sameSite=lax`, and `secure` in production.
+- Production should set `AUTH_SESSION_SECRET` explicitly.
 
 Future database-backed sessions may be added when the app needs server-side
 session revocation, device management, or account-security audit records.

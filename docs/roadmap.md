@@ -69,6 +69,8 @@ becomes clearer.
 - Keep Neon PostgreSQL as the only implemented infrastructure service for now.
 - Consider Redis later as a cache, short-lived coordination store, or queue
   helper only after a concrete performance or reminder-delivery need exists.
+  Planned Redis rules are documented in
+  [infrastructure/redis.md](infrastructure/redis.md).
 - Design event/dataflow infrastructure later; do not reference a concrete event
   bus implementation until there is a real module and document for it.
 

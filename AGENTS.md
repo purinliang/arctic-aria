@@ -123,12 +123,18 @@ user.
   user-visible deletion. If hard delete is required, the default behavior is to
   refuse deleting a non-empty parent unless the feature explicitly documents a
   cascade cleanup.
+- Feature `data-model.md` docs must state delete lifecycle behavior explicitly:
+  archive, soft delete, hard delete, refused delete, and whether hidden rows
+  remain queryable for normal UI.
 - Backend actions should translate database constraint failures into clear
   user-facing messages instead of exposing raw database errors or generic
   failures when the cause is known.
 - Redis or another cache may help with fast checks later, but it is not the
   source of truth for product integrity. The database remains the final
   consistency boundary.
+- Credential behavior must be documented in auth and infrastructure docs. Never
+  imply hashed passwords can be decrypted, and never store secrets in product
+  tables unless a dedicated secret-storage design exists.
 
 ## Web App Work
 

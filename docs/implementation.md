@@ -1,282 +1,291 @@
-# Implementation Proposal
+# Implementation
 
-This document proposes the first implementation direction for Arctic Aria. The
-module architecture is documented in [architecture.md](architecture.md).
+This document records the current Arctic Aria implementation and the intended
+technical direction. Product ownership is documented in
+[architecture.md](architecture.md). Feature behavior is documented under
+[features/](features/).
 
-## Technology Direction
+## Current Status
 
-### Product Modules
+The only implemented app is the Next.js web app in `apps/web`.
 
-Use TypeScript for the first product module implementation.
+Implemented:
 
-Reasons:
+- username/password auth
+- signed 30-day auth session cookie
+- authenticated app shell with sidebar, theme, page title bar, and shared
+  notification stack
+- database-backed dashboard panels
+- database-backed Projects, Milestones, and Tasks
+- database-backed Routines and routine instances
+- database-backed Memories, categories, suggestions, and pinned memories
+- shared web UI primitives and form controls
+- Neon PostgreSQL migrations and direct SQL repositories
+- focused Node test coverage for validation, services, repositories, database
+  helpers, and selected action helpers
 
-- The main app is Next.js, so TypeScript keeps shared types and validation close
-  to the UI and backend.
-- The Discord bot can also use TypeScript through `discord.js`.
-- Product rules should be deterministic and testable, not hidden inside agent
-  prompts.
-- The system can avoid cross-language duplication for early project, task,
-  routine, scheduler, idea, and review logic.
+Not implemented yet:
 
-Python can be added later for plugin workers or agent services, but the first
-product modules should not depend on Python.
+- Discord bot
+- Redis/cache
+- event bus or dataflow service
+- background worker service
+- user settings page
+- ideas feature
+- reviews feature
+- reward plugin
+- English coach or other plugin workers
+- OAuth, password reset, account deletion, or server-side session revocation
 
-### Plugin Workers
+Planned-but-not-implemented requirements should stay in their owning docs, such
+as [user-story.md](user-story.md), [roadmap.md](roadmap.md), and feature
+overview files. Do not delete future requirements only because the current web
+slice has not implemented them yet.
 
-Use Python for plugin workers when the plugin needs agent workflows, retrieval,
-document processing, speech practice, or ML/data tooling.
+## Current Technology
 
-Plugin workers should communicate with product modules through explicit APIs or
-jobs. A plugin should not directly mutate product tables without going through a
-validated command or service.
+Web app:
 
-Simple plugins can still be TypeScript if they do not need Python-specific
-libraries.
+- Next.js App Router
+- React
+- TypeScript
+- Tailwind CSS
+- `lucide-react` for icons
 
-### App Surfaces
+Backend inside the web app:
 
-Use Next.js for the web dashboard.
+- Next.js server actions
+- direct SQL through `@neondatabase/serverless`
+- repository/service modules under each feature
+- shared Neon database client in `apps/web/src/server/database`
 
-The dashboard should be responsive and usable from desktop and iPhone Chrome. It
-should be the main product surface for planning, timetable editing, project and
-task progress, reviews, rewards, and plugin views.
+Auth and security:
 
-Use `discord.js` for the Discord bot unless a later implementation branch finds
-a concrete blocker.
+- `bcryptjs` for password hashing
+- signed HTTP-only session cookie
+- `AUTH_SESSION_SECRET` for production session signing
+- `NEON_POSTGRES_URL` as the single web database URL variable
 
-Reasons:
+Verification:
 
-- It keeps app surfaces in the same TypeScript workspace as the web app
-  and shared contracts.
-- The bot can share validation schemas, API clients, and command payload types.
-- `discord.js` supports slash commands and interaction handling in Node.js.
+- Node's built-in test runner through `pnpm test`
+- ESLint through `pnpm lint`
+- Next.js production build through `pnpm build`
+- migration runner through `pnpm db:migrate`
 
-Python Discord libraries are viable, especially if the bot becomes tightly
-coupled to Python plugin workers. For this project, the bot is mostly an
-interface for reminders, quick capture, buttons, and status updates, so
-TypeScript is the cleaner first choice.
+## Current Repository Structure
 
-### Infrastructure Services
-
-Treat the database, migrations, future cache, future event/dataflow, and future
-background jobs as infrastructure concerns.
-
-Product modules should expose commands and domain events. Infrastructure should
-provide the technical implementation that persists command results and, later,
-publishes events, schedules jobs, and records delivery state.
-
-For the first version, keep infrastructure simple:
-
-- PostgreSQL for durable storage.
-- Background jobs for reminders and plugin work when a direct request is not
-  reliable enough.
-- Redis can be considered later for caching, short-lived coordination, or queue
-  support when a concrete need appears.
-- Event/dataflow design can be added later when the reminder and plugin flows
-  are clearer.
-
-Do not introduce Redis, Kafka, RabbitMQ, Redis Streams, or a separate document
-database until the project has a concrete scaling or reliability need.
-
-## Storage Strategy
-
-Use PostgreSQL as the system of record for product data.
-
-PostgreSQL should store:
-
-- users and accounts
-- projects, milestones, tasks, and derived progress
-- ideas and triage state
-- memories, memory events, and pinned memories
-- routines, routine rules, and routine instances
-- scheduler events and notification state
-- completion events and daily reviews
-- plugin registrations and plugin run records
-
-Use document-style storage for internal plugin or agent context, but do not
-start with a separate document database unless the need is proven.
-
-Recommended first approach:
-
-- PostgreSQL relational tables for core entities.
-- PostgreSQL `jsonb` columns for flexible plugin metadata, conversation
-  summaries, extracted context facts, and raw agent outputs.
-- PostgreSQL vector extension or a later dedicated vector store for retrieval if
-  the English coach or research coach needs semantic search.
-
-This keeps deployment simpler while leaving room for document-like plugin data.
-A separate document database can be added later if internal plugin or agent
-context becomes large, independent, or hard to model in PostgreSQL.
-
-## Target Repository Structure
+The repository is intentionally smaller than the future target. There is no
+root `package.json`, no root `pnpm-workspace.yaml`, and no shared package
+workspace yet.
 
 ```text
 arctic-aria/
 |-- apps/
-|   |-- web/
-|   |   |-- src/
-|   |   |   |-- app/                 # Next.js App Router routes
-|   |   |   |-- app-shell/           # Authenticated web shell and navigation
-|   |   |   |-- components/          # Web-only UI components
-|   |   |   |-- features/            # Web feature modules
-|   |   |   `-- server/              # Route handlers and server actions
-|   |   `-- package.json
-|   |
-|   `-- discord-bot/
+|   `-- web/
+|       |-- AGENTS.md
+|       |-- database/
+|       |   `-- migrations/
+|       |-- scripts/
+|       |   `-- migrate.mjs
 |       |-- src/
-|       |   |-- commands/            # Slash command definitions
-|       |   |-- interactions/        # Button and modal handlers
-|       |   |-- reminders/           # Discord reminder delivery
-|       |   `-- index.ts
-|       `-- package.json
-|
-|-- packages/
-|   |-- core/
-|   |   |-- src/
-|   |   |   |-- projects/
-|   |   |   |-- routines/
-|   |   |   |-- ideas/
-|   |   |   |-- memories/
-|   |   |   |-- scheduler/
-|   |   |   `-- reviews/
-|   |   `-- package.json
-|   |
-|   |-- database/
-|   |   |-- migrations/
-|   |   |-- src/
-|   |   |   |-- schema/
-|   |   |   |-- repositories/
-|   |   |   `-- client.ts
-|   |   `-- package.json
-|   |
-|   `-- contracts/
-|       |-- src/
-|       |   |-- api/
-|       |   |-- events/
-|       |   `-- schemas/
-|       `-- package.json
-|
-|-- plugins/
-|   |-- reward-system/
-|   |   |-- src/
-|   |   |-- pyproject.toml
-|   |   `-- README.md
-|   |
-|   |-- english-coach/
-|   |   |-- src/
-|   |   |-- pyproject.toml
-|   |   `-- README.md
-|   |
-|   `-- README.md
+|       |   |-- app/
+|       |   |-- app-shell/
+|       |   |-- components/
+|       |   |   `-- forms/
+|       |   |-- features/
+|       |   |   |-- auth/
+|       |   |   |-- dashboard/
+|       |   |   |-- memories/
+|       |   |   |-- projects/
+|       |   |   `-- routines/
+|       |   `-- server/
+|       |       `-- database/
+|       |-- package.json
+|       `-- pnpm-workspace.yaml
 |
 |-- docs/
-|   |-- architecture.md
-|   |-- features/
-|   |   |-- overview.md
-|   |   |-- auth/
-|   |   |-- dashboard/
-|   |   |-- memories/
-|   |   |-- projects/
-|   |   |-- settings/
-|   |   `-- routines/
-|   |-- implementation.md
-|   |-- infrastructure/
-|   |   |-- database.md
-|   |-- web/
-|   |   |-- sidebar.md
-|   |   |-- sidebar-ui.md
-|   |   |-- theme.md
-|   |   `-- ui-components.md
 |   |-- apps/
-|   |   `-- discord-bot/
+|   |-- features/
+|   |-- infrastructure/
+|   |-- web/
+|   |-- architecture.md
+|   |-- implementation.md
 |   |-- roadmap.md
+|   |-- ui.md
 |   `-- user-story.md
 |
-|-- package.json
-|-- pnpm-workspace.yaml
 |-- README.md
 `-- AGENTS.md
 ```
 
-There is no shared `packages/ui` package in the first structure. UI components
-should start inside `apps/web`. A shared UI package can be added later only if
-another web surface needs the same components.
+## Current Web Code Organization
 
-Each plugin can have its own `README.md` later to describe setup, commands,
-dependencies, and integration contracts.
+`apps/web/src/app` owns Next.js route entry points, global CSS, layout, and the
+404 page.
 
-## Current Repository Structure
+`apps/web/src/app-shell` owns the authenticated web shell:
 
-The current repository is intentionally smaller than the target structure:
+- sidebar navigation
+- active page switching
+- page title bar
+- theme mode and document background syncing
+- app-level notification stack
+- high-level data wiring for authenticated feature panels
 
-- `apps/web/`: the Next.js web app, migrations, feature code, shared web
-  components, app shell, and web tests.
-- `docs/`: product, architecture, infrastructure, feature, and UI rules.
-- `AGENTS.md`: root agent workflow rules.
+The app shell is not a generic domain-state module. Put state there only when it
+belongs to the whole authenticated web surface.
 
-There is no implemented Discord bot, plugin service, shared package workspace,
-event bus, Redis cache, or background-worker package yet.
+`apps/web/src/components` owns shared UI primitives:
 
-## Implementation Boundary
+- button
+- card
+- panel
+- dialog
+- list
+- notification
+- text styles
+- colors and theme helpers
 
-The current implementation started with the smallest useful auth foundation:
-username and password registration, login, bcrypt password hashing, Neon
-PostgreSQL storage, and matching frontend/backend validation. Its implementation
-notes are documented in
-[features/auth/web-implementation.md](features/auth/web-implementation.md).
+`apps/web/src/components/forms` owns shared form controls:
 
-Auth, database-backed Memories, database-backed Routines, and a database-backed
-Project slice are now implemented in the web app.
+- single-line text and password fields
+- multiline text area
+- date picker
+- time picker
+- number field
+- selection controls
+- checkbox and choice-group style helpers
 
-The current Project slice includes:
+Feature code lives under `apps/web/src/features/<feature>`.
 
-- project capture
-- milestone capture
-- task capture under a project, with optional milestone assignment
-- status commands for dashboard tasks
-- database-backed dashboard task rows
-- Project management page and detail pages
-- completion events for task completion, skip, block, unblock, and reopen
+Feature folders own:
+
+- feature pages
+- feature panels used by the dashboard
+- feature rows and dialogs
+- server actions
+- validation helpers
+- services
+- repository interfaces and adapters
+- focused tests
+
+Dashboard composition can import feature-owned panels, but it should not own the
+business rules for projects, routines, or memories.
+
+`apps/web/src/server/database` owns shared database connection helpers. Feature
+repositories should import the database client; UI components should not.
+
+## Data And Persistence
+
+Persistence policy lives in [infrastructure/database.md](infrastructure/database.md).
+Feature schemas and constraints live in each feature `data-model.md`. This file
+only records the implementation entry points.
+
+Current database entry points:
+
+- shared Neon client: `apps/web/src/server/database/neon.ts`
+- migration directory: `apps/web/database/migrations`
+- migration runner: `apps/web/scripts/migrate.mjs`
+- feature repositories: `apps/web/src/features/<feature>/server`
+
+Run migrations from `apps/web`:
+
+```bash
+pnpm db:migrate
+```
+
+From the repository root:
+
+```bash
+pnpm --dir apps/web db:migrate
+```
+
+The migration runner and web app read `NEON_POSTGRES_URL`. Local `.env*` files
+must stay untracked.
+
+## Delete And Archive Strategy
+
+Delete and archive rules are documented in
+[infrastructure/database.md](infrastructure/database.md) and the owning feature
+`data-model.md`. Do not add a new delete command without updating those docs.
+
+## Credential And Data Protection
+
+Credential and product-data protection rules are documented in
+[infrastructure/database.md](infrastructure/database.md) and
+[features/auth/data-model.md](features/auth/data-model.md). Implementation
+entry points are `apps/web/src/features/auth/server/password.ts` and
+`apps/web/src/features/auth/server/session.ts`.
+
+## Infrastructure Direction
+
+Implemented infrastructure:
+
+- Neon PostgreSQL
+- SQL migration runner
+
+Planned infrastructure:
+
+- Redis for cache, rate limiting, idempotency keys, or short-lived coordination
+  after a measured need appears
+- background jobs for reminders, plugin work, and notification delivery
+- event/dataflow support after reminder, review, and plugin flows become clear
+- deployment environment management
+
+Redis planning is documented in [infrastructure/redis.md](infrastructure/redis.md).
+Redis must not become the source of truth for product data. The backend should
+remain stateless across requests; Redis may hold rebuildable ephemeral state.
+
+## Future Repository Direction
+
+Keep the current single web app structure until another implemented surface
+needs shared code.
+
+Add shared packages only when they remove real duplication:
+
+- `packages/contracts` when the Discord bot or plugins need shared command and
+  payload types
+- `packages/core` when product services must be shared outside Next.js server
   actions
+- `packages/database` only if database access becomes shared by multiple apps or
+  workers
+- `packages/ui` only if another web surface needs the same component library
 
-The Project slice intentionally does not expose editable numeric progress
-fields. Progress text is derived from task completion.
+The Discord bot should likely use TypeScript and `discord.js` because it will
+share command contracts with the web app. Python remains a good fit for future
+plugin workers that need agent workflows, retrieval, document processing,
+speech practice, or ML/data tooling.
 
-Web source organization should follow the feature directories under
-`apps/web/src/features`. Feature pages, panels, rows, dialogs, actions,
-repositories, and tests live with their owning feature. Dashboard composition
-can import feature-owned panels and rows, but it should not own memory,
-routine, or project page implementations. Shared primitives remain in
-`apps/web/src/components`.
+## Verification Commands
 
-The authenticated web app shell lives in `apps/web/src/app-shell`. It owns
-sidebar navigation, active page switching, the root page title bar, theme mode,
-root document background syncing, and app-level notifications. Feature pages
-such as Dashboard, Projects, Routines, and Memories should behave like normal
-page bodies inside that shell.
+Run from `apps/web`:
 
-The app shell content column owns page-level minimum height and bottom spacing.
-Keep it at least `110vh` tall with shared bottom padding so all pages have
-consistent scroll behavior.
+```bash
+pnpm test
+pnpm lint
+pnpm build
+pnpm db:migrate
+pnpm dev
+```
 
-The app shell is not a generic global-state module. Put state there only when it
-belongs to the whole authenticated web surface. Feature domain state should stay
-inside the owning feature or be passed in through explicit app-shell wiring.
+For documentation-only changes, run at least:
 
-The Project slice intentionally excludes Discord reminder delivery, reward
-inventory, English coach, automatic daily plan optimization, and full review
-cards. They should be separate branches after the Project contracts are stable.
+```bash
+git diff --check
+```
 
 ## Open Decisions
 
-- Whether to keep direct SQL beyond the current auth slice or move broader
-  product data access to Prisma or Drizzle.
-- Whether the first deployment target should be Vercel plus managed PostgreSQL,
-  a VPS, or a local Docker Compose setup.
-- Whether plugin workers should run as separate services, background jobs, or
-  manually triggered scripts in the first version.
-- Whether retrieval should start with PostgreSQL `jsonb` and full-text search,
-  PostgreSQL vector search, or a later external vector database.
-- What cache, queue, event, or dataflow mechanism should be used once the first
-  reminder and plugin flows are clearer.
+- Whether to keep direct SQL long term or move some persistence to Prisma or
+  Drizzle.
+- Whether auth sessions should remain signed cookies or move to a server-side
+  sessions table.
+- Which deployment target should own the web backend, environment variables,
+  and future background jobs.
+- Which Redis provider to use if measured latency, rate limiting, or reminder
+  coordination requires Redis.
+- Whether future sensitive user content needs application-level field
+  encryption.
+- When to extract shared packages for the Discord bot, plugins, or background
+  workers.

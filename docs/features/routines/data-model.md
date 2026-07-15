@@ -39,6 +39,10 @@ routine occurrence.
 Deletion behavior:
 
 - Current user-visible delete marks a routine as `deleted`.
+- Deleted routines are hidden from normal routine lists and dashboard rows.
+- Deleted routines are excluded from future instance generation.
+- Existing historical routine instances remain available for review/history
+  unless a future cleanup command explicitly removes them.
 - Hard delete should only be used as explicit cleanup and should remove related
   rule and instance data intentionally.
 

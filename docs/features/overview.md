@@ -324,8 +324,8 @@ The first model should include:
 - memory categories
 - memory records
 - pinned memories for the current dashboard shortlist
-- immutable memory events for pin, ignore, complete, cancel, unpin, replace,
-  and delete actions
+- append-only memory events for pin, ignore, complete, cancel, unpin, and
+  replace actions while the memory record exists
 
 Detailed behavior and table attributes are documented in
 [memories/overview.md](memories/overview.md).
