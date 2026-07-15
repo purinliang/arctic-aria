@@ -5,6 +5,7 @@ import { CardHeader } from "@/components/card";
 import { dividerClass, mutedTextClass } from "@/components/color";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { ListItem } from "@/components/list";
+import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { PinnedMemory } from "@/features/dashboard/types";
@@ -38,7 +39,7 @@ export function PinnedMemoriesPanel({
       />
       <div className={dividerClass(darkMode)}>
         {loading ? (
-          <EmptyLine darkMode={darkMode} text="Loading pinned memories..." />
+          <LoadingLine darkMode={darkMode} text="Loading pinned memories..." />
         ) : null}
         {!loading && pinnedMemories.length === 0 ? (
           <EmptyLine darkMode={darkMode} text="No pinned memories yet." />

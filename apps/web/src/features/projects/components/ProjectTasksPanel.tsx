@@ -5,6 +5,7 @@ import { CardHeader } from "@/components/card";
 import { dividerClass, mutedTextClass } from "@/components/color";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { ListItem } from "@/components/list";
+import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { Task } from "@/features/dashboard/types";
@@ -34,7 +35,7 @@ export function ProjectTasksPanel({
       />
       <div className={dividerClass(darkMode)}>
         {loading ? (
-          <EmptyLine darkMode={darkMode} text="Loading tasks..." />
+          <LoadingLine darkMode={darkMode} text="Loading tasks..." />
         ) : null}
         {!loading && tasks.length === 0 ? (
           <EmptyLine darkMode={darkMode} text="No tasks selected for today." />

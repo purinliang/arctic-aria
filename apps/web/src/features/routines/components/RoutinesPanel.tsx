@@ -5,6 +5,7 @@ import { CardHeader } from "@/components/card";
 import { dividerClass, mutedTextClass } from "@/components/color";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { ListItem } from "@/components/list";
+import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { Routine, RoutineStatus } from "@/features/dashboard/types";
@@ -37,7 +38,7 @@ export function RoutinesPanel({
       <RoutinesPanelMessage darkMode={darkMode} message={message} />
       <div className={dividerClass(darkMode)}>
         {loading ? (
-          <EmptyLine darkMode={darkMode} text="Loading routines..." />
+          <LoadingLine darkMode={darkMode} text="Loading routines..." />
         ) : null}
         {!loading && routines.length === 0 ? (
           <EmptyLine darkMode={darkMode} text="No routines due today." />

@@ -4,6 +4,7 @@ import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
 import { List, ListItem } from "@/components/list";
+import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { ProjectView } from "@/features/projects/actions";
@@ -44,9 +45,7 @@ export function ProjectsList({
 
       <List darkMode={darkMode}>
         {loading ? (
-          <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
-            Loading projects...
-          </p>
+          <LoadingLine darkMode={darkMode} text="Loading projects..." />
         ) : null}
         {!loading && projects.length === 0 ? (
           <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>

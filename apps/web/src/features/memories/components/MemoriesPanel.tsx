@@ -9,6 +9,7 @@ import {
 } from "@/components/color";
 import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { ListItem } from "@/components/list";
+import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import {
   DescriptionText,
@@ -86,7 +87,7 @@ export function MemoriesPanel({
 
       <div className={dividerClass(darkMode)}>
         {loading ? (
-          <EmptyLine darkMode={darkMode} text="Loading memories..." />
+          <LoadingLine darkMode={darkMode} text="Loading memories..." />
         ) : null}
         {!loading && memories.length === 0 ? (
           <EmptyLine

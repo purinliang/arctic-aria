@@ -173,6 +173,12 @@ build one-off toggle switches inside feature pages.
 Do not use a switch in the sidebar theme row. Sidebar actions should use the
 same menu-item button style as navigation items.
 
+## Loading
+
+`loading.tsx` owns shared loading indicators. List, panel, and card loading rows
+should use `LoadingLine` with a spinning progress circle instead of plain
+loading text. Empty states can remain simple text.
+
 ## Panel
 
 `panel.tsx` owns page panels: the main content blocks inside pages, dashboards,
