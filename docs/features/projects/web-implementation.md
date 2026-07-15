@@ -106,17 +106,17 @@ subtasks done`.
 
 ## Current UI Structure
 
-The dashboard shell owns navigation and page switching:
+The app shell owns navigation and page switching:
 
 ```text
-Dashboard
+AppShell
   Sidebar
   page title bar
-  DashboardHome or ProjectsPage
+  Dashboard or ProjectsPage
   NotificationStack
 ```
 
-When `activeView` is `projects`, `Dashboard` renders `ProjectsPage` as the page
+When `activeView` is `projects`, `AppShell` renders `ProjectsPage` as the page
 body under the shared page title bar.
 
 ### Projects Page Component Tree
@@ -242,12 +242,12 @@ Project field order:
 
 ### Dashboard Project Task Card Layout
 
-`DashboardHome` renders the project task panel as the main left dashboard panel:
+`Dashboard` renders the project task panel as the main left dashboard panel:
 
 ```text
-DashboardHome
+Dashboard
   main Panel
-    SectionHeader(Check, "Today's tasks to move projects forward")
+    CardHeader(Check, "Today's tasks to move projects forward")
     ProjectTaskCard[]
   right aside
     routines Panel
@@ -286,7 +286,7 @@ apps/web/src/features/projects/components/ProjectDetailPage.tsx
 apps/web/src/features/projects/components/ProjectsList.tsx
 apps/web/src/features/projects/components/ProjectTaskCard.tsx
 apps/web/src/features/dashboard/components/Dashboard.tsx
-apps/web/src/features/dashboard/components/DashboardHome.tsx
+apps/web/src/app-shell/components/AppShell.tsx
 ```
 
 Project server actions:

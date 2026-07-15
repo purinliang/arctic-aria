@@ -1,7 +1,6 @@
 import type {
   MemoryRecord,
   PinnedMemory,
-  RewardPreview,
   Routine,
 } from "./types";
 
@@ -218,18 +217,3 @@ export const memoryRecords: MemoryRecord[] = [
     pinned: false,
   },
 ];
-
-export const rewardPreview: RewardPreview = {
-  baseGold: 40,
-  perWeightGold: 12,
-  routineGold: 18,
-  chestName: "Treasure Chest Lv 2",
-  chestItems: [
-    { id: "chest-1", name: "Aurora Gem", rarity: "Legendary" },
-    { id: "chest-2", name: "Polar Bloom", rarity: "Legendary" },
-    { id: "chest-3", name: "Frost Thread", rarity: "Epic" },
-    { id: "chest-4", name: "Blue Quartz", rarity: "Rare" },
-    { id: "chest-5", name: "Moss Charm", rarity: "Uncommon" },
-    { id: "chest-6", name: "Soft Timber", rarity: "Common" },
-  ],
-};

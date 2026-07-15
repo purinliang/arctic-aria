@@ -119,8 +119,6 @@ not redefine those feature rules.
 Detailed docs:
 
 - [features/dashboard/web-prototype.md](features/dashboard/web-prototype.md)
-- [features/dashboard/sidebar.md](features/dashboard/sidebar.md)
-- [features/dashboard/sidebar-ui.md](features/dashboard/sidebar-ui.md)
 
 ### Ideas
 
@@ -216,12 +214,20 @@ remaining usable on iPhone Chrome.
 
 It owns:
 
+- authenticated app shell layout
+- sidebar navigation
+- theme mode and root page background
 - dashboard layout
 - project and task management UI
 - routine management UI
 - memory management UI
 - review UI
 - reward and plugin screens
+
+Detailed docs:
+
+- [apps/web/sidebar.md](apps/web/sidebar.md)
+- [apps/web/sidebar-ui.md](apps/web/sidebar-ui.md)
 
 ### Discord Bot
 

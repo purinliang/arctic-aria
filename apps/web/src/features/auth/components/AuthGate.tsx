@@ -2,8 +2,8 @@
 
 import { LoaderCircle, Sparkles } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
+import { AppShell } from "@/app-shell/components/AppShell";
 import { SupportingText } from "@/components/text";
-import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { getCurrentUser, loginUser, logoutUser, registerUser } from "../actions";
 import type { AuthUser } from "../server/auth-service";
 import {
@@ -88,7 +88,7 @@ export function AuthGate() {
 
   if (currentUser) {
     return (
-      <Dashboard
+      <AppShell
         currentUser={currentUser}
         logoutPending={isPending}
         onLogout={() => {

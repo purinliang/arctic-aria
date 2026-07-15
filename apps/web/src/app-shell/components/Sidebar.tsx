@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/button";
-import type { DashboardView } from "../types";
+import type { DashboardView } from "@/features/dashboard/types";
 
 export function Sidebar({
   open,

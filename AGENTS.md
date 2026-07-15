@@ -114,9 +114,9 @@ user.
 
 ## Web Source Organization
 
-- Keep reusable web UI primitives in `apps/web/src/components/`. This
+- Keep reusable web UI primitives and theme helpers in `apps/web/src/components/`. This
   includes buttons, cards, panels, dialogs, notifications, inputs, text,
-  tags, lists, switches, and color helpers.
+  tags, lists, switches, color helpers, and app-shell theme helpers.
 - Keep app-shell components at the same level as feature modules when they are
   not owned by one product feature. Examples include sidebar, theme mode,
   layout shell, route guards, and shared navigation.

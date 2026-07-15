@@ -27,9 +27,10 @@ The dashboard prototype currently includes:
   optional subtasks.
 - Dummy routines with scheduled time, reminder state, status, and streak text.
 - Local React state for all interactions.
-- A review panel that can be opened at any time and updated repeatedly.
-- Expected reward values based on dummy progress.
 - Database-backed pinned memories from the Memories implementation.
+
+The earlier review dialog and reward preview have been removed from the active
+prototype. Review and reward UI should wait for their own feature designs.
 
 For task, routine, review, and reward prototype work, keep:
 
@@ -68,12 +69,10 @@ Daytime mode should be the default.
 
 The desktop layout should include:
 
-- A left navigation sidebar opened by a hamburger button.
-- A top summary bar with the current date, the `04:00` day boundary, and a
-  review button.
+- Persistent app-shell sidebar navigation on desktop.
+- A page title bar that shows only the current page title.
 - A primary task column for today's recommended tasks and subtasks.
 - A routine and reminder column for scheduled routines.
-- A review card shown only after the user clicks `Review`.
 
 The top summary bar should not include task progress or routine progress. The
 daily dashboard should avoid duplicate progress visuals.
@@ -88,7 +87,8 @@ sections stacking cleanly and without overlapping text.
 On desktop, keep a persistent left sidebar and show page content on the right.
 On mobile and tablet-sized viewports, hide the sidebar behind a hamburger
 button and show it as an overlay when opened. Detailed sidebar behavior is
-documented in [sidebar.md](sidebar.md) and [sidebar-ui.md](sidebar-ui.md).
+documented in [../../apps/web/sidebar.md](../../apps/web/sidebar.md) and
+[../../apps/web/sidebar-ui.md](../../apps/web/sidebar-ui.md).
 
 The page title bar should show only the current page title. Do not show the day
 boundary, current time, current user, logout button, or review button in the
@@ -176,18 +176,18 @@ Routine card behavior:
 
 ## Review And Rewards
 
-The review UI is intentionally hidden from primary navigation for now. Keep the
-prototype dialog code only if it is useful for later work, but do not expose a
-sidebar item until the review feature has a stable navigation design.
+The review UI is intentionally removed from the active dashboard prototype.
+Do not keep review dialog code in the Dashboard feature until the Review feature
+has a stable navigation and data design.
 
-The review card should show:
+Future review UI may show:
 
 - Completed project tasks and routines.
 - Partial task progress derived from subtasks.
 - Unfinished tasks and skipped routines.
 - Expected rewards so far.
 
-Reward display:
+Future reward display may include:
 
 - Show gold as a numeric reward.
 - Show a treasure chest instead of a generic box label.
@@ -295,7 +295,6 @@ Run the app locally and inspect:
 - Routine auto-expand behavior when a reminder is active.
 - Pinned memory done behavior.
 - Pinned memory replace behavior.
-- Treasure chest hover or focus preview behavior.
 
 ## Refactor Checklist
 
@@ -303,7 +302,7 @@ After this direction is accepted, refactor the existing prototype in this order:
 
 1. Add daytime-first page styling and local theme mode action.
 2. Add hamburger sidebar with placeholder navigation items.
-3. Simplify the top bar to date, day boundary, and review button only.
+3. Simplify the page title bar to page title only.
 4. Remove task checkbox progress bars and standalone task progress visuals.
 5. Change task deadlines to date-time values in dummy data.
 6. Make task cards expand and collapse on card click.
@@ -313,6 +312,5 @@ After this direction is accepted, refactor the existing prototype in this order:
    default.
 10. Move routine `Done`, `Busy`, and `Skip` buttons into expanded routine
     details.
-11. Replace the persistent review panel with a review dialog or popover.
-12. Replace box/item reward UI with gold and treasure chest preview UI.
-13. Run lint, build, `git diff --check`, and viewport inspection.
+11. Defer review and reward UI until those features have current docs.
+12. Run lint, build, `git diff --check`, and viewport inspection.

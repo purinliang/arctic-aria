@@ -110,24 +110,3 @@ export type MemoryCategoryOption = {
   name: string;
   baseWeight: number;
 };
-
-export type ChestItemRarity =
-  | "Legendary"
-  | "Epic"
-  | "Rare"
-  | "Uncommon"
-  | "Common";
-
-export type ChestPreviewItem = {
-  id: string;
-  name: string;
-  rarity: ChestItemRarity;
-};
-
-export type RewardPreview = {
-  baseGold: number;
-  perWeightGold: number;
-  routineGold: number;
-  chestName: string;
-  chestItems: ChestPreviewItem[];
-};

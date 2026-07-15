@@ -114,6 +114,7 @@ arctic-aria/
 |   |-- web/
 |   |   |-- src/
 |   |   |   |-- app/                 # Next.js App Router routes
+|   |   |   |-- app-shell/           # Authenticated web shell and navigation
 |   |   |   |-- components/          # Web-only UI components
 |   |   |   |-- features/            # Web feature modules
 |   |   |   `-- server/              # Route handlers and server actions
@@ -233,6 +234,12 @@ Web source organization should follow the feature directories under
 and tests live with their owning feature. Dashboard composition can import
 feature-owned cards, but it should not own memory, routine, or project page
 implementations. Shared primitives remain in `apps/web/src/components`.
+
+The authenticated web app shell lives in `apps/web/src/app-shell`. It owns
+sidebar navigation, active page switching, the root page title bar, theme mode,
+root document background syncing, and app-level notifications. Feature pages
+such as Dashboard, Projects, Routines, and Memories should behave like normal
+page bodies inside that shell.
 
 The Project slice intentionally excludes Discord reminder delivery, reward
 inventory, English coach, automatic daily plan optimization, and full review

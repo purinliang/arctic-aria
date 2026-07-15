@@ -24,6 +24,19 @@ Use it for:
 
 Do not hard-code repeated color combinations in feature pages.
 
+## Theme
+
+`theme.ts` owns shared app-shell theme values and document background syncing.
+
+Use it for:
+
+- the root app shell background and foreground classes
+- root CSS variable updates for browser overscroll background
+- shared light and dark app-level theme color values
+
+Feature pages should not write root CSS variables directly. App surfaces should
+call the shared theme helper and pass `darkMode` into shared UI components.
+
 ## Text
 
 `text.tsx` owns shared text styles and message components.
@@ -115,6 +128,10 @@ Cards may include:
 - description
 - metadata
 - optional title action with text, icon, or both
+
+Use `CardHeader` for card and panel headers that need an icon, title,
+description, metadata, or a right-side action. Do not create feature-local
+header components for the same shape.
 
 Use cards for repeated compact objects. Do not use cards as page sections or as
 containers around other cards.

@@ -120,8 +120,8 @@ The visible behavior should be deterministic:
 Memory web UI:
 
 ```text
-apps/web/src/features/dashboard/components/MemoriesPage.tsx
-apps/web/src/features/dashboard/components/Dashboard.tsx
+apps/web/src/features/memories/components/MemoriesPage.tsx
+apps/web/src/app-shell/components/AppShell.tsx
 ```
 
 Memory server actions:
