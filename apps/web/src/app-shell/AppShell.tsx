@@ -22,6 +22,7 @@ import { ProjectPageTitle } from "@/features/projects/components/ProjectPageTitl
 import { ProjectsPage } from "@/features/projects/components/ProjectsPage";
 import { projectToDraft } from "@/features/projects/components/project-page-helpers";
 import { RoutinesPage } from "@/features/routines/components/RoutinesPage";
+import { SettingsPage } from "@/features/settings/components/SettingsPage";
 import { Sidebar } from "./Sidebar";
 
 export function AppShell({
@@ -31,7 +32,6 @@ export function AppShell({
   onLogout,
   onNotificationDismiss,
   showErrorNotification,
-  showInfoNotification,
 }: {
   currentUser: AuthUser;
   logoutPending: boolean;
@@ -39,7 +39,6 @@ export function AppShell({
   onLogout: () => void;
   onNotificationDismiss: (notificationId: number) => void;
   showErrorNotification: (message: string, title?: string) => void;
-  showInfoNotification: (message: string, title?: string) => void;
 }) {
   const [activeView, setActiveView] = useState<DashboardView>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -89,19 +88,14 @@ export function AppShell({
     setSidebarOpen(false);
   }
 
-  function showUnavailableFeature(featureName: string) {
-    showInfoNotification(
-      `${featureName} is not implemented in this prototype yet.`,
-      "Feature not ready",
-    );
-  }
-
   const pageTitle =
     activeView === "dashboard"
       ? "Dashboard"
       : activeView === "routines"
         ? "Routines"
-        : "Memories";
+        : activeView === "memories"
+          ? "Memories"
+          : "Settings";
 
   return (
     <main className={`min-h-screen transition-colors ${appShellClass(darkMode)}`}>
@@ -115,7 +109,6 @@ export function AppShell({
           onViewChange={handleViewChange}
           onThemeChange={setDarkMode}
           onLogout={onLogout}
-          onUnavailableFeature={showUnavailableFeature}
         />
 
         <div className="mx-auto flex min-h-[110vh] min-w-0 flex-1 flex-col gap-4 px-4 pb-12 pt-4 sm:px-6 sm:pb-16 lg:max-w-[1200px] lg:px-8 lg:pb-20">
@@ -196,6 +189,8 @@ export function AppShell({
               onSuggestionPin={memoryState.pinSuggestionFromPage}
               onSuggestionCancel={memoryState.cancelSuggestionPinFromPage}
             />
+          ) : activeView === "settings" ? (
+            <SettingsPage darkMode={darkMode} />
           ) : (
             <Dashboard
               darkMode={darkMode}

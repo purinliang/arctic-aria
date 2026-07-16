@@ -6,7 +6,12 @@ export type TaskStatus =
   | "done"
   | "archived";
 
-export type DashboardView = "dashboard" | "projects" | "routines" | "memories";
+export type DashboardView =
+  | "dashboard"
+  | "projects"
+  | "routines"
+  | "memories"
+  | "settings";
 
 export type Priority = "high" | "medium" | "low";
 
