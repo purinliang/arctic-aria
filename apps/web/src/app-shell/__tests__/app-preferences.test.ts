@@ -6,6 +6,10 @@ import {
   readThemePreference,
   resolveThemeMode,
 } from "../app-preferences.ts";
+import {
+  readLanguagePreference,
+  resolveLanguage,
+} from "../../messages/languages.ts";
 
 test("theme preference parsing falls back to system", () => {
   assert.equal(readThemePreference("dark"), "dark");
@@ -20,6 +24,21 @@ test("browser language detection maps Chinese languages to zh-CN", () => {
   assert.equal(detectBrowserLanguage(["zh-TW", "en-US"]), "zh-CN");
   assert.equal(detectBrowserLanguage(["fr-FR", "zh-CN"]), "zh-CN");
   assert.equal(detectBrowserLanguage(undefined), "en");
+});
+
+test("language preference parsing falls back to system", () => {
+  assert.equal(readLanguagePreference("en"), "en");
+  assert.equal(readLanguagePreference("zh-CN"), "zh-CN");
+  assert.equal(readLanguagePreference("system"), "system");
+  assert.equal(readLanguagePreference("unknown"), "system");
+  assert.equal(readLanguagePreference(null), "system");
+});
+
+test("language preference resolves against browser language", () => {
+  assert.equal(resolveLanguage("system", "zh-CN"), "zh-CN");
+  assert.equal(resolveLanguage("system", "en"), "en");
+  assert.equal(resolveLanguage("zh-CN", "en"), "zh-CN");
+  assert.equal(resolveLanguage("en", "zh-CN"), "en");
 });
 
 test("theme preference resolves against browser theme", () => {

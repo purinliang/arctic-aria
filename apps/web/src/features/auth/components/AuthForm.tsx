@@ -19,9 +19,11 @@ import {
 } from "../validation";
 import { AuthTextField } from "./AuthTextField";
 import { GoogleIcon } from "./GoogleIcon";
+import type { AuthMessages } from "@/messages/app-messages";
 
 export type AuthFormProps = {
   darkMode: boolean;
+  messages: AuthMessages;
   mode: AuthMode;
   registerInput: RegisterInput;
   loginInput: LoginInput;
@@ -50,6 +52,7 @@ const visibleFields: Record<AuthMode, AuthField[]> = {
 
 export function AuthForm({
   darkMode,
+  messages,
   mode,
   registerInput,
   loginInput,
@@ -83,15 +86,19 @@ export function AuthForm({
     setTouched((current) => ({ ...current, [field]: true }));
   }
 
-  const title = mode === "register" ? "Create an account" : "Welcome back";
+  const title =
+    mode === "register" ? messages.form.createAccount : messages.form.welcomeBack;
   const buttonText = pending
-    ? "Checking..."
+    ? messages.form.checking
     : mode === "register"
-      ? "Sign up"
-      : "Sign in";
+      ? messages.form.signUp
+      : messages.form.signIn;
   const switchPrompt =
-    mode === "register" ? "Already have an account?" : "New here?";
-  const switchLabel = mode === "register" ? "Sign in" : "Sign up";
+    mode === "register"
+      ? messages.form.alreadyHaveAccount
+      : messages.form.newHere;
+  const switchLabel =
+    mode === "register" ? messages.form.signIn : messages.form.signUp;
   const switchTarget = mode === "register" ? "login" : "register";
   const showSubmitErrors = submitAttempted;
 
@@ -107,7 +114,7 @@ export function AuthForm({
           className="h-10"
           onClick={() => switchMode("login")}
         >
-          Sign in
+          {messages.form.signIn}
         </Button>
         <Button
           darkMode={darkMode}
@@ -116,7 +123,7 @@ export function AuthForm({
           className="h-10"
           onClick={() => switchMode("register")}
         >
-          Sign up
+          {messages.form.signUp}
         </Button>
       </div>
 
@@ -131,7 +138,7 @@ export function AuthForm({
 
         <AuthTextField
           darkMode={darkMode}
-          label="Username"
+          label={messages.fields.username}
           value={mode === "register" ? registerInput.username : loginInput.username}
           error={errors.username}
           touched={Boolean(touched.username || showSubmitErrors)}
@@ -147,7 +154,7 @@ export function AuthForm({
         {mode === "register" ? (
           <AuthTextField
             darkMode={darkMode}
-            label="Display name"
+            label={messages.fields.displayName}
             optional
             value={registerInput.displayName}
             error={errors.displayName}
@@ -160,7 +167,7 @@ export function AuthForm({
 
         <AuthTextField
           darkMode={darkMode}
-          label="Password"
+          label={messages.fields.password}
           value={
             mode === "register" ? registerInput.password : loginInput.password
           }
@@ -175,7 +182,11 @@ export function AuthForm({
               size="icon-sm"
               className="h-8 w-8"
               onClick={() => setShowPassword((current) => !current)}
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={
+                showPassword
+                  ? messages.form.hidePassword
+                  : messages.form.showPassword
+              }
               icon={
                 showPassword ? (
                   <EyeOff size={18} aria-hidden="true" />
@@ -196,7 +207,7 @@ export function AuthForm({
         {mode === "register" ? (
           <AuthTextField
             darkMode={darkMode}
-            label="Repeat password"
+            label={messages.fields.repeatPassword}
             value={registerInput.repeatPassword}
             error={errors.repeatPassword}
             touched={Boolean(touched.repeatPassword || showSubmitErrors)}
@@ -209,7 +220,11 @@ export function AuthForm({
                 size="icon-sm"
                 className="h-8 w-8"
                 onClick={() => setShowPassword((current) => !current)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={
+                  showPassword
+                    ? messages.form.hidePassword
+                    : messages.form.showPassword
+                }
                 icon={
                   showPassword ? (
                     <EyeOff size={18} aria-hidden="true" />
@@ -247,7 +262,7 @@ export function AuthForm({
               className={`grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm ${mutedTextClass(darkMode)}`}
             >
               <span className={`h-px border-t ${sectionBorderClass(darkMode)}`} />
-              <span>or</span>
+              <span>{messages.form.or}</span>
               <span className={`h-px border-t ${sectionBorderClass(darkMode)}`} />
             </div>
 
@@ -257,11 +272,11 @@ export function AuthForm({
               icon={<GoogleIcon />}
               onClick={onGoogleLogin}
             >
-              Continue with Google
+              {messages.form.continueWithGoogle}
             </Button>
 
             <p className={`text-center text-sm ${mutedTextClass(darkMode)}`}>
-              Forgot your password?{" "}
+              {messages.form.forgotPassword}{" "}
               <Button
                 darkMode={darkMode}
                 tone="ghost"
@@ -269,7 +284,7 @@ export function AuthForm({
                 className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"
                 onClick={onPasswordReset}
               >
-                Reset password
+                {messages.form.resetPassword}
               </Button>
             </p>
           </>

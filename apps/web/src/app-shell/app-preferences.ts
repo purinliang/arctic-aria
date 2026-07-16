@@ -1,11 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import {
+  defaultLanguage,
+  readLanguagePreference,
+  resolveLanguage,
+  type LanguagePreference,
+  type SupportedLanguage,
+} from "../messages/languages.ts";
 
 export type ThemeMode = "light" | "dark";
 export type ThemePreference = "system" | ThemeMode;
-export type AppLanguage = "en" | "zh-CN";
-export type LanguagePreference = "en";
+export type AppLanguage = SupportedLanguage;
 
 export type BrowserDefaults = {
   language: AppLanguage;
@@ -14,12 +20,13 @@ export type BrowserDefaults = {
 };
 
 const defaultBrowserDefaults: BrowserDefaults = {
-  language: "en",
+  language: defaultLanguage,
   themeMode: "light",
   timeZone: "UTC",
 };
 
 const themePreferenceStorageKey = "arctic-aria.theme-preference";
+const languagePreferenceStorageKey = "arctic-aria.language-preference";
 const systemDarkModeQuery = "(prefers-color-scheme: dark)";
 
 export function readThemePreference(value: string | null): ThemePreference {
@@ -76,7 +83,9 @@ export function useAppPreferences() {
       readThemePreference(readStoredThemePreference()),
     );
   const [languagePreference, setLanguagePreference] =
-    useState<LanguagePreference>("en");
+    useState<LanguagePreference>(() =>
+      readLanguagePreference(readStoredLanguagePreference()),
+    );
 
   useEffect(() => {
     const mediaQuery = window.matchMedia?.(systemDarkModeQuery);
@@ -104,18 +113,30 @@ export function useAppPreferences() {
     writeStoredThemePreference(preference);
   }, []);
 
+  const setLanguagePreferenceValue = useCallback(
+    (preference: LanguagePreference) => {
+      setLanguagePreference(preference);
+      writeStoredLanguagePreference(preference);
+    },
+    [],
+  );
+
   const resolvedThemeMode = resolveThemeMode(
     themePreference,
     browserDefaults.themeMode,
+  );
+  const resolvedLanguage = resolveLanguage(
+    languagePreference,
+    browserDefaults.language,
   );
 
   return {
     browserDefaults,
     darkMode: resolvedThemeMode === "dark",
     languagePreference,
-    resolvedLanguage: languagePreference,
+    resolvedLanguage,
     resolvedThemeMode,
-    setLanguagePreference,
+    setLanguagePreference: setLanguagePreferenceValue,
     setThemePreference,
     themePreference,
   };
@@ -134,5 +155,21 @@ function writeStoredThemePreference(preference: ThemePreference) {
     window.localStorage.setItem(themePreferenceStorageKey, preference);
   } catch {
     // Theme selection still works for the current session if storage is blocked.
+  }
+}
+
+function readStoredLanguagePreference() {
+  try {
+    return window.localStorage.getItem(languagePreferenceStorageKey);
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredLanguagePreference(preference: LanguagePreference) {
+  try {
+    window.localStorage.setItem(languagePreferenceStorageKey, preference);
+  } catch {
+    // Language selection still works for the current session if storage is blocked.
   }
 }

@@ -11,10 +11,9 @@ import {
 } from "@/components/notification";
 import { appShellClass } from "@/components/theme";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
-import type {
-  LanguagePreference,
-  ThemePreference,
-} from "@/app-shell/app-preferences";
+import type { ThemePreference } from "@/app-shell/app-preferences";
+import type { AppMessages } from "@/messages/app-messages";
+import type { LanguagePreference } from "@/messages/languages";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
 import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardProjects";
@@ -34,6 +33,7 @@ export function AppShell({
   currentUser,
   darkMode,
   languagePreference,
+  messages,
   onLanguagePreferenceChange,
   onThemePreferenceChange,
   themePreference,
@@ -47,6 +47,7 @@ export function AppShell({
   currentUser: AuthUser;
   darkMode: boolean;
   languagePreference: LanguagePreference;
+  messages: AppMessages;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   themePreference: ThemePreference;
@@ -114,12 +115,12 @@ export function AppShell({
 
   const pageTitle =
     activeView === "dashboard"
-      ? "Dashboard"
+      ? messages.appShell.pages.dashboard
       : activeView === "routines"
-        ? "Routines"
+        ? messages.appShell.pages.routines
         : activeView === "memories"
-          ? "Memories"
-          : "Settings";
+          ? messages.appShell.pages.memories
+          : messages.appShell.pages.settings;
 
   return (
     <main className={`min-h-screen transition-colors ${appShellClass(darkMode)}`}>
@@ -130,6 +131,7 @@ export function AppShell({
           activeView={activeView}
           selectedProjectId={selectedProjectId}
           pinnedProjects={pinnedProjects}
+          messages={messages.appShell}
           logoutPending={logoutPending}
           onClose={() => setSidebarOpen(false)}
           onViewChange={handleViewChange}
@@ -148,7 +150,7 @@ export function AppShell({
               darkMode={darkMode}
               size="icon-sm"
               className="h-10 w-10 lg:hidden"
-              aria-label="Open navigation"
+              aria-label={messages.appShell.openNavigation}
               icon={<Menu size={20} aria-hidden="true" />}
               onClick={() => setSidebarOpen(true)}
             />
@@ -232,7 +234,9 @@ export function AppShell({
             <SettingsPage
               darkMode={darkMode}
               languagePreference={languagePreference}
+              messages={messages.settings}
               themePreference={themePreference}
+              versionMessages={messages.versionStatus}
               versionStatus={versionStatus}
               onLanguagePreferenceChange={onLanguagePreferenceChange}
               onThemePreferenceChange={onThemePreferenceChange}

@@ -4,24 +4,37 @@ import {
   type DatabaseVersionStatus,
 } from "./app-metadata";
 import { DescriptionText, LabelText, SupportingText } from "./text";
+import type { VersionStatusMessages } from "@/messages/app-messages";
 import type { ReactNode } from "react";
+
+const defaultVersionStatusMessages: VersionStatusMessages = {
+  appVersion: "App Version",
+  databaseVersion: "Database Version",
+  expected: "expected",
+};
 
 export function VersionStatusSupport({
   darkMode,
+  messages = defaultVersionStatusMessages,
   status,
 }: {
   darkMode: boolean;
+  messages?: VersionStatusMessages;
   status: DatabaseVersionStatus;
 }) {
   return (
     <div className="grid gap-1 text-center tabular-nums">
       <SupportingText darkMode={darkMode}>
-        App Version: {status.appVersionText}
+        {messages.appVersion}: {status.appVersionText}
       </SupportingText>
       {shouldShowDatabaseVersion(status) ? (
         <SupportingText darkMode={darkMode}>
-          Database Version: {status.actualDatabaseVersionText}
-          <DatabaseVersionMessage darkMode={darkMode} status={status} />
+          {messages.databaseVersion}: {status.actualDatabaseVersionText}
+          <DatabaseVersionMessage
+            darkMode={darkMode}
+            messages={messages}
+            status={status}
+          />
         </SupportingText>
       ) : null}
     </div>
@@ -30,25 +43,31 @@ export function VersionStatusSupport({
 
 export function VersionStatusRows({
   darkMode,
+  messages = defaultVersionStatusMessages,
   status,
 }: {
   darkMode: boolean;
+  messages?: VersionStatusMessages;
   status: DatabaseVersionStatus;
 }) {
   return (
     <div className="grid gap-3">
       <VersionRow
         darkMode={darkMode}
-        label="App Version"
+        label={messages.appVersion}
         value={status.appVersionText}
       />
       {shouldShowDatabaseVersion(status) ? (
         <VersionRow
           darkMode={darkMode}
-          label="Database Version"
+          label={messages.databaseVersion}
           value={status.actualDatabaseVersionText}
           message={
-            <DatabaseVersionMessage darkMode={darkMode} status={status} />
+            <DatabaseVersionMessage
+              darkMode={darkMode}
+              messages={messages}
+              status={status}
+            />
           }
         />
       ) : null}
@@ -80,9 +99,11 @@ function VersionRow({
 
 function DatabaseVersionMessage({
   darkMode,
+  messages,
   status,
 }: {
   darkMode: boolean;
+  messages: VersionStatusMessages;
   status: DatabaseVersionStatus;
 }) {
   if (!status.aligned) {
@@ -96,7 +117,7 @@ function DatabaseVersionMessage({
   }
 
   return (
-    <span> (expected {status.expectedDatabaseVersionText})</span>
+    <span> ({messages.expected} {status.expectedDatabaseVersionText})</span>
   );
 }
 
