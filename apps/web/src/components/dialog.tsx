@@ -14,7 +14,7 @@ export function DialogOverlay({
   return (
     <div
       className={cx(
-        "fixed inset-0 grid place-items-center overflow-y-auto bg-black/65 px-4 py-6",
+        "fixed inset-0 grid items-start justify-items-center overflow-y-auto bg-black/65 px-4 py-8 sm:py-10",
         zIndex,
       )}
     >

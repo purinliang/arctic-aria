@@ -263,7 +263,11 @@ decision or when the current workflow cannot safely continue.
 Dialog frames use the same `px-4 py-4` padding rhythm as notifications. Form
 dialogs should use the default dialog width so input fields, date pickers, and
 other long controls do not collapse into a narrow column. Small confirmation
-dialogs may use the `sm` size.
+dialogs may use the `sm` size. Dialog overlays must provide enough top and
+bottom viewport padding and must allow vertical scrolling when form content is
+taller than the viewport. Feature dialogs should use the shared `DialogOverlay`,
+`DialogBackdrop`, `DialogFrame`, and `DialogHeader` pieces instead of
+hand-rolling fixed overlay containers.
 
 Add/edit form dialogs should use `DialogActionRow` and `DialogPrimaryButton`
 for the save action. The primary save button should be full width with clear
