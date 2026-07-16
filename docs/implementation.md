@@ -196,6 +196,7 @@ Shared web docs:
 - [web/sidebar.md](web/sidebar.md)
 - [web/sidebar-ui.md](web/sidebar-ui.md)
 - [web/theme.md](web/theme.md)
+- [web/localization.md](web/localization.md)
 
 Infrastructure docs:
 

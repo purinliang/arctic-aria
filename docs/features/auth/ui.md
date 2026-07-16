@@ -12,6 +12,8 @@ and [data-model.md](data-model.md).
   `Arctic Aria`.
 - Show a visible loading spinner and the text `Opening your workspace...` in
   one horizontal row below the brand row.
+- Use the resolved app theme so the loading screen matches the signed-out auth
+  page and the authenticated app shell.
 - Do not show the login/register panel until the session check finishes.
 
 ## Registration Tab
@@ -24,6 +26,8 @@ and [data-model.md](data-model.md).
   include a Sparkles icon and the text `Arctic Aria`.
 - Show a centered description below the brand row, such as `Your personal life
   assistant under the aurora.`
+- Show a small light/dark theme button above the auth panel. It changes the
+  same local theme preference used by the authenticated app shell.
 - Show a small deployment metadata footer below the auth panel when app
   metadata is available. It should use shared `SupportingText` styling and
   follow the same version visibility rules as Settings.

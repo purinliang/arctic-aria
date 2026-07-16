@@ -9,10 +9,11 @@ live in [sidebar.md](sidebar.md).
 Theme is app-shell behavior, not Dashboard behavior and not feature-page
 behavior.
 
-The authenticated web app shell owns:
+The root auth gate and authenticated app shell own:
 
-- daytime-first default theme
-- dark mode state
+- loading browser/system defaults
+- local theme preference state
+- resolved light or dark mode
 - root page background
 - root CSS variable synchronization for browser overscroll background
 - passing `darkMode` into shared UI components
@@ -20,10 +21,36 @@ The authenticated web app shell owns:
 Feature pages should not write root CSS variables directly. They should receive
 theme state from the app shell and pass it into shared components.
 
+Color values and reusable palette classes belong in `apps/web/src/components/`
+helpers such as `theme.ts` and `color.ts`. Auth, Settings, Dashboard, and
+feature components must not own their own palette decisions.
+
+## Preference Loading
+
+`apps/web/src/app-shell/app-preferences.ts` owns browser/system preference
+loading for app-level defaults:
+
+- system light/dark mode
+- browser language detection
+- browser timezone detection
+
+The file also owns local user preference state until a persisted Settings table
+is implemented.
+
+The current theme preference options are:
+
+- `system`: follow the browser or operating-system color scheme
+- `light`
+- `dark`
+
+The resolved theme mode is what rendering receives. Rendering helpers should
+not read browser settings directly.
+
 ## Default Appearance
 
-Daytime mode is the default because it is currently the strongest visual
-direction for Arctic Aria.
+System theme is the first local preference default. If browser/system theme
+cannot be read, fall back to light mode because daytime mode is currently the
+strongest visual direction for Arctic Aria.
 
 The page background should stay consistent while loading, signing in, and using
 authenticated pages. Loading, auth, 404, and app-shell screens should share the
@@ -31,12 +58,22 @@ same Arctic Aria brand direction.
 
 ## Dark Mode
 
-Dark mode is a local web setting for now. It does not need database persistence
-until the Settings feature is implemented.
+Dark mode is a local web setting for now. It is stored locally for the browser
+session/device and does not yet use database persistence.
 
 Dark mode should update the browser pull-down and pull-up overscroll background
 so mobile browsers do not reveal an inconsistent light background behind the
 app shell.
+
+After persisted user settings exist, the logged-in user's saved theme
+preference should override local/browser defaults. If the user setting is
+missing or unavailable, fall back to the local/browser preference resolution.
+
+## Auth Page Theme Action
+
+The signed-out auth page should support light and dark rendering. Its theme
+button changes the same local theme preference used by the authenticated app
+shell.
 
 ## Sidebar Theme Action
 
