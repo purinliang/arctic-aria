@@ -77,7 +77,7 @@ const englishMessages = {
     languageOptions: {
       english: "English",
       simplifiedChinese: "简体中文",
-      system: "Use browser setting",
+      system: "Use system setting",
     },
     themeLabel: "Theme",
     themeOptions: {
@@ -164,7 +164,7 @@ const simplifiedChineseMessages: AppMessages = {
     languageOptions: {
       english: "English",
       simplifiedChinese: "简体中文",
-      system: "使用浏览器设置",
+      system: "使用系统设置",
     },
     themeLabel: "主题",
     themeOptions: {

@@ -18,13 +18,13 @@ version metadata.
 Implemented local preferences:
 
 - `Theme`: `Use system setting`, `Light`, or `Dark`
-- `Language`: `Use browser setting`, `English`, or `简体中文`
+- `Language`: `Use system setting`, `English`, or `简体中文`
 
 Theme preference is local to the browser/device for now. `Use system setting`
 uses browser or operating-system light/dark mode. If browser/system defaults
 cannot be read, the fallback is light mode.
 
-Language preference is local to the browser/device for now. `Use browser
+Language preference is local to the browser/device for now. `Use system
 setting` resolves the browser language to English or Simplified Chinese, with
 English as the fallback for unsupported languages.
 

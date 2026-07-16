@@ -12,7 +12,9 @@ scope. It is not a full Chinese UI implementation yet.
 - system light/dark mode
 
 The current app can detect whether the browser language looks Chinese. The
-language selector can use browser language, English, or Simplified Chinese.
+language selector can use system setting, English, or Simplified Chinese. In
+the web app, system language resolution currently reads browser language
+settings.
 
 When persisted Settings exist, the logged-in user's language setting should
 override browser language. If the user setting is missing or unavailable, fall
