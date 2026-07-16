@@ -14,7 +14,7 @@ behaves for one user.
 The current prototype implements only a read-only Settings page. It is opened
 from the sidebar `Settings` item and shows app and database version metadata:
 
-- app version with commit hash
+- app version, with commit hash only for unreleased branch builds
 - actual database version
 
 This is a normal authenticated Settings surface. It is intentionally more
@@ -22,17 +22,26 @@ visible than the signed-out auth-page metadata footer, because signed-in users
 can use it to compare the deployed frontend/backend with database migration
 records.
 
-The Settings panel should show two rows:
+The Settings panel should show version rows:
 
-- `App Version`: current build version and commit.
+- `App Version`: current build version. Exact release tags show only the
+  release version, such as `v0.5.0`; develop, feature, fix, and hotfix branch
+  builds append the commit hash.
 - `Database Version`: the compact schema-history hash derived from applied
   migration filenames and file checksums.
 
-If the database schema hash matches the expected hash from the current source
-tree, do not add extra warning text. If the database schema is behind, ahead,
-different, missing checksums, or unavailable, append a short red parenthetical
-message after `Database Version`, such as `(expected abc123def456)`. Do not
-show migration filenames in the user-facing Settings UI.
+For exact release versions, hide the `Database Version` row entirely when the
+database schema hash matches the expected hash from the current source tree.
+Users do not need database metadata when a release is healthy.
+
+For develop, feature, fix, and hotfix branch builds, always show the expected
+database schema hash after the actual hash, such as `(expected abc123def456)`.
+Use normal supporting text color when the database is aligned.
+
+For any build, if the database schema is behind, ahead, different, missing
+checksums, or unavailable, show the `Database Version` row and append the
+parenthetical message in red. Do not show migration filenames in the
+user-facing Settings UI.
 
 Current web source:
 

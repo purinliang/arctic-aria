@@ -25,9 +25,11 @@ export function resolveAppMetadata(appRoot = process.cwd()) {
     readExactReleaseTag(repoRoot),
     readHeadReleaseVersion(repoRoot),
   );
+  const branchVersion = releaseVersionFromBranch(branch);
   const baseVersion = firstDefined(
     process.env.APP_BASE_VERSION,
     releaseVersion,
+    branchVersion,
     bumpMinor(readLatestReleaseVersion(repoRoot)),
     "v0.0.0",
   );
@@ -125,7 +127,12 @@ function readGit(args, repoRoot) {
   }
 }
 
-function deriveAppVersion({ branch, commit, releaseVersion, baseVersion }) {
+export function deriveAppVersion({
+  branch,
+  commit,
+  releaseVersion,
+  baseVersion,
+}) {
   if (isReleaseVersion(releaseVersion)) {
     return releaseVersion;
   }
@@ -134,6 +141,10 @@ function deriveAppVersion({ branch, commit, releaseVersion, baseVersion }) {
   const version = suffix ? `${baseVersion}-${suffix}` : `${baseVersion}-dev`;
 
   return commit === "unknown" ? version : version;
+}
+
+export function releaseVersionFromBranch(branch) {
+  return releaseVersionFromText(branch);
 }
 
 function versionBranchSuffix(branch) {
