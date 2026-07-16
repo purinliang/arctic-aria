@@ -5,7 +5,7 @@ work. It is no longer organized as numbered phases.
 
 ## Current Baseline
 
-Current released version: `v0.5.0`.
+Current released version: `v0.5.1`.
 
 The web dashboard baseline is mostly complete for the current prototype:
 
@@ -52,6 +52,17 @@ Planned v0.6.0 work:
 - Add or improve automated tests around existing backend behavior where the
   review finds risk.
 - Keep the existing web prototype stable while doing this review.
+- Fix deferred UI consistency bugs that are intentionally excluded from the
+  `v0.5.1` hotfix, including Memories-page pinned/unpinned management and
+  removing the dashboard pinned-memory single-item replace/refresh action.
+- Review dashboard memory category scope. The current dashboard only supports
+  Cuisine and Sightseeing; v0.6.0 should decide whether dashboard categories
+  become user-configurable or default to all eligible memory categories.
+- Review category UI affordances and choose distinct icons where useful instead
+  of relying only on text labels.
+- Review repeated edit actions in project and memory lists. There may be too
+  many visible `Edit` buttons, so v0.6.0 should consider a cleaner interaction
+  pattern.
 
 The v0.6.0 work should not include:
 
@@ -60,8 +71,6 @@ The v0.6.0 work should not include:
 - automatic project scheduling
 - AI-generated task recommendations
 - memory suggestion logic beyond the current manual refresh prototype
-- reward logic
-- English coach logic
 - Discord bot implementation
 - sharing cards
 
@@ -85,6 +94,8 @@ Likely future items:
   is reliable.
 - Add backup, sync, and account lifecycle strategy when the data model is more
   stable.
+- Add multilingual support later, especially Chinese, after the core private
+  workflow and settings model are stable.
 
 ## Removed From Active Roadmap
 

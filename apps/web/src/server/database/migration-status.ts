@@ -38,6 +38,7 @@ export async function getDatabaseVersionStatus(
       return mismatchStatus(
         expectedVersionText,
         "Not recorded",
+        metadata.expectedDatabase.schemaHash,
         expectedDatabaseMessage(metadata),
       );
     }
@@ -48,6 +49,7 @@ export async function getDatabaseVersionStatus(
       return mismatchStatus(
         expectedVersionText,
         "Unknown",
+        metadata.expectedDatabase.schemaHash,
         "database migration checksums are missing",
       );
     }
@@ -61,6 +63,7 @@ export async function getDatabaseVersionStatus(
       return mismatchStatus(
         expectedVersionText,
         actualDatabaseMetadata.schemaHash,
+        metadata.expectedDatabase.schemaHash,
         schemaMessage,
       );
     }
@@ -68,6 +71,7 @@ export async function getDatabaseVersionStatus(
     return {
       appVersionText: expectedVersionText,
       actualDatabaseVersionText: actualDatabaseMetadata.schemaHash,
+      expectedDatabaseVersionText: metadata.expectedDatabase.schemaHash,
       aligned: true,
       message: "",
     };
@@ -84,11 +88,13 @@ export async function getDatabaseVersionStatus(
 function mismatchStatus(
   expectedVersionText: string,
   actualVersionText: string,
+  expectedDatabaseVersionText: string,
   message: string,
 ): DatabaseVersionStatus {
   return {
     appVersionText: expectedVersionText,
     actualDatabaseVersionText: actualVersionText,
+    expectedDatabaseVersionText,
     aligned: false,
     message,
   };

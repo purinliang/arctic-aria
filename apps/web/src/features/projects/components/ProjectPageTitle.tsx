@@ -142,7 +142,14 @@ export function ProjectPageTitle({
         <div className="flex shrink-0 items-center gap-2">
           <Button
             darkMode={darkMode}
+            size="icon-sm"
+            className="rounded-full"
             disabled={pinPending}
+            aria-label={
+              selectedProject.sidebarPinOrder !== null
+                ? "Unpin project"
+                : "Pin project"
+            }
             icon={
               selectedProject.sidebarPinOrder !== null ? (
                 <PinOff size={15} aria-hidden="true" />
@@ -158,9 +165,7 @@ export function ProjectPageTitle({
 
               onPinProject?.(selectedProject.id);
             }}
-          >
-            {selectedProject.sidebarPinOrder !== null ? "Unpin" : "Pin"}
-          </Button>
+          />
           <Button
             darkMode={darkMode}
             disabled={editDisabled}

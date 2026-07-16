@@ -1,5 +1,5 @@
 // Dashboard - Project Tasks Panel.
-import { Check, ChevronRight } from "lucide-react";
+import { ChevronRight, ListChecks } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
@@ -30,9 +30,8 @@ export function ProjectTasksPanel({
   return (
     <Panel darkMode={darkMode} className="min-w-0">
       <CardHeader
-        icon={<Check size={18} aria-hidden="true" />}
+        icon={<ListChecks size={18} aria-hidden="true" />}
         title="Today's tasks to move projects forward"
-        meta={`${tasks.length} recommended`}
         darkMode={darkMode}
       />
       <List darkMode={darkMode}>

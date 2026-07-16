@@ -55,7 +55,7 @@ Panel header:
 
 - icon: `Check`
 - title: `Today's tasks to move projects forward`
-- meta: number of recommended tasks
+- no header count metadata
 
 Task row layout:
 
@@ -124,7 +124,8 @@ Project list layout:
 - project item first line: title only
 - project item second line: truncated description
 - project item third line: timeline and progress text
-- project item right actions: `Pin` or `Unpin`, then right-arrow ghost button
+- project item right actions: icon-only outline `Pin` or `PinOff` button, then
+  right-arrow ghost button
 - do not show milestone preview rows
 - click target: right-arrow ghost button only
 - do not add a text `View` button or footer band inside project list items
@@ -246,7 +247,7 @@ Detail page layout:
 - left card: `Tasks` card with icon, supporting text, and `New`
 - title action: `Edit3` icon plus `Edit`, placed to the right of
   `Projects / project_name`
-- pin action: `Pin` or `Unpin` with the `Pin` icon, placed beside `Edit`
+- pin action: icon-only outline `Pin` or `PinOff` button, placed beside `Edit`
 - right top card: `Overview`
 - right bottom card: `Milestones` with `New`
 - overview metadata group: description, start date, and timeline

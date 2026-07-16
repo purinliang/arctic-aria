@@ -134,7 +134,6 @@ function SuggestionRow({
         <Button
           darkMode={darkMode}
           size="icon-sm"
-          active={!pinned}
           className="rounded-full"
           disabled={pending}
           aria-label={pinned ? "Cancel pin" : "Pin suggestion"}

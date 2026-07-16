@@ -1,5 +1,5 @@
 // Settings Page.
-import { Settings } from "lucide-react";
+import { Info } from "lucide-react";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import { CardHeader } from "@/components/card";
 import { List, ListItem } from "@/components/list";
@@ -18,9 +18,9 @@ export function SettingsPage({
       <Panel darkMode={darkMode} className="min-w-0">
         <CardHeader
           darkMode={darkMode}
-          icon={<Settings size={18} aria-hidden="true" />}
-          title="Settings"
-          description="Current app information."
+          icon={<Info size={18} aria-hidden="true" />}
+          title="App Information"
+          description="Version and database status."
         />
         <List darkMode={darkMode}>
           <ListItem darkMode={darkMode} className="items-start">

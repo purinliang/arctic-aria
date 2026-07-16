@@ -1,5 +1,5 @@
 // Memories Page - Memories Panel.
-import { ClipboardList, Edit3, Plus, Settings2 } from "lucide-react";
+import { Album, Edit3, Plus, Settings2 } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import {
@@ -45,7 +45,7 @@ export function MemoriesPanel({
     <Panel darkMode={darkMode} className="min-w-0">
       <CardHeader
         darkMode={darkMode}
-        icon={<ClipboardList size={18} aria-hidden="true" />}
+        icon={<Album size={18} aria-hidden="true" />}
         title="Memories"
         description="Saved experiences to revisit when the day needs a gentle option."
         action={
