@@ -15,22 +15,34 @@ import type { ReactNode } from "react";
 import { Button } from "@/components/button";
 import type { DashboardView } from "@/features/dashboard/types";
 
+export type SidebarPinnedProject = {
+  id: string;
+  title: string;
+  sidebarPinOrder: number | null;
+};
+
 export function Sidebar({
   open,
   darkMode,
   activeView,
+  selectedProjectId,
+  pinnedProjects,
   logoutPending,
   onClose,
   onViewChange,
+  onProjectShortcut,
   onThemeChange,
   onLogout,
 }: {
   open: boolean;
   darkMode: boolean;
   activeView: DashboardView;
+  selectedProjectId: string | null;
+  pinnedProjects: SidebarPinnedProject[];
   logoutPending: boolean;
   onClose: () => void;
   onViewChange: (view: DashboardView) => void;
+  onProjectShortcut: (projectId: string) => void;
   onThemeChange: (darkMode: boolean) => void;
   onLogout: () => void;
 }) {
@@ -60,9 +72,12 @@ export function Sidebar({
           open={open}
           logoutPending={logoutPending}
           activeView={activeView}
+          selectedProjectId={selectedProjectId}
+          pinnedProjects={pinnedProjects}
           mobile
           onClose={onClose}
           onSelectView={selectView}
+          onProjectShortcut={onProjectShortcut}
           onThemeChange={onThemeChange}
           onLogout={onLogout}
         />
@@ -73,8 +88,11 @@ export function Sidebar({
         open
         logoutPending={logoutPending}
         activeView={activeView}
+        selectedProjectId={selectedProjectId}
+        pinnedProjects={pinnedProjects}
         onClose={onClose}
         onSelectView={selectView}
+        onProjectShortcut={onProjectShortcut}
         onThemeChange={onThemeChange}
         onLogout={onLogout}
       />
@@ -87,9 +105,12 @@ function SidebarFrame({
   open,
   logoutPending,
   activeView,
+  selectedProjectId,
+  pinnedProjects,
   mobile = false,
   onClose,
   onSelectView,
+  onProjectShortcut,
   onThemeChange,
   onLogout,
 }: {
@@ -97,9 +118,12 @@ function SidebarFrame({
   open: boolean;
   logoutPending: boolean;
   activeView: DashboardView;
+  selectedProjectId: string | null;
+  pinnedProjects: SidebarPinnedProject[];
   mobile?: boolean;
   onClose: () => void;
   onSelectView: (view: DashboardView) => void;
+  onProjectShortcut: (projectId: string) => void;
   onThemeChange: (darkMode: boolean) => void;
   onLogout: () => void;
 }) {
@@ -146,10 +170,24 @@ function SidebarFrame({
         <SidebarItem
           icon={<FolderKanban size={18} aria-hidden="true" />}
           label="Projects"
-          active={activeView === "projects"}
+          active={activeView === "projects" && selectedProjectId === null}
           darkMode={darkMode}
           onClick={() => onSelectView("projects")}
         />
+        {pinnedProjects.map((project) => (
+          <SidebarItem
+            key={project.id}
+            icon={<FolderKanban size={15} aria-hidden="true" />}
+            label={project.title}
+            active={activeView === "projects" && selectedProjectId === project.id}
+            darkMode={darkMode}
+            child
+            onClick={() => {
+              onProjectShortcut(project.id);
+              onClose();
+            }}
+          />
+        ))}
         <SidebarItem
           icon={<Bell size={18} aria-hidden="true" />}
           label="Routines"
@@ -208,6 +246,7 @@ function SidebarItem({
   active = false,
   darkMode,
   disabled = false,
+  child = false,
   onClick,
 }: {
   icon: ReactNode;
@@ -215,14 +254,15 @@ function SidebarItem({
   active?: boolean;
   darkMode: boolean;
   disabled?: boolean;
+  child?: boolean;
   onClick: () => void;
 }) {
   return (
     <Button
       darkMode={darkMode}
       tone={active ? "primary" : "ghost"}
-      size="md"
-      className="w-full justify-start"
+      size={child ? "sm" : "md"}
+      className={`w-full justify-start ${child ? "ml-7 w-[calc(100%-1.75rem)]" : ""}`}
       disabled={disabled}
       icon={icon}
       onClick={onClick}

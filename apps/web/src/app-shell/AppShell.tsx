@@ -2,7 +2,7 @@
 
 // App Shell.
 import { Menu } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/button";
 import { sectionBorderClass } from "@/components/color";
 import {
@@ -53,6 +53,16 @@ export function AppShell({
   const { refreshProjectData } = projectState;
   const { refreshMemoryData } = memoryState;
   const { refreshRoutineData } = routineState;
+  const pinnedProjects = useMemo(
+    () =>
+      projectState.projects
+        .filter((project) => project.sidebarPinOrder !== null)
+        .sort(
+          (left, right) =>
+            (left.sidebarPinOrder ?? 0) - (right.sidebarPinOrder ?? 0),
+        ),
+    [projectState.projects],
+  );
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -104,9 +114,12 @@ export function AppShell({
           open={sidebarOpen}
           darkMode={darkMode}
           activeView={activeView}
+          selectedProjectId={selectedProjectId}
+          pinnedProjects={pinnedProjects}
           logoutPending={logoutPending}
           onClose={() => setSidebarOpen(false)}
           onViewChange={handleViewChange}
+          onProjectShortcut={showProjectDetail}
           onThemeChange={setDarkMode}
           onLogout={onLogout}
         />
@@ -129,11 +142,18 @@ export function AppShell({
                 projects={projectState.projects}
                 selectedProjectId={selectedProjectId}
                 editDisabled={projectState.projectActionPending}
+                pinPending={
+                  selectedProjectId
+                    ? projectState.pendingProjectPinIds.includes(selectedProjectId)
+                    : false
+                }
                 onBackToList={() => setSelectedProjectId(null)}
                 onProjectSelect={setSelectedProjectId}
                 onEditProject={(project) => {
                   setProjectDraft(projectToDraft(project));
                 }}
+                onPinProject={projectState.pinProjectFromPage}
+                onUnpinProject={projectState.unpinProjectFromPage}
               />
             ) : (
               <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
@@ -151,8 +171,11 @@ export function AppShell({
               projectDraft={projectDraft}
               setProjectDraft={setProjectDraft}
               selectedProjectId={selectedProjectId}
+              pendingProjectPinIds={projectState.pendingProjectPinIds}
               onProjectSave={projectState.saveProjectFromPage}
               onProjectDelete={projectState.archiveProjectFromPage}
+              onProjectPin={projectState.pinProjectFromPage}
+              onProjectUnpin={projectState.unpinProjectFromPage}
               onMilestoneSave={projectState.saveMilestoneFromPage}
               onMilestoneDelete={projectState.archiveMilestoneFromPage}
               onTaskSave={projectState.saveTaskFromPage}

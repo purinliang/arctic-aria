@@ -6,11 +6,13 @@ import {
   blockProjectTask,
   completeProjectTask,
   getProjectDashboardData,
+  pinProject,
   reopenProjectTask,
   saveMilestone,
   saveProject,
   saveProjectTask,
   skipProjectTask,
+  unpinProject,
   updateProjectTaskStatus,
   type MilestoneInput,
   type ProjectActionResult,
@@ -38,6 +40,9 @@ export function useDashboardProjects(
   const [projectLoading, setProjectLoading] = useState(true);
   const [projectActionPending, setProjectActionPending] = useState(false);
   const [pendingTaskIds, setPendingTaskIds] = useState<string[]>([]);
+  const [pendingProjectPinIds, setPendingProjectPinIds] = useState<string[]>(
+    [],
+  );
   const pageTaskRequestChains = useRef(new Map<string, Promise<void>>());
   const pageTaskRequestVersions = useRef(new Map<string, number>());
 
@@ -93,6 +98,27 @@ export function useDashboardProjects(
       return true;
     } finally {
       setProjectActionPending(false);
+    }
+  }
+
+  async function updateProjectPinFromPage(
+    projectId: string,
+    action: ProjectDataAction,
+    failureTitle: string,
+  ) {
+    setPendingProjectPinIds((current) => addPendingId(current, projectId));
+
+    try {
+      const result = await action();
+
+      if (!result.ok) {
+        showErrorNotification(result.message, failureTitle);
+        return;
+      }
+
+      applyProjectData(result.data);
+    } finally {
+      setPendingProjectPinIds((current) => removePendingId(current, projectId));
     }
   }
 
@@ -178,6 +204,7 @@ export function useDashboardProjects(
     projectLoading,
     projectActionPending,
     pendingTaskIds,
+    pendingProjectPinIds,
     refreshProjectData,
     updateTaskFromDashboard,
     saveProjectFromPage: (input: ProjectInput) =>
@@ -205,6 +232,18 @@ export function useDashboardProjects(
     saveTaskFromPage: (input: ProjectTaskInput) =>
       runProjectManagementAction(() => saveProjectTask(input), "Task save failed"),
     statusTaskFromPage: updateTaskFromPage,
+    pinProjectFromPage: (projectId: string) =>
+      updateProjectPinFromPage(
+        projectId,
+        () => pinProject(projectId),
+        "Project pin failed",
+      ),
+    unpinProjectFromPage: (projectId: string) =>
+      updateProjectPinFromPage(
+        projectId,
+        () => unpinProject(projectId),
+        "Project unpin failed",
+      ),
     reopenTaskFromPage: (taskId: string) =>
       runProjectManagementAction(() => reopenProjectTask(taskId), "Task reopen failed"),
   };

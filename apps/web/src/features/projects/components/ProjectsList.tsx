@@ -1,5 +1,5 @@
 // Projects Page - Projects List.
-import { ChevronRight, FolderKanban, Plus } from "lucide-react";
+import { ChevronRight, FolderKanban, Pin, PinOff, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
@@ -14,14 +14,20 @@ export function ProjectsList({
   loading,
   pending,
   projects,
+  pendingProjectPinIds,
   onViewProject,
+  onPinProject,
+  onUnpinProject,
   onAddProject,
 }: {
   darkMode: boolean;
   loading: boolean;
   pending: boolean;
   projects: ProjectView[];
+  pendingProjectPinIds: string[];
   onViewProject: (projectId: string) => void;
+  onPinProject: (projectId: string) => void;
+  onUnpinProject: (projectId: string) => void;
   onAddProject: () => void;
 }) {
   return (
@@ -57,7 +63,10 @@ export function ProjectsList({
             key={project.id}
             darkMode={darkMode}
             project={project}
+            pinPending={pendingProjectPinIds.includes(project.id)}
             onView={() => onViewProject(project.id)}
+            onPin={() => onPinProject(project.id)}
+            onUnpin={() => onUnpinProject(project.id)}
           />
         ))}
       </List>
@@ -68,12 +77,20 @@ export function ProjectsList({
 function ProjectListItem({
   darkMode,
   project,
+  pinPending,
   onView,
+  onPin,
+  onUnpin,
 }: {
   darkMode: boolean;
   project: ProjectView;
+  pinPending: boolean;
   onView: () => void;
+  onPin: () => void;
+  onUnpin: () => void;
 }) {
+  const pinned = project.sidebarPinOrder !== null;
+
   return (
     <ListItem darkMode={darkMode} className="items-start">
       <div className="min-w-0 flex-1">
@@ -87,14 +104,31 @@ function ProjectListItem({
           {project.timelineText} · {project.progressText}
         </SupportingText>
       </div>
-      <Button
-        darkMode={darkMode}
-        tone="ghost"
-        size="icon-sm"
-        aria-label={`Open ${project.title}`}
-        icon={<ChevronRight size={16} aria-hidden="true" />}
-        onClick={onView}
-      />
+      <div className="flex shrink-0 items-center gap-2">
+        <Button
+          darkMode={darkMode}
+          size="sm"
+          disabled={pinPending}
+          icon={
+            pinned ? (
+              <PinOff size={14} aria-hidden="true" />
+            ) : (
+              <Pin size={14} aria-hidden="true" />
+            )
+          }
+          onClick={pinned ? onUnpin : onPin}
+        >
+          {pinned ? "Unpin" : "Pin"}
+        </Button>
+        <Button
+          darkMode={darkMode}
+          tone="ghost"
+          size="icon-sm"
+          aria-label={`Open ${project.title}`}
+          icon={<ChevronRight size={16} aria-hidden="true" />}
+          onClick={onView}
+        />
+      </div>
     </ListItem>
   );
 }
