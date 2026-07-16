@@ -66,6 +66,9 @@ const appMetadata = resolveAppMetadata(appRoot);
 console.log(
   `Migration app metadata: version=${appMetadata.version}, commit=${appMetadata.commit}, source=${appMetadata.sourceState}`,
 );
+console.log(
+  `Expected database metadata: migrations=${appMetadata.expectedDatabase.migrationCount}, schema=${appMetadata.expectedDatabase.schemaHash}`,
+);
 
 if (appMetadata.sourceState === "dirty") {
   console.warn(
@@ -97,6 +100,13 @@ await sql.query(`
     applied_count integer NOT NULL DEFAULT 0,
     skipped_count integer NOT NULL DEFAULT 0
   )
+`);
+
+await sql.query(`
+  ALTER TABLE schema_migration_runs
+    ADD COLUMN IF NOT EXISTS expected_migration_count integer,
+    ADD COLUMN IF NOT EXISTS expected_latest_migration text,
+    ADD COLUMN IF NOT EXISTS expected_schema_hash text
 `);
 
 const migrations = readdirSync(migrationsDir)
@@ -144,14 +154,20 @@ await sql.query(
      app_version,
      app_commit,
      app_source_state,
+     expected_migration_count,
+     expected_latest_migration,
+     expected_schema_hash,
      applied_count,
      skipped_count
    )
-   VALUES ($1, $2, $3, $4, $5)`,
+   VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
   [
     appMetadata.version,
     appMetadata.commit,
     appMetadata.sourceState,
+    appMetadata.expectedDatabase.migrationCount,
+    appMetadata.expectedDatabase.latestMigrationName,
+    appMetadata.expectedDatabase.schemaHash,
     appliedCount,
     skippedCount,
   ],
