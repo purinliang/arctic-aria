@@ -24,7 +24,6 @@ export function Sidebar({
   onViewChange,
   onThemeChange,
   onLogout,
-  onUnavailableFeature,
 }: {
   open: boolean;
   darkMode: boolean;
@@ -34,7 +33,6 @@ export function Sidebar({
   onViewChange: (view: DashboardView) => void;
   onThemeChange: (darkMode: boolean) => void;
   onLogout: () => void;
-  onUnavailableFeature: (featureName: string) => void;
 }) {
   function selectView(view: DashboardView) {
     onViewChange(view);
@@ -67,7 +65,6 @@ export function Sidebar({
           onSelectView={selectView}
           onThemeChange={onThemeChange}
           onLogout={onLogout}
-          onUnavailableFeature={onUnavailableFeature}
         />
       </div>
 
@@ -80,7 +77,6 @@ export function Sidebar({
         onSelectView={selectView}
         onThemeChange={onThemeChange}
         onLogout={onLogout}
-        onUnavailableFeature={onUnavailableFeature}
       />
     </>
   );
@@ -96,7 +92,6 @@ function SidebarFrame({
   onSelectView,
   onThemeChange,
   onLogout,
-  onUnavailableFeature,
 }: {
   darkMode: boolean;
   open: boolean;
@@ -107,7 +102,6 @@ function SidebarFrame({
   onSelectView: (view: DashboardView) => void;
   onThemeChange: (darkMode: boolean) => void;
   onLogout: () => void;
-  onUnavailableFeature: (featureName: string) => void;
 }) {
   return (
     <aside
@@ -173,8 +167,9 @@ function SidebarFrame({
         <SidebarItem
           icon={<Settings size={18} aria-hidden="true" />}
           label="Settings"
+          active={activeView === "settings"}
           darkMode={darkMode}
-          onClick={() => onUnavailableFeature("Settings")}
+          onClick={() => onSelectView("settings")}
         />
       </nav>
 

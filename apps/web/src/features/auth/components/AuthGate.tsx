@@ -114,7 +114,6 @@ export function AuthGate() {
         }}
         onNotificationDismiss={dismissNotification}
         showErrorNotification={showErrorNotification}
-        showInfoNotification={showInfoNotification}
       />
     );
   }

@@ -87,9 +87,23 @@ await sql.query(`
     ADD COLUMN IF NOT EXISTS app_source_state text
 `);
 
+await sql.query(`
+  CREATE TABLE IF NOT EXISTS schema_migration_runs (
+    id bigserial PRIMARY KEY,
+    checked_at timestamptz NOT NULL DEFAULT now(),
+    app_version text NOT NULL,
+    app_commit text NOT NULL,
+    app_source_state text NOT NULL,
+    applied_count integer NOT NULL DEFAULT 0,
+    skipped_count integer NOT NULL DEFAULT 0
+  )
+`);
+
 const migrations = readdirSync(migrationsDir)
   .filter((file) => file.endsWith(".sql"))
   .sort();
+let appliedCount = 0;
+let skippedCount = 0;
 
 for (const migration of migrations) {
   const existing = await sql.query(
@@ -98,6 +112,7 @@ for (const migration of migrations) {
   );
 
   if (existing.length > 0) {
+    skippedCount += 1;
     console.log(`Skipping ${migration}`);
     continue;
   }
@@ -120,5 +135,28 @@ for (const migration of migrations) {
       appMetadata.sourceState,
     ],
   );
+  appliedCount += 1;
   console.log(`Applied ${migration}`);
 }
+
+await sql.query(
+  `INSERT INTO schema_migration_runs (
+     app_version,
+     app_commit,
+     app_source_state,
+     applied_count,
+     skipped_count
+   )
+   VALUES ($1, $2, $3, $4, $5)`,
+  [
+    appMetadata.version,
+    appMetadata.commit,
+    appMetadata.sourceState,
+    appliedCount,
+    skippedCount,
+  ],
+);
+
+console.log(
+  `Recorded migration run metadata: applied=${appliedCount}, skipped=${skippedCount}`,
+);

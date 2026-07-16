@@ -6,10 +6,26 @@ and login flow.
 
 ## Scope
 
-Progress: suspended
+Progress: prototype
 
 Settings should include personal configuration that affects how the product
 behaves for one user.
+
+The current prototype implements only a read-only Settings page. It is opened
+from the sidebar `Settings` item and shows app version metadata:
+
+- app version
+- commit hash
+- source state
+
+This is a normal authenticated Settings surface. It is intentionally more
+visible than the very subtle auth-page metadata footer, because signed-in users
+can use it to compare the deployed frontend/backend with database migration
+records.
+
+Current web source:
+
+- `apps/web/src/features/settings/components/SettingsPage.tsx`
 
 ## Attributes
 
