@@ -2,8 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ButtonHTMLAttributes } from "react";
-import { Calendar, ChevronLeft, ChevronRight, X } from "lucide-react";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  X,
+} from "lucide-react";
 import { Button } from "../button";
+import { buildCalendarMonthDays, shiftCalendarMonth } from "./date-calendar";
 import { formatDateKey } from "./date-format";
 import {
   formControlClass,
@@ -73,7 +81,10 @@ export function DatePickerField({
     };
   }, [open, rootRef]);
 
-  const days = useMemo(() => buildMonthDays(visibleMonth), [visibleMonth]);
+  const days = useMemo(
+    () => buildCalendarMonthDays(visibleMonth),
+    [visibleMonth],
+  );
   const formattedValue = formatDateValue(value, messages);
 
   return (
@@ -113,15 +124,26 @@ export function DatePickerField({
             ),
           )}
         >
-          <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="mb-2 grid grid-cols-[auto_auto_minmax(0,1fr)_auto_auto] items-center gap-1">
+            <PickerIconButton
+              darkMode={darkMode}
+              aria-label={messages.previousYear}
+              onClick={() =>
+                setVisibleMonth(shiftCalendarMonth(visibleMonth, -12))
+              }
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </PickerIconButton>
             <PickerIconButton
               darkMode={darkMode}
               aria-label={messages.previousMonth}
-              onClick={() => setVisibleMonth(addMonths(visibleMonth, -1))}
+              onClick={() =>
+                setVisibleMonth(shiftCalendarMonth(visibleMonth, -1))
+              }
             >
               <ChevronLeft className="h-4 w-4" />
             </PickerIconButton>
-            <div className="text-sm font-semibold">
+            <div className="truncate px-1 text-center text-sm font-semibold">
               {messages.monthYear(
                 messages.monthNames[visibleMonth.monthIndex],
                 visibleMonth.year,
@@ -130,9 +152,20 @@ export function DatePickerField({
             <PickerIconButton
               darkMode={darkMode}
               aria-label={messages.nextMonth}
-              onClick={() => setVisibleMonth(addMonths(visibleMonth, 1))}
+              onClick={() =>
+                setVisibleMonth(shiftCalendarMonth(visibleMonth, 1))
+              }
             >
               <ChevronRight className="h-4 w-4" />
+            </PickerIconButton>
+            <PickerIconButton
+              darkMode={darkMode}
+              aria-label={messages.nextYear}
+              onClick={() =>
+                setVisibleMonth(shiftCalendarMonth(visibleMonth, 12))
+              }
+            >
+              <ChevronsRight className="h-4 w-4" />
             </PickerIconButton>
           </div>
 
@@ -269,34 +302,6 @@ function parseDateValue(value: string) {
 
 function formatDateValue(value: string, messages: DatePickerMessages) {
   return formatDateKey(value, messages, "");
-}
-
-function buildMonthDays(month: VisibleMonth) {
-  const firstDay = new Date(month.year, month.monthIndex, 1).getDay();
-  const count = new Date(month.year, month.monthIndex + 1, 0).getDate();
-  const days: Array<{ day: number; value: string } | null> = [];
-
-  for (let index = 0; index < firstDay; index += 1) {
-    days.push(null);
-  }
-
-  for (let day = 1; day <= count; day += 1) {
-    days.push({
-      day,
-      value: toDateValue(month.year, month.monthIndex, day),
-    });
-  }
-
-  return days;
-}
-
-function addMonths(month: VisibleMonth, offset: number): VisibleMonth {
-  const date = new Date(month.year, month.monthIndex + offset, 1);
-  return { year: date.getFullYear(), monthIndex: date.getMonth() };
-}
-
-function toDateValue(year: number, monthIndex: number, day: number) {
-  return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
 function isDateOutsideBounds(value: string, min?: string, max?: string) {

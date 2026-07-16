@@ -15,7 +15,7 @@ export function formatDateKey(
     messages.shortMonthNames[parsed.monthIndex],
     parsed.day,
     parsed.year,
-    messages.weekdayNames[parsed.weekdayIndex],
+    messages.longWeekdayNames[parsed.weekdayIndex],
   );
 }
 

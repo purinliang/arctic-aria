@@ -29,8 +29,11 @@ export const englishFormMessages = {
       "Dec",
     ],
     weekdayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    longWeekdayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    previousYear: "Previous year",
     previousMonth: "Previous month",
     nextMonth: "Next month",
+    nextYear: "Next year",
     clearDate: "Clear date",
     monthYear: (monthName: string, year: number) => `${monthName} ${year}`,
     dateValue: (
@@ -100,7 +103,8 @@ export const simplifiedChineseFormMessages: FormMessages = {
       "11月",
       "12月",
     ],
-    weekdayNames: [
+    weekdayNames: ["日", "一", "二", "三", "四", "五", "六"],
+    longWeekdayNames: [
       "星期日",
       "星期一",
       "星期二",
@@ -109,8 +113,10 @@ export const simplifiedChineseFormMessages: FormMessages = {
       "星期五",
       "星期六",
     ],
+    previousYear: "上一年",
     previousMonth: "上个月",
     nextMonth: "下个月",
+    nextYear: "下一年",
     clearDate: "清除日期",
     monthYear: (monthName, year) => `${year}年${monthName}`,
     dateValue: (shortMonthName, day, year, weekdayName) =>
@@ -125,7 +131,7 @@ export const simplifiedChineseFormMessages: FormMessages = {
     preview: (time, dayPeriod) => `${time} ${dayPeriod}`,
     dayPeriods: {
       midnight: "午夜",
-      morning: "早晨",
+      morning: "早上",
       noon: "中午",
       afternoon: "下午",
       evening: "傍晚",

@@ -72,7 +72,7 @@ export function dialogFrameClass(
     padding === "md" ? "p-4" : "",
     size === "sm"
       ? "w-[min(calc(100vw-2rem),28rem)]"
-      : "w-[min(calc(100vw-2rem),42rem)]",
+      : "w-[min(calc(100vw-2rem),46rem)]",
     surfaceClass(darkMode),
   );
 }

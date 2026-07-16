@@ -85,7 +85,7 @@ Fields:
 - recurrence preview
 - preferred time
 - first start date
-- optional inclusive end date
+- end date
 
 The repeat rule control should use the shared dropdown/select component, not a
 button group. Each option should have a short title and a description so labels
@@ -105,8 +105,9 @@ The routine editor should keep recurrence choices ordered by likely usefulness:
   field to 90 days because 30 days already has a preset. This is typical for
   software memberships or subscription-like checks.
 
-The first start date and end date should be enough for most schedules. The end
-date label or helper text must make clear that the end date is inclusive.
+The first start date and end date should be enough for most schedules. Keep the
+visible field labels short; do not append technical qualifiers such as
+`optional` or `inclusive` to routine field labels.
 
 After the recurrence control, show a short preview of the next generated dates
 when the first start date is valid. The preview should show the first three

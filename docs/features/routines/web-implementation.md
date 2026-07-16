@@ -73,7 +73,7 @@ Fields:
 - fixed day interval only when the fixed-days option is selected
 - preferred time
 - first start date
-- optional inclusive end date
+- end date
 
 The save flow is blocking:
 
