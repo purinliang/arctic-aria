@@ -14,6 +14,11 @@ test("date key formatting includes weekday", () => {
 });
 
 test("date key formatting uses active date messages", () => {
+  assert.equal(simplifiedChineseFormMessages.datePicker.weekdayNames[4], "四");
+  assert.equal(
+    simplifiedChineseFormMessages.datePicker.longWeekdayNames[4],
+    "星期四",
+  );
   assert.equal(
     formatDateKey("2026-07-16", simplifiedChineseFormMessages.datePicker),
     "2026年7月16日 星期四",
