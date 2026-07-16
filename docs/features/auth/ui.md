@@ -21,10 +21,10 @@ and [data-model.md](data-model.md).
   include a Sparkles icon and the text `Arctic Aria`.
 - Show a centered description below the brand row, such as `Your personal life
   assistant under the aurora.`
-- Show a small deployment metadata footer below the auth form when app metadata
-  is available. It should include the app version, commit hash, and source state
-  in subdued supporting text so database migration records can be compared with
-  the deployed frontend/backend.
+- Show a tiny deployment metadata footer below the auth panel when app metadata
+  is available. It should use very low-contrast text close to the page
+  background color and include the app version, commit hash, and source state so
+  database migration records can be compared with the deployed frontend/backend.
 - `Sign up` should be the right tab in a two-tab control. The other tab is
   `Sign in`.
 - Below the tabs, stack the form vertically:
