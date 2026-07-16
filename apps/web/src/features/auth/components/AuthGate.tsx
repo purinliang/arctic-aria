@@ -4,9 +4,16 @@
 import { LoaderCircle, Sparkles } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { AppShell } from "@/app-shell/AppShell";
+import { defaultDatabaseVersionStatus } from "@/components/app-metadata";
 import { NotificationStack, useNotifications } from "@/components/notification";
 import { SupportingText } from "@/components/text";
-import { getCurrentUser, loginUser, logoutUser, registerUser } from "../actions";
+import {
+  getCurrentUser,
+  getPublicVersionStatus,
+  loginUser,
+  logoutUser,
+  registerUser,
+} from "../actions";
 import type { AuthUser } from "../server/auth-service";
 import {
   hasAuthErrors,
@@ -42,6 +49,9 @@ export function AuthGate() {
   const [loginInput, setLoginInput] = useState<LoginInput>(emptyLogin);
   const [serverErrors, setServerErrors] = useState<AuthFieldErrors>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [versionStatus, setVersionStatus] = useState(
+    defaultDatabaseVersionStatus(),
+  );
   const [isPending, startTransition] = useTransition();
   const {
     notifications,
@@ -63,6 +73,31 @@ export function AuthGate() {
       .finally(() => {
         if (active) {
           setSessionChecked(true);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    getPublicVersionStatus()
+      .then((status) => {
+        if (active) {
+          setVersionStatus(status);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setVersionStatus((current) => ({
+            ...current,
+            actualDatabaseVersionText: "Unavailable",
+            aligned: false,
+            message: "Database version unavailable.",
+          }));
         }
       });
 
@@ -102,6 +137,7 @@ export function AuthGate() {
     return (
       <AppShell
         currentUser={currentUser}
+        versionStatus={versionStatus}
         logoutPending={isPending}
         notifications={notifications}
         onLogout={() => {
@@ -232,6 +268,7 @@ export function AuthGate() {
         onSubmit={handleSubmit}
         onGoogleLogin={showGooglePlaceholder}
         onPasswordReset={showPasswordResetPlaceholder}
+        versionStatus={versionStatus}
       />
       <NotificationStack
         notifications={notifications}

@@ -2,14 +2,18 @@
 
 // Auth Page.
 import { Sparkles } from "lucide-react";
-import { appMetadataLabel, getAppMetadata } from "@/components/app-metadata";
+import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import { Panel } from "@/components/panel";
+import { VersionStatusSupport } from "@/components/version-status";
 import { AuthForm } from "./AuthForm";
 import type { AuthFormProps } from "./AuthForm";
 
-export function AuthPage(props: AuthFormProps) {
-  const metadataLabel = appMetadataLabel(getAppMetadata());
-
+export function AuthPage({
+  versionStatus,
+  ...props
+}: AuthFormProps & {
+  versionStatus: DatabaseVersionStatus;
+}) {
   return (
     <main className="min-h-[110vh] bg-[#eef2f5] text-slate-950">
       <div className="mx-auto flex min-h-[110vh] w-full max-w-[560px] items-center px-4 pb-16 pt-6 sm:px-6 sm:pb-20">
@@ -26,11 +30,9 @@ export function AuthPage(props: AuthFormProps) {
             </p>
             <AuthForm {...props} />
           </Panel>
-          {metadataLabel ? (
-            <footer className="mt-3 text-center text-[10px] leading-4 text-[#d7e0e8] tabular-nums">
-              {metadataLabel}
-            </footer>
-          ) : null}
+          <footer className="mt-3">
+            <VersionStatusSupport darkMode={false} status={versionStatus} />
+          </footer>
         </div>
       </div>
     </main>

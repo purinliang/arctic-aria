@@ -12,16 +12,27 @@ Settings should include personal configuration that affects how the product
 behaves for one user.
 
 The current prototype implements only a read-only Settings page. It is opened
-from the sidebar `Settings` item and shows app version metadata:
+from the sidebar `Settings` item and shows app and database version metadata:
 
-- app version
-- commit hash
-- source state
+- app version with commit hash
+- actual database version
 
 This is a normal authenticated Settings surface. It is intentionally more
-visible than the very subtle auth-page metadata footer, because signed-in users
+visible than the signed-out auth-page metadata footer, because signed-in users
 can use it to compare the deployed frontend/backend with database migration
 records.
+
+The Settings panel should show two rows:
+
+- `App Version`: current build version and commit.
+- `Database Version`: the latest version recorded by database migration runs.
+
+If the database schema is aligned and the last migration check used the current
+commit, do not add extra warning text. If it was last checked by another commit,
+or the schema is behind, ahead, different, or unavailable, append a short red
+parenthetical message after `Database Version`, such as
+`(expected abc123def456)`. Do not show migration filenames or schema hashes in
+the user-facing Settings UI.
 
 Current web source:
 

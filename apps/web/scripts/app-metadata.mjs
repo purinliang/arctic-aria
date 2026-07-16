@@ -1,4 +1,6 @@
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 export function resolveAppMetadata(appRoot = process.cwd()) {
@@ -12,12 +14,31 @@ export function resolveAppMetadata(appRoot = process.cwd()) {
       readGitCommit(repoRoot),
     ),
   );
+  const branch = firstDefined(
+    process.env.APP_BRANCH,
+    process.env.NEXT_PUBLIC_APP_BRANCH,
+    process.env.VERCEL_GIT_COMMIT_REF,
+    process.env.GIT_BRANCH,
+    readGitBranch(repoRoot),
+  );
+  const releaseVersion = firstDefined(
+    process.env.APP_RELEASE_VERSION,
+    readExactReleaseTag(repoRoot),
+    readHeadReleaseVersion(repoRoot),
+  );
+  const baseVersion = firstDefined(
+    process.env.APP_BASE_VERSION,
+    releaseVersion,
+    bumpMinor(readLatestReleaseVersion(repoRoot)),
+    "v0.0.0",
+  );
+  const expectedDatabase = resolveExpectedDatabaseMetadata(appRoot);
 
   return {
     version: firstDefined(
       process.env.APP_VERSION,
       process.env.NEXT_PUBLIC_APP_VERSION,
-      "development",
+      deriveAppVersion({ branch, commit, releaseVersion, baseVersion }),
     ),
     commit,
     sourceState: firstDefined(
@@ -25,6 +46,40 @@ export function resolveAppMetadata(appRoot = process.cwd()) {
       process.env.NEXT_PUBLIC_APP_SOURCE_STATE,
       readGitSourceState(repoRoot),
     ),
+    branch,
+    expectedDatabase,
+  };
+}
+
+export function resolveExpectedDatabaseMetadata(appRoot = process.cwd()) {
+  const migrationsDir = path.join(appRoot, "database", "migrations");
+
+  if (!existsSync(migrationsDir)) {
+    return {
+      migrationCount: 0,
+      latestMigrationName: "none",
+      schemaHash: "none",
+    };
+  }
+
+  const migrations = readdirSync(migrationsDir)
+    .filter((file) => file.endsWith(".sql"))
+    .sort();
+  const hash = createHash("sha256");
+
+  for (const migration of migrations) {
+    const content = readFileSync(path.join(migrationsDir, migration), "utf8");
+
+    hash.update(migration);
+    hash.update("\0");
+    hash.update(content);
+    hash.update("\0");
+  }
+
+  return {
+    migrationCount: migrations.length,
+    latestMigrationName: migrations.at(-1) ?? "none",
+    schemaHash: migrations.length > 0 ? hash.digest("hex").slice(0, 12) : "none",
   };
 }
 
@@ -32,7 +87,8 @@ function firstDefined(...values) {
   return (
     values
       .map((value) => value?.trim())
-      .find((value) => value && value.length > 0) ?? "unknown"
+      .find((value) => value && value.length > 0 && value !== "unknown") ??
+    "unknown"
   );
 }
 
@@ -42,6 +98,42 @@ function shortCommit(commit) {
 
 function readGitCommit(repoRoot) {
   return readGit(["rev-parse", "HEAD"], repoRoot);
+}
+
+function readGitBranch(repoRoot) {
+  return readGit(["branch", "--show-current"], repoRoot);
+}
+
+function readExactReleaseTag(repoRoot) {
+  const tag = readGit(["describe", "--tags", "--exact-match", "HEAD"], repoRoot);
+
+  return isReleaseVersion(tag) ? tag : "unknown";
+}
+
+function readHeadReleaseVersion(repoRoot) {
+  const subject = readGit(["log", "-1", "--format=%s"], repoRoot);
+
+  return releaseVersionFromText(subject);
+}
+
+function readLatestReleaseVersion(repoRoot) {
+  const taggedVersion = readGit(
+    ["tag", "--list", "v*", "--sort=-v:refname"],
+    repoRoot,
+  )
+    .split(/\r?\n/)
+    .find(isReleaseVersion);
+
+  if (taggedVersion) {
+    return taggedVersion;
+  }
+
+  const releaseSubject = readGit(
+    ["log", "--all", "--grep=^Release v", "--format=%s", "-1"],
+    repoRoot,
+  );
+
+  return releaseVersionFromText(releaseSubject);
 }
 
 function readGitSourceState(repoRoot) {
@@ -64,4 +156,56 @@ function readGit(args, repoRoot) {
   } catch {
     return "unknown";
   }
+}
+
+function deriveAppVersion({ branch, commit, releaseVersion, baseVersion }) {
+  if (isReleaseVersion(releaseVersion)) {
+    return releaseVersion;
+  }
+
+  const suffix = versionBranchSuffix(branch);
+  const version = suffix ? `${baseVersion}-${suffix}` : `${baseVersion}-dev`;
+
+  return commit === "unknown" ? version : version;
+}
+
+function versionBranchSuffix(branch) {
+  if (!branch || branch === "unknown" || branch === "main") {
+    return "";
+  }
+
+  if (branch === "develop") {
+    return "dev";
+  }
+
+  return branch
+    .replace(/^agent\//, "")
+    .replace(/[^A-Za-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
+}
+
+function releaseVersionFromText(text) {
+  const match = text.match(/\bv\d+\.\d+\.\d+\b/);
+  const version = match?.[0];
+
+  return version && isReleaseVersion(version) ? version : "unknown";
+}
+
+function isReleaseVersion(version) {
+  return /^v\d+\.\d+\.\d+$/.test(version);
+}
+
+function bumpMinor(version) {
+  if (!isReleaseVersion(version)) {
+    return "unknown";
+  }
+
+  const [, major, minor] = version.match(/^v(\d+)\.(\d+)\.\d+$/) ?? [];
+
+  if (major === undefined || minor === undefined) {
+    return "unknown";
+  }
+
+  return `v${major}.${Number(minor) + 1}.0`;
 }

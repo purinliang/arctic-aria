@@ -10,6 +10,7 @@ import {
   type NotificationItem,
 } from "@/components/notification";
 import { appShellClass, useDocumentTheme } from "@/components/theme";
+import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
 import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardProjects";
@@ -27,6 +28,7 @@ import { Sidebar } from "./Sidebar";
 
 export function AppShell({
   currentUser,
+  versionStatus,
   logoutPending,
   notifications,
   onLogout,
@@ -34,6 +36,7 @@ export function AppShell({
   showErrorNotification,
 }: {
   currentUser: AuthUser;
+  versionStatus: DatabaseVersionStatus;
   logoutPending: boolean;
   notifications: NotificationItem[];
   onLogout: () => void;
@@ -190,7 +193,7 @@ export function AppShell({
               onSuggestionCancel={memoryState.cancelSuggestionPinFromPage}
             />
           ) : activeView === "settings" ? (
-            <SettingsPage darkMode={darkMode} />
+            <SettingsPage darkMode={darkMode} versionStatus={versionStatus} />
           ) : (
             <Dashboard
               darkMode={darkMode}
