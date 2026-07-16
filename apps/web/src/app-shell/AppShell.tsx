@@ -11,10 +11,9 @@ import {
 } from "@/components/notification";
 import { appShellClass } from "@/components/theme";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
-import type {
-  LanguagePreference,
-  ThemePreference,
-} from "@/app-shell/app-preferences";
+import type { ThemePreference } from "@/app-shell/app-preferences";
+import type { AppMessages } from "@/messages/app-messages";
+import type { LanguagePreference } from "@/messages/languages";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
 import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardProjects";
@@ -34,6 +33,7 @@ export function AppShell({
   currentUser,
   darkMode,
   languagePreference,
+  messages,
   onLanguagePreferenceChange,
   onThemePreferenceChange,
   themePreference,
@@ -47,6 +47,7 @@ export function AppShell({
   currentUser: AuthUser;
   darkMode: boolean;
   languagePreference: LanguagePreference;
+  messages: AppMessages;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   themePreference: ThemePreference;
@@ -63,9 +64,21 @@ export function AppShell({
     null,
   );
   const [projectDraft, setProjectDraft] = useState<ProjectInput | null>(null);
-  const projectState = useDashboardProjects(showErrorNotification);
-  const routineState = useDashboardRoutines(showErrorNotification);
-  const memoryState = useDashboardMemories(showErrorNotification);
+  const projectState = useDashboardProjects(
+    showErrorNotification,
+    messages.dashboard.notifications,
+    messages.projects.results,
+  );
+  const routineState = useDashboardRoutines(
+    showErrorNotification,
+    messages.dashboard.notifications,
+    messages.routines.results,
+  );
+  const memoryState = useDashboardMemories(
+    showErrorNotification,
+    messages.dashboard.notifications,
+    messages.memories.results,
+  );
   const { refreshProjectData } = projectState;
   const { refreshMemoryData } = memoryState;
   const { refreshRoutineData } = routineState;
@@ -114,12 +127,12 @@ export function AppShell({
 
   const pageTitle =
     activeView === "dashboard"
-      ? "Dashboard"
+      ? messages.appShell.pages.dashboard
       : activeView === "routines"
-        ? "Routines"
+        ? messages.appShell.pages.routines
         : activeView === "memories"
-          ? "Memories"
-          : "Settings";
+          ? messages.appShell.pages.memories
+          : messages.appShell.pages.settings;
 
   return (
     <main className={`min-h-screen transition-colors ${appShellClass(darkMode)}`}>
@@ -130,6 +143,7 @@ export function AppShell({
           activeView={activeView}
           selectedProjectId={selectedProjectId}
           pinnedProjects={pinnedProjects}
+          messages={messages.appShell}
           logoutPending={logoutPending}
           onClose={() => setSidebarOpen(false)}
           onViewChange={handleViewChange}
@@ -148,7 +162,7 @@ export function AppShell({
               darkMode={darkMode}
               size="icon-sm"
               className="h-10 w-10 lg:hidden"
-              aria-label="Open navigation"
+              aria-label={messages.appShell.openNavigation}
               icon={<Menu size={20} aria-hidden="true" />}
               onClick={() => setSidebarOpen(true)}
             />
@@ -170,6 +184,10 @@ export function AppShell({
                 }}
                 onPinProject={projectState.pinProjectFromPage}
                 onUnpinProject={projectState.unpinProjectFromPage}
+                messages={messages.projects.pageTitle}
+                timelineMessages={messages.projects.timeline}
+                durationMessages={messages.projects.duration}
+                dateMessages={messages.forms.datePicker}
               />
             ) : (
               <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
@@ -198,6 +216,8 @@ export function AppShell({
               onTaskDelete={projectState.archiveTaskFromPage}
               onTaskStatus={projectState.statusTaskFromPage}
               onProjectSelect={setSelectedProjectId}
+              messages={messages.projects}
+              formMessages={messages.forms}
             />
           ) : activeView === "routines" ? (
             <RoutinesPage
@@ -207,6 +227,8 @@ export function AppShell({
               pending={routineState.routineActionPending}
               onRoutineSave={routineState.saveRoutineFromPage}
               onRoutineDelete={routineState.deleteRoutineFromPage}
+              messages={messages.routines}
+              formMessages={messages.forms}
             />
           ) : activeView === "memories" ? (
             <MemoriesPage
@@ -227,12 +249,16 @@ export function AppShell({
               onSuggestionsRefresh={memoryState.refreshSuggestionsFromPage}
               onSuggestionPin={memoryState.pinSuggestionFromPage}
               onSuggestionCancel={memoryState.cancelSuggestionPinFromPage}
+              messages={messages.memories}
+              formMessages={messages.forms}
             />
           ) : activeView === "settings" ? (
             <SettingsPage
               darkMode={darkMode}
               languagePreference={languagePreference}
+              messages={messages.settings}
               themePreference={themePreference}
+              versionMessages={messages.versionStatus}
               versionStatus={versionStatus}
               onLanguagePreferenceChange={onLanguagePreferenceChange}
               onThemePreferenceChange={onThemePreferenceChange}
@@ -254,6 +280,8 @@ export function AppShell({
               onMemoryCancelDone={memoryState.cancelMemoryDone}
               onMemoryReplace={memoryState.replaceMemory}
               onTaskOpen={showProjectDetail}
+              messages={messages.dashboard}
+              formMessages={messages.forms}
               onRoutineOpen={() => {
                 setActiveView("routines");
                 setSidebarOpen(false);
@@ -270,6 +298,7 @@ export function AppShell({
       <NotificationStack
         notifications={notifications}
         darkMode={darkMode}
+        messages={messages.notifications}
         onDismiss={onNotificationDismiss}
       />
     </main>

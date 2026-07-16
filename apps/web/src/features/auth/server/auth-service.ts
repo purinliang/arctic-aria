@@ -25,12 +25,14 @@ export type AuthUser = {
 export type AuthActionResult =
   | {
       ok: true;
+      code: string;
       message: string;
       displayName: string;
       user: AuthUser;
     }
   | {
       ok: false;
+      code: string;
       message: string;
       fieldErrors?: AuthFieldErrors;
     };
@@ -56,6 +58,7 @@ function toAuthUser(user: Pick<UserRecord, "id" | "username" | "displayName">) {
 function usernameTakenResult(): AuthActionResult {
   return {
     ok: false,
+    code: "auth_username_taken",
     message: "Username is already taken.",
     fieldErrors: { username: "Username is already taken." },
   };
@@ -79,6 +82,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
 
         return {
           ok: false,
+          code: "auth_validation_failed",
           message: "Please fix the highlighted fields.",
           fieldErrors,
         };
@@ -118,6 +122,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
 
       return {
         ok: true,
+        code: "auth_account_created",
         message: "Account created. Opening dashboard...",
         displayName: normalizedInput.displayName,
         user: toAuthUser(user),
@@ -136,6 +141,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
 
         return {
           ok: false,
+          code: "auth_validation_failed",
           message: "Please fix the highlighted fields.",
           fieldErrors,
         };
@@ -151,6 +157,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
 
         return {
           ok: false,
+          code: "auth_invalid_credentials",
           message: "Invalid username or password.",
         };
       }
@@ -159,6 +166,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
 
       return {
         ok: true,
+        code: "auth_signed_in",
         message: "Signed in. Opening dashboard...",
         displayName: user.displayName,
         user: toAuthUser(user),

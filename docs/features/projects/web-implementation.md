@@ -87,8 +87,8 @@ numeric progress fields.
 
 ## Dashboard Behavior
 
-The dashboard should show `Today's tasks to move projects forward`. It should
-load task candidates from the database for signed-in users.
+The dashboard should show `Tasks`. It should load task candidates from the
+database for signed-in users.
 
 Dashboard task rows support:
 
@@ -287,7 +287,7 @@ overlaps:
 ```text
 Dashboard
   ProjectTasksPanel
-    CardHeader(Check, "Today's tasks to move projects forward")
+    CardHeader(Check, "Tasks")
     ProjectTaskRow[]
   right aside
     routines Panel

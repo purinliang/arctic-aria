@@ -12,6 +12,8 @@ import type {
   MemoryDashboardData,
   MemoryInput,
 } from "@/features/memories/actions";
+import type { MemoryMessages } from "@/messages/app-messages";
+import type { FormMessages } from "@/messages/app-messages";
 import { CategoryManagerDialog } from "./CategoryManagerDialog";
 import { MemoryEditorDialog } from "./MemoryEditorDialog";
 import { MemoriesPanel } from "./MemoriesPanel";
@@ -52,6 +54,8 @@ export function MemoriesPage({
   onSuggestionCancel,
   pinnedSuggestionIds,
   pendingSuggestionIds,
+  messages,
+  formMessages,
 }: {
   darkMode: boolean;
   categories: MemoryCategoryOption[];
@@ -70,6 +74,8 @@ export function MemoriesPage({
   onSuggestionsRefresh: () => Promise<void>;
   onSuggestionPin: (memoryId: string) => SuggestionResult;
   onSuggestionCancel: (memoryId: string) => SuggestionResult;
+  messages: MemoryMessages;
+  formMessages: FormMessages;
 }) {
   const [filter, setFilter] = useState<MemoryFilter>("All");
   const [memoryEditorOpen, setMemoryEditorOpen] = useState(false);
@@ -225,6 +231,8 @@ export function MemoriesPage({
             filter={filter}
             filters={filters}
             memories={visibleMemories}
+            messages={messages.panel}
+            dateMessages={formMessages.datePicker}
             onAdd={openNewMemoryEditor}
             onFilterChange={setFilter}
             onManage={openManageCategories}
@@ -238,6 +246,8 @@ export function MemoriesPage({
             suggestionsRequested={suggestionsRequested}
             pinnedSuggestionIds={pinnedSuggestionIds}
             pendingSuggestionIds={pendingSuggestionIds}
+            messages={messages.suggestions}
+            dateMessages={formMessages.datePicker}
             onSuggestionsRefresh={onSuggestionsRefresh}
             onSuggestionPin={onSuggestionPin}
             onSuggestionCancel={onSuggestionCancel}
@@ -253,6 +263,7 @@ export function MemoriesPage({
           memoryDraft={memoryDraft}
           categories={categories}
           setMemoryDraft={setMemoryDraft}
+          messages={messages.editor}
           onClose={closeMemoryEditor}
           onSubmit={() => void submitMemory()}
           onManageCategories={openManageCategories}
@@ -261,7 +272,7 @@ export function MemoriesPage({
               ? setConfirmationTarget({
                   type: "memory",
                   id: memoryDraft.id,
-                  title: memoryDraft.title || "this memory",
+                  title: memoryDraft.title || messages.confirm.fallbackMemory,
                 })
               : undefined
           }
@@ -275,6 +286,7 @@ export function MemoriesPage({
           categories={categories}
           categoryDraft={categoryDraft}
           categoryFormOpen={categoryFormOpen}
+          messages={messages.categories}
           setCategoryDraft={setCategoryDraft}
           onCloseEditor={closeCategoryEditor}
           onCloseForm={closeCategoryForm}
@@ -295,8 +307,15 @@ export function MemoriesPage({
         <ConfirmDialog
           darkMode={darkMode}
           pending={pending}
-          title={`Delete ${confirmationTarget.type}`}
-          description={`Delete "${confirmationTarget.title}"? This cannot be undone.`}
+          title={
+            confirmationTarget.type === "memory"
+              ? messages.confirm.memoryTitle
+              : messages.confirm.categoryTitle
+          }
+          description={messages.confirm.description(confirmationTarget.title)}
+          cancelText={messages.confirm.cancel}
+          confirmText={messages.confirm.confirm}
+          closeLabel={messages.confirm.close}
           confirmIcon={<Trash2 size={14} aria-hidden="true" />}
           onCancel={() => {
             if (!pending) {

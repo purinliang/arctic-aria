@@ -8,16 +8,24 @@ import { mutedTextClass } from "@/components/color";
 import { Panel } from "@/components/panel";
 import { appShellClass } from "@/components/theme";
 import { VersionStatusSupport } from "@/components/version-status";
+import type {
+  AuthMessages,
+  VersionStatusMessages,
+} from "@/messages/app-messages";
 import { AuthForm } from "./AuthForm";
 import type { AuthFormProps } from "./AuthForm";
 
 export function AuthPage({
   darkMode,
+  messages,
   onThemeToggle,
+  versionMessages,
   versionStatus,
   ...props
 }: AuthFormProps & {
+  messages: AuthMessages;
   onThemeToggle: () => void;
+  versionMessages: VersionStatusMessages;
   versionStatus: DatabaseVersionStatus;
 }) {
   return (
@@ -40,7 +48,7 @@ export function AuthPage({
               }
               onClick={onThemeToggle}
             >
-              {darkMode ? "Light" : "Dark"}
+              {darkMode ? messages.themeToggle.light : messages.themeToggle.dark}
             </Button>
           </div>
           <Panel darkMode={darkMode} className="w-full p-5 shadow-sm sm:p-8">
@@ -53,12 +61,16 @@ export function AuthPage({
             <p
               className={`mx-auto mb-8 mt-2 max-w-[320px] text-center text-sm leading-6 ${mutedTextClass(darkMode)}`}
             >
-              Your personal life assistant under the aurora.
+              {messages.brandDescription}
             </p>
-            <AuthForm darkMode={darkMode} {...props} />
+            <AuthForm darkMode={darkMode} messages={messages} {...props} />
           </Panel>
           <footer className="mt-3">
-            <VersionStatusSupport darkMode={darkMode} status={versionStatus} />
+            <VersionStatusSupport
+              darkMode={darkMode}
+              messages={versionMessages}
+              status={versionStatus}
+            />
           </footer>
         </div>
       </div>

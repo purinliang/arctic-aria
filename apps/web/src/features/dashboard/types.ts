@@ -77,6 +77,7 @@ export type PinnedMemory = {
   title: string;
   description: string;
   meta: string;
+  visibleUntilDate: string;
   position: number;
   status: PinnedMemoryStatus;
 };
@@ -87,6 +88,7 @@ export type MemoryRecord = {
   category: MemoryCategory;
   title: string;
   description: string;
+  lastDoneDate: string;
   lastDoneText: string;
   doneCount: number;
   pinned: boolean;
@@ -97,6 +99,7 @@ export type MemorySuggestion = {
   category: MemoryCategory;
   title: string;
   description: string;
+  lastDoneDate: string;
   lastDoneText: string;
   doneCount: number;
 };

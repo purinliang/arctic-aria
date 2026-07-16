@@ -11,6 +11,7 @@ import type {
   ProjectTaskView,
   ProjectView,
 } from "@/features/projects/actions";
+import type { FormMessages, ProjectMessages } from "@/messages/app-messages";
 import { ProjectDetailPage } from "./ProjectDetailPage";
 import {
   MilestoneEditorDialog,
@@ -52,6 +53,8 @@ export function ProjectsPage({
   onTaskDelete,
   onTaskStatus,
   onProjectSelect,
+  messages,
+  formMessages,
 }: {
   darkMode: boolean;
   projects: ProjectView[];
@@ -74,6 +77,8 @@ export function ProjectsPage({
     status: Exclude<TaskStatus, "archived">,
   ) => void;
   onProjectSelect: (projectId: string | null) => void;
+  messages: ProjectMessages;
+  formMessages: FormMessages;
 }) {
   const [milestoneDraft, setMilestoneDraft] = useState<MilestoneInput | null>(
     null,
@@ -204,6 +209,10 @@ export function ProjectsPage({
             darkMode={darkMode}
             pending={pending}
             project={selectedProject}
+            messages={messages.detail}
+            timelineMessages={messages.timeline}
+            durationMessages={messages.duration}
+            dateMessages={formMessages.datePicker}
             onAddMilestone={(projectId) => {
               setMilestoneDraft(emptyMilestoneDraft(projectId));
             }}
@@ -225,6 +234,10 @@ export function ProjectsPage({
             pending={pending}
             projects={projects}
             pendingProjectPinIds={pendingProjectPinIds}
+            messages={messages.list}
+            timelineMessages={messages.timeline}
+            durationMessages={messages.duration}
+            dateMessages={formMessages.datePicker}
             onViewProject={(projectId) => onProjectSelect(projectId)}
             onPinProject={onProjectPin}
             onUnpinProject={onProjectUnpin}
@@ -243,13 +256,16 @@ export function ProjectsPage({
           setDraft={updateProjectDraft}
           onClose={closeDialogs}
           onSubmit={() => void submitProject()}
+          messages={messages.editor}
+          durationMessages={messages.duration}
+          formMessages={formMessages}
           onDelete={
             projectDraft.id
               ? () =>
                   setConfirmationTarget({
                     type: "project",
                     id: projectDraft.id ?? "",
-                    title: projectDraft.title || "this project",
+                    title: projectDraft.title || messages.confirm.fallbackProject,
                   })
               : undefined
           }
@@ -264,13 +280,17 @@ export function ProjectsPage({
           setDraft={updateMilestoneDraft}
           onClose={closeDialogs}
           onSubmit={() => void submitMilestone()}
+          messages={messages.editor}
+          durationMessages={messages.duration}
+          formMessages={formMessages}
           onDelete={
             milestoneDraft.id
               ? () =>
                   setConfirmationTarget({
                     type: "milestone",
                     id: milestoneDraft.id ?? "",
-                    title: milestoneDraft.title || "this milestone",
+                    title:
+                      milestoneDraft.title || messages.confirm.fallbackMilestone,
                   })
               : undefined
           }
@@ -286,13 +306,15 @@ export function ProjectsPage({
           setDraft={updateTaskDraft}
           onClose={closeDialogs}
           onSubmit={() => void submitTask()}
+          messages={messages.editor}
+          formMessages={formMessages}
           onDelete={
             taskDraft.id
               ? () =>
                   setConfirmationTarget({
                     type: "task",
                     id: taskDraft.id ?? "",
-                    title: taskDraft.title || "this task",
+                    title: taskDraft.title || messages.confirm.fallbackTask,
                   })
               : undefined
           }
@@ -303,8 +325,11 @@ export function ProjectsPage({
         <ConfirmDialog
           darkMode={darkMode}
           pending={pending}
-          title={`Delete ${confirmationTarget.type}`}
-          description={`Delete "${confirmationTarget.title}"? It will be removed from normal views.`}
+          title={confirmTitle(confirmationTarget.type, messages)}
+          description={messages.confirm.description(confirmationTarget.title)}
+          cancelText={messages.confirm.cancel}
+          confirmText={messages.confirm.confirm}
+          closeLabel={messages.confirm.close}
           confirmIcon={<Trash2 size={14} aria-hidden="true" />}
           onCancel={() => {
             if (!pending) {
@@ -316,4 +341,19 @@ export function ProjectsPage({
       ) : null}
     </>
   );
+}
+
+function confirmTitle(
+  type: ConfirmationTarget["type"],
+  messages: ProjectMessages,
+) {
+  if (type === "project") {
+    return messages.confirm.projectTitle;
+  }
+
+  if (type === "milestone") {
+    return messages.confirm.milestoneTitle;
+  }
+
+  return messages.confirm.taskTitle;
 }

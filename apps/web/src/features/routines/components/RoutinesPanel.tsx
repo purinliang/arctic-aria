@@ -9,12 +9,14 @@ import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { Routine, RoutineStatus } from "@/features/dashboard/types";
+import type { DashboardMessages } from "@/messages/app-messages";
 
 export function RoutinesPanel({
   darkMode,
   routines,
   loading,
   disabled,
+  messages,
   onRoutineStatus,
   onRoutineOpen,
 }: {
@@ -22,6 +24,7 @@ export function RoutinesPanel({
   routines: Routine[];
   loading: boolean;
   disabled: boolean;
+  messages: DashboardMessages["routines"];
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
   onRoutineOpen: () => void;
 }) {
@@ -29,15 +32,15 @@ export function RoutinesPanel({
     <Panel darkMode={darkMode}>
       <CardHeader
         icon={<Bell size={18} aria-hidden="true" />}
-        title="Routines"
+        title={messages.title}
         darkMode={darkMode}
       />
       <List darkMode={darkMode}>
         {loading ? (
-          <LoadingLine darkMode={darkMode} text="Loading routines..." />
+          <LoadingLine darkMode={darkMode} text={messages.loading} />
         ) : null}
         {!loading && routines.length === 0 ? (
-          <EmptyLine darkMode={darkMode} text="No routines due today." />
+          <EmptyLine darkMode={darkMode} text={messages.empty} />
         ) : null}
         {routines.map((routine) => (
           <RoutineRow
@@ -45,6 +48,7 @@ export function RoutinesPanel({
             routine={routine}
             darkMode={darkMode}
             disabled={disabled}
+            messages={messages}
             onStatusChange={(status) => onRoutineStatus(routine.id, status)}
             onOpen={onRoutineOpen}
           />
@@ -59,12 +63,14 @@ function RoutineRow({
   routine,
   darkMode,
   disabled,
+  messages,
   onStatusChange,
   onOpen,
 }: {
   routine: Routine;
   darkMode: boolean;
   disabled: boolean;
+  messages: DashboardMessages["routines"];
   onStatusChange: (status: RoutineStatus) => void;
   onOpen: () => void;
 }) {
@@ -78,8 +84,8 @@ function RoutineRow({
           disabled={disabled}
           aria-label={
             routine.status === "completed"
-              ? `Reopen ${routine.title}`
-              : `Mark ${routine.title} done`
+              ? messages.reopen(routine.title)
+              : messages.markDone(routine.title)
           }
           onChange={(event) =>
             onStatusChange(event.target.checked ? "completed" : "pending")
@@ -88,10 +94,13 @@ function RoutineRow({
         <div className="min-w-0">
           <h3 className="min-w-0 text-sm font-semibold">{routine.title}</h3>
           <DescriptionText darkMode={darkMode} className="mt-1">
-            {routine.description || "No description."}
+            {routine.description || messages.noDescription}
           </DescriptionText>
           <SupportingText darkMode={darkMode} className="mt-2 block">
-            {routine.scheduledTime} · {routine.streakText}
+            {routineTimeText(routine, messages)} ·{" "}
+            {routine.status === "pending"
+              ? messages.dueToday
+              : messages.answeredToday}
           </SupportingText>
         </div>
       </div>
@@ -99,12 +108,21 @@ function RoutineRow({
         darkMode={darkMode}
         tone="ghost"
         size="icon-sm"
-        aria-label="Open routines"
+        aria-label={messages.open}
         icon={<ChevronRight size={16} aria-hidden="true" />}
         onClick={onOpen}
       />
     </ListItem>
   );
+}
+
+function routineTimeText(
+  routine: Routine,
+  messages: DashboardMessages["routines"],
+) {
+  return routine.scheduledTime === "Flexible"
+    ? messages.flexible
+    : routine.scheduledTime;
 }
 
 function EmptyLine({ darkMode, text }: { darkMode: boolean; text: string }) {

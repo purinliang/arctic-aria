@@ -1,55 +1,63 @@
 // Settings Page.
 import { Settings } from "lucide-react";
-import type {
-  LanguagePreference,
-  ThemePreference,
-} from "@/app-shell/app-preferences";
+import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import { CardHeader } from "@/components/card";
 import { SelectInput } from "@/components/forms/selection-field";
 import { FieldLabel } from "@/components/forms/input-field";
 import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
+import { SupportingText } from "@/components/text";
 import { VersionStatusRows } from "@/components/version-status";
-
-const themeOptions: { value: ThemePreference; label: string }[] = [
-  { value: "system", label: "Use system setting" },
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-];
-
-const languageOptions: { value: LanguagePreference; label: string }[] = [
-  { value: "en", label: "English" },
-];
+import type {
+  SettingsMessages,
+  VersionStatusMessages,
+} from "@/messages/app-messages";
+import type { LanguagePreference } from "@/messages/languages";
 
 export function SettingsPage({
   darkMode,
   languagePreference,
+  messages,
   onLanguagePreferenceChange,
   onThemePreferenceChange,
   themePreference,
+  versionMessages,
   versionStatus,
 }: {
   darkMode: boolean;
   languagePreference: LanguagePreference;
+  messages: SettingsMessages;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   themePreference: ThemePreference;
+  versionMessages: VersionStatusMessages;
   versionStatus: DatabaseVersionStatus;
 }) {
+  const themeOptions: { value: ThemePreference; label: string }[] = [
+    { value: "system", label: messages.themeOptions.system },
+    { value: "light", label: messages.themeOptions.light },
+    { value: "dark", label: messages.themeOptions.dark },
+  ];
+  const languageOptions: { value: LanguagePreference; label: string }[] = [
+    { value: "system", label: messages.languageOptions.system },
+    { value: "en", label: messages.languageOptions.english },
+    { value: "zh-CN", label: messages.languageOptions.simplifiedChinese },
+  ];
+
   return (
     <section className="aa-split-container">
       <Panel darkMode={darkMode} className="min-w-0">
         <CardHeader
           darkMode={darkMode}
           icon={<Settings size={18} aria-hidden="true" />}
-          title="Settings"
-          description="Theme, language, and app information."
+          title={messages.title}
+          description={messages.description}
         />
         <List darkMode={darkMode}>
           <ListItem darkMode={darkMode} className="items-start">
             <div className="grid w-full gap-2 sm:max-w-sm">
-              <FieldLabel darkMode={darkMode} label="Theme">
+              <FieldLabel darkMode={darkMode} label={messages.themeLabel}>
                 <SelectInput
                   darkMode={darkMode}
                   value={themePreference}
@@ -63,7 +71,7 @@ export function SettingsPage({
           </ListItem>
           <ListItem darkMode={darkMode} className="items-start">
             <div className="grid w-full gap-2 sm:max-w-sm">
-              <FieldLabel darkMode={darkMode} label="Language">
+              <FieldLabel darkMode={darkMode} label={messages.languageLabel}>
                 <SelectInput
                   darkMode={darkMode}
                   value={languagePreference}
@@ -73,11 +81,18 @@ export function SettingsPage({
                   }
                 />
               </FieldLabel>
+              <SupportingText darkMode={darkMode}>
+                {messages.languageSupport}
+              </SupportingText>
             </div>
           </ListItem>
           <ListItem darkMode={darkMode} className="items-start">
             <div className="min-w-0 flex-1">
-              <VersionStatusRows darkMode={darkMode} status={versionStatus} />
+              <VersionStatusRows
+                darkMode={darkMode}
+                messages={versionMessages}
+                status={versionStatus}
+              />
             </div>
           </ListItem>
         </List>

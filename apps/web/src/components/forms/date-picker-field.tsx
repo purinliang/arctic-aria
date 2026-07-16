@@ -12,39 +12,9 @@ import {
   popoverPlacementClass,
   usePopoverPlacement,
 } from "./use-popover-placement";
+import { englishFormMessages } from "@/messages/form-messages";
+import type { DatePickerMessages } from "@/messages/form-messages";
 import { cx } from "../utils";
-
-const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-const shortMonthNames = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
-const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 type VisibleMonth = {
   year: number;
@@ -62,6 +32,7 @@ export function DatePickerField({
   min,
   max,
   className,
+  messages = englishFormMessages.datePicker,
 }: {
   darkMode: boolean;
   value: string;
@@ -73,6 +44,7 @@ export function DatePickerField({
   min?: string;
   max?: string;
   className?: string;
+  messages?: DatePickerMessages;
 }) {
   const [open, setOpen] = useState(false);
   const [visibleMonth, setVisibleMonth] = useState<VisibleMonth>(() =>
@@ -101,7 +73,7 @@ export function DatePickerField({
   }, [open, rootRef]);
 
   const days = useMemo(() => buildMonthDays(visibleMonth), [visibleMonth]);
-  const formattedValue = formatDateValue(value);
+  const formattedValue = formatDateValue(value, messages);
 
   return (
     <div ref={rootRef} className="relative min-w-0">
@@ -143,17 +115,20 @@ export function DatePickerField({
           <div className="mb-2 flex items-center justify-between gap-2">
             <PickerIconButton
               darkMode={darkMode}
-              aria-label="Previous month"
+              aria-label={messages.previousMonth}
               onClick={() => setVisibleMonth(addMonths(visibleMonth, -1))}
             >
               <ChevronLeft className="h-4 w-4" />
             </PickerIconButton>
             <div className="text-sm font-semibold">
-              {monthNames[visibleMonth.monthIndex]} {visibleMonth.year}
+              {messages.monthYear(
+                messages.monthNames[visibleMonth.monthIndex],
+                visibleMonth.year,
+              )}
             </div>
             <PickerIconButton
               darkMode={darkMode}
-              aria-label="Next month"
+              aria-label={messages.nextMonth}
               onClick={() => setVisibleMonth(addMonths(visibleMonth, 1))}
             >
               <ChevronRight className="h-4 w-4" />
@@ -161,7 +136,7 @@ export function DatePickerField({
           </div>
 
           <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase tracking-normal">
-            {weekdayNames.map((weekday) => (
+            {messages.weekdayNames.map((weekday) => (
               <div
                 key={weekday}
                 className={darkMode ? "text-neutral-500" : "text-slate-500"}
@@ -200,7 +175,7 @@ export function DatePickerField({
               icon={<X className="h-3.5 w-3.5" />}
               onClick={() => onChange("")}
             >
-              Clear date
+              {messages.clearDate}
             </Button>
           ) : null}
         </div>
@@ -291,14 +266,18 @@ function parseDateValue(value: string) {
   return { year, monthIndex, day };
 }
 
-function formatDateValue(value: string) {
+function formatDateValue(value: string, messages: DatePickerMessages) {
   const parsed = parseDateValue(value);
 
   if (!parsed) {
     return "";
   }
 
-  return `${shortMonthNames[parsed.monthIndex]} ${parsed.day}, ${parsed.year}`;
+  return messages.dateValue(
+    messages.shortMonthNames[parsed.monthIndex],
+    parsed.day,
+    parsed.year,
+  );
 }
 
 function buildMonthDays(month: VisibleMonth) {

@@ -127,6 +127,8 @@ export function ConfirmDialog({
   title,
   description,
   confirmText = "Delete",
+  cancelText = "Cancel",
+  closeLabel = "Close confirmation",
   confirmIcon,
   loadingIcon,
   onCancel,
@@ -137,6 +139,8 @@ export function ConfirmDialog({
   title: string;
   description: string;
   confirmText?: string;
+  cancelText?: string;
+  closeLabel?: string;
   confirmIcon?: ReactNode;
   loadingIcon?: ReactNode;
   onCancel: () => void;
@@ -144,12 +148,12 @@ export function ConfirmDialog({
 }) {
   return (
     <DialogOverlay zIndex="z-[60]">
-      <DialogBackdrop label="Close confirmation" onClick={onCancel} />
+      <DialogBackdrop label={closeLabel} onClick={onCancel} />
       <DialogFrame darkMode={darkMode} size="sm">
         <DialogHeader
           darkMode={darkMode}
           title={title}
-          closeLabel="Close confirmation"
+          closeLabel={closeLabel}
           onClose={onCancel}
         />
         <p className={darkMode ? "text-sm leading-6 text-neutral-400" : "text-sm leading-6 text-slate-500"}>
@@ -157,7 +161,7 @@ export function ConfirmDialog({
         </p>
         <div className="mt-4 flex flex-wrap justify-end gap-2">
           <Button darkMode={darkMode} disabled={pending} onClick={onCancel}>
-            Cancel
+            {cancelText}
           </Button>
           <Button
             darkMode={darkMode}

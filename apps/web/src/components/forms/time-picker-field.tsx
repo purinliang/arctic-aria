@@ -11,6 +11,8 @@ import {
   popoverPlacementClass,
   usePopoverPlacement,
 } from "./use-popover-placement";
+import { englishFormMessages } from "@/messages/form-messages";
+import type { TimePickerMessages } from "@/messages/form-messages";
 import { cx } from "../utils";
 
 type Period = "AM" | "PM";
@@ -39,6 +41,7 @@ export function TimePickerField({
   allowClear = true,
   stepMinutes = 5,
   className,
+  messages = englishFormMessages.timePicker,
 }: {
   darkMode: boolean;
   value: string;
@@ -49,11 +52,12 @@ export function TimePickerField({
   allowClear?: boolean;
   stepMinutes?: number;
   className?: string;
+  messages?: TimePickerMessages;
 }) {
   const [open, setOpen] = useState(false);
   const { placement, popoverRef, rootRef } = usePopoverPlacement(open);
   const selectedParts = parseTimeValue(value) ?? defaultTimeParts;
-  const formattedValue = formatTimeValue(value);
+  const formattedValue = formatTimeValue(value, messages);
 
   useEffect(() => {
     if (!open) {
@@ -109,7 +113,8 @@ export function TimePickerField({
           <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
             <NumberStepper
               darkMode={darkMode}
-              label="Hour"
+              label={messages.hour}
+              messages={messages}
               value={String(selectedParts.hour12).padStart(2, "0")}
               onIncrement={() =>
                 onChange(toTimeValue(stepHour(selectedParts, 1)))
@@ -120,7 +125,8 @@ export function TimePickerField({
             />
             <NumberStepper
               darkMode={darkMode}
-              label="Minute"
+              label={messages.minute}
+              messages={messages}
               value={String(selectedParts.minute).padStart(2, "0")}
               onIncrement={() =>
                 onChange(toTimeValue(stepMinute(selectedParts, stepMinutes)))
@@ -148,7 +154,7 @@ export function TimePickerField({
                     onChange(toTimeValue({ ...selectedParts, period }))
                   }
                 >
-                  {period}
+                  {messages.periodLabels[period]}
                 </button>
               ))}
             </div>
@@ -161,7 +167,7 @@ export function TimePickerField({
                 darkMode ? "text-neutral-400" : "text-slate-500",
               )}
             >
-              Quick minutes
+              {messages.quickMinutes}
             </div>
             <div className="grid grid-cols-4 gap-1">
               {quickMinuteOptions.map((minute) => (
@@ -196,7 +202,7 @@ export function TimePickerField({
               className="flex-1"
               onClick={() => setOpen(false)}
             >
-              Done
+              {messages.done}
             </Button>
             {allowClear && value ? (
               <Button
@@ -207,7 +213,7 @@ export function TimePickerField({
                 icon={<X className="h-3.5 w-3.5" />}
                 onClick={() => onChange("")}
               >
-                Clear
+                {messages.clear}
               </Button>
             ) : null}
           </div>
@@ -220,12 +226,14 @@ export function TimePickerField({
 function NumberStepper({
   darkMode,
   label,
+  messages,
   value,
   onIncrement,
   onDecrement,
 }: {
   darkMode: boolean;
   label: string;
+  messages: TimePickerMessages;
   value: string;
   onIncrement: () => void;
   onDecrement: () => void;
@@ -243,7 +251,7 @@ function NumberStepper({
       <button
         className={stepperButtonClass(darkMode)}
         type="button"
-        aria-label={`Increase ${label.toLowerCase()}`}
+        aria-label={messages.increase(label)}
         onClick={onIncrement}
       >
         <ChevronUp className="h-4 w-4" />
@@ -261,7 +269,7 @@ function NumberStepper({
       <button
         className={stepperButtonClass(darkMode)}
         type="button"
-        aria-label={`Decrease ${label.toLowerCase()}`}
+        aria-label={messages.decrease(label)}
         onClick={onDecrement}
       >
         <ChevronDown className="h-4 w-4" />
@@ -279,14 +287,18 @@ function stepperButtonClass(darkMode: boolean) {
   );
 }
 
-function formatTimeValue(value: string) {
+function formatTimeValue(value: string, messages: TimePickerMessages) {
   const parts = parseTimeValue(value);
 
   if (!parts) {
     return "";
   }
 
-  return `${parts.hour12}:${String(parts.minute).padStart(2, "0")} ${parts.period}`;
+  return messages.value(
+    parts.hour12,
+    parts.minute,
+    messages.periodLabels[parts.period],
+  );
 }
 
 function parseTimeValue(value: string): TimeParts | null {

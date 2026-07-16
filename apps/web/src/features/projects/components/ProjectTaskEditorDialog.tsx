@@ -18,12 +18,15 @@ import type {
   ProjectTaskInput,
   ProjectView,
 } from "@/features/projects/actions";
+import type { FormMessages, ProjectMessages } from "@/messages/app-messages";
 
 export function ProjectTaskEditorDialog({
   darkMode,
   pending,
   draft,
   milestones,
+  messages,
+  formMessages,
   setDraft,
   onClose,
   onSubmit,
@@ -33,6 +36,8 @@ export function ProjectTaskEditorDialog({
   pending: boolean;
   draft: ProjectTaskInput;
   milestones: ProjectView["milestones"];
+  messages: ProjectMessages["editor"];
+  formMessages: FormMessages;
   setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
   onClose: () => void;
   onSubmit: () => void;
@@ -40,7 +45,7 @@ export function ProjectTaskEditorDialog({
 }) {
   return (
     <DialogOverlay>
-      <DialogBackdrop label="Close task editor" onClick={onClose} />
+      <DialogBackdrop label={messages.task.close} onClick={onClose} />
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -50,8 +55,8 @@ export function ProjectTaskEditorDialog({
         <DialogFrame darkMode={darkMode}>
           <DialogHeader
             darkMode={darkMode}
-            title={draft.id ? "Edit task" : "Add task"}
-            closeLabel="Close task editor"
+            title={draft.id ? messages.task.edit : messages.task.add}
+            closeLabel={messages.task.close}
             onClose={onClose}
           />
           <div className="grid gap-3">
@@ -59,6 +64,7 @@ export function ProjectTaskEditorDialog({
               darkMode={darkMode}
               pending={pending}
               draft={draft}
+              messages={messages}
               setDraft={setDraft}
             />
             <TaskMeta
@@ -66,6 +72,8 @@ export function ProjectTaskEditorDialog({
               pending={pending}
               draft={draft}
               milestones={milestones}
+              messages={messages}
+              formMessages={formMessages}
               setDraft={setDraft}
             />
           </div>
@@ -83,7 +91,7 @@ export function ProjectTaskEditorDialog({
                 />
               }
             >
-              Save
+              {messages.common.save}
             </DialogPrimaryButton>
             {onDelete ? (
               <Button
@@ -93,7 +101,7 @@ export function ProjectTaskEditorDialog({
                 icon={<Trash2 size={14} aria-hidden="true" />}
                 onClick={onDelete}
               >
-                Delete
+                {messages.common.delete}
               </Button>
             ) : null}
           </DialogActionRow>
@@ -107,28 +115,30 @@ function TaskBasics({
   darkMode,
   pending,
   draft,
+  messages,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: ProjectTaskInput;
+  messages: ProjectMessages["editor"];
   setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
 }) {
   return (
     <>
-      <FieldLabel darkMode={darkMode} label="Title">
+      <FieldLabel darkMode={darkMode} label={messages.common.title}>
         <TextInput
           darkMode={darkMode}
           value={draft.title}
           maxLength={120}
           disabled={pending}
-          placeholder="Task title"
+          placeholder={messages.task.titlePlaceholder}
           onChange={(event) =>
             setDraft((current) => ({ ...current, title: event.target.value }))
           }
         />
       </FieldLabel>
-      <FieldLabel darkMode={darkMode} label="Description" optional>
+      <FieldLabel darkMode={darkMode} label={messages.common.description} optional>
         <TextArea
           darkMode={darkMode}
           className="min-h-24"
@@ -152,23 +162,27 @@ function TaskMeta({
   pending,
   draft,
   milestones,
+  messages,
+  formMessages,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: ProjectTaskInput;
   milestones: ProjectView["milestones"];
+  messages: ProjectMessages["editor"];
+  formMessages: FormMessages;
   setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
 }) {
   return (
     <>
-      <FieldLabel darkMode={darkMode} label="Milestone" optional>
+      <FieldLabel darkMode={darkMode} label={messages.task.milestone} optional>
         <SelectInput
           darkMode={darkMode}
           value={draft.milestoneId}
           disabled={pending}
           options={[
-            { value: "", label: "No milestone" },
+            { value: "", label: messages.task.noMilestone },
             ...milestones.map((milestone) => ({
               value: milestone.id,
               label: milestone.title,
@@ -183,11 +197,12 @@ function TaskMeta({
         />
       </FieldLabel>
       <div className="grid gap-3 sm:grid-cols-2">
-        <FieldLabel darkMode={darkMode} label="Start date" optional>
+        <FieldLabel darkMode={darkMode} label={messages.common.startDate} optional>
           <DatePickerField
             darkMode={darkMode}
             value={draft.startDate}
-            placeholder="Select start date"
+            placeholder={messages.common.selectStartDate}
+            messages={formMessages.datePicker}
             disabled={pending}
             onChange={(startDate) =>
               setDraft((current) => ({
@@ -197,11 +212,12 @@ function TaskMeta({
             }
           />
         </FieldLabel>
-        <FieldLabel darkMode={darkMode} label="Deadline" optional>
+        <FieldLabel darkMode={darkMode} label={messages.common.deadline} optional>
           <DatePickerField
             darkMode={darkMode}
             value={draft.deadlineDate}
-            placeholder="Select deadline"
+            placeholder={messages.common.selectDeadline}
+            messages={formMessages.datePicker}
             disabled={pending}
             onChange={(deadlineDate) =>
               setDraft((current) => ({

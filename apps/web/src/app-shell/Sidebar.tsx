@@ -14,6 +14,7 @@ import {
 import type { ReactNode } from "react";
 import { Button } from "@/components/button";
 import type { DashboardView } from "@/features/dashboard/types";
+import type { AppShellMessages } from "@/messages/app-messages";
 
 export type SidebarPinnedProject = {
   id: string;
@@ -27,6 +28,7 @@ export function Sidebar({
   activeView,
   selectedProjectId,
   pinnedProjects,
+  messages,
   logoutPending,
   onClose,
   onViewChange,
@@ -39,6 +41,7 @@ export function Sidebar({
   activeView: DashboardView;
   selectedProjectId: string | null;
   pinnedProjects: SidebarPinnedProject[];
+  messages: AppShellMessages;
   logoutPending: boolean;
   onClose: () => void;
   onViewChange: (view: DashboardView) => void;
@@ -64,7 +67,7 @@ export function Sidebar({
             open ? "opacity-100" : "opacity-0"
           }`}
           type="button"
-          aria-label="Close navigation overlay"
+          aria-label={messages.closeNavigationOverlay}
           onClick={onClose}
         />
         <SidebarFrame
@@ -74,6 +77,7 @@ export function Sidebar({
           activeView={activeView}
           selectedProjectId={selectedProjectId}
           pinnedProjects={pinnedProjects}
+          messages={messages}
           mobile
           onClose={onClose}
           onSelectView={selectView}
@@ -90,6 +94,7 @@ export function Sidebar({
         activeView={activeView}
         selectedProjectId={selectedProjectId}
         pinnedProjects={pinnedProjects}
+        messages={messages}
         onClose={onClose}
         onSelectView={selectView}
         onProjectShortcut={onProjectShortcut}
@@ -107,6 +112,7 @@ function SidebarFrame({
   activeView,
   selectedProjectId,
   pinnedProjects,
+  messages,
   mobile = false,
   onClose,
   onSelectView,
@@ -120,6 +126,7 @@ function SidebarFrame({
   activeView: DashboardView;
   selectedProjectId: string | null;
   pinnedProjects: SidebarPinnedProject[];
+  messages: AppShellMessages;
   mobile?: boolean;
   onClose: () => void;
   onSelectView: (view: DashboardView) => void;
@@ -152,7 +159,7 @@ function SidebarFrame({
           <Button
             darkMode={darkMode}
             size="icon-sm"
-            aria-label="Close navigation"
+            aria-label={messages.closeNavigation}
             icon={<X size={18} aria-hidden="true" />}
             onClick={onClose}
           />
@@ -162,14 +169,14 @@ function SidebarFrame({
       <nav className="mt-6 grid overflow-hidden rounded-md">
         <SidebarItem
           icon={<LayoutDashboard size={18} aria-hidden="true" />}
-          label="Dashboard"
+          label={messages.pages.dashboard}
           active={activeView === "dashboard"}
           darkMode={darkMode}
           onClick={() => onSelectView("dashboard")}
         />
         <SidebarItem
           icon={<FolderKanban size={18} aria-hidden="true" />}
-          label="Projects"
+          label={messages.pages.projects}
           active={activeView === "projects" && selectedProjectId === null}
           darkMode={darkMode}
           onClick={() => onSelectView("projects")}
@@ -190,21 +197,21 @@ function SidebarFrame({
         ))}
         <SidebarItem
           icon={<Bell size={18} aria-hidden="true" />}
-          label="Routines"
+          label={messages.pages.routines}
           active={activeView === "routines"}
           darkMode={darkMode}
           onClick={() => onSelectView("routines")}
         />
         <SidebarItem
           icon={<Album size={18} aria-hidden="true" />}
-          label="Memories"
+          label={messages.pages.memories}
           active={activeView === "memories"}
           darkMode={darkMode}
           onClick={() => onSelectView("memories")}
         />
         <SidebarItem
           icon={<Settings size={18} aria-hidden="true" />}
-          label="Settings"
+          label={messages.pages.settings}
           active={activeView === "settings"}
           darkMode={darkMode}
           onClick={() => onSelectView("settings")}
@@ -225,13 +232,17 @@ function SidebarFrame({
                 <Sun size={18} aria-hidden="true" />
               )
             }
-            label={darkMode ? "Dark mode" : "Light mode"}
+            label={
+              darkMode ? messages.sidebar.darkMode : messages.sidebar.lightMode
+            }
             darkMode={darkMode}
             onClick={() => onThemeChange(!darkMode)}
           />
           <SidebarItem
             icon={<LogOut size={18} aria-hidden="true" />}
-            label={logoutPending ? "Signing out..." : "Sign out"}
+            label={
+              logoutPending ? messages.sidebar.signingOut : messages.sidebar.signOut
+            }
             darkMode={darkMode}
             disabled={logoutPending}
             onClick={onLogout}

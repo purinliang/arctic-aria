@@ -17,6 +17,11 @@ import {
   type ProjectTaskInput,
   type ProjectView,
 } from "@/features/projects/actions";
+import { localizedActionMessage } from "@/messages/action-result";
+import type {
+  DashboardMessages,
+  ProjectMessages,
+} from "@/messages/app-messages";
 import {
   applyDashboardTaskStatus,
   applyOptimisticTaskStatus,
@@ -30,6 +35,8 @@ type ProjectDataAction = () => Promise<
 
 export function useDashboardProjects(
   showErrorNotification: (message: string, title?: string) => void,
+  messages?: DashboardMessages["notifications"],
+  resultMessages?: ProjectMessages["results"],
 ) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [projects, setProjects] = useState<ProjectView[]>([]);
@@ -50,7 +57,10 @@ export function useDashboardProjects(
     const result = await getProjectDashboardData();
 
     if (!result.ok) {
-      showErrorNotification(result.message, "Projects unavailable");
+      showErrorNotification(
+        localizedActionMessage(result, resultMessages),
+        messages?.projectsUnavailable ?? "Projects unavailable",
+      );
       setTasks([]);
       setProjects([]);
       setProjectLoading(false);
@@ -59,7 +69,7 @@ export function useDashboardProjects(
 
     applyProjectData(result.data);
     setProjectLoading(false);
-  }, [applyProjectData, showErrorNotification]);
+  }, [applyProjectData, messages, resultMessages, showErrorNotification]);
 
   async function runProjectManagementAction(
     action: ProjectDataAction,
@@ -71,7 +81,10 @@ export function useDashboardProjects(
       const result = await action();
 
       if (!result.ok) {
-        showErrorNotification(result.message, failureTitle);
+        showErrorNotification(
+          localizedActionMessage(result, resultMessages),
+          failureTitle,
+        );
         return false;
       }
 
@@ -93,7 +106,10 @@ export function useDashboardProjects(
       const result = await action();
 
       if (!result.ok) {
-        showErrorNotification(result.message, failureTitle);
+        showErrorNotification(
+          localizedActionMessage(result, resultMessages),
+          failureTitle,
+        );
         return;
       }
 
@@ -167,7 +183,7 @@ export function useDashboardProjects(
           restoreTaskSnapshot(current, previousTasks, taskId),
         );
         setProjects(previousProjects);
-        showErrorNotification(result.message);
+        showErrorNotification(localizedActionMessage(result, resultMessages));
       });
 
     taskStatusRequestChains.current.set(taskId, request);
@@ -187,41 +203,47 @@ export function useDashboardProjects(
     refreshProjectData,
     updateTaskFromDashboard,
     saveProjectFromPage: (input: ProjectInput) =>
-      runProjectManagementAction(() => saveProject(input), "Project save failed"),
+      runProjectManagementAction(
+        () => saveProject(input),
+        messages?.projectSaveFailed ?? "Project save failed",
+      ),
     archiveProjectFromPage: (projectId: string) =>
       runProjectManagementAction(
         () => archiveProject(projectId),
-        "Project archive failed",
+        messages?.projectArchiveFailed ?? "Project archive failed",
       ),
     archiveMilestoneFromPage: (milestoneId: string) =>
       runProjectManagementAction(
         () => archiveMilestone(milestoneId),
-        "Milestone delete failed",
+        messages?.milestoneDeleteFailed ?? "Milestone delete failed",
       ),
     archiveTaskFromPage: (taskId: string) =>
       runProjectManagementAction(
         () => archiveProjectTask(taskId),
-        "Task delete failed",
+        messages?.taskDeleteFailed ?? "Task delete failed",
       ),
     saveMilestoneFromPage: (input: MilestoneInput) =>
       runProjectManagementAction(
         () => saveMilestone(input),
-        "Milestone save failed",
+        messages?.milestoneSaveFailed ?? "Milestone save failed",
       ),
     saveTaskFromPage: (input: ProjectTaskInput) =>
-      runProjectManagementAction(() => saveProjectTask(input), "Task save failed"),
+      runProjectManagementAction(
+        () => saveProjectTask(input),
+        messages?.taskSaveFailed ?? "Task save failed",
+      ),
     statusTaskFromPage: updateTaskFromPage,
     pinProjectFromPage: (projectId: string) =>
       updateProjectPinFromPage(
         projectId,
         () => pinProject(projectId),
-        "Project pin failed",
+        messages?.projectPinFailed ?? "Project pin failed",
       ),
     unpinProjectFromPage: (projectId: string) =>
       updateProjectPinFromPage(
         projectId,
         () => unpinProject(projectId),
-        "Project unpin failed",
+        messages?.projectUnpinFailed ?? "Project unpin failed",
       ),
   };
 }

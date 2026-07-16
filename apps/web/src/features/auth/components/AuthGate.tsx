@@ -10,6 +10,8 @@ import { mutedTextClass } from "@/components/color";
 import { NotificationStack, useNotifications } from "@/components/notification";
 import { SupportingText } from "@/components/text";
 import { appShellClass, useDocumentTheme } from "@/components/theme";
+import { localizedActionMessage } from "@/messages/action-result";
+import { getAppMessages } from "@/messages/app-messages";
 import {
   getCurrentUser,
   getPublicVersionStatus,
@@ -59,17 +61,19 @@ export function AuthGate() {
   const {
     darkMode,
     languagePreference,
+    resolvedLanguage,
     setLanguagePreference,
     setThemePreference,
     themePreference,
   } = useAppPreferences();
+  const messages = getAppMessages(resolvedLanguage);
   const {
     notifications,
     dismissNotification,
     showErrorNotification,
     showInfoNotification,
     showSuccessNotification,
-  } = useNotifications();
+  } = useNotifications(messages.notifications);
 
   useDocumentTheme(darkMode);
 
@@ -106,9 +110,9 @@ export function AuthGate() {
         if (active) {
           setVersionStatus((current) => ({
             ...current,
-            actualDatabaseVersionText: "Unavailable",
+            actualDatabaseVersionText: messages.versionStatus.unavailable,
             aligned: false,
-            message: "Database version unavailable.",
+            message: messages.versionStatus.databaseUnavailable,
           }));
         }
       });
@@ -116,7 +120,7 @@ export function AuthGate() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [messages.versionStatus.databaseUnavailable, messages.versionStatus.unavailable]);
 
   if (!sessionChecked) {
     return (
@@ -139,7 +143,7 @@ export function AuthGate() {
               aria-hidden="true"
             />
             <SupportingText darkMode={darkMode} className="font-medium">
-              Opening your workspace...
+              {messages.auth.loading.openingWorkspace}
             </SupportingText>
           </div>
         </div>
@@ -153,6 +157,7 @@ export function AuthGate() {
         currentUser={currentUser}
         darkMode={darkMode}
         languagePreference={languagePreference}
+        messages={messages}
         themePreference={themePreference}
         versionStatus={versionStatus}
         logoutPending={isPending}
@@ -162,7 +167,10 @@ export function AuthGate() {
         onLogout={() => {
           startTransition(async () => {
             await logoutUser();
-            showSuccessNotification("You have signed out.", "Signed out");
+            showSuccessNotification(
+              messages.auth.notifications.signedOutMessage,
+              messages.auth.notifications.signedOutTitle,
+            );
             setCurrentUser(null);
             resetSubmitState(true);
           });
@@ -221,8 +229,8 @@ export function AuthGate() {
 
     if (hasAuthErrors(fieldErrors)) {
       showErrorNotification(
-        "Please fix the highlighted fields.",
-        "Check the form",
+        messages.auth.notifications.checkFormMessage,
+        messages.auth.notifications.checkFormTitle,
       );
       return;
     }
@@ -236,8 +244,10 @@ export function AuthGate() {
       if (!result.ok) {
         setServerErrors(result.fieldErrors ?? {});
         showErrorNotification(
-          result.message,
-          mode === "register" ? "Sign up failed" : "Sign in failed",
+          localizedActionMessage(result, messages.auth.results),
+          mode === "register"
+            ? messages.auth.notifications.signUpFailed
+            : messages.auth.notifications.signInFailed,
         );
         console.warn("[auth-ui]", `${mode}_failed`, {
           fields: result.fieldErrors ? Object.keys(result.fieldErrors) : [],
@@ -246,8 +256,10 @@ export function AuthGate() {
       }
 
       showSuccessNotification(
-        result.message,
-        mode === "register" ? "Account created" : "Signed in",
+        localizedActionMessage(result, messages.auth.results),
+        mode === "register"
+          ? messages.auth.notifications.accountCreated
+          : messages.auth.notifications.signedIn,
       );
       console.info("[auth-ui]", `${mode}_success`, {
         displayName: result.displayName,
@@ -259,15 +271,15 @@ export function AuthGate() {
 
   function showGooglePlaceholder() {
     showInfoNotification(
-      "Google sign-in is not implemented in this prototype yet.",
-      "Google sign-in unavailable",
+      messages.auth.notifications.googleMessage,
+      messages.auth.notifications.googleTitle,
     );
   }
 
   function showPasswordResetPlaceholder() {
     showInfoNotification(
-      "Password reset is not implemented in this prototype yet.",
-      "Password reset unavailable",
+      messages.auth.notifications.passwordResetMessage,
+      messages.auth.notifications.passwordResetTitle,
     );
   }
 
@@ -275,6 +287,7 @@ export function AuthGate() {
     <>
       <AuthPage
         darkMode={darkMode}
+        messages={messages.auth}
         mode={mode}
         registerInput={registerInput}
         loginInput={loginInput}
@@ -289,11 +302,13 @@ export function AuthGate() {
         onGoogleLogin={showGooglePlaceholder}
         onPasswordReset={showPasswordResetPlaceholder}
         onThemeToggle={() => setThemePreference(darkMode ? "light" : "dark")}
+        versionMessages={messages.versionStatus}
         versionStatus={versionStatus}
       />
       <NotificationStack
         notifications={notifications}
         darkMode={darkMode}
+        messages={messages.notifications}
         onDismiss={dismissNotification}
       />
     </>

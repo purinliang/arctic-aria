@@ -8,8 +8,9 @@ rules so changes stay easy to review and integrate.
 Even when the user provides requirements in Chinese, use English unless
 translation is required to clarify a requirement.
 
-- Write all code, comments, commit messages, documentation, and user-facing app
-  text in English.
+- Write all code, comments, commit messages, documentation, and default
+  user-facing app text in English. Localized user-facing strings may use their
+  target language inside explicit localization catalogs.
 - Write agent responses in English unless translation is needed.
 - Use clear, simple English so future documentation is easy for a non-native
   English speaker to edit.

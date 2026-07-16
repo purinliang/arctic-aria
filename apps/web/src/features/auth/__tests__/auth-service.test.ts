@@ -108,6 +108,7 @@ test("login returns a generic error for invalid credentials", async () => {
 
   assert.deepEqual(result, {
     ok: false,
+    code: "auth_invalid_credentials",
     message: "Invalid username or password.",
   });
 });
