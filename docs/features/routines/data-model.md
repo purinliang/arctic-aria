@@ -16,9 +16,9 @@ Backend validation should check:
 - first start date is a valid date
 - optional end date is blank or not before first start date
 - recurrence rule type is supported
-- weekly rules include at least one weekday
-- interval values are positive integers when used
-- day of month is 1-31 when used
+- weekly rules derive one weekday from first start date
+- monthly rules derive day of month from first start date
+- fixed day interval values are positive integers when used
 - preferred time uses `HH:mm` when provided
 
 Database constraints should protect:
@@ -87,10 +87,10 @@ Current fields:
 Supported rule types:
 
 - `daily`
-- `weekly`
-- `bi_weekly`
-- `monthly_by_date`
-- `day_interval`
+- `weekly`, anchored to first start date weekday
+- `monthly_by_date`, anchored to first start date day
+- `bi_weekly`, anchored to first start date
+- `day_interval`, used by the every-30-days preset and the fixed-days option
 
 Current database protection:
 

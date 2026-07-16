@@ -60,23 +60,26 @@ until the user deletes it.
 
 A routine rule defines when instances should be generated.
 
-Supported first rule types:
+Supported first UI choices:
 
-- `daily`: every day.
-- `weekly`: selected weekdays.
-- `bi_weekly`: every 14 days.
-- `monthly_by_date`: every 1, 2, 3, 6, or 12 months on a selected day of
-  month, useful for bills and yearly renewal checks.
-- `day_interval`: every fixed number of days, useful for subscription-like
-  routines that should repeat after exactly 30, 60, or 90 days instead of on a
-  calendar date.
+- `Daily`: every day.
+- `Weekly`: every 7 days from the first start date. The weekday is implied by
+  the first start date.
+- `Monthly`: every month on the calendar day implied by the first start
+  date. This is useful for bills and renewal checks.
+- `Every 14 days`: every 14 days from the first start date.
+- `Every 30 days`: useful when the user wants a fixed 30-day
+  cycle instead of a calendar month.
+- `Fixed day interval`: useful for subscription-like routines that should
+  repeat after exactly 90 days by default, or another explicit number of days,
+  instead of on a calendar date.
 
 Rule constraints:
 
 - `interval_value` stores either a month interval for `monthly_by_date` or a
   day interval for `day_interval`.
-- `weekdays` is required only for selected-weekday weekly rules.
-- `day_of_month` is required only for `monthly_by_date`.
+- `weekdays` stores the first start date weekday for `weekly`.
+- `day_of_month` stores the first start date day for `monthly_by_date`.
 - `preferred_time` is optional, but the dashboard should show it when present.
 - `timezone` should default to the user's settings timezone.
 

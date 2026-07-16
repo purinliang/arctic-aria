@@ -12,7 +12,7 @@ The current web implementation supports database-backed routine testing:
 - load routine definitions from Neon
 - load today's routine instances from Neon
 - add, edit, and delete routine definitions
-- choose recurrence rules
+- choose start-date anchored recurrence rules
 - choose a preferred time, first start date, and optional end date
 - show today's routine instances on the dashboard
 - mark a dashboard routine instance completed
@@ -69,11 +69,11 @@ Fields:
 - title
 - description
 - recurrence rule
-- weekdays when the rule is weekly
-- interval when the rule uses a month or day interval
+- recurrence preview
+- fixed day interval only when the fixed-days option is selected
 - preferred time
 - first start date
-- optional end date
+- optional inclusive end date
 
 The save flow is blocking:
 
