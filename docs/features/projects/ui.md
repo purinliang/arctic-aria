@@ -170,7 +170,8 @@ Project dialog layout:
 - overlay: semi-transparent backdrop over the current page
 - frame direction: vertical
 - top row: dialog title and close button
-- optional message appears below the title row
+- action failures use the shared notification stack, not an inline dialog
+  message row
 - field direction: vertical
 - fields in order: title, description, timeline, dates or duration
 - timeline selector direction: horizontal with wrapping

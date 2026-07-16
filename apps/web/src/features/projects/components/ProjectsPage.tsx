@@ -3,7 +3,6 @@ import { Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { ConfirmDialog } from "@/components/dialog";
-import { InlineMessage } from "@/components/text";
 import type { TaskStatus } from "@/features/dashboard/types";
 import type {
   MilestoneInput,
@@ -41,7 +40,6 @@ export function ProjectsPage({
   pending,
   projectDraft,
   setProjectDraft,
-  message,
   selectedProjectId,
   onProjectSave,
   onProjectDelete,
@@ -51,7 +49,6 @@ export function ProjectsPage({
   onTaskDelete,
   onTaskStatus,
   onProjectSelect,
-  onMessageClear,
 }: {
   darkMode: boolean;
   projects: ProjectView[];
@@ -59,7 +56,6 @@ export function ProjectsPage({
   pending: boolean;
   projectDraft: ProjectInput | null;
   setProjectDraft: Dispatch<SetStateAction<ProjectInput | null>>;
-  message: string | null;
   selectedProjectId: string | null;
   onProjectSave: (input: ProjectInput) => ProjectResult;
   onProjectDelete: (projectId: string) => ProjectResult;
@@ -72,7 +68,6 @@ export function ProjectsPage({
     status: Exclude<TaskStatus, "archived">,
   ) => void;
   onProjectSelect: (projectId: string | null) => void;
-  onMessageClear: () => void;
 }) {
   const [milestoneDraft, setMilestoneDraft] = useState<MilestoneInput | null>(
     null,
@@ -100,7 +95,6 @@ export function ProjectsPage({
       setMilestoneDraft(null);
       setTaskDraft(null);
       setConfirmationTarget(null);
-      onMessageClear();
     }
   }
 
@@ -199,31 +193,21 @@ export function ProjectsPage({
   return (
     <>
       <div className="grid gap-3">
-        {message ? (
-          <InlineMessage darkMode={darkMode}>
-            {message}
-          </InlineMessage>
-        ) : null}
-
         {selectedProject ? (
           <ProjectDetailPage
             darkMode={darkMode}
             pending={pending}
             project={selectedProject}
             onAddMilestone={(projectId) => {
-              onMessageClear();
               setMilestoneDraft(emptyMilestoneDraft(projectId));
             }}
             onEditMilestone={(milestone) => {
-              onMessageClear();
               setMilestoneDraft(milestoneToDraft(milestone));
             }}
             onAddTask={(projectId) => {
-              onMessageClear();
               setTaskDraft(emptyTaskDraft(projectId));
             }}
             onEditTask={(task: ProjectTaskView) => {
-              onMessageClear();
               setTaskDraft(taskToDraft(task));
             }}
             onTaskStatus={onTaskStatus}
@@ -236,7 +220,6 @@ export function ProjectsPage({
             projects={projects}
             onViewProject={(projectId) => onProjectSelect(projectId)}
             onAddProject={() => {
-              onMessageClear();
               setProjectDraft(emptyProjectDraft());
             }}
           />

@@ -14,7 +14,6 @@ import {
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { NumberInput } from "@/components/forms/number-field";
-import { InlineMessage } from "@/components/text";
 import { TextArea } from "@/components/forms/text-area-field";
 import { TimePickerField } from "@/components/forms/time-picker-field";
 import type { RoutineInput } from "@/features/routines/actions";
@@ -23,7 +22,6 @@ import { ruleOptions, weekdayOptions } from "./routine-page-helpers";
 export function RoutineEditorDialog({
   darkMode,
   pending,
-  message,
   draft,
   setDraft,
   onClose,
@@ -32,7 +30,6 @@ export function RoutineEditorDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
-  message: string | null;
   draft: RoutineInput;
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
   onClose: () => void;
@@ -67,11 +64,6 @@ export function RoutineEditorDialog({
             onClick={onClose}
           />
         </div>
-        {message ? (
-          <InlineMessage darkMode={darkMode} className="mb-3">
-            {message}
-          </InlineMessage>
-        ) : null}
         <div className="grid gap-3">
           <RoutineTextFields
             darkMode={darkMode}

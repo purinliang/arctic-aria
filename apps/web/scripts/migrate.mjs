@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { neon } from "@neondatabase/serverless";
+import { resolveAppMetadata } from "./app-metadata.mjs";
 
 const appRoot = process.cwd();
 const migrationsDir = path.join(appRoot, "database", "migrations");
@@ -60,12 +61,30 @@ function splitStatements(sqlText) {
 loadEnvFiles();
 
 const sql = neon(getMigrationDatabaseUrl());
+const appMetadata = resolveAppMetadata(appRoot);
+
+console.log(
+  `Migration app metadata: version=${appMetadata.version}, commit=${appMetadata.commit}, source=${appMetadata.sourceState}`,
+);
+
+if (appMetadata.sourceState === "dirty") {
+  console.warn(
+    "Warning: database migrations are running from a dirty working tree.",
+  );
+}
 
 await sql.query(`
   CREATE TABLE IF NOT EXISTS schema_migrations (
     name text PRIMARY KEY,
     applied_at timestamptz NOT NULL DEFAULT now()
   )
+`);
+
+await sql.query(`
+  ALTER TABLE schema_migrations
+    ADD COLUMN IF NOT EXISTS app_version text,
+    ADD COLUMN IF NOT EXISTS app_commit text,
+    ADD COLUMN IF NOT EXISTS app_source_state text
 `);
 
 const migrations = readdirSync(migrationsDir)
@@ -89,6 +108,17 @@ for (const migration of migrations) {
     await sql.query(statement);
   }
 
-  await sql.query("INSERT INTO schema_migrations (name) VALUES ($1)", [migration]);
+  await sql.query(
+    `INSERT INTO schema_migrations (
+       name, app_version, app_commit, app_source_state
+     )
+     VALUES ($1, $2, $3, $4)`,
+    [
+      migration,
+      appMetadata.version,
+      appMetadata.commit,
+      appMetadata.sourceState,
+    ],
+  );
   console.log(`Applied ${migration}`);
 }

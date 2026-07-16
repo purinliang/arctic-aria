@@ -15,7 +15,6 @@ export function RoutinesPanel({
   routines,
   loading,
   disabled,
-  message,
   onRoutineStatus,
   onRoutineOpen,
 }: {
@@ -23,7 +22,6 @@ export function RoutinesPanel({
   routines: Routine[];
   loading: boolean;
   disabled: boolean;
-  message: string | null;
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
   onRoutineOpen: () => void;
 }) {
@@ -35,7 +33,6 @@ export function RoutinesPanel({
         meta={`${routines.length} scheduled`}
         darkMode={darkMode}
       />
-      <RoutinesPanelMessage darkMode={darkMode} message={message} />
       <div className={dividerClass(darkMode)}>
         {loading ? (
           <LoadingLine darkMode={darkMode} text="Loading routines..." />
@@ -108,30 +105,6 @@ function RoutineRow({
         onClick={onOpen}
       />
     </ListItem>
-  );
-}
-
-function RoutinesPanelMessage({
-  darkMode,
-  message,
-}: {
-  darkMode: boolean;
-  message: string | null;
-}) {
-  if (!message) {
-    return null;
-  }
-
-  return (
-    <div
-      className={`border-b px-4 py-3 text-xs font-semibold ${
-        darkMode
-          ? "border-neutral-900 text-amber-200"
-          : "border-slate-200 text-amber-700"
-      }`}
-    >
-      {message}
-    </div>
   );
 }
 
