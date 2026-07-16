@@ -80,7 +80,8 @@ Current session rules:
 - The token is signed with HMAC SHA-256 to prevent tampering.
 - The token is not encrypted, so do not add sensitive data to the payload.
 - The cookie is `httpOnly`, `sameSite=lax`, and `secure` in production.
-- Production should set `AUTH_SESSION_SECRET` explicitly.
+- Every environment, including local development, must set
+  `AUTH_SESSION_SECRET` explicitly.
 
 Future database-backed sessions may be added when the app needs server-side
 session revocation, device management, or account-security audit records.

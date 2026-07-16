@@ -147,6 +147,9 @@ Apps And Infrastructure:
 - [docs/infrastructure/database.md](docs/infrastructure/database.md): database
   direction, data lifecycle, credential/data protection, and current Neon
   PostgreSQL notes.
+- [docs/infrastructure/environment.md](docs/infrastructure/environment.md):
+  environment variable purpose, local setup files, and Vercel Neon variable
+  mapping.
 - [docs/infrastructure/redis.md](docs/infrastructure/redis.md): planned Redis
   direction for latency, cache, rate limiting, idempotency, and short-lived
   coordination.

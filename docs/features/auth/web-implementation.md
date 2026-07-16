@@ -130,10 +130,9 @@ connects, and it also requires `NEON_POSTGRES_URL`.
 The current implementation stores login state in an HTTP-only signed cookie named
 `arctic_aria_session`. The cookie lasts 30 days.
 
-The session token is signed with `AUTH_SESSION_SECRET` when it is set. For local
-development, the app falls back to `NEON_POSTGRES_URL` or a development-only
-fallback secret. A deployed environment should set `AUTH_SESSION_SECRET`
-explicitly.
+The session token is signed with `AUTH_SESSION_SECRET`. Every environment,
+including local development, must set it explicitly. The app does not fall back
+to the database URL or a default development string.
 
 The current session payload stores user id, username, display name, and expiry.
 It is signed to prevent tampering, but it is not encrypted. Do not add
