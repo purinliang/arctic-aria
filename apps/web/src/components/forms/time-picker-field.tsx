@@ -11,25 +11,17 @@ import {
   popoverPlacementClass,
   usePopoverPlacement,
 } from "./use-popover-placement";
+import {
+  defaultTimePartsFromNow,
+  formatTimeInputValue,
+  parseTimeValue,
+  parseTypedTimeInput,
+  toTimeValue,
+} from "./time-picker-utils";
 import { englishFormMessages } from "@/messages/form-messages";
 import type { TimePickerMessages } from "@/messages/form-messages";
+import type { TimeParts } from "./time-picker-utils";
 import { cx } from "../utils";
-
-type Period = "AM" | "PM";
-
-type TimeParts = {
-  hour12: number;
-  minute: number;
-  period: Period;
-};
-
-const defaultTimeParts: TimeParts = {
-  hour12: 9,
-  minute: 0,
-  period: "AM",
-};
-
-const quickMinuteOptions = [0, 15, 30, 45];
 
 export function TimePickerField({
   darkMode,
@@ -53,8 +45,9 @@ export function TimePickerField({
   messages?: TimePickerMessages;
 }) {
   const [open, setOpen] = useState(false);
+  const [defaultParts] = useState(() => defaultTimePartsFromNow());
   const { placement, popoverRef, rootRef } = usePopoverPlacement(open);
-  const selectedParts = parseTimeValue(value) ?? defaultTimeParts;
+  const selectedParts = parseTimeValue(value) ?? defaultParts;
   const formattedValue = formatTimeValue(value, messages);
 
   useEffect(() => {
@@ -109,36 +102,12 @@ export function TimePickerField({
           )}
         >
           <div className="grid gap-3">
-            <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
-              <TimeNumberInput
-                darkMode={darkMode}
-                label={messages.hour}
-                value={selectedParts.hour12}
-                min={1}
-                max={12}
-                onChange={(hour12) =>
-                  onChange(toTimeValue({ ...selectedParts, hour12 }))
-                }
-              />
-              <span
-                className={cx(
-                  "pb-2 text-center text-2xl font-semibold",
-                  darkMode ? "text-neutral-500" : "text-slate-400",
-                )}
-              >
-                :
-              </span>
-              <TimeNumberInput
-                darkMode={darkMode}
-                label={messages.minute}
-                value={selectedParts.minute}
-                min={0}
-                max={59}
-                onChange={(minute) =>
-                  onChange(toTimeValue({ ...selectedParts, minute }))
-                }
-              />
-            </div>
+            <TimeTextInput
+              darkMode={darkMode}
+              messages={messages}
+              parts={selectedParts}
+              onChange={(parts) => onChange(toTimeValue(parts))}
+            />
             <div className="grid grid-cols-2 gap-2">
               {(["AM", "PM"] as const).map((period) => (
                 <button
@@ -162,40 +131,16 @@ export function TimePickerField({
                 </button>
               ))}
             </div>
-          </div>
-
-          <div className="mt-3 grid gap-1">
-            <div
-              className={cx(
-                "text-xs font-semibold",
-                darkMode ? "text-neutral-400" : "text-slate-500",
-              )}
-            >
-              {messages.quickMinutes}
-            </div>
-            <div className="grid grid-cols-4 gap-1">
-              {quickMinuteOptions.map((minute) => (
-                <button
-                  key={minute}
-                  className={cx(
-                    "h-8 rounded-md border text-xs font-semibold transition",
-                    selectedParts.minute === minute
-                      ? darkMode
-                        ? "border-white bg-white text-black"
-                        : "border-slate-950 bg-slate-950 text-white"
-                      : darkMode
-                        ? "border-neutral-700 text-neutral-200 hover:border-neutral-400"
-                        : "border-slate-300 text-slate-700 hover:border-slate-500",
-                  )}
-                  type="button"
-                  onClick={() =>
-                    onChange(toTimeValue({ ...selectedParts, minute }))
-                  }
-                >
-                  {String(minute).padStart(2, "0")}
-                </button>
-              ))}
-            </div>
+            {selectedParts.hour12 === 12 ? (
+              <p
+                className={cx(
+                  "text-xs leading-5",
+                  darkMode ? "text-neutral-400" : "text-slate-500",
+                )}
+              >
+                {messages.twelveHourHint}
+              </p>
+            ) : null}
           </div>
 
           <div className="mt-3 flex gap-2">
@@ -204,7 +149,13 @@ export function TimePickerField({
               tone="primary"
               size="xs"
               className="flex-1"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                if (!value) {
+                  onChange(toTimeValue(selectedParts));
+                }
+
+                setOpen(false);
+              }}
             >
               {messages.done}
             </Button>
@@ -227,52 +178,52 @@ export function TimePickerField({
   );
 }
 
-function TimeNumberInput({
+function TimeTextInput({
   darkMode,
-  label,
-  value,
-  min,
-  max,
+  messages,
+  parts,
   onChange,
 }: {
   darkMode: boolean;
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  onChange: (value: number) => void;
+  messages: TimePickerMessages;
+  parts: TimeParts;
+  onChange: (parts: TimeParts) => void;
 }) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const value = draft ?? formatTimeInputValue(parts);
+
   return (
-    <label className="grid gap-1">
+    <label className="grid min-w-0 gap-1">
       <span
         className={cx(
           "text-xs font-semibold",
           darkMode ? "text-neutral-400" : "text-slate-500",
         )}
       >
-        {label}
+        {messages.time}
       </span>
       <input
         className={cx(
-          "h-12 rounded-md border px-3 text-center text-xl font-semibold tabular-nums outline-none transition",
+          "h-12 w-full min-w-0 rounded-md border px-2 text-center text-xl font-semibold tabular-nums outline-none transition",
           darkMode
             ? "border-neutral-700 bg-black text-white focus:border-neutral-300"
             : "border-slate-200 bg-slate-50 text-slate-950 focus:border-slate-500",
         )}
         type="text"
-        inputMode="numeric"
-        pattern="[0-9]*"
-        maxLength={2}
-        value={String(value).padStart(2, "0")}
+        inputMode="text"
+        value={value}
+        placeholder={messages.timePlaceholder}
         onFocus={(event) => event.currentTarget.select()}
+        onBlur={() => setDraft(null)}
         onChange={(event) => {
-          const digits = event.currentTarget.value.replace(/\D/g, "").slice(-2);
+          const nextDraft = event.currentTarget.value;
+          const nextParts = parseTypedTimeInput(nextDraft, parts.period);
 
-          if (!digits) {
-            return;
+          setDraft(nextDraft);
+
+          if (nextParts) {
+            onChange(nextParts);
           }
-
-          onChange(clamp(Number(digits), min, max));
         }}
       />
     </label>
@@ -291,39 +242,4 @@ function formatTimeValue(value: string, messages: TimePickerMessages) {
     parts.minute,
     messages.periodLabels[parts.period],
   );
-}
-
-function parseTimeValue(value: string): TimeParts | null {
-  const match = /^(\d{2}):(\d{2})$/.exec(value);
-
-  if (!match) {
-    return null;
-  }
-
-  const hour = Number(match[1]);
-  const minute = Number(match[2]);
-
-  if (hour > 23 || minute > 59) {
-    return null;
-  }
-
-  const hour12 = hour % 12 || 12;
-  const period = hour < 12 ? "AM" : "PM";
-
-  return { hour12, minute, period };
-}
-
-function toTimeValue(parts: TimeParts) {
-  const hour24 =
-    parts.period === "AM"
-      ? parts.hour12 % 12
-      : parts.hour12 === 12
-        ? 12
-        : parts.hour12 + 12;
-
-  return `${String(hour24).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}`;
-}
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, value));
 }
