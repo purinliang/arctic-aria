@@ -1,5 +1,5 @@
 // Projects Page - Project Detail Page.
-import { ClipboardList, Edit3, Flag, Info, Plus } from "lucide-react";
+import { Edit3, Flag, Info, ListChecks, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { Card, CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
@@ -59,7 +59,7 @@ export function ProjectDetailPage({
         <Card darkMode={darkMode} className="min-w-0">
           <CardHeader
             darkMode={darkMode}
-            icon={<ClipboardList size={18} aria-hidden="true" />}
+            icon={<ListChecks size={18} aria-hidden="true" />}
             title="Tasks"
             description="Concrete work items for this project."
             action={
