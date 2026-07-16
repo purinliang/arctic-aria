@@ -10,6 +10,16 @@ already viewing a Project detail page, clicking sidebar `Projects` must return
 to the Projects list page instead of keeping the current Project detail page
 selected.
 
+Pinned projects:
+
+- users can pin up to three active projects as sidebar shortcuts
+- pinned shortcuts appear directly below the main `Projects` item
+- clicking a pinned shortcut opens that project detail page directly
+- the main `Projects` item remains visible and always returns to the Projects
+  list page
+- pinned shortcut labels truncate when long
+- archived projects must disappear from the pinned shortcut list
+
 ## Dashboard
 
 The dashboard should not manage the full project tree. It should show the
@@ -84,6 +94,7 @@ Each project list item should show:
 - start date
 - deadline or expected duration
 - derived progress
+- pin or unpin action
 - no colored status, priority, or category-like tags in the current UI
 
 The project list page should not show milestone rows or task rows. Clicking a
@@ -113,6 +124,7 @@ Project list layout:
 - project item first line: title only
 - project item second line: truncated description
 - project item third line: timeline and progress text
+- project item right actions: `Pin` or `Unpin`, then right-arrow ghost button
 - do not show milestone preview rows
 - click target: right-arrow ghost button only
 - do not add a text `View` button or footer band inside project list items
@@ -185,6 +197,7 @@ The project detail page should show:
 Project actions:
 
 - edit project
+- pin or unpin project
 - pause or resume project
 - complete project
 - archive project
@@ -233,6 +246,7 @@ Detail page layout:
 - left card: `Tasks` card with icon, supporting text, and `New`
 - title action: `Edit3` icon plus `Edit`, placed to the right of
   `Projects / project_name`
+- pin action: `Pin` or `Unpin` with the `Pin` icon, placed beside `Edit`
 - right top card: `Overview`
 - right bottom card: `Milestones` with `New`
 - overview metadata group: description, start date, and timeline

@@ -8,6 +8,8 @@ export type ProjectTaskStatus =
   | "done"
   | "archived";
 
+export type ProjectPinResult = "pinned" | "limit_reached" | "not_found";
+
 export type ProjectTaskRecord = {
   id: string;
   userId: string;
@@ -60,6 +62,7 @@ export type ProjectRecord = {
   startDate: string;
   deadlineDate: string | null;
   expectedDurationDays: number | null;
+  sidebarPinOrder: number | null;
   createdAt: Date;
   updatedAt: Date;
   completedAt: Date | null;
@@ -115,6 +118,16 @@ export type ProjectRepository = {
   saveMilestone(input: SaveMilestoneInput): Promise<string | null>;
   saveTask(input: SaveProjectTaskInput): Promise<boolean>;
   archiveProject(input: {
+    userId: string;
+    projectId: string;
+    occurredAt: Date;
+  }): Promise<boolean>;
+  pinProject(input: {
+    userId: string;
+    projectId: string;
+    occurredAt: Date;
+  }): Promise<ProjectPinResult>;
+  unpinProject(input: {
     userId: string;
     projectId: string;
     occurredAt: Date;

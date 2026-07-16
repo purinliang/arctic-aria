@@ -28,6 +28,7 @@ export type ProjectView = {
   deadlineDate: string;
   expectedDurationDays: string;
   durationRange: ProjectDurationRange;
+  sidebarPinOrder: number | null;
   timelineText: string;
   currentMilestone: string;
   progressText: string;
@@ -296,6 +297,7 @@ function toProjectView(project: ProjectRecord): ProjectView {
     deadlineDate: project.deadlineDate ?? "",
     expectedDurationDays: project.expectedDurationDays?.toString() ?? "",
     durationRange: durationRangeForDays(project.expectedDurationDays),
+    sidebarPinOrder: project.sidebarPinOrder,
     timelineText: project.deadlineDate
       ? `Due ${formatDate(project.deadlineDate)}`
       : project.expectedDurationDays

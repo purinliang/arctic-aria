@@ -41,8 +41,11 @@ export function ProjectsPage({
   projectDraft,
   setProjectDraft,
   selectedProjectId,
+  pendingProjectPinIds,
   onProjectSave,
   onProjectDelete,
+  onProjectPin,
+  onProjectUnpin,
   onMilestoneSave,
   onMilestoneDelete,
   onTaskSave,
@@ -57,8 +60,11 @@ export function ProjectsPage({
   projectDraft: ProjectInput | null;
   setProjectDraft: Dispatch<SetStateAction<ProjectInput | null>>;
   selectedProjectId: string | null;
+  pendingProjectPinIds: string[];
   onProjectSave: (input: ProjectInput) => ProjectResult;
   onProjectDelete: (projectId: string) => ProjectResult;
+  onProjectPin: (projectId: string) => void;
+  onProjectUnpin: (projectId: string) => void;
   onMilestoneSave: (input: MilestoneInput) => ProjectResult;
   onMilestoneDelete: (milestoneId: string) => ProjectResult;
   onTaskSave: (input: ProjectTaskInput) => ProjectResult;
@@ -218,7 +224,10 @@ export function ProjectsPage({
             loading={loading}
             pending={pending}
             projects={projects}
+            pendingProjectPinIds={pendingProjectPinIds}
             onViewProject={(projectId) => onProjectSelect(projectId)}
+            onPinProject={onProjectPin}
+            onUnpinProject={onProjectUnpin}
             onAddProject={() => {
               setProjectDraft(emptyProjectDraft());
             }}

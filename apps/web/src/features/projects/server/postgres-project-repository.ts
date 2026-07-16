@@ -15,6 +15,7 @@ import {
   saveTask,
 } from "./postgres-project-save-queries.ts";
 import type {
+  ProjectPinResult,
   ProjectRepository,
   ProjectTaskStatus,
   SaveMilestoneInput,
@@ -83,6 +84,7 @@ export class PostgresProjectRepository implements ProjectRepository {
     const rows = (await this.getSql()`
       UPDATE projects
       SET status = 'archived',
+          sidebar_pin_order = NULL,
           archived_at = ${input.occurredAt},
           updated_at = ${input.occurredAt}
       WHERE user_id = ${input.userId}
@@ -90,6 +92,83 @@ export class PostgresProjectRepository implements ProjectRepository {
         AND status != 'archived'
       RETURNING id
     `) as Array<{ id: string }>;
+
+    return rows.length > 0;
+  }
+
+  async pinProject(input: {
+    userId: string;
+    projectId: string;
+    occurredAt: Date;
+  }): Promise<ProjectPinResult> {
+    const rows = (await this.getSql().query(
+      `WITH target AS (
+         SELECT id, sidebar_pin_order
+         FROM projects
+         WHERE user_id = $1
+           AND id = $2
+           AND status = 'active'
+       ),
+       available_slot AS (
+         SELECT slot
+         FROM generate_series(1, 3) AS slots(slot)
+         WHERE NOT EXISTS (
+           SELECT 1
+           FROM projects
+           WHERE user_id = $1
+             AND sidebar_pin_order = slot
+         )
+         ORDER BY slot
+         LIMIT 1
+       ),
+       updated AS (
+         UPDATE projects
+         SET sidebar_pin_order = COALESCE(
+               sidebar_pin_order,
+               (SELECT slot FROM available_slot)
+             ),
+             updated_at = $3::timestamptz
+         WHERE user_id = $1
+           AND id = $2
+           AND status = 'active'
+           AND (
+             sidebar_pin_order IS NOT NULL
+             OR EXISTS (SELECT 1 FROM available_slot)
+           )
+         RETURNING id
+       )
+       SELECT
+         EXISTS (SELECT 1 FROM target) AS found,
+         EXISTS (SELECT 1 FROM updated) AS pinned`,
+      [input.userId, input.projectId, input.occurredAt],
+    )) as Array<{ found: boolean; pinned: boolean }>;
+    const result = rows[0];
+
+    if (!result?.found) {
+      return "not_found";
+    }
+
+    return result.pinned ? "pinned" : "limit_reached";
+  }
+
+  async unpinProject(input: {
+    userId: string;
+    projectId: string;
+    occurredAt: Date;
+  }) {
+    const rows = (await this.getSql().query(
+      `UPDATE projects
+       SET sidebar_pin_order = NULL,
+           updated_at = CASE
+             WHEN sidebar_pin_order IS NULL THEN updated_at
+             ELSE $3::timestamptz
+           END
+       WHERE user_id = $1
+         AND id = $2
+         AND status != 'archived'
+       RETURNING id`,
+      [input.userId, input.projectId, input.occurredAt],
+    )) as Array<{ id: string }>;
 
     return rows.length > 0;
   }

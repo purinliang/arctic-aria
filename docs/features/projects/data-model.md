@@ -42,6 +42,8 @@ Database constraints should protect durable consistency:
 - status and priority columns should be constrained to allowed values.
 - date-order and positive-duration rules should be protected with check
   constraints where practical.
+- project sidebar pin order, when present, should be constrained to slots 1-3
+  and unique per user.
 - task dependencies should prevent duplicate dependency pairs and self
   dependency.
 
@@ -55,6 +57,7 @@ Deletion behavior:
 - Archived project records stay in the database but are hidden from normal
   project lists, project detail views, dashboard task rows, and scheduler
   candidates.
+- Archiving a project clears its sidebar pin slot.
 - Archiving a milestone should also archive or detach the visible task rows
   according to the implemented repository behavior; the current PostgreSQL
   repository archives tasks assigned to the archived milestone.
@@ -69,6 +72,10 @@ Concurrency behavior:
 - If a future feature adds unique project names, unique milestone slugs, task
   dependency keys, or ordering keys, protect them with database constraints and
   handle conflicts in backend actions.
+- Sidebar project pinning must remain race-safe. The backend can choose the next
+  available slot, but the database must still enforce one pinned project per
+  `(user_id, sidebar_pin_order)` slot and return a clear conflict message if
+  concurrent requests collide.
 
 ## Projects
 
@@ -85,6 +92,7 @@ Recommended fields:
 - `start_date`
 - `deadline_date`
 - `duration_range`
+- `sidebar_pin_order`
 - `created_at`
 - `updated_at`
 - `completed_at`
@@ -106,6 +114,9 @@ Field rules:
 - `priority` is retained in storage for now, but the first UI must not expose a
   priority selector or priority tag. New hidden project priority defaults to
   `medium`.
+- `sidebar_pin_order` is optional. When present, it stores the sidebar shortcut
+  order for one of the user's pinned projects. Valid values are `1`, `2`, or
+  `3`; null means the project is not pinned in the sidebar.
 
 Statuses:
 
@@ -113,6 +124,16 @@ Statuses:
 - `paused`: intentionally stopped for now.
 - `completed`: finished.
 - `archived`: hidden from normal views.
+
+Pinned project rules:
+
+- A user can pin at most three active projects.
+- Archived projects cannot remain pinned.
+- Pinning a project should use the first available slot from `1` to `3`.
+- Unpinning a project clears only that project's slot and does not have to
+  renumber other pinned projects.
+- If all three slots are full, the backend should return `You can pin up to 3
+  projects.`
 
 ## Milestones
 
@@ -282,3 +303,5 @@ Current compatibility note:
 - The web UI treats duration as a dropdown range and maps the selected range to
   the current numeric `expected_duration_days` storage until the cleanup
   migration adds a native `duration_range` column.
+- `0009_add_project_sidebar_pins.sql` adds `sidebar_pin_order` for optional
+  sidebar shortcuts and protects the three-slot limit with database constraints.

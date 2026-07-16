@@ -207,6 +207,44 @@ export async function archiveProject(
   );
 }
 
+export async function pinProject(
+  projectId: string,
+): Promise<ProjectActionResult<ProjectDashboardData>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  try {
+    const result = await projectService.pinProject(user.id, projectId);
+
+    if (result === "not_found") {
+      return { ok: false, message: "Project was not found." };
+    }
+
+    if (result === "limit_reached") {
+      return { ok: false, message: "You can pin up to 3 projects." };
+    }
+
+    return {
+      ok: true,
+      data: await loadProjectDashboardData(user.id),
+    };
+  } catch (error) {
+    return { ok: false, message: projectDatabaseErrorMessage(error) };
+  }
+}
+
+export async function unpinProject(
+  projectId: string,
+): Promise<ProjectActionResult<ProjectDashboardData>> {
+  return withProjectData(
+    (userId) => projectService.unpinProject(userId, projectId),
+    "Project was not found.",
+  );
+}
+
 export async function archiveMilestone(
   milestoneId: string,
 ): Promise<ProjectActionResult<ProjectDashboardData>> {

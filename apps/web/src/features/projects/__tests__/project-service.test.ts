@@ -21,6 +21,7 @@ function project(input: Partial<ProjectRecord> & Pick<ProjectRecord, "id" | "tit
     startDate: input.startDate ?? "2026-07-01",
     deadlineDate: input.deadlineDate ?? null,
     expectedDurationDays: input.expectedDurationDays ?? null,
+    sidebarPinOrder: input.sidebarPinOrder ?? null,
     createdAt: input.createdAt ?? now,
     updatedAt: input.updatedAt ?? now,
     completedAt: input.completedAt ?? null,

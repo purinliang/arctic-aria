@@ -1,5 +1,5 @@
 // Projects Page - Project Page Title.
-import { ChevronDown, Edit3 } from "lucide-react";
+import { ChevronDown, Edit3, Pin, PinOff } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/button";
 import { mutedTextClass, surfaceClass } from "@/components/color";
@@ -11,17 +11,23 @@ export function ProjectPageTitle({
   projects,
   selectedProjectId,
   editDisabled,
+  pinPending = false,
   onBackToList,
   onProjectSelect,
   onEditProject,
+  onPinProject,
+  onUnpinProject,
 }: {
   darkMode: boolean;
   projects: ProjectView[];
   selectedProjectId: string | null;
   editDisabled?: boolean;
+  pinPending?: boolean;
   onBackToList: () => void;
   onProjectSelect: (projectId: string) => void;
   onEditProject?: (project: ProjectView) => void;
+  onPinProject?: (projectId: string) => void;
+  onUnpinProject?: (projectId: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const selectedProject =
@@ -133,15 +139,37 @@ export function ProjectPageTitle({
         </span>
       </h1>
       {onEditProject ? (
-        <Button
-          darkMode={darkMode}
-          className="shrink-0"
-          disabled={editDisabled}
-          icon={<Edit3 size={15} aria-hidden="true" />}
-          onClick={() => onEditProject(selectedProject)}
-        >
-          Edit
-        </Button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            darkMode={darkMode}
+            disabled={pinPending}
+            icon={
+              selectedProject.sidebarPinOrder !== null ? (
+                <PinOff size={15} aria-hidden="true" />
+              ) : (
+                <Pin size={15} aria-hidden="true" />
+              )
+            }
+            onClick={() => {
+              if (selectedProject.sidebarPinOrder !== null) {
+                onUnpinProject?.(selectedProject.id);
+                return;
+              }
+
+              onPinProject?.(selectedProject.id);
+            }}
+          >
+            {selectedProject.sidebarPinOrder !== null ? "Unpin" : "Pin"}
+          </Button>
+          <Button
+            darkMode={darkMode}
+            disabled={editDisabled}
+            icon={<Edit3 size={15} aria-hidden="true" />}
+            onClick={() => onEditProject(selectedProject)}
+          >
+            Edit
+          </Button>
+        </div>
       ) : null}
     </div>
   );
