@@ -1,5 +1,6 @@
 import type { InputHTMLAttributes } from "react";
 import { formControlClass } from "./form-control-style";
+import { cx } from "../utils";
 
 export function NumberInput({
   darkMode,
@@ -12,7 +13,14 @@ export function NumberInput({
 }) {
   return (
     <input
-      className={formControlClass(darkMode, hasError, className)}
+      className={formControlClass(
+        darkMode,
+        hasError,
+        cx(
+          "appearance-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
+          className,
+        ),
+      )}
       type="number"
       aria-invalid={hasError || undefined}
       {...props}
