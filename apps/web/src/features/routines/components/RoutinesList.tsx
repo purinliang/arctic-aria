@@ -2,11 +2,14 @@
 import { Edit3 } from "lucide-react";
 import { Button } from "@/components/button";
 import { mutedTextClass } from "@/components/color";
+import { formatTimeDisplay } from "@/components/forms/time-display";
 import { List, ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { RoutineDefinition } from "@/features/dashboard/types";
+import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { RoutineMessages } from "@/messages/app-messages";
+import type { TimePickerMessages } from "@/messages/form-messages";
 import { ruleSummary } from "./routine-page-helpers";
 
 export function RoutinesList({
@@ -16,6 +19,8 @@ export function RoutinesList({
   routines,
   messages,
   ruleMessages,
+  timeMessages,
+  timeFormatPreference,
   onEdit,
 }: {
   darkMode: boolean;
@@ -24,6 +29,8 @@ export function RoutinesList({
   routines: RoutineDefinition[];
   messages: RoutineMessages["page"];
   ruleMessages: RoutineMessages;
+  timeMessages: TimePickerMessages;
+  timeFormatPreference: TimeFormatPreference;
   onEdit: (routine: RoutineDefinition) => void;
 }) {
   return (
@@ -46,7 +53,12 @@ export function RoutinesList({
               {routine.description || messages.noDescription}
             </DescriptionText>
             <SupportingText darkMode={darkMode} className="mt-2 block">
-              {routine.preferredTime ?? messages.flexible} ·{" "}
+              {routineTimeText(
+                routine.preferredTime,
+                messages.flexible,
+                timeMessages,
+                timeFormatPreference,
+              )} ·{" "}
               {ruleSummary(routine, ruleMessages)}
             </SupportingText>
           </div>
@@ -62,4 +74,13 @@ export function RoutinesList({
       ))}
     </List>
   );
+}
+
+function routineTimeText(
+  value: string | null,
+  fallback: string,
+  messages: TimePickerMessages,
+  preference: TimeFormatPreference,
+) {
+  return value ? formatTimeDisplay(value, messages, preference) || value : fallback;
 }

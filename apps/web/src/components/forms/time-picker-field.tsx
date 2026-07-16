@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Clock, X } from "lucide-react";
 import { Button } from "../button";
+import { formatTimeDisplay } from "./time-display";
 import {
   formControlClass,
   formControlPopupClass,
@@ -12,7 +13,6 @@ import {
   usePopoverPlacement,
 } from "./use-popover-placement";
 import {
-  dayPeriodForTime,
   defaultTimePartsFromNow,
   formatTimeInputValue,
   parseTimeValue,
@@ -20,6 +20,7 @@ import {
   toTimeValue,
 } from "./time-picker-utils";
 import { englishFormMessages } from "@/messages/form-messages";
+import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { TimePickerMessages } from "@/messages/form-messages";
 import type { TimeParts } from "./time-picker-utils";
 import { cx } from "../utils";
@@ -34,6 +35,7 @@ export function TimePickerField({
   allowClear = true,
   className,
   messages = englishFormMessages.timePicker,
+  timeFormatPreference = "12h",
 }: {
   darkMode: boolean;
   value: string;
@@ -44,13 +46,18 @@ export function TimePickerField({
   allowClear?: boolean;
   className?: string;
   messages?: TimePickerMessages;
+  timeFormatPreference?: TimeFormatPreference;
 }) {
   const [open, setOpen] = useState(false);
   const [draftParts, setDraftParts] = useState<TimeParts | null>(null);
   const { placement, popoverRef, rootRef } = usePopoverPlacement(open);
   const savedParts = parseTimeValue(value);
   const selectedParts = draftParts ?? savedParts ?? defaultTimePartsFromNow();
-  const formattedValue = formatTimeValue(value, messages);
+  const formattedValue = formatTimeDisplay(
+    value,
+    messages,
+    timeFormatPreference,
+  );
 
   useEffect(() => {
     if (!open) {
@@ -111,38 +118,42 @@ export function TimePickerField({
               darkMode={darkMode}
               messages={messages}
               parts={selectedParts}
+              timeFormatPreference={timeFormatPreference}
               onChange={setDraftParts}
             />
-            <div className="grid grid-cols-2 gap-2">
-              {(["AM", "PM"] as const).map((period) => (
-                <button
-                  key={period}
-                  className={cx(
-                    "h-9 rounded-md border px-3 text-xs font-semibold transition",
-                    selectedParts.period === period
-                      ? darkMode
-                        ? "border-white bg-white text-black"
-                        : "border-slate-950 bg-slate-950 text-white"
-                      : darkMode
-                        ? "border-neutral-700 text-neutral-200 hover:border-neutral-400"
-                        : "border-slate-300 text-slate-700 hover:border-slate-500",
-                  )}
-                  type="button"
-                  onClick={() => setDraftParts({ ...selectedParts, period })}
-                >
-                  {messages.periodLabels[period]}
-                </button>
-              ))}
-            </div>
+            {timeFormatPreference === "12h" ? (
+              <div className="grid grid-cols-2 gap-2">
+                {(["AM", "PM"] as const).map((period) => (
+                  <button
+                    key={period}
+                    className={cx(
+                      "h-9 rounded-md border px-3 text-xs font-semibold transition",
+                      selectedParts.period === period
+                        ? darkMode
+                          ? "border-white bg-white text-black"
+                          : "border-slate-950 bg-slate-950 text-white"
+                        : darkMode
+                          ? "border-neutral-700 text-neutral-200 hover:border-neutral-400"
+                          : "border-slate-300 text-slate-700 hover:border-slate-500",
+                    )}
+                    type="button"
+                    onClick={() => setDraftParts({ ...selectedParts, period })}
+                  >
+                    {messages.periodLabels[period]}
+                  </button>
+                ))}
+              </div>
+            ) : null}
             <p
               className={cx(
                 "text-xs leading-5",
                 darkMode ? "text-neutral-400" : "text-slate-500",
               )}
             >
-              {messages.preview(
-                formatTimeValue(toTimeValue(selectedParts), messages),
-                messages.dayPeriods[dayPeriodForTime(selectedParts)],
+              {formatTimeDisplay(
+                toTimeValue(selectedParts),
+                messages,
+                timeFormatPreference,
               )}
             </p>
           </div>
@@ -188,15 +199,17 @@ function TimeTextInput({
   darkMode,
   messages,
   parts,
+  timeFormatPreference,
   onChange,
 }: {
   darkMode: boolean;
   messages: TimePickerMessages;
   parts: TimeParts;
+  timeFormatPreference: TimeFormatPreference;
   onChange: (parts: TimeParts) => void;
 }) {
   const [draft, setDraft] = useState<string | null>(null);
-  const value = draft ?? formatTimeInputValue(parts);
+  const value = draft ?? formatTimeInputValue(parts, timeFormatPreference);
 
   return (
     <label className="grid min-w-0">
@@ -226,19 +239,5 @@ function TimeTextInput({
         }}
       />
     </label>
-  );
-}
-
-function formatTimeValue(value: string, messages: TimePickerMessages) {
-  const parts = parseTimeValue(value);
-
-  if (!parts) {
-    return "";
-  }
-
-  return messages.value(
-    parts.hour12,
-    parts.minute,
-    messages.periodLabels[parts.period],
   );
 }

@@ -317,15 +317,15 @@ Componentize the shared dialog patterns for reuse.
 
 Clicking the `Manage` button should show a Manage Categories dialog. Keep the
 current dialog direction, but document and implement the details below. Do not
-show weights in the edit list because they are internal.
+show scoring controls in the edit list. Category scoring is no longer exposed in
+the current UI.
 
 Manage Categories dialog layout:
 
 - top row: `Manage Categories` title on the left
 - top row right side: `New` button with `Plus`, then close icon button
 - category list rows use the shared `ListItem`
-- each category row shows title, `DescriptionText`, and one `SupportingText`
-  line for the suggestion period
+- each category row shows title and `DescriptionText`
 - each category row has an `Edit` button with `Edit3` and text `Edit`
 - category rows do not show a delete button
 
@@ -339,9 +339,8 @@ Use a clear label: `Category name`.
 Use the shared field-label and text-input components for the category name. Use
 the shared multiline text-area component for optional category description.
 
-Suggestion period should be selected with the shared single-choice component:
-`Weekly` and `Monthly`. Sightseeing defaults to monthly; Cuisine defaults to
-weekly. The selection should automatically translate into the internal weight.
+Do not show a suggestion period, weekly/monthly selector, or category weight
+control.
 
 Always keep the same design as the Add Memory dialog for consistency.
 

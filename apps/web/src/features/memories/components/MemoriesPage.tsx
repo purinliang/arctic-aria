@@ -156,7 +156,6 @@ export function MemoriesPage({
       id: category.id,
       name: category.name,
       description: category.description,
-      baseWeight: category.baseWeight,
     });
     setCategoryFormOpen(true);
   }

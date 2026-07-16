@@ -19,10 +19,10 @@ should stay clean; show the incomplete machine-translation warning as supporting
 text below the selector instead of inside the option label. In the web app,
 system language resolution currently reads browser language settings.
 
-When persisted Settings exist, the logged-in user's language setting should
-override browser language. If the user setting is missing or unavailable, fall
-back to English. If the user explicitly chooses system language and the browser
-language is unsupported, fall back to English.
+The logged-in user's persisted language setting overrides browser language. If
+the user setting is missing or unavailable, fall back to English. If the user
+explicitly chooses system language and the browser language is unsupported, fall
+back to English.
 
 ## Message Catalogs
 
@@ -82,12 +82,17 @@ formatters, not native browser popups, for primary UI. This keeps picker labels,
 weekday names, AM/PM labels, clear buttons, and displayed values consistent
 across browsers and languages.
 
+Visible time strings must use the shared time formatter and the logged-in
+user's time-format preference. Store times as normalized `HH:mm`; render them as
+12-hour or 24-hour display text plus a capitalized day-period label, such as
+`8:30 PM Evening` or `20:30 Evening`.
+
 ## Current Status
 
 Implemented:
 
 - browser language detection
-- local language preference with `system`, `en`, and `zh-CN`
+- persisted language preference with `system`, `en`, and `zh-CN`
 - English default when there is no saved language preference
 - typed shared app message catalogs
 - translated auth loading, login, registration, and placeholder action text
@@ -97,6 +102,5 @@ Implemented:
 
 Not implemented:
 
-- persisted user language settings
 - production-quality human Chinese translation
 - automatic translation of user-generated content

@@ -134,17 +134,18 @@ browser `type=date` controls for primary UI, because the popup can follow the
 user's browser or operating-system locale and cannot be styled consistently.
 
 `forms/time-picker-field.tsx` owns time selection. It must render a compact
-app-styled picker with one typed time field and AM/PM controls, then return
-normalized `HH:mm` values. The typed field should accept compact values such as
-`910` for `9:10` and 24-hour values such as `19:30` for `7:30 PM`. While the
-popover is open, edits stay in a local draft until the user clicks `Confirm`.
-Do not show an extra visible `Time` title inside the popover; the surrounding
-form field owns the label. Before confirmation, show a preview with the
-normalized time and a simple day period, such as `12:30 AM midnight` or
-`09:30 PM night`. When no value exists, the picker defaults to the current time
-plus 15 minutes, rounded up to the next 15-minute boundary. Do not use native
-browser `type=time` controls for primary UI and do not use a long scroll list
-or quick-minute button strip for routine time selection.
+app-styled picker with one typed time field and AM/PM controls when the active
+time-format preference is 12-hour, then return normalized `HH:mm` values. The
+typed field should accept compact values such as `910` for `9:10` and 24-hour
+values such as `19:30` for `7:30 PM`. While the popover is open, edits stay in a
+local draft until the user clicks `Confirm`. Do not show an extra visible
+`Time` title inside the popover; the surrounding form field owns the label.
+Before confirmation, show a preview with the normalized time and a capitalized
+day period, such as `12:30 AM Midnight`, `09:30 PM Night`, or `21:30 Night`.
+When no value exists, the picker defaults to the current time plus 15 minutes,
+rounded up to the next 15-minute boundary. Do not use native browser
+`type=time` controls for primary UI and do not use a long scroll list or
+quick-minute button strip for routine time selection.
 The action buttons should be vertical and full width: `Confirm` first, then
 `X Clear Time` when a clear action is available.
 
@@ -154,6 +155,10 @@ should render as absolute overlays inside the field wrapper with stable widths
 so opening them does not change the parent card, dialog, list item, or field
 layout. Do not render picker popovers through a viewport portal unless there is
 a specific clipping bug that cannot be solved in the dialog/layout component.
+
+Visible time strings outside the picker must use the same shared time formatter
+and the user's time-format preference. Do not render raw stored `HH:mm` strings
+directly in feature rows.
 
 ## Number, Text Area, And Selection Fields
 

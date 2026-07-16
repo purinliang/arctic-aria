@@ -117,11 +117,11 @@ The visible behavior should be deterministic:
 - After success, the memory list and category filters refresh from the database.
 - Buttons are disabled while the action is pending.
 - Memory and category editor dialogs use the shared dialog shell, shared field
-  labels, shared text inputs/text areas, shared single-choice controls, and the
-  shared list primitive for category rows.
+  labels, shared text inputs/text areas, and the shared list primitive for
+  category rows.
 - Category records include optional descriptions. Manage Categories shows `New`
-  in the header row, category rows as `ListItem` title/description/metadata,
-  and `Delete` only inside the edit category dialog.
+  in the header row, category rows as `ListItem` title/description, and
+  `Delete` only inside the edit category dialog.
 
 ## Code Locations
 

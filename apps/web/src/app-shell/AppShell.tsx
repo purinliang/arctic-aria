@@ -14,6 +14,7 @@ import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { AppMessages } from "@/messages/app-messages";
 import type { LanguagePreference } from "@/messages/languages";
+import type { TimeFormatPreference } from "@/features/settings/preferences";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
 import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardProjects";
@@ -36,7 +37,9 @@ export function AppShell({
   messages,
   onLanguagePreferenceChange,
   onThemePreferenceChange,
+  onTimeFormatPreferenceChange,
   themePreference,
+  timeFormatPreference,
   versionStatus,
   logoutPending,
   notifications,
@@ -50,7 +53,9 @@ export function AppShell({
   messages: AppMessages;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
+  onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
   themePreference: ThemePreference;
+  timeFormatPreference: TimeFormatPreference;
   versionStatus: DatabaseVersionStatus;
   logoutPending: boolean;
   notifications: NotificationItem[];
@@ -229,6 +234,7 @@ export function AppShell({
               onRoutineDelete={routineState.deleteRoutineFromPage}
               messages={messages.routines}
               formMessages={messages.forms}
+              timeFormatPreference={timeFormatPreference}
             />
           ) : activeView === "memories" ? (
             <MemoriesPage
@@ -262,6 +268,8 @@ export function AppShell({
               versionStatus={versionStatus}
               onLanguagePreferenceChange={onLanguagePreferenceChange}
               onThemePreferenceChange={onThemePreferenceChange}
+              onTimeFormatPreferenceChange={onTimeFormatPreferenceChange}
+              timeFormatPreference={timeFormatPreference}
             />
           ) : (
             <Dashboard
@@ -282,6 +290,7 @@ export function AppShell({
               onTaskOpen={showProjectDetail}
               messages={messages.dashboard}
               formMessages={messages.forms}
+              timeFormatPreference={timeFormatPreference}
               onRoutineOpen={() => {
                 setActiveView("routines");
                 setSidebarOpen(false);

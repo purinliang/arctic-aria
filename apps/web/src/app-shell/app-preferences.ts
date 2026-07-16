@@ -8,10 +8,19 @@ import {
   type LanguagePreference,
   type SupportedLanguage,
 } from "../messages/languages.ts";
+import {
+  readThemePreference,
+  readTimeFormatPreference,
+  normalizeUserPreferences,
+  type ThemeMode,
+  type ThemePreference,
+  type TimeFormatPreference,
+  type UserPreferences,
+} from "../features/settings/preferences.ts";
 
-export type ThemeMode = "light" | "dark";
-export type ThemePreference = "system" | ThemeMode;
 export type AppLanguage = SupportedLanguage;
+export type { ThemeMode, ThemePreference };
+export { readThemePreference };
 
 export type BrowserDefaults = {
   language: AppLanguage;
@@ -27,15 +36,8 @@ const defaultBrowserDefaults: BrowserDefaults = {
 
 const themePreferenceStorageKey = "arctic-aria.theme-preference";
 const languagePreferenceStorageKey = "arctic-aria.language-preference";
+const timeFormatPreferenceStorageKey = "arctic-aria.time-format-preference";
 const systemDarkModeQuery = "(prefers-color-scheme: dark)";
-
-export function readThemePreference(value: string | null): ThemePreference {
-  if (value === "system" || value === "light" || value === "dark") {
-    return value;
-  }
-
-  return "system";
-}
 
 export function detectBrowserLanguage(
   languages: readonly string[] | undefined,
@@ -86,6 +88,10 @@ export function useAppPreferences() {
     useState<LanguagePreference>(() =>
       readLanguagePreference(readStoredLanguagePreference()),
     );
+  const [timeFormatPreference, setTimeFormatPreferenceState] =
+    useState<TimeFormatPreference>(() =>
+      readTimeFormatPreference(readStoredTimeFormatPreference()),
+    );
 
   useEffect(() => {
     const mediaQuery = window.matchMedia?.(systemDarkModeQuery);
@@ -120,6 +126,23 @@ export function useAppPreferences() {
     },
     [],
   );
+  const setTimeFormatPreference = useCallback(
+    (preference: TimeFormatPreference) => {
+      setTimeFormatPreferenceState(preference);
+      writeStoredTimeFormatPreference(preference);
+    },
+    [],
+  );
+  const applyUserPreferences = useCallback((preferences: UserPreferences) => {
+    const normalized = normalizeUserPreferences(preferences);
+
+    setThemePreferenceState(normalized.themePreference);
+    setLanguagePreference(normalized.languagePreference);
+    setTimeFormatPreferenceState(normalized.timeFormatPreference);
+    writeStoredThemePreference(normalized.themePreference);
+    writeStoredLanguagePreference(normalized.languagePreference);
+    writeStoredTimeFormatPreference(normalized.timeFormatPreference);
+  }, []);
 
   const resolvedThemeMode = resolveThemeMode(
     themePreference,
@@ -133,12 +156,15 @@ export function useAppPreferences() {
   return {
     browserDefaults,
     darkMode: resolvedThemeMode === "dark",
+    applyUserPreferences,
     languagePreference,
     resolvedLanguage,
     resolvedThemeMode,
     setLanguagePreference: setLanguagePreferenceValue,
     setThemePreference,
+    setTimeFormatPreference,
     themePreference,
+    timeFormatPreference,
   };
 }
 
@@ -171,5 +197,21 @@ function writeStoredLanguagePreference(preference: LanguagePreference) {
     window.localStorage.setItem(languagePreferenceStorageKey, preference);
   } catch {
     // Language selection still works for the current session if storage is blocked.
+  }
+}
+
+function readStoredTimeFormatPreference() {
+  try {
+    return window.localStorage.getItem(timeFormatPreferenceStorageKey);
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredTimeFormatPreference(preference: TimeFormatPreference) {
+  try {
+    window.localStorage.setItem(timeFormatPreferenceStorageKey, preference);
+  } catch {
+    // Time display selection still works if storage is blocked.
   }
 }

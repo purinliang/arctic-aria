@@ -108,5 +108,4 @@ export type MemoryCategoryOption = {
   id: string;
   name: string;
   description: string;
-  baseWeight: number;
 };

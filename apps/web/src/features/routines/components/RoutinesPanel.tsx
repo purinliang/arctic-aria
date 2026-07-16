@@ -8,8 +8,11 @@ import { List, ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
+import { formatTimeDisplay } from "@/components/forms/time-display";
 import type { Routine, RoutineStatus } from "@/features/dashboard/types";
 import type { DashboardMessages } from "@/messages/app-messages";
+import type { TimeFormatPreference } from "@/features/settings/preferences";
+import type { TimePickerMessages } from "@/messages/form-messages";
 
 export function RoutinesPanel({
   darkMode,
@@ -17,6 +20,8 @@ export function RoutinesPanel({
   loading,
   disabled,
   messages,
+  timeMessages,
+  timeFormatPreference,
   onRoutineStatus,
   onRoutineOpen,
 }: {
@@ -25,6 +30,8 @@ export function RoutinesPanel({
   loading: boolean;
   disabled: boolean;
   messages: DashboardMessages["routines"];
+  timeMessages: TimePickerMessages;
+  timeFormatPreference: TimeFormatPreference;
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
   onRoutineOpen: () => void;
 }) {
@@ -49,6 +56,8 @@ export function RoutinesPanel({
             darkMode={darkMode}
             disabled={disabled}
             messages={messages}
+            timeMessages={timeMessages}
+            timeFormatPreference={timeFormatPreference}
             onStatusChange={(status) => onRoutineStatus(routine.id, status)}
             onOpen={onRoutineOpen}
           />
@@ -64,6 +73,8 @@ function RoutineRow({
   darkMode,
   disabled,
   messages,
+  timeMessages,
+  timeFormatPreference,
   onStatusChange,
   onOpen,
 }: {
@@ -71,6 +82,8 @@ function RoutineRow({
   darkMode: boolean;
   disabled: boolean;
   messages: DashboardMessages["routines"];
+  timeMessages: TimePickerMessages;
+  timeFormatPreference: TimeFormatPreference;
   onStatusChange: (status: RoutineStatus) => void;
   onOpen: () => void;
 }) {
@@ -97,7 +110,7 @@ function RoutineRow({
             {routine.description || messages.noDescription}
           </DescriptionText>
           <SupportingText darkMode={darkMode} className="mt-2 block">
-            {routineTimeText(routine, messages)} ·{" "}
+            {routineTimeText(routine, messages, timeMessages, timeFormatPreference)} ·{" "}
             {routine.status === "pending"
               ? messages.dueToday
               : messages.answeredToday}
@@ -119,10 +132,16 @@ function RoutineRow({
 function routineTimeText(
   routine: Routine,
   messages: DashboardMessages["routines"],
+  timeMessages: TimePickerMessages,
+  timeFormatPreference: TimeFormatPreference,
 ) {
   return routine.scheduledTime === "Flexible"
     ? messages.flexible
-    : routine.scheduledTime;
+    : formatTimeDisplay(
+        routine.scheduledTime,
+        timeMessages,
+        timeFormatPreference,
+      ) || routine.scheduledTime;
 }
 
 function EmptyLine({ darkMode, text }: { darkMode: boolean; text: string }) {

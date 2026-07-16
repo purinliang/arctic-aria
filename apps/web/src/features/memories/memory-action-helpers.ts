@@ -34,7 +34,6 @@ export type MemoryCategoryInput = {
   id?: string;
   name: string;
   description: string;
-  baseWeight: number;
 };
 
 export type MemoryInput = {
@@ -86,7 +85,6 @@ export async function loadMemoryDashboardData(
       id: category.id,
       name: category.name,
       description: category.description,
-      baseWeight: category.baseWeight,
     })),
     pinnedMemories: pinnedMemories.map(toPinnedMemory),
     memoryRecords: memoryRecords.map((memory) =>
@@ -98,21 +96,12 @@ export async function loadMemoryDashboardData(
 export function validateCategoryInput(input: MemoryCategoryInput) {
   const name = input.name.trim();
   const description = input.description.trim();
-  const baseWeight = Number(input.baseWeight);
 
   if (name.length < 1 || name.length > 40) {
     return {
       ok: false as const,
       message: "Category name must be 1-40 characters.",
       code: "memory_category_name_invalid",
-    };
-  }
-
-  if (!Number.isFinite(baseWeight) || baseWeight <= 0) {
-    return {
-      ok: false as const,
-      message: "Base weight must be greater than 0.",
-      code: "memory_category_weight_invalid",
     };
   }
 
@@ -124,7 +113,7 @@ export function validateCategoryInput(input: MemoryCategoryInput) {
     };
   }
 
-  return { ok: true as const, name, description, baseWeight };
+  return { ok: true as const, name, description };
 }
 
 export function validateMemoryInput(input: MemoryInput) {

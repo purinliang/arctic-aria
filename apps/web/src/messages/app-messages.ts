@@ -113,11 +113,25 @@ const englishMessages = {
       system: "Use system setting",
     },
     languageSupport: "Some translations are incomplete and machine translated.",
+    notifications: {
+      preferencesLoadFailed: "Settings unavailable",
+      preferencesSaveFailed: "Settings not saved",
+    },
+    results: {
+      settings_preferences_unavailable: "Settings are unavailable.",
+      settings_preferences_save_failed: "Settings could not be saved.",
+      settings_unauthorized: "Sign in before changing settings.",
+    },
     themeLabel: "Theme",
     themeOptions: {
       dark: "Dark",
       light: "Light",
       system: "Use system setting",
+    },
+    timeFormatLabel: "Time format",
+    timeFormatOptions: {
+      twelveHour: "12-hour",
+      twentyFourHour: "24-hour",
     },
     title: "Settings",
   },
@@ -222,11 +236,25 @@ const simplifiedChineseMessages: AppMessages = {
       system: "使用系统设置",
     },
     languageSupport: "部分翻译尚未完成，且由机器翻译。",
+    notifications: {
+      preferencesLoadFailed: "设置不可用",
+      preferencesSaveFailed: "设置未保存",
+    },
+    results: {
+      settings_preferences_unavailable: "设置暂不可用。",
+      settings_preferences_save_failed: "设置无法保存。",
+      settings_unauthorized: "请先登录再更改设置。",
+    },
     themeLabel: "主题",
     themeOptions: {
       dark: "深色",
       light: "浅色",
       system: "使用系统设置",
+    },
+    timeFormatLabel: "时间格式",
+    timeFormatOptions: {
+      twelveHour: "12 小时制",
+      twentyFourHour: "24 小时制",
     },
     title: "设置",
   },

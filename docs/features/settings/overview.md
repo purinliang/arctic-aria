@@ -6,27 +6,37 @@ and login flow.
 
 ## Scope
 
-Progress: prototype
+Progress: implemented
 
 Settings should include personal configuration that affects how the product
 behaves for one user.
 
 The current prototype implements a Settings page opened from the sidebar
-`Settings` item. It currently shows local display preferences and app/database
+`Settings` item. It shows persisted display preferences and app/database
 version metadata.
 
-Implemented local preferences:
+Implemented user preferences:
 
 - `Theme`: `Use system setting`, `Light`, or `Dark`
 - `Language`: `Use system setting`, `English`, or `简体中文`
+- `Time format`: `12-hour` or `24-hour`
 
-Theme preference is local to the browser/device for now. `Use system setting`
-uses browser or operating-system light/dark mode. If browser/system defaults
-cannot be read, the fallback is light mode.
+Logged-in users store these preferences in the database. The browser/device
+local preference remains as a fallback before login, while the app is loading,
+or if the persisted settings cannot be read.
 
-Language preference is local to the browser/device for now. `Use system
-setting` resolves the browser language to English or Simplified Chinese, with
-English as the fallback for unsupported languages.
+Theme `Use system setting` uses browser or operating-system light/dark mode. If
+browser/system defaults cannot be read, the fallback is light mode.
+
+Language `Use system setting` resolves the browser language to English or
+Simplified Chinese, with English as the fallback for unsupported languages. If
+there is no saved language preference, the app defaults to English because the
+Simplified Chinese translation is incomplete and machine translated.
+
+Time format changes how visible times render across the app. Stored routine
+times remain normalized `HH:mm`; the rendering layer displays them as either
+`8:30 PM Evening` or `20:30 Evening`, using the current language's day-period
+label.
 
 Current Chinese translation covers global surfaces: auth loading, login,
 registration, placeholder auth actions, sidebar/page titles, Settings rows, and
@@ -73,25 +83,27 @@ Current web source:
 
 ## Attributes
 
-Should be stored in the `user_settings` SQL table.
+Implemented preferences are stored in the `user_settings` SQL table. Persistence
+rules are documented in [data-model.md](data-model.md).
+
+Current attributes:
+
+- `theme_preference`: `system`, `light`, or `dark`
+- `language_preference`: `system`, `en`, or `zh-CN`
+- `time_format_preference`: `12h` or `24h`
+
+Planned attributes:
 
 - timezone, to handle daylight-saving changes and personal-day calculations
 - day boundary time, default `04:00`
-- default theme, such as light or dark
-- language preference, such as English or Chinese
 - date format preference
 - future auto-translation preference
 
 The day boundary matters because a routine completed at `03:59` may still belong
 to the previous personal day.
 
-The first implementation can store settings in a SQL table linked by user id. A
-document-style store can be considered later if settings become large or highly
-variable.
-
-When persistence exists, logged-in user settings should override browser/system
-defaults. If user settings are unavailable, the app should fall back to local
-browser/device preference resolution.
+A document-style store can be considered later if settings become large or
+highly variable.
 
 ## Change Display Name
 
