@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { ButtonHTMLAttributes } from "react";
 import { Calendar, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Button } from "../button";
+import { formatDateKey } from "./date-format";
 import {
   formControlClass,
   formControlPopupClass,
@@ -267,17 +268,7 @@ function parseDateValue(value: string) {
 }
 
 function formatDateValue(value: string, messages: DatePickerMessages) {
-  const parsed = parseDateValue(value);
-
-  if (!parsed) {
-    return "";
-  }
-
-  return messages.dateValue(
-    messages.shortMonthNames[parsed.monthIndex],
-    parsed.day,
-    parsed.year,
-  );
+  return formatDateKey(value, messages, "");
 }
 
 function buildMonthDays(month: VisibleMonth) {

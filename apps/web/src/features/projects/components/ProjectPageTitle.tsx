@@ -3,6 +3,7 @@ import { ChevronDown, Edit3, Pin, PinOff } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/button";
 import { mutedTextClass, surfaceClass } from "@/components/color";
+import { formatDateKey } from "@/components/forms/date-format";
 import { cx } from "@/components/utils";
 import type { ProjectView } from "@/features/projects/actions";
 import type { ProjectDurationRange } from "@/features/projects/project-duration";
@@ -224,11 +225,5 @@ function doneTaskCount(project: ProjectView) {
 }
 
 function formatDate(value: string, messages: DatePickerMessages) {
-  const [year, month, day] = value.split("-").map(Number);
-
-  if (!year || !month || !day) {
-    return value;
-  }
-
-  return messages.dateValue(messages.shortMonthNames[month - 1], day, year);
+  return formatDateKey(value, messages);
 }

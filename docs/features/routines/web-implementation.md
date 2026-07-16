@@ -12,7 +12,7 @@ The current web implementation supports database-backed routine testing:
 - load routine definitions from Neon
 - load today's routine instances from Neon
 - add, edit, and delete routine definitions
-- choose recurrence rules
+- choose start-date anchored recurrence rules
 - choose a preferred time, first start date, and optional end date
 - show today's routine instances on the dashboard
 - mark a dashboard routine instance completed
@@ -69,11 +69,11 @@ Fields:
 - title
 - description
 - recurrence rule
-- weekdays when the rule is weekly
-- interval when the rule uses a month or day interval
+- recurrence preview
+- fixed day interval only when the fixed-days option is selected
 - preferred time
 - first start date
-- optional end date
+- optional inclusive end date
 
 The save flow is blocking:
 
@@ -92,8 +92,10 @@ Routine web UI:
 apps/web/src/features/routines/components/RoutinesPage.tsx
 apps/web/src/features/routines/components/RoutinesList.tsx
 apps/web/src/features/routines/components/RoutineEditorDialog.tsx
+apps/web/src/features/routines/components/RoutineRecurrenceFields.tsx
 apps/web/src/features/routines/components/RoutinesPanel.tsx
 apps/web/src/features/routines/components/routine-page-helpers.ts
+apps/web/src/features/routines/routine-recurrence.ts
 ```
 
 Routine server actions:
@@ -118,6 +120,7 @@ Focused tests:
 
 ```text
 apps/web/src/features/routines/__tests__/postgres-routine-repository.test.ts
+apps/web/src/features/routines/__tests__/routine-recurrence.test.ts
 apps/web/src/features/routines/__tests__/routine-service.test.ts
 ```
 

@@ -3,6 +3,7 @@ import { ChevronRight, ListChecks } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
+import { formatDateKey } from "@/components/forms/date-format";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { List, ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
@@ -132,13 +133,7 @@ function deadlineText(
 }
 
 function formatDate(value: string, messages: DatePickerMessages) {
-  const [year, month, day] = value.split("-").map(Number);
-
-  if (!year || !month || !day) {
-    return value;
-  }
-
-  return messages.dateValue(messages.shortMonthNames[month - 1], day, year);
+  return formatDateKey(value, messages);
 }
 
 function EmptyLine({ darkMode, text }: { darkMode: boolean; text: string }) {
