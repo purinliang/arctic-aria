@@ -10,7 +10,6 @@ import { SelectInput } from "@/components/forms/selection-field";
 import { FieldLabel } from "@/components/forms/input-field";
 import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
-import { DescriptionText } from "@/components/text";
 import { VersionStatusRows } from "@/components/version-status";
 
 const themeOptions: { value: ThemePreference; label: string }[] = [
@@ -60,9 +59,6 @@ export function SettingsPage({
                   }
                 />
               </FieldLabel>
-              <DescriptionText darkMode={darkMode}>
-                System follows your browser or operating-system preference.
-              </DescriptionText>
             </div>
           </ListItem>
           <ListItem darkMode={darkMode} className="items-start">
@@ -77,9 +73,6 @@ export function SettingsPage({
                   }
                 />
               </FieldLabel>
-              <DescriptionText darkMode={darkMode}>
-                English is the only supported interface language in this build.
-              </DescriptionText>
             </div>
           </ListItem>
           <ListItem darkMode={darkMode} className="items-start">
