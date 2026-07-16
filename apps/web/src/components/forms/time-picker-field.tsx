@@ -147,12 +147,12 @@ export function TimePickerField({
             </p>
           </div>
 
-          <div className="mt-3 flex gap-2">
+          <div className="mt-3 grid gap-2">
             <Button
               darkMode={darkMode}
               tone="primary"
               size="xs"
-              className="flex-1"
+              className="w-full"
               onClick={() => {
                 onChange(toTimeValue(selectedParts));
                 setOpen(false);
@@ -166,7 +166,7 @@ export function TimePickerField({
                 darkMode={darkMode}
                 tone="ghost"
                 size="xs"
-                className="flex-1"
+                className="w-full"
                 icon={<X className="h-3.5 w-3.5" />}
                 onClick={() => {
                   onChange("");

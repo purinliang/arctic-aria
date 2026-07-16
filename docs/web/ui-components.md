@@ -145,6 +145,8 @@ normalized time and a simple day period, such as `12:30 AM midnight` or
 plus 15 minutes, rounded up to the next 15-minute boundary. Do not use native
 browser `type=time` controls for primary UI and do not use a long scroll list
 or quick-minute button strip for routine time selection.
+The action buttons should be vertical and full width: `Confirm` first, then
+`X Clear Time` when a clear action is available.
 
 Date and time pickers are still controlled form components. Feature code owns
 the current value, validation rules, and validation timing. Picker popovers
