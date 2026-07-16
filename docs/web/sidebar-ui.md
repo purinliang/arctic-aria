@@ -59,8 +59,10 @@ switch control. Do not show the username in the sidebar.
 
 ## Brand
 
-The brand row uses a Sparkles icon followed by `Arctic Aria`. The label uses the
-same casing as the login page and should not be converted to all caps.
+The sidebar brand row is intentionally hidden in the current UI. Keep the
+sidebar focused on navigation and bottom actions. If the brand row is restored
+later, it should use a Sparkles icon followed by `Arctic Aria`, with the same
+casing as the login page and no all-caps conversion.
 
 ## Expandable Lists Near Sidebar Pages
 

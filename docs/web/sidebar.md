@@ -72,6 +72,6 @@ name in the sidebar or page title bar. Theme behavior is documented in
 
 ## Brand
 
-The sidebar brand should match the login page naming: `Arctic Aria`, same
-letter case, led by a Sparkles icon. It should not be shown as uppercase helper
-text.
+The sidebar brand is hidden in the current UI. If it is restored later, it
+should match the login page naming: `Arctic Aria`, same letter case, led by a
+Sparkles icon. It should not be shown as uppercase helper text.
