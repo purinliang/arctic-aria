@@ -7,6 +7,10 @@ export function projectDatabaseErrorMessage(error: unknown) {
     return "Dates must be real calendar dates in YYYY-MM-DD format.";
   }
 
+  if (isProjectSidebarPinConflict(error)) {
+    return "Pinned projects changed. Refresh and try again.";
+  }
+
   return "Project database update failed.";
 }
 
@@ -42,5 +46,23 @@ function isInvalidDateError(error: unknown) {
   return (
     (code === "22007" || code === "22008") &&
     (message.includes("date") || message.includes("datetime"))
+  );
+}
+
+function isProjectSidebarPinConflict(error: unknown) {
+  if (typeof error !== "object" || error === null) {
+    return false;
+  }
+
+  const code = "code" in error ? String(error.code) : "";
+  const message =
+    "message" in error ? String(error.message).toLowerCase() : "";
+  const constraint =
+    "constraint" in error ? String(error.constraint).toLowerCase() : "";
+
+  return (
+    code === "23505" &&
+    (constraint.includes("projects_sidebar_pin_order_unique") ||
+      message.includes("projects_sidebar_pin_order_unique"))
   );
 }

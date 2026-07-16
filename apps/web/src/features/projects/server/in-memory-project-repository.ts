@@ -1,4 +1,5 @@
 import type {
+  ProjectPinResult,
   ProjectRecord,
   ProjectRepository,
   ProjectTaskRecord,
@@ -7,6 +8,13 @@ import type {
   SaveProjectInput,
   SaveProjectTaskInput,
 } from "./project-repository-types.ts";
+import {
+  cloneProject,
+  cloneTask,
+  compareDashboardTasks,
+  normalizeProjectForStorage,
+  syncMilestoneTasks,
+} from "./in-memory-project-records.ts";
 
 export class InMemoryProjectRepository implements ProjectRepository {
   private projects: ProjectRecord[];
@@ -81,6 +89,7 @@ export class InMemoryProjectRepository implements ProjectRepository {
       startDate: input.startDate,
       deadlineDate: input.deadlineDate,
       expectedDurationDays: input.expectedDurationDays,
+      sidebarPinOrder: null,
       createdAt: input.occurredAt,
       updatedAt: input.occurredAt,
       completedAt: null,
@@ -208,8 +217,64 @@ export class InMemoryProjectRepository implements ProjectRepository {
     }
 
     project.status = "archived";
+    project.sidebarPinOrder = null;
     project.archivedAt = input.occurredAt;
     project.updatedAt = input.occurredAt;
+    return true;
+  }
+
+  async pinProject(input: {
+    userId: string;
+    projectId: string;
+    occurredAt: Date;
+  }): Promise<ProjectPinResult> {
+    const project = this.findProject(input.userId, input.projectId);
+
+    if (!project || project.status !== "active") {
+      return "not_found";
+    }
+
+    if (project.sidebarPinOrder) {
+      return "pinned";
+    }
+
+    const usedSlots = new Set(
+      this.projects
+        .filter(
+          (current) =>
+            current.userId === input.userId &&
+            current.status !== "archived" &&
+            current.sidebarPinOrder !== null,
+        )
+        .map((current) => current.sidebarPinOrder),
+    );
+    const slot = [1, 2, 3].find((candidate) => !usedSlots.has(candidate));
+
+    if (!slot) {
+      return "limit_reached";
+    }
+
+    project.sidebarPinOrder = slot;
+    project.updatedAt = input.occurredAt;
+    return "pinned";
+  }
+
+  async unpinProject(input: {
+    userId: string;
+    projectId: string;
+    occurredAt: Date;
+  }) {
+    const project = this.findProject(input.userId, input.projectId);
+
+    if (!project || project.status === "archived") {
+      return false;
+    }
+
+    if (project.sidebarPinOrder !== null) {
+      project.sidebarPinOrder = null;
+      project.updatedAt = input.occurredAt;
+    }
+
     return true;
   }
 
@@ -321,73 +386,4 @@ export class InMemoryProjectRepository implements ProjectRepository {
       .flatMap((project) => project.tasks)
       .find((task) => task.id === taskId);
   }
-}
-
-function cloneProject(project: ProjectRecord): ProjectRecord {
-  const milestones = project.milestones.filter(
-    (milestone) => milestone.status !== "archived",
-  );
-  const visibleMilestoneIds = new Set(milestones.map((milestone) => milestone.id));
-  const tasks = project.tasks
-    .filter((task) => task.status !== "archived")
-    .map((task) =>
-      task.milestoneId && !visibleMilestoneIds.has(task.milestoneId)
-        ? { ...task, milestoneId: null, milestoneTitle: "" }
-        : cloneTask(task),
-    );
-
-  return {
-    ...project,
-    tasks,
-    milestones: milestones.map((milestone) => ({
-      ...milestone,
-      tasks: tasks.filter((task) => task.milestoneId === milestone.id),
-    })),
-  };
-}
-
-function normalizeProjectForStorage(project: ProjectRecord): ProjectRecord {
-  const tasks =
-    project.tasks.length > 0
-      ? project.tasks.map(cloneTask)
-      : project.milestones.flatMap((milestone) =>
-          milestone.tasks.map(cloneTask),
-        );
-  const normalized = {
-    ...project,
-    tasks,
-    milestones: project.milestones.map((milestone) => ({
-      ...milestone,
-      tasks: [],
-    })),
-  };
-
-  syncMilestoneTasks(normalized);
-  return normalized;
-}
-
-function syncMilestoneTasks(project: ProjectRecord) {
-  project.milestones.forEach((milestone) => {
-    milestone.tasks = project.tasks.filter(
-      (task) => task.milestoneId === milestone.id,
-    );
-  });
-}
-
-function cloneTask(task: ProjectTaskRecord): ProjectTaskRecord {
-  return { ...task };
-}
-
-function compareDashboardTasks(
-  left: ProjectTaskRecord,
-  right: ProjectTaskRecord,
-) {
-  return (
-    dateSortValue(left.deadlineDate) - dateSortValue(right.deadlineDate) ||
-    dateSortValue(left.startDate) - dateSortValue(right.startDate)
-  );
-}
-
-function dateSortValue(date: string | null) {
-  return date ? Date.parse(date) : Number.POSITIVE_INFINITY;
 }

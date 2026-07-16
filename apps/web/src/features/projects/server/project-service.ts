@@ -70,6 +70,22 @@ export function createProjectService(options: ProjectServiceOptions = {}) {
       });
     },
 
+    async pinProject(userId: string, projectId: string) {
+      return projects.pinProject({
+        userId,
+        projectId,
+        occurredAt: now(),
+      });
+    },
+
+    async unpinProject(userId: string, projectId: string) {
+      return projects.unpinProject({
+        userId,
+        projectId,
+        occurredAt: now(),
+      });
+    },
+
     async archiveMilestone(userId: string, milestoneId: string) {
       return projects.archiveMilestone({
         userId,

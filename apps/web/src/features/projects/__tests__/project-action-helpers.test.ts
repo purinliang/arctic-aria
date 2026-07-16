@@ -40,3 +40,13 @@ test("project database date errors show a date-specific message", () => {
     "Dates must be real calendar dates in YYYY-MM-DD format.",
   );
 });
+
+test("project database pin conflicts show a retry message", () => {
+  const message = projectDatabaseErrorMessage({
+    code: "23505",
+    constraint: "projects_sidebar_pin_order_unique",
+    message: "duplicate key value violates unique constraint",
+  });
+
+  assert.equal(message, "Pinned projects changed. Refresh and try again.");
+});

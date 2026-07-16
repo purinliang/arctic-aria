@@ -18,6 +18,7 @@ export type ProjectRow = {
   start_date: Date | string;
   deadline_date: Date | string | null;
   expected_duration_days: number | null;
+  sidebar_pin_order: number | null;
   created_at: Date | string;
   updated_at: Date | string;
   completed_at: Date | string | null;
@@ -103,6 +104,7 @@ export function mapProject(row: ProjectRow): ProjectRecord {
     startDate: toDateString(row.start_date) ?? "",
     deadlineDate: toDateString(row.deadline_date),
     expectedDurationDays: row.expected_duration_days,
+    sidebarPinOrder: row.sidebar_pin_order,
     createdAt: toDate(row.created_at),
     updatedAt: toDate(row.updated_at),
     completedAt: toNullableDate(row.completed_at),
