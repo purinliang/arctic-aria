@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   dayPeriodForTime,
   defaultTimePartsFromNow,
+  formatTimeInputValue,
   parseTypedTimeInput,
   toTimeValue,
 } from "../time-picker-utils.ts";
@@ -52,4 +53,11 @@ test("default time adds 15 minutes and rounds up to the next quarter", () => {
       period: "PM",
     },
   );
+});
+
+test("time picker input display follows time format preference", () => {
+  const parts = { hour12: 9, minute: 30, period: "PM" as const };
+
+  assert.equal(formatTimeInputValue(parts, "12h"), "09:30");
+  assert.equal(formatTimeInputValue(parts, "24h"), "21:30");
 });

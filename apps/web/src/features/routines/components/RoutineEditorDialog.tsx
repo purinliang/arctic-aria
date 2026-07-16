@@ -18,6 +18,7 @@ import { SelectInput } from "@/components/forms/selection-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { TimePickerField } from "@/components/forms/time-picker-field";
 import type { RoutineInput } from "@/features/routines/actions";
+import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { FormMessages, RoutineMessages } from "@/messages/app-messages";
 import { ruleOptions, weekdayOptions } from "./routine-page-helpers";
 
@@ -27,6 +28,7 @@ export function RoutineEditorDialog({
   draft,
   messages,
   formMessages,
+  timeFormatPreference,
   setDraft,
   onClose,
   onSubmit,
@@ -37,6 +39,7 @@ export function RoutineEditorDialog({
   draft: RoutineInput;
   messages: RoutineMessages;
   formMessages: FormMessages;
+  timeFormatPreference: TimeFormatPreference;
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
   onClose: () => void;
   onSubmit: () => void;
@@ -79,6 +82,7 @@ export function RoutineEditorDialog({
               draft={draft}
               messages={messages.editor}
               formMessages={formMessages}
+              timeFormatPreference={timeFormatPreference}
               setDraft={setDraft}
             />
           </div>
@@ -286,6 +290,7 @@ function RoutineScheduleFields({
   draft,
   messages,
   formMessages,
+  timeFormatPreference,
   setDraft,
 }: {
   darkMode: boolean;
@@ -293,6 +298,7 @@ function RoutineScheduleFields({
   draft: RoutineInput;
   messages: RoutineMessages["editor"];
   formMessages: FormMessages;
+  timeFormatPreference: TimeFormatPreference;
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
 }) {
   return (
@@ -329,6 +335,7 @@ function RoutineScheduleFields({
           darkMode={darkMode}
           placeholder={messages.selectTime}
           messages={formMessages.timePicker}
+          timeFormatPreference={timeFormatPreference}
           value={draft.preferredTime ?? ""}
           disabled={pending}
           onChange={(preferredTime) =>

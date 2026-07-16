@@ -4,6 +4,7 @@ import { ProjectTasksPanel } from "@/features/projects/components/ProjectTasksPa
 import { RoutinesPanel } from "@/features/routines/components/RoutinesPanel";
 import type { DashboardMessages } from "@/messages/app-messages";
 import type { FormMessages } from "@/messages/app-messages";
+import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type {
   PinnedMemory,
   Routine,
@@ -32,6 +33,7 @@ export function Dashboard({
   onMemoryOpen,
   messages,
   formMessages,
+  timeFormatPreference,
 }: {
   darkMode: boolean;
   tasks: Task[];
@@ -55,6 +57,7 @@ export function Dashboard({
   onMemoryOpen: () => void;
   messages: DashboardMessages;
   formMessages: FormMessages;
+  timeFormatPreference: TimeFormatPreference;
 }) {
   return (
     <section className="aa-split-container">
@@ -76,6 +79,8 @@ export function Dashboard({
             loading={routineLoading}
             disabled={routineActionPending}
             messages={messages.routines}
+            timeMessages={formMessages.timePicker}
+            timeFormatPreference={timeFormatPreference}
             onRoutineStatus={onRoutineStatus}
             onRoutineOpen={onRoutineOpen}
           />

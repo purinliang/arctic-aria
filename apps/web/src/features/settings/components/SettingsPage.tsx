@@ -9,6 +9,7 @@ import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { SupportingText } from "@/components/text";
 import { VersionStatusRows } from "@/components/version-status";
+import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type {
   SettingsMessages,
   VersionStatusMessages,
@@ -21,7 +22,9 @@ export function SettingsPage({
   messages,
   onLanguagePreferenceChange,
   onThemePreferenceChange,
+  onTimeFormatPreferenceChange,
   themePreference,
+  timeFormatPreference,
   versionMessages,
   versionStatus,
 }: {
@@ -30,7 +33,9 @@ export function SettingsPage({
   messages: SettingsMessages;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
+  onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
   themePreference: ThemePreference;
+  timeFormatPreference: TimeFormatPreference;
   versionMessages: VersionStatusMessages;
   versionStatus: DatabaseVersionStatus;
 }) {
@@ -43,6 +48,10 @@ export function SettingsPage({
     { value: "system", label: messages.languageOptions.system },
     { value: "en", label: messages.languageOptions.english },
     { value: "zh-CN", label: messages.languageOptions.simplifiedChinese },
+  ];
+  const timeFormatOptions: { value: TimeFormatPreference; label: string }[] = [
+    { value: "12h", label: messages.timeFormatOptions.twelveHour },
+    { value: "24h", label: messages.timeFormatOptions.twentyFourHour },
   ];
 
   return (
@@ -84,6 +93,20 @@ export function SettingsPage({
               <SupportingText darkMode={darkMode}>
                 {messages.languageSupport}
               </SupportingText>
+            </div>
+          </ListItem>
+          <ListItem darkMode={darkMode} className="items-start">
+            <div className="grid w-full gap-2 sm:max-w-sm">
+              <FieldLabel darkMode={darkMode} label={messages.timeFormatLabel}>
+                <SelectInput
+                  darkMode={darkMode}
+                  value={timeFormatPreference}
+                  options={timeFormatOptions}
+                  onChange={(value) =>
+                    onTimeFormatPreferenceChange(value as TimeFormatPreference)
+                  }
+                />
+              </FieldLabel>
             </div>
           </ListItem>
           <ListItem darkMode={darkMode} className="items-start">

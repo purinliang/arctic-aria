@@ -11,9 +11,11 @@ import {
 import {
   readThemePreference,
   readTimeFormatPreference,
+  normalizeUserPreferences,
   type ThemeMode,
   type ThemePreference,
   type TimeFormatPreference,
+  type UserPreferences,
 } from "../features/settings/preferences.ts";
 
 export type AppLanguage = SupportedLanguage;
@@ -131,6 +133,16 @@ export function useAppPreferences() {
     },
     [],
   );
+  const applyUserPreferences = useCallback((preferences: UserPreferences) => {
+    const normalized = normalizeUserPreferences(preferences);
+
+    setThemePreferenceState(normalized.themePreference);
+    setLanguagePreference(normalized.languagePreference);
+    setTimeFormatPreferenceState(normalized.timeFormatPreference);
+    writeStoredThemePreference(normalized.themePreference);
+    writeStoredLanguagePreference(normalized.languagePreference);
+    writeStoredTimeFormatPreference(normalized.timeFormatPreference);
+  }, []);
 
   const resolvedThemeMode = resolveThemeMode(
     themePreference,
@@ -144,6 +156,7 @@ export function useAppPreferences() {
   return {
     browserDefaults,
     darkMode: resolvedThemeMode === "dark",
+    applyUserPreferences,
     languagePreference,
     resolvedLanguage,
     resolvedThemeMode,
