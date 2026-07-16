@@ -54,6 +54,9 @@ const emptyLogin: LoginInput = {
   password: "",
 };
 
+const hydrationSafeLoadingDarkMode = false;
+const hydrationSafeLoadingMessages = getAppMessages("en").auth.loading;
+
 export function AuthGate() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
@@ -156,7 +159,7 @@ export function AuthGate() {
   if (!sessionChecked) {
     return (
       <main
-        className={`grid min-h-screen place-items-center px-4 transition-colors ${appShellClass(darkMode)}`}
+        className={`grid min-h-screen place-items-center px-4 transition-colors ${appShellClass(hydrationSafeLoadingDarkMode)}`}
       >
         <div
           className="grid justify-items-center gap-4 text-center"
@@ -170,11 +173,14 @@ export function AuthGate() {
           <div className="flex items-center justify-center gap-2">
             <LoaderCircle
               size={18}
-              className={`animate-spin ${mutedTextClass(darkMode)}`}
+              className={`animate-spin ${mutedTextClass(hydrationSafeLoadingDarkMode)}`}
               aria-hidden="true"
             />
-            <SupportingText darkMode={darkMode} className="font-medium">
-              {messages.auth.loading.openingWorkspace}
+            <SupportingText
+              darkMode={hydrationSafeLoadingDarkMode}
+              className="font-medium"
+            >
+              {hydrationSafeLoadingMessages.openingWorkspace}
             </SupportingText>
           </div>
         </div>
