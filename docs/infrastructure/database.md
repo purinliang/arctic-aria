@@ -42,12 +42,13 @@ Schema migration files are safe to commit. The current migration entry point is
 From the repository root, run the same migration entry point with
 `pnpm --dir apps/web db:migrate`.
 
-`schema_migrations` records each newly applied migration and the app metadata
-that was active when it ran: app version, commit hash, and source state.
+`schema_migrations` records each newly applied migration, a SHA-256 checksum of
+that migration file, and the app metadata that was active when it ran: app
+version, commit hash, and source state.
 `schema_migration_runs` records every successful migration-run check, including
 runs where all migrations were already applied. It also records the expected
-migration count, latest migration id, and schema hash derived from the migration
-files in the checked source tree.
+migration count, latest migration id, expected schema hash, actual migration
+count, actual latest migration id, and actual schema hash.
 
 Use these audit rows before production releases so the deployed
 frontend/backend version can be compared with the database migration state. The
@@ -69,11 +70,29 @@ unless debugging the build system; `next.config.ts` generates them from Git,
 Vercel metadata, and the local migration files at build time.
 
 The expected database version is derived automatically from committed migration
-files. The actual database version comes from the latest
-`schema_migration_runs` row and the applied migration table. User-facing UI
-does not show migration filenames or schema hashes; it only shows version text
-and a short red message when the database schema is behind, ahead, different,
-or unavailable.
+files. Each migration file has its own checksum. The displayed database version
+is a compact schema-history hash derived from the ordered sequence of
+`filename + file checksum` values. That whole-history hash changes when a
+migration is added, removed, reordered, or edited.
+
+Before applying missing migrations or recording a successful run, the migration
+runner reads `schema_migrations` and verifies that the database history is a
+valid prefix of the current source tree:
+
+- If the database contains an applied migration that this source tree does not
+  know about, the runner refuses to continue because the database is ahead.
+- If an applied migration name appears in a different order, the runner refuses
+  to continue because the histories differ.
+- If an applied migration checksum differs from the local file checksum, the
+  runner refuses to continue because migration drift was detected.
+- Legacy rows that predate checksum tracking can be backfilled only when their
+  names match the current migration history prefix.
+
+The actual database version shown in the app comes from the applied migration
+table, not from the commit that last ran `pnpm db:migrate`. App commit metadata
+is audit context only. User-facing UI shows the app version and the compact
+database schema-history hash, with a short red message when the database schema
+is behind, ahead, different, missing checksums, or unavailable.
 
 The Projects feature requires `0005_create_projects.sql` and the cleanup
 `0006_drop_project_subtasks.sql`. If project server actions report missing
