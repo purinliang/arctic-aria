@@ -21,6 +21,7 @@ import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardPro
 import { useDashboardRoutines } from "@/features/dashboard/hooks/useDashboardRoutines";
 import type { DashboardView } from "@/features/dashboard/types";
 import type { AuthUser } from "@/features/auth/server/auth-service";
+import { IdeasPage } from "@/features/ideas/components/IdeasPage";
 import { MemoriesPage } from "@/features/memories/components/MemoriesPage";
 import type { ProjectInput } from "@/features/projects/actions";
 import { ProjectPageTitle } from "@/features/projects/components/ProjectPageTitle";
@@ -135,9 +136,11 @@ export function AppShell({
       ? messages.appShell.pages.dashboard
       : activeView === "routines"
         ? messages.appShell.pages.routines
-        : activeView === "memories"
-          ? messages.appShell.pages.memories
-          : messages.appShell.pages.settings;
+        : activeView === "ideas"
+          ? messages.appShell.pages.ideas
+          : activeView === "memories"
+            ? messages.appShell.pages.memories
+            : messages.appShell.pages.settings;
 
   return (
     <main className={`min-h-screen transition-colors ${appShellClass(darkMode)}`}>
@@ -236,6 +239,8 @@ export function AppShell({
               formMessages={messages.forms}
               timeFormatPreference={timeFormatPreference}
             />
+          ) : activeView === "ideas" ? (
+            <IdeasPage darkMode={darkMode} messages={messages.ideas} />
           ) : activeView === "memories" ? (
             <MemoriesPage
               darkMode={darkMode}

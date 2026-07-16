@@ -3,6 +3,7 @@ import {
   Album,
   Bell,
   LayoutDashboard,
+  Lightbulb,
   FolderKanban,
   LogOut,
   Moon,
@@ -188,6 +189,13 @@ function SidebarFrame({
             }}
           />
         ))}
+        <SidebarItem
+          icon={<Lightbulb size={18} aria-hidden="true" />}
+          label={messages.pages.ideas}
+          active={activeView === "ideas"}
+          darkMode={darkMode}
+          onClick={() => onSelectView("ideas")}
+        />
         <SidebarItem
           icon={<Bell size={18} aria-hidden="true" />}
           label={messages.pages.routines}
