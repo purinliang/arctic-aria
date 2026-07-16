@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, ChevronUp, Clock, X } from "lucide-react";
+import { Clock, X } from "lucide-react";
 import { Button } from "../button";
 import {
   formControlClass,
@@ -39,7 +39,6 @@ export function TimePickerField({
   hasError = false,
   disabled = false,
   allowClear = true,
-  stepMinutes = 5,
   className,
   messages = englishFormMessages.timePicker,
 }: {
@@ -50,7 +49,6 @@ export function TimePickerField({
   hasError?: boolean;
   disabled?: boolean;
   allowClear?: boolean;
-  stepMinutes?: number;
   className?: string;
   messages?: TimePickerMessages;
 }) {
@@ -110,32 +108,38 @@ export function TimePickerField({
             ),
           )}
         >
-          <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
-            <NumberStepper
-              darkMode={darkMode}
-              label={messages.hour}
-              messages={messages}
-              value={String(selectedParts.hour12).padStart(2, "0")}
-              onIncrement={() =>
-                onChange(toTimeValue(stepHour(selectedParts, 1)))
-              }
-              onDecrement={() =>
-                onChange(toTimeValue(stepHour(selectedParts, -1)))
-              }
-            />
-            <NumberStepper
-              darkMode={darkMode}
-              label={messages.minute}
-              messages={messages}
-              value={String(selectedParts.minute).padStart(2, "0")}
-              onIncrement={() =>
-                onChange(toTimeValue(stepMinute(selectedParts, stepMinutes)))
-              }
-              onDecrement={() =>
-                onChange(toTimeValue(stepMinute(selectedParts, -stepMinutes)))
-              }
-            />
-            <div className="grid content-end gap-1">
+          <div className="grid gap-3">
+            <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
+              <TimeNumberInput
+                darkMode={darkMode}
+                label={messages.hour}
+                value={selectedParts.hour12}
+                min={1}
+                max={12}
+                onChange={(hour12) =>
+                  onChange(toTimeValue({ ...selectedParts, hour12 }))
+                }
+              />
+              <span
+                className={cx(
+                  "pb-2 text-center text-2xl font-semibold",
+                  darkMode ? "text-neutral-500" : "text-slate-400",
+                )}
+              >
+                :
+              </span>
+              <TimeNumberInput
+                darkMode={darkMode}
+                label={messages.minute}
+                value={selectedParts.minute}
+                min={0}
+                max={59}
+                onChange={(minute) =>
+                  onChange(toTimeValue({ ...selectedParts, minute }))
+                }
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
               {(["AM", "PM"] as const).map((period) => (
                 <button
                   key={period}
@@ -223,67 +227,55 @@ export function TimePickerField({
   );
 }
 
-function NumberStepper({
+function TimeNumberInput({
   darkMode,
   label,
-  messages,
   value,
-  onIncrement,
-  onDecrement,
+  min,
+  max,
+  onChange,
 }: {
   darkMode: boolean;
   label: string;
-  messages: TimePickerMessages;
-  value: string;
-  onIncrement: () => void;
-  onDecrement: () => void;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
 }) {
   return (
-    <div className="grid gap-1">
-      <div
+    <label className="grid gap-1">
+      <span
         className={cx(
           "text-xs font-semibold",
           darkMode ? "text-neutral-400" : "text-slate-500",
         )}
       >
         {label}
-      </div>
-      <button
-        className={stepperButtonClass(darkMode)}
-        type="button"
-        aria-label={messages.increase(label)}
-        onClick={onIncrement}
-      >
-        <ChevronUp className="h-4 w-4" />
-      </button>
-      <div
+      </span>
+      <input
         className={cx(
-          "grid h-12 place-items-center rounded-md border text-xl font-semibold tabular-nums",
+          "h-12 rounded-md border px-3 text-center text-xl font-semibold tabular-nums outline-none transition",
           darkMode
-            ? "border-neutral-700 bg-black text-white"
-            : "border-slate-200 bg-slate-50 text-slate-950",
+            ? "border-neutral-700 bg-black text-white focus:border-neutral-300"
+            : "border-slate-200 bg-slate-50 text-slate-950 focus:border-slate-500",
         )}
-      >
-        {value}
-      </div>
-      <button
-        className={stepperButtonClass(darkMode)}
-        type="button"
-        aria-label={messages.decrease(label)}
-        onClick={onDecrement}
-      >
-        <ChevronDown className="h-4 w-4" />
-      </button>
-    </div>
-  );
-}
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        maxLength={2}
+        value={String(value).padStart(2, "0")}
+        onFocus={(event) => event.currentTarget.select()}
+        onChange={(event) => {
+          const digits = event.currentTarget.value.replace(/\D/g, "").slice(-2);
 
-function stepperButtonClass(darkMode: boolean) {
-  return cx(
-    "grid h-8 place-items-center rounded-md border transition",
-    darkMode
-      ? "border-neutral-700 text-neutral-200 hover:border-neutral-400"
-      : "border-slate-300 text-slate-700 hover:border-slate-500",
+          if (!digits) {
+            return;
+          }
+
+          onChange(clamp(Number(digits), min, max));
+        }}
+      />
+    </label>
   );
 }
 
@@ -321,18 +313,6 @@ function parseTimeValue(value: string): TimeParts | null {
   return { hour12, minute, period };
 }
 
-function stepHour(parts: TimeParts, offset: number): TimeParts {
-  const nextHour = wrap(parts.hour12 + offset, 1, 12);
-  return { ...parts, hour12: nextHour };
-}
-
-function stepMinute(parts: TimeParts, offset: number): TimeParts {
-  const normalizedStep = Math.max(1, Math.min(30, Math.abs(offset)));
-  const direction = offset < 0 ? -1 : 1;
-  const nextMinute = wrapMinute(parts.minute + normalizedStep * direction);
-  return { ...parts, minute: nextMinute };
-}
-
 function toTimeValue(parts: TimeParts) {
   const hour24 =
     parts.period === "AM"
@@ -344,18 +324,6 @@ function toTimeValue(parts: TimeParts) {
   return `${String(hour24).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}`;
 }
 
-function wrap(value: number, min: number, max: number) {
-  if (value > max) {
-    return min;
-  }
-
-  if (value < min) {
-    return max;
-  }
-
-  return value;
-}
-
-function wrapMinute(value: number) {
-  return ((value % 60) + 60) % 60;
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
 }
