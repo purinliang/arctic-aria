@@ -93,8 +93,8 @@ const englishMessages = {
       signUpFailed: "Sign up failed",
     },
     results: {
-      auth_account_created: "Account created. Opening dashboard...",
-      auth_signed_in: "Signed in. Opening dashboard...",
+      auth_account_created: "Account created successfully.",
+      auth_signed_in: "Signed in successfully.",
       auth_validation_failed: "Please fix the highlighted fields.",
       auth_username_taken: "Username is already taken.",
       auth_invalid_credentials: "Invalid username or password.",
@@ -202,8 +202,8 @@ const simplifiedChineseMessages: AppMessages = {
       signUpFailed: "注册失败",
     },
     results: {
-      auth_account_created: "账户已创建。正在打开今日页面...",
-      auth_signed_in: "已登录。正在打开今日页面...",
+      auth_account_created: "账户创建成功。",
+      auth_signed_in: "登录成功。",
       auth_validation_failed: "请修正标出的字段。",
       auth_username_taken: "用户名已被使用。",
       auth_invalid_credentials: "用户名或密码无效。",
