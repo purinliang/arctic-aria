@@ -177,7 +177,7 @@ function SidebarFrame({
         {pinnedProjects.map((project) => (
           <SidebarItem
             key={project.id}
-            icon={<FolderKanban size={15} aria-hidden="true" />}
+            icon={null}
             label={project.title}
             active={activeView === "projects" && selectedProjectId === project.id}
             darkMode={darkMode}
@@ -261,13 +261,15 @@ function SidebarItem({
     <Button
       darkMode={darkMode}
       tone={active ? "primary" : "ghost"}
-      size={child ? "sm" : "md"}
-      className={`w-full justify-start ${child ? "ml-7 w-[calc(100%-1.75rem)]" : ""}`}
+      size="md"
+      className="w-full justify-start overflow-hidden"
       disabled={disabled}
       icon={icon}
       onClick={onClick}
     >
-      {label}
+      <span className={`min-w-0 truncate ${child ? "pl-7" : ""}`}>
+        {label}
+      </span>
     </Button>
   );
 }
