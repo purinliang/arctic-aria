@@ -123,7 +123,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
       return {
         ok: true,
         code: "auth_account_created",
-        message: "Account created. Opening dashboard...",
+        message: "Account created successfully.",
         displayName: normalizedInput.displayName,
         user: toAuthUser(user),
       };
@@ -167,7 +167,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
       return {
         ok: true,
         code: "auth_signed_in",
-        message: "Signed in. Opening dashboard...",
+        message: "Signed in successfully.",
         displayName: user.displayName,
         user: toAuthUser(user),
       };
