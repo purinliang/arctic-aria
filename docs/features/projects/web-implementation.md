@@ -156,7 +156,8 @@ List body:
 - item first line: project title only
 - item second line: truncated description
 - item third line: timeline text and progress text
-- item right actions: `Pin` or `Unpin`, then outlineless right-arrow button
+- item right actions: icon-only outline `Pin` or `PinOff` button, then
+  outlineless right-arrow button
 - do not render milestone preview rows or task rows on the list page
 
 Clicking only the right-arrow button opens the detail page. The whole project
@@ -177,8 +178,8 @@ Breadcrumb row:
 - switching through the project name keeps the user on the detail page
 - title action: `Edit3` icon plus `Edit`, placed to the right of the
   breadcrumb and opening the project editor dialog
-- adjacent title action: `Pin` or `Unpin`, updating the sidebar shortcut state
-  for the selected project
+- adjacent title action: icon-only outline `Pin` or `PinOff` button, updating
+  the sidebar shortcut state for the selected project
 
 Project overview card:
 
