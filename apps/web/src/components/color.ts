@@ -32,6 +32,12 @@ export function sectionBorderClass(darkMode: boolean) {
   return darkMode ? "border-neutral-800" : "border-slate-200";
 }
 
+export function controlGroupSurfaceClass(darkMode: boolean) {
+  return darkMode
+    ? "border-neutral-800 bg-neutral-950"
+    : "border-slate-300 bg-slate-100";
+}
+
 export function toneClass(darkMode: boolean, tone: Tone) {
   if (tone === "amber") {
     return darkMode

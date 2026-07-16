@@ -9,6 +9,7 @@ import {
 } from "@/components/forms/input-field";
 
 type AuthTextFieldProps = {
+  darkMode: boolean;
   label: string;
   optional?: boolean;
   value: string;
@@ -22,6 +23,7 @@ type AuthTextFieldProps = {
 };
 
 export function AuthTextField({
+  darkMode,
   label,
   optional = false,
   value,
@@ -36,9 +38,9 @@ export function AuthTextField({
   const showError = touched && Boolean(error);
 
   return (
-    <FieldLabel darkMode={false} label={label} optional={optional}>
+    <FieldLabel darkMode={darkMode} label={label} optional={optional}>
       <TextInput
-        darkMode={false}
+        darkMode={darkMode}
         value={value}
         onBlur={onBlur}
         onChange={(event) => onChange(event.target.value)}
@@ -47,7 +49,7 @@ export function AuthTextField({
         hasError={showError}
         trailing={trailingButton}
       />
-      {showError ? <FieldError darkMode={false}>{error}</FieldError> : null}
+      {showError ? <FieldError darkMode={darkMode}>{error}</FieldError> : null}
     </FieldLabel>
   );
 }

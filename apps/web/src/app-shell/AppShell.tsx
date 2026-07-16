@@ -9,8 +9,12 @@ import {
   NotificationStack,
   type NotificationItem,
 } from "@/components/notification";
-import { appShellClass, useDocumentTheme } from "@/components/theme";
+import { appShellClass } from "@/components/theme";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
+import type {
+  LanguagePreference,
+  ThemePreference,
+} from "@/app-shell/app-preferences";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
 import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardProjects";
@@ -28,6 +32,11 @@ import { Sidebar } from "./Sidebar";
 
 export function AppShell({
   currentUser,
+  darkMode,
+  languagePreference,
+  onLanguagePreferenceChange,
+  onThemePreferenceChange,
+  themePreference,
   versionStatus,
   logoutPending,
   notifications,
@@ -36,6 +45,11 @@ export function AppShell({
   showErrorNotification,
 }: {
   currentUser: AuthUser;
+  darkMode: boolean;
+  languagePreference: LanguagePreference;
+  onLanguagePreferenceChange: (preference: LanguagePreference) => void;
+  onThemePreferenceChange: (preference: ThemePreference) => void;
+  themePreference: ThemePreference;
   versionStatus: DatabaseVersionStatus;
   logoutPending: boolean;
   notifications: NotificationItem[];
@@ -45,7 +59,6 @@ export function AppShell({
 }) {
   const [activeView, setActiveView] = useState<DashboardView>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
     null,
   );
@@ -76,8 +89,6 @@ export function AppShell({
 
     return () => window.clearTimeout(timeoutId);
   }, [currentUser.id, refreshMemoryData, refreshProjectData, refreshRoutineData]);
-
-  useDocumentTheme(darkMode);
 
   function showProjectsList() {
     setSelectedProjectId(null);
@@ -123,7 +134,9 @@ export function AppShell({
           onClose={() => setSidebarOpen(false)}
           onViewChange={handleViewChange}
           onProjectShortcut={showProjectDetail}
-          onThemeChange={setDarkMode}
+          onThemeChange={(nextDarkMode) =>
+            onThemePreferenceChange(nextDarkMode ? "dark" : "light")
+          }
           onLogout={onLogout}
         />
 
@@ -216,7 +229,14 @@ export function AppShell({
               onSuggestionCancel={memoryState.cancelSuggestionPinFromPage}
             />
           ) : activeView === "settings" ? (
-            <SettingsPage darkMode={darkMode} versionStatus={versionStatus} />
+            <SettingsPage
+              darkMode={darkMode}
+              languagePreference={languagePreference}
+              themePreference={themePreference}
+              versionStatus={versionStatus}
+              onLanguagePreferenceChange={onLanguagePreferenceChange}
+              onThemePreferenceChange={onThemePreferenceChange}
+            />
           ) : (
             <Dashboard
               darkMode={darkMode}

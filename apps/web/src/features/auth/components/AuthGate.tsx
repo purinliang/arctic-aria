@@ -4,9 +4,12 @@
 import { LoaderCircle, Sparkles } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { AppShell } from "@/app-shell/AppShell";
+import { useAppPreferences } from "@/app-shell/app-preferences";
 import { defaultDatabaseVersionStatus } from "@/components/app-metadata";
+import { mutedTextClass } from "@/components/color";
 import { NotificationStack, useNotifications } from "@/components/notification";
 import { SupportingText } from "@/components/text";
+import { appShellClass, useDocumentTheme } from "@/components/theme";
 import {
   getCurrentUser,
   getPublicVersionStatus,
@@ -54,12 +57,21 @@ export function AuthGate() {
   );
   const [isPending, startTransition] = useTransition();
   const {
+    darkMode,
+    languagePreference,
+    setLanguagePreference,
+    setThemePreference,
+    themePreference,
+  } = useAppPreferences();
+  const {
     notifications,
     dismissNotification,
     showErrorNotification,
     showInfoNotification,
     showSuccessNotification,
   } = useNotifications();
+
+  useDocumentTheme(darkMode);
 
   useEffect(() => {
     let active = true;
@@ -108,7 +120,9 @@ export function AuthGate() {
 
   if (!sessionChecked) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[#eef2f5] px-4 text-slate-950">
+      <main
+        className={`grid min-h-screen place-items-center px-4 transition-colors ${appShellClass(darkMode)}`}
+      >
         <div
           className="grid justify-items-center gap-4 text-center"
           role="status"
@@ -121,10 +135,10 @@ export function AuthGate() {
           <div className="flex items-center justify-center gap-2">
             <LoaderCircle
               size={18}
-              className="animate-spin text-slate-500"
+              className={`animate-spin ${mutedTextClass(darkMode)}`}
               aria-hidden="true"
             />
-            <SupportingText darkMode={false} className="font-medium">
+            <SupportingText darkMode={darkMode} className="font-medium">
               Opening your workspace...
             </SupportingText>
           </div>
@@ -137,9 +151,14 @@ export function AuthGate() {
     return (
       <AppShell
         currentUser={currentUser}
+        darkMode={darkMode}
+        languagePreference={languagePreference}
+        themePreference={themePreference}
         versionStatus={versionStatus}
         logoutPending={isPending}
         notifications={notifications}
+        onLanguagePreferenceChange={setLanguagePreference}
+        onThemePreferenceChange={setThemePreference}
         onLogout={() => {
           startTransition(async () => {
             await logoutUser();
@@ -255,6 +274,7 @@ export function AuthGate() {
   return (
     <>
       <AuthPage
+        darkMode={darkMode}
         mode={mode}
         registerInput={registerInput}
         loginInput={loginInput}
@@ -268,11 +288,12 @@ export function AuthGate() {
         onSubmit={handleSubmit}
         onGoogleLogin={showGooglePlaceholder}
         onPasswordReset={showPasswordResetPlaceholder}
+        onThemeToggle={() => setThemePreference(darkMode ? "light" : "dark")}
         versionStatus={versionStatus}
       />
       <NotificationStack
         notifications={notifications}
-        darkMode={false}
+        darkMode={darkMode}
         onDismiss={dismissNotification}
       />
     </>
