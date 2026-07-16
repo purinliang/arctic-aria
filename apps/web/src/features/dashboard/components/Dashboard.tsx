@@ -14,7 +14,6 @@ export function Dashboard({
   darkMode,
   tasks,
   taskLoading,
-  pendingTaskIds,
   routines,
   routineLoading,
   routineActionPending,
@@ -33,7 +32,6 @@ export function Dashboard({
   darkMode: boolean;
   tasks: Task[];
   taskLoading: boolean;
-  pendingTaskIds: string[];
   routines: Routine[];
   routineLoading: boolean;
   routineActionPending: boolean;
@@ -59,8 +57,7 @@ export function Dashboard({
           darkMode={darkMode}
           tasks={tasks}
           loading={taskLoading}
-          pendingTaskIds={pendingTaskIds}
-          onTaskDone={(taskId) => onTaskStatus(taskId, "done")}
+          onTaskStatus={onTaskStatus}
           onTaskOpen={onTaskOpen}
         />
 

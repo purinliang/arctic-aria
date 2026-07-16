@@ -222,7 +222,6 @@ export function AppShell({
               darkMode={darkMode}
               tasks={projectState.tasks}
               taskLoading={projectState.projectLoading}
-              pendingTaskIds={projectState.pendingTaskIds}
               routines={routineState.routines}
               routineLoading={routineState.routineLoading}
               routineActionPending={routineState.routineActionPending}

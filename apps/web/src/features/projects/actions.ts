@@ -29,6 +29,8 @@ export type {
   ProjectView,
 } from "./project-action-helpers";
 
+type ProjectCommandResult = ProjectActionResult<null>;
+
 async function withProjectData(
   action: (userId: string) => Promise<boolean>,
   notFoundMessage: string,
@@ -49,6 +51,32 @@ async function withProjectData(
     return {
       ok: true,
       data: await loadProjectDashboardData(user.id),
+    };
+  } catch (error) {
+    return { ok: false, message: projectDatabaseErrorMessage(error) };
+  }
+}
+
+async function withProjectCommand(
+  action: (userId: string) => Promise<boolean>,
+  notFoundMessage: string,
+): Promise<ProjectCommandResult> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  try {
+    const ok = await action(user.id);
+
+    if (!ok) {
+      return { ok: false, message: notFoundMessage };
+    }
+
+    return {
+      ok: true,
+      data: null,
     };
   } catch (error) {
     return { ok: false, message: projectDatabaseErrorMessage(error) };
@@ -265,33 +293,33 @@ export async function archiveProjectTask(
 
 export async function completeProjectTask(
   taskId: string,
-): Promise<ProjectActionResult<ProjectDashboardData>> {
+): Promise<ProjectCommandResult> {
   return updateProjectTaskStatus(taskId, "done");
 }
 
 export async function skipProjectTask(
   taskId: string,
-): Promise<ProjectActionResult<ProjectDashboardData>> {
+): Promise<ProjectCommandResult> {
   return updateProjectTaskStatus(taskId, "skipped");
 }
 
 export async function blockProjectTask(
   taskId: string,
-): Promise<ProjectActionResult<ProjectDashboardData>> {
+): Promise<ProjectCommandResult> {
   return updateProjectTaskStatus(taskId, "blocked");
 }
 
 export async function reopenProjectTask(
   taskId: string,
-): Promise<ProjectActionResult<ProjectDashboardData>> {
+): Promise<ProjectCommandResult> {
   return updateProjectTaskStatus(taskId, "todo");
 }
 
 export async function updateProjectTaskStatus(
   taskId: string,
   status: Exclude<ProjectTaskStatus, "archived">,
-): Promise<ProjectActionResult<ProjectDashboardData>> {
-  return withProjectData(
+): Promise<ProjectCommandResult> {
+  return withProjectCommand(
     (userId) => projectService.updateTaskStatus(userId, taskId, status),
     "Task was not found.",
   );

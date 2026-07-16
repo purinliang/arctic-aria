@@ -31,6 +31,12 @@ export function applyDashboardTaskStatus(
   return applyOptimisticTaskStatus(tasks, taskId, status);
 }
 
+export function dashboardTaskStatusForChecked(
+  checked: boolean,
+): Exclude<TaskStatus, "archived"> {
+  return checked ? "done" : "todo";
+}
+
 export function restoreTaskSnapshot(
   tasks: Task[],
   snapshot: Task[],
