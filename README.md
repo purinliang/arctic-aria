@@ -134,9 +134,11 @@ Ideas:
 - [docs/features/ideas/overview.md](docs/features/ideas/overview.md): idea
   capture product rules.
 - [docs/features/ideas/data-model.md](docs/features/ideas/data-model.md):
-  planned idea persistence and constraints.
+  idea persistence and constraints.
 - [docs/features/ideas/ui.md](docs/features/ideas/ui.md): Ideas page UI
   behavior.
+- [docs/features/ideas/web-implementation.md](docs/features/ideas/web-implementation.md):
+  current Ideas web implementation notes.
 
 Shared Web UI:
 

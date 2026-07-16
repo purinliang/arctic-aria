@@ -24,7 +24,7 @@ Implemented:
 - Memories, categories, suggestions, and pinned memories
 - Settings page with local theme/language preference controls and version
   metadata
-- read-only Ideas page prototype
+- read-only Ideas page and backend capture foundation
 - shared web UI primitives and form controls
 - SQL migrations and direct SQL repositories
 - focused Node test coverage for validation, services, repositories, database
@@ -32,11 +32,10 @@ Implemented:
 
 Not implemented yet:
 
-- Discord bot
+- Discord bot runtime and Discord slash-command handling
 - Redis/cache
 - event bus or dataflow service
 - background worker service
-- Ideas persistence and capture commands
 - reviews feature
 - reward plugin
 - English coach or other plugin workers
@@ -94,11 +93,13 @@ arctic-aria/
 |       |   |-- features/
 |       |   |   |-- auth/
 |       |   |   |-- dashboard/
+|       |   |   |-- ideas/
 |       |   |   |-- memories/
 |       |   |   |-- projects/
 |       |   |   `-- routines/
 |       |   `-- server/
-|       |       `-- database/
+|       |       |-- database/
+|       |       `-- discord/
 |       |-- package.json
 |       `-- pnpm-workspace.yaml
 |
@@ -183,8 +184,7 @@ Current feature implementation docs:
 - [features/memories/web-implementation.md](features/memories/web-implementation.md)
 - [features/projects/web-implementation.md](features/projects/web-implementation.md)
 - [features/routines/web-implementation.md](features/routines/web-implementation.md)
-- Ideas currently has only a read-only page prototype; implementation notes can
-  be added when capture persistence starts.
+- [features/ideas/web-implementation.md](features/ideas/web-implementation.md)
 
 Current feature data-model docs:
 

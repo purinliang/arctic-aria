@@ -4,18 +4,45 @@ import { CardHeader } from "@/components/card";
 import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
+import { formatDateKey } from "@/components/forms/date-format";
+import type { IdeaPageItem } from "../actions";
 import type { IdeaMessages } from "@/messages/app-messages";
+import type { DatePickerMessages } from "@/messages/form-messages";
 
-type IdeaPrototype = IdeaMessages["page"]["prototypeItems"][number];
+type IdeaRowItem = {
+  id: string;
+  rawText: string;
+  source: IdeaPageItem["source"];
+  createdDate: string;
+  prototype: boolean;
+};
 
 export function IdeasPage({
   darkMode,
+  ideas,
+  loading,
   messages,
+  dateMessages,
 }: {
   darkMode: boolean;
+  ideas: IdeaPageItem[];
+  loading: boolean;
   messages: IdeaMessages;
+  dateMessages: DatePickerMessages;
 }) {
-  const ideas: IdeaPrototype[] = messages.page.prototypeItems;
+  const rows: IdeaRowItem[] =
+    ideas.length > 0
+      ? ideas.map((idea) => ({
+          id: idea.id,
+          rawText: idea.rawText,
+          source: idea.source,
+          createdDate: idea.createdDate,
+          prototype: false,
+        }))
+      : messages.page.prototypeItems.map((idea) => ({
+          ...idea,
+          prototype: true,
+        }));
 
   return (
     <Panel darkMode={darkMode}>
@@ -26,13 +53,20 @@ export function IdeasPage({
         description={messages.page.description}
       />
       <List darkMode={darkMode}>
-        {ideas.length > 0 ? (
-          ideas.map((idea) => (
+        {loading ? (
+          <ListItem darkMode={darkMode} layout="block">
+            <DescriptionText darkMode={darkMode}>
+              {messages.page.loading}
+            </DescriptionText>
+          </ListItem>
+        ) : rows.length > 0 ? (
+          rows.map((idea) => (
             <IdeaRow
               key={idea.id}
               darkMode={darkMode}
               idea={idea}
               messages={messages}
+              dateMessages={dateMessages}
             />
           ))
         ) : (
@@ -52,23 +86,43 @@ function IdeaRow({
   darkMode,
   idea,
   messages,
+  dateMessages,
 }: {
   darkMode: boolean;
-  idea: IdeaPrototype;
+  idea: IdeaRowItem;
   messages: IdeaMessages;
+  dateMessages: DatePickerMessages;
 }) {
-  const source =
-    idea.source === "discord"
-      ? messages.page.sourceDiscord
-      : messages.page.sourceWeb;
+  const source = sourceLabel(idea.source, messages);
+  const metadata = [
+    source,
+    messages.page.statusUntriaged,
+    formatDateKey(idea.createdDate, dateMessages, idea.createdDate),
+    idea.prototype ? messages.page.prototypeLabel : null,
+  ].filter(Boolean);
 
   return (
     <ListItem darkMode={darkMode} layout="block">
       <p className="text-sm font-semibold">{idea.rawText}</p>
       <SupportingText darkMode={darkMode} className="mt-2 block">
-        {source} · {messages.page.statusUntriaged} · {idea.createdLabel} ·{" "}
-        {messages.page.prototypeLabel}
+        {metadata.join(" · ")}
       </SupportingText>
     </ListItem>
   );
+}
+
+function sourceLabel(source: IdeaPageItem["source"], messages: IdeaMessages) {
+  if (source === "discord") {
+    return messages.page.sourceDiscord;
+  }
+
+  if (source === "web") {
+    return messages.page.sourceWeb;
+  }
+
+  if (source === "mobile") {
+    return messages.page.sourceMobile;
+  }
+
+  return messages.page.sourceAgent;
 }

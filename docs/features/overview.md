@@ -43,6 +43,7 @@ Detailed feature docs:
 - Ideas rules: [ideas/overview.md](ideas/overview.md)
 - Ideas persistence: [ideas/data-model.md](ideas/data-model.md)
 - Ideas UI: [ideas/ui.md](ideas/ui.md)
+- Ideas implementation: [ideas/web-implementation.md](ideas/web-implementation.md)
 
 ## User
 

@@ -2,13 +2,14 @@
 
 Ideas persistence stores quick-captured thoughts for later triage.
 
-This model is planned and not implemented yet.
+The first table is implemented by
+`apps/web/database/migrations/0012_create_ideas_and_discord_accounts.sql`.
 
 ## `ideas`
 
 `ideas` stores one captured thought.
 
-Planned columns:
+Current columns:
 
 - `id uuid PRIMARY KEY`
 - `user_id uuid NOT NULL REFERENCES users(id)`
@@ -22,14 +23,14 @@ Planned columns:
 - `updated_at timestamptz NOT NULL DEFAULT now()`
 - `archived_at timestamptz`
 
-Planned source values:
+Current source values:
 
 - `web`
 - `discord`
 - `mobile`
 - `agent`
 
-Planned triage statuses:
+Current triage statuses:
 
 - `untriaged`: captured but not reviewed.
 - `kept`: intentionally kept as an idea or note.
@@ -66,7 +67,8 @@ Ideas are user-owned data. Queries must always scope ideas by `user_id`.
 ## Deletion
 
 The first user-visible delete behavior should archive an idea by setting
-`triage_status = 'archived'` and `archived_at`.
+`triage_status = 'archived'` and `archived_at`. This UI command is not
+implemented yet.
 
 Hard delete may be reserved for account deletion, where the owning `users` row
 can cascade cleanup if the migration chooses `ON DELETE CASCADE`.

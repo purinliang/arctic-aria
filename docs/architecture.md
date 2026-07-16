@@ -166,6 +166,7 @@ Detailed docs:
 - [features/ideas/overview.md](features/ideas/overview.md)
 - [features/ideas/data-model.md](features/ideas/data-model.md)
 - [features/ideas/ui.md](features/ideas/ui.md)
+- [features/ideas/web-implementation.md](features/ideas/web-implementation.md)
 
 ### Scheduler
 

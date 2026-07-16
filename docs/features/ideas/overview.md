@@ -4,8 +4,9 @@ Ideas are quick captured thoughts before they become projects, tasks, routines,
 memories, plugin requests, or review notes. The goal is low-friction capture:
 the user should be able to save a thought before deciding what it means.
 
-Ideas persistence and capture commands are planned and not implemented yet. The
-web app currently has a read-only Ideas page prototype for layout review.
+Ideas persistence and the backend capture service foundation are implemented.
+The web app currently has a read-only Ideas page; user-facing add/edit/triage
+controls are not implemented yet.
 
 UI behavior is documented in [ui.md](ui.md). Persistence direction is documented
 in [data-model.md](data-model.md).

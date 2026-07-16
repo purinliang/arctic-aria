@@ -2,7 +2,7 @@
 
 // App Shell.
 import { Menu } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/button";
 import { sectionBorderClass } from "@/components/color";
 import {
@@ -21,6 +21,7 @@ import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardPro
 import { useDashboardRoutines } from "@/features/dashboard/hooks/useDashboardRoutines";
 import type { DashboardView } from "@/features/dashboard/types";
 import type { AuthUser } from "@/features/auth/server/auth-service";
+import { getIdeaPageData, type IdeaPageItem } from "@/features/ideas/actions";
 import { IdeasPage } from "@/features/ideas/components/IdeasPage";
 import { MemoriesPage } from "@/features/memories/components/MemoriesPage";
 import type { ProjectInput } from "@/features/projects/actions";
@@ -70,6 +71,8 @@ export function AppShell({
     null,
   );
   const [projectDraft, setProjectDraft] = useState<ProjectInput | null>(null);
+  const [ideas, setIdeas] = useState<IdeaPageItem[]>([]);
+  const [ideasLoading, setIdeasLoading] = useState(true);
   const projectState = useDashboardProjects(
     showErrorNotification,
     messages.dashboard.notifications,
@@ -88,6 +91,19 @@ export function AppShell({
   const { refreshProjectData } = projectState;
   const { refreshMemoryData } = memoryState;
   const { refreshRoutineData } = routineState;
+  const refreshIdeaData = useCallback(async () => {
+    setIdeasLoading(true);
+
+    const result = await getIdeaPageData();
+
+    if (result.ok) {
+      setIdeas(result.data);
+    } else {
+      showErrorNotification(result.message);
+    }
+
+    setIdeasLoading(false);
+  }, [showErrorNotification]);
   const pinnedProjects = useMemo(
     () =>
       projectState.projects
@@ -104,10 +120,17 @@ export function AppShell({
       void refreshProjectData();
       void refreshMemoryData();
       void refreshRoutineData();
+      void refreshIdeaData();
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, [currentUser.id, refreshMemoryData, refreshProjectData, refreshRoutineData]);
+  }, [
+    currentUser.id,
+    refreshIdeaData,
+    refreshMemoryData,
+    refreshProjectData,
+    refreshRoutineData,
+  ]);
 
   function showProjectsList() {
     setSelectedProjectId(null);
@@ -240,7 +263,13 @@ export function AppShell({
               timeFormatPreference={timeFormatPreference}
             />
           ) : activeView === "ideas" ? (
-            <IdeasPage darkMode={darkMode} messages={messages.ideas} />
+            <IdeasPage
+              darkMode={darkMode}
+              ideas={ideas}
+              loading={ideasLoading}
+              messages={messages.ideas}
+              dateMessages={messages.forms.datePicker}
+            />
           ) : activeView === "memories" ? (
             <MemoriesPage
               darkMode={darkMode}

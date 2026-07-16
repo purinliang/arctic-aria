@@ -2,8 +2,8 @@
 
 Ideas UI is planned as a lightweight capture and triage surface.
 
-The current web app includes a read-only prototype page for visualization. Idea
-creation, editing, deletion, triage, and conversion are not implemented yet.
+The current web app includes a read-only Ideas page. Idea creation, editing,
+deletion, triage, and conversion are not implemented in the UI yet.
 
 ## Sidebar And Page
 
@@ -28,9 +28,8 @@ Rows should use the standard list item style:
 - second line: supporting metadata in one line, such as
   `Discord · Untriaged · Jul 17, 2026 Fri`
 
-Prototype-only rows may be shown before persistence exists, but they must be
-clearly marked as prototype data and replaced by real Ideas data when the
-backend is implemented.
+When persisted ideas exist, show real ideas. When no persisted ideas exist, the
+page may show clearly marked prototype rows so the layout remains reviewable.
 
 ## Interactions
 
