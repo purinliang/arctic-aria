@@ -5,17 +5,21 @@ import {
   defaultLanguage,
   readLanguagePreference,
   resolveLanguage,
-  type LanguagePreference,
-  type SupportedLanguage,
+} from "../messages/languages.ts";
+import type {
+  LanguagePreference,
+  SupportedLanguage,
 } from "../messages/languages.ts";
 import {
   readThemePreference,
   readTimeFormatPreference,
   normalizeUserPreferences,
-  type ThemeMode,
-  type ThemePreference,
-  type TimeFormatPreference,
-  type UserPreferences,
+} from "../features/settings/preferences.ts";
+import type {
+  ThemeMode,
+  ThemePreference,
+  TimeFormatPreference,
+  UserPreferences,
 } from "../features/settings/preferences.ts";
 
 export type AppLanguage = SupportedLanguage;
