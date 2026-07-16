@@ -25,14 +25,14 @@ records.
 The Settings panel should show two rows:
 
 - `App Version`: current build version and commit.
-- `Database Version`: the latest version recorded by database migration runs.
+- `Database Version`: the compact schema-history hash derived from applied
+  migration filenames and file checksums.
 
-If the database schema is aligned and the last migration check used the current
-commit, do not add extra warning text. If it was last checked by another commit,
-or the schema is behind, ahead, different, or unavailable, append a short red
-parenthetical message after `Database Version`, such as
-`(expected abc123def456)`. Do not show migration filenames or schema hashes in
-the user-facing Settings UI.
+If the database schema hash matches the expected hash from the current source
+tree, do not add extra warning text. If the database schema is behind, ahead,
+different, missing checksums, or unavailable, append a short red parenthetical
+message after `Database Version`, such as `(expected abc123def456)`. Do not
+show migration filenames in the user-facing Settings UI.
 
 Current web source:
 

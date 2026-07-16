@@ -28,10 +28,10 @@ and [data-model.md](data-model.md).
   metadata is available. It should use shared `SupportingText` styling and show
   the same app/database version information as Settings in compact lines:
   `App Version` and `Database Version`.
-- Do not show migration filenames or schema hashes in the signed-out footer. If
-  the database was last checked by another commit or the schema is not aligned,
-  append the same short red parenthetical message used by Settings after the
-  `Database Version` line.
+- Do not show migration filenames in the signed-out footer. `Database Version`
+  should show the same compact schema-history hash as Settings. If the schema
+  is not aligned, append the same short red parenthetical message used by
+  Settings after the `Database Version` line.
 - `Sign up` should be the right tab in a two-tab control. The other tab is
   `Sign in`.
 - Below the tabs, stack the form vertically:

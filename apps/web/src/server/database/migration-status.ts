@@ -5,17 +5,17 @@ import {
   type AppMetadata,
   type DatabaseVersionStatus,
 } from "@/components/app-metadata";
+import { appliedMigrationMetadata } from "./migration-history";
 import { getSql } from "./neon";
+import type {
+  AppliedMigrationMetadata,
+  AppliedMigrationRow,
+} from "./migration-history";
 
 type MigrationRunRow = {
   app_version: string;
   app_commit: string;
   checked_at: string;
-};
-
-type AppliedMigrationRow = {
-  migration_count: string | number;
-  latest_migration_name: string | null;
 };
 
 export async function getDatabaseVersionStatus(
@@ -30,37 +30,44 @@ export async function getDatabaseVersionStatus(
        ORDER BY checked_at DESC, id DESC
        LIMIT 1`,
     )) as MigrationRunRow[];
-    const [applied] = (await getSql().query(
-      `SELECT COUNT(*) AS migration_count, MAX(name) AS latest_migration_name
-       FROM schema_migrations`,
+    const appliedRows = (await getSql().query(
+      `SELECT name, checksum FROM schema_migrations ORDER BY name`,
     )) as AppliedMigrationRow[];
 
-    if (!latestRun || !applied) {
+    if (!latestRun || appliedRows.length === 0) {
       return mismatchStatus(
         expectedVersionText,
         "Not recorded",
-        expectedCommitMessage(metadata),
+        expectedDatabaseMessage(metadata),
       );
     }
 
-    const actualVersionText = latestRun.app_commit;
-    const schemaMessage = schemaMismatchMessage(metadata, applied);
+    const actualDatabaseMetadata = appliedMigrationMetadata(appliedRows);
 
-    if (schemaMessage) {
-      return mismatchStatus(expectedVersionText, actualVersionText, schemaMessage);
-    }
-
-    if (actualVersionText !== metadata.commit) {
+    if (!actualDatabaseMetadata.ok) {
       return mismatchStatus(
         expectedVersionText,
-        actualVersionText,
-        expectedCommitMessage(metadata),
+        "Unknown",
+        "database migration checksums are missing",
+      );
+    }
+
+    const schemaMessage = schemaMismatchMessage(
+      metadata,
+      actualDatabaseMetadata,
+    );
+
+    if (schemaMessage) {
+      return mismatchStatus(
+        expectedVersionText,
+        actualDatabaseMetadata.schemaHash,
+        schemaMessage,
       );
     }
 
     return {
       appVersionText: expectedVersionText,
-      actualDatabaseVersionText: actualVersionText,
+      actualDatabaseVersionText: actualDatabaseMetadata.schemaHash,
       aligned: true,
       message: "",
     };
@@ -89,29 +96,32 @@ function mismatchStatus(
 
 function schemaMismatchMessage(
   metadata: AppMetadata,
-  applied: AppliedMigrationRow,
+  applied: Extract<AppliedMigrationMetadata, { ok: true }>,
 ) {
-  const actualCount = Number(applied.migration_count);
+  const actualCount = applied.migrationCount;
   const expectedCount = metadata.expectedDatabase.migrationCount;
 
   if (actualCount < expectedCount) {
-    return `${expectedCommitMessage(metadata)}; database schema is behind`;
+    return `${expectedDatabaseMessage(metadata)}; database schema is behind`;
   }
 
   if (actualCount > expectedCount) {
-    return `${expectedCommitMessage(metadata)}; database schema is ahead`;
+    return `${expectedDatabaseMessage(metadata)}; database schema is ahead`;
   }
 
   if (
-    applied.latest_migration_name &&
-    applied.latest_migration_name !== metadata.expectedDatabase.latestMigrationName
+    applied.latestMigrationName !== metadata.expectedDatabase.latestMigrationName
   ) {
-    return `${expectedCommitMessage(metadata)}; database schema differs`;
+    return `${expectedDatabaseMessage(metadata)}; database schema differs`;
+  }
+
+  if (applied.schemaHash !== metadata.expectedDatabase.schemaHash) {
+    return `${expectedDatabaseMessage(metadata)}; database schema differs`;
   }
 
   return "";
 }
 
-function expectedCommitMessage(metadata: AppMetadata) {
-  return `expected ${metadata.commit}`;
+function expectedDatabaseMessage(metadata: AppMetadata) {
+  return `expected ${metadata.expectedDatabase.schemaHash}`;
 }

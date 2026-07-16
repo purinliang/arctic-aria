@@ -1,7 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { resolveExpectedDatabaseMetadata } from "./migration-metadata.mjs";
 
 export function resolveAppMetadata(appRoot = process.cwd()) {
   const repoRoot = path.resolve(appRoot, "..", "..");
@@ -48,38 +47,6 @@ export function resolveAppMetadata(appRoot = process.cwd()) {
     ),
     branch,
     expectedDatabase,
-  };
-}
-
-export function resolveExpectedDatabaseMetadata(appRoot = process.cwd()) {
-  const migrationsDir = path.join(appRoot, "database", "migrations");
-
-  if (!existsSync(migrationsDir)) {
-    return {
-      migrationCount: 0,
-      latestMigrationName: "none",
-      schemaHash: "none",
-    };
-  }
-
-  const migrations = readdirSync(migrationsDir)
-    .filter((file) => file.endsWith(".sql"))
-    .sort();
-  const hash = createHash("sha256");
-
-  for (const migration of migrations) {
-    const content = readFileSync(path.join(migrationsDir, migration), "utf8");
-
-    hash.update(migration);
-    hash.update("\0");
-    hash.update(content);
-    hash.update("\0");
-  }
-
-  return {
-    migrationCount: migrations.length,
-    latestMigrationName: migrations.at(-1) ?? "none",
-    schemaHash: migrations.length > 0 ? hash.digest("hex").slice(0, 12) : "none",
   };
 }
 
