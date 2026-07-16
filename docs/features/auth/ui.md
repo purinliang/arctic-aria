@@ -25,13 +25,14 @@ and [data-model.md](data-model.md).
 - Show a centered description below the brand row, such as `Your personal life
   assistant under the aurora.`
 - Show a small deployment metadata footer below the auth panel when app
-  metadata is available. It should use shared `SupportingText` styling and show
-  the same app/database version information as Settings in compact lines:
-  `App Version` and `Database Version`.
-- Do not show migration filenames in the signed-out footer. `Database Version`
-  should show the same compact schema-history hash as Settings. If the schema
-  is not aligned, append the same short red parenthetical message used by
-  Settings after the `Database Version` line.
+  metadata is available. It should use shared `SupportingText` styling and
+  follow the same version visibility rules as Settings.
+- Do not show migration filenames in the signed-out footer. Exact release
+  builds should show only `App Version` when the database is aligned. Develop,
+  feature, fix, and hotfix builds should also show `Database Version` with the
+  expected schema hash in normal text. If the schema is not aligned, show
+  `Database Version` and append the same short red parenthetical message used by
+  Settings.
 - `Sign up` should be the right tab in a two-tab control. The other tab is
   `Sign in`.
 - Below the tabs, stack the form vertically:

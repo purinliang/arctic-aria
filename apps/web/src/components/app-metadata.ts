@@ -15,6 +15,7 @@ export type ExpectedDatabaseMetadata = {
 export type DatabaseVersionStatus = {
   appVersionText: string;
   actualDatabaseVersionText: string;
+  expectedDatabaseVersionText: string;
   aligned: boolean;
   message: string;
 };
@@ -44,11 +45,24 @@ export function appMetadataLabel(metadata: AppMetadata) {
 }
 
 export function appMetadataVersionText(metadata: AppMetadata) {
-  if (metadata.commit === "unknown") {
+  if (
+    metadata.commit === "unknown" ||
+    isExactReleaseVersionText(metadata.version)
+  ) {
     return metadata.version;
   }
 
   return `${metadata.version}-${metadata.commit}`;
+}
+
+export function shouldShowDatabaseVersion(status: DatabaseVersionStatus) {
+  return !status.aligned || !isExactReleaseVersionText(status.appVersionText);
+}
+
+export function shouldShowExpectedDatabaseVersion(
+  status: DatabaseVersionStatus,
+) {
+  return !isExactReleaseVersionText(status.appVersionText);
 }
 
 export function defaultDatabaseVersionStatus(
@@ -59,6 +73,7 @@ export function defaultDatabaseVersionStatus(
   return {
     appVersionText: versionText,
     actualDatabaseVersionText: "Checking...",
+    expectedDatabaseVersionText: metadata.expectedDatabase.schemaHash,
     aligned: true,
     message: "",
   };
@@ -73,4 +88,8 @@ function readNumber(rawValue: string | undefined) {
   const value = Number.parseInt(rawValue ?? "", 10);
 
   return Number.isFinite(value) ? value : 0;
+}
+
+function isExactReleaseVersionText(version: string) {
+  return /^v\d+\.\d+\.\d+$/.test(version);
 }

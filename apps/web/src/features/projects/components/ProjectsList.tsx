@@ -107,8 +107,10 @@ function ProjectListItem({
       <div className="flex shrink-0 items-center gap-2">
         <Button
           darkMode={darkMode}
-          size="sm"
+          size="icon-sm"
+          className="rounded-full"
           disabled={pinPending}
+          aria-label={pinned ? "Unpin project" : "Pin project"}
           icon={
             pinned ? (
               <PinOff size={14} aria-hidden="true" />
@@ -117,9 +119,7 @@ function ProjectListItem({
             )
           }
           onClick={pinned ? onUnpin : onPin}
-        >
-          {pinned ? "Unpin" : "Pin"}
-        </Button>
+        />
         <Button
           darkMode={darkMode}
           tone="ghost"

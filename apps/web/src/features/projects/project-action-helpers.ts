@@ -4,7 +4,10 @@ import {
   durationLabelForDays,
   durationRangeForDays,
 } from "./project-duration";
-import { isValidProjectDate } from "./project-date-validation";
+import {
+  isValidProjectDate,
+  validateRequiredProjectDate,
+} from "./project-date-validation";
 import type {
   ProjectDurationRange,
   ProjectTimelineType,
@@ -133,7 +136,6 @@ export async function loadProjectDashboardData(
 export function validateProjectInput(input: ProjectInput) {
   const title = input.title.trim();
   const description = input.description.trim();
-  const startDate = input.startDate.trim();
   let deadlineDate: string | null = null;
   let expectedDurationDays: number | null = null;
 
@@ -148,24 +150,30 @@ export function validateProjectInput(input: ProjectInput) {
     };
   }
 
-  if (!validateDate(startDate)) {
-    return {
-      ok: false as const,
-      message: "Start date must be a real date in YYYY-MM-DD format.",
-    };
+  const startDate = validateRequiredProjectDate({
+    value: input.startDate,
+    missingMessage: "Select a start date.",
+    invalidMessage: "Start date must be a real date in YYYY-MM-DD format.",
+  });
+
+  if (!startDate.ok) {
+    return { ok: false as const, message: startDate.message };
   }
 
   if (input.timelineType === "deadline") {
-    deadlineDate = input.deadlineDate.trim();
+    const deadline = validateRequiredProjectDate({
+      value: input.deadlineDate,
+      missingMessage: "Select a deadline date.",
+      invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
+    });
 
-    if (!deadlineDate || !validateDate(deadlineDate)) {
-      return {
-        ok: false as const,
-        message: "Deadline date must be a real date in YYYY-MM-DD format.",
-      };
+    if (!deadline.ok) {
+      return { ok: false as const, message: deadline.message };
     }
 
-    if (deadlineDate < startDate) {
+    deadlineDate = deadline.value;
+
+    if (deadlineDate < startDate.value) {
       return { ok: false as const, message: "Deadline cannot be before start date." };
     }
   } else {
@@ -181,7 +189,7 @@ export function validateProjectInput(input: ProjectInput) {
     title,
     objective: description.slice(0, 500),
     importanceReason: description,
-    startDate,
+    startDate: startDate.value,
     deadlineDate,
     expectedDurationDays,
   };
@@ -190,7 +198,6 @@ export function validateProjectInput(input: ProjectInput) {
 export function validateMilestoneInput(input: MilestoneInput) {
   const title = input.title.trim();
   const objective = input.objective.trim();
-  const startDate = input.startDate.trim();
   let deadlineDate: string | null = null;
   let expectedDurationDays: number | null = null;
 
@@ -202,24 +209,30 @@ export function validateMilestoneInput(input: MilestoneInput) {
     return { ok: false as const, message: "Milestone objective must be 500 characters or fewer." };
   }
 
-  if (!validateDate(startDate)) {
-    return {
-      ok: false as const,
-      message: "Start date must be a real date in YYYY-MM-DD format.",
-    };
+  const startDate = validateRequiredProjectDate({
+    value: input.startDate,
+    missingMessage: "Select a start date.",
+    invalidMessage: "Start date must be a real date in YYYY-MM-DD format.",
+  });
+
+  if (!startDate.ok) {
+    return { ok: false as const, message: startDate.message };
   }
 
   if (input.timelineType === "deadline") {
-    deadlineDate = input.deadlineDate.trim();
+    const deadline = validateRequiredProjectDate({
+      value: input.deadlineDate,
+      missingMessage: "Select a deadline date.",
+      invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
+    });
 
-    if (!deadlineDate || !validateDate(deadlineDate)) {
-      return {
-        ok: false as const,
-        message: "Deadline date must be a real date in YYYY-MM-DD format.",
-      };
+    if (!deadline.ok) {
+      return { ok: false as const, message: deadline.message };
     }
 
-    if (deadlineDate < startDate) {
+    deadlineDate = deadline.value;
+
+    if (deadlineDate < startDate.value) {
       return { ok: false as const, message: "Deadline cannot be before start date." };
     }
   } else {
@@ -234,7 +247,7 @@ export function validateMilestoneInput(input: MilestoneInput) {
     ok: true as const,
     title,
     objective,
-    startDate,
+    startDate: startDate.value,
     deadlineDate,
     expectedDurationDays,
   };

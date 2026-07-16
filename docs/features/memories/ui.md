@@ -194,6 +194,23 @@ Refresh behavior:
 - If refresh fails, keep the page open and show the backend message through the
   shared notification stack.
 
+## Deferred Memory Pinning Follow-Up
+
+This follow-up is planned after the `v0.5.1` hotfix and should not be fixed in
+that hotfix.
+
+- The Memories page should manage pinned and unpinned memories in one panel so
+  pin state is visible and editable from the main memory-management surface.
+- This should support unpinning from the Memories page. The current UI cannot
+  unpin memories from that page, which is a known bug deferred to `v0.6.0`.
+- Pin and unpin actions in that panel should use the same icon-only outline
+  button style as memory suggestions and project pin actions.
+- The dashboard `Pinned Memories` panel should later remove the single-memory
+  `Replace` / `RefreshCw` action so pinned-memory rows match other dashboard
+  checkbox rows more closely.
+- The dashboard should remain a lightweight daily surface; detailed pin/unpin
+  management belongs on the Memories page.
+
 ## Memory Management
 
 Memory management is part of the Memories page.

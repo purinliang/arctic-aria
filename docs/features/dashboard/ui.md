@@ -61,7 +61,7 @@ Header:
 
 - icon: `Check`
 - title: `Today's tasks to move projects forward`
-- metadata: number of recommended tasks
+- no header count metadata
 
 Task row layout:
 

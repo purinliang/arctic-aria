@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { projectDatabaseErrorMessage } from "../project-database-errors.ts";
-import { isValidProjectDate } from "../project-date-validation.ts";
+import {
+  isValidProjectDate,
+  validateRequiredProjectDate,
+} from "../project-date-validation.ts";
 
 test("project database errors explain missing project migrations", () => {
   const message = projectDatabaseErrorMessage({
@@ -27,6 +30,48 @@ test("project date validation rejects impossible calendar dates", () => {
   assert.equal(isValidProjectDate("2026-02-29"), false);
   assert.equal(isValidProjectDate("2028-02-29"), true);
   assert.equal(isValidProjectDate("2026-08-04"), true);
+});
+
+test("required project date validation asks the user to select empty dates", () => {
+  assert.deepEqual(
+    validateRequiredProjectDate({
+      value: "",
+      missingMessage: "Select a deadline date.",
+      invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
+    }),
+    {
+      ok: false,
+      message: "Select a deadline date.",
+    },
+  );
+});
+
+test("required project date validation explains malformed dates", () => {
+  assert.deepEqual(
+    validateRequiredProjectDate({
+      value: "2026-08-48",
+      missingMessage: "Select a deadline date.",
+      invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
+    }),
+    {
+      ok: false,
+      message: "Deadline date must be a real date in YYYY-MM-DD format.",
+    },
+  );
+});
+
+test("required project date validation returns trimmed valid dates", () => {
+  assert.deepEqual(
+    validateRequiredProjectDate({
+      value: " 2026-08-16 ",
+      missingMessage: "Select a deadline date.",
+      invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
+    }),
+    {
+      ok: true,
+      value: "2026-08-16",
+    },
+  );
 });
 
 test("project database date errors show a date-specific message", () => {

@@ -1,5 +1,10 @@
-import type { DatabaseVersionStatus } from "./app-metadata";
+import {
+  shouldShowDatabaseVersion,
+  shouldShowExpectedDatabaseVersion,
+  type DatabaseVersionStatus,
+} from "./app-metadata";
 import { DescriptionText, LabelText, SupportingText } from "./text";
+import type { ReactNode } from "react";
 
 export function VersionStatusSupport({
   darkMode,
@@ -13,15 +18,12 @@ export function VersionStatusSupport({
       <SupportingText darkMode={darkMode}>
         App Version: {status.appVersionText}
       </SupportingText>
-      <SupportingText darkMode={darkMode}>
-        Database Version: {status.actualDatabaseVersionText}
-        {status.aligned ? null : (
-          <span className={versionMismatchClass(darkMode)}>
-            {" "}
-            ({status.message})
-          </span>
-        )}
-      </SupportingText>
+      {shouldShowDatabaseVersion(status) ? (
+        <SupportingText darkMode={darkMode}>
+          Database Version: {status.actualDatabaseVersionText}
+          <DatabaseVersionMessage darkMode={darkMode} status={status} />
+        </SupportingText>
+      ) : null}
     </div>
   );
 }
@@ -40,12 +42,16 @@ export function VersionStatusRows({
         label="App Version"
         value={status.appVersionText}
       />
-      <VersionRow
-        darkMode={darkMode}
-        label="Database Version"
-        value={status.actualDatabaseVersionText}
-        message={status.aligned ? "" : status.message}
-      />
+      {shouldShowDatabaseVersion(status) ? (
+        <VersionRow
+          darkMode={darkMode}
+          label="Database Version"
+          value={status.actualDatabaseVersionText}
+          message={
+            <DatabaseVersionMessage darkMode={darkMode} status={status} />
+          }
+        />
+      ) : null}
     </div>
   );
 }
@@ -54,23 +60,43 @@ function VersionRow({
   darkMode,
   label,
   value,
-  message = "",
+  message = null,
 }: {
   darkMode: boolean;
   label: string;
   value: string;
-  message?: string;
+  message?: ReactNode;
 }) {
   return (
     <div>
       <LabelText darkMode={darkMode}>{label}</LabelText>
       <DescriptionText darkMode={darkMode} className="mt-1 tabular-nums">
         {value}
-        {message ? (
-          <span className={versionMismatchClass(darkMode)}> ({message})</span>
-        ) : null}
+        {message}
       </DescriptionText>
     </div>
+  );
+}
+
+function DatabaseVersionMessage({
+  darkMode,
+  status,
+}: {
+  darkMode: boolean;
+  status: DatabaseVersionStatus;
+}) {
+  if (!status.aligned) {
+    return (
+      <span className={versionMismatchClass(darkMode)}> ({status.message})</span>
+    );
+  }
+
+  if (!shouldShowExpectedDatabaseVersion(status)) {
+    return null;
+  }
+
+  return (
+    <span> (expected {status.expectedDatabaseVersionText})</span>
   );
 }
 

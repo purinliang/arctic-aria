@@ -30,7 +30,6 @@ export function RoutinesPanel({
       <CardHeader
         icon={<Bell size={18} aria-hidden="true" />}
         title="Routines"
-        meta={`${routines.length} scheduled`}
         darkMode={darkMode}
       />
       <List darkMode={darkMode}>

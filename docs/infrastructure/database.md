@@ -62,7 +62,8 @@ The user-facing app version is controlled automatically:
 - `develop` builds derive labels such as `v0.5.0-dev`
 - feature and fix branches derive labels such as
   `v0.5.0-fix-app-metadata-display`
-- the commit hash is appended separately in the UI
+- non-release branch builds append the commit hash in the UI; exact release
+  tags do not
 
 If production cannot access Git tags, set `APP_VERSION` during the deployment
 build. Do not manually set the generated `NEXT_PUBLIC_*` metadata variables
