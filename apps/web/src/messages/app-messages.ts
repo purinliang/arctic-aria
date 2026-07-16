@@ -1,9 +1,35 @@
 import type { SupportedLanguage } from "./languages";
+import {
+  englishDashboardMessages,
+  simplifiedChineseDashboardMessages,
+} from "./dashboard-messages";
+import {
+  englishFormMessages,
+  simplifiedChineseFormMessages,
+} from "./form-messages";
+import {
+  englishMemoryMessages,
+  simplifiedChineseMemoryMessages,
+} from "./memory-messages";
+import {
+  englishProjectMessages,
+  simplifiedChineseProjectMessages,
+} from "./project-messages";
+import {
+  englishRoutineMessages,
+  simplifiedChineseRoutineMessages,
+} from "./routine-messages";
 
 export type AppMessages = typeof englishMessages;
 export type AppShellMessages = AppMessages["appShell"];
 export type AuthMessages = AppMessages["auth"];
+export type DashboardMessages = AppMessages["dashboard"];
+export type FormMessages = AppMessages["forms"];
+export type MemoryMessages = AppMessages["memories"];
+export type ProjectMessages = AppMessages["projects"];
+export type RoutineMessages = AppMessages["routines"];
 export type SettingsMessages = AppMessages["settings"];
+export type NotificationMessages = AppMessages["notifications"];
 export type VersionStatusMessages = AppMessages["versionStatus"];
 
 const englishMessages = {
@@ -12,7 +38,7 @@ const englishMessages = {
     closeNavigationOverlay: "Close navigation overlay",
     openNavigation: "Open navigation",
     pages: {
-      dashboard: "Dashboard",
+      dashboard: "Today",
       memories: "Memories",
       projects: "Projects",
       routines: "Routines",
@@ -66,6 +92,13 @@ const englishMessages = {
       signInFailed: "Sign in failed",
       signUpFailed: "Sign up failed",
     },
+    results: {
+      auth_account_created: "Account created. Opening dashboard...",
+      auth_signed_in: "Signed in. Opening dashboard...",
+      auth_validation_failed: "Please fix the highlighted fields.",
+      auth_username_taken: "Username is already taken.",
+      auth_invalid_credentials: "Invalid username or password.",
+    },
     themeToggle: {
       dark: "Dark",
       light: "Light",
@@ -79,6 +112,7 @@ const englishMessages = {
       simplifiedChinese: "简体中文",
       system: "Use system setting",
     },
+    languageSupport: "Some translations are incomplete and machine translated.",
     themeLabel: "Theme",
     themeOptions: {
       dark: "Dark",
@@ -87,10 +121,24 @@ const englishMessages = {
     },
     title: "Settings",
   },
+  notifications: {
+    actionFailed: "Action failed",
+    notAvailableYet: "Not available yet",
+    done: "Done",
+    dismiss: "Dismiss notification",
+  },
+  dashboard: englishDashboardMessages,
+  forms: englishFormMessages,
+  memories: englishMemoryMessages,
+  projects: englishProjectMessages,
+  routines: englishRoutineMessages,
   versionStatus: {
     appVersion: "App Version",
     databaseVersion: "Database Version",
     expected: "expected",
+    checking: "Checking...",
+    unavailable: "Unavailable",
+    databaseUnavailable: "Database version unavailable.",
   },
 };
 
@@ -100,10 +148,10 @@ const simplifiedChineseMessages: AppMessages = {
     closeNavigationOverlay: "关闭导航遮罩",
     openNavigation: "打开导航",
     pages: {
-      dashboard: "仪表盘",
+      dashboard: "今日",
       memories: "回忆",
       projects: "项目",
-      routines: "例行事项",
+      routines: "日常",
       settings: "设置",
     },
     sidebar: {
@@ -153,6 +201,13 @@ const simplifiedChineseMessages: AppMessages = {
       signInFailed: "登录失败",
       signUpFailed: "注册失败",
     },
+    results: {
+      auth_account_created: "账户已创建。正在打开今日页面...",
+      auth_signed_in: "已登录。正在打开今日页面...",
+      auth_validation_failed: "请修正标出的字段。",
+      auth_username_taken: "用户名已被使用。",
+      auth_invalid_credentials: "用户名或密码无效。",
+    },
     themeToggle: {
       dark: "深色",
       light: "浅色",
@@ -166,6 +221,7 @@ const simplifiedChineseMessages: AppMessages = {
       simplifiedChinese: "简体中文",
       system: "使用系统设置",
     },
+    languageSupport: "部分翻译尚未完成，且由机器翻译。",
     themeLabel: "主题",
     themeOptions: {
       dark: "深色",
@@ -174,10 +230,24 @@ const simplifiedChineseMessages: AppMessages = {
     },
     title: "设置",
   },
+  notifications: {
+    actionFailed: "操作失败",
+    notAvailableYet: "暂不可用",
+    done: "完成",
+    dismiss: "关闭通知",
+  },
+  dashboard: simplifiedChineseDashboardMessages,
+  forms: simplifiedChineseFormMessages,
+  memories: simplifiedChineseMemoryMessages,
+  projects: simplifiedChineseProjectMessages,
+  routines: simplifiedChineseRoutineMessages,
   versionStatus: {
     appVersion: "应用版本",
     databaseVersion: "数据库版本",
     expected: "预期",
+    checking: "正在检查...",
+    unavailable: "不可用",
+    databaseUnavailable: "数据库版本不可用。",
   },
 };
 

@@ -53,6 +53,7 @@ export type MemoryActionResult<T> =
   | {
       ok: false;
       message: string;
+      code?: string;
     };
 
 const dateFormatter = new Intl.DateTimeFormat("en", {
@@ -64,6 +65,7 @@ export function unauthorizedResult<T>(): MemoryActionResult<T> {
   return {
     ok: false,
     message: "Please sign in again.",
+    code: "auth_required",
   };
 }
 
@@ -102,6 +104,7 @@ export function validateCategoryInput(input: MemoryCategoryInput) {
     return {
       ok: false as const,
       message: "Category name must be 1-40 characters.",
+      code: "memory_category_name_invalid",
     };
   }
 
@@ -109,6 +112,7 @@ export function validateCategoryInput(input: MemoryCategoryInput) {
     return {
       ok: false as const,
       message: "Base weight must be greater than 0.",
+      code: "memory_category_weight_invalid",
     };
   }
 
@@ -116,6 +120,7 @@ export function validateCategoryInput(input: MemoryCategoryInput) {
     return {
       ok: false as const,
       message: "Category description must be 500 characters or fewer.",
+      code: "memory_category_description_invalid",
     };
   }
 
@@ -127,13 +132,18 @@ export function validateMemoryInput(input: MemoryInput) {
   const description = input.description.trim();
 
   if (!hasMemoryCategorySelection(input)) {
-    return { ok: false as const, message: "Choose a category." };
+    return {
+      ok: false as const,
+      message: "Choose a category.",
+      code: "memory_category_missing",
+    };
   }
 
   if (title.length < 1 || title.length > 120) {
     return {
       ok: false as const,
       message: "Memory title must be 1-120 characters.",
+      code: "memory_title_invalid",
     };
   }
 
@@ -141,6 +151,7 @@ export function validateMemoryInput(input: MemoryInput) {
     return {
       ok: false as const,
       message: "Memory description must be 2000 characters or fewer.",
+      code: "memory_description_invalid",
     };
   }
 
@@ -172,6 +183,24 @@ export function databaseMessage(error: unknown) {
   return "Database update failed.";
 }
 
+export function databaseCode(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return "memory_database_update_failed";
+  }
+
+  const candidate = error as { code?: unknown };
+
+  if (candidate.code === "23505") {
+    return "memory_category_duplicate";
+  }
+
+  if (candidate.code === "23503") {
+    return "memory_category_in_use";
+  }
+
+  return "memory_database_update_failed";
+}
+
 export function toMemorySuggestion(
   memory: MemorySuggestionRecord,
 ): MemorySuggestion {
@@ -180,6 +209,7 @@ export function toMemorySuggestion(
     category: memory.categoryName,
     title: memory.title,
     description: memory.description,
+    lastDoneDate: dateKey(memory.lastDoneAt),
     lastDoneText: formatLastDone(memory),
     doneCount: memory.doneCount,
   };
@@ -205,6 +235,7 @@ function toPinnedMemory(memory: DashboardPinnedMemory): PinnedMemory {
     meta: memory.completedAt
       ? "Completed; cleanup is pending"
       : `Visible until ${formatDate(memory.visibleUntil)}`,
+    visibleUntilDate: dateKey(memory.visibleUntil),
     position: memory.position,
     status: memory.status,
   };
@@ -220,8 +251,13 @@ function toMemoryRecord(
     category: memory.categoryName,
     title: memory.title,
     description: memory.description,
+    lastDoneDate: dateKey(memory.lastDoneAt),
     lastDoneText: formatLastDone(memory),
     doneCount: memory.doneCount,
     pinned: pinnedMemoryIds.has(memory.id),
   };
+}
+
+function dateKey(date: Date | null) {
+  return date ? date.toISOString().slice(0, 10) : "";
 }

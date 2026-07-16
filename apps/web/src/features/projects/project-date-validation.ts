@@ -6,6 +6,7 @@ export type ProjectDateValidationResult =
   | {
       ok: false;
       message: string;
+      code: string;
     };
 
 export function isValidProjectDate(value: string) {
@@ -22,19 +23,23 @@ export function validateRequiredProjectDate({
   value,
   missingMessage,
   invalidMessage,
+  missingCode,
+  invalidCode,
 }: {
   value: string;
   missingMessage: string;
   invalidMessage: string;
+  missingCode: string;
+  invalidCode: string;
 }): ProjectDateValidationResult {
   const date = value.trim();
 
   if (!date) {
-    return { ok: false, message: missingMessage };
+    return { ok: false, message: missingMessage, code: missingCode };
   }
 
   if (!isValidProjectDate(date)) {
-    return { ok: false, message: invalidMessage };
+    return { ok: false, message: invalidMessage, code: invalidCode };
   }
 
   return { ok: true, value: date };

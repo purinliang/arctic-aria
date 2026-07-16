@@ -19,6 +19,7 @@ import { DescriptionText, LabelText, SupportingText } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryCategoryInput } from "@/features/memories/actions";
+import type { MemoryMessages } from "@/messages/app-messages";
 import {
   categoryPeriodFromWeight,
   categoryPeriodWeights,
@@ -31,6 +32,7 @@ export function CategoryManagerDialog({
   categories,
   categoryDraft,
   categoryFormOpen,
+  messages,
   setCategoryDraft,
   onCloseEditor,
   onCloseForm,
@@ -44,6 +46,7 @@ export function CategoryManagerDialog({
   categories: MemoryCategoryOption[];
   categoryDraft: MemoryCategoryInput;
   categoryFormOpen: boolean;
+  messages: MemoryMessages["categories"];
   setCategoryDraft: Dispatch<SetStateAction<MemoryCategoryInput>>;
   onCloseEditor: () => void;
   onCloseForm: () => void;
@@ -56,7 +59,7 @@ export function CategoryManagerDialog({
     <>
       <DialogOverlay>
         <DialogBackdrop
-          label="Close category editor"
+          label={messages.closeEditor}
           onClick={onCloseEditor}
         />
         <DialogFrame darkMode={darkMode} padding="none">
@@ -66,7 +69,7 @@ export function CategoryManagerDialog({
               headerSurfaceClass(darkMode),
             )}
           >
-            <h3 className="text-base font-semibold">Manage Categories</h3>
+            <h3 className="text-base font-semibold">{messages.manageTitle}</h3>
             <div className="flex shrink-0 items-center gap-2">
               <Button
                 darkMode={darkMode}
@@ -74,13 +77,13 @@ export function CategoryManagerDialog({
                 icon={<Plus size={14} aria-hidden="true" />}
                 onClick={onOpenNew}
               >
-                New
+                {messages.new}
               </Button>
               <Button
                 darkMode={darkMode}
                 tone="ghost"
                 size="icon-sm"
-                aria-label="Close category editor"
+                aria-label={messages.closeEditor}
                 icon={<X size={16} aria-hidden="true" />}
                 onClick={onCloseEditor}
               />
@@ -99,10 +102,13 @@ export function CategoryManagerDialog({
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{category.name}</p>
                   <DescriptionText darkMode={darkMode} className="mt-1">
-                    {category.description || "No description."}
+                    {category.description || messages.noDescription}
                   </DescriptionText>
                   <SupportingText darkMode={darkMode} className="mt-2 block">
-                    {categoryPeriodFromWeight(category.baseWeight)}
+                    {categoryPeriodLabel(
+                      categoryPeriodFromWeight(category.baseWeight),
+                      messages,
+                    )}
                   </SupportingText>
                 </div>
                 <Button
@@ -111,7 +117,7 @@ export function CategoryManagerDialog({
                   icon={<Edit3 size={15} aria-hidden="true" />}
                   onClick={() => onOpenEdit(category)}
                 >
-                  Edit
+                  {messages.edit}
                 </Button>
               </ListItem>
             ))}
@@ -124,6 +130,7 @@ export function CategoryManagerDialog({
           darkMode={darkMode}
           pending={pending}
           categoryDraft={categoryDraft}
+          messages={messages}
           setCategoryDraft={setCategoryDraft}
           onClose={onCloseForm}
           onSubmit={onSubmit}
@@ -148,6 +155,7 @@ function CategoryFormDialog({
   darkMode,
   pending,
   categoryDraft,
+  messages,
   setCategoryDraft,
   onClose,
   onSubmit,
@@ -156,6 +164,7 @@ function CategoryFormDialog({
   darkMode: boolean;
   pending: boolean;
   categoryDraft: MemoryCategoryInput;
+  messages: MemoryMessages["categories"];
   setCategoryDraft: Dispatch<SetStateAction<MemoryCategoryInput>>;
   onClose: () => void;
   onSubmit: () => void;
@@ -163,7 +172,7 @@ function CategoryFormDialog({
 }) {
   return (
     <DialogOverlay zIndex="z-[60]">
-      <DialogBackdrop label="Close category form" onClick={onClose} />
+      <DialogBackdrop label={messages.closeForm} onClick={onClose} />
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -173,17 +182,17 @@ function CategoryFormDialog({
         <DialogFrame darkMode={darkMode}>
           <DialogHeader
             darkMode={darkMode}
-            title={categoryDraft.id ? "Edit category" : "Add category"}
-            closeLabel="Close category form"
+            title={categoryDraft.id ? messages.editTitle : messages.add}
+            closeLabel={messages.closeForm}
             onClose={onClose}
           />
           <div className="grid gap-3">
-            <FieldLabel darkMode={darkMode} label="Category name">
+            <FieldLabel darkMode={darkMode} label={messages.name}>
               <TextInput
                 darkMode={darkMode}
                 value={categoryDraft.name}
                 maxLength={40}
-                placeholder="Category name"
+                placeholder={messages.namePlaceholder}
                 disabled={pending}
                 onChange={(event) =>
                   setCategoryDraft((current) => ({
@@ -193,14 +202,14 @@ function CategoryFormDialog({
                 }
               />
             </FieldLabel>
-            <FieldLabel darkMode={darkMode} label="Description" optional>
+            <FieldLabel darkMode={darkMode} label={messages.description} optional>
               <TextArea
                 darkMode={darkMode}
                 className="min-h-20"
                 value={categoryDraft.description}
                 maxLength={500}
                 disabled={pending}
-                placeholder="When should this category be suggested?"
+                placeholder={messages.descriptionPlaceholder}
                 onChange={(event) =>
                   setCategoryDraft((current) => ({
                     ...current,
@@ -213,6 +222,7 @@ function CategoryFormDialog({
               darkMode={darkMode}
               pending={pending}
               value={categoryPeriodFromWeight(categoryDraft.baseWeight)}
+              messages={messages}
               onChange={(period) =>
                 setCategoryDraft((current) => ({
                   ...current,
@@ -235,7 +245,7 @@ function CategoryFormDialog({
                 />
               }
             >
-              Save
+              {messages.save}
             </DialogPrimaryButton>
             {onDelete ? (
               <Button
@@ -245,7 +255,7 @@ function CategoryFormDialog({
                 icon={<Trash2 size={14} aria-hidden="true" />}
                 onClick={onDelete}
               >
-                Delete
+                {messages.delete}
               </Button>
             ) : null}
           </DialogActionRow>
@@ -259,26 +269,35 @@ function CategoryPeriodField({
   darkMode,
   pending,
   value,
+  messages,
   onChange,
 }: {
   darkMode: boolean;
   pending: boolean;
   value: CategoryPeriod;
+  messages: MemoryMessages["categories"];
   onChange: (period: CategoryPeriod) => void;
 }) {
   return (
     <div className="grid gap-1.5">
-      <LabelText darkMode={darkMode}>Suggestion period</LabelText>
+      <LabelText darkMode={darkMode}>{messages.suggestionPeriod}</LabelText>
       <SingleChoiceGroup
         darkMode={darkMode}
         disabled={pending}
         value={value}
         options={(["Weekly", "Monthly"] as CategoryPeriod[]).map((period) => ({
           value: period,
-          label: period,
+          label: categoryPeriodLabel(period, messages),
         }))}
         onChange={(nextValue) => onChange(nextValue as CategoryPeriod)}
       />
     </div>
   );
+}
+
+function categoryPeriodLabel(
+  period: CategoryPeriod,
+  messages: MemoryMessages["categories"],
+) {
+  return period === "Weekly" ? messages.weekly : messages.monthly;
 }

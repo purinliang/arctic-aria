@@ -8,6 +8,8 @@ import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { MemorySuggestion } from "@/features/dashboard/types";
+import type { MemoryMessages } from "@/messages/app-messages";
+import type { DatePickerMessages } from "@/messages/form-messages";
 
 type SuggestionResult = Promise<boolean>;
 
@@ -18,6 +20,8 @@ export function SuggestionsPanel({
   suggestionsRequested,
   pinnedSuggestionIds,
   pendingSuggestionIds,
+  messages,
+  dateMessages,
   onSuggestionsRefresh,
   onSuggestionPin,
   onSuggestionCancel,
@@ -28,6 +32,8 @@ export function SuggestionsPanel({
   suggestionsRequested: boolean;
   pinnedSuggestionIds: string[];
   pendingSuggestionIds: string[];
+  messages: MemoryMessages["suggestions"];
+  dateMessages: DatePickerMessages;
   onSuggestionsRefresh: () => Promise<void>;
   onSuggestionPin: (memoryId: string) => SuggestionResult;
   onSuggestionCancel: (memoryId: string) => SuggestionResult;
@@ -37,8 +43,8 @@ export function SuggestionsPanel({
       <CardHeader
         darkMode={darkMode}
         icon={<Lightbulb size={17} aria-hidden="true" />}
-        title="Suggestions"
-        description="To reexperience in a few days."
+        title={messages.title}
+        description={messages.description}
         action={
           <Button
             darkMode={darkMode}
@@ -56,7 +62,7 @@ export function SuggestionsPanel({
             }
             onClick={() => void onSuggestionsRefresh()}
           >
-            Refresh
+            {messages.refresh}
           </Button>
         }
       />
@@ -65,18 +71,18 @@ export function SuggestionsPanel({
         {!suggestionsRequested && !suggestionLoading ? (
           <EmptyLine
             darkMode={darkMode}
-            text="Click Refresh to load suggestions."
+            text={messages.initial}
           />
         ) : null}
         {suggestionLoading ? (
-          <LoadingLine darkMode={darkMode} text="Loading suggestions..." />
+          <LoadingLine darkMode={darkMode} text={messages.loading} />
         ) : null}
         {suggestionsRequested &&
         !suggestionLoading &&
         suggestions.length === 0 ? (
           <EmptyLine
             darkMode={darkMode}
-            text="No suggestions available. Add more memories or unpin existing ones."
+            text={messages.empty}
           />
         ) : null}
         {suggestions.map((suggestion) => (
@@ -86,6 +92,8 @@ export function SuggestionsPanel({
             darkMode={darkMode}
             pending={pendingSuggestionIds.includes(suggestion.id)}
             pinned={pinnedSuggestionIds.includes(suggestion.id)}
+            messages={messages}
+            dateMessages={dateMessages}
             onPin={() => void onSuggestionPin(suggestion.id)}
             onCancel={() => void onSuggestionCancel(suggestion.id)}
           />
@@ -101,6 +109,8 @@ function SuggestionRow({
   darkMode,
   pending,
   pinned,
+  messages,
+  dateMessages,
   onPin,
   onCancel,
 }: {
@@ -108,13 +118,15 @@ function SuggestionRow({
   darkMode: boolean;
   pending: boolean;
   pinned: boolean;
+  messages: MemoryMessages["suggestions"];
+  dateMessages: DatePickerMessages;
   onPin: () => void;
   onCancel: () => void;
 }) {
   const metadata = [
     suggestion.category,
-    suggestion.lastDoneText,
-    `Done ${suggestion.doneCount} times`,
+    lastDoneText(suggestion, messages, dateMessages),
+    messages.doneTimes(suggestion.doneCount),
   ].join(" · ");
 
   return (
@@ -136,7 +148,7 @@ function SuggestionRow({
           size="icon-sm"
           className="rounded-full"
           disabled={pending}
-          aria-label={pinned ? "Cancel pin" : "Pin suggestion"}
+          aria-label={pinned ? messages.cancelPin : messages.pin}
           icon={
             pending ? (
               <LoaderCircle
@@ -155,6 +167,34 @@ function SuggestionRow({
       </div>
     </ListItem>
   );
+}
+
+function lastDoneText(
+  suggestion: MemorySuggestion,
+  messages: MemoryMessages["suggestions"],
+  dateMessages: DatePickerMessages,
+) {
+  if (!suggestion.lastDoneDate) {
+    return messages.neverDone;
+  }
+
+  return messages.lastDone(
+    formatDate(suggestion.lastDoneDate, dateMessages, suggestion.lastDoneText),
+  );
+}
+
+function formatDate(
+  value: string,
+  messages: DatePickerMessages,
+  fallback: string,
+) {
+  const [year, month, day] = value.split("-").map(Number);
+
+  if (!year || !month || !day) {
+    return fallback;
+  }
+
+  return messages.dateValue(messages.shortMonthNames[month - 1], day, year);
 }
 
 function EmptyLine({ darkMode, text }: { darkMode: boolean; text: string }) {

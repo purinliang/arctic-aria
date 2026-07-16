@@ -9,12 +9,16 @@ import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { PinnedMemory } from "@/features/dashboard/types";
+import type { DashboardMessages } from "@/messages/app-messages";
+import type { DatePickerMessages } from "@/messages/form-messages";
 
 export function PinnedMemoriesPanel({
   darkMode,
   pinnedMemories,
   loading,
   disabled,
+  messages,
+  dateMessages,
   onDone,
   onCancelDone,
   onReplace,
@@ -24,6 +28,8 @@ export function PinnedMemoriesPanel({
   pinnedMemories: PinnedMemory[];
   loading: boolean;
   disabled: boolean;
+  messages: DashboardMessages["pinnedMemories"];
+  dateMessages: DatePickerMessages;
   onDone: (pinnedMemoryId: string) => void;
   onCancelDone: (pinnedMemoryId: string) => void;
   onReplace: (pinnedMemoryId: string) => void;
@@ -33,15 +39,15 @@ export function PinnedMemoriesPanel({
     <Panel darkMode={darkMode}>
       <CardHeader
         icon={<Album size={18} aria-hidden="true" />}
-        title="Pinned Memories"
+        title={messages.title}
         darkMode={darkMode}
       />
       <List darkMode={darkMode}>
         {loading ? (
-          <LoadingLine darkMode={darkMode} text="Loading pinned memories..." />
+          <LoadingLine darkMode={darkMode} text={messages.loading} />
         ) : null}
         {!loading && pinnedMemories.length === 0 ? (
-          <EmptyLine darkMode={darkMode} text="No pinned memories yet." />
+          <EmptyLine darkMode={darkMode} text={messages.empty} />
         ) : null}
         {pinnedMemories.map((memory) => (
           <PinnedMemoryRow
@@ -49,6 +55,8 @@ export function PinnedMemoriesPanel({
             memory={memory}
             darkMode={darkMode}
             disabled={disabled}
+            messages={messages}
+            dateMessages={dateMessages}
             onDone={() => onDone(memory.id)}
             onCancelDone={() => onCancelDone(memory.id)}
             onReplace={() => onReplace(memory.id)}
@@ -65,6 +73,8 @@ function PinnedMemoryRow({
   memory,
   darkMode,
   disabled,
+  messages,
+  dateMessages,
   onDone,
   onCancelDone,
   onReplace,
@@ -73,6 +83,8 @@ function PinnedMemoryRow({
   memory: PinnedMemory;
   darkMode: boolean;
   disabled: boolean;
+  messages: DashboardMessages["pinnedMemories"];
+  dateMessages: DatePickerMessages;
   onDone: () => void;
   onCancelDone: () => void;
   onReplace: () => void;
@@ -90,8 +102,8 @@ function PinnedMemoryRow({
           disabled={disabled}
           aria-label={
             completed
-              ? `Cancel completion for ${memory.title}`
-              : `Mark ${memory.title} done`
+              ? messages.cancelDone(memory.title)
+              : messages.markDone(memory.title)
           }
           onChange={(event) =>
             event.target.checked ? onDone() : onCancelDone()
@@ -104,7 +116,11 @@ function PinnedMemoryRow({
           </DescriptionText>
           <SupportingText darkMode={darkMode} className="mt-2 block">
             {memory.category} ·{" "}
-            {completed ? "Completed in this prototype" : memory.meta}
+            {completed
+              ? messages.completed
+              : messages.visibleUntil(
+                  formatDate(memory.visibleUntilDate, dateMessages, memory.meta),
+                )}
           </SupportingText>
         </div>
       </div>
@@ -113,7 +129,7 @@ function PinnedMemoryRow({
           darkMode={darkMode}
           size="icon-sm"
           disabled={disabled}
-          aria-label={`Replace ${memory.title}`}
+          aria-label={messages.replace(memory.title)}
           icon={<RefreshCw size={15} aria-hidden="true" />}
           onClick={onReplace}
         />
@@ -121,13 +137,27 @@ function PinnedMemoryRow({
           darkMode={darkMode}
           tone="ghost"
           size="icon-sm"
-          aria-label="Open memories"
+          aria-label={messages.open}
           icon={<ChevronRight size={16} aria-hidden="true" />}
           onClick={onOpen}
         />
       </div>
     </ListItem>
   );
+}
+
+function formatDate(
+  value: string,
+  messages: DatePickerMessages,
+  fallback: string,
+) {
+  const [year, month, day] = value.split("-").map(Number);
+
+  if (!year || !month || !day) {
+    return fallback;
+  }
+
+  return messages.dateValue(messages.shortMonthNames[month - 1], day, year);
 }
 
 function EmptyLine({ darkMode, text }: { darkMode: boolean; text: string }) {

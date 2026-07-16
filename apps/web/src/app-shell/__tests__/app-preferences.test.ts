@@ -26,12 +26,12 @@ test("browser language detection maps Chinese languages to zh-CN", () => {
   assert.equal(detectBrowserLanguage(undefined), "en");
 });
 
-test("language preference parsing falls back to system", () => {
+test("language preference parsing falls back to English", () => {
   assert.equal(readLanguagePreference("en"), "en");
   assert.equal(readLanguagePreference("zh-CN"), "zh-CN");
   assert.equal(readLanguagePreference("system"), "system");
-  assert.equal(readLanguagePreference("unknown"), "system");
-  assert.equal(readLanguagePreference(null), "system");
+  assert.equal(readLanguagePreference("unknown"), "en");
+  assert.equal(readLanguagePreference(null), "en");
 });
 
 test("language preference resolves against browser language", () => {

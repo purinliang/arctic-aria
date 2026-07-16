@@ -6,6 +6,7 @@ import { List, ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { RoutineDefinition } from "@/features/dashboard/types";
+import type { RoutineMessages } from "@/messages/app-messages";
 import { ruleSummary } from "./routine-page-helpers";
 
 export function RoutinesList({
@@ -13,22 +14,26 @@ export function RoutinesList({
   loading,
   pending,
   routines,
+  messages,
+  ruleMessages,
   onEdit,
 }: {
   darkMode: boolean;
   loading: boolean;
   pending: boolean;
   routines: RoutineDefinition[];
+  messages: RoutineMessages["page"];
+  ruleMessages: RoutineMessages;
   onEdit: (routine: RoutineDefinition) => void;
 }) {
   return (
     <List darkMode={darkMode}>
       {loading ? (
-        <LoadingLine darkMode={darkMode} text="Loading routines..." />
+        <LoadingLine darkMode={darkMode} text={messages.loading} />
       ) : null}
       {!loading && routines.length === 0 ? (
         <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
-          No routines yet.
+          {messages.empty}
         </p>
       ) : null}
       {routines.map((routine) => (
@@ -38,10 +43,11 @@ export function RoutinesList({
               <h3 className="text-sm font-semibold">{routine.title}</h3>
             </div>
             <DescriptionText darkMode={darkMode} className="mt-1">
-              {routine.description || "No description."}
+              {routine.description || messages.noDescription}
             </DescriptionText>
             <SupportingText darkMode={darkMode} className="mt-2 block">
-              {routine.preferredTime ?? "Flexible"} · {ruleSummary(routine)}
+              {routine.preferredTime ?? messages.flexible} ·{" "}
+              {ruleSummary(routine, ruleMessages)}
             </SupportingText>
           </div>
           <Button
@@ -50,7 +56,7 @@ export function RoutinesList({
             icon={<Edit3 size={15} aria-hidden="true" />}
             onClick={() => onEdit(routine)}
           >
-            Edit
+            {messages.edit}
           </Button>
         </ListItem>
       ))}

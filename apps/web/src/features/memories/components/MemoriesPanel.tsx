@@ -16,6 +16,8 @@ import {
   SupportingText,
 } from "@/components/text";
 import type { MemoryRecord } from "@/features/dashboard/types";
+import type { MemoryMessages } from "@/messages/app-messages";
+import type { DatePickerMessages } from "@/messages/form-messages";
 import type { MemoryFilter } from "./memory-page-helpers";
 
 export function MemoriesPanel({
@@ -25,6 +27,8 @@ export function MemoriesPanel({
   filter,
   filters,
   memories,
+  messages,
+  dateMessages,
   onAdd,
   onFilterChange,
   onManage,
@@ -36,6 +40,8 @@ export function MemoriesPanel({
   filter: MemoryFilter;
   filters: MemoryFilter[];
   memories: MemoryRecord[];
+  messages: MemoryMessages["panel"];
+  dateMessages: DatePickerMessages;
   onAdd: () => void;
   onFilterChange: (filter: MemoryFilter) => void;
   onManage: () => void;
@@ -46,8 +52,8 @@ export function MemoriesPanel({
       <CardHeader
         darkMode={darkMode}
         icon={<Album size={18} aria-hidden="true" />}
-        title="Memories"
-        description="Saved experiences to revisit when the day needs a gentle option."
+        title={messages.title}
+        description={messages.description}
         action={
           <Button
             darkMode={darkMode}
@@ -55,7 +61,7 @@ export function MemoriesPanel({
             icon={<Plus size={15} aria-hidden="true" />}
             onClick={onAdd}
           >
-            New
+            {messages.new}
           </Button>
         }
       />
@@ -63,13 +69,13 @@ export function MemoriesPanel({
       <div
         className={`flex flex-wrap items-center gap-2 border-b px-4 py-3 ${sectionBorderClass(darkMode)}`}
       >
-        <LabelText darkMode={darkMode}>Categories:</LabelText>
+        <LabelText darkMode={darkMode}>{messages.categories}</LabelText>
         <SingleChoiceGroup
           darkMode={darkMode}
           value={filter}
           options={filters.map((item) => ({
             value: item,
-            label: item,
+            label: item === "All" ? messages.all : item,
           }))}
           onChange={(value) => onFilterChange(value as MemoryFilter)}
         />
@@ -80,18 +86,18 @@ export function MemoriesPanel({
           icon={<Settings2 size={15} aria-hidden="true" />}
           onClick={onManage}
         >
-          Manage
+          {messages.manage}
         </Button>
       </div>
 
       <List darkMode={darkMode}>
         {loading ? (
-          <LoadingLine darkMode={darkMode} text="Loading memories..." />
+          <LoadingLine darkMode={darkMode} text={messages.loading} />
         ) : null}
         {!loading && memories.length === 0 ? (
           <EmptyLine
             darkMode={darkMode}
-            text="No memories found for this filter."
+            text={messages.empty}
           />
         ) : null}
         {memories.map((memory) => (
@@ -99,6 +105,8 @@ export function MemoriesPanel({
             key={memory.id}
             memory={memory}
             darkMode={darkMode}
+            messages={messages}
+            dateMessages={dateMessages}
             onEdit={() => onEditMemory(memory)}
           />
         ))}
@@ -111,17 +119,21 @@ export function MemoriesPanel({
 function MemoryRow({
   memory,
   darkMode,
+  messages,
+  dateMessages,
   onEdit,
 }: {
   memory: MemoryRecord;
   darkMode: boolean;
+  messages: MemoryMessages["panel"];
+  dateMessages: DatePickerMessages;
   onEdit: () => void;
 }) {
   const metadata = [
     memory.category,
-    memory.pinned ? "Pinned" : "",
-    memory.lastDoneText,
-    `Done ${memory.doneCount} times`,
+    memory.pinned ? messages.pinned : "",
+    lastDoneText(memory, messages, dateMessages),
+    messages.doneTimes(memory.doneCount),
   ]
     .filter(Boolean)
     .join(" · ");
@@ -145,10 +157,38 @@ function MemoryRow({
         icon={<Edit3 size={15} aria-hidden="true" />}
         onClick={onEdit}
       >
-        Edit
+        {messages.edit}
       </Button>
     </ListItem>
   );
+}
+
+function lastDoneText(
+  memory: MemoryRecord,
+  messages: MemoryMessages["panel"],
+  dateMessages: DatePickerMessages,
+) {
+  if (!memory.lastDoneDate) {
+    return messages.neverDone;
+  }
+
+  return messages.lastDone(
+    formatDate(memory.lastDoneDate, dateMessages, memory.lastDoneText),
+  );
+}
+
+function formatDate(
+  value: string,
+  messages: DatePickerMessages,
+  fallback: string,
+) {
+  const [year, month, day] = value.split("-").map(Number);
+
+  if (!year || !month || !day) {
+    return fallback;
+  }
+
+  return messages.dateValue(messages.shortMonthNames[month - 1], day, year);
 }
 
 function EmptyLine({ darkMode, text }: { darkMode: boolean; text: string }) {

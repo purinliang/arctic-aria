@@ -8,7 +8,7 @@ export function readLanguagePreference(value: string | null): LanguagePreference
     return value;
   }
 
-  return "system";
+  return defaultLanguage;
 }
 
 export function resolveLanguage(

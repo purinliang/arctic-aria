@@ -11,6 +11,9 @@ const defaultVersionStatusMessages: VersionStatusMessages = {
   appVersion: "App Version",
   databaseVersion: "Database Version",
   expected: "expected",
+  checking: "Checking...",
+  unavailable: "Unavailable",
+  databaseUnavailable: "Database version unavailable.",
 };
 
 export function VersionStatusSupport({

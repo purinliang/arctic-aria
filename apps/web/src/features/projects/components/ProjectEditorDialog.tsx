@@ -2,8 +2,6 @@
 import { LoaderCircle, Save, Trash2 } from "lucide-react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { Button } from "@/components/button";
-import { SingleChoiceGroup } from "@/components/forms/choice-group";
-import { DatePickerField } from "@/components/forms/date-picker-field";
 import {
   DialogActionRow,
   DialogBackdrop,
@@ -13,19 +11,25 @@ import {
   DialogPrimaryButton,
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
-import { SelectInput } from "@/components/forms/selection-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import type {
   MilestoneInput,
   ProjectInput,
 } from "@/features/projects/actions";
-import { projectDurationOptions } from "@/features/projects/project-duration";
+import type { FormMessages, ProjectMessages } from "@/messages/app-messages";
+import {
+  MilestoneTimelineFields,
+  ProjectTimelineFields,
+} from "./ProjectTimelineFields";
 
 export function ProjectEditorDialog({
   darkMode,
   pending,
   draft,
   setDraft,
+  messages,
+  durationMessages,
+  formMessages,
   onClose,
   onSubmit,
   onDelete,
@@ -34,6 +38,9 @@ export function ProjectEditorDialog({
   pending: boolean;
   draft: ProjectInput;
   setDraft: Dispatch<SetStateAction<ProjectInput>>;
+  messages: ProjectMessages["editor"];
+  durationMessages: ProjectMessages["duration"];
+  formMessages: FormMessages;
   onClose: () => void;
   onSubmit: () => void;
   onDelete?: () => void;
@@ -42,32 +49,33 @@ export function ProjectEditorDialog({
     <DialogShell
       darkMode={darkMode}
       pending={pending}
-      title={draft.id ? "Edit project" : "Add project"}
-      closeLabel="Close project editor"
+      title={draft.id ? messages.project.edit : messages.project.add}
+      closeLabel={messages.project.close}
+      messages={messages.common}
       onClose={onClose}
       onSubmit={onSubmit}
       onDelete={onDelete}
     >
-      <FieldLabel darkMode={darkMode} label="Title">
+      <FieldLabel darkMode={darkMode} label={messages.common.title}>
         <TextInput
           darkMode={darkMode}
           value={draft.title}
           maxLength={120}
           disabled={pending}
-          placeholder="Project title"
+          placeholder={messages.project.titlePlaceholder}
           onChange={(event) =>
             setDraft((current) => ({ ...current, title: event.target.value }))
           }
         />
       </FieldLabel>
-      <FieldLabel darkMode={darkMode} label="Description">
+      <FieldLabel darkMode={darkMode} label={messages.common.description}>
         <TextArea
           darkMode={darkMode}
           className="min-h-28"
           value={draft.description}
           maxLength={1000}
           disabled={pending}
-          placeholder="Describe the goal, context, and why it matters."
+          placeholder={messages.project.descriptionPlaceholder}
           onChange={(event) =>
             setDraft((current) => ({
               ...current,
@@ -76,11 +84,14 @@ export function ProjectEditorDialog({
           }
         />
       </FieldLabel>
-      <ProjectDateFields
+      <ProjectTimelineFields
         darkMode={darkMode}
         pending={pending}
         draft={draft}
         setDraft={setDraft}
+        messages={messages}
+        durationMessages={durationMessages}
+        formMessages={formMessages}
       />
     </DialogShell>
   );
@@ -91,6 +102,9 @@ export function MilestoneEditorDialog({
   pending,
   draft,
   setDraft,
+  messages,
+  durationMessages,
+  formMessages,
   onClose,
   onSubmit,
   onDelete,
@@ -99,6 +113,9 @@ export function MilestoneEditorDialog({
   pending: boolean;
   draft: MilestoneInput;
   setDraft: Dispatch<SetStateAction<MilestoneInput>>;
+  messages: ProjectMessages["editor"];
+  durationMessages: ProjectMessages["duration"];
+  formMessages: FormMessages;
   onClose: () => void;
   onSubmit: () => void;
   onDelete?: () => void;
@@ -107,25 +124,26 @@ export function MilestoneEditorDialog({
     <DialogShell
       darkMode={darkMode}
       pending={pending}
-      title={draft.id ? "Edit milestone" : "Add milestone"}
-      closeLabel="Close milestone editor"
+      title={draft.id ? messages.milestone.edit : messages.milestone.add}
+      closeLabel={messages.milestone.close}
+      messages={messages.common}
       onClose={onClose}
       onSubmit={onSubmit}
       onDelete={onDelete}
     >
-      <FieldLabel darkMode={darkMode} label="Title">
+      <FieldLabel darkMode={darkMode} label={messages.common.title}>
         <TextInput
           darkMode={darkMode}
           value={draft.title}
           maxLength={120}
           disabled={pending}
-          placeholder="Milestone title"
+          placeholder={messages.milestone.titlePlaceholder}
           onChange={(event) =>
             setDraft((current) => ({ ...current, title: event.target.value }))
           }
         />
       </FieldLabel>
-      <FieldLabel darkMode={darkMode} label="Objective" optional>
+      <FieldLabel darkMode={darkMode} label={messages.milestone.objective} optional>
         <TextArea
           darkMode={darkMode}
           className="min-h-20"
@@ -140,179 +158,16 @@ export function MilestoneEditorDialog({
           }
         />
       </FieldLabel>
-      <MilestoneDateFields
+      <MilestoneTimelineFields
         darkMode={darkMode}
         pending={pending}
         draft={draft}
         setDraft={setDraft}
+        messages={messages}
+        durationMessages={durationMessages}
+        formMessages={formMessages}
       />
     </DialogShell>
-  );
-}
-
-function ProjectDateFields({
-  darkMode,
-  pending,
-  draft,
-  setDraft,
-}: {
-  darkMode: boolean;
-  pending: boolean;
-  draft: ProjectInput;
-  setDraft: Dispatch<SetStateAction<ProjectInput>>;
-}) {
-  return (
-    <>
-      <div className="grid gap-1.5">
-        <span className="text-xs font-semibold">Timeline</span>
-        <SingleChoiceGroup
-          darkMode={darkMode}
-          disabled={pending}
-          value={draft.timelineType}
-          options={[
-            { value: "deadline", label: "Deadline" },
-            { value: "duration", label: "Duration" },
-          ]}
-          onChange={(timelineType) =>
-            setDraft((current) => ({
-              ...current,
-              timelineType: timelineType as ProjectInput["timelineType"],
-              deadlineDate:
-                timelineType === "duration" ? "" : current.deadlineDate,
-            }))
-          }
-        />
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <FieldLabel darkMode={darkMode} label="Start date">
-          <DatePickerField
-            darkMode={darkMode}
-            value={draft.startDate}
-            placeholder="Select start date"
-            disabled={pending}
-            onChange={(startDate) =>
-              setDraft((current) => ({
-                ...current,
-                startDate,
-              }))
-            }
-          />
-        </FieldLabel>
-        {draft.timelineType === "deadline" ? (
-          <FieldLabel darkMode={darkMode} label="Deadline">
-            <DatePickerField
-              darkMode={darkMode}
-              value={draft.deadlineDate}
-              placeholder="Select deadline"
-              disabled={pending}
-              onChange={(deadlineDate) =>
-                setDraft((current) => ({
-                  ...current,
-                  deadlineDate,
-                }))
-              }
-            />
-          </FieldLabel>
-        ) : (
-          <FieldLabel darkMode={darkMode} label="Duration">
-            <SelectInput
-              darkMode={darkMode}
-              value={draft.durationRange}
-              disabled={pending}
-              options={projectDurationOptions}
-              onChange={(durationRange) =>
-                setDraft((current) => ({
-                  ...current,
-                  durationRange: durationRange as ProjectInput["durationRange"],
-                }))
-              }
-            />
-          </FieldLabel>
-        )}
-      </div>
-    </>
-  );
-}
-
-function MilestoneDateFields({
-  darkMode,
-  pending,
-  draft,
-  setDraft,
-}: {
-  darkMode: boolean;
-  pending: boolean;
-  draft: MilestoneInput;
-  setDraft: Dispatch<SetStateAction<MilestoneInput>>;
-}) {
-  return (
-    <>
-      <div className="grid gap-1.5">
-        <span className="text-xs font-semibold">Timeline</span>
-        <SingleChoiceGroup
-          darkMode={darkMode}
-          disabled={pending}
-          value={draft.timelineType}
-          options={[
-            { value: "deadline", label: "Deadline" },
-            { value: "duration", label: "Duration" },
-          ]}
-          onChange={(timelineType) =>
-            setDraft((current) => ({
-              ...current,
-              timelineType: timelineType as MilestoneInput["timelineType"],
-              deadlineDate:
-                timelineType === "duration" ? "" : current.deadlineDate,
-            }))
-          }
-        />
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <FieldLabel darkMode={darkMode} label="Start date">
-          <DatePickerField
-            darkMode={darkMode}
-            value={draft.startDate}
-            placeholder="Select start date"
-            disabled={pending}
-            onChange={(startDate) =>
-              setDraft((current) => ({ ...current, startDate }))
-            }
-          />
-        </FieldLabel>
-        {draft.timelineType === "deadline" ? (
-          <FieldLabel darkMode={darkMode} label="Deadline">
-            <DatePickerField
-              darkMode={darkMode}
-              value={draft.deadlineDate}
-              placeholder="Select deadline"
-              disabled={pending}
-              onChange={(deadlineDate) =>
-                setDraft((current) => ({
-                  ...current,
-                  deadlineDate,
-                }))
-              }
-            />
-          </FieldLabel>
-        ) : (
-          <FieldLabel darkMode={darkMode} label="Duration">
-            <SelectInput
-              darkMode={darkMode}
-              value={draft.durationRange}
-              disabled={pending}
-              options={projectDurationOptions}
-              onChange={(durationRange) =>
-                setDraft((current) => ({
-                  ...current,
-                  durationRange:
-                    durationRange as MilestoneInput["durationRange"],
-                }))
-              }
-            />
-          </FieldLabel>
-        )}
-      </div>
-    </>
   );
 }
 
@@ -321,6 +176,7 @@ function DialogShell({
   pending,
   title,
   closeLabel,
+  messages,
   children,
   onClose,
   onSubmit,
@@ -330,6 +186,7 @@ function DialogShell({
   pending: boolean;
   title: string;
   closeLabel: string;
+  messages: ProjectMessages["editor"]["common"];
   children: ReactNode;
   onClose: () => void;
   onSubmit: () => void;
@@ -366,7 +223,7 @@ function DialogShell({
                 />
               }
             >
-              Save
+              {messages.save}
             </DialogPrimaryButton>
             {onDelete ? (
               <Button
@@ -376,7 +233,7 @@ function DialogShell({
                 icon={<Trash2 size={14} aria-hidden="true" />}
                 onClick={onDelete}
               >
-                Delete
+                {messages.delete}
               </Button>
             ) : null}
           </DialogActionRow>

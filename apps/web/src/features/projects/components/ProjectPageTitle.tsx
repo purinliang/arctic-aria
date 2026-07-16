@@ -5,6 +5,9 @@ import { Button } from "@/components/button";
 import { mutedTextClass, surfaceClass } from "@/components/color";
 import { cx } from "@/components/utils";
 import type { ProjectView } from "@/features/projects/actions";
+import type { ProjectDurationRange } from "@/features/projects/project-duration";
+import type { ProjectMessages } from "@/messages/app-messages";
+import type { DatePickerMessages } from "@/messages/form-messages";
 
 export function ProjectPageTitle({
   darkMode,
@@ -17,6 +20,10 @@ export function ProjectPageTitle({
   onEditProject,
   onPinProject,
   onUnpinProject,
+  messages,
+  timelineMessages,
+  durationMessages,
+  dateMessages,
 }: {
   darkMode: boolean;
   projects: ProjectView[];
@@ -28,6 +35,10 @@ export function ProjectPageTitle({
   onEditProject?: (project: ProjectView) => void;
   onPinProject?: (projectId: string) => void;
   onUnpinProject?: (projectId: string) => void;
+  messages: ProjectMessages["pageTitle"];
+  timelineMessages: ProjectMessages["timeline"];
+  durationMessages: ProjectMessages["duration"];
+  dateMessages: DatePickerMessages;
 }) {
   const [open, setOpen] = useState(false);
   const selectedProject =
@@ -39,7 +50,7 @@ export function ProjectPageTitle({
   if (!selectedProject) {
     return (
       <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
-        Projects
+        {messages.projects}
       </h1>
     );
   }
@@ -58,7 +69,7 @@ export function ProjectPageTitle({
             onBackToList();
           }}
         >
-          Projects
+          {messages.projects}
         </button>
         <span className={cx("shrink-0", mutedTextClass(darkMode))}>/</span>
         <span className="relative min-w-0">
@@ -87,7 +98,7 @@ export function ProjectPageTitle({
               <button
                 className="fixed inset-0 z-20 cursor-default"
                 type="button"
-                aria-label="Close project switcher"
+                aria-label={messages.closeSwitcher}
                 onClick={() => setOpen(false)}
               />
               <div
@@ -128,7 +139,16 @@ export function ProjectPageTitle({
                           active ? "" : mutedTextClass(darkMode),
                         )}
                       >
-                        {project.timelineText} · {project.progressText}
+                        {projectTimelineText(
+                          project,
+                          timelineMessages,
+                          durationMessages,
+                          dateMessages,
+                        )}{" "}
+                        · {timelineMessages.progress(
+                          doneTaskCount(project),
+                          project.tasks.length,
+                        )}
                       </span>
                     </button>
                   );
@@ -147,8 +167,8 @@ export function ProjectPageTitle({
             disabled={pinPending}
             aria-label={
               selectedProject.sidebarPinOrder !== null
-                ? "Unpin project"
-                : "Pin project"
+                ? messages.unpin
+                : messages.pin
             }
             icon={
               selectedProject.sidebarPinOrder !== null ? (
@@ -172,10 +192,43 @@ export function ProjectPageTitle({
             icon={<Edit3 size={15} aria-hidden="true" />}
             onClick={() => onEditProject(selectedProject)}
           >
-            Edit
+            {messages.edit}
           </Button>
         </div>
       ) : null}
     </div>
   );
+}
+
+function projectTimelineText(
+  project: ProjectView,
+  messages: ProjectMessages["timeline"],
+  durations: ProjectMessages["duration"],
+  dateMessages: DatePickerMessages,
+) {
+  if (project.deadlineDate) {
+    return messages.due(formatDate(project.deadlineDate, dateMessages));
+  }
+
+  if (project.expectedDurationDays) {
+    return messages.expected(
+      durations[project.durationRange as ProjectDurationRange],
+    );
+  }
+
+  return messages.openEnded;
+}
+
+function doneTaskCount(project: ProjectView) {
+  return project.tasks.filter((task) => task.status === "done").length;
+}
+
+function formatDate(value: string, messages: DatePickerMessages) {
+  const [year, month, day] = value.split("-").map(Number);
+
+  if (!year || !month || !day) {
+    return value;
+  }
+
+  return messages.dateValue(messages.shortMonthNames[month - 1], day, year);
 }

@@ -21,6 +21,7 @@ import { TextArea } from "@/components/forms/text-area-field";
 import { LabelText } from "@/components/text";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryInput } from "@/features/memories/actions";
+import type { MemoryMessages } from "@/messages/app-messages";
 
 export function MemoryEditorDialog({
   darkMode,
@@ -29,6 +30,7 @@ export function MemoryEditorDialog({
   memoryDraft,
   categories,
   setMemoryDraft,
+  messages,
   onClose,
   onSubmit,
   onDelete,
@@ -40,6 +42,7 @@ export function MemoryEditorDialog({
   memoryDraft: MemoryInput;
   categories: MemoryCategoryOption[];
   setMemoryDraft: Dispatch<SetStateAction<MemoryInput>>;
+  messages: MemoryMessages["editor"];
   onClose: () => void;
   onSubmit: () => void;
   onDelete: () => void;
@@ -47,7 +50,7 @@ export function MemoryEditorDialog({
 }) {
   return (
     <DialogOverlay>
-      <DialogBackdrop label="Close memory editor" onClick={onClose} />
+      <DialogBackdrop label={messages.close} onClick={onClose} />
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -57,17 +60,17 @@ export function MemoryEditorDialog({
         <DialogFrame darkMode={darkMode}>
           <DialogHeader
             darkMode={darkMode}
-            title={editingMemory ? "Edit a memory" : "Add a new memory"}
-            closeLabel="Close memory editor"
+            title={editingMemory ? messages.edit : messages.add}
+            closeLabel={messages.close}
             onClose={onClose}
           />
           <div className="grid gap-3">
-            <FieldLabel darkMode={darkMode} label="Title">
+            <FieldLabel darkMode={darkMode} label={messages.title}>
               <TextInput
                 darkMode={darkMode}
                 value={memoryDraft.title}
                 maxLength={120}
-                placeholder="Memory title"
+                placeholder={messages.titlePlaceholder}
                 disabled={pending}
                 onChange={(event) =>
                   setMemoryDraft((current) => ({
@@ -78,7 +81,7 @@ export function MemoryEditorDialog({
               />
             </FieldLabel>
             <div className="grid gap-1.5">
-              <LabelText darkMode={darkMode}>Category</LabelText>
+              <LabelText darkMode={darkMode}>{messages.category}</LabelText>
               <div className="flex flex-wrap items-center gap-2">
                 <SingleChoiceGroup
                   darkMode={darkMode}
@@ -107,11 +110,11 @@ export function MemoryEditorDialog({
                   icon={<Settings2 size={15} aria-hidden="true" />}
                   onClick={onManageCategories}
                 >
-                  Manage
+                  {messages.manage}
                 </Button>
               </div>
             </div>
-            <FieldLabel darkMode={darkMode} label="Description">
+            <FieldLabel darkMode={darkMode} label={messages.description}>
               <TextArea
                 darkMode={darkMode}
                 className="min-h-28"
@@ -141,7 +144,7 @@ export function MemoryEditorDialog({
                 />
               }
             >
-              Save
+              {messages.save}
             </DialogPrimaryButton>
             {editingMemory ? (
               <Button
@@ -150,7 +153,7 @@ export function MemoryEditorDialog({
                 icon={<Trash2 size={14} aria-hidden="true" />}
                 onClick={onDelete}
               >
-                Delete
+                {messages.delete}
               </Button>
             ) : null}
           </DialogActionRow>

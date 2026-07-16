@@ -17,12 +17,15 @@ import { NumberInput } from "@/components/forms/number-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { TimePickerField } from "@/components/forms/time-picker-field";
 import type { RoutineInput } from "@/features/routines/actions";
+import type { FormMessages, RoutineMessages } from "@/messages/app-messages";
 import { ruleOptions, weekdayOptions } from "./routine-page-helpers";
 
 export function RoutineEditorDialog({
   darkMode,
   pending,
   draft,
+  messages,
+  formMessages,
   setDraft,
   onClose,
   onSubmit,
@@ -31,6 +34,8 @@ export function RoutineEditorDialog({
   darkMode: boolean;
   pending: boolean;
   draft: RoutineInput;
+  messages: RoutineMessages;
+  formMessages: FormMessages;
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
   onClose: () => void;
   onSubmit: () => void;
@@ -41,7 +46,7 @@ export function RoutineEditorDialog({
       <button
         className="absolute inset-0 cursor-default"
         type="button"
-        aria-label="Close routine editor"
+        aria-label={messages.editor.close}
         onClick={onClose}
       />
       <form
@@ -53,13 +58,13 @@ export function RoutineEditorDialog({
       >
         <div className="mb-4 flex items-center justify-between gap-3">
           <h3 className="text-base font-semibold">
-            {draft.id ? "Edit routine" : "Add routine"}
+            {draft.id ? messages.editor.edit : messages.editor.add}
           </h3>
           <Button
             darkMode={darkMode}
             tone="ghost"
             size="icon-sm"
-            aria-label="Close routine editor"
+            aria-label={messages.editor.close}
             icon={<X size={16} aria-hidden="true" />}
             onClick={onClose}
           />
@@ -69,18 +74,22 @@ export function RoutineEditorDialog({
             darkMode={darkMode}
             pending={pending}
             draft={draft}
+            messages={messages.editor}
             setDraft={setDraft}
           />
           <RecurrenceFields
             darkMode={darkMode}
             pending={pending}
             draft={draft}
+            messages={messages}
             setDraft={setDraft}
           />
           <RoutineScheduleFields
             darkMode={darkMode}
             pending={pending}
             draft={draft}
+            messages={messages.editor}
+            formMessages={formMessages}
             setDraft={setDraft}
           />
         </div>
@@ -98,7 +107,7 @@ export function RoutineEditorDialog({
               />
             }
           >
-            Save
+            {messages.editor.save}
           </DialogPrimaryButton>
           {draft.id ? (
             <Button
@@ -107,7 +116,7 @@ export function RoutineEditorDialog({
               icon={<Trash2 size={14} aria-hidden="true" />}
               onClick={onDelete}
             >
-              Delete
+              {messages.editor.delete}
             </Button>
           ) : null}
         </DialogActionRow>
@@ -120,28 +129,30 @@ function RoutineTextFields({
   darkMode,
   pending,
   draft,
+  messages,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: RoutineInput;
+  messages: RoutineMessages["editor"];
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
 }) {
   return (
     <>
-      <FieldLabel darkMode={darkMode} label="Title">
+      <FieldLabel darkMode={darkMode} label={messages.title}>
         <TextInput
           darkMode={darkMode}
           value={draft.title}
           maxLength={120}
-          placeholder="Routine title"
+          placeholder={messages.titlePlaceholder}
           disabled={pending}
           onChange={(event) =>
             setDraft((current) => ({ ...current, title: event.target.value }))
           }
         />
       </FieldLabel>
-      <FieldLabel darkMode={darkMode} label="Description">
+      <FieldLabel darkMode={darkMode} label={messages.description}>
         <TextArea
           darkMode={darkMode}
           className="min-h-24"
@@ -164,24 +175,26 @@ function RecurrenceFields({
   darkMode,
   pending,
   draft,
+  messages,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: RoutineInput;
+  messages: RoutineMessages;
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
 }) {
   return (
     <>
       <div className="grid gap-2">
-        <span className="text-xs font-semibold">Recurrence</span>
+        <span className="text-xs font-semibold">{messages.editor.recurrence}</span>
         <SingleChoiceGroup
           darkMode={darkMode}
           disabled={pending}
           value={draft.ruleType}
           options={ruleOptions.map((option) => ({
             value: option.type,
-            label: option.label,
+            label: messages.rules[option.type],
           }))}
           onChange={(ruleType) =>
             setDraft((current) => ({
@@ -193,14 +206,14 @@ function RecurrenceFields({
       </div>
       {draft.ruleType === "weekly" ? (
         <div className="grid gap-2">
-          <span className="text-xs font-semibold">Weekdays</span>
+          <span className="text-xs font-semibold">{messages.editor.weekdays}</span>
           <MultipleChoiceGroup
             darkMode={darkMode}
             disabled={pending}
             values={(draft.weekdays ?? []).map(String)}
             options={weekdayOptions.map((weekday) => ({
               value: String(weekday.value),
-              label: weekday.label,
+              label: messages.weekdays[weekday.value],
             }))}
             onChange={(values) =>
               setDraft((current) => ({
@@ -217,6 +230,7 @@ function RecurrenceFields({
           darkMode={darkMode}
           pending={pending}
           draft={draft}
+          messages={messages.editor}
           setDraft={setDraft}
         />
       ) : null}
@@ -228,16 +242,18 @@ function IntervalFields({
   darkMode,
   pending,
   draft,
+  messages,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: RoutineInput;
+  messages: RoutineMessages["editor"];
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
 }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
-      <FieldLabel darkMode={darkMode} label="Interval">
+      <FieldLabel darkMode={darkMode} label={messages.interval}>
         <NumberInput
           darkMode={darkMode}
           min={1}
@@ -252,7 +268,7 @@ function IntervalFields({
         />
       </FieldLabel>
       {draft.ruleType === "monthly_by_date" ? (
-        <FieldLabel darkMode={darkMode} label="Day of month">
+        <FieldLabel darkMode={darkMode} label={messages.dayOfMonth}>
           <NumberInput
             darkMode={darkMode}
             min={1}
@@ -276,19 +292,24 @@ function RoutineScheduleFields({
   darkMode,
   pending,
   draft,
+  messages,
+  formMessages,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: RoutineInput;
+  messages: RoutineMessages["editor"];
+  formMessages: FormMessages;
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
 }) {
   return (
     <div className="grid gap-3 sm:grid-cols-3">
-      <FieldLabel darkMode={darkMode} label="First start date">
+      <FieldLabel darkMode={darkMode} label={messages.firstStartDate}>
         <DatePickerField
           darkMode={darkMode}
-          placeholder="Select first date"
+          placeholder={messages.selectFirstDate}
+          messages={formMessages.datePicker}
           value={draft.firstStartDate}
           disabled={pending}
           onChange={(firstStartDate) =>
@@ -299,10 +320,11 @@ function RoutineScheduleFields({
           }
         />
       </FieldLabel>
-      <FieldLabel darkMode={darkMode} label="End date" optional>
+      <FieldLabel darkMode={darkMode} label={messages.endDate} optional>
         <DatePickerField
           darkMode={darkMode}
-          placeholder="Select end date"
+          placeholder={messages.selectEndDate}
+          messages={formMessages.datePicker}
           value={draft.endDate ?? ""}
           disabled={pending}
           onChange={(endDate) =>
@@ -310,10 +332,11 @@ function RoutineScheduleFields({
           }
         />
       </FieldLabel>
-      <FieldLabel darkMode={darkMode} label="Preferred time" optional>
+      <FieldLabel darkMode={darkMode} label={messages.preferredTime} optional>
         <TimePickerField
           darkMode={darkMode}
-          placeholder="Select time"
+          placeholder={messages.selectTime}
+          messages={formMessages.timePicker}
           value={draft.preferredTime ?? ""}
           disabled={pending}
           onChange={(preferredTime) =>

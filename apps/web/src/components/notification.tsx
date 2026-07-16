@@ -1,5 +1,6 @@
 import { AlertCircle, CheckCircle2, Info, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { NotificationMessages } from "@/messages/app-messages";
 import { toneClass, type Tone } from "./color";
 import { cx } from "./utils";
 
@@ -14,7 +15,16 @@ export type NotificationItem = {
   dismissing?: boolean;
 };
 
-export function useNotifications() {
+const defaultNotificationMessages: NotificationMessages = {
+  actionFailed: "Action failed",
+  notAvailableYet: "Not available yet",
+  done: "Done",
+  dismiss: "Dismiss notification",
+};
+
+export function useNotifications(
+  messages: NotificationMessages = defaultNotificationMessages,
+) {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const nextNotificationId = useRef(0);
 
@@ -75,24 +85,24 @@ export function useNotifications() {
   );
 
   const showErrorNotification = useCallback(
-    (message: string, title = "Action failed") => {
+    (message: string, title = messages.actionFailed) => {
       showNotification("error", message, title);
     },
-    [showNotification],
+    [messages.actionFailed, showNotification],
   );
 
   const showInfoNotification = useCallback(
-    (message: string, title = "Not available yet") => {
+    (message: string, title = messages.notAvailableYet) => {
       showNotification("info", message, title);
     },
-    [showNotification],
+    [messages.notAvailableYet, showNotification],
   );
 
   const showSuccessNotification = useCallback(
-    (message: string, title = "Done") => {
+    (message: string, title = messages.done) => {
       showNotification("success", message, title);
     },
-    [showNotification],
+    [messages.done, showNotification],
   );
 
   return {
@@ -107,10 +117,12 @@ export function useNotifications() {
 export function NotificationStack({
   notifications,
   darkMode,
+  messages = defaultNotificationMessages,
   onDismiss,
 }: {
   notifications: NotificationItem[];
   darkMode: boolean;
+  messages?: NotificationMessages;
   onDismiss: (notificationId: number) => void;
 }) {
   if (notifications.length === 0) {
@@ -128,6 +140,7 @@ export function NotificationStack({
           key={notification.id}
           notification={notification}
           darkMode={darkMode}
+          messages={messages}
           onDismiss={onDismiss}
         />
       ))}
@@ -138,10 +151,12 @@ export function NotificationStack({
 function NotificationToast({
   notification,
   darkMode,
+  messages,
   onDismiss,
 }: {
   notification: NotificationItem;
   darkMode: boolean;
+  messages: NotificationMessages;
   onDismiss: (notificationId: number) => void;
 }) {
   useEffect(() => {
@@ -191,7 +206,7 @@ function NotificationToast({
             : "text-current opacity-80 hover:bg-black/5 hover:opacity-100",
         )}
         type="button"
-        aria-label="Dismiss notification"
+        aria-label={messages.dismiss}
         onClick={() => onDismiss(notification.id)}
       >
         <X size={14} aria-hidden="true" />

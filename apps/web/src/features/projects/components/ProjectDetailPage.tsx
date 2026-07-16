@@ -12,17 +12,18 @@ import type {
   ProjectView,
 } from "@/features/projects/actions";
 import type { TaskStatus } from "@/features/dashboard/types";
-
-const overviewDateFormatter = new Intl.DateTimeFormat("en", {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-});
+import type { ProjectDurationRange } from "@/features/projects/project-duration";
+import type { ProjectMessages } from "@/messages/app-messages";
+import type { DatePickerMessages } from "@/messages/form-messages";
 
 export function ProjectDetailPage({
   darkMode,
   pending,
   project,
+  messages,
+  timelineMessages,
+  durationMessages,
+  dateMessages,
   onAddMilestone,
   onEditMilestone,
   onAddTask,
@@ -32,6 +33,10 @@ export function ProjectDetailPage({
   darkMode: boolean;
   pending: boolean;
   project: ProjectView | null;
+  messages: ProjectMessages["detail"];
+  timelineMessages: ProjectMessages["timeline"];
+  durationMessages: ProjectMessages["duration"];
+  dateMessages: DatePickerMessages;
   onAddMilestone: (projectId: string) => void;
   onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
   onAddTask: (projectId: string) => void;
@@ -46,7 +51,7 @@ export function ProjectDetailPage({
       <Panel darkMode={darkMode} className="min-h-[60vh]">
         <div className="px-4 py-4">
           <p className={`text-sm ${mutedTextClass(darkMode)}`}>
-            Select a project to view milestones and tasks.
+            {messages.selectProject}
           </p>
         </div>
       </Panel>
@@ -60,8 +65,8 @@ export function ProjectDetailPage({
           <CardHeader
             darkMode={darkMode}
             icon={<ListChecks size={18} aria-hidden="true" />}
-            title="Tasks"
-            description="Concrete work items for this project."
+            title={messages.tasksTitle}
+            description={messages.tasksDescription}
             action={
               <Button
                 darkMode={darkMode}
@@ -69,14 +74,14 @@ export function ProjectDetailPage({
                 icon={<Plus size={14} aria-hidden="true" />}
                 onClick={() => onAddTask(project.id)}
               >
-                New
+                {messages.new}
               </Button>
             }
           />
           <List darkMode={darkMode}>
             {project.tasks.length === 0 ? (
               <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
-                No tasks yet. Add the next concrete task.
+                {messages.noTasks}
               </p>
             ) : null}
             {project.tasks.map((task) => (
@@ -85,6 +90,8 @@ export function ProjectDetailPage({
                   darkMode={darkMode}
                   pending={pending}
                   task={task}
+                  messages={messages}
+                  dateMessages={dateMessages}
                   onEdit={() => onEditTask(task)}
                   onTaskStatus={onTaskStatus}
                 />
@@ -98,11 +105,11 @@ export function ProjectDetailPage({
             <CardHeader
               darkMode={darkMode}
               icon={<Info size={18} aria-hidden="true" />}
-              title="Overview"
+              title={messages.overviewTitle}
             />
             <div className="grid gap-4 px-4 py-4">
               <div className="grid gap-1">
-                <LabelText darkMode={darkMode}>Description</LabelText>
+                <LabelText darkMode={darkMode}>{messages.description}</LabelText>
                 <DescriptionText darkMode={darkMode}>
                   {project.description}
                 </DescriptionText>
@@ -110,13 +117,18 @@ export function ProjectDetailPage({
               <dl className="grid gap-3 text-sm">
                 <ProjectMetadataRow
                   darkMode={darkMode}
-                  label="Start date"
-                  value={formatOverviewDate(project.startDate)}
+                  label={messages.startDate}
+                  value={formatDate(project.startDate, dateMessages, messages.notSet)}
                 />
                 <ProjectMetadataRow
                   darkMode={darkMode}
-                  label="Timeline"
-                  value={project.timelineText}
+                  label={messages.timeline}
+                  value={projectTimelineText(
+                    project,
+                    timelineMessages,
+                    durationMessages,
+                    dateMessages,
+                  )}
                 />
               </dl>
             </div>
@@ -126,8 +138,8 @@ export function ProjectDetailPage({
             <CardHeader
               darkMode={darkMode}
               icon={<Flag size={18} aria-hidden="true" />}
-              title="Milestones"
-              description="Lightweight phase boundaries."
+              title={messages.milestonesTitle}
+              description={messages.milestonesDescription}
               action={
                 <Button
                   darkMode={darkMode}
@@ -135,14 +147,14 @@ export function ProjectDetailPage({
                   icon={<Plus size={14} aria-hidden="true" />}
                   onClick={() => onAddMilestone(project.id)}
                 >
-                  New
+                  {messages.new}
                 </Button>
               }
             />
             <List darkMode={darkMode}>
               {project.milestones.length === 0 ? (
                 <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
-                  No milestones yet. Add one when the project needs a phase boundary.
+                  {messages.noMilestones}
                 </p>
               ) : null}
               {project.milestones.map((milestone) => (
@@ -158,7 +170,11 @@ export function ProjectDetailPage({
                       </span>
                     </div>
                     <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
-                      {milestone.objective || milestone.progressText}
+                      {milestone.objective ||
+                        timelineMessages.progress(
+                          doneTaskCount(milestone.tasks),
+                          milestone.tasks.length,
+                        )}
                     </p>
                   </div>
                   <Button
@@ -167,7 +183,7 @@ export function ProjectDetailPage({
                     icon={<Edit3 size={15} aria-hidden="true" />}
                     onClick={() => onEditMilestone(milestone)}
                   >
-                    Edit
+                    {messages.edit}
                   </Button>
                 </ListItem>
               ))}
@@ -204,19 +220,23 @@ function ProjectTaskRow({
   darkMode,
   pending,
   task,
+  messages,
+  dateMessages,
   onEdit,
   onTaskStatus,
 }: {
   darkMode: boolean;
   pending: boolean;
   task: ProjectTaskView;
+  messages: ProjectMessages["detail"];
+  dateMessages: DatePickerMessages;
   onEdit: () => void;
   onTaskStatus: (
     taskId: string,
     status: Exclude<TaskStatus, "archived">,
   ) => void;
 }) {
-  const metadata = [task.milestoneLabel, deadlineText(task.deadline)]
+  const metadata = [task.milestoneLabel, deadlineText(task, messages, dateMessages)]
     .filter(Boolean)
     .join(" · ");
 
@@ -227,7 +247,7 @@ function ProjectTaskRow({
           darkMode={darkMode}
           className="mt-1"
           checked={task.status === "done"}
-          aria-label={`Mark ${task.title} done`}
+          aria-label={messages.markDone(task.title)}
           onChange={(event) =>
             onTaskStatus(task.id, event.target.checked ? "done" : "todo")
           }
@@ -237,7 +257,7 @@ function ProjectTaskRow({
             <span className="text-sm font-semibold">{task.title}</span>
           </div>
           <DescriptionText darkMode={darkMode} className="mt-1">
-            {task.description || "No description."}
+            {task.description || messages.noDescription}
           </DescriptionText>
           {metadata ? (
             <SupportingText darkMode={darkMode} className="mt-2 block">
@@ -251,19 +271,56 @@ function ProjectTaskRow({
           icon={<Edit3 size={15} aria-hidden="true" />}
           onClick={onEdit}
         >
-          Edit
+          {messages.edit}
         </Button>
       </div>
     </div>
   );
 }
 
-function deadlineText(deadline: string) {
-  return deadline === "No deadline" ? deadline : `Deadline ${deadline}`;
+function deadlineText(
+  task: ProjectTaskView,
+  messages: ProjectMessages["detail"],
+  dateMessages: DatePickerMessages,
+) {
+  return task.deadlineDate
+    ? messages.deadline(formatDate(task.deadlineDate, dateMessages, task.deadline))
+    : messages.noDeadline;
 }
 
-function formatOverviewDate(date: string) {
-  return date
-    ? overviewDateFormatter.format(new Date(`${date}T00:00:00.000Z`))
-    : "Not set";
+function projectTimelineText(
+  project: ProjectView,
+  messages: ProjectMessages["timeline"],
+  durations: ProjectMessages["duration"],
+  dateMessages: DatePickerMessages,
+) {
+  if (project.deadlineDate) {
+    return messages.due(formatDate(project.deadlineDate, dateMessages, project.timelineText));
+  }
+
+  if (project.expectedDurationDays) {
+    return messages.expected(
+      durations[project.durationRange as ProjectDurationRange],
+    );
+  }
+
+  return messages.openEnded;
+}
+
+function doneTaskCount(tasks: ProjectTaskView[]) {
+  return tasks.filter((task) => task.status === "done").length;
+}
+
+function formatDate(
+  value: string,
+  messages: DatePickerMessages,
+  fallback: string,
+) {
+  const [year, month, day] = value.split("-").map(Number);
+
+  if (!year || !month || !day) {
+    return value || fallback;
+  }
+
+  return messages.dateValue(messages.shortMonthNames[month - 1], day, year);
 }

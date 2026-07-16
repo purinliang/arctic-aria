@@ -41,12 +41,14 @@ export type RoutineActionResult<T> =
   | {
       ok: false;
       message: string;
+      code?: string;
     };
 
 function unauthorizedResult<T>(): RoutineActionResult<T> {
   return {
     ok: false,
     message: "Please sign in again.",
+    code: "auth_required",
   };
 }
 
@@ -146,37 +148,59 @@ function validateRoutineInput(input: RoutineInput) {
   const rule = normalizeRule(input);
 
   if (title.length < 1 || title.length > 120) {
-    return { ok: false as const, message: "Routine title must be 1-120 characters." };
+    return {
+      ok: false as const,
+      message: "Routine title must be 1-120 characters.",
+      code: "routine_title_invalid",
+    };
   }
 
   if (description.length > 2000) {
     return {
       ok: false as const,
       message: "Routine description must be 2000 characters or fewer.",
+      code: "routine_description_invalid",
     };
   }
 
   if (!validateDate(input.firstStartDate)) {
-    return { ok: false as const, message: "Choose a first start date." };
+    return {
+      ok: false as const,
+      message: "Choose a first start date.",
+      code: "routine_first_start_date_missing",
+    };
   }
 
   if (endDate && (!validateDate(endDate) || endDate < input.firstStartDate)) {
     return {
       ok: false as const,
       message: "End date must be blank or after the first start date.",
+      code: "routine_end_date_invalid",
     };
   }
 
   if (!validateTime(input.preferredTime)) {
-    return { ok: false as const, message: "Preferred time must use HH:MM." };
+    return {
+      ok: false as const,
+      message: "Preferred time must use HH:MM.",
+      code: "routine_preferred_time_invalid",
+    };
   }
 
   if (!rule) {
-    return { ok: false as const, message: "Routine rule is invalid." };
+    return {
+      ok: false as const,
+      message: "Routine rule is invalid.",
+      code: "routine_rule_invalid",
+    };
   }
 
   if (rule.ruleType === "weekly" && (!rule.weekdays || rule.weekdays.length === 0)) {
-    return { ok: false as const, message: "Choose at least one weekday." };
+    return {
+      ok: false as const,
+      message: "Choose at least one weekday.",
+      code: "routine_weekday_missing",
+    };
   }
 
   return { ok: true as const, title, description, endDate, rule };
@@ -209,7 +233,7 @@ export async function saveRoutine(
   const validation = validateRoutineInput(input);
 
   if (!validation.ok) {
-    return { ok: false, message: validation.message };
+    return { ok: false, message: validation.message, code: validation.code };
   }
 
   const saved = await routineService.saveRoutine(user.id, {
@@ -222,7 +246,11 @@ export async function saveRoutine(
   });
 
   if (!saved) {
-    return { ok: false, message: "Routine was not found." };
+    return {
+      ok: false,
+      message: "Routine was not found.",
+      code: "routine_not_found",
+    };
   }
 
   return {
@@ -243,7 +271,11 @@ export async function deleteRoutine(
   const deleted = await routineService.deleteRoutine(user.id, routineId);
 
   if (!deleted) {
-    return { ok: false, message: "Routine was not found." };
+    return {
+      ok: false,
+      message: "Routine was not found.",
+      code: "routine_not_found",
+    };
   }
 
   return {
@@ -288,7 +320,11 @@ async function updateRoutineInstance(
         : await routineService.reopenRoutineInstance(user.id, instanceId);
 
   if (!instance) {
-    return { ok: false, message: "Routine instance was not found." };
+    return {
+      ok: false,
+      message: "Routine instance was not found.",
+      code: "routine_instance_not_found",
+    };
   }
 
   return {

@@ -10,6 +10,7 @@ import { mutedTextClass } from "@/components/color";
 import { NotificationStack, useNotifications } from "@/components/notification";
 import { SupportingText } from "@/components/text";
 import { appShellClass, useDocumentTheme } from "@/components/theme";
+import { localizedActionMessage } from "@/messages/action-result";
 import { getAppMessages } from "@/messages/app-messages";
 import {
   getCurrentUser,
@@ -65,14 +66,14 @@ export function AuthGate() {
     setThemePreference,
     themePreference,
   } = useAppPreferences();
+  const messages = getAppMessages(resolvedLanguage);
   const {
     notifications,
     dismissNotification,
     showErrorNotification,
     showInfoNotification,
     showSuccessNotification,
-  } = useNotifications();
-  const messages = getAppMessages(resolvedLanguage);
+  } = useNotifications(messages.notifications);
 
   useDocumentTheme(darkMode);
 
@@ -109,9 +110,9 @@ export function AuthGate() {
         if (active) {
           setVersionStatus((current) => ({
             ...current,
-            actualDatabaseVersionText: "Unavailable",
+            actualDatabaseVersionText: messages.versionStatus.unavailable,
             aligned: false,
-            message: "Database version unavailable.",
+            message: messages.versionStatus.databaseUnavailable,
           }));
         }
       });
@@ -119,7 +120,7 @@ export function AuthGate() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [messages.versionStatus.databaseUnavailable, messages.versionStatus.unavailable]);
 
   if (!sessionChecked) {
     return (
@@ -243,7 +244,7 @@ export function AuthGate() {
       if (!result.ok) {
         setServerErrors(result.fieldErrors ?? {});
         showErrorNotification(
-          result.message,
+          localizedActionMessage(result, messages.auth.results),
           mode === "register"
             ? messages.auth.notifications.signUpFailed
             : messages.auth.notifications.signInFailed,
@@ -255,7 +256,7 @@ export function AuthGate() {
       }
 
       showSuccessNotification(
-        result.message,
+        localizedActionMessage(result, messages.auth.results),
         mode === "register"
           ? messages.auth.notifications.accountCreated
           : messages.auth.notifications.signedIn,
@@ -307,6 +308,7 @@ export function AuthGate() {
       <NotificationStack
         notifications={notifications}
         darkMode={darkMode}
+        messages={messages.notifications}
         onDismiss={dismissNotification}
       />
     </>

@@ -64,9 +64,21 @@ export function AppShell({
     null,
   );
   const [projectDraft, setProjectDraft] = useState<ProjectInput | null>(null);
-  const projectState = useDashboardProjects(showErrorNotification);
-  const routineState = useDashboardRoutines(showErrorNotification);
-  const memoryState = useDashboardMemories(showErrorNotification);
+  const projectState = useDashboardProjects(
+    showErrorNotification,
+    messages.dashboard.notifications,
+    messages.projects.results,
+  );
+  const routineState = useDashboardRoutines(
+    showErrorNotification,
+    messages.dashboard.notifications,
+    messages.routines.results,
+  );
+  const memoryState = useDashboardMemories(
+    showErrorNotification,
+    messages.dashboard.notifications,
+    messages.memories.results,
+  );
   const { refreshProjectData } = projectState;
   const { refreshMemoryData } = memoryState;
   const { refreshRoutineData } = routineState;
@@ -172,6 +184,10 @@ export function AppShell({
                 }}
                 onPinProject={projectState.pinProjectFromPage}
                 onUnpinProject={projectState.unpinProjectFromPage}
+                messages={messages.projects.pageTitle}
+                timelineMessages={messages.projects.timeline}
+                durationMessages={messages.projects.duration}
+                dateMessages={messages.forms.datePicker}
               />
             ) : (
               <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
@@ -200,6 +216,8 @@ export function AppShell({
               onTaskDelete={projectState.archiveTaskFromPage}
               onTaskStatus={projectState.statusTaskFromPage}
               onProjectSelect={setSelectedProjectId}
+              messages={messages.projects}
+              formMessages={messages.forms}
             />
           ) : activeView === "routines" ? (
             <RoutinesPage
@@ -209,6 +227,8 @@ export function AppShell({
               pending={routineState.routineActionPending}
               onRoutineSave={routineState.saveRoutineFromPage}
               onRoutineDelete={routineState.deleteRoutineFromPage}
+              messages={messages.routines}
+              formMessages={messages.forms}
             />
           ) : activeView === "memories" ? (
             <MemoriesPage
@@ -229,6 +249,8 @@ export function AppShell({
               onSuggestionsRefresh={memoryState.refreshSuggestionsFromPage}
               onSuggestionPin={memoryState.pinSuggestionFromPage}
               onSuggestionCancel={memoryState.cancelSuggestionPinFromPage}
+              messages={messages.memories}
+              formMessages={messages.forms}
             />
           ) : activeView === "settings" ? (
             <SettingsPage
@@ -258,6 +280,8 @@ export function AppShell({
               onMemoryCancelDone={memoryState.cancelMemoryDone}
               onMemoryReplace={memoryState.replaceMemory}
               onTaskOpen={showProjectDetail}
+              messages={messages.dashboard}
+              formMessages={messages.forms}
               onRoutineOpen={() => {
                 setActiveView("routines");
                 setSidebarOpen(false);
@@ -274,6 +298,7 @@ export function AppShell({
       <NotificationStack
         notifications={notifications}
         darkMode={darkMode}
+        messages={messages.notifications}
         onDismiss={onNotificationDismiss}
       />
     </main>

@@ -42,7 +42,7 @@ Dashboard behavior. Shared shell behavior is documented in:
 Dashboard body layout:
 
 - parent layout: shared split layout
-- left panel: `Today's tasks to move projects forward`
+- left panel: `Tasks`
 - right panel: stacked `Routines` and `Pinned Memories`
 - desktop: left panel should be wider than the right panel through the shared
   split classes
@@ -60,7 +60,7 @@ rules belong to the Projects feature, not to a separate Dashboard task model.
 Header:
 
 - icon: `Check`
-- title: `Today's tasks to move projects forward`
+- title: `Tasks`
 - no header count metadata
 
 Task row layout:

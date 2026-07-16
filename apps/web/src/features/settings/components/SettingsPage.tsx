@@ -7,6 +7,7 @@ import { SelectInput } from "@/components/forms/selection-field";
 import { FieldLabel } from "@/components/forms/input-field";
 import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
+import { SupportingText } from "@/components/text";
 import { VersionStatusRows } from "@/components/version-status";
 import type {
   SettingsMessages,
@@ -80,6 +81,9 @@ export function SettingsPage({
                   }
                 />
               </FieldLabel>
+              <SupportingText darkMode={darkMode}>
+                {messages.languageSupport}
+              </SupportingText>
             </div>
           </ListItem>
           <ListItem darkMode={darkMode} className="items-start">

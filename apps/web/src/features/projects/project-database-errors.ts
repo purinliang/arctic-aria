@@ -14,6 +14,22 @@ export function projectDatabaseErrorMessage(error: unknown) {
   return "Project database update failed.";
 }
 
+export function projectDatabaseErrorCode(error: unknown) {
+  if (isMissingProjectTableError(error)) {
+    return "project_database_tables_missing";
+  }
+
+  if (isInvalidDateError(error)) {
+    return "project_dates_invalid";
+  }
+
+  if (isProjectSidebarPinConflict(error)) {
+    return "project_sidebar_pin_conflict";
+  }
+
+  return "project_database_update_failed";
+}
+
 function isMissingProjectTableError(error: unknown) {
   if (typeof error !== "object" || error === null) {
     return false;
