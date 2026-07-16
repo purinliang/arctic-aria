@@ -1,7 +1,7 @@
 // App Shell - Sidebar.
 import {
+  Album,
   Bell,
-  ClipboardList,
   LayoutDashboard,
   FolderKanban,
   LogOut,
@@ -196,7 +196,7 @@ function SidebarFrame({
           onClick={() => onSelectView("routines")}
         />
         <SidebarItem
-          icon={<ClipboardList size={18} aria-hidden="true" />}
+          icon={<Album size={18} aria-hidden="true" />}
           label="Memories"
           active={activeView === "memories"}
           darkMode={darkMode}

@@ -1,5 +1,5 @@
 // Dashboard - Pinned Memories Panel.
-import { ChevronRight, ClipboardList, RefreshCw } from "lucide-react";
+import { Album, ChevronRight, RefreshCw } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
@@ -32,7 +32,7 @@ export function PinnedMemoriesPanel({
   return (
     <Panel darkMode={darkMode}>
       <CardHeader
-        icon={<ClipboardList size={18} aria-hidden="true" />}
+        icon={<Album size={18} aria-hidden="true" />}
         title="Pinned Memories"
         darkMode={darkMode}
       />
