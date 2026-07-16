@@ -55,7 +55,7 @@ Panel header:
 
 - icon: `Check`
 - title: `Today's tasks to move projects forward`
-- meta: number of recommended tasks
+- no header count metadata
 
 Task row layout:
 

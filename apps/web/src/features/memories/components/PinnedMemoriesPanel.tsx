@@ -34,7 +34,6 @@ export function PinnedMemoriesPanel({
       <CardHeader
         icon={<ClipboardList size={18} aria-hidden="true" />}
         title="Pinned Memories"
-        meta={`${pinnedMemories.length} saved`}
         darkMode={darkMode}
       />
       <List darkMode={darkMode}>

@@ -32,7 +32,6 @@ export function ProjectTasksPanel({
       <CardHeader
         icon={<Check size={18} aria-hidden="true" />}
         title="Today's tasks to move projects forward"
-        meta={`${tasks.length} recommended`}
         darkMode={darkMode}
       />
       <List darkMode={darkMode}>
