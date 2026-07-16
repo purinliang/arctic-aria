@@ -2,8 +2,8 @@
 import { Lightbulb, LoaderCircle, Pin, PinOff, RefreshCw } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
-import { dividerClass, mutedTextClass } from "@/components/color";
-import { ListItem } from "@/components/list";
+import { mutedTextClass } from "@/components/color";
+import { List, ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
@@ -61,7 +61,7 @@ export function SuggestionsPanel({
         }
       />
 
-      <div className={dividerClass(darkMode)}>
+      <List darkMode={darkMode}>
         {!suggestionsRequested && !suggestionLoading ? (
           <EmptyLine
             darkMode={darkMode}
@@ -90,7 +90,7 @@ export function SuggestionsPanel({
             onCancel={() => void onSuggestionCancel(suggestion.id)}
           />
         ))}
-      </div>
+      </List>
     </Panel>
   );
 }
