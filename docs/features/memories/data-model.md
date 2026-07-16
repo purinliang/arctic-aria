@@ -38,7 +38,7 @@ backend actions should translate conflicts into clean messages.
 
 ## `memory_categories`
 
-Stores user-owned categories and suggestion weights.
+Stores user-owned categories.
 
 Current fields:
 
@@ -46,7 +46,6 @@ Current fields:
 - `user_id`
 - `name`
 - `description`
-- `base_weight`
 - `created_at`
 - `updated_at`
 
@@ -56,7 +55,6 @@ Current database protection:
 - `name` is required and 1-40 characters.
 - `(user_id, name)` is unique.
 - `description` is 500 characters or fewer.
-- `base_weight` is greater than `0`.
 
 Delete behavior:
 

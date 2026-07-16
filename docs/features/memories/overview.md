@@ -162,7 +162,6 @@ The score should prefer memories that:
 - have not been done for a long time
 - have never been done after creation
 - have been done or pinned multiple times historically
-- belong to a category with a higher base weight
 
 The score should not be too aggressive. A frequently done memory should be more
 likely to appear, but it should not dominate every refresh forever.
@@ -173,7 +172,7 @@ Suggested first scoring model:
 days_score = log(1 + days_since_last_done)
 count_score = 1 + log(1 + done_count)
 
-score = category_base_weight * days_score * count_score
+score = days_score * count_score
 ```
 
 For a new memory that has never been done:
