@@ -71,8 +71,6 @@ The v0.6.0 work should not include:
 - automatic project scheduling
 - AI-generated task recommendations
 - memory suggestion logic beyond the current manual refresh prototype
-- reward logic
-- English coach logic
 - Discord bot implementation
 - sharing cards
 
@@ -96,6 +94,8 @@ Likely future items:
   is reliable.
 - Add backup, sync, and account lifecycle strategy when the data model is more
   stable.
+- Add multilingual support later, especially Chinese, after the core private
+  workflow and settings model are stable.
 
 ## Removed From Active Roadmap
 
