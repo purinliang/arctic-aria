@@ -30,8 +30,10 @@ export const englishFormMessages = {
     ],
     weekdayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     longWeekdayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    previousYear: "Previous year",
     previousMonth: "Previous month",
     nextMonth: "Next month",
+    nextYear: "Next year",
     clearDate: "Clear date",
     monthYear: (monthName: string, year: number) => `${monthName} ${year}`,
     dateValue: (
@@ -111,8 +113,10 @@ export const simplifiedChineseFormMessages: FormMessages = {
       "星期五",
       "星期六",
     ],
+    previousYear: "上一年",
     previousMonth: "上个月",
     nextMonth: "下个月",
+    nextYear: "下一年",
     clearDate: "清除日期",
     monthYear: (monthName, year) => `${year}年${monthName}`,
     dateValue: (shortMonthName, day, year, weekdayName) =>
