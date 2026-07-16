@@ -1,5 +1,5 @@
 // Routines Page - Routine Editor Dialog.
-import { LoaderCircle, Save, Trash2, X } from "lucide-react";
+import { LoaderCircle, Save, Trash2 } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
 import {
@@ -9,8 +9,11 @@ import {
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import {
   DialogActionRow,
+  DialogBackdrop,
+  DialogFrame,
+  DialogHeader,
+  DialogOverlay,
   DialogPrimaryButton,
-  dialogFrameClass,
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { NumberInput } from "@/components/forms/number-field";
@@ -42,86 +45,75 @@ export function RoutineEditorDialog({
   onDelete: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/65 px-4 py-6">
-      <button
-        className="absolute inset-0 cursor-default"
-        type="button"
-        aria-label={messages.editor.close}
-        onClick={onClose}
-      />
+    <DialogOverlay>
+      <DialogBackdrop label={messages.editor.close} onClick={onClose} />
       <form
-        className={dialogFrameClass(darkMode)}
         onSubmit={(event) => {
           event.preventDefault();
           onSubmit();
         }}
       >
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-base font-semibold">
-            {draft.id ? messages.editor.edit : messages.editor.add}
-          </h3>
-          <Button
+        <DialogFrame darkMode={darkMode}>
+          <DialogHeader
             darkMode={darkMode}
-            tone="ghost"
-            size="icon-sm"
-            aria-label={messages.editor.close}
-            icon={<X size={16} aria-hidden="true" />}
-            onClick={onClose}
+            title={draft.id ? messages.editor.edit : messages.editor.add}
+            closeLabel={messages.editor.close}
+            onClose={onClose}
           />
-        </div>
-        <div className="grid gap-3">
-          <RoutineTextFields
-            darkMode={darkMode}
-            pending={pending}
-            draft={draft}
-            messages={messages.editor}
-            setDraft={setDraft}
-          />
-          <RecurrenceFields
-            darkMode={darkMode}
-            pending={pending}
-            draft={draft}
-            messages={messages}
-            setDraft={setDraft}
-          />
-          <RoutineScheduleFields
-            darkMode={darkMode}
-            pending={pending}
-            draft={draft}
-            messages={messages.editor}
-            formMessages={formMessages}
-            setDraft={setDraft}
-          />
-        </div>
-        <DialogActionRow>
-          <DialogPrimaryButton
-            darkMode={darkMode}
-            type="submit"
-            loading={pending}
-            icon={<Save size={14} aria-hidden="true" />}
-            loadingIcon={
-              <LoaderCircle
-                className="animate-spin"
-                size={14}
-                aria-hidden="true"
-              />
-            }
-          >
-            {messages.editor.save}
-          </DialogPrimaryButton>
-          {draft.id ? (
-            <Button
+          <div className="grid gap-3">
+            <RoutineTextFields
               darkMode={darkMode}
-              disabled={pending}
-              icon={<Trash2 size={14} aria-hidden="true" />}
-              onClick={onDelete}
+              pending={pending}
+              draft={draft}
+              messages={messages.editor}
+              setDraft={setDraft}
+            />
+            <RecurrenceFields
+              darkMode={darkMode}
+              pending={pending}
+              draft={draft}
+              messages={messages}
+              setDraft={setDraft}
+            />
+            <RoutineScheduleFields
+              darkMode={darkMode}
+              pending={pending}
+              draft={draft}
+              messages={messages.editor}
+              formMessages={formMessages}
+              setDraft={setDraft}
+            />
+          </div>
+          <DialogActionRow>
+            <DialogPrimaryButton
+              darkMode={darkMode}
+              type="submit"
+              loading={pending}
+              icon={<Save size={14} aria-hidden="true" />}
+              loadingIcon={
+                <LoaderCircle
+                  className="animate-spin"
+                  size={14}
+                  aria-hidden="true"
+                />
+              }
             >
-              {messages.editor.delete}
-            </Button>
-          ) : null}
-        </DialogActionRow>
+              {messages.editor.save}
+            </DialogPrimaryButton>
+            {draft.id ? (
+              <Button
+                darkMode={darkMode}
+                disabled={pending}
+                icon={<Trash2 size={14} aria-hidden="true" />}
+                onClick={onDelete}
+              >
+                {messages.editor.delete}
+              </Button>
+            ) : null}
+          </DialogActionRow>
+        </DialogFrame>
       </form>
-    </div>
+    </DialogOverlay>
   );
 }
 
