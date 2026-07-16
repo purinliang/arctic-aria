@@ -12,6 +12,7 @@ import {
   usePopoverPlacement,
 } from "./use-popover-placement";
 import {
+  dayPeriodForTime,
   defaultTimePartsFromNow,
   formatTimeInputValue,
   parseTimeValue,
@@ -45,9 +46,10 @@ export function TimePickerField({
   messages?: TimePickerMessages;
 }) {
   const [open, setOpen] = useState(false);
-  const [defaultParts] = useState(() => defaultTimePartsFromNow());
+  const [draftParts, setDraftParts] = useState<TimeParts | null>(null);
   const { placement, popoverRef, rootRef } = usePopoverPlacement(open);
-  const selectedParts = parseTimeValue(value) ?? defaultParts;
+  const savedParts = parseTimeValue(value);
+  const selectedParts = draftParts ?? savedParts ?? defaultTimePartsFromNow();
   const formattedValue = formatTimeValue(value, messages);
 
   useEffect(() => {
@@ -82,7 +84,10 @@ export function TimePickerField({
         type="button"
         disabled={disabled}
         aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
+        onClick={() => {
+          setDraftParts(savedParts ?? defaultTimePartsFromNow());
+          setOpen((current) => !current);
+        }}
       >
         <span className="min-w-0 truncate">
           {formattedValue || placeholder}
@@ -106,7 +111,7 @@ export function TimePickerField({
               darkMode={darkMode}
               messages={messages}
               parts={selectedParts}
-              onChange={(parts) => onChange(toTimeValue(parts))}
+              onChange={setDraftParts}
             />
             <div className="grid grid-cols-2 gap-2">
               {(["AM", "PM"] as const).map((period) => (
@@ -123,24 +128,23 @@ export function TimePickerField({
                         : "border-slate-300 text-slate-700 hover:border-slate-500",
                   )}
                   type="button"
-                  onClick={() =>
-                    onChange(toTimeValue({ ...selectedParts, period }))
-                  }
+                  onClick={() => setDraftParts({ ...selectedParts, period })}
                 >
                   {messages.periodLabels[period]}
                 </button>
               ))}
             </div>
-            {selectedParts.hour12 === 12 ? (
-              <p
-                className={cx(
-                  "text-xs leading-5",
-                  darkMode ? "text-neutral-400" : "text-slate-500",
-                )}
-              >
-                {messages.twelveHourHint}
-              </p>
-            ) : null}
+            <p
+              className={cx(
+                "text-xs leading-5",
+                darkMode ? "text-neutral-400" : "text-slate-500",
+              )}
+            >
+              {messages.preview(
+                formatTimeValue(toTimeValue(selectedParts), messages),
+                messages.dayPeriods[dayPeriodForTime(selectedParts)],
+              )}
+            </p>
           </div>
 
           <div className="mt-3 flex gap-2">
@@ -150,14 +154,12 @@ export function TimePickerField({
               size="xs"
               className="flex-1"
               onClick={() => {
-                if (!value) {
-                  onChange(toTimeValue(selectedParts));
-                }
-
+                onChange(toTimeValue(selectedParts));
                 setOpen(false);
+                setDraftParts(null);
               }}
             >
-              {messages.done}
+              {messages.confirm}
             </Button>
             {allowClear && value ? (
               <Button
@@ -166,7 +168,11 @@ export function TimePickerField({
                 size="xs"
                 className="flex-1"
                 icon={<X className="h-3.5 w-3.5" />}
-                onClick={() => onChange("")}
+                onClick={() => {
+                  onChange("");
+                  setOpen(false);
+                  setDraftParts(null);
+                }}
               >
                 {messages.clear}
               </Button>
@@ -193,15 +199,8 @@ function TimeTextInput({
   const value = draft ?? formatTimeInputValue(parts);
 
   return (
-    <label className="grid min-w-0 gap-1">
-      <span
-        className={cx(
-          "text-xs font-semibold",
-          darkMode ? "text-neutral-400" : "text-slate-500",
-        )}
-      >
-        {messages.time}
-      </span>
+    <label className="grid min-w-0">
+      <span className="sr-only">{messages.time}</span>
       <input
         className={cx(
           "h-12 w-full min-w-0 rounded-md border px-2 text-center text-xl font-semibold tabular-nums outline-none transition",
