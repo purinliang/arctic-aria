@@ -121,7 +121,6 @@ existing dashboard view.
 
 ```text
 ProjectsPage
-  optional InlineMessage
   ProjectsList, when no project is selected for detail view
   ProjectDetailPage, when a project is selected for detail view
   ProjectEditorDialog, when adding or editing a project
@@ -229,7 +228,8 @@ Dialog shell:
 - backdrop: `DialogBackdrop`
 - frame: `DialogFrame`
 - top row: `DialogHeader`
-- optional `InlineMessage` below the header
+- save and delete failures use `NotificationStack`; do not render page-local or
+  dialog-local inline action messages
 - field area: vertical grid
 - footer: `DialogActionRow` with one full-width primary `Save` button
 - save icon: `Save`

@@ -139,7 +139,6 @@ export function AppShell({
                 onBackToList={() => setSelectedProjectId(null)}
                 onProjectSelect={setSelectedProjectId}
                 onEditProject={(project) => {
-                  projectState.clearProjectMessage();
                   setProjectDraft(projectToDraft(project));
                 }}
               />
@@ -158,7 +157,6 @@ export function AppShell({
               pending={projectState.projectActionPending}
               projectDraft={projectDraft}
               setProjectDraft={setProjectDraft}
-              message={projectState.projectMessage}
               selectedProjectId={selectedProjectId}
               onProjectSave={projectState.saveProjectFromPage}
               onProjectDelete={projectState.archiveProjectFromPage}
@@ -168,7 +166,6 @@ export function AppShell({
               onTaskDelete={projectState.archiveTaskFromPage}
               onTaskStatus={projectState.statusTaskFromPage}
               onProjectSelect={setSelectedProjectId}
-              onMessageClear={projectState.clearProjectMessage}
             />
           ) : activeView === "routines" ? (
             <RoutinesPage
@@ -176,10 +173,8 @@ export function AppShell({
               routines={routineState.routineDefinitions}
               loading={routineState.routineLoading}
               pending={routineState.routineActionPending}
-              message={routineState.routineMessage}
               onRoutineSave={routineState.saveRoutineFromPage}
               onRoutineDelete={routineState.deleteRoutineFromPage}
-              onMessageClear={routineState.clearRoutineMessage}
             />
           ) : activeView === "memories" ? (
             <MemoriesPage
@@ -210,7 +205,6 @@ export function AppShell({
               routines={routineState.routines}
               routineLoading={routineState.routineLoading}
               routineActionPending={routineState.routineActionPending}
-              routineMessage={routineState.routineMessage}
               pinnedMemories={memoryState.pinnedMemories}
               memoryLoading={memoryState.memoryLoading}
               memoryActionPending={memoryState.memoryActionPending}

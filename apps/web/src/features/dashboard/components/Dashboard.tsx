@@ -18,7 +18,6 @@ export function Dashboard({
   routines,
   routineLoading,
   routineActionPending,
-  routineMessage,
   pinnedMemories,
   memoryLoading,
   memoryActionPending,
@@ -38,7 +37,6 @@ export function Dashboard({
   routines: Routine[];
   routineLoading: boolean;
   routineActionPending: boolean;
-  routineMessage: string | null;
   pinnedMemories: PinnedMemory[];
   memoryLoading: boolean;
   memoryActionPending: boolean;
@@ -72,7 +70,6 @@ export function Dashboard({
             routines={routines}
             loading={routineLoading}
             disabled={routineActionPending}
-            message={routineMessage}
             onRoutineStatus={onRoutineStatus}
             onRoutineOpen={onRoutineOpen}
           />

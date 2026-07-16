@@ -22,19 +22,15 @@ export function RoutinesPage({
   routines,
   loading,
   pending,
-  message,
   onRoutineSave,
   onRoutineDelete,
-  onMessageClear,
 }: {
   darkMode: boolean;
   routines: RoutineDefinition[];
   loading: boolean;
   pending: boolean;
-  message: string | null;
   onRoutineSave: (input: RoutineInput) => RoutineResult;
   onRoutineDelete: (routineId: string) => RoutineResult;
-  onMessageClear: () => void;
 }) {
   const [editorOpen, setEditorOpen] = useState(false);
   const [draft, setDraft] = useState<RoutineInput>(emptyDraft);
@@ -45,19 +41,16 @@ export function RoutinesPage({
     if (!pending) {
       setEditorOpen(false);
       setDraft(emptyDraft());
-      onMessageClear();
     }
   }
 
   function openNewEditor() {
     setDraft(emptyDraft());
-    onMessageClear();
     setEditorOpen(true);
   }
 
   function openEditor(routine: RoutineDefinition) {
     setDraft(toDraft(routine));
-    onMessageClear();
     setEditorOpen(true);
   }
 
@@ -92,7 +85,6 @@ export function RoutinesPage({
           pending={pending}
           onAdd={openNewEditor}
         />
-        {message ? <RoutinesPageMessage darkMode={darkMode} message={message} /> : null}
         <RoutinesList
           darkMode={darkMode}
           routines={routines}
@@ -106,7 +98,6 @@ export function RoutinesPage({
         <RoutineEditorDialog
           darkMode={darkMode}
           pending={pending}
-          message={message}
           draft={draft}
           setDraft={setDraft}
           onClose={closeEditor}
@@ -167,25 +158,5 @@ function RoutinesPageHeader({
         </Button>
       }
     />
-  );
-}
-
-function RoutinesPageMessage({
-  darkMode,
-  message,
-}: {
-  darkMode: boolean;
-  message: string;
-}) {
-  return (
-    <p
-      className={`border-b px-4 py-3 text-sm ${
-        darkMode
-          ? "border-neutral-900 text-amber-200"
-          : "border-slate-200 text-amber-700"
-      }`}
-    >
-      {message}
-    </p>
   );
 }
