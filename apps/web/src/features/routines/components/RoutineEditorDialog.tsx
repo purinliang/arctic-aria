@@ -2,7 +2,6 @@
 import { LoaderCircle, Save, Trash2 } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
-import { MultipleChoiceGroup } from "@/components/forms/choice-group";
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import {
   DialogActionRow,
@@ -13,14 +12,13 @@ import {
   DialogPrimaryButton,
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
-import { NumberInput } from "@/components/forms/number-field";
-import { SelectInput } from "@/components/forms/selection-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { TimePickerField } from "@/components/forms/time-picker-field";
 import type { RoutineInput } from "@/features/routines/actions";
+import { normalizeRoutineRecurrenceDraft } from "@/features/routines/routine-recurrence";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { FormMessages, RoutineMessages } from "@/messages/app-messages";
-import { ruleOptions, weekdayOptions } from "./routine-page-helpers";
+import { RoutineRecurrenceFields } from "./RoutineRecurrenceFields";
 
 export function RoutineEditorDialog({
   darkMode,
@@ -74,6 +72,7 @@ export function RoutineEditorDialog({
               pending={pending}
               draft={draft}
               messages={messages}
+              formMessages={formMessages}
               setDraft={setDraft}
             />
             <RoutineScheduleFields
@@ -170,117 +169,25 @@ function RecurrenceFields({
   pending,
   draft,
   messages,
+  formMessages,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: RoutineInput;
   messages: RoutineMessages;
+  formMessages: FormMessages;
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
 }) {
   return (
-    <>
-      <div className="grid gap-2">
-        <FieldLabel darkMode={darkMode} label={messages.editor.recurrence}>
-          <SelectInput
-            darkMode={darkMode}
-            disabled={pending}
-            value={draft.ruleType}
-            options={ruleOptions.map((option) => ({
-              value: option.type,
-              label: messages.rules[option.type],
-              description: messages.ruleDescriptions[option.type],
-            }))}
-            onChange={(ruleType) =>
-              setDraft((current) => ({
-                ...current,
-                ruleType: ruleType as RoutineInput["ruleType"],
-              }))
-            }
-          />
-        </FieldLabel>
-      </div>
-      {draft.ruleType === "weekly" ? (
-        <div className="grid gap-2">
-          <span className="text-xs font-semibold">{messages.editor.weekdays}</span>
-          <MultipleChoiceGroup
-            darkMode={darkMode}
-            disabled={pending}
-            values={(draft.weekdays ?? []).map(String)}
-            options={weekdayOptions.map((weekday) => ({
-              value: String(weekday.value),
-              label: messages.weekdays[weekday.value],
-            }))}
-            onChange={(values) =>
-              setDraft((current) => ({
-                ...current,
-                weekdays: values.map(Number).sort((left, right) => left - right),
-              }))
-            }
-          />
-        </div>
-      ) : null}
-      {draft.ruleType === "monthly_by_date" ||
-      draft.ruleType === "day_interval" ? (
-        <IntervalFields
-          darkMode={darkMode}
-          pending={pending}
-          draft={draft}
-          messages={messages.editor}
-          setDraft={setDraft}
-        />
-      ) : null}
-    </>
-  );
-}
-
-function IntervalFields({
-  darkMode,
-  pending,
-  draft,
-  messages,
-  setDraft,
-}: {
-  darkMode: boolean;
-  pending: boolean;
-  draft: RoutineInput;
-  messages: RoutineMessages["editor"];
-  setDraft: Dispatch<SetStateAction<RoutineInput>>;
-}) {
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <FieldLabel darkMode={darkMode} label={messages.interval}>
-        <NumberInput
-          darkMode={darkMode}
-          min={1}
-          value={draft.intervalValue ?? 1}
-          disabled={pending}
-          onChange={(event) =>
-            setDraft((current) => ({
-              ...current,
-              intervalValue: Number(event.target.value),
-            }))
-          }
-        />
-      </FieldLabel>
-      {draft.ruleType === "monthly_by_date" ? (
-        <FieldLabel darkMode={darkMode} label={messages.dayOfMonth}>
-          <NumberInput
-            darkMode={darkMode}
-            min={1}
-            max={31}
-            value={draft.dayOfMonth ?? 1}
-            disabled={pending}
-            onChange={(event) =>
-              setDraft((current) => ({
-                ...current,
-                dayOfMonth: Number(event.target.value),
-              }))
-            }
-          />
-        </FieldLabel>
-      ) : null}
-    </div>
+    <RoutineRecurrenceFields
+      darkMode={darkMode}
+      pending={pending}
+      draft={draft}
+      messages={messages}
+      formMessages={formMessages}
+      setDraft={setDraft}
+    />
   );
 }
 
@@ -311,10 +218,12 @@ function RoutineScheduleFields({
           value={draft.firstStartDate}
           disabled={pending}
           onChange={(firstStartDate) =>
-            setDraft((current) => ({
-              ...current,
-              firstStartDate,
-            }))
+            setDraft((current) =>
+              normalizeRoutineRecurrenceDraft({
+                ...current,
+                firstStartDate,
+              }),
+            )
           }
         />
       </FieldLabel>

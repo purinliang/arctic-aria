@@ -29,8 +29,8 @@ Database constraints should protect:
 - allowed routine statuses
 - allowed routine instance statuses
 - end date not before first start date
-- positive interval values
-- valid day-of-month range
+- positive interval values when present
+- valid day-of-month range when present
 
 Do not rely on read-before-insert checks alone for routine instance generation.
 The unique schedule index must protect concurrent generation of the same
@@ -90,7 +90,8 @@ Supported rule types:
 - `weekly`, anchored to first start date weekday
 - `monthly_by_date`, anchored to first start date day
 - `bi_weekly`, anchored to first start date
-- `day_interval`, used by the every-30-days preset and the fixed-days option
+- `day_interval`, used by the every-30-days preset and the fixed-days option,
+  which defaults to 90 days
 
 Current database protection:
 

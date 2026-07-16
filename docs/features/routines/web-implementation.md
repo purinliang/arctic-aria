@@ -92,8 +92,10 @@ Routine web UI:
 apps/web/src/features/routines/components/RoutinesPage.tsx
 apps/web/src/features/routines/components/RoutinesList.tsx
 apps/web/src/features/routines/components/RoutineEditorDialog.tsx
+apps/web/src/features/routines/components/RoutineRecurrenceFields.tsx
 apps/web/src/features/routines/components/RoutinesPanel.tsx
 apps/web/src/features/routines/components/routine-page-helpers.ts
+apps/web/src/features/routines/routine-recurrence.ts
 ```
 
 Routine server actions:
@@ -118,6 +120,7 @@ Focused tests:
 
 ```text
 apps/web/src/features/routines/__tests__/postgres-routine-repository.test.ts
+apps/web/src/features/routines/__tests__/routine-recurrence.test.ts
 apps/web/src/features/routines/__tests__/routine-service.test.ts
 ```
 

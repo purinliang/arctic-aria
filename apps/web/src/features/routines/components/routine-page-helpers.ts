@@ -1,20 +1,6 @@
-import type {
-  RoutineDefinition,
-  RoutineRuleType,
-} from "@/features/dashboard/types";
+import type { RoutineDefinition } from "@/features/dashboard/types";
 import type { RoutineInput } from "@/features/routines/actions";
 import type { RoutineMessages } from "@/messages/app-messages";
-
-export const ruleOptions: Array<{
-  type: RoutineRuleType;
-  label: string;
-}> = [
-  { type: "daily", label: "Daily" },
-  { type: "weekly", label: "Weekly" },
-  { type: "bi_weekly", label: "Every two weeks" },
-  { type: "monthly_by_date", label: "Monthly" },
-  { type: "day_interval", label: "Every few days" },
-];
 
 export const weekdayOptions = [
   { value: 0, label: "Sun" },
@@ -33,7 +19,7 @@ export function emptyDraft(): RoutineInput {
     firstStartDate: new Date().toISOString().slice(0, 10),
     endDate: "",
     ruleType: "daily",
-    intervalValue: 1,
+    intervalValue: 90,
     weekdays: [new Date().getDay()],
     dayOfMonth: new Date().getDate(),
     preferredTime: "",
@@ -49,7 +35,7 @@ export function toDraft(routine: RoutineDefinition): RoutineInput {
     firstStartDate: routine.firstStartDate,
     endDate: routine.endDate ?? "",
     ruleType: routine.ruleType,
-    intervalValue: routine.intervalValue ?? 1,
+    intervalValue: routine.intervalValue ?? 90,
     weekdays: routine.weekdays ?? [],
     dayOfMonth: routine.dayOfMonth ?? 1,
     preferredTime: routine.preferredTime ?? "",

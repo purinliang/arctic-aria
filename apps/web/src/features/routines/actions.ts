@@ -1,6 +1,7 @@
 "use server";
 
 import { getCurrentUser } from "@/features/auth/actions";
+import { normalizeRoutineRecurrence } from "./routine-recurrence";
 import type {
   Routine,
   RoutineDefinition,
@@ -105,37 +106,14 @@ function validateTime(value: string | null | undefined) {
 }
 
 function normalizeRule(input: RoutineInput): RoutineRuleInput | null {
-  const intervalValue =
-    input.intervalValue === undefined || input.intervalValue === null
-      ? null
-      : Number(input.intervalValue);
-  const dayOfMonth =
-    input.dayOfMonth === undefined || input.dayOfMonth === null
-      ? null
-      : Number(input.dayOfMonth);
+  const rule = normalizeRoutineRecurrence(input);
 
-  if (
-    intervalValue !== null &&
-    (!Number.isInteger(intervalValue) || intervalValue < 1)
-  ) {
-    return null;
-  }
-
-  if (
-    dayOfMonth !== null &&
-    (!Number.isInteger(dayOfMonth) || dayOfMonth < 1 || dayOfMonth > 31)
-  ) {
+  if (!rule) {
     return null;
   }
 
   return {
-    ruleType: input.ruleType,
-    intervalValue:
-      input.ruleType === "monthly_by_date" || input.ruleType === "day_interval"
-        ? intervalValue ?? 1
-        : null,
-    weekdays: input.ruleType === "weekly" ? input.weekdays ?? [] : null,
-    dayOfMonth: input.ruleType === "monthly_by_date" ? dayOfMonth ?? 1 : null,
+    ...rule,
     preferredTime: input.preferredTime || null,
     timezone: input.timezone || "UTC",
   };
@@ -192,14 +170,6 @@ function validateRoutineInput(input: RoutineInput) {
       ok: false as const,
       message: "Routine rule is invalid.",
       code: "routine_rule_invalid",
-    };
-  }
-
-  if (rule.ruleType === "weekly" && (!rule.weekdays || rule.weekdays.length === 0)) {
-    return {
-      ok: false as const,
-      message: "Choose at least one weekday.",
-      code: "routine_weekday_missing",
     };
   }
 
