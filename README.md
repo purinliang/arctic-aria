@@ -76,6 +76,8 @@ Feature map:
   reviews.
 - [docs/features/settings/overview.md](docs/features/settings/overview.md):
   user-facing settings and preference rules.
+- [docs/features/settings/data-model.md](docs/features/settings/data-model.md):
+  settings persistence and constraints.
 
 Auth:
 
@@ -127,6 +129,15 @@ Dashboard:
 - [docs/features/dashboard/web-implementation.md](docs/features/dashboard/web-implementation.md):
   current web dashboard implementation notes.
 
+Ideas:
+
+- [docs/features/ideas/overview.md](docs/features/ideas/overview.md): idea
+  capture product rules.
+- [docs/features/ideas/data-model.md](docs/features/ideas/data-model.md):
+  planned idea persistence and constraints.
+- [docs/features/ideas/ui.md](docs/features/ideas/ui.md): Ideas page UI
+  behavior.
+
 Shared Web UI:
 
 - [docs/ui.md](docs/ui.md): shared UI terminology and links to web component
@@ -142,8 +153,8 @@ Shared Web UI:
 
 Apps And Infrastructure:
 
-- [docs/apps/discord-bot/prototype.md](docs/apps/discord-bot/prototype.md):
-  Discord bot prototype direction.
+- [docs/apps/discord-bot/overview.md](docs/apps/discord-bot/overview.md):
+  Discord bot app-surface direction.
 - [docs/infrastructure/database.md](docs/infrastructure/database.md): database
   direction, data lifecycle, credential/data protection, and current Neon
   PostgreSQL notes.

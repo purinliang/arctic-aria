@@ -41,8 +41,8 @@ add optional specialized workflows. App surfaces let the user operate the same
 system through web or Discord. Infrastructure services provide storage now and
 can later provide cache, dataflow, scheduling, and external adapters.
 
-Currently implemented product features are Auth, Projects, Routines, Memories,
-and Dashboard. Settings, Ideas, Scheduler, Reviews, Discord bot, plugin
+Currently implemented product features are Auth, Settings, Projects, Routines,
+Memories, and Dashboard. Ideas, Scheduler, Reviews, Discord bot, plugin
 workers, Redis/cache, dataflow, and background jobs are planned directions.
 
 Documentation follows the same shape:
@@ -161,6 +161,12 @@ The Ideas feature owns:
 
 Ideas is planned but not implemented yet.
 
+Detailed docs:
+
+- [features/ideas/overview.md](features/ideas/overview.md)
+- [features/ideas/data-model.md](features/ideas/data-model.md)
+- [features/ideas/ui.md](features/ideas/ui.md)
+
 ### Scheduler
 
 The scheduler selects tasks and routines for upcoming time windows and returns
@@ -271,17 +277,24 @@ Detailed docs:
 The Discord bot is for notification and quick interaction. It is important
 because the user may forget to open the web app.
 
-It owns:
+The first Discord workflow is quick idea capture with `/idea`. The bot should
+call Ideas commands instead of writing product tables directly.
 
+It may eventually own:
+
+- quick capture
 - pushed reminders
 - daily scheduler messages
-- quick capture
 - reminder buttons
 - review prompts
 - concise status updates
 
 The Discord bot should call product commands. It should not implement its own
 planning or routine rules.
+
+Detailed docs:
+
+- [apps/discord-bot/overview.md](apps/discord-bot/overview.md)
 
 ## Infrastructure Services
 

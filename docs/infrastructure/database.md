@@ -273,13 +273,15 @@ Do not duplicate feature schemas in this infrastructure document.
 Current feature data-model docs:
 
 - Auth: [auth/data-model.md](../features/auth/data-model.md)
+- Settings: [settings/data-model.md](../features/settings/data-model.md)
 - Projects: [projects/data-model.md](../features/projects/data-model.md)
 - Routines: [routines/data-model.md](../features/routines/data-model.md)
 - Memories: [memories/data-model.md](../features/memories/data-model.md)
+- Ideas: [ideas/data-model.md](../features/ideas/data-model.md)
 
 Planned feature data-model docs should be added under their owning feature
-folder before implementation starts, for example Settings, Ideas, Scheduler,
-Reviews, Discord account binding, and future plugins.
+folder before implementation starts, for example Scheduler, Reviews, Discord
+account binding, and future plugins.
 
 ## Future Persistence Areas
 
@@ -289,7 +291,8 @@ dashboard-backed feature data.
 Future persistence areas may include:
 
 - user settings, such as timezone and day boundary
-- Discord account bindings
+- Discord account bindings, documented by the Discord bot app until a broader
+  account-linking feature exists
 - daily plans and daily reviews
 - reminder jobs and delivery attempts
 - plugin registrations and plugin run records

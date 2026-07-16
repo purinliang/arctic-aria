@@ -33,12 +33,16 @@ Detailed feature docs:
 - Auth rules: [auth/overview.md](auth/overview.md)
 - Auth persistence: [auth/data-model.md](auth/data-model.md)
 - Settings rules: [settings/overview.md](settings/overview.md)
+- Settings persistence: [settings/data-model.md](settings/data-model.md)
 - Project and task rules: [projects/overview.md](projects/overview.md)
 - Project and task persistence: [projects/data-model.md](projects/data-model.md)
 - Routine rules: [routines/overview.md](routines/overview.md)
 - Routine persistence: [routines/data-model.md](routines/data-model.md)
 - Memory rules: [memories/overview.md](memories/overview.md)
 - Memory persistence: [memories/data-model.md](memories/data-model.md)
+- Ideas rules: [ideas/overview.md](ideas/overview.md)
+- Ideas persistence: [ideas/data-model.md](ideas/data-model.md)
+- Ideas UI: [ideas/ui.md](ideas/ui.md)
 
 ## User
 
@@ -272,16 +276,16 @@ Daily plan item fields:
 
 ## Ideas
 
-Ideas are quick captured thoughts that may later become projects, tasks, routines,
-or plugin requests.
+Ideas are quick captured thoughts that may later become projects, tasks,
+routines, memories, or plugin requests.
 
 `ideas` should store:
 
 - user id
-- title or raw text
-- optional description
+- raw text
 - source, such as web, Discord, mobile, or agent
 - triage status
+- optional source metadata
 - created and updated timestamps
 - converted target type and target id, if converted
 
@@ -291,6 +295,8 @@ Idea triage statuses:
 - `kept`: saved as a note or idea.
 - `converted`: turned into a project, task, routine, or plugin request.
 - `archived`: hidden from normal views.
+
+Detailed idea behavior is documented in [ideas/overview.md](ideas/overview.md).
 
 ## Daily Reviews
 
