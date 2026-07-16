@@ -45,12 +45,35 @@ From the repository root, run the same migration entry point with
 `schema_migrations` records each newly applied migration and the app metadata
 that was active when it ran: app version, commit hash, and source state.
 `schema_migration_runs` records every successful migration-run check, including
-runs where all migrations were already applied. Use these audit rows before
-production releases so the deployed frontend/backend version can be compared
-with the database migration state. The migration runner reads `APP_VERSION`,
-`APP_COMMIT`, and `APP_SOURCE_STATE` when present, falls back to Vercel commit
-metadata when available, and finally falls back to local Git metadata during
-development.
+runs where all migrations were already applied. It also records the expected
+migration count, latest migration id, and schema hash derived from the migration
+files in the checked source tree.
+
+Use these audit rows before production releases so the deployed
+frontend/backend version can be compared with the database migration state. The
+migration runner reads `APP_VERSION`, `APP_COMMIT`, and `APP_SOURCE_STATE` when
+present, falls back to Vercel commit metadata when available, and finally falls
+back to local Git metadata during development.
+
+The user-facing app version is controlled automatically:
+
+- release builds should use Git release tags, such as `v0.5.0`
+- `develop` builds derive labels such as `v0.5.0-dev`
+- feature and fix branches derive labels such as
+  `v0.5.0-fix-app-metadata-display`
+- the commit hash is appended separately in the UI
+
+If production cannot access Git tags, set `APP_VERSION` during the deployment
+build. Do not manually set the generated `NEXT_PUBLIC_*` metadata variables
+unless debugging the build system; `next.config.ts` generates them from Git,
+Vercel metadata, and the local migration files at build time.
+
+The expected database version is derived automatically from committed migration
+files. The actual database version comes from the latest
+`schema_migration_runs` row and the applied migration table. User-facing UI
+does not show migration filenames or schema hashes; it only shows version text
+and a short red message when the database schema is behind, ahead, different,
+or unavailable.
 
 The Projects feature requires `0005_create_projects.sql` and the cleanup
 `0006_drop_project_subtasks.sql`. If project server actions report missing

@@ -1,73 +1,22 @@
-import { execFileSync } from "node:child_process";
 import type { NextConfig } from "next";
+import { resolveAppMetadata } from "./scripts/app-metadata.mjs";
 
-const appMetadata = resolveAppMetadata();
+const appMetadata = resolveAppMetadata(process.cwd());
 
 const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_APP_VERSION: appMetadata.version,
     NEXT_PUBLIC_APP_COMMIT: appMetadata.commit,
     NEXT_PUBLIC_APP_SOURCE_STATE: appMetadata.sourceState,
+    NEXT_PUBLIC_APP_BRANCH: appMetadata.branch,
+    NEXT_PUBLIC_EXPECTED_DATABASE_MIGRATION_COUNT: String(
+      appMetadata.expectedDatabase.migrationCount,
+    ),
+    NEXT_PUBLIC_EXPECTED_DATABASE_LATEST_MIGRATION:
+      appMetadata.expectedDatabase.latestMigrationName,
+    NEXT_PUBLIC_EXPECTED_DATABASE_SCHEMA_HASH:
+      appMetadata.expectedDatabase.schemaHash,
   },
 };
 
 export default nextConfig;
-
-function resolveAppMetadata() {
-  const commit = shortCommit(
-    firstDefined(
-      process.env.NEXT_PUBLIC_APP_COMMIT,
-      process.env.APP_COMMIT,
-      process.env.VERCEL_GIT_COMMIT_SHA,
-      process.env.GIT_COMMIT,
-      readGit(["rev-parse", "HEAD"]),
-    ),
-  );
-
-  return {
-    version: firstDefined(
-      process.env.NEXT_PUBLIC_APP_VERSION,
-      process.env.APP_VERSION,
-      "development",
-    ),
-    commit,
-    sourceState: firstDefined(
-      process.env.NEXT_PUBLIC_APP_SOURCE_STATE,
-      process.env.APP_SOURCE_STATE,
-      readGitSourceState(),
-    ),
-  };
-}
-
-function firstDefined(...values: Array<string | undefined>) {
-  return (
-    values
-      .map((value) => value?.trim())
-      .find((value) => value && value.length > 0) ?? "unknown"
-  );
-}
-
-function shortCommit(commit: string) {
-  return commit === "unknown" ? commit : commit.slice(0, 12);
-}
-
-function readGitSourceState() {
-  const status = readGit(["status", "--porcelain"]);
-
-  if (status === "unknown") {
-    return "unknown";
-  }
-
-  return status.length > 0 ? "dirty" : "clean";
-}
-
-function readGit(args: string[]) {
-  try {
-    return execFileSync("git", args, {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
-  } catch {
-    return "unknown";
-  }
-}

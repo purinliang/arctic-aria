@@ -1,6 +1,8 @@
 "use server";
 
 import { cookies } from "next/headers";
+import type { DatabaseVersionStatus } from "@/components/app-metadata";
+import { getDatabaseVersionStatus } from "@/server/database/migration-status";
 import { authService, type AuthActionResult } from "./server/auth-service";
 import {
   authSessionCookieName,
@@ -52,4 +54,8 @@ export async function logoutUser() {
   const cookieStore = await cookies();
 
   cookieStore.delete(authSessionCookieName);
+}
+
+export async function getPublicVersionStatus(): Promise<DatabaseVersionStatus> {
+  return getDatabaseVersionStatus();
 }
