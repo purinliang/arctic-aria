@@ -1,68 +1,98 @@
 # Roadmap
 
-This roadmap describes implementation phases. It should change as the project
-becomes clearer.
+This roadmap records what should happen next and what should remain future
+work. It is no longer organized as numbered phases.
 
-## Phase 0: Documentation And Specification
+## Current Baseline
 
-- Define product goals, workflows, collaboration rules, and initial structure.
-- Define architecture, implementation direction, and user stories.
-- Keep README as a simple project overview.
+Current released version: `v0.5.0`.
 
-## Phase 1: Core Model
+The web dashboard baseline is mostly complete for the current prototype:
 
-- Build the username and password auth foundation first so later records have a
-  stable owner.
-- Add session persistence and logout so login survives refresh and users can
-  explicitly leave the dashboard.
-- Define projects, milestones, tasks, routines, ideas, memories,
-  scheduler data, reviews, and completion events.
-- Choose concrete database schema and migration tooling.
-- Define commands and events for task completion, partial completion, routine
-  completion, idea capture, and daily review.
+- auth, sessions, and sign out
+- dashboard app shell and sidebar
+- project list and project detail pages
+- project tasks on the dashboard
+- routines page and dashboard routine panel
+- memories page, categories, suggestions, and pinned memories
+- shared web UI components and consistent list/card/dialog/form patterns
+- Neon PostgreSQL migrations and migration checksum tracking
+- app/database version metadata
 
-## Phase 2: Web Dashboard
+## Next: v0.6.0
 
-- Build the main web dashboard.
-- Show today's project tasks, project backlog, deadlines, derived progress,
-  routines, timetable, pinned memories, idea capture, and review history.
-- Support editing, rescheduling, completing, partially completing, skipping, and
-  reviewing items.
+Goal: review and stabilize the technical foundation before adding more product
+features.
 
-## Phase 3: Discord Bot
+No new user-facing feature development is planned for `v0.6.0`. Bug fixes,
+documentation, tests, database review, concurrency review, Redis/cache design,
+and Discord bot design are in scope.
 
-- Add quick capture commands.
-- Add pushed reminder delivery.
-- Add reminder buttons for complete, skip, and busy responses.
-- Add daily scheduler messages and review prompts.
+Planned v0.6.0 work:
 
-## Phase 4: Reward Plugin
+- Review the current database schema for auth, projects, routines, memories,
+  pinned dashboard state, migration metadata, and version metadata.
+- Review database constraints, ownership checks, nullable fields, foreign keys,
+  delete/archive behavior, unique constraints, date ranges, and indexes.
+- Review migration history and confirm which design decisions should be kept,
+  simplified, or corrected before more tables are added.
+- Review concurrency behavior for lightweight commands, save/edit dialogs,
+  duplicate writes, simultaneous dashboard actions, optimistic rollback, and
+  database transaction boundaries.
+- Decide where idempotency keys, request deduplication, or stronger transaction
+  boundaries are needed.
+- Design Redis usage without implementing it prematurely. Redis should support
+  latency reduction, short-lived coordination, rate limiting, idempotency, or
+  queue-like behavior only when the database remains the source of truth.
+- Review Discord bot architecture before implementation, including account
+  linking, quick capture, reminder messages, button interactions, message
+  update strategy, daily review prompts, and failure behavior.
+- Update architecture, database, Redis, Discord bot, and feature data-model
+  docs to reflect the review decisions.
+- Add or improve automated tests around existing backend behavior where the
+  review finds risk.
+- Keep the existing web prototype stable while doing this review.
 
-- Add money, boxes, gems, flowers, and simple inventory records.
-- Add reward rules based on daily plan fulfillment and review results.
-- Add shareable reward or review summaries.
+The v0.6.0 work should not include:
 
-## Phase 5: English Coach Plugin
+- idea capture implementation
+- daily review implementation
+- automatic project scheduling
+- AI-generated task recommendations
+- memory suggestion logic beyond the current manual refresh prototype
+- reward logic
+- English coach logic
+- Discord bot implementation
+- sharing cards
 
-- Add daily topic suggestions.
-- Add chat-style speaking practice.
-- Add mistake correction and daily learning reviews.
-- Save learning history for future context.
-- Allow learning progress to grant extra rewards.
+## Future Work
 
-## Phase 6: Future Life Plugins
+Future work should be chosen after using the v0.6.0 prototype.
 
-- Add new cuisine and sightseeing suggestions beyond saved memories.
-- Add new movie and anime recommendations beyond saved memories.
-- Add research coach workflows.
-- Keep each plugin independent from core planning logic.
+Likely future items:
 
-## Phase 7: Sharing And Deployment
+- Add idea capture as a first-class lightweight feature after the v0.6.0
+  technical review.
+- Add daily review as a first-class feature after the v0.6.0 technical review.
+- Improve project task planning after enough manual project/task usage exists.
+- Improve dashboard selection rules only after the user workflow feels stable.
+- Add stronger settings, including default theme and personal day-boundary time.
+- Improve memory suggestion logic after the memory data model and dashboard
+  behavior are stable.
+- Add Discord quick capture when the web idea-capture flow is proven useful.
+- Add Discord reminders after routine and daily review behavior are stable.
+- Add optional sharing and deployment hardening when the core private workflow
+  is reliable.
+- Add backup, sync, and account lifecycle strategy when the data model is more
+  stable.
 
-- Add optional progress sharing and encouragement interactions.
-- Decide the production hosting model for the web app, backend, database, and
-  Discord bot.
-- Add backup, sync, and account strategy when the data model is stable.
+## Removed From Active Roadmap
+
+The old reward-plugin and English-coach roadmap phases are removed from the
+active plan. Do not restore them as numbered phases.
+
+If either idea becomes useful later, write a new feature or plugin proposal from
+the current product shape instead of reusing the old phase plan.
 
 ## Future Infrastructure
 
@@ -79,7 +109,7 @@ becomes clearer.
 - Rotate any database URLs, Neon credentials, auth secrets, API keys, and
   deployment tokens that were pasted into chat, logs, local notes, or other
   non-secret storage during development.
-- Confirm production uses explicit secrets such as `AUTH_SESSION_SECRET` instead
-  of development fallbacks.
+- Confirm production uses explicit secrets such as `AUTH_SESSION_SECRET`
+  instead of development fallbacks.
 - Review ignored local files, deployment environment variables, Vercel project
   links, and database access settings before treating the release as stable.
