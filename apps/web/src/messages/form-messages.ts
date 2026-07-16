@@ -39,12 +39,20 @@ export const englishFormMessages = {
   timePicker: {
     time: "Time",
     timePlaceholder: "910 or 19:30",
-    twelveHourHint: "12 AM is midnight. 12 PM is noon.",
+    confirm: "Confirm",
+    preview: (time: string, dayPeriod: string) => `${time} ${dayPeriod}`,
+    dayPeriods: {
+      midnight: "midnight",
+      morning: "morning",
+      noon: "noon",
+      afternoon: "afternoon",
+      evening: "evening",
+      night: "night",
+    },
     periodLabels: {
       AM: "AM",
       PM: "PM",
     },
-    done: "Done",
     clear: "Clear",
     value: (hour12: number, minute: number, period: string) =>
       `${hour12}:${String(minute).padStart(2, "0")} ${period}`,
@@ -95,12 +103,20 @@ export const simplifiedChineseFormMessages: FormMessages = {
   timePicker: {
     time: "时间",
     timePlaceholder: "例如 910 或 19:30",
-    twelveHourHint: "12 AM 是午夜，12 PM 是中午。",
+    confirm: "确认",
+    preview: (time, dayPeriod) => `${time} ${dayPeriod}`,
+    dayPeriods: {
+      midnight: "午夜",
+      morning: "早晨",
+      noon: "中午",
+      afternoon: "下午",
+      evening: "傍晚",
+      night: "晚上",
+    },
     periodLabels: {
       AM: "上午",
       PM: "下午",
     },
-    done: "完成",
     clear: "清除",
     value: (hour12, minute, period) =>
       `${period} ${hour12}:${String(minute).padStart(2, "0")}`,

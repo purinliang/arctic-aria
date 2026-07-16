@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  dayPeriodForTime,
   defaultTimePartsFromNow,
   parseTypedTimeInput,
   toTimeValue,
@@ -15,6 +16,17 @@ test("typed compact time accepts 910 as 9:10 with fallback period", () => {
   assert.equal(
     toTimeValue({ hour12: 9, minute: 10, period: "PM" }),
     "21:10",
+  );
+});
+
+test("time picker day period labels distinguish midnight and night", () => {
+  assert.equal(
+    dayPeriodForTime({ hour12: 12, minute: 30, period: "AM" }),
+    "midnight",
+  );
+  assert.equal(
+    dayPeriodForTime({ hour12: 9, minute: 30, period: "PM" }),
+    "night",
   );
 });
 

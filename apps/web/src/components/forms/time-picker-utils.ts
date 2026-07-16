@@ -6,6 +6,14 @@ export type TimeParts = {
   period: Period;
 };
 
+export type DayPeriod =
+  | "midnight"
+  | "morning"
+  | "noon"
+  | "afternoon"
+  | "evening"
+  | "night";
+
 export function defaultTimePartsFromNow(now = new Date()) {
   const date = new Date(now.getTime() + 15 * 60 * 1000);
   const roundedMinute = Math.ceil(date.getMinutes() / 15) * 15;
@@ -25,6 +33,32 @@ export function defaultTimePartsFromNow(now = new Date()) {
 
 export function formatTimeInputValue(parts: TimeParts) {
   return `${String(parts.hour12).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}`;
+}
+
+export function dayPeriodForTime(parts: TimeParts): DayPeriod {
+  const hour24 = hour24FromParts(parts);
+
+  if (hour24 < 5) {
+    return "midnight";
+  }
+
+  if (hour24 < 12) {
+    return "morning";
+  }
+
+  if (hour24 < 13) {
+    return "noon";
+  }
+
+  if (hour24 < 17) {
+    return "afternoon";
+  }
+
+  if (hour24 < 21) {
+    return "evening";
+  }
+
+  return "night";
 }
 
 export function parseTimeValue(value: string): TimeParts | null {
@@ -80,14 +114,17 @@ export function parseTypedTimeInput(
 }
 
 export function toTimeValue(parts: TimeParts) {
-  const hour24 =
-    parts.period === "AM"
-      ? parts.hour12 % 12
-      : parts.hour12 === 12
-        ? 12
-        : parts.hour12 + 12;
+  const hour24 = hour24FromParts(parts);
 
   return `${String(hour24).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}`;
+}
+
+function hour24FromParts(parts: TimeParts) {
+  return parts.period === "AM"
+    ? parts.hour12 % 12
+    : parts.hour12 === 12
+      ? 12
+      : parts.hour12 + 12;
 }
 
 function parseColonTime(value: string) {
