@@ -3,6 +3,7 @@ import { Edit3, Flag, Info, ListChecks, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { Card, CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
+import { formatDateKey } from "@/components/forms/date-format";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
@@ -316,11 +317,5 @@ function formatDate(
   messages: DatePickerMessages,
   fallback: string,
 ) {
-  const [year, month, day] = value.split("-").map(Number);
-
-  if (!year || !month || !day) {
-    return value || fallback;
-  }
-
-  return messages.dateValue(messages.shortMonthNames[month - 1], day, year);
+  return formatDateKey(value, messages, value || fallback);
 }

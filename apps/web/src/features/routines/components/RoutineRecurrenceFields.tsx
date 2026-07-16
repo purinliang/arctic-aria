@@ -1,5 +1,6 @@
 // Routines Page - Routine Recurrence Fields.
 import type { Dispatch, SetStateAction } from "react";
+import { formatDateKey } from "@/components/forms/date-format";
 import { FieldLabel } from "@/components/forms/input-field";
 import { NumberInput } from "@/components/forms/number-field";
 import { SelectInput } from "@/components/forms/selection-field";
@@ -114,11 +115,5 @@ function formatPreviewDate(
   dateKey: string,
   messages: FormMessages["datePicker"],
 ) {
-  const date = new Date(`${dateKey}T00:00:00.000Z`);
-  const monthName = messages.shortMonthNames[date.getUTCMonth()];
-  const day = date.getUTCDate();
-  const year = date.getUTCFullYear();
-  const weekday = messages.weekdayNames[date.getUTCDay()];
-
-  return `${messages.dateValue(monthName, day, year)} ${weekday}`;
+  return formatDateKey(dateKey, messages, dateKey);
 }

@@ -33,8 +33,15 @@ export const englishFormMessages = {
     nextMonth: "Next month",
     clearDate: "Clear date",
     monthYear: (monthName: string, year: number) => `${monthName} ${year}`,
-    dateValue: (shortMonthName: string, day: number, year: number) =>
-      `${shortMonthName} ${day}, ${year}`,
+    dateValue: (
+      shortMonthName: string,
+      day: number,
+      year: number,
+      weekdayName?: string,
+    ) =>
+      weekdayName
+        ? `${shortMonthName} ${day}, ${year} ${weekdayName}`
+        : `${shortMonthName} ${day}, ${year}`,
   },
   timePicker: {
     time: "Time",
@@ -98,7 +105,10 @@ export const simplifiedChineseFormMessages: FormMessages = {
     nextMonth: "下个月",
     clearDate: "清除日期",
     monthYear: (monthName, year) => `${year}年${monthName}`,
-    dateValue: (shortMonthName, day, year) => `${year}年${shortMonthName}${day}日`,
+    dateValue: (shortMonthName, day, year, weekdayName) =>
+      weekdayName
+        ? `${year}年${shortMonthName}${day}日 ${weekdayName}`
+        : `${year}年${shortMonthName}${day}日`,
   },
   timePicker: {
     time: "时间",

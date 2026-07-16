@@ -3,6 +3,7 @@ import { Lightbulb, LoaderCircle, Pin, PinOff, RefreshCw } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
+import { formatDateKey } from "@/components/forms/date-format";
 import { List, ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
@@ -188,13 +189,7 @@ function formatDate(
   messages: DatePickerMessages,
   fallback: string,
 ) {
-  const [year, month, day] = value.split("-").map(Number);
-
-  if (!year || !month || !day) {
-    return fallback;
-  }
-
-  return messages.dateValue(messages.shortMonthNames[month - 1], day, year);
+  return formatDateKey(value, messages, fallback);
 }
 
 function EmptyLine({ darkMode, text }: { darkMode: boolean; text: string }) {
