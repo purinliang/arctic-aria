@@ -52,6 +52,9 @@ Planned v0.6.0 work:
 - Add or improve automated tests around existing backend behavior where the
   review finds risk.
 - Keep the existing web prototype stable while doing this review.
+- Fix deferred UI consistency bugs that are intentionally excluded from the
+  `v0.5.1` hotfix, including Memories-page pinned/unpinned management and
+  removing the dashboard pinned-memory single-item replace/refresh action.
 
 The v0.6.0 work should not include:
 
