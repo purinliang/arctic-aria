@@ -3,12 +3,11 @@ import { ClipboardList, Edit3, Plus, Settings2 } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import {
-  dividerClass,
   mutedTextClass,
   sectionBorderClass,
 } from "@/components/color";
 import { SingleChoiceGroup } from "@/components/forms/choice-group";
-import { ListItem } from "@/components/list";
+import { List, ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import {
@@ -85,7 +84,7 @@ export function MemoriesPanel({
         </Button>
       </div>
 
-      <div className={dividerClass(darkMode)}>
+      <List darkMode={darkMode}>
         {loading ? (
           <LoadingLine darkMode={darkMode} text="Loading memories..." />
         ) : null}
@@ -103,7 +102,7 @@ export function MemoriesPanel({
             onEdit={() => onEditMemory(memory)}
           />
         ))}
-      </div>
+      </List>
     </Panel>
   );
 }

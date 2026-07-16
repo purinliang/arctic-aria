@@ -159,7 +159,7 @@ function SidebarFrame({
         ) : null}
       </div>
 
-      <nav className="mt-6 grid gap-2">
+      <nav className="mt-6 grid overflow-hidden rounded-md">
         <SidebarItem
           icon={<LayoutDashboard size={18} aria-hidden="true" />}
           label="Dashboard"
@@ -212,29 +212,31 @@ function SidebarFrame({
       </nav>
 
       <div
-        className={`mt-auto grid gap-3 border-t pt-4 ${
+        className={`mt-auto border-t pt-4 ${
           darkMode ? "border-neutral-800" : "border-slate-200"
         }`}
       >
-        <SidebarItem
-          icon={
-            darkMode ? (
-              <Moon size={18} aria-hidden="true" />
-            ) : (
-              <Sun size={18} aria-hidden="true" />
-            )
-          }
-          label={darkMode ? "Dark mode" : "Light mode"}
-          darkMode={darkMode}
-          onClick={() => onThemeChange(!darkMode)}
-        />
-        <SidebarItem
-          icon={<LogOut size={18} aria-hidden="true" />}
-          label={logoutPending ? "Signing out..." : "Sign out"}
-          darkMode={darkMode}
-          disabled={logoutPending}
-          onClick={onLogout}
-        />
+        <div className="grid overflow-hidden rounded-md">
+          <SidebarItem
+            icon={
+              darkMode ? (
+                <Moon size={18} aria-hidden="true" />
+              ) : (
+                <Sun size={18} aria-hidden="true" />
+              )
+            }
+            label={darkMode ? "Dark mode" : "Light mode"}
+            darkMode={darkMode}
+            onClick={() => onThemeChange(!darkMode)}
+          />
+          <SidebarItem
+            icon={<LogOut size={18} aria-hidden="true" />}
+            label={logoutPending ? "Signing out..." : "Sign out"}
+            darkMode={darkMode}
+            disabled={logoutPending}
+            onClick={onLogout}
+          />
+        </div>
       </div>
     </aside>
   );
@@ -262,7 +264,7 @@ function SidebarItem({
       darkMode={darkMode}
       tone={active ? "primary" : "ghost"}
       size="md"
-      className="w-full justify-start overflow-hidden"
+      className="w-full justify-start overflow-hidden !rounded-none"
       disabled={disabled}
       icon={icon}
       onClick={onClick}

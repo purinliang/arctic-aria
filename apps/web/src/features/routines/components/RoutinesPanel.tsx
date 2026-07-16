@@ -2,9 +2,9 @@
 import { Bell, ChevronRight } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
-import { dividerClass, mutedTextClass } from "@/components/color";
+import { mutedTextClass } from "@/components/color";
 import { CheckboxControl } from "@/components/forms/selection-field";
-import { ListItem } from "@/components/list";
+import { List, ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
@@ -33,7 +33,7 @@ export function RoutinesPanel({
         meta={`${routines.length} scheduled`}
         darkMode={darkMode}
       />
-      <div className={dividerClass(darkMode)}>
+      <List darkMode={darkMode}>
         {loading ? (
           <LoadingLine darkMode={darkMode} text="Loading routines..." />
         ) : null}
@@ -50,7 +50,7 @@ export function RoutinesPanel({
             onOpen={onRoutineOpen}
           />
         ))}
-      </div>
+      </List>
     </Panel>
   );
 }

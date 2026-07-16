@@ -13,7 +13,17 @@ export function List({
   className?: string;
   children: ReactNode;
 }) {
-  return <div className={cx(dividerClass(darkMode), className)}>{children}</div>;
+  return (
+    <div
+      className={cx(
+        "overflow-hidden rounded-b-md",
+        dividerClass(darkMode),
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 
 export function ListItem({

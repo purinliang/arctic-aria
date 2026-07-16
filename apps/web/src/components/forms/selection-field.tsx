@@ -103,7 +103,7 @@ export function SelectInput({
           className={formControlPopupClass(
             darkMode,
             cx(
-              "grid max-h-64 w-full min-w-48 gap-1 overflow-y-auto p-1",
+              "grid max-h-64 w-full min-w-48 overflow-hidden overflow-y-auto p-1",
               popoverPlacementClass(placement),
             ),
           )}
@@ -116,7 +116,7 @@ export function SelectInput({
               <button
                 key={option.value}
                 className={cx(
-                  "flex w-full items-start justify-between gap-3 rounded-md px-2 py-2 text-left text-sm transition disabled:cursor-not-allowed disabled:opacity-40",
+                  "flex w-full items-start justify-between gap-3 px-2 py-2 text-left text-sm transition first:rounded-t-sm last:rounded-b-sm disabled:cursor-not-allowed disabled:opacity-40",
                   selected
                     ? darkMode
                       ? "bg-white text-black"
