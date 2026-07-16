@@ -8,21 +8,23 @@ import { ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
-import type { Task } from "@/features/dashboard/types";
+import { dashboardTaskStatusForChecked } from "@/features/dashboard/optimistic-updates";
+import type { Task, TaskStatus } from "@/features/dashboard/types";
 
 export function ProjectTasksPanel({
   darkMode,
   tasks,
   loading,
-  pendingTaskIds,
-  onTaskDone,
+  onTaskStatus,
   onTaskOpen,
 }: {
   darkMode: boolean;
   tasks: Task[];
   loading: boolean;
-  pendingTaskIds: string[];
-  onTaskDone: (taskId: string) => void;
+  onTaskStatus: (
+    taskId: string,
+    status: Exclude<TaskStatus, "archived">,
+  ) => void;
   onTaskOpen: (projectId: string) => void;
 }) {
   return (
@@ -45,8 +47,7 @@ export function ProjectTasksPanel({
             key={task.id}
             task={task}
             darkMode={darkMode}
-            taskPending={pendingTaskIds.includes(task.id)}
-            onDone={() => onTaskDone(task.id)}
+            onTaskStatus={(status) => onTaskStatus(task.id, status)}
             onOpen={() => onTaskOpen(task.projectId)}
           />
         ))}
@@ -59,14 +60,12 @@ export function ProjectTasksPanel({
 function ProjectTaskRow({
   task,
   darkMode,
-  taskPending = false,
-  onDone,
+  onTaskStatus,
   onOpen,
 }: {
   task: Task;
   darkMode: boolean;
-  taskPending?: boolean;
-  onDone: () => void;
+  onTaskStatus: (status: Exclude<TaskStatus, "archived">) => void;
   onOpen: () => void;
 }) {
   const metadata = [
@@ -84,13 +83,10 @@ function ProjectTaskRow({
           darkMode={darkMode}
           className="mt-1"
           checked={task.status === "done"}
-          disabled={taskPending || task.status === "done"}
           aria-label={`Mark ${task.title} done`}
-          onChange={(event) => {
-            if (event.target.checked) {
-              onDone();
-            }
-          }}
+          onChange={(event) =>
+            onTaskStatus(dashboardTaskStatusForChecked(event.target.checked))
+          }
         />
         <div className="min-w-0">
           <h3 className="min-w-0 text-base font-semibold">{task.title}</h3>

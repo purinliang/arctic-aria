@@ -5,6 +5,7 @@ import {
   applyDashboardTaskStatus,
   applyOptimisticPinnedMemoryStatus,
   applyOptimisticRoutineStatus,
+  dashboardTaskStatusForChecked,
   removeMemorySuggestion,
   removePendingSuggestionId,
   restoreTaskSnapshot,
@@ -151,6 +152,19 @@ test("dashboard task checkbox keeps the row in its current position", () => {
   assert.deepEqual(updated.map((task) => task.id), ["task-1", "task-2"]);
   assert.equal(updated[0].status, "done");
   assert.equal(updated[1], projectTasks[1]);
+});
+
+test("dashboard task checkbox maps checked and unchecked states", () => {
+  assert.equal(dashboardTaskStatusForChecked(true), "done");
+  assert.equal(dashboardTaskStatusForChecked(false), "todo");
+});
+
+test("dashboard task checkbox can optimistically undo without reordering", () => {
+  const done = applyDashboardTaskStatus(projectTasks, "task-1", "done");
+  const restored = applyDashboardTaskStatus(done, "task-1", "todo");
+
+  assert.deepEqual(restored.map((task) => task.id), ["task-1", "task-2"]);
+  assert.equal(restored[0].status, "todo");
 });
 
 test("restores a failed project task that was optimistically removed", () => {
