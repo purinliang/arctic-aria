@@ -264,6 +264,12 @@ export async function skipRoutineInstance(
   return updateRoutineInstance(instanceId, "skipped");
 }
 
+export async function reopenRoutineInstance(
+  instanceId: string,
+): Promise<RoutineActionResult<RoutineDashboardData>> {
+  return updateRoutineInstance(instanceId, "pending");
+}
+
 async function updateRoutineInstance(
   instanceId: string,
   status: RoutineStatus,
@@ -277,7 +283,9 @@ async function updateRoutineInstance(
   const instance =
     status === "completed"
       ? await routineService.completeRoutineInstance(user.id, instanceId)
-      : await routineService.skipRoutineInstance(user.id, instanceId);
+      : status === "skipped"
+        ? await routineService.skipRoutineInstance(user.id, instanceId)
+        : await routineService.reopenRoutineInstance(user.id, instanceId);
 
   if (!instance) {
     return { ok: false, message: "Routine instance was not found." };

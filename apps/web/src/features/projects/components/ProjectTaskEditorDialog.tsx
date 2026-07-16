@@ -1,49 +1,43 @@
-import { LoaderCircle, Plus, Save, X } from "lucide-react";
+// Projects Page - Project Task Editor Dialog.
+import { LoaderCircle, Save, Trash2 } from "lucide-react";
+import { Button } from "@/components/button";
 import type { Dispatch, SetStateAction } from "react";
-import { Button } from "@/components/ui/button";
+import { DatePickerField } from "@/components/forms/date-picker-field";
 import {
+  DialogActionRow,
   DialogBackdrop,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
-} from "@/components/ui/dialog";
-import { FieldLabel, TextArea, TextInput } from "@/components/ui/input-field";
-import { InlineMessage } from "@/components/ui/text";
-import type { ProjectTaskInput } from "@/features/projects/actions";
-import {
-  priorityOptions,
-  taskStatusOptions,
-} from "./project-page-helpers";
+  DialogPrimaryButton,
+} from "@/components/dialog";
+import { FieldLabel, TextInput } from "@/components/forms/input-field";
+import { SelectInput } from "@/components/forms/selection-field";
+import { TextArea } from "@/components/forms/text-area-field";
+import type {
+  ProjectTaskInput,
+  ProjectView,
+} from "@/features/projects/actions";
 
 export function ProjectTaskEditorDialog({
   darkMode,
   pending,
-  message,
   draft,
+  milestones,
   setDraft,
   onClose,
   onSubmit,
+  onDelete,
 }: {
   darkMode: boolean;
   pending: boolean;
-  message: string | null;
   draft: ProjectTaskInput;
+  milestones: ProjectView["milestones"];
   setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
   onClose: () => void;
   onSubmit: () => void;
+  onDelete?: () => void;
 }) {
-  function updateSubtask(
-    index: number,
-    next: Partial<ProjectTaskInput["subtasks"][number]>,
-  ) {
-    setDraft((current) => ({
-      ...current,
-      subtasks: current.subtasks.map((subtask, subtaskIndex) =>
-        subtaskIndex === index ? { ...subtask, ...next } : subtask,
-      ),
-    }));
-  }
-
   return (
     <DialogOverlay>
       <DialogBackdrop label="Close task editor" onClick={onClose} />
@@ -60,11 +54,6 @@ export function ProjectTaskEditorDialog({
             closeLabel="Close task editor"
             onClose={onClose}
           />
-          {message ? (
-            <InlineMessage darkMode={darkMode} className="mb-3">
-              {message}
-            </InlineMessage>
-          ) : null}
           <div className="grid gap-3">
             <TaskBasics
               darkMode={darkMode}
@@ -76,20 +65,13 @@ export function ProjectTaskEditorDialog({
               darkMode={darkMode}
               pending={pending}
               draft={draft}
+              milestones={milestones}
               setDraft={setDraft}
-            />
-            <TaskSubtasks
-              darkMode={darkMode}
-              pending={pending}
-              draft={draft}
-              setDraft={setDraft}
-              onSubtaskChange={updateSubtask}
             />
           </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button
+          <DialogActionRow>
+            <DialogPrimaryButton
               darkMode={darkMode}
-              tone="primary"
               type="submit"
               loading={pending}
               icon={<Save size={14} aria-hidden="true" />}
@@ -102,8 +84,19 @@ export function ProjectTaskEditorDialog({
               }
             >
               Save
-            </Button>
-          </div>
+            </DialogPrimaryButton>
+            {onDelete ? (
+              <Button
+                darkMode={darkMode}
+                disabled={pending}
+                className="w-full"
+                icon={<Trash2 size={14} aria-hidden="true" />}
+                onClick={onDelete}
+              >
+                Delete
+              </Button>
+            ) : null}
+          </DialogActionRow>
         </DialogFrame>
       </form>
     </DialogOverlay>
@@ -158,207 +151,67 @@ function TaskMeta({
   darkMode,
   pending,
   draft,
+  milestones,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: ProjectTaskInput;
+  milestones: ProjectView["milestones"];
   setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
 }) {
   return (
     <>
-      <div className="grid gap-3 sm:grid-cols-3">
-        <FieldLabel darkMode={darkMode} label="Scheduled date" optional>
-          <TextInput
-            darkMode={darkMode}
-            value={draft.scheduledDate}
-            placeholder="YYYY-MM-DD"
-            disabled={pending}
-            onChange={(event) =>
-              setDraft((current) => ({
-                ...current,
-                scheduledDate: event.target.value,
-              }))
-            }
-          />
-        </FieldLabel>
+      <FieldLabel darkMode={darkMode} label="Milestone" optional>
+        <SelectInput
+          darkMode={darkMode}
+          value={draft.milestoneId}
+          disabled={pending}
+          options={[
+            { value: "", label: "No milestone" },
+            ...milestones.map((milestone) => ({
+              value: milestone.id,
+              label: milestone.title,
+            })),
+          ]}
+          onChange={(milestoneId) =>
+            setDraft((current) => ({
+              ...current,
+              milestoneId,
+            }))
+          }
+        />
+      </FieldLabel>
+      <div className="grid gap-3 sm:grid-cols-2">
         <FieldLabel darkMode={darkMode} label="Start date" optional>
-          <TextInput
+          <DatePickerField
             darkMode={darkMode}
             value={draft.startDate}
-            placeholder="YYYY-MM-DD"
+            placeholder="Select start date"
             disabled={pending}
-            onChange={(event) =>
+            onChange={(startDate) =>
               setDraft((current) => ({
                 ...current,
-                startDate: event.target.value,
+                startDate,
               }))
             }
           />
         </FieldLabel>
         <FieldLabel darkMode={darkMode} label="Deadline" optional>
-          <TextInput
+          <DatePickerField
             darkMode={darkMode}
             value={draft.deadlineDate}
-            placeholder="YYYY-MM-DD"
+            placeholder="Select deadline"
             disabled={pending}
-            onChange={(event) =>
+            onChange={(deadlineDate) =>
               setDraft((current) => ({
                 ...current,
-                deadlineDate: event.target.value,
+                deadlineDate,
               }))
             }
           />
         </FieldLabel>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <SegmentedOptions
-          label="Priority"
-          darkMode={darkMode}
-          pending={pending}
-          value={draft.priority}
-          options={priorityOptions}
-          onChange={(priority) =>
-            setDraft((current) => ({ ...current, priority }))
-          }
-        />
-        <SegmentedOptions
-          label="Status"
-          darkMode={darkMode}
-          pending={pending}
-          value={draft.status}
-          options={taskStatusOptions}
-          onChange={(status) => setDraft((current) => ({ ...current, status }))}
-        />
-      </div>
     </>
-  );
-}
-
-function TaskSubtasks({
-  darkMode,
-  pending,
-  draft,
-  setDraft,
-  onSubtaskChange,
-}: {
-  darkMode: boolean;
-  pending: boolean;
-  draft: ProjectTaskInput;
-  setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
-  onSubtaskChange: (
-    index: number,
-    next: Partial<ProjectTaskInput["subtasks"][number]>,
-  ) => void;
-}) {
-  return (
-    <div className="grid gap-2">
-      <span className="text-xs font-semibold">Subtasks</span>
-      <div className="grid gap-2">
-        {draft.subtasks.map((subtask, index) => (
-          <div key={index} className="grid gap-2 rounded-md border border-slate-200 p-3">
-            <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto]">
-              <TextInput
-                darkMode={darkMode}
-                value={subtask.title}
-                placeholder="Subtask title"
-                disabled={pending}
-                onChange={(event) =>
-                  onSubtaskChange(index, { title: event.target.value })
-                }
-              />
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  className="accent-emerald-500"
-                  type="checkbox"
-                  checked={subtask.isDone}
-                  disabled={pending}
-                  onChange={(event) =>
-                    onSubtaskChange(index, { isDone: event.target.checked })
-                  }
-                />
-                Done
-              </label>
-              <Button
-                darkMode={darkMode}
-                disabled={pending}
-                icon={<X size={14} aria-hidden="true" />}
-                onClick={() =>
-                  setDraft((current) => ({
-                    ...current,
-                    subtasks: current.subtasks.filter(
-                      (_, subtaskIndex) => subtaskIndex !== index,
-                    ),
-                  }))
-                }
-              >
-                Remove
-              </Button>
-            </div>
-            <TextInput
-              darkMode={darkMode}
-              value={subtask.description}
-              placeholder="Subtask description"
-              disabled={pending}
-              onChange={(event) =>
-                onSubtaskChange(index, { description: event.target.value })
-              }
-            />
-          </div>
-        ))}
-      </div>
-      <Button
-        darkMode={darkMode}
-        disabled={pending}
-        icon={<Plus size={14} aria-hidden="true" />}
-        onClick={() =>
-          setDraft((current) => ({
-            ...current,
-            subtasks: [
-              ...current.subtasks,
-              { title: "", description: "", isDone: false },
-            ],
-          }))
-        }
-      >
-        Add subtask
-      </Button>
-    </div>
-  );
-}
-
-function SegmentedOptions<T extends string>({
-  label,
-  darkMode,
-  pending,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  darkMode: boolean;
-  pending: boolean;
-  value: T;
-  options: Array<{ value: T; label: string }>;
-  onChange: (value: T) => void;
-}) {
-  return (
-    <div className="grid gap-1.5">
-      <span className="text-xs font-semibold">{label}</span>
-      <div className="flex flex-wrap gap-2">
-        {options.map((option) => (
-          <Button
-            key={option.value}
-            darkMode={darkMode}
-            size="xs"
-            active={value === option.value}
-            disabled={pending}
-            onClick={() => onChange(option.value)}
-          >
-            {option.label}
-          </Button>
-        ))}
-      </div>
-    </div>
   );
 }

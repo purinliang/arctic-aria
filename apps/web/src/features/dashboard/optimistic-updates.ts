@@ -19,47 +19,22 @@ export function applyOptimisticTaskStatus(
           ...task,
           status,
         }
-      : {
-          ...task,
-          subtasks: task.subtasks?.map((subtask) =>
-            subtask.id === taskId
-              ? {
-                  ...subtask,
-                  isDone: status === "done",
-                  done: status === "done",
-                }
-              : subtask,
-          ),
-        },
+      : task,
   );
 }
 
-export function applyOptimisticSubtaskDone(
+export function applyDashboardTaskStatus(
   tasks: Task[],
-  subtaskId: string,
-  done: boolean,
+  taskId: string,
+  status: TaskStatus,
 ): Task[] {
-  return tasks.map((task) => {
-    let changed = false;
-    const subtasks = task.subtasks?.map((subtask) => {
-      if (subtask.id !== subtaskId) {
-        return subtask;
-      }
+  return applyOptimisticTaskStatus(tasks, taskId, status);
+}
 
-      changed = true;
-      return { ...subtask, isDone: done, done };
-    });
-
-    if (!subtasks || !changed) {
-      return task;
-    }
-
-    return {
-      ...task,
-      subtasks,
-      subtaskSummary: subtaskSummary(subtasks),
-    };
-  });
+export function dashboardTaskStatusForChecked(
+  checked: boolean,
+): Exclude<TaskStatus, "archived"> {
+  return checked ? "done" : "todo";
 }
 
 export function restoreTaskSnapshot(
@@ -84,39 +59,6 @@ export function restoreTaskSnapshot(
   return tasks.map((task) => (task.id === taskId ? previousTask : task));
 }
 
-export function restoreSubtaskSnapshot(
-  tasks: Task[],
-  snapshot: Task[],
-  subtaskId: string,
-): Task[] {
-  const previousTask = snapshot.find((task) =>
-    task.subtasks?.some((subtask) => subtask.id === subtaskId),
-  );
-  const previousSubtask = previousTask?.subtasks?.find(
-    (subtask) => subtask.id === subtaskId,
-  );
-
-  if (!previousTask || !previousSubtask) {
-    return tasks;
-  }
-
-  return tasks.map((task) => {
-    if (task.id !== previousTask.id || !task.subtasks) {
-      return task;
-    }
-
-    const subtasks = task.subtasks.map((subtask) =>
-      subtask.id === subtaskId ? previousSubtask : subtask,
-    );
-
-    return {
-      ...task,
-      subtasks,
-      subtaskSummary: subtaskSummary(subtasks),
-    };
-  });
-}
-
 export function applyOptimisticRoutineStatus(
   routines: Routine[],
   routineId: string,
@@ -128,7 +70,7 @@ export function applyOptimisticRoutineStatus(
           ...routine,
           status,
           reminderState: "idle" as const,
-          streakText: "Answered today",
+          streakText: status === "pending" ? "Due today" : "Answered today",
         }
       : routine,
   );
@@ -178,10 +120,4 @@ export function removeMemorySuggestion(
   memoryId: string,
 ): MemorySuggestion[] {
   return suggestions.filter((suggestion) => suggestion.id !== memoryId);
-}
-
-function subtaskSummary(subtasks: NonNullable<Task["subtasks"]>) {
-  const doneCount = subtasks.filter((subtask) => subtask.done).length;
-
-  return `${doneCount} of ${subtasks.length} subtasks done`;
 }

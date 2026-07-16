@@ -8,25 +8,14 @@ export type ProjectTaskStatus =
   | "done"
   | "archived";
 
-export type ProjectSubtaskRecord = {
-  id: string;
-  userId: string;
-  taskId: string;
-  title: string;
-  description: string;
-  isDone: boolean;
-  sortOrder: number;
-  createdAt: Date;
-  updatedAt: Date;
-  completedAt: Date | null;
-};
+export type ProjectPinResult = "pinned" | "limit_reached" | "not_found";
 
 export type ProjectTaskRecord = {
   id: string;
   userId: string;
   projectId: string;
   projectTitle: string;
-  milestoneId: string;
+  milestoneId: string | null;
   milestoneTitle: string;
   title: string;
   description: string;
@@ -42,7 +31,6 @@ export type ProjectTaskRecord = {
   skippedAt: Date | null;
   blockedAt: Date | null;
   archivedAt: Date | null;
-  subtasks: ProjectSubtaskRecord[];
 };
 
 export type ProjectMilestoneRecord = {
@@ -74,10 +62,12 @@ export type ProjectRecord = {
   startDate: string;
   deadlineDate: string | null;
   expectedDurationDays: number | null;
+  sidebarPinOrder: number | null;
   createdAt: Date;
   updatedAt: Date;
   completedAt: Date | null;
   archivedAt: Date | null;
+  tasks: ProjectTaskRecord[];
   milestones: ProjectMilestoneRecord[];
 };
 
@@ -110,7 +100,7 @@ export type SaveProjectTaskInput = {
   userId: string;
   taskId?: string;
   projectId: string;
-  milestoneId: string;
+  milestoneId: string | null;
   title: string;
   description: string;
   priority: ProjectPriority;
@@ -118,12 +108,6 @@ export type SaveProjectTaskInput = {
   scheduledDate: string | null;
   startDate: string | null;
   deadlineDate: string | null;
-  subtasks: Array<{
-    id?: string;
-    title: string;
-    description: string;
-    isDone: boolean;
-  }>;
   occurredAt: Date;
 };
 
@@ -138,16 +122,30 @@ export type ProjectRepository = {
     projectId: string;
     occurredAt: Date;
   }): Promise<boolean>;
+  pinProject(input: {
+    userId: string;
+    projectId: string;
+    occurredAt: Date;
+  }): Promise<ProjectPinResult>;
+  unpinProject(input: {
+    userId: string;
+    projectId: string;
+    occurredAt: Date;
+  }): Promise<boolean>;
+  archiveMilestone(input: {
+    userId: string;
+    milestoneId: string;
+    occurredAt: Date;
+  }): Promise<boolean>;
+  archiveTask(input: {
+    userId: string;
+    taskId: string;
+    occurredAt: Date;
+  }): Promise<boolean>;
   updateTaskStatus(input: {
     userId: string;
     taskId: string;
     status: Exclude<ProjectTaskStatus, "archived">;
-    occurredAt: Date;
-  }): Promise<boolean>;
-  updateSubtaskDone(input: {
-    userId: string;
-    subtaskId: string;
-    isDone: boolean;
     occurredAt: Date;
   }): Promise<boolean>;
 };

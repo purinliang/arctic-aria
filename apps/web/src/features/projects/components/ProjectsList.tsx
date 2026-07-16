@@ -1,30 +1,37 @@
-import { ArrowRight, FolderKanban, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { CardHeader } from "@/components/ui/card";
-import { mutedTextClass } from "@/components/ui/color";
-import { List, ListItem } from "@/components/ui/list";
-import { Panel } from "@/components/ui/panel";
-import { Tag } from "@/components/ui/tag";
+// Projects Page - Projects List.
+import { ChevronRight, FolderKanban, Pin, PinOff, Plus } from "lucide-react";
+import { Button } from "@/components/button";
+import { CardHeader } from "@/components/card";
+import { mutedTextClass } from "@/components/color";
+import { List, ListItem } from "@/components/list";
+import { LoadingLine } from "@/components/loading";
+import { Panel } from "@/components/panel";
+import { DescriptionText, SupportingText } from "@/components/text";
 import type { ProjectView } from "@/features/projects/actions";
-import { titleCase } from "./project-page-helpers";
 
 export function ProjectsList({
   darkMode,
   loading,
   pending,
   projects,
+  pendingProjectPinIds,
   onViewProject,
+  onPinProject,
+  onUnpinProject,
   onAddProject,
 }: {
   darkMode: boolean;
   loading: boolean;
   pending: boolean;
   projects: ProjectView[];
+  pendingProjectPinIds: string[];
   onViewProject: (projectId: string) => void;
+  onPinProject: (projectId: string) => void;
+  onUnpinProject: (projectId: string) => void;
   onAddProject: () => void;
 }) {
   return (
-    <Panel darkMode={darkMode} className="min-h-[60vh]">
+    <Panel darkMode={darkMode}>
       <CardHeader
         darkMode={darkMode}
         icon={<FolderKanban size={18} aria-hidden="true" />}
@@ -33,21 +40,18 @@ export function ProjectsList({
         action={
           <Button
             darkMode={darkMode}
-            tone="primary"
             disabled={pending}
             icon={<Plus size={15} aria-hidden="true" />}
             onClick={onAddProject}
           >
-            Add project
+            New
           </Button>
         }
       />
 
       <List darkMode={darkMode}>
         {loading ? (
-          <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
-            Loading projects...
-          </p>
+          <LoadingLine darkMode={darkMode} text="Loading projects..." />
         ) : null}
         {!loading && projects.length === 0 ? (
           <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
@@ -59,7 +63,10 @@ export function ProjectsList({
             key={project.id}
             darkMode={darkMode}
             project={project}
+            pinPending={pendingProjectPinIds.includes(project.id)}
             onView={() => onViewProject(project.id)}
+            onPin={() => onPinProject(project.id)}
+            onUnpin={() => onUnpinProject(project.id)}
           />
         ))}
       </List>
@@ -70,56 +77,57 @@ export function ProjectsList({
 function ProjectListItem({
   darkMode,
   project,
+  pinPending,
   onView,
+  onPin,
+  onUnpin,
 }: {
   darkMode: boolean;
   project: ProjectView;
+  pinPending: boolean;
   onView: () => void;
+  onPin: () => void;
+  onUnpin: () => void;
 }) {
+  const pinned = project.sidebarPinOrder !== null;
+
   return (
-    <ListItem darkMode={darkMode} layout="block">
-      <button className="w-full text-left" type="button" onClick={onView}>
+    <ListItem darkMode={darkMode} className="items-start">
+      <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-semibold">{project.title}</span>
-          <Tag darkMode={darkMode}>{titleCase(project.status)}</Tag>
-          <Tag darkMode={darkMode}>{titleCase(project.priority)}</Tag>
         </div>
-        <p className={`mt-1 line-clamp-2 text-sm ${mutedTextClass(darkMode)}`}>
+        <DescriptionText darkMode={darkMode} className="mt-1 line-clamp-2">
           {project.description}
-        </p>
-        <div
-          className={`mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs ${mutedTextClass(darkMode)}`}
-        >
-          <span>{project.timelineText}</span>
-          <span>{project.currentMilestone}</span>
-          <span>{project.progressText}</span>
-        </div>
-        <div className="mt-3 grid gap-2">
-          {project.milestones.map((milestone) => (
-            <div
-              key={milestone.id}
-              className="grid gap-1 py-1"
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold">{milestone.title}</span>
-                <Tag darkMode={darkMode}>{titleCase(milestone.status)}</Tag>
-              </div>
-              <span className={`text-xs ${mutedTextClass(darkMode)}`}>
-                {milestone.progressText}
-              </span>
-            </div>
-          ))}
-        </div>
-      </button>
-      <div className="mt-3">
+        </DescriptionText>
+        <SupportingText darkMode={darkMode} className="mt-2 block">
+          {project.timelineText} · {project.progressText}
+        </SupportingText>
+      </div>
+      <div className="flex shrink-0 items-center gap-2">
         <Button
           darkMode={darkMode}
-          size="xs"
-          icon={<ArrowRight size={13} aria-hidden="true" />}
-          onClick={onView}
+          size="sm"
+          disabled={pinPending}
+          icon={
+            pinned ? (
+              <PinOff size={14} aria-hidden="true" />
+            ) : (
+              <Pin size={14} aria-hidden="true" />
+            )
+          }
+          onClick={pinned ? onUnpin : onPin}
         >
-          View
+          {pinned ? "Unpin" : "Pin"}
         </Button>
+        <Button
+          darkMode={darkMode}
+          tone="ghost"
+          size="icon-sm"
+          aria-label={`Open ${project.title}`}
+          icon={<ChevronRight size={16} aria-hidden="true" />}
+          onClick={onView}
+        />
       </div>
     </ListItem>
   );

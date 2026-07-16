@@ -25,195 +25,278 @@ SQLite can still be useful for throwaway local experiments, but it should not be
 the main design target. If a local SQLite file is created during experiments, it
 must be gitignored.
 
-## Current Prototype Provider
+## Current Provider
 
-The current web auth prototype uses Neon PostgreSQL.
+The current web app uses Neon PostgreSQL for auth, projects, routines,
+memories, and dashboard-backed feature data.
 
 Local connection strings belong in untracked files such as
 `apps/web/.env.local` or `apps/web/.env.development.local`. Do not commit Neon
 URLs, passwords, dumps, or generated local database files.
+
+Use `NEON_POSTGRES_URL` as the single database URL environment variable for the
+web app and migration runner.
 
 Schema migration files are safe to commit. The current migration entry point is
 `apps/web/scripts/migrate.mjs`, exposed as `pnpm db:migrate` from `apps/web`.
 From the repository root, run the same migration entry point with
 `pnpm --dir apps/web db:migrate`.
 
-The Projects feature requires `0005_create_projects.sql`. If project server
-actions report missing `projects`, `project_milestones`, `project_tasks`, or
-`project_subtasks` tables, treat the database as not migrated and run the web
-database migration before manual testing.
+`schema_migrations` records each newly applied migration, a SHA-256 checksum of
+that migration file, and the app metadata that was active when it ran: app
+version, commit hash, and source state.
+`schema_migration_runs` records every successful migration-run check, including
+runs where all migrations were already applied. It also records the expected
+migration count, latest migration id, expected schema hash, actual migration
+count, actual latest migration id, and actual schema hash.
 
-## User Model
+Use these audit rows before production releases so the deployed
+frontend/backend version can be compared with the database migration state. The
+migration runner reads `APP_VERSION`, `APP_COMMIT`, and `APP_SOURCE_STATE` when
+present, falls back to Vercel commit metadata when available, and finally falls
+back to local Git metadata during development.
 
-The first version should support username and password registration and login.
+The user-facing app version is controlled automatically:
 
-Keep a user table because many records need a stable owner:
+- release builds should use Git release tags, such as `v0.5.0`
+- `develop` builds derive labels such as `v0.5.0-dev`
+- feature and fix branches derive labels such as
+  `v0.5.0-fix-app-metadata-display`
+- the commit hash is appended separately in the UI
 
-- projects
-- milestones
-- tasks
-- routines
-- ideas
-- memories and pinned memories
-- reminders
-- daily reviews
-- internal plugin context and plugin run records
+If production cannot access Git tags, set `APP_VERSION` during the deployment
+build. Do not manually set the generated `NEXT_PUBLIC_*` metadata variables
+unless debugging the build system; `next.config.ts` generates them from Git,
+Vercel metadata, and the local migration files at build time.
 
-Recommended first tables:
+The expected database version is derived automatically from committed migration
+files. Each migration file has its own checksum. The displayed database version
+is a compact schema-history hash derived from the ordered sequence of
+`filename + file checksum` values. That whole-history hash changes when a
+migration is added, removed, reordered, or edited.
 
-- `users`: Arctic Aria users.
-- `user_settings`: personal configuration such as timezone and day boundary.
-- `discord_accounts`: optional Discord binding records.
+Before applying missing migrations or recording a successful run, the migration
+runner reads `schema_migrations` and verifies that the database history is a
+valid prefix of the current source tree:
 
-An Arctic Aria user can be bound to at most one Discord user. A Discord user
-should also be bound to at most one Arctic Aria user. Enforce this with unique
-constraints on both `user_id` and `discord_user_id`.
+- If the database contains an applied migration that this source tree does not
+  know about, the runner refuses to continue because the database is ahead.
+- If an applied migration name appears in a different order, the runner refuses
+  to continue because the histories differ.
+- If an applied migration checksum differs from the local file checksum, the
+  runner refuses to continue because migration drift was detected.
+- Legacy rows that predate checksum tracking can be backfilled only when their
+  names match the current migration history prefix.
 
-Do not add OAuth until the username and password flow is stable.
+The actual database version shown in the app comes from the applied migration
+table, not from the commit that last ran `pnpm db:migrate`. App commit metadata
+is audit context only. User-facing UI shows the app version and the compact
+database schema-history hash, with a short red message when the database schema
+is behind, ahead, different, missing checksums, or unavailable.
 
-## Core Tables
+The Projects feature requires `0005_create_projects.sql` and the cleanup
+`0006_drop_project_subtasks.sql`. If project server actions report missing
+`projects`, `project_milestones`, or `project_tasks` tables, treat the database
+as not migrated and run the web database migration before manual testing.
 
-The first Core schema should support the Phase 1 and Phase 2 scope:
+## Data Lifecycle
 
-- `projects`
-- `project_milestones`
-- `project_tasks`
-- `project_subtasks`
-- `project_task_dependencies` if dependencies are needed later
-- `routines`
-- `routine_rules`
-- `routine_instances`
-- `ideas`
-- `memory_categories`
-- `memories`
-- `memory_events`
-- `pinned_memories`
-- `daily_plans`
-- `daily_plan_items`
-- `daily_reviews`
-- `completion_events`
-- `reminder_jobs`
+Every feature data-model doc must state what a user-visible delete action means.
+Do not assume that the word `Delete` always means a hard database delete.
 
-Projects should own milestones. Milestones should own tasks. Tasks may own
-subtasks, but subtasks are checklist records and are not independently
-scheduled.
+Current lifecycle policy:
 
-Task progress should be status-derived in the next project refactor:
+- Projects: deleting a project, milestone, or task archives it with
+  `status = 'archived'` and `archived_at`. Archived rows stay in the database
+  but are hidden from normal project, dashboard, and planning views.
+- Routines: deleting a routine marks it with `status = 'deleted'`. Deleted
+  routines are hidden from normal routine and dashboard views and excluded from
+  future instance generation.
+- Memories: deleting a memory hard-deletes the memory row. Linked pinned rows
+  and event rows are removed by foreign-key cleanup.
+- Memory categories: deleting a category hard-deletes it only when no memory
+  references it. The database should refuse non-empty category deletion.
+- Pinned memories: completing, canceling, replacing, or cleaning up a pinned
+  memory updates or removes only the dashboard shortlist row. The canonical
+  memory remains unless the memory itself is deleted.
+- Users/accounts: user-facing account deletion is not implemented yet. Future
+  account deletion needs a dedicated policy before implementation.
 
-- `status`: `todo`, `doing`, `blocked`, `skipped`, or `done`.
-- subtask completion can summarize local task progress.
-- task completion determines milestone and project progress.
+Default rules:
 
-Do not expose editable numeric progress fields in the task UI. If old prototype
-columns exist from an earlier migration, treat them as temporary implementation
-details until a cleanup migration removes or ignores them safely.
+- Prefer archive or soft delete for parent-child product data that represents
+  user work.
+- Refuse hard deletion of a non-empty parent unless the feature explicitly
+  documents cascade cleanup.
+- Use hard delete for lightweight shortlist rows, empty categories, or explicit
+  cleanup records when the feature doc says no long-term history is needed.
+- Translate database deletion failures into clear user-facing messages, such as
+  explaining that a category still contains memories.
 
-Task completion changes should also create immutable `completion_events` so
-daily review can reason about what happened.
+## Credential And Data Protection
 
-Detailed project and task rules are documented in
-[projects/overview.md](../features/projects/overview.md) and
-[projects/data-model.md](../features/projects/data-model.md).
+Credential data and product data have different protection rules.
 
-## Memory Tables
+Credential rules:
 
-Memories are product data. They represent user-visible repeatable experiences that
-can be suggested, pinned, ignored, completed, and deleted.
+- Never commit database URLs, passwords, auth secrets, OAuth secrets, provider
+  tokens, local dumps, or deployment credentials.
+- Passwords are stored as bcrypt hashes. They are not encrypted passwords and
+  cannot be decrypted back to the original password.
+- Raw passwords should exist only long enough to validate and hash them during
+  auth commands.
+- Session cookies are signed and HTTP-only. The current session token is not
+  encrypted, so its payload must remain non-sensitive.
+- Production should set an explicit `AUTH_SESSION_SECRET`. The development
+  fallback is only for local work.
 
-Recommended first tables:
+Product data rules:
 
-- `memory_categories`: user-owned categories and suggestion base weight.
-- `memories`: canonical memory records, category, title, description, summary
-  timestamps, and done count.
-- `memory_events`: immutable history for `pinned`, `unpinned`, `ignored`,
-  `completed`, `completed_canceled`, `replaced`, and `deleted` events.
-- `pinned_memories`: current dashboard shortlist with category, position,
-  pin time, visible-until time, completion time, and completed cleanup time.
+- Normal product records are stored as PostgreSQL rows that the backend can read
+  as plaintext.
+- Do not claim field-level encryption unless the app implements it for a
+  specific field.
+- If a future feature stores highly sensitive private notes, tokens, or external
+  credentials, design field-level encryption or a secret manager before adding
+  the table.
 
-Keep event history separate from current state. Do not store pin, ignore, or
-done timestamp arrays on `memories`; use `memory_events` for history and
-denormalized summary fields on `memories` for common queries.
+Provider protection:
 
-Detailed memory rules are documented in
-[memories/design.md](../features/memories/design.md).
+- Neon states that its platform enforces TLS 1.2+ for data in transit, encrypts
+  stored data with AES-256, and uses cloud key-management systems for encryption
+  keys. Source checked: <https://neon.com/security> on 2026-07-16.
+- Provider encryption protects storage media and transport paths. It does not
+  replace application-level rules for secrets, password hashing, authorization,
+  least privilege, or future field-level encryption.
 
-## Routine Tables
+## Operational Notes
 
-Routines are product data. A routine is the repeatable definition, and a routine
-instance is the concrete occurrence for a specific day or time window.
+Record database operation details here when they are known. Do not commit
+connection strings, passwords, Neon project ids, Vercel project ids, or other
+secret or account-identifying values.
 
-Detailed routine rules are documented in
-[routines/design.md](../features/routines/design.md).
+Provider facts to record:
 
-`routines` should store:
+- database provider: Neon
+- database engine: PostgreSQL
+- database region, when confirmed
+- backend hosting provider and backend region, when confirmed
+- whether the app uses Neon pooled or direct connections
+- migration command used for the active environment
 
-- user id
-- title
-- description
-- status: active or deleted
-- first start date
-- optional end date, inclusive
-- created and updated timestamps
+Latency facts to record:
 
-`routine_rules` should store recurrence settings:
+- backend-to-database latency, because every server action depends on this path
+- frontend-to-backend latency, because the user experiences this before any
+  database work can start
+- full user action latency for important flows, such as login, adding a project,
+  checking a dashboard task, or refreshing memory suggestions
 
-- repeat type, such as daily, weekly, bi-weekly, monthly by day of month, or
-- exact day interval
-- repeat interval value, such as 3 months, 6 months, 12 months, or 30 days
-- day-of-month value when the rule means "each month on day X"
-- reminder time or preferred check time when needed
-- timezone
+Use concrete measurements instead of guesses. Prefer dated measurements with a
+small table:
 
-The end date should be optional. If it is blank, the routine continues until the
-user deletes it.
+```text
+Date | Environment | Region path | Operation | p50 | p95 | Notes
+```
 
-`routine_instances` should store generated occurrences:
+Example operation labels:
 
-- routine id
-- user id
-- scheduled date or scheduled time
-- status: `pending`, `completed`, or `skipped`
-- completed date and time, when completed
-- skipped date and time, when skipped
+- `backend -> database: SELECT 1`
+- `backend -> database: login lookup`
+- `frontend -> backend: login action`
+- `frontend -> backend -> database: add project`
 
-The Routine feature should create routine instances from routine rules. This can
-happen ahead of time for the next few days or lazily when the scheduler prepares
-the daily plan.
+Database size facts to record:
 
-## Reminder Jobs
+- current Neon storage used
+- plan storage limit, only after checking the active Neon plan
+- largest tables by size
+- approximate row counts for important tables
+- date when the numbers were measured
 
-A reminder is a delivery process, not the source routine data. The durable
-record can be called a `reminder_job`.
+Do not hard-code Neon pricing, storage quotas, or performance claims unless
+they were checked for the active plan and include a date. If those values are
+important for release planning, record them as measured operational notes, not
+as product rules.
 
-The first database design does not need a separate `reminder_rules` table.
-Routine recurrence belongs in `routines` and `routine_rules`. Reminder delivery
-state belongs in `reminder_jobs`.
+## Integrity And Validation
 
-`reminder_jobs` should store one scheduled delivery attempt or delivery chain
-for a routine instance or task:
+The database is the final consistency boundary for product data.
 
-- target type, such as routine instance or task
-- target id
-- scheduled time
-- status, such as pending, sent, answered, snoozed, failed, or expired
-- retry count
-- snooze-until time
-- delivery channel, such as Discord
-- related message id when Discord sends or updates a message
+Use the layers this way:
 
-Discord reminder messages should show three actions:
+- Frontend validation helps the user correct input early.
+- Backend validation owns trusted field-level checks and user-facing messages.
+- Database constraints protect consistency when requests race, clients bypass
+  the UI, or backend code has a bug.
 
-- `Done`
-- `Busy`
-- `Skip`
+Database schema should enforce cross-row and cross-command safety where
+practical:
 
-When the user clicks an action, the Discord bot should call a product command.
-The product command updates task or routine state, records a completion or skip
-event, and updates review data or future dataflow hooks.
+- Use foreign keys for ownership and references.
+- Use unique constraints for values that must be unique, such as username or a
+  future per-user unique key.
+- Use check constraints for simple allowed values, status sets, positive
+  numbers, and date ordering.
+- Use transactions when one command must update several related rows together.
 
-`Busy` should not be stored as a routine status. It should update the reminder
-job by snoozing or rescheduling the reminder.
+Do not rely on a `SELECT` before `INSERT` as the only protection for uniqueness
+or references. The backend may pre-check to produce a nicer message, but a
+database constraint must still protect concurrent inserts or updates when the
+data rule requires uniqueness.
 
-## Event Storage
+For user-visible parent-child data, prefer archive or soft-delete commands.
+When a feature supports hard delete, the default behavior should refuse deleting
+a non-empty parent. Use cascade delete only when the feature explicitly
+documents that cleanup behavior, such as account-level removal of all owned
+data.
 
-Intentionally left blank for now.
+Backend actions should catch known constraint failures and translate them into
+clear messages. Examples:
+
+- duplicate unique value
+- referenced parent not found
+- deleting a parent that still has children
+- invalid status or date range rejected by a check constraint
+
+## Feature Data Models
+
+Feature data-model docs are the source of truth for product tables, fields,
+constraints, backend validation, delete behavior, and concurrency rules.
+Do not duplicate feature schemas in this infrastructure document.
+
+Current feature data-model docs:
+
+- Auth: [auth/data-model.md](../features/auth/data-model.md)
+- Projects: [projects/data-model.md](../features/projects/data-model.md)
+- Routines: [routines/data-model.md](../features/routines/data-model.md)
+- Memories: [memories/data-model.md](../features/memories/data-model.md)
+
+Planned feature data-model docs should be added under their owning feature
+folder before implementation starts, for example Settings, Ideas, Scheduler,
+Reviews, Discord account binding, and future plugins.
+
+## Future Persistence Areas
+
+The first implemented database scope is auth, projects, routines, memories, and
+dashboard-backed feature data.
+
+Future persistence areas may include:
+
+- user settings, such as timezone and day boundary
+- Discord account bindings
+- daily plans and daily reviews
+- reminder jobs and delivery attempts
+- plugin registrations and plugin run records
+- internal plugin context and retrieval data
+
+Each future area should get an owning feature or app data-model doc before its
+tables are added.
+
+## Future Cache And Dataflow
+
+There is no event-bus implementation or standalone event-bus document yet.
+Redis is a likely future cache or lightweight coordination direction, but it
+should not be added until a concrete read-performance, session, queue, or
+reminder-delivery need appears. Planned Redis rules are documented in
+[redis.md](redis.md).

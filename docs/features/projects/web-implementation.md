@@ -9,19 +9,18 @@ Product rules are defined in
 
 The current web implementation supports the first database-backed Project model:
 
-- load Projects, Milestones, Tasks, and Subtasks from Neon
+- load Projects, Milestones, and Tasks from Neon
 - add and edit projects with a single description field
 - add and edit milestones
 - add and edit tasks under milestones
-- add and edit subtask checklist items while editing a task
 - validate calendar dates before database writes
 - complete, skip, block, and reopen tasks through server actions
-- update subtask checklist state
 - return project database failures through normal action results instead of a
   Next.js runtime overlay
 - record task completion, skip, block, unblock, and reopen events
 - show task command failure through shared notifications
-- show dashboard task cards for today's selected tasks
+- show dashboard task rows for today's selected tasks
+- pin up to three active projects into the sidebar
 
 The current implementation does not include:
 
@@ -38,11 +37,14 @@ The current implementation does not include:
 
 The user opens the Projects page from the sidebar.
 
+The main sidebar `Projects` item opens the Projects list. Pinned project
+shortcuts, when present, appear below it and open their detail page directly.
+
 ## Component Naming
 
 Use `ProjectsPage` for the list and management entry point because it shows the
 collection of projects. Use `ProjectDetailPage` for one selected project and
-its milestone/task/subtask tree.
+its tasks and milestone management.
 
 Do not use `ProjectPage` unless the component truly has no list/detail
 distinction.
@@ -50,17 +52,18 @@ distinction.
 The Projects page should show:
 
 - project list
-- milestone summaries inside each project list item
-- `Add project` action
+- `New` action
+- pin and unpin actions for sidebar shortcuts
 
 The Project detail page should show:
 
 - breadcrumb with project switcher
 - selected project detail
-- milestone, task, and subtask tree
+- flat task list and milestone management
 - project, milestone, and task add/edit actions
+- project pin or unpin action beside the title edit action
 
-`Add project` should open project creation.
+`New` should open project creation.
 
 Project creation and editing should use one `Description` textarea instead of
 separate objective and importance fields. The prompt should guide the user to
@@ -79,44 +82,41 @@ The first duration options are `1-3 months`, `3-6 months`, `6-12 months`, and
 
 Task `Edit` can still use a dialog inside the project detail page.
 
-Progress comes from completed subtasks, completed tasks, and milestone phases
-instead of editable numeric progress fields.
+Progress comes from completed tasks and milestone phases instead of editable
+numeric progress fields.
 
 ## Dashboard Behavior
 
 The dashboard should show `Today's tasks to move projects forward`. It should
 load task candidates from the database for signed-in users.
 
-Dashboard task cards support:
+Dashboard task rows support:
 
-- expand and collapse
-- subtask checkboxes
-- `Done`
-- `Block`
-- `Skip`
-- `Edit`, which opens the Projects page for management
+- static read-only task summary rows
+- left-side `Done` checkbox
+- title, description, and supporting metadata
 
-`Done`, `Block`, and `Skip` collapse the card immediately and use optimistic
-UI. If the backend rejects the command, the previous visible state is restored
-and the shared notification component shows the error.
+Checking `Done` uses optimistic UI. Dashboard task rows must not expose edit,
+expand, collapse, or task-management detail controls. If the backend rejects
+the command, the previous visible state is restored and the shared notification
+component shows the error.
 
-Dashboard task cards should not show standalone project progress visualization
-or editable numeric progress. They can show concise text such as `2 of 5
-subtasks done`.
+Dashboard task rows should not show standalone project progress visualization,
+editable numeric progress, or colored tag chips.
 
 ## Current UI Structure
 
-The dashboard shell owns navigation and page switching:
+The app shell owns navigation and page switching:
 
 ```text
-Dashboard
+AppShell
   Sidebar
   page title bar
-  DashboardHome or ProjectsPage
+  Dashboard or ProjectsPage
   NotificationStack
 ```
 
-When `activeView` is `projects`, `Dashboard` renders `ProjectsPage` as the page
+When `activeView` is `projects`, `AppShell` renders `ProjectsPage` as the page
 body under the shared page title bar.
 
 ### Projects Page Component Tree
@@ -127,7 +127,6 @@ existing dashboard view.
 
 ```text
 ProjectsPage
-  optional InlineMessage
   ProjectsList, when no project is selected for detail view
   ProjectDetailPage, when a project is selected for detail view
   ProjectEditorDialog, when adding or editing a project
@@ -146,23 +145,24 @@ Top header:
 
 - parent layout: horizontal flex with wrapping
 - left group: `Projects` title, then the descriptive sentence below it
-- right group: primary `Add project` button
+- right group: secondary `New` button
 - icon: `Plus`
 
 List body:
 
 - parent layout: vertical grid
 - empty state: `No projects yet. Add a project for a larger goal.`
-- item parent component: shared `ListItem` with block layout
-- item first line: project title, status `Tag`, priority `Tag`
+- item parent component: shared `ListItem` with row layout
+- item first line: project title only
 - item second line: truncated description
-- item third line: timeline text, current milestone, progress text
-- milestone preview: vertical rows below the project summary
-- milestone preview row: milestone title, status `Tag`, progress text
-- footer action: `View`, which opens the detail page
+- item third line: timeline text and progress text
+- item right actions: `Pin` or `Unpin`, then outlineless right-arrow button
+- do not render milestone preview rows or task rows on the list page
 
-Clicking the item or its `View` action opens the detail page. The list page does
-not show task or subtask rows.
+Clicking only the right-arrow button opens the detail page. The whole project
+item is not clickable. Do not add a text `View` button or footer action inside
+project list items. `Pin` and `Unpin` only update sidebar shortcuts and must not
+navigate. The list page does not show task rows.
 
 ### Project Detail Layout
 
@@ -175,37 +175,57 @@ Breadcrumb row:
 - divider: `/`
 - second item: project name switcher
 - switching through the project name keeps the user on the detail page
+- title action: `Edit3` icon plus `Edit`, placed to the right of the
+  breadcrumb and opening the project editor dialog
+- adjacent title action: `Pin` or `Unpin`, updating the sidebar shortcut state
+  for the selected project
 
-Project header:
+Project overview card:
 
-- first row: project title, then status `Tag`
-- second row: description
-- third row: started date, timeline text, progress text
+- card title: `Overview`
+- first row: labeled description block with label `Description`
+- metadata rows: `Start date` and `Timeline`
+- start date value uses English display format, not raw `YYYY-MM-DD`
+- do not repeat the project title inside this card because the page title
+  already shows it
+- no card-level edit action; project edit belongs beside the page title
+- do not show colored status or priority tags
 
-Action row:
-
-- layout: horizontal flex with wrapping
-- actions: `Edit project`, then `Add milestone`
-- icons: `Edit3`, `Plus`
-
-Milestone list:
+Milestone management card:
 
 - parent layout: vertical grid
-- milestone parent component: shared `ListItem` with block layout
+- location: right panel, below `Overview`
+- milestone parent component: shared `ListItem`
 - milestone header layout: horizontal flex with wrapping
-- milestone left group: title, status `Tag`, then objective or progress text
-- milestone right group: `Edit` with `Edit3`, then `Add task` with `Plus`
-- task rows append vertically below the milestone header
+- milestone left group: title, then objective or progress text
+- milestone right group: `Edit` with `Edit3`
+- do not render task rows inside milestone rows
 
-Task row layout inside a milestone:
+Task list:
 
-- parent surface: rounded bordered row
-- row direction: horizontal with wrapping
-- left group: title, status `Tag`, priority `Tag`, then subtask summary and
-  deadline
-- right group: `Done` with `Check`, then `Edit`
-- `Done` uses the normal secondary button tone, not the green success tone,
-  because the task is not completed until the command succeeds
+- location: main left panel
+- parent card title: `Tasks`
+- header action: `New` with `Plus`
+- rows are flat task rows, not nested under milestone sections
+- task sort order: not-done tasks first, then `deadlineDate` ascending with
+  empty deadlines last, then `startDate` ascending
+- sorting happens when data is loaded/refreshed or after adding/editing a task;
+  checking or unchecking `Done` must keep the current visible row order
+
+Task row layout:
+
+- parent surface: shared `ListItem`
+- row direction: three columns
+- left column: `Done` checkbox
+- middle column: title, description, then optional `milestone · deadline`
+  metadata
+- right column: `Edit`
+- do not show task status tags, priority tags, or Block/Skip actions in the
+  first UI
+- checking `Done` or unchecking it uses optimistic UI without disabling the row,
+  the clicked checkbox, or other controls, updates derived task progress text
+  immediately, and rolls back with a shared notification if the backend rejects
+  the latest command
 
 ### Project Editor Dialog Layout
 
@@ -217,64 +237,77 @@ Dialog shell:
 - backdrop: `DialogBackdrop`
 - frame: `DialogFrame`
 - top row: `DialogHeader`
-- optional `InlineMessage` below the header
+- save and delete failures use `NotificationStack`; do not render page-local or
+  dialog-local inline action messages
 - field area: vertical grid
-- footer: horizontal action row with one primary `Save` button
+- footer: `DialogActionRow` with one full-width primary `Save` button
 - save icon: `Save`
 - loading icon: animated `LoaderCircle`
+- existing project, milestone, and task edit dialogs also show a full-width
+  secondary `Delete` button below `Save`
+- `Delete` opens shared `ConfirmDialog`; confirmation uses the standard primary
+  button style and deletes only after backend success
 
 Project field order:
 
 - `Title` text input
-- `Description` textarea
+- `Description` textarea with neutral placeholder copy, such as
+  `Describe the goal, context, and why it matters.`
 - `Timeline` segmented buttons: `Deadline`, `Duration`
 - date/duration fields: two columns on desktop, stacked on mobile
-- `Priority` segmented buttons: `High`, `Medium`, `Low`
+Project and task priority are intentionally hidden in the first UI. Hidden
+priority values default to `medium`; do not render priority selectors.
+
+Milestone field order should mirror the project editor where the data model
+overlaps:
+
+- `Title` text input
+- `Objective` textarea
+- `Timeline` segmented buttons: `Deadline`, `Duration`
+- date/duration fields: two columns on desktop, stacked on mobile
+- do not use a typed `Duration days` number field in the milestone dialog
 
 `ProjectTaskEditorDialog` uses its own vertical dialog layout:
 
 - basics group: title, description
-- meta group: scheduled date, start date, deadline, priority, status
-- subtasks group: vertical subtask cards
-- subtask card first row: title input, `Done` checkbox, `Remove` with `X`
-- subtask card second row: description input
-- bottom action: `Add subtask` with `Plus`
+- meta group: milestone selector, start date, deadline
+- milestone selector defaults to `No milestone`; choosing a milestone is
+  optional
+- do not render a scheduled date field in the task dialog
+- do not render done/not-done controls in the task dialog; completion belongs
+  to task rows and the dashboard Project Tasks panel
+- do not render priority, status tag, or child checklist fields in the task
+  dialog
 
-### Dashboard Project Task Card Layout
+### Dashboard Project Tasks Panel Layout
 
-`DashboardHome` renders the project task panel as the main left dashboard panel:
+`Dashboard` renders the project task panel as the main left dashboard panel:
 
 ```text
-DashboardHome
-  main Panel
-    SectionHeader(Check, "Today's tasks to move projects forward")
-    ProjectTaskCard[]
+Dashboard
+  ProjectTasksPanel
+    CardHeader(Check, "Today's tasks to move projects forward")
+    ProjectTaskRow[]
   right aside
     routines Panel
-    pinned memories Panel
+    PinnedMemoriesPanel
 ```
 
-`ProjectTaskCard` owns the dashboard view of one task.
+`ProjectTasksPanel` owns the dashboard task section. `ProjectTaskRow` owns the
+dashboard view of one task.
 
-Collapsed card:
+Task row:
 
-- parent element: full-width `article`
-- clickable row layout: two columns, task text then chevron
+- parent element: shared `ListItem`
+- row layout: left completion checkbox, then task content
 - text group direction: vertical
-- first line: task title, priority label, status `Tag`
-- second line: project label, milestone label, deadline, subtask summary
-- right icon: `ChevronDown`, rotated when expanded
-
-Expanded card:
-
-- expanded content appends below the clickable row
-- first element: task description
-- middle elements: subtask checklist rows
-- subtask row layout: checkbox, then title and description
-- footer layout: horizontal flex with wrapping
-- actions in order: `Done` with `Check`, `Block` with `Ban`, `Skip` with
-  `SkipForward`, `Edit` with `Edit3`
-- `Done` uses the normal secondary button tone, not the green success tone
+- first line: task title
+- second line: task description, always visible
+- third line: supporting metadata as `project · milestone · deadline`,
+  omitting the milestone segment when the task has no milestone
+- no chevron
+- no expanded content
+- no dashboard edit action
 
 ## Code Locations
 
@@ -284,9 +317,9 @@ Project web UI:
 apps/web/src/features/projects/components/ProjectsPage.tsx
 apps/web/src/features/projects/components/ProjectDetailPage.tsx
 apps/web/src/features/projects/components/ProjectsList.tsx
-apps/web/src/features/projects/components/ProjectTaskCard.tsx
+apps/web/src/features/projects/components/ProjectTasksPanel.tsx
 apps/web/src/features/dashboard/components/Dashboard.tsx
-apps/web/src/features/dashboard/components/DashboardHome.tsx
+apps/web/src/app-shell/AppShell.tsx
 ```
 
 Project server actions:
@@ -307,6 +340,7 @@ Database migrations:
 
 ```text
 apps/web/database/migrations/0005_create_projects.sql
+apps/web/database/migrations/0006_drop_project_subtasks.sql
 ```
 
 Tests:
@@ -323,9 +357,9 @@ Project server actions should catch database failures and return
 `ProjectActionResult` failures. The UI can then keep dialogs open or show shared
 notifications instead of exposing a Next.js runtime overlay.
 
-If the database reports that `projects`, `project_milestones`,
-`project_tasks`, or `project_subtasks` does not exist, the action message should
-tell the developer to run:
+If the database reports that `projects`, `project_milestones`, or
+`project_tasks` does not exist, the action message should tell the developer to
+run:
 
 ```text
 pnpm --dir apps/web db:migrate
@@ -354,8 +388,10 @@ Completed in the Project implementation branch:
 - added `features/projects` for the stable Project model
 - replaced the legacy task prototype page with `ProjectsPage` and
   `ProjectDetailPage`
-- replaced old plan and numeric-progress UI with project, milestone, task, and
-  subtask fields
-- added Project/Milestone/Subtask schema in `0005_create_projects.sql`
+- replaced old plan and numeric-progress UI with project, milestone, and task
+  fields
+- added Project/Milestone/Task schema in `0005_create_projects.sql`
+- added `0006_drop_project_subtasks.sql` after removing the child checklist
+  table
 - added project action error mapping for missing project migrations
 - removed the obsolete task prototype code

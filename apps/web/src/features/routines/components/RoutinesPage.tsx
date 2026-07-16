@@ -1,13 +1,10 @@
+// Routines Page.
 import { Bell, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  mutedTextClass,
-  sectionBorderClass,
-} from "@/components/ui/color";
-import { ConfirmDialog } from "@/components/ui/dialog";
-import { Panel } from "@/components/ui/panel";
-import { cx } from "@/components/ui/utils";
+import { Button } from "@/components/button";
+import { CardHeader } from "@/components/card";
+import { ConfirmDialog } from "@/components/dialog";
+import { Panel } from "@/components/panel";
 import type { RoutineDefinition } from "@/features/dashboard/types";
 import type { RoutineInput } from "@/features/routines/actions";
 import { RoutineEditorDialog } from "./RoutineEditorDialog";
@@ -25,19 +22,15 @@ export function RoutinesPage({
   routines,
   loading,
   pending,
-  message,
   onRoutineSave,
   onRoutineDelete,
-  onMessageClear,
 }: {
   darkMode: boolean;
   routines: RoutineDefinition[];
   loading: boolean;
   pending: boolean;
-  message: string | null;
   onRoutineSave: (input: RoutineInput) => RoutineResult;
   onRoutineDelete: (routineId: string) => RoutineResult;
-  onMessageClear: () => void;
 }) {
   const [editorOpen, setEditorOpen] = useState(false);
   const [draft, setDraft] = useState<RoutineInput>(emptyDraft);
@@ -48,19 +41,16 @@ export function RoutinesPage({
     if (!pending) {
       setEditorOpen(false);
       setDraft(emptyDraft());
-      onMessageClear();
     }
   }
 
   function openNewEditor() {
     setDraft(emptyDraft());
-    onMessageClear();
     setEditorOpen(true);
   }
 
   function openEditor(routine: RoutineDefinition) {
     setDraft(toDraft(routine));
-    onMessageClear();
     setEditorOpen(true);
   }
 
@@ -95,7 +85,6 @@ export function RoutinesPage({
           pending={pending}
           onAdd={openNewEditor}
         />
-        {message ? <RoutinesPageMessage darkMode={darkMode} message={message} /> : null}
         <RoutinesList
           darkMode={darkMode}
           routines={routines}
@@ -109,7 +98,6 @@ export function RoutinesPage({
         <RoutineEditorDialog
           darkMode={darkMode}
           pending={pending}
-          message={message}
           draft={draft}
           setDraft={setDraft}
           onClose={closeEditor}
@@ -154,49 +142,21 @@ function RoutinesPageHeader({
   onAdd: () => void;
 }) {
   return (
-    <div
-      className={cx(
-        "flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between",
-        sectionBorderClass(darkMode),
-      )}
-    >
-      <div className="min-w-0">
-        <div className="flex items-center gap-2">
-          <Bell size={18} aria-hidden="true" />
-          <h2 className="text-base font-semibold">Routines</h2>
-        </div>
-        <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
-          Repeatable checks for the current personal day.
-        </p>
-      </div>
-      <Button
-        darkMode={darkMode}
-        disabled={pending}
-        icon={<Plus size={15} aria-hidden="true" />}
-        onClick={onAdd}
-      >
-        Add
-      </Button>
-    </div>
-  );
-}
-
-function RoutinesPageMessage({
-  darkMode,
-  message,
-}: {
-  darkMode: boolean;
-  message: string;
-}) {
-  return (
-    <p
-      className={`border-b px-4 py-3 text-sm ${
-        darkMode
-          ? "border-neutral-900 text-amber-200"
-          : "border-slate-200 text-amber-700"
-      }`}
-    >
-      {message}
-    </p>
+    <CardHeader
+      darkMode={darkMode}
+      icon={<Bell size={18} aria-hidden="true" />}
+      title="Routines"
+      description="Repeatable checks for the current personal day."
+      action={
+        <Button
+          darkMode={darkMode}
+          disabled={pending}
+          icon={<Plus size={15} aria-hidden="true" />}
+          onClick={onAdd}
+        >
+          New
+        </Button>
+      }
+    />
   );
 }

@@ -1,11 +1,8 @@
 # Auth Implementation Notes
 
-This note records the current username and password auth prototype in the
-Next.js web app. The product rules still live in [design.md](design.md).
-
-The general dashboard prototype notes are documented in
-[prototype.md](prototype.md). Its "no authentication" boundary applies to the
-dashboard-only prototype work, not to this auth feature branch.
+This note records the current username and password auth implementation in the
+Next.js web app. Product rules live in [overview.md](overview.md), data rules live
+in [data-model.md](data-model.md), and UI rules live in [ui.md](ui.md).
 
 ## Current Status
 
@@ -34,10 +31,17 @@ Auth UI:
 ```text
 apps/web/src/features/auth/components/
 |-- AuthGate.tsx
+|-- AuthPage.tsx
 |-- AuthForm.tsx
 |-- AuthTextField.tsx
 `-- GoogleIcon.tsx
 ```
+
+`AuthGate` checks the current session and chooses between `AppShell` and the
+signed-out auth UI. `AuthPage` owns the signed-out page shell, brand header,
+and centered panel. `AuthForm` owns credential fields, tab switching, submit
+actions, and auth-related placeholder actions such as Google sign-in and
+password reset.
 
 Auth actions and shared validation:
 
@@ -79,12 +83,10 @@ apps/web/src/server/database/__tests__/neon.test.ts
 Use `apps/web/src/features/auth/validation.ts` as the implementation source for
 both frontend and backend auth field validation.
 
-Current rules:
+Current typing rules:
 
-- Username is required.
 - Username must be 4 to 16 characters.
 - Username must contain visible non-blank ASCII characters only.
-- Password is required.
 - Password must be 8 to 32 characters.
 - Password must contain visible non-blank ASCII characters only.
 - Repeated password must match password during sign up.
@@ -93,16 +95,26 @@ Current rules:
 - A provided display name must be 1 to 24 characters.
 - Display name can contain UTF-8 text and blanks inside the trimmed value.
 
+Current submit-required rules:
+
+- Username is required.
+- Password is required.
+- Repeated password is required during sign up.
+- Required-empty field bubbles use direct messages such as
+  `Username can't be empty.` and appear only after the user clicks the relevant
+  submit button.
+
 The database cannot validate the raw password because only the bcrypt hash is
 stored. Password validation must happen before hashing.
 
 ## Database Notes
 
-The selected database for the current prototype is Neon PostgreSQL.
+The selected database for the current web app is Neon PostgreSQL.
 
-The app reads the database URL from environment variables through
-`apps/web/src/server/database/neon.ts`. Keep local `.env*` files untracked and
-do not commit connection strings.
+The app reads the database URL from `NEON_POSTGRES_URL` through
+`apps/web/src/server/database/neon.ts`. Use the same key locally and in
+production. Keep local `.env*` files untracked and do not commit connection
+strings.
 
 Run migrations from `apps/web`:
 
@@ -111,22 +123,22 @@ pnpm db:migrate
 ```
 
 The migration runner loads `.env.local` and `.env.development.local` before it
-connects. Prefer an unpooled or direct Neon URL for migrations when one is
-available.
+connects, and it also requires `NEON_POSTGRES_URL`.
 
 ## Session Notes
 
-The current prototype stores login state in an HTTP-only signed cookie named
+The current implementation stores login state in an HTTP-only signed cookie named
 `arctic_aria_session`. The cookie lasts 30 days.
 
 The session token is signed with `AUTH_SESSION_SECRET` when it is set. For local
-development, the app falls back to available database URL environment variables
-or a development-only fallback secret. A deployed environment should set
-`AUTH_SESSION_SECRET` explicitly.
+development, the app falls back to `NEON_POSTGRES_URL` or a development-only
+fallback secret. A deployed environment should set `AUTH_SESSION_SECRET`
+explicitly.
 
 The current session payload stores user id, username, display name, and expiry.
-It is not stored in the database, so there is no server-side session revocation
-yet.
+It is signed to prevent tampering, but it is not encrypted. Do not add
+sensitive data to the session payload. It is not stored in the database, so
+there is no server-side session revocation yet.
 
 ## UI Rules
 
@@ -134,12 +146,20 @@ Auth UI should follow the existing web rules:
 
 - Keep the auth panel centered.
 - Keep `Sign in` and `Sign up` as the two tabs.
-- Use field-level error bubbles after a field has been focused.
-- Disable submit while typing validation fails.
-- Show the first hidden validation error when hovering a disabled submit button.
+- Use field-level error bubbles for non-empty typing validation and
+  submit-triggered required-empty validation.
+- Do not show required-empty field bubbles while typing.
+- Disable submit while non-empty typing validation fails.
+- Show the first non-empty typing validation error when hovering a disabled
+  submit button.
+- Use the shared notification stack for login/register success, login/register
+  failure, and unavailable auth actions. Do not render separate auth-only
+  success or failure messages inside the form.
 - Keep OAuth as a placeholder until the username and password flow is stable.
-- Use `lucide-react` icons for normal UI icons when a suitable icon exists.
 - Use the Google-provided multicolor logo component for the Google placeholder.
+- Clicking the placeholder Google action should show a shared info notification.
+- Clicking the placeholder password reset action should show a shared info
+  notification.
 - Avoid unrelated actions on the auth screen.
 
 ## Useful Commands

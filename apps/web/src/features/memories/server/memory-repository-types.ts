@@ -13,6 +13,7 @@ export type MemoryCategoryRecord = {
   id: string;
   userId: string;
   name: MemoryCategoryName;
+  description: string;
   baseWeight: number;
   createdAt: Date;
   updatedAt: Date;
@@ -76,6 +77,7 @@ export type ReplacePinnedMemoryInput = {
 export type CreateMemoryCategoryInput = {
   userId: string;
   name: string;
+  description: string;
   baseWeight: number;
   occurredAt: Date;
 };
@@ -156,10 +158,11 @@ export type MemoryRepository = {
 
 const defaultCategoryInputs: Array<{
   name: MemoryCategoryName;
+  description: string;
   baseWeight: number;
 }> = [
-  { name: "Cuisine", baseWeight: 1.2 },
-  { name: "Sightseeing", baseWeight: 0.8 },
+  { name: "Cuisine", description: "", baseWeight: 1.2 },
+  { name: "Sightseeing", description: "", baseWeight: 0.8 },
 ];
 
 export function getDefaultMemoryCategories() {

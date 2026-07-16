@@ -2,8 +2,8 @@ import {
   hasAuthErrors,
   normalizeLoginInput,
   normalizeRegisterInput,
-  validateLoginTyping,
-  validateRegisterTyping,
+  validateLoginSubmit,
+  validateRegisterSubmit,
   type AuthFieldErrors,
   type LoginInput,
   type RegisterInput,
@@ -69,7 +69,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
   return {
     async register(input: RegisterInput): Promise<AuthActionResult> {
       const normalizedInput = normalizeRegisterInput(input);
-      const fieldErrors = validateRegisterTyping(normalizedInput);
+      const fieldErrors = validateRegisterSubmit(normalizedInput);
 
       if (hasAuthErrors(fieldErrors)) {
         log("register_validation_failed", {
@@ -126,7 +126,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
 
     async login(input: LoginInput): Promise<AuthActionResult> {
       const normalizedInput = normalizeLoginInput(input);
-      const fieldErrors = validateLoginTyping(normalizedInput);
+      const fieldErrors = validateLoginSubmit(normalizedInput);
 
       if (hasAuthErrors(fieldErrors)) {
         log("login_validation_failed", {

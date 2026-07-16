@@ -29,6 +29,8 @@ export type {
   ProjectView,
 } from "./project-action-helpers";
 
+type ProjectCommandResult = ProjectActionResult<null>;
+
 async function withProjectData(
   action: (userId: string) => Promise<boolean>,
   notFoundMessage: string,
@@ -49,6 +51,32 @@ async function withProjectData(
     return {
       ok: true,
       data: await loadProjectDashboardData(user.id),
+    };
+  } catch (error) {
+    return { ok: false, message: projectDatabaseErrorMessage(error) };
+  }
+}
+
+async function withProjectCommand(
+  action: (userId: string) => Promise<boolean>,
+  notFoundMessage: string,
+): Promise<ProjectCommandResult> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  try {
+    const ok = await action(user.id);
+
+    if (!ok) {
+      return { ok: false, message: notFoundMessage };
+    }
+
+    return {
+      ok: true,
+      data: null,
     };
   } catch (error) {
     return { ok: false, message: projectDatabaseErrorMessage(error) };
@@ -172,7 +200,7 @@ export async function saveProjectTask(
     const saved = await projectService.saveTask(user.id, {
       taskId: input.id,
       projectId: input.projectId,
-      milestoneId: input.milestoneId,
+      milestoneId: validation.milestoneId,
       title: validation.title,
       description: validation.description,
       priority: input.priority,
@@ -180,7 +208,6 @@ export async function saveProjectTask(
       scheduledDate: validation.scheduledDate,
       startDate: validation.startDate,
       deadlineDate: validation.deadlineDate,
-      subtasks: validation.subtasks,
     });
 
     if (!saved) {
@@ -208,46 +235,92 @@ export async function archiveProject(
   );
 }
 
-export async function completeProjectTask(
+export async function pinProject(
+  projectId: string,
+): Promise<ProjectActionResult<ProjectDashboardData>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  try {
+    const result = await projectService.pinProject(user.id, projectId);
+
+    if (result === "not_found") {
+      return { ok: false, message: "Project was not found." };
+    }
+
+    if (result === "limit_reached") {
+      return { ok: false, message: "You can pin up to 3 projects." };
+    }
+
+    return {
+      ok: true,
+      data: await loadProjectDashboardData(user.id),
+    };
+  } catch (error) {
+    return { ok: false, message: projectDatabaseErrorMessage(error) };
+  }
+}
+
+export async function unpinProject(
+  projectId: string,
+): Promise<ProjectActionResult<ProjectDashboardData>> {
+  return withProjectData(
+    (userId) => projectService.unpinProject(userId, projectId),
+    "Project was not found.",
+  );
+}
+
+export async function archiveMilestone(
+  milestoneId: string,
+): Promise<ProjectActionResult<ProjectDashboardData>> {
+  return withProjectData(
+    (userId) => projectService.archiveMilestone(userId, milestoneId),
+    "Milestone was not found.",
+  );
+}
+
+export async function archiveProjectTask(
   taskId: string,
 ): Promise<ProjectActionResult<ProjectDashboardData>> {
+  return withProjectData(
+    (userId) => projectService.archiveTask(userId, taskId),
+    "Task was not found.",
+  );
+}
+
+export async function completeProjectTask(
+  taskId: string,
+): Promise<ProjectCommandResult> {
   return updateProjectTaskStatus(taskId, "done");
 }
 
 export async function skipProjectTask(
   taskId: string,
-): Promise<ProjectActionResult<ProjectDashboardData>> {
+): Promise<ProjectCommandResult> {
   return updateProjectTaskStatus(taskId, "skipped");
 }
 
 export async function blockProjectTask(
   taskId: string,
-): Promise<ProjectActionResult<ProjectDashboardData>> {
+): Promise<ProjectCommandResult> {
   return updateProjectTaskStatus(taskId, "blocked");
 }
 
 export async function reopenProjectTask(
   taskId: string,
-): Promise<ProjectActionResult<ProjectDashboardData>> {
+): Promise<ProjectCommandResult> {
   return updateProjectTaskStatus(taskId, "todo");
 }
 
 export async function updateProjectTaskStatus(
   taskId: string,
   status: Exclude<ProjectTaskStatus, "archived">,
-): Promise<ProjectActionResult<ProjectDashboardData>> {
-  return withProjectData(
+): Promise<ProjectCommandResult> {
+  return withProjectCommand(
     (userId) => projectService.updateTaskStatus(userId, taskId, status),
     "Task was not found.",
-  );
-}
-
-export async function updateProjectSubtaskDone(
-  subtaskId: string,
-  isDone: boolean,
-): Promise<ProjectActionResult<ProjectDashboardData>> {
-  return withProjectData(
-    (userId) => projectService.updateSubtaskDone(userId, subtaskId, isDone),
-    "Subtask was not found.",
   );
 }

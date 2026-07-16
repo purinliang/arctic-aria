@@ -1,3 +1,4 @@
+// Auth Page - Google Icon.
 export function GoogleIcon() {
   return (
     <svg

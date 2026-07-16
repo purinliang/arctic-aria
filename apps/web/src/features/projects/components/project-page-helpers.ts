@@ -9,27 +9,6 @@ import {
   defaultProjectDurationRange,
   durationRangeForDays,
 } from "@/features/projects/project-duration";
-import type { ProjectPriority } from "@/features/projects/server/project-repository";
-
-export const priorityOptions: Array<{
-  value: ProjectPriority;
-  label: string;
-}> = [
-  { value: "high", label: "High" },
-  { value: "medium", label: "Medium" },
-  { value: "low", label: "Low" },
-];
-
-export const taskStatusOptions: Array<{
-  value: ProjectTaskInput["status"];
-  label: string;
-}> = [
-  { value: "todo", label: "Todo" },
-  { value: "doing", label: "Doing" },
-  { value: "blocked", label: "Blocked" },
-  { value: "skipped", label: "Skipped" },
-  { value: "done", label: "Done" },
-];
 
 export function emptyProjectDraft(): ProjectInput {
   return {
@@ -43,12 +22,16 @@ export function emptyProjectDraft(): ProjectInput {
   };
 }
 
+function todayDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export function projectToDraft(project: ProjectView): ProjectInput {
   return {
     id: project.id,
     title: project.title,
     description: project.description,
-    priority: project.priority,
+    priority: "medium",
     startDate: project.startDate,
     timelineType: project.deadlineDate ? "deadline" : "duration",
     deadlineDate: project.deadlineDate,
@@ -61,9 +44,10 @@ export function emptyMilestoneDraft(projectId: string): MilestoneInput {
     projectId,
     title: "",
     objective: "",
-    startDate: "",
+    startDate: todayDate(),
+    timelineType: "duration",
     deadlineDate: "",
-    expectedDurationDays: "",
+    durationRange: defaultProjectDurationRange,
   };
 }
 
@@ -75,15 +59,16 @@ export function milestoneToDraft(
     projectId: milestone.projectId,
     title: milestone.title,
     objective: milestone.objective,
-    startDate: milestone.startDate,
+    startDate: milestone.startDate || todayDate(),
+    timelineType: milestone.deadlineDate ? "deadline" : "duration",
     deadlineDate: milestone.deadlineDate,
-    expectedDurationDays: milestone.expectedDurationDays,
+    durationRange: durationRangeForDays(Number(milestone.expectedDurationDays)),
   };
 }
 
 export function emptyTaskDraft(
   projectId: string,
-  milestoneId: string,
+  milestoneId = "",
 ): ProjectTaskInput {
   return {
     projectId,
@@ -93,9 +78,8 @@ export function emptyTaskDraft(
     priority: "medium",
     status: "todo",
     scheduledDate: "",
-    startDate: "",
+    startDate: todayDate(),
     deadlineDate: "",
-    subtasks: [],
   };
 }
 
@@ -106,21 +90,10 @@ export function taskToDraft(task: ProjectTaskView): ProjectTaskInput {
     milestoneId: task.milestoneId,
     title: task.title,
     description: task.description,
-    priority: task.priority,
-    status: task.status,
+    priority: "medium",
+    status: task.status === "done" ? "done" : "todo",
     scheduledDate: task.scheduledDate,
     startDate: task.startDate,
     deadlineDate: task.deadlineDate,
-    subtasks:
-      task.subtasks?.map((subtask) => ({
-        id: subtask.id,
-        title: subtask.title,
-        description: subtask.description,
-        isDone: subtask.isDone,
-      })) ?? [],
   };
-}
-
-export function titleCase(value: string) {
-  return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
 }

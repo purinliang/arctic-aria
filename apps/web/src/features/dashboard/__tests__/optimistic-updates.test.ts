@@ -2,12 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   addPendingSuggestionId,
+  applyDashboardTaskStatus,
   applyOptimisticPinnedMemoryStatus,
   applyOptimisticRoutineStatus,
-  applyOptimisticSubtaskDone,
+  dashboardTaskStatusForChecked,
   removeMemorySuggestion,
   removePendingSuggestionId,
-  restoreSubtaskSnapshot,
   restoreTaskSnapshot,
 } from "../optimistic-updates.ts";
 import type { MemorySuggestion, PinnedMemory, Routine, Task } from "../types.ts";
@@ -80,6 +80,7 @@ const memorySuggestions: MemorySuggestion[] = [
 const projectTasks: Task[] = [
   {
     id: "task-1",
+    projectId: "project-1",
     title: "Prepare resume",
     description: "",
     projectLabel: "Find a job",
@@ -90,26 +91,10 @@ const projectTasks: Task[] = [
     scheduledDate: "2026-07-14",
     startDate: "2026-07-14",
     deadlineDate: "2026-07-20",
-    subtaskSummary: "0 of 2 subtasks done",
-    subtasks: [
-      {
-        id: "subtask-1",
-        title: "Collect projects",
-        description: "",
-        isDone: false,
-        done: false,
-      },
-      {
-        id: "subtask-2",
-        title: "Rewrite bullets",
-        description: "",
-        isDone: false,
-        done: false,
-      },
-    ],
   },
   {
     id: "task-2",
+    projectId: "project-1",
     title: "Draft email",
     description: "",
     projectLabel: "Find a job",
@@ -120,8 +105,6 @@ const projectTasks: Task[] = [
     scheduledDate: "2026-07-15",
     startDate: "2026-07-15",
     deadlineDate: "2026-07-22",
-    subtaskSummary: "0 of 0 subtasks done",
-    subtasks: [],
   },
 ];
 
@@ -150,15 +133,6 @@ test("optimistically marks a pinned memory as completed", () => {
   assert.equal(updated[1], pinnedMemories[1]);
 });
 
-test("optimistically updates one project subtask", () => {
-  const updated = applyOptimisticSubtaskDone(projectTasks, "subtask-1", true);
-
-  assert.equal(updated[0].subtasks?.[0].done, true);
-  assert.equal(updated[0].subtasks?.[0].isDone, true);
-  assert.equal(updated[0].subtaskSummary, "1 of 2 subtasks done");
-  assert.equal(updated[1], projectTasks[1]);
-});
-
 test("restores one failed project task without rolling back other tasks", () => {
   const updated = projectTasks.map((task) =>
     task.id === "task-1" ? { ...task, status: "done" as const } : task,
@@ -172,28 +146,33 @@ test("restores one failed project task without rolling back other tasks", () => 
   assert.equal(restored[1].status, "blocked");
 });
 
+test("dashboard task checkbox keeps the row in its current position", () => {
+  const updated = applyDashboardTaskStatus(projectTasks, "task-1", "done");
+
+  assert.deepEqual(updated.map((task) => task.id), ["task-1", "task-2"]);
+  assert.equal(updated[0].status, "done");
+  assert.equal(updated[1], projectTasks[1]);
+});
+
+test("dashboard task checkbox maps checked and unchecked states", () => {
+  assert.equal(dashboardTaskStatusForChecked(true), "done");
+  assert.equal(dashboardTaskStatusForChecked(false), "todo");
+});
+
+test("dashboard task checkbox can optimistically undo without reordering", () => {
+  const done = applyDashboardTaskStatus(projectTasks, "task-1", "done");
+  const restored = applyDashboardTaskStatus(done, "task-1", "todo");
+
+  assert.deepEqual(restored.map((task) => task.id), ["task-1", "task-2"]);
+  assert.equal(restored[0].status, "todo");
+});
+
 test("restores a failed project task that was optimistically removed", () => {
   const current = projectTasks.filter((task) => task.id !== "task-1");
   const restored = restoreTaskSnapshot(current, projectTasks, "task-1");
 
   assert.equal(restored[0].id, "task-1");
   assert.equal(restored[1].id, "task-2");
-});
-
-test("restores one failed project subtask without rolling back other tasks", () => {
-  const updated = applyOptimisticSubtaskDone(projectTasks, "subtask-1", true);
-  const unrelatedChange = updated.map((task) =>
-    task.id === "task-2" ? { ...task, status: "blocked" as const } : task,
-  );
-  const restored = restoreSubtaskSnapshot(
-    unrelatedChange,
-    projectTasks,
-    "subtask-1",
-  );
-
-  assert.equal(restored[0].subtasks?.[0].done, false);
-  assert.equal(restored[0].subtaskSummary, "0 of 2 subtasks done");
-  assert.equal(restored[1].status, "blocked");
 });
 
 test("optimistically restores a completed pinned memory", () => {

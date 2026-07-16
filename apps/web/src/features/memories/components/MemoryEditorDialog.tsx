@@ -1,22 +1,30 @@
+// Memories Page - Memory Editor Dialog.
 import {
   LoaderCircle,
   Save,
   Settings2,
   Trash2,
-  X,
 } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
-import { Button } from "@/components/ui/button";
-import { dialogFrameClass } from "@/components/ui/dialog";
-import { TextArea, TextInput } from "@/components/ui/input-field";
-import { InlineMessage } from "@/components/ui/text";
+import { Button } from "@/components/button";
+import {
+  DialogActionRow,
+  DialogBackdrop,
+  DialogFrame,
+  DialogHeader,
+  DialogOverlay,
+  DialogPrimaryButton,
+} from "@/components/dialog";
+import { SingleChoiceGroup } from "@/components/forms/choice-group";
+import { FieldLabel, TextInput } from "@/components/forms/input-field";
+import { TextArea } from "@/components/forms/text-area-field";
+import { LabelText } from "@/components/text";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryInput } from "@/features/memories/actions";
 
 export function MemoryEditorDialog({
   darkMode,
   pending,
-  message,
   editingMemory,
   memoryDraft,
   categories,
@@ -28,7 +36,6 @@ export function MemoryEditorDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
-  message: string | null;
   editingMemory: boolean;
   memoryDraft: MemoryInput;
   categories: MemoryCategoryOption[];
@@ -39,136 +46,116 @@ export function MemoryEditorDialog({
   onManageCategories: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/65 px-4 py-6">
-      <button
-        className="absolute inset-0 cursor-default"
-        type="button"
-        aria-label="Close memory editor"
-        onClick={onClose}
-      />
+    <DialogOverlay>
+      <DialogBackdrop label="Close memory editor" onClick={onClose} />
       <form
-        className={dialogFrameClass(darkMode)}
         onSubmit={(event) => {
           event.preventDefault();
           onSubmit();
         }}
       >
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-base font-semibold">
-            {editingMemory ? "Edit a memory" : "Add a new memory"}
-          </h3>
-          <Button
+        <DialogFrame darkMode={darkMode}>
+          <DialogHeader
             darkMode={darkMode}
-            tone="ghost"
-            size="icon-sm"
-            aria-label="Close memory editor"
-            icon={<X size={16} aria-hidden="true" />}
-            onClick={onClose}
+            title={editingMemory ? "Edit a memory" : "Add a new memory"}
+            closeLabel="Close memory editor"
+            onClose={onClose}
           />
-        </div>
-        {message ? (
-          <InlineMessage darkMode={darkMode} className="mb-3">
-            {message}
-          </InlineMessage>
-        ) : null}
-        <div className="grid gap-3">
-          <label className="grid gap-1 text-xs font-semibold">
-            Title
-            <TextInput
-              darkMode={darkMode}
-              value={memoryDraft.title}
-              maxLength={120}
-              placeholder="Memory title"
-              disabled={pending}
-              onChange={(event) =>
-                setMemoryDraft((current) => ({
-                  ...current,
-                  title: event.target.value,
-                }))
-              }
-            />
-          </label>
-          <div className="grid gap-2">
-            <span className="text-xs font-semibold">Category</span>
-            <div className="flex flex-wrap items-center gap-2">
-              {categories.map((category) => (
-                <Button
-                  key={category.id}
+          <div className="grid gap-3">
+            <FieldLabel darkMode={darkMode} label="Title">
+              <TextInput
+                darkMode={darkMode}
+                value={memoryDraft.title}
+                maxLength={120}
+                placeholder="Memory title"
+                disabled={pending}
+                onChange={(event) =>
+                  setMemoryDraft((current) => ({
+                    ...current,
+                    title: event.target.value,
+                  }))
+                }
+              />
+            </FieldLabel>
+            <div className="grid gap-1.5">
+              <LabelText darkMode={darkMode}>Category</LabelText>
+              <div className="flex flex-wrap items-center gap-2">
+                <SingleChoiceGroup
                   darkMode={darkMode}
-                  size="xs"
-                  active={memoryDraft.categoryId === category.id}
+                  value={memoryDraft.categoryId}
                   disabled={pending}
-                  onClick={() =>
+                  options={categories.map((category) => ({
+                    value: category.id,
+                    label: category.name,
+                  }))}
+                  onChange={(categoryId) => {
+                    const category = categories.find(
+                      (item) => item.id === categoryId,
+                    );
+
                     setMemoryDraft((current) => ({
                       ...current,
-                      categoryId: category.id,
-                      categoryName: category.name,
-                    }))
-                  }
+                      categoryId,
+                      categoryName: category?.name ?? current.categoryName,
+                    }));
+                  }}
+                />
+                <Button
+                  darkMode={darkMode}
+                  size="md"
+                  disabled={pending}
+                  icon={<Settings2 size={15} aria-hidden="true" />}
+                  onClick={onManageCategories}
                 >
-                  {category.name}
+                  Manage
                 </Button>
-              ))}
-              <Button
-                darkMode={darkMode}
-                size="xs"
-                disabled={pending}
-                icon={<Settings2 size={14} aria-hidden="true" />}
-                onClick={onManageCategories}
-              >
-                Manage
-              </Button>
+              </div>
             </div>
+            <FieldLabel darkMode={darkMode} label="Description">
+              <TextArea
+                darkMode={darkMode}
+                className="min-h-28"
+                value={memoryDraft.description}
+                maxLength={2000}
+                disabled={pending}
+                onChange={(event) =>
+                  setMemoryDraft((current) => ({
+                    ...current,
+                    description: event.target.value,
+                  }))
+                }
+              />
+            </FieldLabel>
           </div>
-          <label className="grid gap-1 text-xs font-semibold">
-            Description
-            <TextArea
+          <DialogActionRow>
+            <DialogPrimaryButton
               darkMode={darkMode}
-              className="min-h-28"
-              value={memoryDraft.description}
-              maxLength={2000}
-              disabled={pending}
-              onChange={(event) =>
-                setMemoryDraft((current) => ({
-                  ...current,
-                  description: event.target.value,
-                }))
-              }
-            />
-          </label>
-        </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button
-            darkMode={darkMode}
-            tone="primary"
-            type="submit"
-            disabled={pending}
-            icon={
-              pending ? (
+              type="submit"
+              loading={pending}
+              icon={<Save size={14} aria-hidden="true" />}
+              loadingIcon={
                 <LoaderCircle
                   className="animate-spin"
                   size={14}
                   aria-hidden="true"
                 />
-              ) : (
-                <Save size={14} aria-hidden="true" />
-              )
-            }
-          >
-            Save
-          </Button>
-          {editingMemory ? (
-            <Button
-              darkMode={darkMode}
-              disabled={pending}
-              icon={<Trash2 size={14} aria-hidden="true" />}
-              onClick={onDelete}
+              }
             >
-              Delete
-            </Button>
-          ) : null}
-        </div>
+              Save
+            </DialogPrimaryButton>
+            {editingMemory ? (
+              <Button
+                darkMode={darkMode}
+                disabled={pending}
+                icon={<Trash2 size={14} aria-hidden="true" />}
+                onClick={onDelete}
+              >
+                Delete
+              </Button>
+            ) : null}
+          </DialogActionRow>
+        </DialogFrame>
       </form>
-    </div>
+    </DialogOverlay>
   );
 }

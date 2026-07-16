@@ -1,6 +1,7 @@
 import type { NeonQueryFunction } from "@neondatabase/serverless";
 import { getSql } from "../../../server/database/neon.ts";
 import type {
+  RoutineInstanceStatus,
   RoutineRepository,
   SaveRoutineInput,
 } from "./routine-repository.ts";
@@ -233,13 +234,21 @@ export class PostgresRoutineRepository implements RoutineRepository {
     return this.updateRoutineInstanceStatus(input, "skipped");
   }
 
+  async reopenRoutineInstance(input: {
+    userId: string;
+    instanceId: string;
+    occurredAt: Date;
+  }) {
+    return this.updateRoutineInstanceStatus(input, "pending");
+  }
+
   private async updateRoutineInstanceStatus(
     input: {
       userId: string;
       instanceId: string;
       occurredAt: Date;
     },
-    status: "completed" | "skipped",
+    status: RoutineInstanceStatus,
   ) {
     const rows = (await this.getSql().query(
       `
@@ -271,6 +280,7 @@ export class PostgresRoutineRepository implements RoutineRepository {
         )
         SELECT user_id, 'routine_instance', id, $3::text, $4::timestamptz, 'web'
         FROM updated_instance
+        WHERE $3::text != 'pending'
         RETURNING id
       )
       ${routineInstanceSelectFromCte("updated_instance")}

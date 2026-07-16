@@ -1,8 +1,10 @@
+// Routines Page - Routines List.
 import { Edit3 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { mutedTextClass } from "@/components/ui/color";
-import { List, ListItem } from "@/components/ui/list";
-import { Tag } from "@/components/ui/tag";
+import { Button } from "@/components/button";
+import { mutedTextClass } from "@/components/color";
+import { List, ListItem } from "@/components/list";
+import { LoadingLine } from "@/components/loading";
+import { DescriptionText, SupportingText } from "@/components/text";
 import type { RoutineDefinition } from "@/features/dashboard/types";
 import { ruleSummary } from "./routine-page-helpers";
 
@@ -22,9 +24,7 @@ export function RoutinesList({
   return (
     <List darkMode={darkMode}>
       {loading ? (
-        <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
-          Loading routines...
-        </p>
+        <LoadingLine darkMode={darkMode} text="Loading routines..." />
       ) : null}
       {!loading && routines.length === 0 ? (
         <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
@@ -36,16 +36,13 @@ export function RoutinesList({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-sm font-semibold">{routine.title}</h3>
-              <Tag darkMode={darkMode}>
-                {routine.preferredTime ?? "Flexible"}
-              </Tag>
             </div>
-            <p className={`mt-1 text-sm leading-6 ${mutedTextClass(darkMode)}`}>
+            <DescriptionText darkMode={darkMode} className="mt-1">
               {routine.description || "No description."}
-            </p>
-            <p className={`mt-2 text-xs ${mutedTextClass(darkMode)}`}>
-              {ruleSummary(routine)}
-            </p>
+            </DescriptionText>
+            <SupportingText darkMode={darkMode} className="mt-2 block">
+              {routine.preferredTime ?? "Flexible"} · {ruleSummary(routine)}
+            </SupportingText>
           </div>
           <Button
             darkMode={darkMode}

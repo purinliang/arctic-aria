@@ -1,18 +1,16 @@
 # Memories UI
 
 This document describes user-visible Memories UI behavior. Product rules,
-tables, and recommendation behavior are documented in [memories.md](memories.md).
+tables, and recommendation behavior are documented in [overview.md](overview.md)
+and [data-model.md](data-model.md).
 
 ## Dashboard
 
-The home dashboard should show a compact `Pinned Memories` section. Its icon
+The home dashboard should show a compact `Pinned Memories` panel. Its icon
 should match the Memories item in the hamburger menu. Use the Lucide
 `ClipboardList` icon.
 
-The dashboard's required first behavior is to show pinned memories only. The
-expanded controls below are specified in [memories.md](memories.md) under
-Pinned Memory Behavior so the user can quickly act on a pinned memory without
-opening the Memories page.
+The dashboard's required first behavior is to show pinned memories only.
 
 The first dashboard should show pinned memories from supported dashboard
 categories only:
@@ -25,27 +23,26 @@ feature designs that behavior.
 
 For each pinned memory, show:
 
+- done checkbox on the left
 - title
 - short description
-- category
+- category and status metadata
+- right-side icon-only `Replace` button with `RefreshCw`
 
-Clicking or focusing a pinned memory should expand it like the current routine
-cards. Only the expanded state should show:
+Pinned memory dashboard rows should not expand or collapse. Do not show a
+dashboard `View` button.
 
-- `Done`
-- `Replace`
-- `View`
+If the user checks the done checkbox, optimistically show the completed state.
+If the user unchecks it before cleanup, cancel the completion. If the backend
+later rejects the command, restore the previous visible state and show the
+backend message in the shared notification component.
 
-Clicking the pinned memory again should collapse it.
+If the user clicks `Replace`, replace only that one item and keep other
+positions unchanged after the backend returns the replacement data.
 
-If the user clicks `Done`, collapse the card immediately and optimistically show
-the completed state. If the backend later rejects the command, restore the
-previous visible state and show the backend message in the shared notification
-component.
-
-If the user clicks `Replace`, collapse the card immediately. Replace only that
-one item and keep other positions unchanged after the backend returns the
-replacement data.
+`Replace` is lightweight but may need backend replacement data. Show loading on
+the clicked row's replace button while it is pending. Do not block unrelated
+pinned memory rows when the command can be tracked per row.
 
 On dashboard load or reload:
 
@@ -66,22 +63,21 @@ The page should allow the user to:
 
 - view all memories
 - filter by category
-- open a memory detail page
 - add a memory
 - edit or delete a memory
 - manage categories
 - refresh suggested memories
 
-Cards may have different heights, but their styling should stay consistent with
-the dashboard cards. Shared dashboard and Memories page card styles should be
-implemented in one reusable place.
+Panels may have different heights, but their styling should stay consistent
+with the dashboard panels. Shared dashboard and Memories page panel styles
+should be implemented in one reusable place.
 
 The bottom padding can be increased slightly. Keep dashboard and Memories page
-spacing consistent through the same reusable card design.
+spacing consistent through the same reusable panel design.
 
-## Memories Card
+## Memories Panel
 
-The memories card is the main content in the memories page.
+The Memories panel is the main content in the Memories page.
 
 ### Title Section
 
@@ -90,7 +86,7 @@ The title section is at the top of the Memories page.
 Layout:
 
 - Left side: Lucide `ClipboardList` icon, title, and description.
-- Right side: `Add` button with a plus icon.
+- Right side: `New` button with a plus icon, using secondary styling.
 - The title text is `Memories`.
 - The description text is `Saved experiences to revisit when the day needs a gentle option.`
 
@@ -103,20 +99,23 @@ list.
 
 Layout:
 
-- Show the text `Categories:`, which is the same font size as category buttons.
-- Show filter tags starting with `All`, followed by user categories such as
+- Show the text `Categories:` using shared `LabelText`.
+- Show filter buttons starting with `All`, followed by user categories such as
   `Cuisine`.
-- If there are too many categories, the filter tags should wrap onto multiple
+- If there are too many categories, the filter buttons should wrap onto multiple
   lines.
 - Show a Lucide `Settings2` button with text `Manage`.
 - The `Manage` button should use the same style as filter items and be listed
-  with the filter tags.
+  with the filter buttons.
+- The categories strip should use the same horizontal separator line as list
+  rows, but it is not itself a list item.
 
 Click behavior:
 
-- Clicking a category tag filters the memory list.
+- Clicking a category filter button filters the memory list.
 - Clicking `All` removes the category filter.
 - Clicking `Manage` opens category management.
+- Category filtering is local UI state and should not call the backend.
 
 ### Memory List Section
 
@@ -125,22 +124,22 @@ The memory list is vertical.
 Each memory list item should show:
 
 - title
-- category tag beside the title
 - description
-- meta-information such as last done time, done count, and pinned state
+- supporting metadata as one line, such as
+  `category · pinned · last done time · done count`
 
 Memory item behavior:
 
-- Clicking a memory item expands it.
-- Clicking the expanded item again collapses it.
-- The edit action is shown only in the expanded state.
-- The edit action uses a pencil icon.
-- Clicking the pencil icon opens the edit-memory dialog or detail page.
+- Memory list items do not expand or collapse.
+- The edit action is always visible on the right side, where an expand icon
+  would otherwise appear.
+- The edit action uses a pencil icon and opens the edit-memory dialog.
+- Clicking `Edit` opens the dialog without changing persisted data.
 
-## Suggestions Card
+## Suggestions Panel
 
 Suggested memories are part of the Memories page and are shown in the
-Suggestions card.
+Suggestions panel.
 
 ### Title Section
 
@@ -161,22 +160,26 @@ The suggestion list is vertical.
 Each suggestion item should show:
 
 - title
-- category tag beside the title
 - description
+- supporting metadata as one line, such as
+  `category · last done time · done count`
 - a circular outline button on the right side, with only the Lucide `Pin` icon
   and no text
 
 Click behavior:
 
 - Clicking `Pin` pins that suggestion. While processing, show a loading icon
-  inside the button and disable it.
-- After clicking `Pin`, optimistically change the icon to an unpin state with no
-  text. If the backend rejects the command, restore the previous icon state and
-  show the backend message in the shared notification component.
+  inside only that suggestion's button and disable only that suggestion's
+  action.
+- After the backend succeeds, remove the pinned suggestion from the visible
+  suggestion list and refresh database-backed memory summaries. If the backend
+  rejects the command, keep the suggestion visible and show the backend message
+  in the shared notification component.
 - Clicking `Cancel` should undo that pending pin state when supported by the
-  implementation. While processing, show a loading icon inside the button and
-  disable it. If the backend rejects the command, restore the previous icon
-  state and show the backend message in the shared notification component.
+  implementation. While processing, show a loading icon inside only that
+  suggestion's button and disable only that suggestion's action. If the backend
+  rejects the command, restore the previous icon state and show the backend
+  message in the shared notification component.
 - Do not show a separate `Ignore` button.
 
 Refresh behavior:
@@ -188,6 +191,8 @@ Refresh behavior:
 - Only unpinned visible suggestions should be counted as ignored.
 - Refreshing suggestions should not affect pinned suggestions except by keeping
   them out of the new suggestion list.
+- If refresh fails, keep the page open and show the backend message through the
+  shared notification stack.
 
 ## Memory Management
 
@@ -218,12 +223,12 @@ Modal behavior:
 
 - Opening `Add` should show an add-memory dialog.
 - Opening `Edit` on a memory should show an edit-memory dialog.
-- Opening `Categories` should show a category-management dialog.
+- Opening `Manage` should show a category-management dialog.
 - The page behind the dialog should be covered by a semi-transparent black
   overlay.
 - Clicking outside the dialog or pressing a visible close button should dismiss
   the dialog without saving.
-- The dialog should not be nested inside a page card or list item.
+- The dialog should not be nested inside a page panel or list item.
 - The dialog should fit on mobile and scroll internally when content is taller
   than the viewport.
 
@@ -231,12 +236,13 @@ Save/delete behavior:
 
 - After a successful save or delete, close the active dialog.
 - Refresh the Memories page data immediately after the backend action succeeds.
-- Keep the dialog open and show a clear message if validation or database
-  update fails.
+- Keep the dialog open and show validation or database update failures through
+  the shared notification component. Do not add inline error boxes inside the
+  memory/category dialogs for submit failures.
 - Disable action buttons while the backend action is pending so duplicate
   submits are avoided.
 - Category delete can fail when the category is still used by memories; show the
-  backend message and keep the dialog open.
+  backend message in the shared notification component and keep the dialog open.
 
 ### Add Memory Dialog
 
@@ -250,11 +256,12 @@ Close button: cross icon button without an outline.
 
 List fields vertically.
 
-Use a title label, title text box, and hint placeholder.
+Use the shared field-label, text-input, and multiline text-area components for
+memory title and description.
 
-Category selection should not be a dropdown list. Use the same tag style as the
-category filters in the Memories card. Nothing should be selected by default.
-Include the `Manage` button.
+Category selection should not be a dropdown list. Use the shared single-choice
+component with the same visual language as app selection buttons. Nothing should
+be selected by default. Include the `Manage` button beside the selection group.
 
 #### Confirm Button
 
@@ -295,16 +302,29 @@ Clicking the `Manage` button should show a Manage Categories dialog. Keep the
 current dialog direction, but document and implement the details below. Do not
 show weights in the edit list because they are internal.
 
+Manage Categories dialog layout:
+
+- top row: `Manage Categories` title on the left
+- top row right side: `New` button with `Plus`, then close icon button
+- category list rows use the shared `ListItem`
+- each category row shows title, `DescriptionText`, and one `SupportingText`
+  line for the suggestion period
+- each category row has an `Edit` button with `Edit3` and text `Edit`
+- category rows do not show a delete button
+
 ### Add a New Category
 
-Clicking `New category` should open an add-category dialog. Use the same style
+Clicking `New` should open an add-category dialog. Use the same style
 as the Add Memory dialog.
 
 Use a clear label: `Category name`.
 
-Suggestion period should be selected with tag-style options: `Weekly` and
-`Monthly`. Sightseeing defaults to monthly; Cuisine defaults to weekly. The
-selection should automatically translate into the internal weight.
+Use the shared field-label and text-input components for the category name. Use
+the shared multiline text-area component for optional category description.
+
+Suggestion period should be selected with the shared single-choice component:
+`Weekly` and `Monthly`. Sightseeing defaults to monthly; Cuisine defaults to
+weekly. The selection should automatically translate into the internal weight.
 
 Always keep the same design as the Add Memory dialog for consistency.
 
@@ -316,6 +336,7 @@ Add Category dialog.
 The Manage Categories dialog should not turn into an inline edit form when the
 user clicks edit.
 
-When clicking the delete button, show a confirmation dialog with two buttons.
-If the category is still used by memories, show the backend error and keep the
-dialog open.
+The category delete action lives inside the edit category dialog, below the
+`Save` button. Clicking `Delete` shows a confirmation dialog with two buttons.
+If the category is still used by memories, show the backend error in the shared
+notification component and keep the edit dialog open.

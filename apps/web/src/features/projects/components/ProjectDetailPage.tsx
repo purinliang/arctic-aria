@@ -1,43 +1,45 @@
-import { Check, Edit3, Flag, Info, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader } from "@/components/ui/card";
-import { mutedTextClass } from "@/components/ui/color";
-import { List, ListItem } from "@/components/ui/list";
-import { Panel } from "@/components/ui/panel";
-import { Tag } from "@/components/ui/tag";
-import { cx } from "@/components/ui/utils";
+// Projects Page - Project Detail Page.
+import { ClipboardList, Edit3, Flag, Info, Plus } from "lucide-react";
+import { Button } from "@/components/button";
+import { Card, CardHeader } from "@/components/card";
+import { mutedTextClass } from "@/components/color";
+import { CheckboxControl } from "@/components/forms/selection-field";
+import { List, ListItem } from "@/components/list";
+import { Panel } from "@/components/panel";
+import { DescriptionText, LabelText, SupportingText } from "@/components/text";
 import type {
   ProjectTaskView,
   ProjectView,
 } from "@/features/projects/actions";
 import type { TaskStatus } from "@/features/dashboard/types";
-import { titleCase } from "./project-page-helpers";
+
+const overviewDateFormatter = new Intl.DateTimeFormat("en", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
 
 export function ProjectDetailPage({
   darkMode,
   pending,
   project,
-  onEditProject,
   onAddMilestone,
   onEditMilestone,
   onAddTask,
   onEditTask,
   onTaskStatus,
-  onSubtaskToggle,
 }: {
   darkMode: boolean;
   pending: boolean;
   project: ProjectView | null;
-  onEditProject: (project: ProjectView) => void;
   onAddMilestone: (projectId: string) => void;
   onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
-  onAddTask: (projectId: string, milestoneId: string) => void;
+  onAddTask: (projectId: string) => void;
   onEditTask: (task: ProjectTaskView) => void;
   onTaskStatus: (
     taskId: string,
     status: Exclude<TaskStatus, "archived">,
   ) => void;
-  onSubtaskToggle: (subtaskId: string, done: boolean) => void;
 }) {
   if (!project) {
     return (
@@ -57,76 +59,35 @@ export function ProjectDetailPage({
         <Card darkMode={darkMode} className="min-w-0">
           <CardHeader
             darkMode={darkMode}
-            icon={<Flag size={18} aria-hidden="true" />}
-            title="Milestones"
-            description="Detailed tasks and subtasks grouped by project phase."
+            icon={<ClipboardList size={18} aria-hidden="true" />}
+            title="Tasks"
+            description="Concrete work items for this project."
             action={
               <Button
                 darkMode={darkMode}
                 disabled={pending}
                 icon={<Plus size={14} aria-hidden="true" />}
-                onClick={() => onAddMilestone(project.id)}
+                onClick={() => onAddTask(project.id)}
               >
-                Add milestone
+                New
               </Button>
             }
           />
           <List darkMode={darkMode}>
-            {project.milestones.map((milestone) => (
-              <ListItem key={milestone.id} darkMode={darkMode} layout="block">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-base font-semibold">
-                        {milestone.title}
-                      </h3>
-                      <Tag darkMode={darkMode}>
-                        {titleCase(milestone.status)}
-                      </Tag>
-                    </div>
-                    <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
-                      {milestone.objective || milestone.progressText}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      darkMode={darkMode}
-                      size="xs"
-                      disabled={pending}
-                      icon={<Edit3 size={13} aria-hidden="true" />}
-                      onClick={() => onEditMilestone(milestone)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      darkMode={darkMode}
-                      size="xs"
-                      disabled={pending}
-                      icon={<Plus size={13} aria-hidden="true" />}
-                      onClick={() => onAddTask(project.id, milestone.id)}
-                    >
-                      Add task
-                    </Button>
-                  </div>
-                </div>
-                <div className="mt-3 grid gap-2">
-                  {milestone.tasks.length === 0 ? (
-                    <p className={`text-sm ${mutedTextClass(darkMode)}`}>
-                      No tasks in this milestone yet. Add the next concrete task.
-                    </p>
-                  ) : null}
-                  {milestone.tasks.map((task) => (
-                    <ProjectTaskRow
-                      key={task.id}
-                      darkMode={darkMode}
-                      pending={pending}
-                      task={task}
-                      onEdit={() => onEditTask(task)}
-                      onTaskStatus={onTaskStatus}
-                      onSubtaskToggle={onSubtaskToggle}
-                    />
-                  ))}
-                </div>
+            {project.tasks.length === 0 ? (
+              <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+                No tasks yet. Add the next concrete task.
+              </p>
+            ) : null}
+            {project.tasks.map((task) => (
+              <ListItem key={task.id} darkMode={darkMode} layout="block">
+                <ProjectTaskRow
+                  darkMode={darkMode}
+                  pending={pending}
+                  task={task}
+                  onEdit={() => onEditTask(task)}
+                  onTaskStatus={onTaskStatus}
+                />
               </ListItem>
             ))}
           </List>
@@ -138,39 +99,19 @@ export function ProjectDetailPage({
               darkMode={darkMode}
               icon={<Info size={18} aria-hidden="true" />}
               title="Overview"
-              action={
-                <Button
-                  darkMode={darkMode}
-                  disabled={pending}
-                  icon={<Edit3 size={14} aria-hidden="true" />}
-                  onClick={() => onEditProject(project)}
-                >
-                  Edit project
-                </Button>
-              }
             />
             <div className="grid gap-4 px-4 py-4">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-lg font-semibold">{project.title}</h2>
-                  <Tag darkMode={darkMode}>{titleCase(project.status)}</Tag>
-                </div>
-                <p
-                  className={`mt-2 text-sm leading-6 ${mutedTextClass(darkMode)}`}
-                >
+              <div className="grid gap-1">
+                <LabelText darkMode={darkMode}>Description</LabelText>
+                <DescriptionText darkMode={darkMode}>
                   {project.description}
-                </p>
+                </DescriptionText>
               </div>
               <dl className="grid gap-3 text-sm">
                 <ProjectMetadataRow
                   darkMode={darkMode}
-                  label="Priority"
-                  value={titleCase(project.priority)}
-                />
-                <ProjectMetadataRow
-                  darkMode={darkMode}
-                  label="Started"
-                  value={project.startDate}
+                  label="Start date"
+                  value={formatOverviewDate(project.startDate)}
                 />
                 <ProjectMetadataRow
                   darkMode={darkMode}
@@ -179,6 +120,58 @@ export function ProjectDetailPage({
                 />
               </dl>
             </div>
+          </Card>
+
+          <Card darkMode={darkMode}>
+            <CardHeader
+              darkMode={darkMode}
+              icon={<Flag size={18} aria-hidden="true" />}
+              title="Milestones"
+              description="Lightweight phase boundaries."
+              action={
+                <Button
+                  darkMode={darkMode}
+                  disabled={pending}
+                  icon={<Plus size={14} aria-hidden="true" />}
+                  onClick={() => onAddMilestone(project.id)}
+                >
+                  New
+                </Button>
+              }
+            />
+            <List darkMode={darkMode}>
+              {project.milestones.length === 0 ? (
+                <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+                  No milestones yet. Add one when the project needs a phase boundary.
+                </p>
+              ) : null}
+              {project.milestones.map((milestone) => (
+                <ListItem
+                  key={milestone.id}
+                  darkMode={darkMode}
+                  className="items-center"
+                >
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-semibold">
+                        {milestone.title}
+                      </span>
+                    </div>
+                    <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
+                      {milestone.objective || milestone.progressText}
+                    </p>
+                  </div>
+                  <Button
+                    darkMode={darkMode}
+                    disabled={pending}
+                    icon={<Edit3 size={15} aria-hidden="true" />}
+                    onClick={() => onEditMilestone(milestone)}
+                  >
+                    Edit
+                  </Button>
+                </ListItem>
+              ))}
+            </List>
           </Card>
         </aside>
       </div>
@@ -197,8 +190,12 @@ function ProjectMetadataRow({
 }) {
   return (
     <div className="grid gap-1">
-      <dt className={`text-xs ${mutedTextClass(darkMode)}`}>{label}</dt>
-      <dd className="font-semibold">{value}</dd>
+      <dt>
+        <LabelText darkMode={darkMode}>{label}</LabelText>
+      </dt>
+      <dd>
+        <DescriptionText darkMode={darkMode}>{value}</DescriptionText>
+      </dd>
     </div>
   );
 }
@@ -209,7 +206,6 @@ function ProjectTaskRow({
   task,
   onEdit,
   onTaskStatus,
-  onSubtaskToggle,
 }: {
   darkMode: boolean;
   pending: boolean;
@@ -219,78 +215,55 @@ function ProjectTaskRow({
     taskId: string,
     status: Exclude<TaskStatus, "archived">,
   ) => void;
-  onSubtaskToggle: (subtaskId: string, done: boolean) => void;
 }) {
-  const subtasks = task.subtasks ?? [];
+  const metadata = [task.milestoneLabel, deadlineText(task.deadline)]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
-    <div
-      className={cx(
-        "rounded-md border px-3 py-3",
-        darkMode ? "border-neutral-800 bg-black" : "border-slate-200 bg-white",
-      )}
-    >
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <div className="grid gap-3">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3">
+        <CheckboxControl
+          darkMode={darkMode}
+          className="mt-1"
+          checked={task.status === "done"}
+          aria-label={`Mark ${task.title} done`}
+          onChange={(event) =>
+            onTaskStatus(task.id, event.target.checked ? "done" : "todo")
+          }
+        />
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-semibold">{task.title}</span>
-            <Tag darkMode={darkMode}>{titleCase(task.status)}</Tag>
-            <Tag darkMode={darkMode}>{titleCase(task.priority)}</Tag>
           </div>
-          <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
-            {task.subtaskSummary} · Deadline {task.deadline}
-          </p>
+          <DescriptionText darkMode={darkMode} className="mt-1">
+            {task.description || "No description."}
+          </DescriptionText>
+          {metadata ? (
+            <SupportingText darkMode={darkMode} className="mt-2 block">
+              {metadata}
+            </SupportingText>
+          ) : null}
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            darkMode={darkMode}
-            size="xs"
-            disabled={pending || task.status === "done"}
-            icon={<Check size={13} aria-hidden="true" />}
-            onClick={() => onTaskStatus(task.id, "done")}
-          >
-            Done
-          </Button>
-          <Button
-            darkMode={darkMode}
-            size="xs"
-            disabled={pending}
-            onClick={onEdit}
-          >
-            Edit
-          </Button>
-        </div>
+        <Button
+          darkMode={darkMode}
+          disabled={pending}
+          icon={<Edit3 size={15} aria-hidden="true" />}
+          onClick={onEdit}
+        >
+          Edit
+        </Button>
       </div>
-
-      {subtasks.length > 0 ? (
-        <div className="mt-3 grid gap-2">
-          {subtasks.map((subtask) => (
-            <label
-              key={subtask.id}
-              className={cx(
-                "grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3 rounded-md px-3 py-2 text-sm",
-                darkMode
-                  ? "bg-neutral-950 text-neutral-200"
-                  : "bg-slate-50 text-slate-700",
-              )}
-            >
-              <input
-                className="mt-1 accent-emerald-500"
-                type="checkbox"
-                checked={subtask.isDone}
-                disabled={pending}
-                onChange={() => onSubtaskToggle(subtask.id, subtask.isDone)}
-              />
-              <span className="min-w-0">
-                <span className="block font-semibold">{subtask.title}</span>
-                <span className={`block text-xs ${mutedTextClass(darkMode)}`}>
-                  {subtask.description || "No description."}
-                </span>
-              </span>
-            </label>
-          ))}
-        </div>
-      ) : null}
     </div>
   );
+}
+
+function deadlineText(deadline: string) {
+  return deadline === "No deadline" ? deadline : `Deadline ${deadline}`;
+}
+
+function formatOverviewDate(date: string) {
+  return date
+    ? overviewDateFormatter.format(new Date(`${date}T00:00:00.000Z`))
+    : "Not set";
 }

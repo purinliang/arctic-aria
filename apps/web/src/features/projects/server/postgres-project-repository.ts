@@ -4,11 +4,9 @@ import {
   mapMilestone,
   mapProject,
   mapProjectTask,
-  mapSubtask,
   projectTaskSelect,
   type MilestoneRow,
   type ProjectRow,
-  type ProjectSubtaskRow,
   type ProjectTaskRow,
 } from "./postgres-project-mappers.ts";
 import {
@@ -17,6 +15,7 @@ import {
   saveTask,
 } from "./postgres-project-save-queries.ts";
 import type {
+  ProjectPinResult,
   ProjectRepository,
   ProjectTaskStatus,
   SaveMilestoneInput,
@@ -36,42 +35,33 @@ export class PostgresProjectRepository implements ProjectRepository {
   }
 
   async listProjects(userId: string) {
-    const [projectRows, milestoneRows, taskRows, subtaskRows] =
-      await Promise.all([
-        this.getProjectRows(userId),
-        this.getMilestoneRows(userId),
-        this.getProjectTaskRows(userId),
-        this.getSubtaskRows(userId),
-      ]);
+    const [projectRows, milestoneRows, taskRows] = await Promise.all([
+      this.getProjectRows(userId),
+      this.getMilestoneRows(userId),
+      this.getProjectTaskRows(userId),
+    ]);
 
-    return assembleProjects(projectRows, milestoneRows, taskRows, subtaskRows);
+    return assembleProjects(projectRows, milestoneRows, taskRows);
   }
 
-  async listDashboardTasks(userId: string, today: string) {
+  async listDashboardTasks(userId: string) {
     const taskRows = (await this.getSql().query(
       `${projectTaskSelect}
        WHERE project_tasks.user_id = $1
          AND project_tasks.status NOT IN ('archived', 'done')
          AND projects.status = 'active'
-         AND project_milestones.status = 'active'
+         AND (
+           project_tasks.milestone_id IS NULL
+           OR project_milestones.status = 'active'
+         )
        ORDER BY
-         CASE
-           WHEN project_tasks.scheduled_date = $2::date THEN 0
-           WHEN project_tasks.deadline_date IS NOT NULL
-             AND project_tasks.deadline_date <= $2::date THEN 1
-           WHEN project_tasks.priority = 'high' THEN 2
-           WHEN project_tasks.status = 'doing' THEN 3
-           ELSE 4
-         END,
          project_tasks.deadline_date NULLS LAST,
+         project_tasks.start_date NULLS LAST,
          project_tasks.updated_at DESC
        LIMIT 8`,
-      [userId, today],
+      [userId],
     )) as ProjectTaskRow[];
-    const tasks = taskRows.map(mapProjectTask);
-
-    await this.attachSubtasks(userId, tasks);
-    return tasks;
+    return taskRows.map(mapProjectTask);
   }
 
   saveProject(input: SaveProjectInput) {
@@ -94,6 +84,7 @@ export class PostgresProjectRepository implements ProjectRepository {
     const rows = (await this.getSql()`
       UPDATE projects
       SET status = 'archived',
+          sidebar_pin_order = NULL,
           archived_at = ${input.occurredAt},
           updated_at = ${input.occurredAt}
       WHERE user_id = ${input.userId}
@@ -101,6 +92,134 @@ export class PostgresProjectRepository implements ProjectRepository {
         AND status != 'archived'
       RETURNING id
     `) as Array<{ id: string }>;
+
+    return rows.length > 0;
+  }
+
+  async pinProject(input: {
+    userId: string;
+    projectId: string;
+    occurredAt: Date;
+  }): Promise<ProjectPinResult> {
+    const rows = (await this.getSql().query(
+      `WITH target AS (
+         SELECT id, sidebar_pin_order
+         FROM projects
+         WHERE user_id = $1
+           AND id = $2
+           AND status = 'active'
+       ),
+       available_slot AS (
+         SELECT slot
+         FROM generate_series(1, 3) AS slots(slot)
+         WHERE NOT EXISTS (
+           SELECT 1
+           FROM projects
+           WHERE user_id = $1
+             AND sidebar_pin_order = slot
+         )
+         ORDER BY slot
+         LIMIT 1
+       ),
+       updated AS (
+         UPDATE projects
+         SET sidebar_pin_order = COALESCE(
+               sidebar_pin_order,
+               (SELECT slot FROM available_slot)
+             ),
+             updated_at = $3::timestamptz
+         WHERE user_id = $1
+           AND id = $2
+           AND status = 'active'
+           AND (
+             sidebar_pin_order IS NOT NULL
+             OR EXISTS (SELECT 1 FROM available_slot)
+           )
+         RETURNING id
+       )
+       SELECT
+         EXISTS (SELECT 1 FROM target) AS found,
+         EXISTS (SELECT 1 FROM updated) AS pinned`,
+      [input.userId, input.projectId, input.occurredAt],
+    )) as Array<{ found: boolean; pinned: boolean }>;
+    const result = rows[0];
+
+    if (!result?.found) {
+      return "not_found";
+    }
+
+    return result.pinned ? "pinned" : "limit_reached";
+  }
+
+  async unpinProject(input: {
+    userId: string;
+    projectId: string;
+    occurredAt: Date;
+  }) {
+    const rows = (await this.getSql().query(
+      `UPDATE projects
+       SET sidebar_pin_order = NULL,
+           updated_at = CASE
+             WHEN sidebar_pin_order IS NULL THEN updated_at
+             ELSE $3::timestamptz
+           END
+       WHERE user_id = $1
+         AND id = $2
+         AND status != 'archived'
+       RETURNING id`,
+      [input.userId, input.projectId, input.occurredAt],
+    )) as Array<{ id: string }>;
+
+    return rows.length > 0;
+  }
+
+  async archiveMilestone(input: {
+    userId: string;
+    milestoneId: string;
+    occurredAt: Date;
+  }) {
+    const rows = (await this.getSql().query(
+      `WITH archived_milestone AS (
+         UPDATE project_milestones
+         SET status = 'archived',
+             archived_at = $3::timestamptz,
+             updated_at = $3::timestamptz
+         WHERE user_id = $1
+           AND id = $2
+           AND status != 'archived'
+         RETURNING id
+       ),
+       detached_tasks AS (
+         UPDATE project_tasks
+         SET milestone_id = NULL,
+             updated_at = $3::timestamptz
+         WHERE user_id = $1
+           AND milestone_id IN (SELECT id FROM archived_milestone)
+         RETURNING id
+       )
+       SELECT id FROM archived_milestone`,
+      [input.userId, input.milestoneId, input.occurredAt],
+    )) as Array<{ id: string }>;
+
+    return rows.length > 0;
+  }
+
+  async archiveTask(input: {
+    userId: string;
+    taskId: string;
+    occurredAt: Date;
+  }) {
+    const rows = (await this.getSql().query(
+      `UPDATE project_tasks
+       SET status = 'archived',
+           archived_at = $3::timestamptz,
+           updated_at = $3::timestamptz
+       WHERE user_id = $1
+         AND id = $2
+         AND status != 'archived'
+       RETURNING id`,
+      [input.userId, input.taskId, input.occurredAt],
+    )) as Array<{ id: string }>;
 
     return rows.length > 0;
   }
@@ -144,25 +263,6 @@ export class PostgresProjectRepository implements ProjectRepository {
     return rows.length > 0;
   }
 
-  async updateSubtaskDone(input: {
-    userId: string;
-    subtaskId: string;
-    isDone: boolean;
-    occurredAt: Date;
-  }) {
-    const rows = (await this.getSql().query(
-      `UPDATE project_subtasks
-       SET is_done = $3,
-         completed_at = CASE WHEN $3 THEN $4::timestamptz ELSE NULL END,
-         updated_at = $4::timestamptz
-       WHERE user_id = $1 AND id = $2
-       RETURNING id`,
-      [input.userId, input.subtaskId, input.isDone, input.occurredAt],
-    )) as Array<{ id: string }>;
-
-    return rows.length > 0;
-  }
-
   private async getProjectRows(userId: string) {
     return (await this.getSql()`
       SELECT *
@@ -191,49 +291,21 @@ export class PostgresProjectRepository implements ProjectRepository {
        WHERE project_tasks.user_id = $1
          AND project_tasks.status != 'archived'
          AND projects.status != 'archived'
-         AND project_milestones.status != 'archived'
+         AND (
+           project_tasks.milestone_id IS NULL
+           OR project_milestones.status != 'archived'
+         )
        ORDER BY project_tasks.sort_order, project_tasks.created_at`,
       [userId],
     )) as ProjectTaskRow[];
   }
 
-  private async getSubtaskRows(userId: string) {
-    return (await this.getSql()`
-      SELECT project_subtasks.*
-      FROM project_subtasks
-      INNER JOIN project_tasks ON project_tasks.id = project_subtasks.task_id
-      WHERE project_subtasks.user_id = ${userId}
-        AND project_tasks.status != 'archived'
-      ORDER BY project_subtasks.sort_order, project_subtasks.created_at
-    `) as ProjectSubtaskRow[];
-  }
-
-  private async attachSubtasks(userId: string, tasks: ReturnType<typeof mapProjectTask>[]) {
-    if (tasks.length === 0) {
-      return;
-    }
-
-    const subtasks = (await this.getSql().query(
-      `SELECT *
-       FROM project_subtasks
-       WHERE user_id = $1
-         AND task_id = ANY($2::uuid[])
-       ORDER BY sort_order, created_at`,
-      [userId, tasks.map((task) => task.id)],
-    )) as ProjectSubtaskRow[];
-    const byTaskId = groupSubtasks(subtasks);
-
-    tasks.forEach((task) => {
-      task.subtasks = byTaskId.get(task.id) ?? [];
-    });
-  }
 }
 
 function assembleProjects(
   projectRows: ProjectRow[],
   milestoneRows: MilestoneRow[],
   taskRows: ProjectTaskRow[],
-  subtaskRows: ProjectSubtaskRow[],
 ) {
   const projects = projectRows.map(mapProject);
   const milestones = milestoneRows.map(mapMilestone);
@@ -242,11 +314,13 @@ function assembleProjects(
   const milestoneById = new Map(
     milestones.map((milestone) => [milestone.id, milestone]),
   );
-  const subtasksByTaskId = groupSubtasks(subtaskRows);
 
   tasks.forEach((task) => {
-    task.subtasks = subtasksByTaskId.get(task.id) ?? [];
-    milestoneById.get(task.milestoneId)?.tasks.push(task);
+    projectById.get(task.projectId)?.tasks.push(task);
+
+    if (task.milestoneId) {
+      milestoneById.get(task.milestoneId)?.tasks.push(task);
+    }
   });
 
   milestones.forEach((milestone) => {
@@ -254,19 +328,6 @@ function assembleProjects(
   });
 
   return projects;
-}
-
-function groupSubtasks(rows: ProjectSubtaskRow[]) {
-  const byTaskId = new Map<string, ReturnType<typeof mapSubtask>[]>();
-
-  rows.forEach((row) => {
-    const subtasks = byTaskId.get(row.task_id) ?? [];
-
-    subtasks.push(mapSubtask(row));
-    byTaskId.set(row.task_id, subtasks);
-  });
-
-  return byTaskId;
 }
 
 function eventTypeForStatus(status: Exclude<ProjectTaskStatus, "archived">) {

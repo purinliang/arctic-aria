@@ -13,13 +13,12 @@ Project implementation details are split across:
 
 ## Hierarchy
 
-Arctic Aria project work has four levels:
+Arctic Aria project work has three managed levels:
 
 ```text
 Project
   Milestone
     Task
-      Subtask
 ```
 
 ## Level Meanings
@@ -48,8 +47,8 @@ change after the user starts.
 
 Project description replaces the previous separate objective and importance
 reason fields. It should prompt the user to describe what the project is trying
-to accomplish and why it matters in real life, such as `Objective: to ...` and
-`How and why is it important to you?`.
+to accomplish and why it matters in real life. UI copy should use natural
+product text, not literal prompt-template fragments.
 
 ### Milestone
 
@@ -65,14 +64,14 @@ Milestone examples:
 - for a one-month project: one to three milestones, often one to two weeks each
 - for a three-year project: six or more milestones, often about half a year each
 
-If the user does not want to create milestones, the system should create a
-default milestone so every task still has a phase boundary. The first default
-name should be `Project completion`. The user can rename it later.
+Milestones are optional. A project starts with no milestones, and the user can
+add milestones only when phase boundaries are useful. A task can also have no
+milestone.
 
 ### Task
 
 A task is the schedulable work unit. The scheduler and dashboard should select
-tasks, not subtasks.
+tasks directly.
 
 Typical duration depends on project scale:
 
@@ -82,31 +81,19 @@ Typical duration depends on project scale:
 A task can span several days. It should still be concrete enough that the user
 can decide whether it is the right thing to work on today.
 
-### Subtask
-
-A subtask is a checklist item inside a task.
-
-Subtasks are not schedulable. They cannot have smaller subtasks. They can be
-checked done so the user can track progress inside a task.
-
-Typical duration:
-
-- for a one-month project: less than or equal to one day
-- for a multi-year project: usually one to fifteen days, depending on task size
-
-Subtasks may be stored in SQL for persistence, but they are not Core scheduling
-entities. The scheduler should never select a subtask directly.
-
 ## Product Principles
 
 - The user manages projects.
 - The user can add milestones when phase boundaries are useful.
-- The user creates tasks under milestones.
-- The user can add subtasks under tasks when the task needs a checklist.
+- The user creates tasks under a project, optionally assigning a milestone.
 - Implementation details under a milestone should be easy to change.
 - Today's dashboard should focus on today's tasks to move projects forward.
+- The user can pin up to three active projects as sidebar shortcuts for quick
+  access to important current work.
 - Editable numeric progress fields should not appear in the UI.
-- Dashboard task cards should avoid standalone progress visuals.
+- Dashboard task rows should avoid standalone progress visuals.
+- Child checklist rows are intentionally removed from the current design. Add
+  them back only if task-only management proves insufficient.
 
 ## Naming Decision
 
@@ -115,7 +102,6 @@ Use these user-facing terms:
 - `Project`
 - `Milestone`
 - `Task`
-- `Subtask`
 
 Avoid `Plan` as the feature name. Planning is still an activity, but the entity
 the user manages is a project.

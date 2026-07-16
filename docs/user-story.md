@@ -7,7 +7,7 @@ Aria.
 
 Arctic Aria should help with:
 
-- breaking long-term projects into milestones, tasks, and subtasks
+- breaking long-term projects into milestones and tasks
 - automatically choosing daily work based on priority, urgency, deadline, and
   remaining progress
 - managing routines and reminders
@@ -27,13 +27,12 @@ flexible tasks that do not need a fixed time.
 
 Large projects can contain milestones. Milestones contain tasks. Examples
 include finding a job, applying for a degree, applying for a visa, or finishing
-a study/work project. Tasks can contain subtasks, but subtasks are checklist
-items and are not scheduled independently.
+a study/work project.
 
 The user can click a checkbox or command button to mark a task as complete.
-Partial progress should come from completed subtasks, completed tasks, or
-milestone phases, not from asking the user to edit numeric progress fields.
-Daily review data should update the displayed progress.
+Progress should come from completed tasks or milestone phases, not from asking
+the user to edit numeric progress fields. Daily review data should update the
+displayed progress.
 
 ## Idea Capture
 

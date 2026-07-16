@@ -186,6 +186,14 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
         occurredAt: now(),
       });
     },
+
+    async reopenRoutineInstance(userId: string, instanceId: string) {
+      return routines.reopenRoutineInstance({
+        userId,
+        instanceId,
+        occurredAt: now(),
+      });
+    },
   };
 }
 

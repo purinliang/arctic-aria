@@ -35,7 +35,6 @@ type MemoryDataAction = () => Promise<
 
 export function useDashboardMemories(
   showErrorNotification: (message: string, title?: string) => void,
-  showMemoriesView: (memoryId?: string) => void,
 ) {
   const [pinnedMemories, setPinnedMemories] = useState<PinnedMemory[]>([]);
   const [memoryCategories, setMemoryCategories] = useState<
@@ -46,61 +45,38 @@ export function useDashboardMemories(
     [],
   );
   const [memoryLoading, setMemoryLoading] = useState(true);
-  const [memoryMessage, setMemoryMessage] = useState<string | null>(null);
   const [memoryActionPending, setMemoryActionPending] = useState(false);
   const [suggestionLoading, setSuggestionLoading] = useState(false);
   const [pinnedSuggestionIds, setPinnedSuggestionIds] = useState<string[]>([]);
   const [pendingSuggestionIds, setPendingSuggestionIds] = useState<string[]>([]);
   const [suggestionsRequested, setSuggestionsRequested] = useState(false);
-  const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null);
-  const [expandedMemoryId, setExpandedMemoryId] = useState<string | null>(null);
 
-  const applyMemoryData = useCallback(
-    (data: MemoryDashboardData, nextExpandedMemoryId?: string | null) => {
-      setPinnedMemories(data.pinnedMemories);
-      setMemoryCategories(data.categories);
-      setMemoryRecords(data.memoryRecords);
-      setExpandedMemoryId((current) => {
-        if (nextExpandedMemoryId !== undefined) {
-          return nextExpandedMemoryId;
-        }
-
-        if (
-          current &&
-          data.pinnedMemories.some((memory) => memory.id === current)
-        ) {
-          return current;
-        }
-
-        return data.pinnedMemories[0]?.id ?? null;
-      });
-    },
-    [],
-  );
+  const applyMemoryData = useCallback((data: MemoryDashboardData) => {
+    setPinnedMemories(data.pinnedMemories);
+    setMemoryCategories(data.categories);
+    setMemoryRecords(data.memoryRecords);
+  }, []);
 
   const refreshMemoryData = useCallback(async () => {
     const result = await getMemoryDashboardData();
 
     if (!result.ok) {
-      setMemoryMessage(result.message);
+      showErrorNotification(result.message, "Memories unavailable");
       setPinnedMemories([]);
       setMemoryCategories([]);
       setMemoryRecords([]);
-      setExpandedMemoryId(null);
       setMemoryLoading(false);
       return;
     }
 
     applyMemoryData(result.data);
     setMemoryLoading(false);
-  }, [applyMemoryData]);
+  }, [applyMemoryData, showErrorNotification]);
 
   async function runMemoryAction(
     action: MemoryDataAction,
-    nextExpandedMemoryId: string | null,
     onFailure?: () => void,
   ) {
-    setMemoryMessage(null);
     setMemoryActionPending(true);
 
     try {
@@ -112,21 +88,20 @@ export function useDashboardMemories(
         return;
       }
 
-      applyMemoryData(result.data, nextExpandedMemoryId);
+      applyMemoryData(result.data);
     } finally {
       setMemoryActionPending(false);
     }
   }
 
   async function runMemoryManagementAction(action: MemoryDataAction) {
-    setMemoryMessage(null);
     setMemoryActionPending(true);
 
     try {
       const result = await action();
 
       if (!result.ok) {
-        setMemoryMessage(result.message);
+        showErrorNotification(result.message);
         return false;
       }
 
@@ -138,14 +113,13 @@ export function useDashboardMemories(
   }
 
   async function runMemoryManagementDataAction(action: MemoryDataAction) {
-    setMemoryMessage(null);
     setMemoryActionPending(true);
 
     try {
       const result = await action();
 
       if (!result.ok) {
-        setMemoryMessage(result.message);
+        showErrorNotification(result.message);
         return null;
       }
 
@@ -159,13 +133,11 @@ export function useDashboardMemories(
   function markMemoryDone(pinnedMemoryId: string) {
     const previousPinnedMemories = pinnedMemories;
 
-    setExpandedMemoryId(null);
     setPinnedMemories((current) =>
       applyOptimisticPinnedMemoryStatus(current, pinnedMemoryId, "completed"),
     );
     void runMemoryAction(
       () => completePinnedMemory(pinnedMemoryId),
-      null,
       () => setPinnedMemories(previousPinnedMemories),
     );
   }
@@ -173,13 +145,11 @@ export function useDashboardMemories(
   function cancelMemoryDone(pinnedMemoryId: string) {
     const previousPinnedMemories = pinnedMemories;
 
-    setExpandedMemoryId(null);
     setPinnedMemories((current) =>
       applyOptimisticPinnedMemoryStatus(current, pinnedMemoryId, "active"),
     );
     void runMemoryAction(
       () => cancelPinnedMemoryDone(pinnedMemoryId),
-      null,
       () => setPinnedMemories(previousPinnedMemories),
     );
   }
@@ -272,26 +242,16 @@ export function useDashboardMemories(
     memoryRecords,
     memorySuggestions,
     memoryLoading,
-    memoryMessage,
     memoryActionPending,
     suggestionLoading,
     pinnedSuggestionIds,
     pendingSuggestionIds,
     suggestionsRequested,
-    selectedMemoryId,
-    expandedMemoryId,
-    setExpandedMemoryId,
     refreshMemoryData,
     markMemoryDone,
     cancelMemoryDone,
-    replaceMemory: (pinnedMemoryId: string) => {
-      setExpandedMemoryId(null);
-      void runMemoryAction(() => replacePinnedMemory(pinnedMemoryId), null);
-    },
-    viewMemory: (memoryId: string) => {
-      setSelectedMemoryId(memoryId);
-      showMemoriesView(memoryId);
-    },
+    replaceMemory: (pinnedMemoryId: string) =>
+      void runMemoryAction(() => replacePinnedMemory(pinnedMemoryId)),
     saveMemoryFromPage: (input: MemoryInput) =>
       runMemoryManagementAction(() => saveMemory(input)),
     deleteMemoryFromPage: (memoryId: string) =>
@@ -300,7 +260,6 @@ export function useDashboardMemories(
       runMemoryManagementDataAction(() => saveMemoryCategory(input)),
     deleteCategoryFromPage: (categoryId: string) =>
       runMemoryManagementAction(() => deleteMemoryCategory(categoryId)),
-    clearMemoryMessage: () => setMemoryMessage(null),
     refreshSuggestionsFromPage,
     pinSuggestionFromPage,
     cancelSuggestionPinFromPage,

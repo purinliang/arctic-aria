@@ -9,6 +9,7 @@ export type MemoryCategoryRow = {
   id: string;
   user_id: string;
   name: MemoryCategoryName;
+  description: string;
   base_weight: string | number;
   created_at: Date | string;
   updated_at: Date | string;
@@ -62,6 +63,7 @@ export function mapCategory(row: MemoryCategoryRow): MemoryCategoryRecord {
     id: row.id,
     userId: row.user_id,
     name: row.name,
+    description: row.description,
     baseWeight: Number(row.base_weight),
     createdAt: toDate(row.created_at),
     updatedAt: toDate(row.updated_at),
