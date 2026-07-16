@@ -39,7 +39,7 @@ function daysBetween(left: Date, right: Date) {
   return Math.max(1, Math.floor(diff / (24 * 60 * 60 * 1000)));
 }
 
-function suggestionScore(memory: MemoryRecord, baseWeight: number, now: Date) {
+function suggestionScore(memory: MemoryRecord, now: Date) {
   const daysSource = memory.lastDoneAt ?? memory.createdAt;
   const daysScore = Math.log(1 + daysBetween(now, daysSource));
   const countScore = memory.lastDoneAt ? 1 + Math.log(1 + memory.doneCount) : 3;
@@ -48,7 +48,7 @@ function suggestionScore(memory: MemoryRecord, baseWeight: number, now: Date) {
     daysBetween(now, memory.lastIgnoredAt) <= 7;
   const ignoredFactor = ignoredRecently ? 0.25 : 1;
 
-  return Math.max(0.01, baseWeight * daysScore * countScore * ignoredFactor);
+  return Math.max(0.01, daysScore * countScore * ignoredFactor);
 }
 
 function weightedPick(
@@ -130,13 +130,11 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
       userId: string,
       name: string,
       description: string,
-      baseWeight: number,
     ) {
       return memories.createCategory({
         userId,
         name,
         description,
-        baseWeight,
         occurredAt: now(),
       });
     },
@@ -146,14 +144,12 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
       categoryId: string,
       name: string,
       description: string,
-      baseWeight: number,
     ) {
       return memories.updateCategory({
         userId,
         categoryId,
         name,
         description,
-        baseWeight,
         occurredAt: now(),
       });
     },
@@ -204,8 +200,7 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
 
     async suggestMemories(userId: string, count = 4) {
       const occurredAt = now();
-      const [categories, memoryRecords, pinnedMemories] = await Promise.all([
-        memories.listCategories(userId),
+      const [memoryRecords, pinnedMemories] = await Promise.all([
         memories.listMemories(userId),
         memories.listPinnedMemories(userId),
       ]);
@@ -221,9 +216,6 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
         );
       }
 
-      const baseWeightByCategory = new Map(
-        categories.map((category) => [category.id, category.baseWeight]),
-      );
       const candidates = memoryRecords
         .filter(
           (memory) =>
@@ -233,11 +225,7 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
         )
         .map((memory) => ({
           ...memory,
-          score: suggestionScore(
-            memory,
-            baseWeightByCategory.get(memory.categoryId) ?? 1,
-            occurredAt,
-          ),
+          score: suggestionScore(memory, occurredAt),
         }));
 
       return weightedPick(candidates, count, random);

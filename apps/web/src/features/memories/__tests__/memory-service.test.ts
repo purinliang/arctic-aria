@@ -23,10 +23,10 @@ test("initializes default memory categories for a user", async () => {
   const categories = await service.initializeUserMemoryDefaults(userId);
 
   assert.deepEqual(
-    categories.map((category) => [category.name, category.baseWeight]),
+    categories.map((category) => [category.name, category.description]),
     [
-      ["Cuisine", 1.2],
-      ["Sightseeing", 0.8],
+      ["Cuisine", ""],
+      ["Sightseeing", ""],
     ],
   );
 
@@ -46,7 +46,6 @@ test("creates memory in a newly created custom category", async () => {
     userId,
     "Custom",
     "Personal experiments.",
-    1.2,
   );
   const createdMemory = await service.createMemory(
     userId,
@@ -147,7 +146,6 @@ test("dashboard pinned memories only include supported default categories", asyn
         userId,
         name: "Anime",
         description: "",
-        baseWeight: 1,
         createdAt: new Date("2026-06-01T00:00:00.000Z"),
         updatedAt: new Date("2026-06-01T00:00:00.000Z"),
       },

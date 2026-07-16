@@ -122,14 +122,12 @@ export async function saveMemoryCategory(
         input.id,
         validation.name,
         validation.description,
-        validation.baseWeight,
       );
     } else {
       await memoryService.createCategory(
         user.id,
         validation.name,
         validation.description,
-        validation.baseWeight,
       );
     }
   } catch (error) {

@@ -11,20 +11,14 @@ import {
   DialogOverlay,
   DialogPrimaryButton,
 } from "@/components/dialog";
-import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { List, ListItem } from "@/components/list";
-import { DescriptionText, LabelText, SupportingText } from "@/components/text";
+import { DescriptionText } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryCategoryInput } from "@/features/memories/actions";
 import type { MemoryMessages } from "@/messages/app-messages";
-import {
-  categoryPeriodFromWeight,
-  categoryPeriodWeights,
-  type CategoryPeriod,
-} from "./memory-page-helpers";
 
 export function CategoryManagerDialog({
   darkMode,
@@ -104,12 +98,6 @@ export function CategoryManagerDialog({
                   <DescriptionText darkMode={darkMode} className="mt-1">
                     {category.description || messages.noDescription}
                   </DescriptionText>
-                  <SupportingText darkMode={darkMode} className="mt-2 block">
-                    {categoryPeriodLabel(
-                      categoryPeriodFromWeight(category.baseWeight),
-                      messages,
-                    )}
-                  </SupportingText>
                 </div>
                 <Button
                   darkMode={darkMode}
@@ -141,7 +129,6 @@ export function CategoryManagerDialog({
                     id: categoryDraft.id ?? "",
                     name: categoryDraft.name,
                     description: categoryDraft.description,
-                    baseWeight: categoryDraft.baseWeight,
                   })
               : undefined
           }
@@ -218,18 +205,6 @@ function CategoryFormDialog({
                 }
               />
             </FieldLabel>
-            <CategoryPeriodField
-              darkMode={darkMode}
-              pending={pending}
-              value={categoryPeriodFromWeight(categoryDraft.baseWeight)}
-              messages={messages}
-              onChange={(period) =>
-                setCategoryDraft((current) => ({
-                  ...current,
-                  baseWeight: categoryPeriodWeights[period],
-                }))
-              }
-            />
           </div>
           <DialogActionRow>
             <DialogPrimaryButton
@@ -263,41 +238,4 @@ function CategoryFormDialog({
       </form>
     </DialogOverlay>
   );
-}
-
-function CategoryPeriodField({
-  darkMode,
-  pending,
-  value,
-  messages,
-  onChange,
-}: {
-  darkMode: boolean;
-  pending: boolean;
-  value: CategoryPeriod;
-  messages: MemoryMessages["categories"];
-  onChange: (period: CategoryPeriod) => void;
-}) {
-  return (
-    <div className="grid gap-1.5">
-      <LabelText darkMode={darkMode}>{messages.suggestionPeriod}</LabelText>
-      <SingleChoiceGroup
-        darkMode={darkMode}
-        disabled={pending}
-        value={value}
-        options={(["Weekly", "Monthly"] as CategoryPeriod[]).map((period) => ({
-          value: period,
-          label: categoryPeriodLabel(period, messages),
-        }))}
-        onChange={(nextValue) => onChange(nextValue as CategoryPeriod)}
-      />
-    </div>
-  );
-}
-
-function categoryPeriodLabel(
-  period: CategoryPeriod,
-  messages: MemoryMessages["categories"],
-) {
-  return period === "Weekly" ? messages.weekly : messages.monthly;
 }

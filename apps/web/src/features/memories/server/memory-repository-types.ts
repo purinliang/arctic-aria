@@ -14,7 +14,6 @@ export type MemoryCategoryRecord = {
   userId: string;
   name: MemoryCategoryName;
   description: string;
-  baseWeight: number;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -78,7 +77,6 @@ export type CreateMemoryCategoryInput = {
   userId: string;
   name: string;
   description: string;
-  baseWeight: number;
   occurredAt: Date;
 };
 
@@ -159,10 +157,9 @@ export type MemoryRepository = {
 const defaultCategoryInputs: Array<{
   name: MemoryCategoryName;
   description: string;
-  baseWeight: number;
 }> = [
-  { name: "Cuisine", description: "", baseWeight: 1.2 },
-  { name: "Sightseeing", description: "", baseWeight: 0.8 },
+  { name: "Cuisine", description: "" },
+  { name: "Sightseeing", description: "" },
 ];
 
 export function getDefaultMemoryCategories() {
