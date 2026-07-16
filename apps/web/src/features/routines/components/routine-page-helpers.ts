@@ -11,9 +11,9 @@ export const ruleOptions: Array<{
 }> = [
   { type: "daily", label: "Daily" },
   { type: "weekly", label: "Weekly" },
-  { type: "bi_weekly", label: "Bi-weekly" },
-  { type: "monthly_by_date", label: "Monthly date" },
-  { type: "day_interval", label: "Day interval" },
+  { type: "bi_weekly", label: "Every two weeks" },
+  { type: "monthly_by_date", label: "Monthly" },
+  { type: "day_interval", label: "Every few days" },
 ];
 
 export const weekdayOptions = [

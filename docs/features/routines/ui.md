@@ -86,8 +86,10 @@ Fields:
 - first start date
 - optional end date
 
-The recurrence rule control should use simple option buttons or segmented
-controls first. Avoid a dense cron expression UI.
+The repeat rule control should use the shared dropdown/select component, not a
+button group. Each option should have a short title and a description so labels
+such as monthly or custom day intervals are easy to understand. Avoid a dense
+cron expression UI.
 
 Save behavior:
 
