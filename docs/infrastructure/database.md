@@ -42,6 +42,14 @@ Schema migration files are safe to commit. The current migration entry point is
 From the repository root, run the same migration entry point with
 `pnpm --dir apps/web db:migrate`.
 
+`schema_migrations` records each applied migration and the app metadata that was
+active when it ran: app version, commit hash, and source state. Use this as an
+audit trail before production releases so the deployed frontend/backend can be
+checked against the database migration version. The migration runner reads
+`APP_VERSION`, `APP_COMMIT`, and `APP_SOURCE_STATE` when present, falls back to
+Vercel commit metadata when available, and finally falls back to local Git
+metadata during development.
+
 The Projects feature requires `0005_create_projects.sql` and the cleanup
 `0006_drop_project_subtasks.sql`. If project server actions report missing
 `projects`, `project_milestones`, or `project_tasks` tables, treat the database
