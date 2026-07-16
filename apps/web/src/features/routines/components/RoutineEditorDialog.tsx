@@ -227,7 +227,7 @@ function RoutineScheduleFields({
           }
         />
       </FieldLabel>
-      <FieldLabel darkMode={darkMode} label={messages.endDate} optional>
+      <FieldLabel darkMode={darkMode} label={messages.endDate}>
         <DatePickerField
           darkMode={darkMode}
           placeholder={messages.selectEndDate}
@@ -239,7 +239,7 @@ function RoutineScheduleFields({
           }
         />
       </FieldLabel>
-      <FieldLabel darkMode={darkMode} label={messages.preferredTime} optional>
+      <FieldLabel darkMode={darkMode} label={messages.preferredTime}>
         <TimePickerField
           darkMode={darkMode}
           placeholder={messages.selectTime}
