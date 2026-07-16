@@ -3,7 +3,8 @@
 This directory records release PR text and main-branch release merge messages so
 future releases keep the same style.
 
-Use these files when preparing a GitHub PR from `develop` into `main`.
+Use these files when preparing a GitHub PR from `develop` or a hotfix branch
+into `main`.
 
 ## Format
 
@@ -31,5 +32,5 @@ documentation updates. Keep the body specific enough to be useful when reading
 - [v0.2.0.md](v0.2.0.md)
 - [v0.3.0.md](v0.3.0.md)
 - [v0.4.0.md](v0.4.0.md)
-- [v0.5.0.md](v0.5.0.md): prepared release record for the next `main`
-  release.
+- [v0.5.0.md](v0.5.0.md)
+- [v0.5.1.md](v0.5.1.md): prepared hotfix release record.
