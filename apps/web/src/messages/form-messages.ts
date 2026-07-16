@@ -53,7 +53,7 @@ export const englishFormMessages = {
       AM: "AM",
       PM: "PM",
     },
-    clear: "Clear",
+    clear: "Clear Time",
     value: (hour12: number, minute: number, period: string) =>
       `${hour12}:${String(minute).padStart(2, "0")} ${period}`,
   },
@@ -117,7 +117,7 @@ export const simplifiedChineseFormMessages: FormMessages = {
       AM: "上午",
       PM: "下午",
     },
-    clear: "清除",
+    clear: "清除时间",
     value: (hour12, minute, period) =>
       `${period} ${hour12}:${String(minute).padStart(2, "0")}`,
   },
