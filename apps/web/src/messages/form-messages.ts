@@ -48,8 +48,6 @@ export const englishFormMessages = {
     clear: "Clear",
     value: (hour12: number, minute: number, period: string) =>
       `${hour12}:${String(minute).padStart(2, "0")} ${period}`,
-    increase: (label: string) => `Increase ${label.toLowerCase()}`,
-    decrease: (label: string) => `Decrease ${label.toLowerCase()}`,
   },
 };
 
@@ -106,7 +104,5 @@ export const simplifiedChineseFormMessages: FormMessages = {
     clear: "清除",
     value: (hour12, minute, period) =>
       `${period} ${hour12}:${String(minute).padStart(2, "0")}`,
-    increase: (label) => `增加${label}`,
-    decrease: (label) => `减少${label}`,
   },
 };

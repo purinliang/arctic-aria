@@ -134,9 +134,10 @@ browser `type=date` controls for primary UI, because the popup can follow the
 user's browser or operating-system locale and cannot be styled consistently.
 
 `forms/time-picker-field.tsx` owns time selection. It must render a compact
-app-styled picker with hour, minute, and AM/PM controls, then return normalized
-`HH:mm` values. Do not use native browser `type=time` controls for primary UI
-and do not use a long scroll list for routine time selection.
+app-styled picker with typed numeric hour and minute fields, AM/PM controls,
+quick minute buttons, then return normalized `HH:mm` values. Do not use native
+browser `type=time` controls for primary UI and do not use a long scroll list
+for routine time selection.
 
 Date and time pickers are still controlled form components. Feature code owns
 the current value, validation rules, and validation timing. Picker popovers
