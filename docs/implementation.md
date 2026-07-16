@@ -22,6 +22,8 @@ Implemented:
 - Projects, Milestones, and Tasks
 - Routines and routine instances
 - Memories, categories, suggestions, and pinned memories
+- Settings page with local theme/language preference controls and version
+  metadata
 - shared web UI primitives and form controls
 - SQL migrations and direct SQL repositories
 - focused Node test coverage for validation, services, repositories, database
@@ -33,7 +35,7 @@ Not implemented yet:
 - Redis/cache
 - event bus or dataflow service
 - background worker service
-- user settings page
+- persisted user settings
 - ideas feature
 - reviews feature
 - reward plugin

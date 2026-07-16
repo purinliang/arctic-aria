@@ -18,15 +18,20 @@ version metadata.
 Implemented local preferences:
 
 - `Theme`: `Use system setting`, `Light`, or `Dark`
-- `Language`: `English`
+- `Language`: `Use browser setting`, `English`, or `简体中文`
 
 Theme preference is local to the browser/device for now. `Use system setting`
 uses browser or operating-system light/dark mode. If browser/system defaults
 cannot be read, the fallback is light mode.
 
-Language preference is visible but English-only in the current build. Browser
-language detection exists in the app preference loader, but Chinese UI text is
-not implemented until localization catalogs exist.
+Language preference is local to the browser/device for now. `Use browser
+setting` resolves the browser language to English or Simplified Chinese, with
+English as the fallback for unsupported languages.
+
+Current Chinese translation covers global surfaces: auth loading, login,
+registration, placeholder auth actions, sidebar/page titles, Settings rows, and
+version labels. Feature-heavy pages such as Projects, Routines, Memories, and
+Dashboard remain separate translation slices.
 
 Version metadata rows:
 
@@ -63,6 +68,8 @@ Current web source:
 
 - `apps/web/src/features/settings/components/SettingsPage.tsx`
 - `apps/web/src/app-shell/app-preferences.ts`
+- `apps/web/src/messages/app-messages.ts`
+- `apps/web/src/messages/languages.ts`
 
 ## Attributes
 

@@ -1,7 +1,7 @@
 # Web Localization
 
-This document describes the planned web localization direction. It is not a
-full Chinese UI implementation yet.
+This document describes the web localization direction and current translation
+scope. It is not a full Chinese UI implementation yet.
 
 ## Preference Ownership
 
@@ -11,16 +11,15 @@ full Chinese UI implementation yet.
 - browser timezone
 - system light/dark mode
 
-The current app can detect whether the browser language looks Chinese, but the
-active UI language remains English because Chinese message catalogs are not
-implemented yet.
+The current app can detect whether the browser language looks Chinese. The
+language selector can use browser language, English, or Simplified Chinese.
 
 When persisted Settings exist, the logged-in user's language setting should
 override browser language. If the user setting is missing or unavailable, fall
 back to browser language. If the browser language is unsupported, fall back to
 English.
 
-## Message Catalog Direction
+## Message Catalogs
 
 Do not hard-code translated strings in feature components once localization
 starts.
@@ -29,14 +28,17 @@ Prefer feature-scoped TypeScript message catalogs with one central lookup layer
 instead of one giant global JSON file. This keeps text near the feature that
 uses it while still making the active language manageable.
 
-Recommended future shape:
+Current shared catalogs:
 
 ```text
 apps/web/src/messages/
-|-- shared.en.ts
-|-- shared.zh-CN.ts
-`-- index.ts
+|-- app-messages.ts
+`-- languages.ts
+```
 
+Recommended future feature-catalog shape:
+
+```text
 apps/web/src/features/projects/messages/
 |-- en.ts
 `-- zh-CN.ts
@@ -59,11 +61,14 @@ reviewed with normal code changes.
 Implemented:
 
 - browser language detection
-- English-only language selector in Settings
+- local language preference with `system`, `en`, and `zh-CN`
+- typed shared app message catalogs
+- translated auth loading, login, registration, and placeholder action text
+- translated sidebar, page titles, Settings rows, and version labels
 
 Not implemented:
 
-- Chinese message catalogs
+- full feature-page translation for Projects, Routines, Memories, and Dashboard
 - persisted user language settings
 - timezone-based date/time formatting policy
 - automatic translation of user-generated content

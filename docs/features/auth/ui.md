@@ -14,6 +14,8 @@ and [data-model.md](data-model.md).
   one horizontal row below the brand row.
 - Use the resolved app theme so the loading screen matches the signed-out auth
   page and the authenticated app shell.
+- Use the resolved app language for loading text. `Arctic Aria` remains the
+  brand text in every language.
 - Do not show the login/register panel until the session check finishes.
 
 ## Registration Tab
@@ -28,6 +30,8 @@ and [data-model.md](data-model.md).
   assistant under the aurora.`
 - Show a small light/dark theme button above the auth panel. It changes the
   same local theme preference used by the authenticated app shell.
+- Auth labels, placeholder action text, notification titles, and the version
+  metadata footer should use the active app message catalog.
 - Show a small deployment metadata footer below the auth panel when app
   metadata is available. It should use shared `SupportingText` styling and
   follow the same version visibility rules as Settings.
