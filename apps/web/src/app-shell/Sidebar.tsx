@@ -7,7 +7,6 @@ import {
   LogOut,
   Moon,
   Settings,
-  Sparkles,
   Sun,
   X,
 } from "lucide-react";
@@ -148,14 +147,8 @@ function SidebarFrame({
           : "border-slate-200 bg-white text-slate-950"
       }`}
     >
-      <div className="flex items-center justify-between gap-3 pl-4">
-        <div className="flex min-w-0 items-center gap-2">
-          <Sparkles size={22} aria-hidden="true" />
-          <h2 className="truncate text-2xl font-semibold tracking-normal">
-            Arctic Aria
-          </h2>
-        </div>
-        {mobile ? (
+      {mobile ? (
+        <div className="flex justify-end">
           <Button
             darkMode={darkMode}
             size="icon-sm"
@@ -163,10 +156,10 @@ function SidebarFrame({
             icon={<X size={18} aria-hidden="true" />}
             onClick={onClose}
           />
-        ) : null}
-      </div>
+        </div>
+      ) : null}
 
-      <nav className="mt-6 grid overflow-hidden rounded-md">
+      <nav className={`${mobile ? "mt-4" : ""} grid overflow-hidden rounded-md`}>
         <SidebarItem
           icon={<LayoutDashboard size={18} aria-hidden="true" />}
           label={messages.pages.dashboard}
