@@ -203,6 +203,7 @@ Shared web docs:
 Infrastructure docs:
 
 - [infrastructure/database.md](infrastructure/database.md)
+- [infrastructure/environment.md](infrastructure/environment.md)
 - [infrastructure/redis.md](infrastructure/redis.md)
 
 ## Current Entry Points

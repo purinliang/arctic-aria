@@ -37,6 +37,9 @@ URLs, passwords, dumps, or generated local database files.
 Use `NEON_POSTGRES_URL` as the single database URL environment variable for the
 web app and migration runner.
 
+Environment variable ownership and Vercel Neon variable mapping are documented
+in [environment.md](environment.md).
+
 Schema migration files are safe to commit. The current migration entry point is
 `apps/web/scripts/migrate.mjs`, exposed as `pnpm db:migrate` from `apps/web`.
 From the repository root, run the same migration entry point with
@@ -148,8 +151,9 @@ Credential rules:
   auth commands.
 - Session cookies are signed and HTTP-only. The current session token is not
   encrypted, so its payload must remain non-sensitive.
-- Production should set an explicit `AUTH_SESSION_SECRET`. The development
-  fallback is only for local work.
+- Every environment, including local development, must set an explicit
+  `AUTH_SESSION_SECRET`. The app does not use the database URL or a default
+  string as a session secret fallback.
 
 Product data rules:
 

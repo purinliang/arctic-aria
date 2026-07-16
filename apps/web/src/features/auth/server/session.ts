@@ -95,9 +95,11 @@ export function readAuthSessionToken(
 }
 
 export function getAuthSessionSecret() {
-  return (
-    process.env.AUTH_SESSION_SECRET ??
-    process.env.NEON_POSTGRES_URL ??
-    "arctic-aria-development-session-secret"
-  );
+  const secret = process.env.AUTH_SESSION_SECRET?.trim();
+
+  if (secret) {
+    return secret;
+  }
+
+  throw new Error("Missing AUTH_SESSION_SECRET for auth session signing.");
 }
