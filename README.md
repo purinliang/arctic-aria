@@ -137,6 +137,8 @@ Shared Web UI:
 - [docs/web/sidebar-ui.md](docs/web/sidebar-ui.md): sidebar visual and
   interaction rules.
 - [docs/web/theme.md](docs/web/theme.md): theme behavior and color direction.
+- [docs/web/localization.md](docs/web/localization.md): language preference
+  detection and future message catalog direction.
 
 Apps And Infrastructure:
 

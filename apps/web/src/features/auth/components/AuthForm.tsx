@@ -4,6 +4,11 @@
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/button";
+import {
+  controlGroupSurfaceClass,
+  mutedTextClass,
+  sectionBorderClass,
+} from "@/components/color";
 import type { AuthMode } from "./AuthGate";
 import {
   authFieldOrder,
@@ -16,6 +21,7 @@ import { AuthTextField } from "./AuthTextField";
 import { GoogleIcon } from "./GoogleIcon";
 
 export type AuthFormProps = {
+  darkMode: boolean;
   mode: AuthMode;
   registerInput: RegisterInput;
   loginInput: LoginInput;
@@ -43,6 +49,7 @@ const visibleFields: Record<AuthMode, AuthField[]> = {
 };
 
 export function AuthForm({
+  darkMode,
   mode,
   registerInput,
   loginInput,
@@ -90,9 +97,11 @@ export function AuthForm({
 
   return (
     <>
-      <div className="mb-6 grid grid-cols-2 rounded-md border border-slate-300 bg-slate-100 p-1">
+      <div
+        className={`mb-6 grid grid-cols-2 rounded-md border p-1 ${controlGroupSurfaceClass(darkMode)}`}
+      >
         <Button
-          darkMode={false}
+          darkMode={darkMode}
           tone={mode === "login" ? "primary" : "ghost"}
           size="md"
           className="h-10"
@@ -101,7 +110,7 @@ export function AuthForm({
           Sign in
         </Button>
         <Button
-          darkMode={false}
+          darkMode={darkMode}
           tone={mode === "register" ? "primary" : "ghost"}
           size="md"
           className="h-10"
@@ -121,6 +130,7 @@ export function AuthForm({
         <h2 className="text-xl font-semibold tracking-normal">{title}</h2>
 
         <AuthTextField
+          darkMode={darkMode}
           label="Username"
           value={mode === "register" ? registerInput.username : loginInput.username}
           error={errors.username}
@@ -136,6 +146,7 @@ export function AuthForm({
 
         {mode === "register" ? (
           <AuthTextField
+            darkMode={darkMode}
             label="Display name"
             optional
             value={registerInput.displayName}
@@ -148,6 +159,7 @@ export function AuthForm({
         ) : null}
 
         <AuthTextField
+          darkMode={darkMode}
           label="Password"
           value={
             mode === "register" ? registerInput.password : loginInput.password
@@ -158,7 +170,7 @@ export function AuthForm({
           autoComplete={mode === "register" ? "new-password" : "current-password"}
           trailingButton={
             <Button
-              darkMode={false}
+              darkMode={darkMode}
               tone="ghost"
               size="icon-sm"
               className="h-8 w-8"
@@ -183,6 +195,7 @@ export function AuthForm({
 
         {mode === "register" ? (
           <AuthTextField
+            darkMode={darkMode}
             label="Repeat password"
             value={registerInput.repeatPassword}
             error={errors.repeatPassword}
@@ -191,7 +204,7 @@ export function AuthForm({
             autoComplete="new-password"
             trailingButton={
               <Button
-                darkMode={false}
+                darkMode={darkMode}
                 tone="ghost"
                 size="icon-sm"
                 className="h-8 w-8"
@@ -216,7 +229,7 @@ export function AuthForm({
           title={disabled && firstError ? errors[firstError] : undefined}
         >
           <Button
-            darkMode={false}
+            darkMode={darkMode}
             tone="primary"
             size="md"
             className="w-full"
@@ -230,14 +243,16 @@ export function AuthForm({
 
         {mode === "login" ? (
           <>
-            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm text-slate-400">
-              <span className="h-px bg-slate-200" />
+            <div
+              className={`grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm ${mutedTextClass(darkMode)}`}
+            >
+              <span className={`h-px border-t ${sectionBorderClass(darkMode)}`} />
               <span>or</span>
-              <span className="h-px bg-slate-200" />
+              <span className={`h-px border-t ${sectionBorderClass(darkMode)}`} />
             </div>
 
             <Button
-              darkMode={false}
+              darkMode={darkMode}
               size="md"
               icon={<GoogleIcon />}
               onClick={onGoogleLogin}
@@ -245,10 +260,10 @@ export function AuthForm({
               Continue with Google
             </Button>
 
-            <p className="text-center text-sm text-slate-600">
+            <p className={`text-center text-sm ${mutedTextClass(darkMode)}`}>
               Forgot your password?{" "}
               <Button
-                darkMode={false}
+                darkMode={darkMode}
                 tone="ghost"
                 size="xs"
                 className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"
@@ -260,10 +275,10 @@ export function AuthForm({
           </>
         ) : null}
 
-        <p className="text-center text-sm text-slate-600">
+        <p className={`text-center text-sm ${mutedTextClass(darkMode)}`}>
           {switchPrompt}{" "}
           <Button
-            darkMode={false}
+            darkMode={darkMode}
             tone="ghost"
             size="xs"
             className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"

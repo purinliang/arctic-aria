@@ -11,16 +11,32 @@ Progress: prototype
 Settings should include personal configuration that affects how the product
 behaves for one user.
 
-The current prototype implements only a read-only Settings page. It is opened
-from the sidebar `Settings` item and shows app and database version metadata:
+The current prototype implements a Settings page opened from the sidebar
+`Settings` item. It currently shows local display preferences and app/database
+version metadata.
+
+Implemented local preferences:
+
+- `Theme`: `Use system setting`, `Light`, or `Dark`
+- `Language`: `English`
+
+Theme preference is local to the browser/device for now. `Use system setting`
+uses browser or operating-system light/dark mode. If browser/system defaults
+cannot be read, the fallback is light mode.
+
+Language preference is visible but English-only in the current build. Browser
+language detection exists in the app preference loader, but Chinese UI text is
+not implemented until localization catalogs exist.
+
+Version metadata rows:
 
 - app version, with commit hash only for unreleased branch builds
 - actual database version
 
-This is a normal authenticated Settings surface. It is intentionally more
-visible than the signed-out auth-page metadata footer, because signed-in users
-can use it to compare the deployed frontend/backend with database migration
-records.
+This is a normal authenticated Settings surface. Version metadata is
+intentionally more visible than the signed-out auth-page metadata footer,
+because signed-in users can use it to compare the deployed frontend/backend
+with database migration records.
 
 The Settings panel should show version rows:
 
@@ -46,6 +62,7 @@ user-facing Settings UI.
 Current web source:
 
 - `apps/web/src/features/settings/components/SettingsPage.tsx`
+- `apps/web/src/app-shell/app-preferences.ts`
 
 ## Attributes
 
@@ -64,6 +81,10 @@ to the previous personal day.
 The first implementation can store settings in a SQL table linked by user id. A
 document-style store can be considered later if settings become large or highly
 variable.
+
+When persistence exists, logged-in user settings should override browser/system
+defaults. If user settings are unavailable, the app should fall back to local
+browser/device preference resolution.
 
 ## Change Display Name
 
