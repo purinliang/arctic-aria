@@ -12,7 +12,7 @@ behavior.
 The root auth gate and authenticated app shell own:
 
 - loading browser/system defaults
-- local theme preference state
+- persisted user preference state, with local fallback
 - resolved light or dark mode
 - root page background
 - root CSS variable synchronization for browser overscroll background
@@ -34,8 +34,8 @@ loading for app-level defaults:
 - browser language detection
 - browser timezone detection
 
-The file also owns local user preference state until a persisted Settings table
-is implemented.
+The file also owns local fallback preference state. After login, the app loads
+the user's persisted settings and applies them over the browser/device fallback.
 
 The current theme preference options are:
 
@@ -48,7 +48,7 @@ not read browser settings directly.
 
 ## Default Appearance
 
-System theme is the first local preference default. If browser/system theme
+System theme is the first fallback preference default. If browser/system theme
 cannot be read, fall back to light mode because daytime mode is currently the
 strongest visual direction for Arctic Aria.
 
@@ -58,16 +58,16 @@ same Arctic Aria brand direction.
 
 ## Dark Mode
 
-Dark mode is a local web setting for now. It is stored locally for the browser
-session/device and does not yet use database persistence.
+Dark mode is an account setting for logged-in users and a local fallback setting
+before login.
 
 Dark mode should update the browser pull-down and pull-up overscroll background
 so mobile browsers do not reveal an inconsistent light background behind the
 app shell.
 
-After persisted user settings exist, the logged-in user's saved theme
-preference should override local/browser defaults. If the user setting is
-missing or unavailable, fall back to the local/browser preference resolution.
+The logged-in user's saved theme preference overrides local/browser defaults. If
+the user setting is missing or unavailable, fall back to the local/browser
+preference resolution.
 
 ## Auth Page Theme Action
 

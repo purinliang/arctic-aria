@@ -7,6 +7,7 @@ import { ConfirmDialog } from "@/components/dialog";
 import { Panel } from "@/components/panel";
 import type { RoutineDefinition } from "@/features/dashboard/types";
 import type { RoutineInput } from "@/features/routines/actions";
+import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { FormMessages, RoutineMessages } from "@/messages/app-messages";
 import { RoutineEditorDialog } from "./RoutineEditorDialog";
 import { RoutinesList } from "./RoutinesList";
@@ -25,6 +26,7 @@ export function RoutinesPage({
   pending,
   messages,
   formMessages,
+  timeFormatPreference,
   onRoutineSave,
   onRoutineDelete,
 }: {
@@ -34,6 +36,7 @@ export function RoutinesPage({
   pending: boolean;
   messages: RoutineMessages;
   formMessages: FormMessages;
+  timeFormatPreference: TimeFormatPreference;
   onRoutineSave: (input: RoutineInput) => RoutineResult;
   onRoutineDelete: (routineId: string) => RoutineResult;
 }) {
@@ -98,6 +101,8 @@ export function RoutinesPage({
           pending={pending}
           messages={messages.page}
           ruleMessages={messages}
+          timeMessages={formMessages.timePicker}
+          timeFormatPreference={timeFormatPreference}
           onEdit={openEditor}
         />
       </Panel>
@@ -110,6 +115,7 @@ export function RoutinesPage({
           setDraft={setDraft}
           messages={messages}
           formMessages={formMessages}
+          timeFormatPreference={timeFormatPreference}
           onClose={closeEditor}
           onSubmit={() => void submitRoutine()}
           onDelete={() =>

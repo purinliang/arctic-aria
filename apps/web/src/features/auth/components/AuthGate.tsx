@@ -13,6 +13,14 @@ import { appShellClass, useDocumentTheme } from "@/components/theme";
 import { localizedActionMessage } from "@/messages/action-result";
 import { getAppMessages } from "@/messages/app-messages";
 import {
+  getUserPreferences,
+  saveUserPreferences,
+} from "@/features/settings/actions";
+import {
+  normalizeUserPreferences,
+  type UserPreferences,
+} from "@/features/settings/preferences";
+import {
   getCurrentUser,
   getPublicVersionStatus,
   loginUser,
@@ -60,11 +68,12 @@ export function AuthGate() {
   const [isPending, startTransition] = useTransition();
   const {
     darkMode,
+    applyUserPreferences,
     languagePreference,
     resolvedLanguage,
-    setLanguagePreference,
     setThemePreference,
     themePreference,
+    timeFormatPreference,
   } = useAppPreferences();
   const messages = getAppMessages(resolvedLanguage);
   const {
@@ -122,6 +131,28 @@ export function AuthGate() {
     };
   }, [messages.versionStatus.databaseUnavailable, messages.versionStatus.unavailable]);
 
+  useEffect(() => {
+    if (!currentUser) {
+      return;
+    }
+
+    let active = true;
+
+    getUserPreferences()
+      .then((result) => {
+        if (active && result.ok) {
+          applyUserPreferences(result.preferences);
+        }
+      })
+      .catch(() => {
+        console.warn("[settings-ui]", "preferences_load_failed");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [applyUserPreferences, currentUser]);
+
   if (!sessionChecked) {
     return (
       <main
@@ -162,8 +193,16 @@ export function AuthGate() {
         versionStatus={versionStatus}
         logoutPending={isPending}
         notifications={notifications}
-        onLanguagePreferenceChange={setLanguagePreference}
-        onThemePreferenceChange={setThemePreference}
+        onLanguagePreferenceChange={(nextPreference) =>
+          updateUserPreferences({ languagePreference: nextPreference })
+        }
+        onThemePreferenceChange={(nextPreference) =>
+          updateUserPreferences({ themePreference: nextPreference })
+        }
+        onTimeFormatPreferenceChange={(nextPreference) =>
+          updateUserPreferences({ timeFormatPreference: nextPreference })
+        }
+        timeFormatPreference={timeFormatPreference}
         onLogout={() => {
           startTransition(async () => {
             await logoutUser();
@@ -216,6 +255,36 @@ export function AuthGate() {
   function updateLogin<K extends keyof LoginInput>(key: K, value: LoginInput[K]) {
     resetSubmitState();
     setLoginInput((current) => ({ ...current, [key]: value }));
+  }
+
+  function updateUserPreferences(input: Partial<UserPreferences>) {
+    const nextPreferences = normalizeUserPreferences({
+      languagePreference,
+      themePreference,
+      timeFormatPreference,
+      ...input,
+    });
+
+    applyUserPreferences(nextPreferences);
+
+    void saveUserPreferences(nextPreferences)
+      .then((result) => {
+        if (result.ok) {
+          applyUserPreferences(result.preferences);
+          return;
+        }
+
+        showErrorNotification(
+          localizedActionMessage(result, messages.settings.results),
+          messages.settings.notifications.preferencesSaveFailed,
+        );
+      })
+      .catch(() => {
+        showErrorNotification(
+          messages.settings.results.settings_preferences_save_failed,
+          messages.settings.notifications.preferencesSaveFailed,
+        );
+      });
   }
 
   function handleSubmit() {
@@ -301,7 +370,15 @@ export function AuthGate() {
         onSubmit={handleSubmit}
         onGoogleLogin={showGooglePlaceholder}
         onPasswordReset={showPasswordResetPlaceholder}
-        onThemeToggle={() => setThemePreference(darkMode ? "light" : "dark")}
+        onThemeToggle={() => {
+          const nextPreference = darkMode ? "light" : "dark";
+
+          setThemePreference(nextPreference);
+
+          if (currentUser) {
+            updateUserPreferences({ themePreference: nextPreference });
+          }
+        }}
         versionMessages={messages.versionStatus}
         versionStatus={versionStatus}
       />

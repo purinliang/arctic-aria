@@ -31,8 +31,13 @@ export function defaultTimePartsFromNow(now = new Date()) {
   };
 }
 
-export function formatTimeInputValue(parts: TimeParts) {
-  return `${String(parts.hour12).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}`;
+export function formatTimeInputValue(
+  parts: TimeParts,
+  format: "12h" | "24h" = "12h",
+) {
+  const hour = format === "24h" ? hour24FromParts(parts) : parts.hour12;
+
+  return `${String(hour).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}`;
 }
 
 export function dayPeriodForTime(parts: TimeParts): DayPeriod {
@@ -119,7 +124,7 @@ export function toTimeValue(parts: TimeParts) {
   return `${String(hour24).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}`;
 }
 
-function hour24FromParts(parts: TimeParts) {
+export function hour24FromParts(parts: TimeParts) {
   return parts.period === "AM"
     ? parts.hour12 % 12
     : parts.hour12 === 12
