@@ -37,13 +37,13 @@ export const englishFormMessages = {
       `${shortMonthName} ${day}, ${year}`,
   },
   timePicker: {
-    hour: "Hour",
-    minute: "Minute",
+    time: "Time",
+    timePlaceholder: "910 or 19:30",
+    twelveHourHint: "12 AM is midnight. 12 PM is noon.",
     periodLabels: {
       AM: "AM",
       PM: "PM",
     },
-    quickMinutes: "Quick minutes",
     done: "Done",
     clear: "Clear",
     value: (hour12: number, minute: number, period: string) =>
@@ -93,13 +93,13 @@ export const simplifiedChineseFormMessages: FormMessages = {
     dateValue: (shortMonthName, day, year) => `${year}年${shortMonthName}${day}日`,
   },
   timePicker: {
-    hour: "小时",
-    minute: "分钟",
+    time: "时间",
+    timePlaceholder: "例如 910 或 19:30",
+    twelveHourHint: "12 AM 是午夜，12 PM 是中午。",
     periodLabels: {
       AM: "上午",
       PM: "下午",
     },
-    quickMinutes: "快速分钟",
     done: "完成",
     clear: "清除",
     value: (hour12, minute, period) =>
