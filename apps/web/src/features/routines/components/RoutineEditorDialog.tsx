@@ -2,10 +2,7 @@
 import { LoaderCircle, Save, Trash2 } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
-import {
-  MultipleChoiceGroup,
-  SingleChoiceGroup,
-} from "@/components/forms/choice-group";
+import { MultipleChoiceGroup } from "@/components/forms/choice-group";
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import {
   DialogActionRow,
@@ -17,6 +14,7 @@ import {
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { NumberInput } from "@/components/forms/number-field";
+import { SelectInput } from "@/components/forms/selection-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { TimePickerField } from "@/components/forms/time-picker-field";
 import type { RoutineInput } from "@/features/routines/actions";
@@ -179,22 +177,24 @@ function RecurrenceFields({
   return (
     <>
       <div className="grid gap-2">
-        <span className="text-xs font-semibold">{messages.editor.recurrence}</span>
-        <SingleChoiceGroup
-          darkMode={darkMode}
-          disabled={pending}
-          value={draft.ruleType}
-          options={ruleOptions.map((option) => ({
-            value: option.type,
-            label: messages.rules[option.type],
-          }))}
-          onChange={(ruleType) =>
-            setDraft((current) => ({
-              ...current,
-              ruleType: ruleType as RoutineInput["ruleType"],
-            }))
-          }
-        />
+        <FieldLabel darkMode={darkMode} label={messages.editor.recurrence}>
+          <SelectInput
+            darkMode={darkMode}
+            disabled={pending}
+            value={draft.ruleType}
+            options={ruleOptions.map((option) => ({
+              value: option.type,
+              label: messages.rules[option.type],
+              description: messages.ruleDescriptions[option.type],
+            }))}
+            onChange={(ruleType) =>
+              setDraft((current) => ({
+                ...current,
+                ruleType: ruleType as RoutineInput["ruleType"],
+              }))
+            }
+          />
+        </FieldLabel>
       </div>
       {draft.ruleType === "weekly" ? (
         <div className="grid gap-2">
