@@ -7,7 +7,6 @@ import {
   deleteMemoryCategory,
   getMemoryDashboardData,
   pinMemorySuggestion,
-  replacePinnedMemory,
   refreshMemorySuggestions,
   saveMemory,
   saveMemoryCategory,
@@ -260,8 +259,6 @@ export function useDashboardMemories(
     refreshMemoryData,
     markMemoryDone,
     cancelMemoryDone,
-    replaceMemory: (pinnedMemoryId: string) =>
-      void runMemoryAction(() => replacePinnedMemory(pinnedMemoryId)),
     saveMemoryFromPage: (input: MemoryInput) =>
       runMemoryManagementAction(() => saveMemory(input)),
     deleteMemoryFromPage: (memoryId: string) =>
