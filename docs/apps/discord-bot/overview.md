@@ -286,6 +286,12 @@ Arctic Aria service
    pnpm --dir apps/discord-bot register-commands
    ```
 
+   For user-installed Discord apps, registration updates Discord's global
+   command metadata but the installed app can still show stale commands. After
+   adding, renaming, or changing slash-command options, reinstall or
+   re-authorize the app from Discord Developer Portal -> Installation -> Install
+   Link, then refresh/restart the Discord client.
+
 4. Run the interaction HTTP server:
 
    ```bash
@@ -383,6 +389,9 @@ Arctic Aria service
 - `This command is outdated` usually means Discord is using cached command
   metadata after `register-commands`. Refresh/restart Discord or wait a few
   minutes.
+- If a newly registered command, such as `/bind`, does not appear while older
+  commands still work, reinstall or re-authorize the user-installed app from
+  the Discord Developer Portal install link, then refresh/restart Discord.
 - `The application did not respond` means Discord did not get a valid response
   from the interaction endpoint in time. Check that `pnpm --dir
   apps/discord-bot dev` is still running, ngrok is still online, the Discord
