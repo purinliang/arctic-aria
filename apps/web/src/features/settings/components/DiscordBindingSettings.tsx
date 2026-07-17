@@ -1,12 +1,12 @@
 "use client";
 
 // Settings Page - Discord Binding Settings.
-import { Link, LoaderCircle, RefreshCw, Unlink } from "lucide-react";
+import { Link, LoaderCircle, Unlink } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import { ConfirmDialog } from "@/components/dialog";
 import { ListItem } from "@/components/list";
-import { SupportingText } from "@/components/text";
+import { DescriptionText } from "@/components/text";
 import type { SettingsMessages } from "@/messages/app-messages";
 import { DiscordBoundAccountField } from "./DiscordBoundAccountField";
 import { DiscordBindingCodeStatus } from "./DiscordBindingCodeStatus";
@@ -232,10 +232,10 @@ export function DiscordBindingSettings({
               </Button>
             </div>
           ) : (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <SupportingText darkMode={darkMode}>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <DescriptionText darkMode={darkMode} className="shrink-0">
                 {discordStatusText}
-              </SupportingText>
+              </DescriptionText>
               {bindingStatusFailed && !pendingBindingCode ? (
                 <CheckAgainButton
                   darkMode={darkMode}
@@ -263,7 +263,6 @@ export function DiscordBindingSettings({
               messages={messages}
               onCancel={handleCancelCode}
               onCheckAgain={handleCheckAgain}
-              onRegenerate={handleCreateCode}
             />
           ) : null}
         </div>
@@ -358,10 +357,6 @@ function CheckAgainButton({
       darkMode={darkMode}
       disabled={loading}
       loading={loading}
-      icon={loading ? undefined : <RefreshCw size={14} aria-hidden="true" />}
-      loadingIcon={
-        <LoaderCircle className="animate-spin" size={14} aria-hidden="true" />
-      }
       size="field"
       onClick={onClick}
     >

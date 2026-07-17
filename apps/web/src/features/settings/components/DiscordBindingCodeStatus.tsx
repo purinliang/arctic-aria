@@ -1,7 +1,6 @@
 "use client";
 
 // Settings Page - Discord Binding Code Status.
-import { Link, LoaderCircle, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import {
@@ -19,7 +18,6 @@ export function DiscordBindingCodeStatus({
   messages,
   onCancel,
   onCheckAgain,
-  onRegenerate,
 }: {
   action: "bind" | "cancel" | "load" | "unbind" | null;
   code: string;
@@ -28,7 +26,6 @@ export function DiscordBindingCodeStatus({
   messages: SettingsMessages;
   onCancel: () => void;
   onCheckAgain: () => void;
-  onRegenerate: () => void;
 }) {
   const [currentTime, setCurrentTime] = useState<number | null>(null);
   const expired = isBindingCodeExpired(expiresAt, currentTime);
@@ -73,27 +70,9 @@ export function DiscordBindingCodeStatus({
           darkMode={darkMode}
           disabled={action !== null && action !== "load"}
           loading={action === "load"}
-          icon={
-            action === "load" ? undefined : <RefreshCw size={14} aria-hidden="true" />
-          }
-          loadingIcon={
-            <LoaderCircle className="animate-spin" size={14} aria-hidden="true" />
-          }
           onClick={onCheckAgain}
         >
           {messages.discord.checkAgain}
-        </Button>
-        <Button
-          darkMode={darkMode}
-          disabled={action !== null && action !== "bind"}
-          loading={action === "bind"}
-          icon={action === "bind" ? undefined : <Link size={14} aria-hidden="true" />}
-          loadingIcon={
-            <LoaderCircle className="animate-spin" size={14} aria-hidden="true" />
-          }
-          onClick={onRegenerate}
-        >
-          {messages.discord.regenerate}
         </Button>
         <Button
           darkMode={darkMode}

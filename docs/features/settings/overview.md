@@ -112,20 +112,13 @@ Pending code state:
 - show relative expiry text such as `Expires in 15 minutes.`
 - show `Expired` in red when the code expires
 - show instructions: run `/bind code:<code>` in Discord
-- show `Check Again`, `Regenerate`, and `Cancel` actions below the account
-  binding setting
+- show `Check Again` and `Cancel` actions below the account binding setting
 
 Bound state:
 
 - show `Bound Account ID` as a disabled password-style input field
 - show an icon-only view/hide button inside the input field
 - show `Unbind` in the same horizontal row as the input when width allows
-
-Regenerate:
-
-- creates a new one-time code that expires after 15 minutes
-- successful `/bind` replaces the previous Discord account for the same Arctic
-  Aria user
 
 Unbind:
 
@@ -147,7 +140,7 @@ Current implementation:
 
 - Settings can load the active Discord binding for the signed-in Arctic Aria
   user.
-- Settings can create, regenerate, and cancel one-time binding codes.
+- Settings can create and cancel one-time binding codes.
 - Settings can unbind the active Discord account after confirmation.
 - The Discord bot implements `/bind code:<code>` and consumes those codes.
 - The UI does not yet poll automatically after the user completes `/bind` in

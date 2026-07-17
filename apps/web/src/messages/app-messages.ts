@@ -148,7 +148,6 @@ const englishMessages = {
         unbound: "Discord disconnected",
         unbindFailed: "Discord not disconnected",
       },
-      regenerate: "Regenerate",
       results: {
         settings_discord_binding_loaded: "Discord binding loaded.",
         settings_discord_binding_unavailable: "Discord binding is unavailable.",
@@ -330,7 +329,6 @@ const simplifiedChineseMessages: AppMessages = {
         unbound: "Discord 已断开",
         unbindFailed: "Discord 未断开",
       },
-      regenerate: "重新生成",
       results: {
         settings_discord_binding_loaded: "Discord 绑定已加载。",
         settings_discord_binding_unavailable: "Discord 绑定暂不可用。",

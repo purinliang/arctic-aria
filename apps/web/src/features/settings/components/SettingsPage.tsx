@@ -1,7 +1,7 @@
 "use client";
 
 // Settings Page.
-import { Info, MessageCircle, Settings } from "lucide-react";
+import { Info, Settings } from "lucide-react";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import { CardHeader } from "@/components/card";
@@ -18,6 +18,7 @@ import type {
 } from "@/messages/app-messages";
 import type { LanguagePreference } from "@/messages/languages";
 import { DiscordBindingSettings } from "./DiscordBindingSettings";
+import { DiscordIcon } from "./DiscordIcon";
 
 export function SettingsPage({
   darkMode,
@@ -121,7 +122,7 @@ export function SettingsPage({
       <Panel darkMode={darkMode} className="min-w-0">
         <CardHeader
           darkMode={darkMode}
-          icon={<MessageCircle size={18} aria-hidden="true" />}
+          icon={<DiscordIcon darkMode={darkMode} />}
           title={messages.discord.title}
           description={messages.discord.description}
         />
