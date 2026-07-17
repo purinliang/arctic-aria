@@ -132,6 +132,13 @@ production says the database is `ahead`, inspect whether the deployed app,
 expected schema hash, migration history, or database metadata is older/newer
 than expected before changing the display text.
 
+## Sidebar Refinement
+
+The light-mode and sign-out rows should visually follow the same menu-item
+pattern as the preceding sidebar navigation items. Do not place them in a
+separate visual container or give them a different row style unless the sidebar
+design is revised explicitly.
+
 ## Ongoing Feature Review
 
 Database and concurrency review should happen during later feature development,
