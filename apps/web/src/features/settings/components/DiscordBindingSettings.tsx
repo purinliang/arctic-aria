@@ -2,7 +2,7 @@
 
 // Settings Page - Discord Binding Settings.
 import { Link, LoaderCircle, Unlink } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/button";
 import { ConfirmDialog } from "@/components/dialog";
 import { ListItem } from "@/components/list";
@@ -46,6 +46,8 @@ export function DiscordBindingSettings({
   const [confirmUnbindOpen, setConfirmUnbindOpen] = useState(false);
   const [accountIdVisible, setAccountIdVisible] = useState(false);
   const [bindingStatusFailed, setBindingStatusFailed] = useState(false);
+  const messagesRef = useRef(messages);
+  const showErrorNotificationRef = useRef(showErrorNotification);
   const discordStatusText = getDiscordStatusText({
     bindingStatusFailed,
     discordBinding,
@@ -53,8 +55,19 @@ export function DiscordBindingSettings({
     messages,
   });
 
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  useEffect(() => {
+    showErrorNotificationRef.current = showErrorNotification;
+  }, [showErrorNotification]);
+
   const refreshDiscordBinding = useCallback(
     async (showFailure = true) => {
+      const activeMessages = messagesRef.current;
+      const activeShowErrorNotification = showErrorNotificationRef.current;
+
       setDiscordLoading(true);
       setDiscordAction("load");
 
@@ -75,9 +88,9 @@ export function DiscordBindingSettings({
         setBindingStatusFailed(true);
 
         if (showFailure) {
-          showErrorNotification(
-            bindingResultMessage(result.code, result.message, messages),
-            messages.discord.notifications.loadFailed,
+          activeShowErrorNotification(
+            bindingResultMessage(result.code, result.message, activeMessages),
+            activeMessages.discord.notifications.loadFailed,
           );
         }
 
@@ -86,9 +99,9 @@ export function DiscordBindingSettings({
         setBindingStatusFailed(true);
 
         if (showFailure) {
-          showErrorNotification(
-            messages.discord.results.settings_discord_binding_unavailable,
-            messages.discord.notifications.loadFailed,
+          activeShowErrorNotification(
+            activeMessages.discord.results.settings_discord_binding_unavailable,
+            activeMessages.discord.notifications.loadFailed,
           );
         }
 
@@ -98,7 +111,7 @@ export function DiscordBindingSettings({
         setDiscordAction(null);
       }
     },
-    [messages, showErrorNotification],
+    [],
   );
 
   useEffect(() => {
@@ -242,7 +255,6 @@ export function DiscordBindingSettings({
               accountIdVisible={accountIdVisible}
               action={discordAction}
               darkMode={darkMode}
-              loading={discordLoading}
               messages={messages}
               onSendTestMessage={handleSendTestMessage}
               onToggleAccountId={() =>
