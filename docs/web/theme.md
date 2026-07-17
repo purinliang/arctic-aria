@@ -56,17 +56,20 @@ The page background should stay consistent while loading, signing in, and using
 authenticated pages. Loading, auth, 404, and app-shell screens should share the
 same Arctic Aria brand direction.
 
-## Neutral Grey Scale
+## Neutral Scale
 
-The web app should use a neutral grey scale as the default palette for both
-light and dark mode. Think of the scale as roughly 16 steps from black to white:
-step `0` is black, step `15` is white, and the middle steps are light, mid, and
-deep greys.
+The web app should use one restrained neutral scale as the default palette for
+both light and dark mode. The scale does not need to be mathematically pure
+grey; a slightly cool or warm neutral is acceptable when it improves the Arctic
+Aria visual direction. The important rule is that the app uses one coherent
+scale instead of mixing unrelated grey families.
 
-Light mode uses the white end of the scale for surfaces and the black end for
-text. Dark mode reverses the same roles: black surfaces and white text. Middle
-greys should keep similar visual distance from the active surface in both
-themes.
+Design and tune the light-mode scale first. Light mode should define the
+intended relationship between page background, surfaces, headers, borders,
+icons, supporting text, and main text. Dark mode should then reverse those
+roles from the same scale: light surfaces become dark surfaces, dark text
+becomes light text, and middle neutral steps keep similar visual distance from
+their surrounding surfaces.
 
 Use shared component color helpers for these roles:
 
