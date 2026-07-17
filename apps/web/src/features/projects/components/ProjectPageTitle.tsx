@@ -56,11 +56,11 @@ export function ProjectPageTitle({
   }
 
   return (
-    <div className="flex min-w-0 flex-1 items-center gap-3">
+    <div className="grid min-w-0 flex-1 gap-2 sm:flex sm:items-center sm:gap-3">
       <h1 className="flex min-w-0 items-center gap-2 text-2xl font-semibold tracking-normal sm:text-3xl">
         <button
           className={cx(
-            "shrink-0 rounded-sm text-left outline-none transition",
+            "hidden shrink-0 rounded-sm text-left outline-none transition sm:inline",
             breadcrumbButtonClass,
           )}
           type="button"
@@ -71,11 +71,13 @@ export function ProjectPageTitle({
         >
           {messages.projects}
         </button>
-        <span className={cx("shrink-0", secondaryTextColorClass)}>/</span>
+        <span className={cx("hidden shrink-0 sm:inline", secondaryTextColorClass)}>
+          /
+        </span>
         <span className="relative min-w-0">
           <button
             className={cx(
-              "flex min-w-0 max-w-[min(58vw,42rem)] items-center gap-2 rounded-sm text-left outline-none transition",
+              "flex min-w-0 max-w-full items-center gap-2 rounded-sm text-left outline-none transition sm:max-w-[min(58vw,42rem)]",
               breadcrumbButtonClass,
             )}
             type="button"
@@ -155,7 +157,7 @@ export function ProjectPageTitle({
         </span>
       </h1>
       {onEditProject ? (
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:shrink-0 sm:justify-start">
           <Button
             darkMode={darkMode}
             size="icon-sm"

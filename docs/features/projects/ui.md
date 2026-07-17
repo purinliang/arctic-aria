@@ -210,6 +210,8 @@ Breadcrumb behavior:
 
 - the page title bar, not the detail panel, shows `Projects / project name`
 - `Projects` in the page title bar returns to the project list page
+- on mobile, hide the `Projects /` breadcrumb prefix so long project names
+  have more horizontal room
 - clicking or focusing the project name opens a menu-style project switcher
 - breadcrumb hover/focus effects should use non-layout effects, such as an
   outer shadow halo, and must not add visible padding that shifts alignment
@@ -246,8 +248,10 @@ Detail page layout:
 - right panel: project overview and milestone management
 - left card: `Tasks` card with icon, supporting text, and `New`
 - title action: `Edit3` icon plus `Edit`, placed to the right of
-  `Projects / project_name`
+  `Projects / project_name` on desktop
 - pin action: icon-only outline `Pin` or `PinOff` button, placed beside `Edit`
+- on mobile, place the pin/unpin and edit project actions on a second line,
+  aligned to the right
 - right top card: `Overview`
 - right bottom card: `Milestones` with `New`
 - overview metadata group: description, start date, and timeline
