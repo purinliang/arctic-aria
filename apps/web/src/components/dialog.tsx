@@ -14,11 +14,11 @@ export function DialogOverlay({
   return (
     <div
       className={cx(
-        "fixed inset-0 grid items-start justify-items-center overflow-y-auto bg-black/65 px-4 py-8 sm:py-10",
+        "fixed inset-0 overflow-y-auto bg-black/65 px-4 py-8 sm:py-10",
         zIndex,
       )}
     >
-      {children}
+      <div className="grid min-h-full place-items-center">{children}</div>
     </div>
   );
 }
