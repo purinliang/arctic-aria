@@ -324,7 +324,6 @@ export function AppShell({
               onRoutineStatus={routineState.updateRoutine}
               onMemoryDone={memoryState.markMemoryDone}
               onMemoryCancelDone={memoryState.cancelMemoryDone}
-              onMemoryReplace={memoryState.replaceMemory}
               onTaskOpen={showProjectDetail}
               messages={messages.dashboard}
               formMessages={messages.forms}

@@ -82,7 +82,6 @@ export function MemoriesPanel({
         />
         <Button
           darkMode={darkMode}
-          size="md"
           disabled={pending}
           icon={<Settings2 size={15} aria-hidden="true" />}
           onClick={onManage}

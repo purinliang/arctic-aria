@@ -27,7 +27,6 @@ export function Dashboard({
   onRoutineStatus,
   onMemoryDone,
   onMemoryCancelDone,
-  onMemoryReplace,
   onTaskOpen,
   onRoutineOpen,
   onMemoryOpen,
@@ -51,7 +50,6 @@ export function Dashboard({
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
   onMemoryDone: (pinnedMemoryId: string) => void;
   onMemoryCancelDone: (pinnedMemoryId: string) => void;
-  onMemoryReplace: (pinnedMemoryId: string) => void;
   onTaskOpen: (projectId: string) => void;
   onRoutineOpen: () => void;
   onMemoryOpen: () => void;
@@ -94,7 +92,6 @@ export function Dashboard({
             dateMessages={formMessages.datePicker}
             onDone={onMemoryDone}
             onCancelDone={onMemoryCancelDone}
-            onReplace={onMemoryReplace}
             onMemoryOpen={onMemoryOpen}
           />
         </aside>

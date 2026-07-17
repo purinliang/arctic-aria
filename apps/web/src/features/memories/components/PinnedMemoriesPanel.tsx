@@ -1,5 +1,5 @@
 // Dashboard - Pinned Memories Panel.
-import { Album, ChevronRight, RefreshCw } from "lucide-react";
+import { Album, ChevronRight } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { mutedTextClass } from "@/components/color";
@@ -22,7 +22,6 @@ export function PinnedMemoriesPanel({
   dateMessages,
   onDone,
   onCancelDone,
-  onReplace,
   onMemoryOpen,
 }: {
   darkMode: boolean;
@@ -33,7 +32,6 @@ export function PinnedMemoriesPanel({
   dateMessages: DatePickerMessages;
   onDone: (pinnedMemoryId: string) => void;
   onCancelDone: (pinnedMemoryId: string) => void;
-  onReplace: (pinnedMemoryId: string) => void;
   onMemoryOpen: () => void;
 }) {
   return (
@@ -60,7 +58,6 @@ export function PinnedMemoriesPanel({
             dateMessages={dateMessages}
             onDone={() => onDone(memory.id)}
             onCancelDone={() => onCancelDone(memory.id)}
-            onReplace={() => onReplace(memory.id)}
             onOpen={onMemoryOpen}
           />
         ))}
@@ -78,7 +75,6 @@ function PinnedMemoryRow({
   dateMessages,
   onDone,
   onCancelDone,
-  onReplace,
   onOpen,
 }: {
   memory: PinnedMemory;
@@ -88,7 +84,6 @@ function PinnedMemoryRow({
   dateMessages: DatePickerMessages;
   onDone: () => void;
   onCancelDone: () => void;
-  onReplace: () => void;
   onOpen: () => void;
 }) {
   const completed = memory.status === "completed";
@@ -126,14 +121,6 @@ function PinnedMemoryRow({
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-1">
-        <Button
-          darkMode={darkMode}
-          size="icon-sm"
-          disabled={disabled}
-          aria-label={messages.replace(memory.title)}
-          icon={<RefreshCw size={15} aria-hidden="true" />}
-          onClick={onReplace}
-        />
         <Button
           darkMode={darkMode}
           tone="ghost"
