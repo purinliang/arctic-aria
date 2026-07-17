@@ -69,7 +69,7 @@ function buttonToneClass(
   active: boolean,
 ) {
   if (tone === "primary" || active) {
-    return "border border-[var(--aa-color-primary)] bg-[var(--aa-color-primary)] text-[var(--aa-color-inverse-text)] hover:border-[var(--aa-color-primary-hover)] hover:bg-[var(--aa-color-primary-hover)]";
+    return "border border-[var(--aa-color-selected-border)] bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:border-[var(--aa-color-selected-border)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-text)]";
   }
 
   if (tone === "ghost") {
