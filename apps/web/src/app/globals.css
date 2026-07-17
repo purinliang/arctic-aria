@@ -61,31 +61,30 @@
   --gray-indicator: #8b8d98;
   --gray-track: #8b8d98;
   --color-background: #fff;
-  --aa-color-page: var(--gray-3);
-  --aa-color-surface: var(--gray-1);
-  --aa-color-header: var(--gray-2);
-  --aa-color-control: var(--gray-1);
-  --aa-color-control-muted: var(--gray-2);
-  --aa-color-control-hover: var(--gray-4);
-  --aa-color-border: var(--gray-7);
-  --aa-color-border-strong: var(--gray-8);
-  --aa-color-text: var(--gray-12);
-  --aa-color-muted: var(--gray-11);
-  --aa-color-inverse-text: var(--blue-contrast);
-  --aa-color-primary: var(--blue-9);
-  --aa-color-primary-hover: var(--blue-10);
-  --aa-color-primary-muted: var(--blue-3);
-  --aa-color-primary-muted-text: var(--blue-12);
-  --aa-color-hover: var(--gray-4);
-  --aa-color-selected: var(--blue-9);
-  --aa-color-selected-hover: var(--blue-10);
-  --aa-color-selected-border: var(--blue-10);
-  --aa-color-selected-text: var(--blue-contrast);
-  --aa-color-selected-hover-text: var(--blue-contrast);
-  --aa-color-focus: var(--blue-9);
-  --background: var(--aa-color-page);
-  --foreground: var(--aa-color-text);
-  --muted-foreground: var(--aa-color-muted);
+  --aa-page-bg: var(--gray-6);
+  --aa-panel-bg: var(--gray-1);
+  --aa-panel-hover-bg: var(--gray-2);
+  --aa-panel-header-bg: var(--gray-3);
+  --aa-primary-text: var(--gray-12);
+  --aa-secondary-text: var(--gray-11);
+  --aa-primary-button-bg: var(--blue-9);
+  --aa-primary-button-text: var(--blue-contrast);
+  --aa-primary-button-hover-bg: var(--blue-10);
+  --aa-primary-button-hover-text: var(--blue-contrast);
+  --aa-primary-button-disabled-bg: var(--blue-6);
+  --aa-primary-button-disabled-text: var(--blue-12);
+  --aa-secondary-button-bg: var(--gray-1);
+  --aa-secondary-button-text: var(--gray-11);
+  --aa-secondary-button-border: var(--gray-6);
+  --aa-secondary-button-hover-bg: var(--gray-3);
+  --aa-secondary-button-hover-border: var(--gray-7);
+  --aa-secondary-button-hover-text: var(--gray-12);
+  --aa-secondary-button-disabled-border: var(--gray-5);
+  --aa-secondary-button-disabled-bg: var(--gray-2);
+  --aa-secondary-button-disabled-text: var(--gray-11);
+  --background: var(--aa-page-bg);
+  --foreground: var(--aa-primary-text);
+  --muted-foreground: var(--aa-secondary-text);
 }
 
 :root[data-aa-theme="dark"],
@@ -148,32 +147,32 @@
   --gray-indicator: #6c6e79;
   --gray-track: #6c6e79;
   --color-background: #111111;
-  --aa-color-page: var(--gray-1);
-  --aa-color-surface: var(--gray-2);
-  --aa-color-header: var(--gray-3);
-  --aa-color-control: var(--gray-2);
-  --aa-color-control-muted: var(--gray-3);
-  --aa-color-control-hover: var(--gray-4);
-  --aa-color-border: var(--gray-7);
-  --aa-color-border-strong: var(--gray-8);
-  --aa-color-text: var(--gray-12);
-  --aa-color-muted: var(--gray-11);
-  --aa-color-inverse-text: var(--blue-contrast);
-  --aa-color-primary: var(--blue-9);
-  --aa-color-primary-hover: var(--blue-10);
-  --aa-color-primary-muted: var(--blue-3);
-  --aa-color-primary-muted-text: var(--blue-12);
-  --aa-color-hover: var(--gray-4);
-  --aa-color-selected: var(--blue-9);
-  --aa-color-selected-hover: var(--blue-10);
-  --aa-color-selected-border: var(--blue-10);
-  --aa-color-selected-text: var(--blue-contrast);
-  --aa-color-selected-hover-text: var(--blue-contrast);
-  --aa-color-focus: var(--blue-11);
+  --aa-page-bg: var(--gray-1);
+  --aa-panel-bg: var(--gray-2);
+  --aa-panel-hover-bg: var(--gray-3);
+  --aa-panel-header-bg: var(--gray-4);
+  --aa-primary-text: var(--gray-12);
+  --aa-secondary-text: var(--gray-11);
+  --aa-primary-button-bg: var(--blue-9);
+  --aa-primary-button-text: var(--blue-contrast);
+  --aa-primary-button-hover-bg: var(--blue-10);
+  --aa-primary-button-hover-text: var(--blue-contrast);
+  --aa-primary-button-disabled-bg: var(--blue-4);
+  --aa-primary-button-disabled-text: var(--gray-11);
+  --aa-secondary-button-bg: var(--gray-2);
+  --aa-secondary-button-text: var(--gray-11);
+  --aa-secondary-button-border: var(--gray-6);
+  --aa-secondary-button-hover-bg: var(--gray-4);
+  --aa-secondary-button-hover-border: var(--gray-8);
+  --aa-secondary-button-hover-text: var(--gray-12);
+  --aa-secondary-button-disabled-border: var(--gray-5);
+  --aa-secondary-button-disabled-bg: var(--gray-3);
+  --aa-secondary-button-disabled-text: var(--gray-11);
 }
 
 @supports (color: color(display-p3 1 1 1)) {
   @media (color-gamut: p3) {
+
     :root,
     :root[data-aa-theme="light"],
     .light,
@@ -351,7 +350,7 @@ input {
 
 button:focus-visible,
 input:focus-visible {
-  outline: 2px solid var(--aa-color-focus);
+  outline: 2px solid var(--aa-primary-button-bg);
   outline-offset: 2px;
 }
 
@@ -400,6 +399,7 @@ input:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .aa-notification-toast,
   .aa-notification-toast[data-dismissing="true"] {
     animation: none;

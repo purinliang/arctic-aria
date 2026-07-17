@@ -22,7 +22,7 @@ export function FieldLabel({
       <LabelText darkMode={darkMode}>
         {label}
         {optional ? (
-          <span className="font-normal text-[var(--aa-color-muted)]">
+          <span className="font-normal text-[var(--aa-secondary-text)]">
             {" "}
             (Optional)
           </span>

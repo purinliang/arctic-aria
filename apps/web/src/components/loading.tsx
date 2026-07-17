@@ -1,9 +1,8 @@
 import { LoaderCircle } from "lucide-react";
-import { mutedTextClass } from "./color";
+import { secondaryTextColorClass } from "./color";
 import { cx } from "./utils";
 
 export function LoadingLine({
-  darkMode,
   text,
   className,
 }: {
@@ -15,7 +14,7 @@ export function LoadingLine({
     <div
       className={cx(
         "flex items-center gap-2 px-4 py-4 text-sm",
-        mutedTextClass(darkMode),
+        secondaryTextColorClass,
         className,
       )}
     >

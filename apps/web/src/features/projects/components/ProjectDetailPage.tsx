@@ -2,7 +2,7 @@
 import { Edit3, Flag, Info, ListChecks, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { Card, CardHeader } from "@/components/card";
-import { mutedTextClass } from "@/components/color";
+import { secondaryTextColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { List, ListItem } from "@/components/list";
@@ -51,7 +51,7 @@ export function ProjectDetailPage({
     return (
       <Panel darkMode={darkMode} className="min-h-[60vh]">
         <div className="px-4 py-4">
-          <p className={`text-sm ${mutedTextClass(darkMode)}`}>
+          <p className={`text-sm ${secondaryTextColorClass}`}>
             {messages.selectProject}
           </p>
         </div>
@@ -81,7 +81,7 @@ export function ProjectDetailPage({
           />
           <List darkMode={darkMode}>
             {project.tasks.length === 0 ? (
-              <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+              <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
                 {messages.noTasks}
               </p>
             ) : null}
@@ -154,7 +154,7 @@ export function ProjectDetailPage({
             />
             <List darkMode={darkMode}>
               {project.milestones.length === 0 ? (
-                <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+                <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
                   {messages.noMilestones}
                 </p>
               ) : null}
@@ -170,7 +170,7 @@ export function ProjectDetailPage({
                         {milestone.title}
                       </span>
                     </div>
-                    <p className={`mt-1 text-sm ${mutedTextClass(darkMode)}`}>
+                    <p className={`mt-1 text-sm ${secondaryTextColorClass}`}>
                       {milestone.objective ||
                         timelineMessages.progress(
                           doneTaskCount(milestone.tasks),

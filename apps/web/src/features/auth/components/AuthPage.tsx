@@ -5,7 +5,7 @@ import { Moon, Sun } from "lucide-react";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
 import { Button } from "@/components/button";
-import { mutedTextClass } from "@/components/color";
+import { secondaryTextColorClass } from "@/components/color";
 import { Panel } from "@/components/panel";
 import { appShellClass } from "@/components/theme";
 import { VersionStatusSupport } from "@/components/version-status";
@@ -55,7 +55,7 @@ export function AuthPage({
           <Panel darkMode={darkMode} className="w-full p-5 shadow-sm sm:p-8">
             <ArcticAriaLogo brandText={messages.brandName} />
             <p
-              className={`mx-auto mb-8 mt-2 max-w-[320px] text-center text-sm leading-6 ${mutedTextClass(darkMode)}`}
+              className={`mx-auto mb-8 mt-2 max-w-[320px] text-center text-sm leading-6 ${secondaryTextColorClass}`}
             >
               {messages.brandDescription}
             </p>

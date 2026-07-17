@@ -2,7 +2,7 @@
 import { ChevronDown, Edit3, Pin, PinOff } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/button";
-import { mutedTextClass, surfaceClass } from "@/components/color";
+import { secondaryTextColorClass, panelColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
 import { cx } from "@/components/utils";
 import type { ProjectView } from "@/features/projects/actions";
@@ -45,7 +45,7 @@ export function ProjectPageTitle({
   const selectedProject =
     projects.find((project) => project.id === selectedProjectId) ?? null;
   const breadcrumbButtonClass =
-    "hover:bg-[var(--aa-color-hover)] hover:text-[var(--aa-color-text)] hover:outline hover:outline-2 hover:outline-[var(--aa-color-hover)] focus-visible:bg-[var(--aa-color-hover)] focus-visible:text-[var(--aa-color-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--aa-color-hover)]";
+    "hover:bg-[var(--aa-panel-hover-bg)] hover:text-[var(--aa-primary-text)] hover:outline hover:outline-2 hover:outline-[var(--aa-panel-hover-bg)] focus-visible:bg-[var(--aa-panel-hover-bg)] focus-visible:text-[var(--aa-primary-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--aa-panel-hover-bg)]";
 
   if (!selectedProject) {
     return (
@@ -71,7 +71,7 @@ export function ProjectPageTitle({
         >
           {messages.projects}
         </button>
-        <span className={cx("shrink-0", mutedTextClass(darkMode))}>/</span>
+        <span className={cx("shrink-0", secondaryTextColorClass)}>/</span>
         <span className="relative min-w-0">
           <button
             className={cx(
@@ -104,7 +104,7 @@ export function ProjectPageTitle({
               <div
                 className={cx(
                   "absolute left-0 z-30 mt-2 max-h-[min(360px,60vh)] w-[min(520px,calc(100vw-2rem))] overflow-y-auto overflow-x-hidden rounded-md border p-1 text-sm shadow-xl",
-                  surfaceClass(darkMode),
+                  panelColorClass,
                 )}
               >
                 {projects.map((project) => {
@@ -116,8 +116,8 @@ export function ProjectPageTitle({
                       className={cx(
                         "grid w-full gap-1 rounded-md px-3 py-2 text-left transition",
                         active
-                          ? "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
-                          : "text-[var(--aa-color-text)] hover:bg-[var(--aa-color-control-hover)]",
+                          ? "bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)]"
+                          : "text-[var(--aa-primary-text)] hover:bg-[var(--aa-secondary-button-hover-bg)]",
                       )}
                       type="button"
                       title={project.title}
@@ -132,7 +132,7 @@ export function ProjectPageTitle({
                       <span
                         className={cx(
                           "truncate text-xs",
-                          active ? "" : mutedTextClass(darkMode),
+                          active ? "" : secondaryTextColorClass,
                         )}
                       >
                         {projectTimelineText(

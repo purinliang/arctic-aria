@@ -2,7 +2,7 @@
 import { Edit3, LoaderCircle, Plus, Save, Trash2, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
-import { headerSurfaceClass, sectionBorderClass } from "@/components/color";
+import { panelHeaderColorClass, secondaryButtonBorderColorClass } from "@/components/color";
 import {
   DialogActionRow,
   DialogBackdrop,
@@ -70,7 +70,7 @@ export function CategoryManagerDialog({
           <div
             className={cx(
               "flex items-center justify-between gap-3 rounded-t-md border-b px-4 py-3",
-              headerSurfaceClass(darkMode),
+              panelHeaderColorClass,
             )}
           >
             <h3 className="text-base font-semibold">{messages.manageTitle}</h3>
@@ -95,7 +95,7 @@ export function CategoryManagerDialog({
           </div>
           <List
             darkMode={darkMode}
-            className={cx("border-b", sectionBorderClass(darkMode))}
+            className={cx("border-b", secondaryButtonBorderColorClass)}
           >
             {categories.map((category) => (
               <ListItem

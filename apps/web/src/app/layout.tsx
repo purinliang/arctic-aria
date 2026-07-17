@@ -17,9 +17,9 @@ const themeBootScript = `
 
     root.dataset.aaTheme = darkMode ? "dark" : "light";
     root.style.colorScheme = darkMode ? "dark" : "light";
-    root.style.setProperty("--background", "var(--aa-color-page)");
-    root.style.setProperty("--foreground", "var(--aa-color-text)");
-    root.style.setProperty("--muted-foreground", "var(--aa-color-muted)");
+    root.style.setProperty("--background", "var(--aa-page-bg)");
+    root.style.setProperty("--foreground", "var(--aa-primary-text)");
+    root.style.setProperty("--muted-foreground", "var(--aa-secondary-text)");
   } catch {
     // Keep the CSS :root light fallback if browser storage is unavailable.
   }

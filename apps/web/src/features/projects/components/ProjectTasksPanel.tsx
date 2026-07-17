@@ -2,7 +2,7 @@
 import { ChevronRight, ListChecks } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
-import { mutedTextClass } from "@/components/color";
+import { secondaryTextColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { List, ListItem } from "@/components/list";
@@ -136,9 +136,9 @@ function formatDate(value: string, messages: DatePickerMessages) {
   return formatDateKey(value, messages);
 }
 
-function EmptyLine({ darkMode, text }: { darkMode: boolean; text: string }) {
+function EmptyLine({ text }: { darkMode: boolean; text: string }) {
   return (
-    <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+    <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
       {text}
     </p>
   );

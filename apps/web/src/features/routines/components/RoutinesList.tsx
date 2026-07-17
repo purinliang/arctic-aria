@@ -1,7 +1,7 @@
 // Routines Page - Routines List.
 import { Edit3 } from "lucide-react";
 import { Button } from "@/components/button";
-import { mutedTextClass } from "@/components/color";
+import { secondaryTextColorClass } from "@/components/color";
 import { formatTimeDisplay } from "@/components/forms/time-display";
 import { List, ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
@@ -39,7 +39,7 @@ export function RoutinesList({
         <LoadingLine darkMode={darkMode} text={messages.loading} />
       ) : null}
       {!loading && routines.length === 0 ? (
-        <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+        <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
           {messages.empty}
         </p>
       ) : null}

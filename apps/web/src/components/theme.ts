@@ -2,19 +2,20 @@ import { useEffect } from "react";
 
 export const appThemeColors = {
   light: {
-    background: "var(--aa-color-page)",
-    foreground: "var(--aa-color-text)",
-    mutedForeground: "var(--aa-color-muted)",
+    background: "var(--aa-page-bg)",
+    foreground: "var(--aa-primary-text)",
+    mutedForeground: "var(--aa-secondary-text)",
   },
   dark: {
-    background: "var(--aa-color-page)",
-    foreground: "var(--aa-color-text)",
-    mutedForeground: "var(--aa-color-muted)",
+    background: "var(--aa-page-bg)",
+    foreground: "var(--aa-primary-text)",
+    mutedForeground: "var(--aa-secondary-text)",
   },
 } as const;
 
-export function appShellClass(_darkMode: boolean) {
-  return "bg-[var(--aa-color-page)] text-[var(--aa-color-text)]";
+export function appShellClass(darkMode: boolean) {
+  void darkMode;
+  return "bg-[var(--aa-page-bg)] text-[var(--aa-primary-text)]";
 }
 
 export function useDocumentTheme(darkMode: boolean) {

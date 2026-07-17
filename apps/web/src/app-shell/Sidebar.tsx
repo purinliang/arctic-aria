@@ -229,7 +229,7 @@ function SidebarFrame({
               open ? "translate-x-0" : "-translate-x-full"
             }`
           : "hidden h-screen w-[300px] shrink-0 lg:sticky lg:top-0 lg:flex"
-      } relative flex-col border-r border-[var(--aa-color-border)] bg-[var(--aa-color-surface)] text-[var(--aa-color-text)]`}
+      } relative flex-col border-r border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-bg)] text-[var(--aa-primary-text)]`}
     >
       <div
         ref={sidebarRef}
@@ -314,7 +314,7 @@ function SidebarFrame({
             darkMode={darkMode}
             onClick={() => onSelectView("settings")}
           />
-          <div className="my-2 border-t border-[var(--aa-color-border)]" aria-hidden="true" />
+          <div className="my-2 border-t border-[var(--aa-secondary-button-border)]" aria-hidden="true" />
           <SidebarItem
             icon={
               darkMode ? (
@@ -347,7 +347,7 @@ function SidebarFrame({
         <span
           className={`pointer-events-none absolute right-1 top-0 block w-0.5 rounded-full transition-opacity duration-200 ${
             scrollbarState.visible ? "opacity-100" : "opacity-0"
-          } bg-[var(--aa-color-border-strong)]`}
+          } bg-[var(--aa-secondary-button-hover-bg)]`}
           style={{
             height: scrollbarState.thumbHeight,
             transform: `translateY(${scrollbarState.thumbTop}px)`,
@@ -388,9 +388,7 @@ function SidebarItem({
       tone="ghost"
       active={active}
       size="md"
-      className={`w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md ${
-        active ? "" : "hover:bg-[var(--aa-color-hover)] hover:text-[var(--aa-color-text)]"
-      }`}
+      className="w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md"
       disabled={disabled}
       icon={itemIcon}
       onClick={onClick}

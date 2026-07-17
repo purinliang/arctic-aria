@@ -92,8 +92,8 @@ export function DatePickerField({
       <button
         className={cx(
           formControlClass(darkMode, hasError),
-          "flex items-center justify-between gap-3 text-left",
-          !formattedValue && "text-[var(--aa-color-muted)]",
+          "flex items-center justify-between gap-3 text-left hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
+          !formattedValue && "text-[var(--aa-secondary-text)]",
           className,
         )}
         type="button"
@@ -173,7 +173,7 @@ export function DatePickerField({
             {messages.weekdayNames.map((weekday) => (
               <div
                 key={weekday}
-                className="text-[var(--aa-color-muted)]"
+                className="text-[var(--aa-secondary-text)]"
               >
                 {weekday}
               </div>
@@ -245,13 +245,15 @@ function DayButton({
   disabled: boolean;
   onClick: () => void;
 }) {
+  void darkMode;
+
   return (
     <button
       className={cx(
-        "h-8 rounded-md text-sm transition disabled:cursor-not-allowed disabled:opacity-30",
+        "h-8 rounded-md text-sm transition disabled:cursor-not-allowed",
         selected
-          ? "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
-          : "text-[var(--aa-color-text)] hover:bg-[var(--aa-color-control-hover)]",
+          ? "bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)] disabled:bg-[var(--aa-primary-button-disabled-bg)] disabled:text-[var(--aa-primary-button-disabled-text)] disabled:hover:bg-[var(--aa-primary-button-disabled-bg)] disabled:hover:text-[var(--aa-primary-button-disabled-text)]"
+          : "bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
       )}
       type="button"
       disabled={disabled}

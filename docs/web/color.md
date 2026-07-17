@@ -22,13 +22,13 @@ Docs should use color tokens, not raw color values.
 The shared web UI should stay close to this small set of background and button
 roles:
 
-| Role family | Background token | Text token | Hover background token | Hover text token | Disabled background token | Disabled text token |
-|---|---|---|---|---|---|---|
-| Page | `--aa-page-bg` | use text roles | n/a | n/a | n/a | n/a |
-| Panel | `--aa-panel-bg` | use text roles | `--aa-panel-hover-bg` | n/a | n/a | n/a |
-| Panel header | `--aa-panel-header-bg` | use text roles | n/a | n/a | n/a | n/a |
-| Primary button | `--aa-primary-button-bg` | `--aa-primary-button-text` | `--aa-primary-button-hover-bg` | `--aa-primary-button-hover-text` | `--aa-primary-button-disabled-bg` | `--aa-primary-button-disabled-text` |
-| Secondary button | `--aa-secondary-button-bg` | `--aa-secondary-button-text` | `--aa-secondary-button-hover-bg` | `--aa-secondary-button-hover-text` | `--aa-secondary-button-disabled-bg` | `--aa-secondary-button-disabled-text` |
+| Role family | Background token | Text token | Border token | Hover background token | Hover text token | Hover border token | Disabled background token | Disabled text token | Disabled border token |
+|---|---|---|---|---|---|---|---|---|---|
+| Page | `--aa-page-bg` | use text roles | n/a | n/a | n/a | n/a | n/a | n/a | n/a |
+| Panel | `--aa-panel-bg` | use text roles | use secondary button border | `--aa-panel-hover-bg` | n/a | n/a | n/a | n/a | n/a |
+| Panel header | `--aa-panel-header-bg` | use text roles | use secondary button border | n/a | n/a | n/a | n/a | n/a | n/a |
+| Primary button | `--aa-primary-button-bg` | `--aa-primary-button-text` | `--aa-primary-button-hover-bg` | `--aa-primary-button-hover-bg` | `--aa-primary-button-hover-text` | `--aa-primary-button-hover-bg` | `--aa-primary-button-disabled-bg` | `--aa-primary-button-disabled-text` | `--aa-primary-button-disabled-bg` |
+| Secondary button | `--aa-secondary-button-bg` | `--aa-secondary-button-text` | `--aa-secondary-button-border` | `--aa-secondary-button-hover-bg` | `--aa-secondary-button-hover-text` | `--aa-secondary-button-hover-border` | `--aa-secondary-button-disabled-bg` | `--aa-secondary-button-disabled-text` | `--aa-secondary-button-disabled-border` |
 
 Text is independent from page and panel backgrounds:
 
@@ -43,42 +43,33 @@ class logic for normal color behavior. Components that share the same visual
 role must reference the same token, so changing or renaming one role updates
 all components mapped to that role.
 
-## Current Alias Mapping
+Secondary buttons have two presentations:
 
-The current code still uses older aliases. Until the code is refactored, treat
-these as the closest current equivalents:
+- Secondary button uses the secondary button tokens for its surface, text,
+  border, hover, disabled, and disabled border colors.
+- Secondary button (borderless) uses the same secondary button text, hover, and
+  disabled tokens without drawing a border.
 
-| Target token | Current closest token |
-|---|---|
-| `--aa-page-bg` | `--aa-color-page` |
-| `--aa-panel-bg` | `--aa-color-surface` |
-| `--aa-panel-hover-bg` | `--aa-color-control-muted` |
-| `--aa-panel-header-bg` | `--aa-color-header` |
-| `--aa-primary-text` | `--aa-color-text` |
-| `--aa-secondary-text` | `--aa-color-muted` |
-| `--aa-primary-button-bg` | `--aa-color-primary` |
-| `--aa-primary-button-text` | `--aa-color-inverse-text` |
-| `--aa-primary-button-hover-bg` | `--aa-color-primary-hover` |
-| `--aa-primary-button-hover-text` | `--aa-color-inverse-text` |
-| `--aa-primary-button-disabled-bg` | not implemented; current code uses opacity |
-| `--aa-primary-button-disabled-text` | not implemented; current code uses opacity |
-| `--aa-secondary-button-bg` | `--aa-color-control` |
-| `--aa-secondary-button-text` | `--aa-color-muted` |
-| `--aa-secondary-button-hover-bg` | `--aa-color-control-hover` |
-| `--aa-secondary-button-hover-text` | `--aa-color-text` |
-| `--aa-secondary-button-disabled-bg` | `--aa-color-control-muted` for input-like controls; buttons not implemented |
-| `--aa-secondary-button-disabled-text` | `--aa-secondary-text` for input-like controls; buttons not implemented |
+Do not create a separate color family for secondary button and secondary button
+(borderless).
+
+Input-like controls use secondary button tokens for background, border, hover,
+focus, and disabled chrome. Their hover and focus fill must not reuse the same
+token as their border; otherwise bordered controls appear borderless while
+hovered or focused. Entered values use primary text, and empty placeholders or
+supportive hints use secondary text.
 
 ## Component Mapping
 
 | Component | Role |
 |---|---|
-| `surfaceClass` | Panel |
-| `headerSurfaceClass` | Panel header |
-| `controlGroupSurfaceClass` | Secondary button |
-| `inputColorClass`, `formControlClass` | Secondary button |
+| `panelColorClass` | Panel |
+| `panelHeaderColorClass` | Panel header |
+| `panelHoverContainerColorClass` | Panel hover container |
+| `secondaryInputControlColorClass`, `formControlClass` | Secondary input control |
 | `toneClass`, `statusMessageClass` | Status tone exception |
-| `mutedTextClass`, `dividerClass`, `sectionBorderClass` | No background role |
+| `secondaryTextColorClass` | Secondary text |
+| `secondaryButtonDividerColorClass`, `secondaryButtonBorderColorClass` | Secondary button border |
 | `AppShell`, `appShellClass` | Page |
 | `Sidebar` | Panel |
 | `ArcticAriaLogo` | Inherits parent |
@@ -96,29 +87,30 @@ these as the closest current equivalents:
 | `Button` with `tone="primary"` | Primary button |
 | `Button` with `tone="secondary"` | Secondary button |
 | `Button` icon/menu utility presentation | Secondary button |
-| `Button` with `tone="ghost"` | Secondary button visual role with borderless presentation |
+| `Button` with `tone="ghost"` | Secondary button (borderless) |
 | `Button` with `tone="success"` | Status tone exception |
 | `SidebarItem` | Secondary button |
 | Active `SidebarItem` | Primary button |
 | `ListItem`, `ExpandableListItem` | Panel |
-| Selected `ListItem` or expanded `ExpandableListItem` | Primary button in current code; review whether selected list items are still needed |
+| `ListItem`, `ExpandableListItem` hover | Panel hover |
+| Selected `ListItem` or expanded `ExpandableListItem` | Primary button |
 | `SingleChoiceGroup`, `MultipleChoiceGroup`, `ChoiceActionButton` option | Secondary button |
 | Selected `SingleChoiceGroup`, `MultipleChoiceGroup` option | Primary button |
-| `SelectInput` trigger | Secondary button |
+| `SelectInput` trigger | Secondary input control |
 | `SelectInput` option | Secondary button |
 | Selected `SelectInput` option | Primary button |
 | `CheckboxGroup` | Inherits parent |
-| `DatePickerField` trigger | Secondary button |
+| `DatePickerField` trigger | Secondary input control |
 | `DatePickerField` popup | Panel |
 | `DatePickerField` day button | Secondary button |
 | Selected `DatePickerField` day button | Primary button |
-| `TimePickerField` trigger | Secondary button |
+| `TimePickerField` trigger | Secondary input control |
 | `TimePickerField` popup | Panel |
-| `TimePickerField` text input | Secondary button |
+| `TimePickerField` text input | Secondary input control |
 | `TimePickerField` period choice | Secondary button |
 | Selected `TimePickerField` period choice | Primary button |
 | `FieldLabel` | Inherits parent |
-| `TextInput`, `PasswordInput`, `TextArea`, `NumberInput` | Secondary button |
+| `TextInput`, `PasswordInput`, `TextArea`, `NumberInput` | Secondary input control |
 | `FieldError` | Status tone exception |
 | `CheckboxField`, `CheckboxControl` unchecked | Secondary button |
 | `CheckboxField`, `CheckboxControl` checked | Primary button |
@@ -133,33 +125,44 @@ these as the closest current equivalents:
 | `Tag` | Status tone exception |
 | `VersionStatusSupport`, `VersionStatusRows` | Inherits parent |
 
-## Current Inconsistencies
+## Exceptions
 
-These are observations from the current shared components and should guide the
-next color refactor:
-
-- The code has too many color aliases. It should collapse toward the core role
-  set above.
-- Primary buttons currently use selected aliases in `Button`, which couples
-  primary actions to active navigation and selected option states.
-- Secondary buttons currently do not use an explicit secondary button
-  background token.
-- Some clickable input-like controls do not expose a hover background even
-  though they behave as buttons.
-- `CheckboxField` selected text is internally inconsistent because child label
-  text overrides the selected parent text.
-- Disabled states are inconsistent. Inputs have explicit disabled colors, while
-  buttons and choices mostly rely on opacity.
+- Status, validation, and notification tones may use semantic status palettes.
+  Supported status tones are neutral, amber, blue, cyan, emerald, indigo, lime,
+  orange, pink, and red. The default status tone is neutral.
+- Modal backdrops may use overlay colors instead of panel roles.
+- Panel list hover states should use `--aa-panel-hover-bg`, not button hover
+  roles, unless the row is actually a button.
+- `--aa-panel-hover-bg` must stay visually weaker than
+  `--aa-panel-header-bg` in both light and dark mode.
+- Project title breadcrumb hover uses panel hover roles because it behaves like
+  a title affordance rather than a normal product button.
 
 ## Rules
 
 - Product buttons have two types: primary and secondary.
+- Secondary button and secondary button (borderless) must use the same
+  secondary button role tokens.
+- Bordered secondary controls must use `--aa-secondary-button-border` for the
+  normal outline and `--aa-secondary-button-hover-border` for the hover/focus
+  outline. Do not use `--aa-secondary-button-hover-bg` as a border color.
 - Disabled primary and secondary buttons must use disabled button color tokens
   and must not expose hover colors.
+- Disabled primary and secondary buttons must not rely on opacity as their main
+  disabled treatment.
+- Disabled input controls should keep a visible secondary border while using
+  disabled secondary background and text tokens.
 - Do not create a new color role for every component.
 - Selected, active, checked, and current states should reuse primary or
   secondary button roles unless a future design explicitly adds a separate
   selected-state role.
 - Unselected interactive controls should reuse secondary button roles.
+- Text inputs, password inputs, textareas, number inputs, select triggers, date
+  picker triggers, and time picker triggers should use the secondary input
+  control treatment while hovering, focusing, or typing.
+- Input validation error borders should appear while the field is idle or
+  blurred. While the app user is focused in the field, the control should use
+  the normal secondary input control focus treatment so editing does not feel
+  blocked by the error state.
 - Panels and cards should not invent local background or text colors.
 - Feature pages must not use raw palette classes for normal UI chrome.
