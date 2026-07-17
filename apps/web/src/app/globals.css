@@ -67,9 +67,31 @@ input:focus-visible {
   scrollbar-width: none;
 }
 
+.sidebar-scrollbar.sidebar-scrollbar-visible {
+  -ms-overflow-style: auto;
+  scrollbar-color: rgb(148 163 184 / 0.55) transparent;
+  scrollbar-width: thin;
+}
+
 .sidebar-scrollbar::-webkit-scrollbar {
   height: 0;
   width: 0;
+}
+
+.sidebar-scrollbar.sidebar-scrollbar-visible::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background-clip: content-box;
+  background-color: rgb(148 163 184 / 0.55);
+  border: 2px solid transparent;
+  border-radius: 999px;
 }
 
 @keyframes aa-notification-pop {

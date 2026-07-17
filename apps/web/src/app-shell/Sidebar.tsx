@@ -1,5 +1,5 @@
 // App Shell - Sidebar.
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Album,
   Bell,
@@ -17,20 +17,6 @@ import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
 import { Button } from "@/components/button";
 import type { DashboardView } from "@/features/dashboard/types";
 import type { AppShellMessages } from "@/messages/app-messages";
-
-type SidebarScrollbarState = {
-  canScroll: boolean;
-  visible: boolean;
-  thumbHeight: number;
-  thumbTop: number;
-};
-
-const hiddenScrollbarState: SidebarScrollbarState = {
-  canScroll: false,
-  visible: false,
-  thumbHeight: 0,
-  thumbTop: 0,
-};
 
 export type SidebarPinnedProject = {
   id: string;
@@ -150,74 +136,26 @@ function SidebarFrame({
   onThemeChange: (darkMode: boolean) => void;
   onLogout: () => void;
 }) {
-  const sidebarRef = useRef<HTMLDivElement | null>(null);
+  const [scrollbarVisible, setScrollbarVisible] = useState(false);
   const scrollHideTimer = useRef<number | null>(null);
-  const [scrollbarState, setScrollbarState] = useState<SidebarScrollbarState>(
-    hiddenScrollbarState,
-  );
-
-  const updateScrollbarState = useCallback((visible: boolean) => {
-    const sidebar = sidebarRef.current;
-
-    if (!sidebar || sidebar.clientHeight <= 0) {
-      setScrollbarState(hiddenScrollbarState);
-      return;
-    }
-
-    const canScroll = sidebar.scrollHeight > sidebar.clientHeight + 1;
-
-    if (!canScroll) {
-      setScrollbarState(hiddenScrollbarState);
-      return;
-    }
-
-    const trackPadding = 8;
-    const trackHeight = Math.max(0, sidebar.clientHeight - trackPadding * 2);
-    const thumbHeight = Math.max(
-      32,
-      Math.round((sidebar.clientHeight / sidebar.scrollHeight) * trackHeight),
-    );
-    const maxScrollTop = sidebar.scrollHeight - sidebar.clientHeight;
-    const maxThumbTop = Math.max(0, trackHeight - thumbHeight);
-    const thumbTop =
-      trackPadding +
-      (maxScrollTop > 0 ? (sidebar.scrollTop / maxScrollTop) * maxThumbTop : 0);
-
-    setScrollbarState({
-      canScroll: true,
-      visible,
-      thumbHeight,
-      thumbTop,
-    });
-  }, []);
 
   useEffect(() => {
-    updateScrollbarState(false);
-
-    function handleResize() {
-      updateScrollbarState(false);
-    }
-
-    window.addEventListener("resize", handleResize);
-
     return () => {
       if (scrollHideTimer.current !== null) {
         window.clearTimeout(scrollHideTimer.current);
       }
-
-      window.removeEventListener("resize", handleResize);
     };
-  }, [open, pinnedProjects.length, updateScrollbarState]);
+  }, []);
 
   function handleScroll() {
-    updateScrollbarState(true);
+    setScrollbarVisible(true);
 
     if (scrollHideTimer.current !== null) {
       window.clearTimeout(scrollHideTimer.current);
     }
 
     scrollHideTimer.current = window.setTimeout(() => {
-      updateScrollbarState(false);
+      setScrollbarVisible(false);
     }, 900);
   }
 
@@ -236,8 +174,9 @@ function SidebarFrame({
       }`}
     >
       <div
-        ref={sidebarRef}
-        className="sidebar-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain p-4"
+        className={`sidebar-scrollbar ${
+          scrollbarVisible ? "sidebar-scrollbar-visible" : ""
+        } min-h-0 flex-1 overflow-y-auto overscroll-contain p-4`}
         onScroll={handleScroll}
       >
         <div className="flex items-start justify-between gap-3 px-4">
@@ -351,25 +290,6 @@ function SidebarFrame({
           />
         </nav>
       </div>
-
-      {scrollbarState.canScroll ? (
-        <div
-          className={`pointer-events-none absolute bottom-2 right-1 top-2 w-2 transition-opacity duration-200 ${
-            scrollbarState.visible ? "opacity-100" : "opacity-0"
-          }`}
-          aria-hidden="true"
-        >
-          <span
-            className={`absolute right-0 block w-1.5 rounded-full ${
-              darkMode ? "bg-neutral-500/70" : "bg-slate-400/70"
-            }`}
-            style={{
-              height: scrollbarState.thumbHeight,
-              transform: `translateY(${scrollbarState.thumbTop - 8}px)`,
-            }}
-          />
-        </div>
-      ) : null}
     </aside>
   );
 }
