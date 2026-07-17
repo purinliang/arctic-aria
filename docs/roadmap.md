@@ -124,11 +124,12 @@ Related UI cleanup:
 
 ### Version Metadata UI
 
-The login page should keep database-version metadata available for debugging
-without showing it in normal use. For normal users, the database-version line
-should be visually gone or collapsed, not removed from the rendered page
-entirely. It should remain inspectable through browser developer tools when the
-developer needs to debug deployment or migration state.
+The login page and Settings page should keep database-version metadata available
+for debugging without showing it in normal use. For normal signed-out and
+normal signed-in users, the database-version line should be visually gone or
+collapsed, not removed from the rendered page entirely. It should remain
+inspectable through browser developer tools when the developer needs to debug
+deployment or migration state.
 
 Do not add developer-account-specific display rules for version metadata.
 Production behavior should be role- or environment-based only after a real

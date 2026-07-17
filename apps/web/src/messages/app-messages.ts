@@ -117,8 +117,8 @@ const englishMessages = {
   },
   settings: {
     description: "Theme, language, and app information.",
-    appInformationDescription: "Version and database status.",
-    appInformationTitle: "App Information",
+    appInformationDescription: "Current app version.",
+    appInformationTitle: "About",
     discord: {
       bind: "Bind",
       bindInstruction: "Run /bind code:<code> in Discord.",
@@ -317,8 +317,8 @@ const simplifiedChineseMessages: AppMessages = {
   },
   settings: {
     description: "主题、语言和应用信息。",
-    appInformationDescription: "版本和数据库状态。",
-    appInformationTitle: "应用信息",
+    appInformationDescription: "当前应用版本。",
+    appInformationTitle: "关于",
     discord: {
       bind: "绑定",
       bindInstruction: "在 Discord 中运行 /bind code:<code>。",

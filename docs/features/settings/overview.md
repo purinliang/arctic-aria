@@ -16,7 +16,7 @@ The current prototype implements a Settings page opened from the sidebar
 
 - `Preferences`: persisted display, language, and time preferences
 - `Discord Binding`: Discord account binding controls
-- `App Information`: app and database version metadata
+- `About`: visible app version and collapsed database-version metadata
 
 Implemented user preferences:
 
@@ -49,33 +49,30 @@ Dashboard remain separate translation slices.
 Version metadata rows:
 
 - app version, with commit hash only for unreleased branch builds
-- actual database version
+- actual database version, rendered in markup but visually collapsed for normal
+  users
 
-This is a normal authenticated `App Information` surface. Version metadata is
-intentionally more visible than the signed-out auth-page metadata footer,
-because signed-in users can use it to compare the deployed frontend/backend
-with database migration records.
+This is a normal authenticated `About` surface. Normal signed-in users
+see only the app version. The database version row remains mounted in the DOM so
+the developer can inspect it through browser developer tools when debugging
+deployment or migration state.
 
-The `App Information` card should show version rows:
+The visible card description should describe only the app version, not database
+status, because database metadata is collapsed for normal users.
+
+The `About` card should show version rows:
 
 - `App Version`: current build version. Exact release tags show only the
   release version, such as `v0.5.0`; develop, feature, fix, and hotfix branch
   builds append the commit hash.
 - `Database Version`: the compact schema-history hash derived from applied
-  migration filenames and file checksums.
+  migration filenames and file checksums. This row is visually collapsed by
+  default, regardless of build type or alignment state.
 
-For exact release versions, hide the `Database Version` row entirely when the
-database schema hash matches the expected hash from the current source tree.
-Users do not need database metadata when a release is healthy.
-
-For develop, feature, fix, and hotfix branch builds, always show the expected
-database schema hash after the actual hash, such as `(expected abc123def456)`.
-Use normal supporting text color when the database is aligned.
-
-For any build, if the database schema is behind, ahead, different, missing
-checksums, or unavailable, show the `Database Version` row and append the
-parenthetical message in red. Do not show migration filenames in the
-user-facing Settings UI.
+Do not show migration filenames in the user-facing Settings UI. Do not add
+developer-account-specific display rules for version metadata. If a future
+admin/debug mode is added, reveal the existing mounted database row through an
+explicit role or environment rule rather than a hard-coded account name.
 
 Current web source:
 

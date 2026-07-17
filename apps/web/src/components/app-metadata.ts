@@ -55,10 +55,6 @@ export function appMetadataVersionText(metadata: AppMetadata) {
   return `${metadata.version}-${metadata.commit}`;
 }
 
-export function shouldShowDatabaseVersion(status: DatabaseVersionStatus) {
-  return !status.aligned || !isExactReleaseVersionText(status.appVersionText);
-}
-
 export function shouldShowExpectedDatabaseVersion(
   status: DatabaseVersionStatus,
 ) {

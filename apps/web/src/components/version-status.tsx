@@ -1,5 +1,4 @@
 import {
-  shouldShowDatabaseVersion,
   shouldShowExpectedDatabaseVersion,
   type DatabaseVersionStatus,
 } from "./app-metadata";
@@ -19,10 +18,12 @@ const defaultVersionStatusMessages: VersionStatusMessages = {
 export function VersionStatusSupport({
   darkMode,
   messages = defaultVersionStatusMessages,
+  showDatabaseVersion = false,
   status,
 }: {
   darkMode: boolean;
   messages?: VersionStatusMessages;
+  showDatabaseVersion?: boolean;
   status: DatabaseVersionStatus;
 }) {
   return (
@@ -30,7 +31,11 @@ export function VersionStatusSupport({
       <SupportingText darkMode={darkMode}>
         {messages.appVersion}: {status.appVersionText}
       </SupportingText>
-      {shouldShowDatabaseVersion(status) ? (
+      <span
+        className={showDatabaseVersion ? undefined : "hidden"}
+        aria-hidden={!showDatabaseVersion}
+        data-version-row="database"
+      >
         <SupportingText darkMode={darkMode}>
           {messages.databaseVersion}: {status.actualDatabaseVersionText}
           <DatabaseVersionMessage
@@ -39,7 +44,7 @@ export function VersionStatusSupport({
             status={status}
           />
         </SupportingText>
-      ) : null}
+      </span>
     </div>
   );
 }
@@ -47,10 +52,12 @@ export function VersionStatusSupport({
 export function VersionStatusRows({
   darkMode,
   messages = defaultVersionStatusMessages,
+  showDatabaseVersion = false,
   status,
 }: {
   darkMode: boolean;
   messages?: VersionStatusMessages;
+  showDatabaseVersion?: boolean;
   status: DatabaseVersionStatus;
 }) {
   return (
@@ -60,20 +67,20 @@ export function VersionStatusRows({
         label={messages.appVersion}
         value={status.appVersionText}
       />
-      {shouldShowDatabaseVersion(status) ? (
-        <VersionRow
-          darkMode={darkMode}
-          label={messages.databaseVersion}
-          value={status.actualDatabaseVersionText}
-          message={
-            <DatabaseVersionMessage
-              darkMode={darkMode}
-              messages={messages}
-              status={status}
-            />
-          }
-        />
-      ) : null}
+      <VersionRow
+        darkMode={darkMode}
+        label={messages.databaseVersion}
+        rowId="database"
+        value={status.actualDatabaseVersionText}
+        visible={showDatabaseVersion}
+        message={
+          <DatabaseVersionMessage
+            darkMode={darkMode}
+            messages={messages}
+            status={status}
+          />
+        }
+      />
     </div>
   );
 }
@@ -81,16 +88,24 @@ export function VersionStatusRows({
 function VersionRow({
   darkMode,
   label,
+  rowId,
+  visible = true,
   value,
   message = null,
 }: {
   darkMode: boolean;
   label: string;
+  rowId?: string;
+  visible?: boolean;
   value: string;
   message?: ReactNode;
 }) {
   return (
-    <div>
+    <div
+      className={visible ? undefined : "hidden"}
+      aria-hidden={!visible}
+      data-version-row={rowId ?? label.toLowerCase().replace(/\s+/g, "-")}
+    >
       <LabelText darkMode={darkMode}>{label}</LabelText>
       <DescriptionText darkMode={darkMode} className="mt-1 tabular-nums">
         {value}
