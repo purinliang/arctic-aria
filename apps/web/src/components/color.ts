@@ -17,7 +17,7 @@ export function surfaceClass(darkMode: boolean) {
 export function headerSurfaceClass(darkMode: boolean) {
   return darkMode
     ? "border-neutral-800 bg-neutral-950"
-    : "border-neutral-200 bg-neutral-50";
+    : "border-neutral-200 bg-neutral-100";
 }
 
 export function mutedTextClass(darkMode: boolean) {
