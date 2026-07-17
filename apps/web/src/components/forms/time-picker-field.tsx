@@ -85,7 +85,7 @@ export function TimePickerField({
         className={cx(
           formControlClass(darkMode, hasError),
           "flex items-center justify-between gap-3 text-left",
-          !formattedValue && (darkMode ? "text-neutral-500" : "text-slate-400"),
+          !formattedValue && (darkMode ? "text-neutral-500" : "text-neutral-400"),
           className,
         )}
         type="button"
@@ -131,10 +131,10 @@ export function TimePickerField({
                       selectedParts.period === period
                         ? darkMode
                           ? "border-white bg-white text-black"
-                          : "border-slate-950 bg-slate-950 text-white"
-                        : darkMode
-                          ? "border-neutral-700 text-neutral-200 hover:border-neutral-400"
-                          : "border-slate-300 text-slate-700 hover:border-slate-500",
+                          : "border-neutral-950 bg-neutral-950 text-white"
+                      : darkMode
+                        ? "border-neutral-700 text-neutral-200 hover:border-neutral-400"
+                        : "border-neutral-300 text-neutral-700 hover:border-neutral-500",
                     )}
                     type="button"
                     onClick={() => setDraftParts({ ...selectedParts, period })}
@@ -147,7 +147,7 @@ export function TimePickerField({
             <p
               className={cx(
                 "text-xs leading-5",
-                darkMode ? "text-neutral-400" : "text-slate-500",
+                darkMode ? "text-neutral-400" : "text-neutral-500",
               )}
             >
               {formatTimeDisplay(
@@ -219,7 +219,7 @@ function TimeTextInput({
           "h-12 w-full min-w-0 rounded-md border px-2 text-center text-xl font-semibold tabular-nums outline-none transition",
           darkMode
             ? "border-neutral-700 bg-black text-white focus:border-neutral-300"
-            : "border-slate-200 bg-slate-50 text-slate-950 focus:border-slate-500",
+            : "border-neutral-200 bg-neutral-50 text-black focus:border-neutral-500",
         )}
         type="text"
         inputMode="text"

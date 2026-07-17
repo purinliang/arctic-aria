@@ -152,7 +152,7 @@ export function SelectInput({
         className={cx(
           formControlClass(darkMode, hasError),
           "flex items-center justify-between gap-3 text-left font-normal",
-          !selectedOption && (darkMode ? "text-neutral-500" : "text-slate-400"),
+          !selectedOption && (darkMode ? "text-neutral-500" : "text-neutral-400"),
           className,
         )}
         type="button"
@@ -192,10 +192,10 @@ export function SelectInput({
                       selected
                         ? darkMode
                           ? "bg-white text-black"
-                          : "bg-slate-950 text-white"
-                        : darkMode
-                          ? "text-neutral-200 hover:bg-white/10"
-                          : "text-slate-700 hover:bg-slate-100",
+                          : "bg-neutral-950 text-white"
+                      : darkMode
+                        ? "text-neutral-200 hover:bg-white/10"
+                        : "text-neutral-700 hover:bg-neutral-100",
                     )}
                     type="button"
                     role="option"
@@ -218,7 +218,7 @@ export function SelectInput({
                               ? "opacity-70"
                               : darkMode
                                 ? "text-neutral-400"
-                                : "text-slate-500",
+                                : "text-neutral-500",
                           )}
                         >
                           {option.description}
@@ -256,11 +256,11 @@ export function CheckboxField({
         "flex cursor-pointer items-start gap-3 rounded-md border px-3 py-2 text-sm transition",
         darkMode
           ? "border-neutral-800 hover:border-neutral-600"
-          : "border-slate-200 hover:border-slate-300",
+          : "border-neutral-200 hover:border-neutral-300",
         props.checked
           ? darkMode
             ? "bg-white/10"
-            : "bg-slate-50"
+            : "bg-neutral-50"
           : false,
         className,
       )}
@@ -271,20 +271,20 @@ export function CheckboxField({
           props.checked
             ? darkMode
               ? "border-white bg-white text-black"
-              : "border-slate-950 bg-slate-950 text-white"
+              : "border-neutral-950 bg-neutral-950 text-white"
             : darkMode
               ? "border-neutral-600"
-              : "border-slate-300",
+              : "border-neutral-300",
         )}
       >
         {props.checked ? <Check className="h-3.5 w-3.5" /> : null}
       </span>
       <span className="grid gap-0.5">
-        <span className={darkMode ? "text-white" : "text-slate-950"}>
+        <span className={darkMode ? "text-white" : "text-black"}>
           {label}
         </span>
         {description ? (
-          <span className={darkMode ? "text-neutral-400" : "text-slate-500"}>
+          <span className={darkMode ? "text-neutral-400" : "text-neutral-500"}>
             {description}
           </span>
         ) : null}
@@ -309,10 +309,10 @@ export function CheckboxControl({
         props.checked
           ? darkMode
             ? "border-white bg-white text-black"
-            : "border-slate-950 bg-slate-950 text-white"
+            : "border-neutral-950 bg-neutral-950 text-white"
           : darkMode
             ? "border-neutral-600 hover:border-neutral-400"
-            : "border-slate-300 hover:border-slate-500",
+            : "border-neutral-300 hover:border-neutral-500",
         className,
       )}
     >
