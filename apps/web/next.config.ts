@@ -17,6 +17,9 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_EXPECTED_DATABASE_SCHEMA_HASH:
       appMetadata.expectedDatabase.schemaHash,
   },
+  logging: {
+    serverFunctions: false,
+  },
 };
 
 export default nextConfig;
