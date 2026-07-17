@@ -71,13 +71,13 @@ function buttonToneClass(
   if (tone === "primary" || active) {
     return darkMode
       ? "border border-white bg-white text-black hover:bg-neutral-200"
-      : "border border-slate-950 bg-slate-950 text-white hover:bg-slate-800";
+      : "border border-neutral-950 bg-neutral-950 text-white hover:bg-neutral-800";
   }
 
   if (tone === "ghost") {
     return darkMode
       ? "text-neutral-300 hover:bg-white/10 hover:text-white"
-      : "text-slate-500 hover:bg-slate-100 hover:text-slate-950";
+      : "text-neutral-500 hover:bg-neutral-100 hover:text-black";
   }
 
   if (tone === "success") {
@@ -88,5 +88,5 @@ function buttonToneClass(
 
   return darkMode
     ? "border border-neutral-700 text-neutral-200 hover:border-white hover:text-white"
-    : "border border-slate-300 text-slate-700 hover:border-slate-500";
+    : "border border-neutral-300 text-neutral-700 hover:border-neutral-500";
 }

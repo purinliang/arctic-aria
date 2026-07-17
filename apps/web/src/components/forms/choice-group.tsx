@@ -147,10 +147,10 @@ function ChoiceButton({
         selected
           ? darkMode
             ? "border-white bg-white text-black"
-            : "border-slate-950 bg-slate-950 text-white"
-          : darkMode
-            ? "border-neutral-700 text-neutral-200 hover:border-neutral-400"
-            : "border-slate-300 text-slate-700 hover:border-slate-500",
+            : "border-neutral-950 bg-neutral-950 text-white"
+        : darkMode
+          ? "border-neutral-700 text-neutral-200 hover:border-neutral-400"
+          : "border-neutral-300 text-neutral-700 hover:border-neutral-500",
         className,
       )}
       type="button"
@@ -166,10 +166,10 @@ function ChoiceButton({
               selected
                 ? darkMode
                   ? "text-neutral-800"
-                  : "text-slate-200"
-                : darkMode
+                  : "text-neutral-200"
+              : darkMode
                   ? "text-neutral-400"
-                  : "text-slate-500",
+                  : "text-neutral-500",
             )}
           >
             {option.description}

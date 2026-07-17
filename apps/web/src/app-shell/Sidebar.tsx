@@ -232,7 +232,7 @@ function SidebarFrame({
       } relative flex-col border-r ${
         darkMode
           ? "border-neutral-800 bg-black text-white"
-          : "border-slate-200 bg-white text-slate-950"
+          : "border-neutral-200 bg-white text-black"
       }`}
     >
       <div
@@ -320,7 +320,7 @@ function SidebarFrame({
           />
           <div
             className={`my-2 border-t ${
-              darkMode ? "border-neutral-800" : "border-slate-200"
+              darkMode ? "border-neutral-800" : "border-neutral-200"
             }`}
             aria-hidden="true"
           />
@@ -356,7 +356,7 @@ function SidebarFrame({
         <span
           className={`pointer-events-none absolute right-1 top-0 block w-0.5 rounded-full transition-opacity duration-200 ${
             scrollbarState.visible ? "opacity-100" : "opacity-0"
-          } ${darkMode ? "bg-neutral-500/70" : "bg-slate-400/70"}`}
+          } ${darkMode ? "bg-neutral-500/70" : "bg-neutral-400/70"}`}
           style={{
             height: scrollbarState.thumbHeight,
             transform: `translateY(${scrollbarState.thumbTop}px)`,

@@ -156,7 +156,7 @@ export function ConfirmDialog({
           closeLabel={closeLabel}
           onClose={onCancel}
         />
-        <p className={darkMode ? "text-sm leading-6 text-neutral-400" : "text-sm leading-6 text-slate-500"}>
+        <p className={darkMode ? "text-sm leading-6 text-neutral-400" : "text-sm leading-6 text-neutral-500"}>
           {description}
         </p>
         <div className="mt-4 flex flex-wrap justify-end gap-2">

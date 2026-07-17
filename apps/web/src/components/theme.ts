@@ -3,8 +3,8 @@ import { useEffect } from "react";
 export const appThemeColors = {
   light: {
     background: "#eef2f5",
-    foreground: "#0f172a",
-    mutedForeground: "#64748b",
+    foreground: "#000000",
+    mutedForeground: "#737373",
   },
   dark: {
     background: "#000000",
@@ -14,7 +14,7 @@ export const appThemeColors = {
 } as const;
 
 export function appShellClass(darkMode: boolean) {
-  return darkMode ? "bg-black text-white" : "bg-[#eef2f5] text-slate-950";
+  return darkMode ? "bg-black text-white" : "bg-[#eef2f5] text-black";
 }
 
 export function useDocumentTheme(darkMode: boolean) {
