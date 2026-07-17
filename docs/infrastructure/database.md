@@ -45,6 +45,9 @@ Schema migration files are safe to commit. The current migration entry point is
 From the repository root, run the same migration entry point with
 `pnpm --dir apps/web db:migrate`.
 
+Migration files live in `apps/infrastructure/database/migrations` because the
+database schema is shared infrastructure, not part of the web UI surface.
+
 `schema_migrations` records each newly applied migration, a SHA-256 checksum of
 that migration file, and the app metadata that was active when it ran: app
 version, commit hash, and source state.
