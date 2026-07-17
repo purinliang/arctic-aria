@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   cancelPinnedMemoryDone,
   cancelPinnedMemorySuggestion,
@@ -25,6 +25,7 @@ import {
   applyOptimisticPinnedMemoryStatus,
   removeMemorySuggestion,
   removePendingSuggestionId,
+  restorePinnedMemorySnapshot,
 } from "../optimistic-updates";
 import type {
   MemoryCategoryOption,
@@ -56,6 +57,9 @@ export function useDashboardMemories(
   const [pinnedSuggestionIds, setPinnedSuggestionIds] = useState<string[]>([]);
   const [pendingSuggestionIds, setPendingSuggestionIds] = useState<string[]>([]);
   const [suggestionsRequested, setSuggestionsRequested] = useState(false);
+  const memoryActionPendingCount = useRef(0);
+  const pinnedMemoryRequestChains = useRef(new Map<string, Promise<void>>());
+  const pinnedMemoryRequestVersions = useRef(new Map<string, number>());
 
   const applyMemoryData = useCallback((data: MemoryDashboardData) => {
     setPinnedMemories(data.pinnedMemories);
@@ -82,29 +86,59 @@ export function useDashboardMemories(
     setMemoryLoading(false);
   }, [applyMemoryData, messages, resultMessages, showErrorNotification]);
 
-  async function runMemoryAction(
-    action: MemoryDataAction,
-    onFailure?: () => void,
-  ) {
+  function beginMemoryAction() {
+    memoryActionPendingCount.current += 1;
     setMemoryActionPending(true);
+  }
+
+  function finishMemoryAction() {
+    memoryActionPendingCount.current = Math.max(
+      memoryActionPendingCount.current - 1,
+      0,
+    );
+
+    if (memoryActionPendingCount.current === 0) {
+      setMemoryActionPending(false);
+    }
+  }
+
+  async function runPinnedMemoryStatusAction({
+    pinnedMemoryId,
+    requestVersion,
+    snapshot,
+    action,
+  }: {
+    pinnedMemoryId: string;
+    requestVersion: number;
+    snapshot: PinnedMemory[];
+    action: MemoryDataAction;
+  }) {
+    beginMemoryAction();
 
     try {
       const result = await action();
 
       if (!result.ok) {
-        onFailure?.();
+        if (
+          pinnedMemoryRequestVersions.current.get(pinnedMemoryId) !==
+          requestVersion
+        ) {
+          return;
+        }
+
+        setPinnedMemories((current) =>
+          restorePinnedMemorySnapshot(current, snapshot, pinnedMemoryId),
+        );
         showErrorNotification(localizedActionMessage(result, resultMessages));
         return;
       }
-
-      applyMemoryData(result.data);
     } finally {
-      setMemoryActionPending(false);
+      finishMemoryAction();
     }
   }
 
   async function runMemoryManagementAction(action: MemoryDataAction) {
-    setMemoryActionPending(true);
+    beginMemoryAction();
 
     try {
       const result = await action();
@@ -117,12 +151,12 @@ export function useDashboardMemories(
       applyMemoryData(result.data);
       return true;
     } finally {
-      setMemoryActionPending(false);
+      finishMemoryAction();
     }
   }
 
   async function runMemoryManagementDataAction(action: MemoryDataAction) {
-    setMemoryActionPending(true);
+    beginMemoryAction();
 
     try {
       const result = await action();
@@ -135,32 +169,57 @@ export function useDashboardMemories(
       applyMemoryData(result.data);
       return result.data;
     } finally {
-      setMemoryActionPending(false);
+      finishMemoryAction();
     }
   }
 
-  function markMemoryDone(pinnedMemoryId: string) {
-    const previousPinnedMemories = pinnedMemories;
+  function updatePinnedMemoryStatus(
+    pinnedMemoryId: string,
+    status: PinnedMemory["status"],
+  ) {
+    let previousPinnedMemories = pinnedMemories;
+    const requestVersion =
+      (pinnedMemoryRequestVersions.current.get(pinnedMemoryId) ?? 0) + 1;
 
-    setPinnedMemories((current) =>
-      applyOptimisticPinnedMemoryStatus(current, pinnedMemoryId, "completed"),
-    );
-    void runMemoryAction(
-      () => completePinnedMemory(pinnedMemoryId),
-      () => setPinnedMemories(previousPinnedMemories),
-    );
+    pinnedMemoryRequestVersions.current.set(pinnedMemoryId, requestVersion);
+    setPinnedMemories((current) => {
+      previousPinnedMemories = current;
+      return applyOptimisticPinnedMemoryStatus(
+        current,
+        pinnedMemoryId,
+        status,
+      );
+    });
+    const previousRequest =
+      pinnedMemoryRequestChains.current.get(pinnedMemoryId) ?? Promise.resolve();
+    const request = previousRequest
+      .catch(() => undefined)
+      .then(() =>
+        runPinnedMemoryStatusAction({
+          pinnedMemoryId,
+          requestVersion,
+          snapshot: previousPinnedMemories,
+          action: () =>
+            status === "completed"
+              ? completePinnedMemory(pinnedMemoryId)
+              : cancelPinnedMemoryDone(pinnedMemoryId),
+        }),
+      );
+
+    pinnedMemoryRequestChains.current.set(pinnedMemoryId, request);
+    void request.finally(() => {
+      if (pinnedMemoryRequestChains.current.get(pinnedMemoryId) === request) {
+        pinnedMemoryRequestChains.current.delete(pinnedMemoryId);
+      }
+    });
+  }
+
+  function markMemoryDone(pinnedMemoryId: string) {
+    updatePinnedMemoryStatus(pinnedMemoryId, "completed");
   }
 
   function cancelMemoryDone(pinnedMemoryId: string) {
-    const previousPinnedMemories = pinnedMemories;
-
-    setPinnedMemories((current) =>
-      applyOptimisticPinnedMemoryStatus(current, pinnedMemoryId, "active"),
-    );
-    void runMemoryAction(
-      () => cancelPinnedMemoryDone(pinnedMemoryId),
-      () => setPinnedMemories(previousPinnedMemories),
-    );
+    updatePinnedMemoryStatus(pinnedMemoryId, "active");
   }
 
   async function refreshSuggestionsFromPage() {

@@ -19,10 +19,8 @@ export function Dashboard({
   taskLoading,
   routines,
   routineLoading,
-  routineActionPending,
   pinnedMemories,
   memoryLoading,
-  memoryActionPending,
   onTaskStatus,
   onRoutineStatus,
   onMemoryDone,
@@ -39,10 +37,8 @@ export function Dashboard({
   taskLoading: boolean;
   routines: Routine[];
   routineLoading: boolean;
-  routineActionPending: boolean;
   pinnedMemories: PinnedMemory[];
   memoryLoading: boolean;
-  memoryActionPending: boolean;
   onTaskStatus: (
     taskId: string,
     status: Exclude<TaskStatus, "archived">,
@@ -75,7 +71,6 @@ export function Dashboard({
             darkMode={darkMode}
             routines={routines}
             loading={routineLoading}
-            disabled={routineActionPending}
             messages={messages.routines}
             timeMessages={formMessages.timePicker}
             timeFormatPreference={timeFormatPreference}
@@ -87,7 +82,6 @@ export function Dashboard({
             darkMode={darkMode}
             pinnedMemories={pinnedMemories}
             loading={memoryLoading}
-            disabled={memoryActionPending}
             messages={messages.pinnedMemories}
             dateMessages={formMessages.datePicker}
             onDone={onMemoryDone}

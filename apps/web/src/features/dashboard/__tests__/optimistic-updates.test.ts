@@ -8,6 +8,8 @@ import {
   dashboardTaskStatusForChecked,
   removeMemorySuggestion,
   removePendingSuggestionId,
+  restorePinnedMemorySnapshot,
+  restoreRoutineSnapshot,
   restoreTaskSnapshot,
 } from "../optimistic-updates.ts";
 import type { MemorySuggestion, PinnedMemory, Routine, Task } from "../types.ts";
@@ -129,6 +131,47 @@ test("optimistically marks a routine instance as completed", () => {
   assert.equal(updated[1], routines[1]);
 });
 
+test("dashboard routine checkbox can optimistically undo without reordering", () => {
+  const completed = applyOptimisticRoutineStatus(
+    routines,
+    "routine-instance-1",
+    "completed",
+  );
+  const restored = applyOptimisticRoutineStatus(
+    completed,
+    "routine-instance-1",
+    "pending",
+  );
+
+  assert.deepEqual(restored.map((routine) => routine.id), [
+    "routine-instance-1",
+    "routine-instance-2",
+  ]);
+  assert.equal(restored[0].status, "pending");
+  assert.equal(restored[1], routines[1]);
+});
+
+test("restores one failed routine without rolling back other routines", () => {
+  const updated = applyOptimisticRoutineStatus(
+    routines,
+    "routine-instance-1",
+    "completed",
+  );
+  const unrelatedChange = applyOptimisticRoutineStatus(
+    updated,
+    "routine-instance-2",
+    "completed",
+  );
+  const restored = restoreRoutineSnapshot(
+    unrelatedChange,
+    routines,
+    "routine-instance-1",
+  );
+
+  assert.equal(restored[0].status, "pending");
+  assert.equal(restored[1].status, "completed");
+});
+
 test("optimistically marks a pinned memory as completed", () => {
   const updated = applyOptimisticPinnedMemoryStatus(
     pinnedMemories,
@@ -197,6 +240,44 @@ test("optimistically restores a completed pinned memory", () => {
 
   assert.equal(restored[0].status, "active");
   assert.equal(restored[0].meta, "Visible window restored");
+});
+
+test("dashboard pinned memory checkbox can optimistically undo without reordering", () => {
+  const completed = applyOptimisticPinnedMemoryStatus(
+    pinnedMemories,
+    "pin-1",
+    "completed",
+  );
+  const restored = applyOptimisticPinnedMemoryStatus(
+    completed,
+    "pin-1",
+    "active",
+  );
+
+  assert.deepEqual(restored.map((memory) => memory.id), ["pin-1", "pin-2"]);
+  assert.equal(restored[0].status, "active");
+  assert.equal(restored[1], pinnedMemories[1]);
+});
+
+test("restores one failed pinned memory without rolling back other memories", () => {
+  const updated = applyOptimisticPinnedMemoryStatus(
+    pinnedMemories,
+    "pin-1",
+    "completed",
+  );
+  const unrelatedChange = applyOptimisticPinnedMemoryStatus(
+    updated,
+    "pin-2",
+    "completed",
+  );
+  const restored = restorePinnedMemorySnapshot(
+    unrelatedChange,
+    pinnedMemories,
+    "pin-1",
+  );
+
+  assert.equal(restored[0].status, "active");
+  assert.equal(restored[1].status, "completed");
 });
 
 test("tracks pending memory suggestion pins independently", () => {

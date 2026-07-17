@@ -317,10 +317,8 @@ export function AppShell({
               taskLoading={projectState.projectLoading}
               routines={routineState.routines}
               routineLoading={routineState.routineLoading}
-              routineActionPending={routineState.routineActionPending}
               pinnedMemories={memoryState.pinnedMemories}
               memoryLoading={memoryState.memoryLoading}
-              memoryActionPending={memoryState.memoryActionPending}
               onTaskStatus={projectState.updateTaskFromDashboard}
               onRoutineStatus={routineState.updateRoutine}
               onMemoryDone={memoryState.markMemoryDone}
