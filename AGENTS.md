@@ -258,8 +258,13 @@ request.
 ## Release Preparation
 
 - Release PR drafts live in `docs/releases/vX.Y.Z.md`.
-- From `v0.6.1` onward, keep release PR text short. Use a concise PR title,
-  a short summary, and a focused Changes list.
+- Before creating or editing a release PR, write or update
+  `docs/releases/vX.Y.Z.md` first. Copy the release title and release text from
+  that file into the GitHub PR and later into the main release commit message.
+  The release doc is the source of truth for release wording.
+- From `v0.7.0` onward, keep release PR text short. Use one release title and
+  one release text block from the release doc instead of separate duplicated
+  Summary, Changes, Verification, and Notes sections.
 - Do not include long routine `Verification` or `Notes` sections in release PR
   text unless the developer explicitly asks or a release-blocking caveat must
   be visible in GitHub.
