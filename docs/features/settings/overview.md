@@ -81,6 +81,59 @@ Current web source:
 - `apps/web/src/messages/app-messages.ts`
 - `apps/web/src/messages/languages.ts`
 
+## Discord Binding
+
+Progress: planned
+
+Discord binding belongs in Settings because it is account-scoped configuration
+for one Arctic Aria user. The binding connects an Arctic Aria user to one
+Discord account so the Discord bot can accept `/idea` and later send direct
+messages to that user.
+
+Settings should show a Discord row or section inside the existing Settings
+panel.
+
+Unbound state:
+
+- show `Discord`
+- show supporting text explaining that Discord is not connected
+- show a secondary `Connect` button
+
+Pending code state:
+
+- show the one-time code
+- show expiry time
+- show instructions: run `/bind code:<code>` in Discord
+- show `Regenerate` and `Cancel` actions
+
+Bound state:
+
+- show the Discord username when available, otherwise Discord user id
+- show last interaction time when available
+- show `Reconnect` and `Unbind` actions
+
+Reconnect:
+
+- creates a new one-time code
+- successful `/bind` replaces the previous Discord account for the same Arctic
+  Aria user
+
+Unbind:
+
+- asks for confirmation
+- marks the Discord binding as revoked
+- leaves historical rows queryable for audit/debugging, but normal product
+  commands only use active bindings
+
+Expected notifications:
+
+- show success notification when a code is generated, binding is refreshed, or
+  unbind succeeds
+- show error notification when code creation, binding status loading, or unbind
+  fails
+- do not show raw code hashes, internal secrets, Discord bot tokens, or raw
+  backend errors
+
 ## Attributes
 
 Implemented preferences are stored in the `user_settings` SQL table. Persistence

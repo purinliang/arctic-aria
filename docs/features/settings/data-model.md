@@ -25,6 +25,67 @@ Constraints:
 - `language_preference` must be `system`, `en`, or `zh-CN`
 - `time_format_preference` must be `12h` or `24h`
 
+### `discord_accounts`
+
+`discord_accounts` stores the active or revoked Discord binding for an Arctic
+Aria user. The table is shared by Settings and the Discord bot.
+
+Columns are documented in `docs/apps/discord-bot/overview.md`. Settings should
+read only the row owned by the signed-in Arctic Aria user.
+
+Settings rules:
+
+- one Arctic Aria user can have at most one active Discord account
+- one Discord user id can have at most one active Arctic Aria user binding
+- normal settings reads show active bindings only
+- unbind marks the row `revoked` and sets `revoked_at`
+- reconnect can reactivate or replace the binding for the same Arctic Aria user
+- a Discord account already active for another Arctic Aria user cannot be
+  claimed
+
+### `discord_binding_codes`
+
+`discord_binding_codes` stores short-lived one-time codes created from Settings
+and consumed by the Discord `/bind` command.
+
+Planned columns:
+
+- `id uuid PRIMARY KEY DEFAULT gen_random_uuid()`
+- `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
+- `code_hash text NOT NULL`
+- `expires_at timestamptz NOT NULL`
+- `consumed_at timestamptz`
+- `created_at timestamptz NOT NULL DEFAULT now()`
+
+Constraints and indexes:
+
+- index active codes by `code_hash`
+- index unexpired user codes by `user_id`
+- `expires_at` must be after `created_at`
+
+Backend rules:
+
+- Settings creates a random code and stores only a hash
+- raw codes are returned to the frontend only once, immediately after creation
+- codes expire after 10 minutes
+- `/bind` consumes only unexpired and unconsumed codes
+- consuming a code and upserting `discord_accounts` happens in one transaction
+- expired and consumed codes are not valid for binding
+
+Deletion and lifecycle:
+
+- `user_settings` is deleted automatically when the owning `users` row is
+  deleted
+- `discord_accounts` is deleted automatically when the owning `users` row is
+  deleted
+- codes are deleted automatically when the owning `users` row is deleted
+- expired or consumed codes may be cleaned up later by maintenance work
+- raw codes are never recoverable from the database
+
+There is no separate settings archive behavior. Discord unbind marks an
+existing account binding as revoked instead of deleting it during normal user
+actions.
+
 ## Backend Rules
 
 The backend accepts only known enum values and normalizes missing or unsupported
@@ -37,7 +98,5 @@ row for that user. Settings writes upsert the full preference object.
 If a settings update fails, the frontend keeps the local visual change for the
 current session, shows a notification, and leaves the database unchanged.
 
-## Deletion
-
-`user_settings` is deleted automatically when the owning `users` row is deleted.
-There is no separate settings archive behavior.
+Discord binding commands must use transactions when consuming a binding code
+and upserting `discord_accounts`.

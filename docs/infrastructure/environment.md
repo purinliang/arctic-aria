@@ -87,7 +87,7 @@ The current Discord bot is an HTTP Interactions process. It is not deployed
 inside the Vercel web app yet, so these Discord variables usually do not belong
 in Vercel unless a later deployment design runs the interaction endpoint there.
 
-Current variables:
+Current and planned variables:
 
 | Variable | Required now | Purpose |
 | --- | --- | --- |
@@ -96,6 +96,7 @@ Current variables:
 | `DISCORD_PUBLIC_KEY` | Yes to run the HTTP interaction endpoint | Public Key used to verify requests from Discord. |
 | `DISCORD_DEVELOPER_USER_ID` | Required for the developer prototype binding | Developer's Discord account id. |
 | `ARCTIC_ARIA_DEVELOPER_USERNAME` | Required for the developer prototype binding | Existing Arctic Aria username used by the developer in the web app. |
+| `DISCORD_INTERNAL_PUSH_SECRET` | Planned for reverse message push | Shared secret used by Arctic Aria services when calling the Discord bot internal push endpoint. |
 | `NEON_POSTGRES_URL` | Yes | Same Neon PostgreSQL database used by the web app. |
 | `PORT` | Optional | Local HTTP port for `/interactions`; defaults to `3001`. |
 
@@ -109,7 +110,18 @@ inserting or updating one row in `discord_accounts`. That lets the developer
 test `/idea` before a full user-facing binding page exists.
 
 If the developer binding variables are missing, the bot can still start, but
-`/idea` will reply that the Discord account is not linked.
+`/idea` will reply that the Discord account is not linked. These developer
+binding variables are a prototype path and should be removed after the
+Settings-driven `/bind` flow is implemented.
+
+`DISCORD_INTERNAL_PUSH_SECRET` must be different from `AUTH_SESSION_SECRET`,
+Discord tokens, and database credentials. Store it in every environment that
+runs a caller of `POST /internal/discord/messages` and in the Discord bot
+service environment. Generate it like other shared service secrets:
+
+```bash
+openssl rand -base64 48
+```
 
 ## Optional App Metadata
 
