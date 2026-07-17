@@ -55,7 +55,7 @@ const emptyLogin: LoginInput = {
 };
 
 const hydrationSafeLoadingDarkMode = false;
-const hydrationSafeLoadingMessages = getAppMessages("en").auth.loading;
+const hydrationSafeAuthMessages = getAppMessages("en").auth;
 
 export function AuthGate() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
@@ -166,7 +166,7 @@ export function AuthGate() {
           role="status"
           aria-live="polite"
         >
-          <ArcticAriaLogo />
+          <ArcticAriaLogo brandText={hydrationSafeAuthMessages.brandName} />
           <div className="flex items-center justify-center gap-2">
             <LoaderCircle
               size={18}
@@ -177,7 +177,7 @@ export function AuthGate() {
               darkMode={hydrationSafeLoadingDarkMode}
               className="font-medium"
             >
-              {hydrationSafeLoadingMessages.openingWorkspace}
+              {hydrationSafeAuthMessages.loading.openingWorkspace}
             </SupportingText>
           </div>
         </div>

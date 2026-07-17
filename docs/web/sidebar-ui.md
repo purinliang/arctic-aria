@@ -60,10 +60,14 @@ switch control. Do not show the username in the sidebar.
 ## Brand
 
 The sidebar brand block appears at the top-left. It uses a stacked structure:
-first row Sparkles icon plus compact `ArcticAria`, then a larger `Workspace`
-label below. Both text lines use the normal app font. Keep it left aligned with
-the navigation item content and do not use all-caps conversion. The `Workspace`
-label should be roughly 1.7x the visual size of `ArcticAria`.
+first row Sparkles icon plus compact localized brand text, then a larger
+workspace label below. In English the brand text is `ArcticAria`; in Simplified
+Chinese it is `北极阿莉雅`. Both text lines use the normal app font. Keep it
+left aligned with the navigation item content and do not use all-caps
+conversion. The workspace label should be visually larger than the brand text.
+Short labels such as `工作区` may render larger than English `Workspace` so the
+sidebar hierarchy stays balanced. Keep the vertical gap between the brand row
+and workspace row compact.
 
 The mobile close button is a ghost icon button so it reads as a borderless
 close affordance beside the brand row.

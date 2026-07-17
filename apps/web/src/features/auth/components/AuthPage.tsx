@@ -53,7 +53,7 @@ export function AuthPage({
             </Button>
           </div>
           <Panel darkMode={darkMode} className="w-full p-5 shadow-sm sm:p-8">
-            <ArcticAriaLogo />
+            <ArcticAriaLogo brandText={messages.brandName} />
             <p
               className={`mx-auto mb-8 mt-2 max-w-[320px] text-center text-sm leading-6 ${mutedTextClass(darkMode)}`}
             >
