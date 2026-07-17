@@ -101,6 +101,14 @@ expand, collapse, or task-management detail controls. If the backend rejects
 the command, the previous visible state is restored and the shared notification
 component shows the error.
 
+The checkbox must remain enabled while the backend request is pending so the
+user can immediately undo the optimistic state. Do not disable the clicked
+checkbox, other dashboard task checkboxes, or the row navigation action.
+Successful checkbox responses stay silent and must not apply a full dashboard
+data refresh to checkbox rows while another lightweight checkbox request may be
+in progress. Failed requests roll back only the affected task row when that
+failed request is still the latest request for that row.
+
 Dashboard task rows should not show standalone project progress visualization,
 editable numeric progress, or colored tag chips.
 

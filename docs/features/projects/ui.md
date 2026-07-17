@@ -70,6 +70,13 @@ Task row layout:
 - no expand/collapse behavior
 - no dashboard edit action
 - do not show `Block`, `Skip`, or a multi-status selector in the first UI
+- checkbox changes use optimistic UI and must not disable the clicked checkbox,
+  other dashboard task checkboxes, or the row navigation action while the
+  backend request is pending
+- successful checkbox responses stay silent and must not apply a full dashboard
+  data refresh to checkbox rows while another lightweight checkbox request may
+  still be in progress; failed requests roll back only the affected task row
+  when that failed request is still the latest request for that row
 
 ## Projects Page
 
@@ -280,6 +287,8 @@ Detail page layout:
 - tasks without a deadline sort after tasks with a deadline
 - completion checkbox changes must not re-sort the current visible list; sort
   only when entering or refreshing the page, or after adding or editing a task
+- completion checkbox changes must not disable the clicked checkbox, other task
+  checkboxes, or row actions while the backend request is pending
 
 ## Structure
 

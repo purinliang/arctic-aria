@@ -33,6 +33,17 @@ If the user unchecks it before cleanup, cancel the completion. If the backend
 later rejects the command, restore the previous visible state and show the
 backend message in the shared notification component.
 
+The checkbox must remain enabled while the backend request is pending so the
+user can immediately undo the optimistic state. Do not disable the clicked
+checkbox, other pinned-memory checkboxes, or the row navigation action for this
+lightweight dashboard command.
+
+Successful checkbox responses should stay silent and must not apply a full
+dashboard data refresh to checkbox rows while another lightweight checkbox
+request may still be in progress. Failed requests should roll back only the
+affected pinned-memory row when that failed request is still the latest request
+for that row.
+
 On dashboard load or reload:
 
 - apply the rules in Pinned Memory Behavior
