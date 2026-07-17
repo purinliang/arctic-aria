@@ -7,10 +7,8 @@ import { AppShell } from "@/app-shell/AppShell";
 import { useAppPreferences } from "@/app-shell/app-preferences";
 import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
 import { defaultDatabaseVersionStatus } from "@/components/app-metadata";
-import { mutedTextClass } from "@/components/color";
 import { NotificationStack, useNotifications } from "@/components/notification";
-import { SupportingText } from "@/components/text";
-import { appShellClass, useDocumentTheme } from "@/components/theme";
+import { useDocumentTheme } from "@/components/theme";
 import { localizedActionMessage } from "@/messages/action-result";
 import { getAppMessages } from "@/messages/app-messages";
 import {
@@ -54,7 +52,6 @@ const emptyLogin: LoginInput = {
   password: "",
 };
 
-const hydrationSafeLoadingDarkMode = false;
 const hydrationSafeAuthMessages = getAppMessages("en").auth;
 
 export function AuthGate() {
@@ -168,16 +165,13 @@ export function AuthGate() {
   }, [applyUserPreferences, currentUser]);
 
   if (!sessionChecked) {
-    const loadingDarkMode = loadingThemeReady
-      ? darkMode
-      : hydrationSafeLoadingDarkMode;
     const loadingMessages = loadingThemeReady
       ? messages.auth
       : hydrationSafeAuthMessages;
 
     return (
       <main
-        className={`grid min-h-screen place-items-center px-4 transition-colors ${appShellClass(loadingDarkMode)}`}
+        className="grid min-h-screen place-items-center bg-[var(--background)] px-4 text-[var(--foreground)] transition-colors"
       >
         <div
           className="grid justify-items-center gap-4 text-center"
@@ -188,15 +182,12 @@ export function AuthGate() {
           <div className="flex items-center justify-center gap-2">
             <LoaderCircle
               size={18}
-              className={`animate-spin ${mutedTextClass(loadingDarkMode)}`}
+              className="animate-spin text-[var(--muted-foreground)]"
               aria-hidden="true"
             />
-            <SupportingText
-              darkMode={loadingDarkMode}
-              className="font-medium"
-            >
+            <span className="text-xs font-medium leading-5 text-[var(--muted-foreground)]">
               {loadingMessages.loading.openingWorkspace}
-            </SupportingText>
+            </span>
           </div>
         </div>
       </main>
