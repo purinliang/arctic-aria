@@ -23,25 +23,25 @@ test("discord account repository looks up active bindings by discord user id", a
   assert.deepEqual(records[0]?.params, ["1234567890"]);
 });
 
-test("discord account repository upserts owner binding by user id", async () => {
+test("discord account repository upserts developer binding by user id", async () => {
   const { records, sql } = createSqlStub([]);
   const repository = new PostgresDiscordAccountRepository(sql as never);
 
-  const binding = await repository.upsertOwnerBinding({
+  const binding = await repository.upsertDeveloperBinding({
     userId: "user-1",
     discordUserId: "1234567890",
-    discordUsername: "purin",
+    discordUsername: "testdiscordusername",
     dmChannelId: "9999999999",
     occurredAt: now,
   });
 
   assert.equal(binding.userId, "user-1");
-  assert.equal(binding.discordUsername, "purin");
+  assert.equal(binding.discordUsername, "testdiscordusername");
   assert.match(records[0]?.text ?? "", /ON CONFLICT \(user_id\)/);
   assert.deepEqual(records[0]?.params, [
     "user-1",
     "1234567890",
-    "purin",
+    "testdiscordusername",
     "9999999999",
     now,
   ]);

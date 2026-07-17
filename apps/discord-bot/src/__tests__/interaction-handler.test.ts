@@ -49,7 +49,7 @@ describe("handleDiscordInteraction", () => {
       },
       user: {
         id: "123456789",
-        username: "purin",
+        username: "testdiscordusername",
       },
       channel_id: "channel-1",
     });
@@ -78,7 +78,7 @@ describe("handleDiscordInteraction", () => {
       member: {
         user: {
           id: "123456789",
-          username: "purin",
+          username: "testdiscordusername",
         },
       },
       channel_id: "channel-1",
@@ -107,7 +107,7 @@ describe("handleDiscordInteraction", () => {
       },
       user: {
         id: "123456789",
-        username: "purin",
+        username: "testdiscordusername",
       },
     });
 
