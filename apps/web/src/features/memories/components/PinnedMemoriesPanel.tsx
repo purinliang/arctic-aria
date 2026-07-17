@@ -111,7 +111,9 @@ function PinnedMemoryRow({
             {memory.description}
           </DescriptionText>
           <SupportingText darkMode={darkMode} className="mt-2 block">
-            {memory.category} ·{" "}
+            {memory.categoryBuiltInKey
+              ? messages.builtInCategories[memory.categoryBuiltInKey]
+              : memory.category} ·{" "}
             {completed
               ? messages.completed
               : messages.visibleUntil(

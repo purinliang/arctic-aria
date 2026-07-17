@@ -6,7 +6,10 @@ import {
   mutedTextClass,
   sectionBorderClass,
 } from "@/components/color";
-import { SingleChoiceGroup } from "@/components/forms/choice-group";
+import {
+  ChoiceActionButton,
+  SingleChoiceGroup,
+} from "@/components/forms/choice-group";
 import { formatDateKey } from "@/components/forms/date-format";
 import { List, ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
@@ -24,6 +27,7 @@ import type { MemoryMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
 import { MemoryCategoryIcon } from "./MemoryCategoryIcon";
 import {
+  getMemoryCategoryLabel,
   getMemoryFilterNames,
   type MemoryFilter,
 } from "./memory-page-helpers";
@@ -36,6 +40,7 @@ export function MemoriesPanel({
   categories,
   memories,
   messages,
+  categoryMessages,
   dateMessages,
   onAdd,
   onFilterChange,
@@ -49,6 +54,7 @@ export function MemoriesPanel({
   categories: MemoryCategoryOption[];
   memories: MemoryRecord[];
   messages: MemoryMessages["panel"];
+  categoryMessages: MemoryMessages["categories"]["builtIns"];
   dateMessages: DatePickerMessages;
   onAdd: () => void;
   onFilterChange: (filter: MemoryFilter) => void;
@@ -90,7 +96,16 @@ export function MemoriesPanel({
 
             return {
               value: item,
-              label: item === "All" ? messages.all : item,
+              label:
+                item === "All"
+                  ? messages.all
+                  : !category
+                    ? item
+                  : getMemoryCategoryLabel(
+                      item,
+                      category.builtInKey,
+                      categoryMessages,
+                    ),
               icon:
                 item === "All" ? (
                   <Album size={14} aria-hidden="true" />
@@ -100,15 +115,18 @@ export function MemoriesPanel({
             };
           })}
           onChange={(value) => onFilterChange(value as MemoryFilter)}
-        />
-        <Button
-          darkMode={darkMode}
-          disabled={pending}
-          icon={<Settings2 size={15} aria-hidden="true" />}
-          onClick={onManage}
         >
-          {messages.manage}
-        </Button>
+          <ChoiceActionButton
+            darkMode={darkMode}
+            disabled={pending}
+            option={{
+              value: "manage",
+              label: messages.manage,
+              icon: <Settings2 size={14} aria-hidden="true" />,
+            }}
+            onClick={onManage}
+          />
+        </SingleChoiceGroup>
       </div>
 
       <List darkMode={darkMode}>
@@ -127,6 +145,7 @@ export function MemoriesPanel({
             memory={memory}
             darkMode={darkMode}
             messages={messages}
+            categoryMessages={categoryMessages}
             dateMessages={dateMessages}
             onEdit={() => onEditMemory(memory)}
           />
@@ -141,17 +160,23 @@ function MemoryRow({
   memory,
   darkMode,
   messages,
+  categoryMessages,
   dateMessages,
   onEdit,
 }: {
   memory: MemoryRecord;
   darkMode: boolean;
   messages: MemoryMessages["panel"];
+  categoryMessages: MemoryMessages["categories"]["builtIns"];
   dateMessages: DatePickerMessages;
   onEdit: () => void;
 }) {
   const metadata = [
-    memory.category,
+    getMemoryCategoryLabel(
+      memory.category,
+      memory.categoryBuiltInKey,
+      categoryMessages,
+    ),
     memory.pinned ? messages.pinned : "",
     lastDoneText(memory, messages, dateMessages),
     messages.doneTimes(memory.doneCount),

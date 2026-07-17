@@ -15,7 +15,10 @@ import {
   DialogOverlay,
   DialogPrimaryButton,
 } from "@/components/dialog";
-import { SingleChoiceGroup } from "@/components/forms/choice-group";
+import {
+  ChoiceActionButton,
+  SingleChoiceGroup,
+} from "@/components/forms/choice-group";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { LabelText } from "@/components/text";
@@ -23,6 +26,7 @@ import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryInput } from "@/features/memories/actions";
 import type { MemoryMessages } from "@/messages/app-messages";
 import { MemoryCategoryIcon } from "./MemoryCategoryIcon";
+import { getMemoryCategoryName } from "./memory-page-helpers";
 
 export function MemoryEditorDialog({
   darkMode,
@@ -32,6 +36,7 @@ export function MemoryEditorDialog({
   categories,
   setMemoryDraft,
   messages,
+  categoryMessages,
   onClose,
   onSubmit,
   onDelete,
@@ -44,6 +49,7 @@ export function MemoryEditorDialog({
   categories: MemoryCategoryOption[];
   setMemoryDraft: Dispatch<SetStateAction<MemoryInput>>;
   messages: MemoryMessages["editor"];
+  categoryMessages: MemoryMessages["categories"]["builtIns"];
   onClose: () => void;
   onSubmit: () => void;
   onDelete: () => void;
@@ -83,37 +89,38 @@ export function MemoryEditorDialog({
             </FieldLabel>
             <div className="grid gap-1.5">
               <LabelText darkMode={darkMode}>{messages.category}</LabelText>
-              <div className="flex flex-wrap items-center gap-2">
-                <SingleChoiceGroup
-                  darkMode={darkMode}
-                  value={memoryDraft.categoryId}
-                  disabled={pending}
-                  options={categories.map((category) => ({
-                    value: category.id,
-                    label: category.name,
-                    icon: <MemoryCategoryIcon iconName={category.iconName} />,
-                  }))}
-                  onChange={(categoryId) => {
-                    const category = categories.find(
-                      (item) => item.id === categoryId,
-                    );
+              <SingleChoiceGroup
+                darkMode={darkMode}
+                value={memoryDraft.categoryId}
+                disabled={pending}
+                options={categories.map((category) => ({
+                  value: category.id,
+                  label: getMemoryCategoryName(category, categoryMessages),
+                  icon: <MemoryCategoryIcon iconName={category.iconName} />,
+                }))}
+                onChange={(categoryId) => {
+                  const category = categories.find(
+                    (item) => item.id === categoryId,
+                  );
 
-                    setMemoryDraft((current) => ({
-                      ...current,
-                      categoryId,
-                      categoryName: category?.name ?? current.categoryName,
-                    }));
-                  }}
-                />
-                <Button
+                  setMemoryDraft((current) => ({
+                    ...current,
+                    categoryId,
+                    categoryName: category?.name ?? current.categoryName,
+                  }));
+                }}
+              >
+                <ChoiceActionButton
                   darkMode={darkMode}
                   disabled={pending}
-                  icon={<Settings2 size={15} aria-hidden="true" />}
+                  option={{
+                    value: "manage",
+                    label: messages.manage,
+                    icon: <Settings2 size={14} aria-hidden="true" />,
+                  }}
                   onClick={onManageCategories}
-                >
-                  {messages.manage}
-                </Button>
-              </div>
+                />
+              </SingleChoiceGroup>
             </div>
             <FieldLabel darkMode={darkMode} label={messages.description}>
               <TextArea

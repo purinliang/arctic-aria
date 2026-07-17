@@ -24,6 +24,7 @@ export async function ensureDefaultCategories(sql: Sql, userId: string) {
       `WITH updated_by_key AS (
          UPDATE memory_categories
          SET name = $2,
+           description = $3,
            built_in_key = $4,
            icon_name = $5,
            shown_on_dashboard = $6
@@ -40,6 +41,7 @@ export async function ensureDefaultCategories(sql: Sql, userId: string) {
          WHERE NOT EXISTS (SELECT 1 FROM updated_by_key)
          ON CONFLICT (user_id, name) DO UPDATE
          SET built_in_key = EXCLUDED.built_in_key,
+           description = EXCLUDED.description,
            icon_name = EXCLUDED.icon_name,
            shown_on_dashboard = EXCLUDED.shown_on_dashboard
          RETURNING id

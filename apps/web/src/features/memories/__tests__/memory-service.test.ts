@@ -31,14 +31,56 @@ test("initializes default memory categories for a user", async () => {
       category.shownOnDashboard,
     ]),
     [
-      ["Cuisine", "", "cuisine", "utensils", true],
-      ["Sightseeing", "", "sightseeing", "trees", true],
-      ["Movie", "", "movie", "film", true],
-      ["Anime", "", "anime", "book-open-text", true],
-      ["Book", "", "book", "book-open-text", true],
-      ["Music", "", "music", "music", true],
-      ["Game", "", "game", "gamepad-2", true],
-      ["Shopping", "", "shopping", "shopping-cart", true],
+      [
+        "Cuisine",
+        "Restaurants, cafes, meals, and food experiences worth revisiting.",
+        "cuisine",
+        "utensils",
+        true,
+      ],
+      [
+        "Sightseeing",
+        "Places, walks, views, and visits worth seeing again.",
+        "sightseeing",
+        "trees",
+        true,
+      ],
+      ["Movie", "Films to watch, rewatch, or remember.", "movie", "film", true],
+      [
+        "Anime",
+        "Anime series or films to continue or revisit.",
+        "anime",
+        "wand-sparkles",
+        true,
+      ],
+      [
+        "Book",
+        "Books and reading experiences worth returning to.",
+        "book",
+        "book-open-text",
+        true,
+      ],
+      [
+        "Music",
+        "Songs, albums, concerts, and listening moments to revisit.",
+        "music",
+        "music",
+        true,
+      ],
+      [
+        "Game",
+        "Games and playful experiences worth returning to.",
+        "game",
+        "gamepad-2",
+        true,
+      ],
+      [
+        "Shopping",
+        "Shops, items, and buying experiences worth remembering.",
+        "shopping",
+        "shopping-cart",
+        true,
+      ],
     ],
   );
 
@@ -52,6 +94,7 @@ test("initialization updates existing built-in category metadata", async () => {
     categories: [
       {
         ...memoryCategories[1],
+        description: "",
         iconName: "landmark",
         shownOnDashboard: false,
       },
@@ -68,6 +111,10 @@ test("initialization updates existing built-in category metadata", async () => {
   );
 
   assert.equal(categories.length, 8);
+  assert.equal(
+    sightseeing?.description,
+    "Places, walks, views, and visits worth seeing again.",
+  );
   assert.equal(sightseeing?.iconName, "trees");
   assert.equal(sightseeing?.shownOnDashboard, true);
 });

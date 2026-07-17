@@ -62,9 +62,9 @@ Current implementation note:
   `icon_name`.
 - Current built-in keys are `cuisine`, `sightseeing`, `movie`, `anime`,
   `book`, `music`, `game`, and `shopping`.
-- Built-in category name, icon, identity, and delete behavior are
+- Built-in category name, description, icon, identity, and delete behavior are
   app-controlled so categories such as Cuisine and Sightseeing cannot lose
-  their default translation or icon.
+  their default translation, description, or icon.
 - `shown_on_dashboard` remains in the schema as legacy metadata for now, but
   the current dashboard pinned-memory list does not filter by this field.
 - Existing users are backfilled by migration, and memory category

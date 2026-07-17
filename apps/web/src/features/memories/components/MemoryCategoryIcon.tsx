@@ -10,6 +10,7 @@ import {
   Sparkles,
   Trees,
   Utensils,
+  WandSparkles,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -26,6 +27,7 @@ const categoryIcons: Record<string, LucideIcon> = {
   "shopping-cart": ShoppingCart,
   trees: Trees,
   utensils: Utensils,
+  "wand-sparkles": WandSparkles,
 };
 
 export function MemoryCategoryIcon({

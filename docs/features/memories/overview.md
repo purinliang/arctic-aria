@@ -116,15 +116,6 @@ product direction. They should display exactly as the user entered them. This
 avoids inconsistent UI where built-in categories are translated but custom
 category names are machine-translated unexpectedly.
 
-Current built-in category icons:
-
-- Movie, with the `film` icon
-- Anime, with the `book-open-text` icon
-- Book, with the `book-open-text` icon
-- Music, with the `music` icon
-- Game, with the `gamepad-2` icon
-- Shopping, with the `shopping-cart` icon
-
 Built-in categories can have default translations and icons. They are still
 normal per-user categories in storage so memories can reference them
 consistently.

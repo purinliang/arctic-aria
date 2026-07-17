@@ -52,7 +52,42 @@ export const englishMemoryMessages = {
     description: "Description",
     descriptionPlaceholder: "What belongs in this category?",
     noDescription: "No description.",
-    builtIn: "Built-in",
+    builtIns: {
+      cuisine: {
+        name: "Cuisine",
+        description:
+          "Restaurants, cafes, meals, and food experiences worth revisiting.",
+      },
+      sightseeing: {
+        name: "Sightseeing",
+        description: "Places, walks, views, and visits worth seeing again.",
+      },
+      movie: {
+        name: "Movie",
+        description: "Films to watch, rewatch, or remember.",
+      },
+      anime: {
+        name: "Anime",
+        description: "Anime series or films to continue or revisit.",
+      },
+      book: {
+        name: "Book",
+        description: "Books and reading experiences worth returning to.",
+      },
+      music: {
+        name: "Music",
+        description:
+          "Songs, albums, concerts, and listening moments to revisit.",
+      },
+      game: {
+        name: "Game",
+        description: "Games and playful experiences worth returning to.",
+      },
+      shopping: {
+        name: "Shopping",
+        description: "Shops, items, and buying experiences worth remembering.",
+      },
+    },
     save: "Save",
     delete: "Delete",
   },
@@ -143,7 +178,40 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     description: "描述",
     descriptionPlaceholder: "这个分类包含哪些回忆？",
     noDescription: "暂无描述。",
-    builtIn: "内置",
+    builtIns: {
+      cuisine: {
+        name: "美食",
+        description: "值得再次光顾的餐厅、咖啡馆、餐食和美食体验。",
+      },
+      sightseeing: {
+        name: "观光",
+        description: "值得再次前往的地点、路线、风景和拜访经历。",
+      },
+      movie: {
+        name: "电影",
+        description: "想观看、重看或记住的电影。",
+      },
+      anime: {
+        name: "动画",
+        description: "想继续观看或再次回顾的动画作品。",
+      },
+      book: {
+        name: "书籍",
+        description: "值得回到其中的书和阅读体验。",
+      },
+      music: {
+        name: "音乐",
+        description: "值得再次聆听的歌曲、专辑、演出和音乐时刻。",
+      },
+      game: {
+        name: "游戏",
+        description: "值得再次体验的游戏和游玩经历。",
+      },
+      shopping: {
+        name: "购物",
+        description: "值得记住的店铺、物品和购买经历。",
+      },
+    },
     save: "保存",
     delete: "删除",
   },

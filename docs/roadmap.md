@@ -84,14 +84,14 @@ First implementation target:
   Backfill should apply to all existing users, not a hard-coded developer
   account.
 - Treat Cuisine, Sightseeing, Movie, Anime, Book, Music, Game, and Shopping as
-  built-in categories. Their built-in identity, default name, icon, and default
-  translations should not be editable or deletable by the user.
+  built-in categories. Their built-in identity, default name, description, icon,
+  and default translations should not be editable or deletable by the user.
 - Stop filtering dashboard pinned memories by hard-coded display names,
   built-in keys, dashboard metadata, or per-category count limits.
 
 Built-in category/template work:
 
-- Current built-in templates include Movie (`film`), Anime (`book-open-text`),
+- Current built-in templates include Movie (`film`), Anime (`wand-sparkles`),
   Book (`book-open-text`), Music (`music`), Game (`gamepad-2`), and Shopping
   (`shopping-cart`).
 - Built-in templates may have default icons and default translations in every

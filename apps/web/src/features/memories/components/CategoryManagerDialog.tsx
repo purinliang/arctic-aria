@@ -14,16 +14,20 @@ import {
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { List, ListItem } from "@/components/list";
-import { DescriptionText, SupportingText } from "@/components/text";
+import { DescriptionText } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryCategoryInput } from "@/features/memories/actions";
 import type { MemoryMessages } from "@/messages/app-messages";
 import { MemoryCategoryIcon } from "./MemoryCategoryIcon";
+import {
+  getMemoryCategoryDescription,
+  getMemoryCategoryName,
+} from "./memory-page-helpers";
 
 type CategoryDeleteTarget = Pick<
   MemoryCategoryOption,
-  "id" | "name" | "description"
+  "id" | "name" | "description" | "builtInKey"
 >;
 
 export function CategoryManagerDialog({
@@ -103,15 +107,13 @@ export function CategoryManagerDialog({
                   <MemoryCategoryIcon iconName={category.iconName} size={16} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{category.name}</p>
+                  <p className="truncate text-sm font-semibold">
+                    {getMemoryCategoryName(category, messages.builtIns)}
+                  </p>
                   <DescriptionText darkMode={darkMode} className="mt-1">
-                    {category.description || messages.noDescription}
+                    {getMemoryCategoryDescription(category, messages.builtIns) ||
+                      messages.noDescription}
                   </DescriptionText>
-                  {category.builtInKey ? (
-                    <SupportingText darkMode={darkMode} className="mt-2 block">
-                      {messages.builtIn}
-                    </SupportingText>
-                  ) : null}
                 </div>
                 {category.builtInKey ? null : (
                   <Button
@@ -145,6 +147,7 @@ export function CategoryManagerDialog({
                     id: categoryDraft.id ?? "",
                     name: categoryDraft.name,
                     description: categoryDraft.description,
+                    builtInKey: null,
                   })
               : undefined
           }

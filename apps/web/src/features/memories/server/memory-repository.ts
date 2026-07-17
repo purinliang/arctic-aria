@@ -69,6 +69,7 @@ export class InMemoryMemoryRepository implements MemoryRepository {
             existing.builtInKey === category.builtInKey)
             ? {
                 ...existing,
+                description: category.description,
                 builtInKey: category.builtInKey,
                 iconName: category.iconName,
                 shownOnDashboard: category.shownOnDashboard,

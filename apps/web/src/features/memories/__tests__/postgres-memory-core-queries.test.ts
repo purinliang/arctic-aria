@@ -51,6 +51,7 @@ test("default category initialization updates by built-in key before insert", as
   assert.match(records[0].text, /WHERE NOT EXISTS \(SELECT 1 FROM updated_by_key\)/);
   assert.equal(records.length, 8);
   assert.equal(records[1].params[4], "trees");
+  assert.equal(records[3].params[4], "wand-sparkles");
   assert.equal(records[6].params[4], "gamepad-2");
   assert.equal(records[7].params[4], "shopping-cart");
 });
