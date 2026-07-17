@@ -2,7 +2,7 @@ import {
   hashDiscordBindingCode,
   normalizeDiscordBindingCode,
 } from "./binding-code.ts";
-import type { QueryExecutor } from "./query-executor.ts";
+import type { QueryExecutor } from "../../infrastructure/query-executor.ts";
 
 const discordSnowflakePattern = /^[0-9]{5,32}$/;
 

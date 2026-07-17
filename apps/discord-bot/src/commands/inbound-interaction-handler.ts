@@ -3,10 +3,10 @@ import {
   InteractionResponseType,
   InteractionType,
 } from "discord-interactions";
-import { bindDiscordAccount } from "./account-binding.ts";
+import { bindDiscordAccount } from "../features/account-binding/account-binding.ts";
+import { captureDiscordIdea } from "../features/ideas/idea-capture.ts";
+import type { QueryExecutor } from "../infrastructure/query-executor.ts";
 import { bindCommandName, ideaCommandName } from "./discord-commands.ts";
-import { captureDiscordIdea } from "./idea-capture.ts";
-import type { QueryExecutor } from "./query-executor.ts";
 
 export type InboundDiscordInteractionResult = {
   status: number;

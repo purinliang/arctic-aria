@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import {
   hashDiscordBindingCode,
   normalizeDiscordBindingCode,
-} from "../binding-code.ts";
+} from "../features/account-binding/binding-code.ts";
 
 describe("Discord binding codes", () => {
   it("normalizes spaces, hyphens, and case before hashing", () => {

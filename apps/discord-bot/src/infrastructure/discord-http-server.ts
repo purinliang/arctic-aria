@@ -10,9 +10,9 @@ import {
   createDiscordMessageSender,
   type DiscordInteractionResponseEditor,
 } from "./discord-api.ts";
-import { bindCommandName } from "./discord-commands.ts";
-import { handleInboundDiscordInteraction } from "./inbound-interaction-handler.ts";
-import { handleOutboundDiscordMessage } from "./outbound-message.ts";
+import { bindCommandName } from "../commands/discord-commands.ts";
+import { handleInboundDiscordInteraction } from "../commands/inbound-interaction-handler.ts";
+import { handleOutboundDiscordMessage } from "../features/outbound-messages/outbound-message.ts";
 import type { QueryExecutor } from "./query-executor.ts";
 
 const maxBodyBytes = 64 * 1024;

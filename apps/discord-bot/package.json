@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc --noEmit",
     "dev": "node --env-file-if-exists=.env.local src/index.ts",
-    "register-commands": "node --env-file-if-exists=.env.local src/register-commands.ts",
+    "register-commands": "node --env-file-if-exists=.env.local src/infrastructure/register-commands.ts",
     "test": "node --test \"src/**/*.test.ts\""
   },
   "dependencies": {

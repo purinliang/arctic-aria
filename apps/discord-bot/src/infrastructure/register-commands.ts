@@ -1,6 +1,6 @@
 import { REST, Routes } from "discord.js";
+import { discordCommandData } from "../commands/discord-commands.ts";
 import { loadDiscordBotConfig, requireDiscordBotToken } from "./config.ts";
-import { discordCommandData } from "./discord-commands.ts";
 
 async function main() {
   const config = loadDiscordBotConfig();

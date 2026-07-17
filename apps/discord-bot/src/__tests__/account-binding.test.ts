@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { bindDiscordAccount } from "../account-binding.ts";
-import { hashDiscordBindingCode } from "../binding-code.ts";
-import type { QueryExecutor } from "../query-executor.ts";
+import { bindDiscordAccount } from "../features/account-binding/account-binding.ts";
+import { hashDiscordBindingCode } from "../features/account-binding/binding-code.ts";
+import type { QueryExecutor } from "../infrastructure/query-executor.ts";
 
 const now = new Date("2026-07-17T10:30:00.000Z");
 

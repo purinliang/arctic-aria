@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { ensureDeveloperDiscordBinding } from "../developer-binding.ts";
-import type { QueryExecutor } from "../query-executor.ts";
+import { ensureDeveloperDiscordBinding } from "../infrastructure/developer-binding.ts";
+import type { QueryExecutor } from "../infrastructure/query-executor.ts";
 
 class FakeSql implements QueryExecutor {
   readonly queries: Array<{ sql: string; parameters: unknown[] | undefined }> =

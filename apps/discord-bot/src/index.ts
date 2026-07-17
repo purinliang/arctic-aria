@@ -1,12 +1,15 @@
 import type { Server } from "node:http";
-import { loadDiscordBotConfig, requireDiscordPublicKey } from "./config.ts";
-import { getSql } from "./database.ts";
-import { ensureDeveloperDiscordBinding } from "./developer-binding.ts";
-import { createDiscordHttpServer } from "./discord-http-server.ts";
+import {
+  loadDiscordBotConfig,
+  requireDiscordPublicKey,
+} from "./infrastructure/config.ts";
+import { getSql } from "./infrastructure/database.ts";
+import { ensureDeveloperDiscordBinding } from "./infrastructure/developer-binding.ts";
+import { createDiscordHttpServer } from "./infrastructure/discord-http-server.ts";
 import {
   checkDatabaseConnection,
   formatStartupFailure,
-} from "./startup-checks.ts";
+} from "./infrastructure/startup-checks.ts";
 
 async function main() {
   let startupStep = "config";

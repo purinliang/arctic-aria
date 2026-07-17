@@ -7,9 +7,9 @@ import {
   handleDeferredInboundInteraction,
   readBearerToken,
   shouldDeferInboundInteraction,
-} from "../discord-http-server.ts";
-import type { DiscordInteractionResponseEditor } from "../discord-api.ts";
-import type { QueryExecutor } from "../query-executor.ts";
+} from "../infrastructure/discord-http-server.ts";
+import type { DiscordInteractionResponseEditor } from "../infrastructure/discord-api.ts";
+import type { QueryExecutor } from "../infrastructure/query-executor.ts";
 
 describe("discord HTTP server route helpers", () => {
   it("explains that browser GET requests are not Discord interactions", () => {

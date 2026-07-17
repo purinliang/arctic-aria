@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import type { DiscordMessageSender } from "./discord-api.ts";
-import type { QueryExecutor } from "./query-executor.ts";
+import type { DiscordMessageSender } from "../../infrastructure/discord-api.ts";
+import type { QueryExecutor } from "../../infrastructure/query-executor.ts";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

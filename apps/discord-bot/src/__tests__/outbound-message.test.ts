@@ -3,9 +3,9 @@ import { describe, it } from "node:test";
 import type {
   DiscordDirectMessageInput,
   DiscordMessageSender,
-} from "../discord-api.ts";
-import { handleOutboundDiscordMessage } from "../outbound-message.ts";
-import type { QueryExecutor } from "../query-executor.ts";
+} from "../infrastructure/discord-api.ts";
+import { handleOutboundDiscordMessage } from "../features/outbound-messages/outbound-message.ts";
+import type { QueryExecutor } from "../infrastructure/query-executor.ts";
 
 const now = new Date("2026-07-17T10:30:00.000Z");
 const validUserId = "123e4567-e89b-12d3-a456-426614174000";
