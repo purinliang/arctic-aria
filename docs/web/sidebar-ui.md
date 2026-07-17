@@ -43,19 +43,19 @@ the response area stays the same as other sidebar items. The project title must
 truncate on one line when long, with no horizontal scrollbar. The active pinned
 project shortcut uses the active state when that project detail page is open.
 
-## Bottom Controls
+## Sidebar Actions
 
-The bottom controls are not a card. Use a top border separator and compact
-vertical spacing.
+Theme mode and sign out are not a separate bottom list. They appear in the same
+sidebar list after Settings, below a separator line:
 
-The bottom controls appear in this order:
-
+- separator line
 - Theme mode menu item
 - Sign out menu item
 
-Theme mode and sign out should use the same visual style as navigation menu
-items. They should share the same left alignment and should not use a separate
-switch control. Do not show the username in the sidebar.
+Theme mode and sign out should use the same visual style as navigation items.
+They should share the same left alignment, icon slot, row height, hover state,
+and active/disabled behavior. Do not use a separate switch control. Do not show
+the username in the sidebar.
 
 ## Brand
 

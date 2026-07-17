@@ -160,6 +160,7 @@ function SidebarFrame({
             darkMode={darkMode}
             tone="ghost"
             size="icon-sm"
+            className="border-0 shadow-none"
             aria-label={messages.closeNavigation}
             icon={<X size={18} aria-hidden="true" />}
             onClick={onClose}
@@ -167,7 +168,7 @@ function SidebarFrame({
         ) : null}
       </div>
 
-      <nav className="mt-4 grid overflow-hidden rounded-md">
+      <nav className="mt-4 grid">
         <SidebarItem
           icon={<LayoutDashboard size={18} aria-hidden="true" />}
           label={messages.pages.dashboard}
@@ -197,13 +198,6 @@ function SidebarFrame({
           />
         ))}
         <SidebarItem
-          icon={<Lightbulb size={18} aria-hidden="true" />}
-          label={messages.pages.ideas}
-          active={activeView === "ideas"}
-          darkMode={darkMode}
-          onClick={() => onSelectView("ideas")}
-        />
-        <SidebarItem
           icon={<Bell size={18} aria-hidden="true" />}
           label={messages.pages.routines}
           active={activeView === "routines"}
@@ -218,45 +212,47 @@ function SidebarFrame({
           onClick={() => onSelectView("memories")}
         />
         <SidebarItem
+          icon={<Lightbulb size={18} aria-hidden="true" />}
+          label={messages.pages.ideas}
+          active={activeView === "ideas"}
+          darkMode={darkMode}
+          onClick={() => onSelectView("ideas")}
+        />
+        <SidebarItem
           icon={<Settings size={18} aria-hidden="true" />}
           label={messages.pages.settings}
           active={activeView === "settings"}
           darkMode={darkMode}
           onClick={() => onSelectView("settings")}
         />
+        <div
+          className={`my-2 border-t ${
+            darkMode ? "border-neutral-800" : "border-slate-200"
+          }`}
+          aria-hidden="true"
+        />
+        <SidebarItem
+          icon={
+            darkMode ? (
+              <Moon size={18} aria-hidden="true" />
+            ) : (
+              <Sun size={18} aria-hidden="true" />
+            )
+          }
+          label={darkMode ? messages.sidebar.darkMode : messages.sidebar.lightMode}
+          darkMode={darkMode}
+          onClick={() => onThemeChange(!darkMode)}
+        />
+        <SidebarItem
+          icon={<LogOut size={18} aria-hidden="true" />}
+          label={
+            logoutPending ? messages.sidebar.signingOut : messages.sidebar.signOut
+          }
+          darkMode={darkMode}
+          disabled={logoutPending}
+          onClick={onLogout}
+        />
       </nav>
-
-      <div
-        className={`mt-auto border-t pt-4 ${
-          darkMode ? "border-neutral-800" : "border-slate-200"
-        }`}
-      >
-        <div className="grid overflow-hidden rounded-md">
-          <SidebarItem
-            icon={
-              darkMode ? (
-                <Moon size={18} aria-hidden="true" />
-              ) : (
-                <Sun size={18} aria-hidden="true" />
-              )
-            }
-            label={
-              darkMode ? messages.sidebar.darkMode : messages.sidebar.lightMode
-            }
-            darkMode={darkMode}
-            onClick={() => onThemeChange(!darkMode)}
-          />
-          <SidebarItem
-            icon={<LogOut size={18} aria-hidden="true" />}
-            label={
-              logoutPending ? messages.sidebar.signingOut : messages.sidebar.signOut
-            }
-            darkMode={darkMode}
-            disabled={logoutPending}
-            onClick={onLogout}
-          />
-        </div>
-      </div>
     </aside>
   );
 }
@@ -278,20 +274,26 @@ function SidebarItem({
   child?: boolean;
   onClick: () => void;
 }) {
+  const itemIcon = child ? (
+    <span className="h-[18px] w-[18px] shrink-0 opacity-0" aria-hidden="true" />
+  ) : (
+    icon
+  );
+
   return (
     <Button
       darkMode={darkMode}
       tone={active ? "primary" : "ghost"}
       size="md"
-      className="w-full justify-start overflow-hidden !rounded-none"
+      className="w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md"
       disabled={disabled}
-      icon={icon}
+      icon={itemIcon}
       onClick={onClick}
     >
-      {child ? (
-        <span className="h-[18px] w-[18px] shrink-0 opacity-0" aria-hidden="true" />
-      ) : null}
-      <span className={`min-w-0 truncate ${child ? "pl-4" : ""}`}>
+      <span
+        className={`min-w-0 flex-1 truncate text-left ${child ? "pl-4" : ""}`}
+        title={label}
+      >
         {label}
       </span>
     </Button>

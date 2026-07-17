@@ -157,11 +157,10 @@ than expected before changing the display text.
 
 ## Sidebar Refinement
 
-Status: in progress on `develop`; several sidebar behavior rules are specified
-but not fully finished. Remaining sidebar bugs should be handled as focused UI
-fix branches.
+Status: partially implemented on `develop`; current sidebar work uses one list,
+but remaining sidebar bugs should still be handled as focused UI fix branches.
 
-Established sidebar direction:
+Implemented sidebar direction:
 
 - The sidebar uses a compact brand block: first row Sparkles icon plus small
   localized brand text, then a larger page/workspace label such as `Workspace`
@@ -169,18 +168,19 @@ Established sidebar direction:
   space; in Simplified Chinese it is `北极阿莉雅`.
 - The workspace label should remain visually larger than the brand text, and
   short translations such as `工作区` can render larger than the English label.
+- Sidebar order should be: Today, Projects, pinned projects, Routines,
+  Memories, Ideas, Settings, separator, theme mode, sign out.
+- Theme mode and sign out should use the same sidebar list pattern as the page
+  navigation rows. Do not place them in a separate bottom list or visual
+  container.
+- The mobile sidebar close button should be borderless.
+- Pinned project sidebar rows should use invisible icon spacers to align their
+  text with normal menu items while preserving the indented hierarchy. The
+  spacer icons should use the same size and gap as visible menu icons. Pinned
+  project names should stay on one line and truncate automatically.
 
 Remaining sidebar cleanup:
 
-- Make the light-mode and sign-out rows visually follow the same menu-item
-  pattern as the preceding sidebar navigation items. Do not place them in a
-  separate visual container or give them a different row style unless the
-  sidebar design is revised explicitly.
-- Keep the mobile sidebar close button borderless.
-- Finish pinned project shortcut alignment with invisible icon spacers while
-  preserving the indented hierarchy. The spacer icons should use the same size
-  and gap as visible menu icons. Pinned project names should stay on one line
-  and truncate automatically.
 - Sidebar list items should handle rounded corners consistently, especially at
   the start and end of adjacent item groups.
 - Adjacent sidebar menu items should not show unwanted gaps between rows,
