@@ -77,14 +77,15 @@ First implementation target:
 - Keep real per-user `memory_categories` rows. This is the simplest model
   because every memory still needs a concrete `category_id`.
 - Add stable built-in category metadata, such as a built-in key, icon name, and
-  `shown_on_dashboard` flag.
+  `shown_on_dashboard` flag. The code may still call the home surface
+  `dashboard`, even though the user-facing title is `Today`.
 - Backfill built-in category rows for existing users when the metadata is added.
+  Backfill should apply to all existing users, not a hard-coded developer
+  account.
 - Treat Cuisine and Sightseeing as the first built-in categories. Their
   built-in identity, default name, icon, and default translations should not be
   editable or deletable by the user.
-- Stop filtering dashboard pinned memories by hard-coded display names. The
-  dashboard can still be called `dashboard` in code, even though the user-facing
-  title is `Today`.
+- Stop filtering dashboard pinned memories by hard-coded display names.
 
 Later built-in category/template work:
 
@@ -113,6 +114,22 @@ Related UI cleanup:
   refreshes or passes a suggestion.
 - The dashboard `Pinned Memories` panel should not expose a single-row refresh
   action. Detailed pin/unpin management belongs on the Memories page.
+
+### Version Metadata UI
+
+The login page should keep database-version metadata available for debugging
+without showing it in normal use. Hide it from the visible login page by
+default, but leave enough DOM/debug access that the developer can inspect it
+when needed.
+
+Do not add developer-account-specific display rules for version metadata.
+Production behavior should be role- or environment-based only after a real
+admin/user-role design exists.
+
+The version-metadata check should also explain ahead/behind states clearly. If
+production says the database is `ahead`, inspect whether the deployed app,
+expected schema hash, migration history, or database metadata is older/newer
+than expected before changing the display text.
 
 ## Ongoing Feature Review
 
