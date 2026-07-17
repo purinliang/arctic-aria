@@ -8,6 +8,8 @@ and [data-model.md](data-model.md).
 
 - While the app checks the existing session, center the loading state on the
   page.
+- On mobile, use the small viewport height for the loading state so browser
+  chrome does not make the page feel taller than the visible screen.
 - Use the same brand row as the login and sidebar surfaces: Sparkles icon plus
   the localized brand name.
 - Show a visible loading spinner and the text `Opening your workspace...` in
