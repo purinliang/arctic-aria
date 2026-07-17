@@ -19,6 +19,7 @@ import { cx } from "@/components/utils";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryCategoryInput } from "@/features/memories/actions";
 import type { MemoryMessages } from "@/messages/app-messages";
+import { MemoryCategoryIcon } from "./MemoryCategoryIcon";
 
 type CategoryDeleteTarget = Pick<
   MemoryCategoryOption,
@@ -98,6 +99,9 @@ export function CategoryManagerDialog({
                 darkMode={darkMode}
                 className="items-start"
               >
+                <span className="mt-1 shrink-0">
+                  <MemoryCategoryIcon iconName={category.iconName} size={16} />
+                </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{category.name}</p>
                   <DescriptionText darkMode={darkMode} className="mt-1">

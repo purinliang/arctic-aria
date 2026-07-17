@@ -91,10 +91,6 @@ export function MemoriesPage({
   });
   const [categoryDraft, setCategoryDraft] =
     useState<MemoryCategoryInput>(emptyCategoryDraft);
-  const filters: MemoryFilter[] = [
-    "All",
-    ...Array.from(new Set(memoryRecords.map((memory) => memory.category))),
-  ];
   const visibleMemories = memoryRecords.filter(
     (memory) => filter === "All" || memory.category === filter,
   );
@@ -232,7 +228,7 @@ export function MemoriesPage({
             loading={loading}
             pending={pending}
             filter={filter}
-            filters={filters}
+            categories={categories}
             memories={visibleMemories}
             messages={messages.panel}
             dateMessages={formMessages.datePicker}
