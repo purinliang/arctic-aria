@@ -34,3 +34,4 @@ documentation updates. Keep the body specific enough to be useful when reading
 - [v0.4.0.md](v0.4.0.md)
 - [v0.5.0.md](v0.5.0.md)
 - [v0.5.1.md](v0.5.1.md): hotfix release record.
+- [v0.6.0.md](v0.6.0.md)
