@@ -181,6 +181,11 @@ absolute popover surface as date and time pickers. Do not rely on native
 `select` popup styling for primary UI, because the opened menu can inherit
 browser or operating-system colors, corners, and spacing.
 
+Single-select dropdowns may render their opened menu through a viewport portal
+when the field sits inside a clipped list or panel. The portal should preserve
+the same rounded popover surface, font size, option spacing, and dark-mode
+colors while avoiding parent `overflow-hidden` clipping.
+
 `forms/choice-group.tsx` owns visible button-group choices for single and
 multiple selection. Use it when the user should clearly see a compact set of
 choices. Do not use passive label chips as selectable buttons. Selected choices

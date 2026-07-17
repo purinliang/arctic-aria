@@ -1,20 +1,25 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type {
   ButtonHTMLAttributes,
+  CSSProperties,
   InputHTMLAttributes,
   ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
 import {
   formControlClass,
   formControlPopupClass,
 } from "./form-control-style";
-import {
-  popoverPlacementClass,
-  usePopoverPlacement,
-} from "./use-popover-placement";
 import { cx } from "../utils";
 
 export type SelectOption = {
@@ -49,11 +54,59 @@ export function SelectInput({
   onChange: (value: string) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const { placement, popoverRef, rootRef } = usePopoverPlacement(open);
+  const [popoverStyle, setPopoverStyle] = useState<CSSProperties | null>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const selectedOption = useMemo(
     () => options.find((option) => option.value === value) ?? null,
     [options, value],
   );
+  const updatePopoverStyle = useCallback(() => {
+    const root = rootRef.current;
+
+    if (!root) {
+      return;
+    }
+
+    const viewportPadding = 16;
+    const anchorGap = 8;
+    const maxMenuHeight = 256;
+    const popoverHeight = popoverRef.current
+      ? Math.min(popoverRef.current.scrollHeight, maxMenuHeight)
+      : maxMenuHeight;
+    const rootRect = root.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const availableWidth = Math.max(160, viewportWidth - viewportPadding * 2);
+    const menuWidth = Math.min(rootRect.width, availableWidth);
+    const minMenuWidth = Math.min(Math.max(menuWidth, 192), availableWidth);
+    const spaceAbove = rootRect.top - viewportPadding;
+    const spaceBelow = window.innerHeight - rootRect.bottom - viewportPadding;
+    const opensAbove =
+      spaceBelow < popoverHeight + anchorGap && spaceAbove > spaceBelow;
+    const availableHeight = Math.max(
+      96,
+      Math.min(maxMenuHeight, (opensAbove ? spaceAbove : spaceBelow) - anchorGap),
+    );
+    const maxLeft = Math.max(
+      viewportPadding,
+      viewportWidth - viewportPadding - minMenuWidth,
+    );
+    const left = Math.min(
+      Math.max(viewportPadding, rootRect.left),
+      maxLeft,
+    );
+
+    setPopoverStyle({
+      left,
+      maxHeight: availableHeight,
+      minWidth: minMenuWidth,
+      position: "fixed",
+      width: menuWidth,
+      ...(opensAbove
+        ? { bottom: window.innerHeight - rootRect.top + anchorGap }
+        : { top: rootRect.bottom + anchorGap }),
+    });
+  }, []);
 
   useEffect(() => {
     if (!open) {
@@ -61,7 +114,12 @@ export function SelectInput({
     }
 
     function handlePointerDown(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node;
+
+      if (
+        !rootRef.current?.contains(target) &&
+        !popoverRef.current?.contains(target)
+      ) {
         setOpen(false);
       }
     }
@@ -72,6 +130,21 @@ export function SelectInput({
       document.removeEventListener("pointerdown", handlePointerDown);
     };
   }, [open, rootRef]);
+
+  useLayoutEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    updatePopoverStyle();
+    window.addEventListener("resize", updatePopoverStyle);
+    window.addEventListener("scroll", updatePopoverStyle, true);
+
+    return () => {
+      window.removeEventListener("resize", updatePopoverStyle);
+      window.removeEventListener("scroll", updatePopoverStyle, true);
+    };
+  }, [open, updatePopoverStyle]);
 
   return (
     <div ref={rootRef} className="relative min-w-0">
@@ -97,68 +170,71 @@ export function SelectInput({
 
       {name ? <input type="hidden" name={name} value={value} /> : null}
 
-      {open ? (
-        <div
-          ref={popoverRef}
-          className={formControlPopupClass(
-            darkMode,
-            cx(
-              "grid max-h-64 w-full min-w-48 overflow-hidden overflow-y-auto p-1",
-              popoverPlacementClass(placement),
-            ),
-          )}
-          role="listbox"
-        >
-          {options.map((option) => {
-            const selected = option.value === value;
+      {open
+        ? createPortal(
+            <div
+              ref={popoverRef}
+              style={popoverStyle ?? undefined}
+              className={formControlPopupClass(
+                darkMode,
+                "grid min-w-48 overflow-hidden overflow-y-auto p-1",
+              )}
+              role="listbox"
+            >
+              {options.map((option) => {
+                const selected = option.value === value;
 
-            return (
-              <button
-                key={option.value}
-                className={cx(
-                  "flex w-full items-start justify-between gap-3 px-2 py-2 text-left text-sm transition first:rounded-t-sm last:rounded-b-sm disabled:cursor-not-allowed disabled:opacity-40",
-                  selected
-                    ? darkMode
-                      ? "bg-white text-black"
-                      : "bg-slate-950 text-white"
-                    : darkMode
-                      ? "text-neutral-200 hover:bg-white/10"
-                      : "text-slate-700 hover:bg-slate-100",
-                )}
-                type="button"
-                role="option"
-                aria-selected={selected}
-                disabled={option.disabled}
-                onClick={() => {
-                  onChange(option.value);
-                  setOpen(false);
-                }}
-              >
-                <span className="grid min-w-0 gap-0.5">
-                  <span className="truncate font-normal leading-5">
-                    {option.label}
-                  </span>
-                  {option.description ? (
-                    <span
-                      className={cx(
-                        "text-xs leading-5",
-                        selected
-                          ? "opacity-70"
-                          : darkMode
-                            ? "text-neutral-400"
-                            : "text-slate-500",
-                      )}
-                    >
-                      {option.description}
+                return (
+                  <button
+                    key={option.value}
+                    className={cx(
+                      "flex w-full items-start justify-between gap-3 px-2 py-2 text-left text-sm transition first:rounded-t-sm last:rounded-b-sm disabled:cursor-not-allowed disabled:opacity-40",
+                      selected
+                        ? darkMode
+                          ? "bg-white text-black"
+                          : "bg-slate-950 text-white"
+                        : darkMode
+                          ? "text-neutral-200 hover:bg-white/10"
+                          : "text-slate-700 hover:bg-slate-100",
+                    )}
+                    type="button"
+                    role="option"
+                    aria-selected={selected}
+                    disabled={option.disabled}
+                    onClick={() => {
+                      onChange(option.value);
+                      setOpen(false);
+                    }}
+                  >
+                    <span className="grid min-w-0 gap-0.5">
+                      <span className="truncate font-normal leading-5">
+                        {option.label}
+                      </span>
+                      {option.description ? (
+                        <span
+                          className={cx(
+                            "text-xs leading-5",
+                            selected
+                              ? "opacity-70"
+                              : darkMode
+                                ? "text-neutral-400"
+                                : "text-slate-500",
+                          )}
+                        >
+                          {option.description}
+                        </span>
+                      ) : null}
                     </span>
-                  ) : null}
-                </span>
-                {selected ? <Check className="mt-0.5 h-3.5 w-3.5" /> : null}
-              </button>
-            );
-          })}
-        </div>
-      ) : null}
+                    {selected ? (
+                      <Check className="mt-0.5 h-3.5 w-3.5" />
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>,
+          document.body,
+        )
+        : null}
     </div>
   );
 }
