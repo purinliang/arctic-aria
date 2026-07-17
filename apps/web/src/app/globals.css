@@ -162,10 +162,10 @@
   --aa-color-primary-muted: var(--blue-3);
   --aa-color-primary-muted-text: var(--blue-12);
   --aa-color-hover: var(--gray-4);
-  --aa-color-selected: var(--blue-6);
-  --aa-color-selected-hover: var(--blue-7);
-  --aa-color-selected-border: var(--blue-8);
-  --aa-color-selected-text: var(--blue-12);
+  --aa-color-selected: var(--blue-9);
+  --aa-color-selected-hover: var(--blue-10);
+  --aa-color-selected-border: var(--blue-10);
+  --aa-color-selected-text: var(--blue-contrast);
   --aa-color-selected-hover-text: var(--blue-contrast);
   --aa-color-focus: var(--blue-11);
 }

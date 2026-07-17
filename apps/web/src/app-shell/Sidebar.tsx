@@ -386,11 +386,10 @@ function SidebarItem({
     <Button
       darkMode={darkMode}
       tone="ghost"
+      active={active}
       size="md"
       className={`w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md ${
-        active
-          ? "border-[var(--aa-color-selected-border)] bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-text)]"
-          : "hover:bg-[var(--aa-color-hover)] hover:text-[var(--aa-color-text)]"
+        active ? "" : "hover:bg-[var(--aa-color-hover)] hover:text-[var(--aa-color-text)]"
       }`}
       disabled={disabled}
       icon={itemIcon}

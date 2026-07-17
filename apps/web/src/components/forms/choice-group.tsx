@@ -145,7 +145,7 @@ function ChoiceButton({
         "inline-flex items-center gap-2 rounded-md border text-left font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
         compact ? "h-9 px-3 text-xs" : "min-h-11 px-3 py-2 text-sm",
         selected
-          ? "border-[var(--aa-color-selected-border)] bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)]"
+          ? "border-[var(--aa-color-selected-border)] bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
           : "border-[var(--aa-color-border)] text-[var(--aa-color-muted)] hover:border-[var(--aa-color-border-strong)] hover:text-[var(--aa-color-text)]",
         className,
       )}

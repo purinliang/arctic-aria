@@ -129,7 +129,7 @@ export function TimePickerField({
                     className={cx(
                       "h-9 rounded-md border px-3 text-xs font-semibold transition",
                       selectedParts.period === period
-                        ? "border-[var(--aa-color-selected-border)] bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)]"
+                        ? "border-[var(--aa-color-selected-border)] bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
                         : "border-[var(--aa-color-border)] text-[var(--aa-color-muted)] hover:border-[var(--aa-color-border-strong)] hover:text-[var(--aa-color-text)]",
                     )}
                     type="button"

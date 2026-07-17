@@ -133,7 +133,7 @@ function itemToneClass(
   }
 
   if (active) {
-    return "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)]";
+    return "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]";
   }
 
   return "hover:bg-[var(--aa-color-control-muted)] hover:text-[var(--aa-color-text)]";
