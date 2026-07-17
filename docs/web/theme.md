@@ -66,7 +66,7 @@ The web app uses Radix-style generated color scales as the base palette:
   needs translucent role colors
 
 The current palette is generated from the Radix custom palette tool with light
-accent `#3D4561` and dark accent `#12276E`. The copied tokens live in
+accent `#1B46DE` and dark accent `#12276E`. The copied tokens live in
 `apps/web/src/app/globals.css`, including sRGB fallbacks and P3 `oklch` /
 `color(display-p3 ...)` values.
 
