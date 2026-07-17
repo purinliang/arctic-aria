@@ -99,10 +99,13 @@ border steps are stronger, and high steps are used for readable text. Do not
 reintroduce a custom numeric grey scale such as `--aa-grey-*`.
 
 Selected or active navigation rows, dropdown options, list rows, and choice
-items should use the selected aliases, which map to Radix step `5` backgrounds,
-step `7` borders, and step `12` text. Primary action buttons should use the
-same selected aliases in both light and dark mode so buttons, selected menu
-items, and selected choice groups stay visually consistent.
+items should use the selected aliases. In light mode, selected aliases use a
+stronger accent step than the default Radix selected background so selected
+items and primary buttons are visible enough. In dark mode, selected aliases
+also use the stronger accent range while keeping step `12` text. Primary
+action buttons should use the same selected aliases in both light and dark mode
+so buttons, selected menu items, and selected choice groups stay visually
+consistent.
 
 Use shared component color helpers for these roles:
 
