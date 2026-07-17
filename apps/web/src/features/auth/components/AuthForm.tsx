@@ -50,6 +50,8 @@ const visibleFields: Record<AuthMode, AuthField[]> = {
   register: ["username", "displayName", "password", "repeatPassword"],
 };
 
+const showFutureAuthActions = false;
+
 export function AuthForm({
   darkMode,
   messages,
@@ -256,7 +258,7 @@ export function AuthForm({
           </Button>
         </span>
 
-        {mode === "login" ? (
+        {showFutureAuthActions && mode === "login" ? (
           <>
             <div
               className={`grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm ${mutedTextClass(darkMode)}`}

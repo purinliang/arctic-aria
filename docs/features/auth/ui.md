@@ -78,24 +78,13 @@ Use the same UI rules as registration, with these differences:
 - The title below the tabs should say `Welcome back`.
 - Show subtext `New here?` and link-style text `Sign up`.
 - The main button should say `Sign in`.
+- Do not show Google sign-in, password reset, or other placeholder actions until
+  they are implemented end to end.
 
-Below the main button and above the bottom subtexts, show a separate line:
-
-- `--- or ---`
-
-Then show a placeholder Google action:
-
-- Google logo
-- `Continue with Google`
-- Clicking it should show a shared info notification that Google sign-in is not
-  implemented yet.
-
-Also show a placeholder password reset line above `New here? Sign up`:
-
-- `Forgot your password?`
-- link-style text `Reset password`
-- Clicking it should show a shared info notification that password reset is not
-  implemented yet.
+The code may keep hidden future-action UI behind an explicit disabled flag so it
+can be re-enabled when the real implementation is ready. Do not expose the
+separator, Google button, or password reset link to users while the flag is
+disabled.
 
 ## Interaction Behavior
 
@@ -124,9 +113,10 @@ Submit behavior:
 - On backend validation or persistence failure, keep the user on the auth page
   and show the backend message through the shared notification stack.
 
-Placeholder action behavior:
+Future action behavior:
 
-- Clicking `Continue with Google` does not call OAuth yet. It shows a shared
-  info notification.
-- Clicking `Reset password` does not open a reset form yet. It shows a shared
-  info notification.
+- Google sign-in and password reset UI remain hidden while the future-action
+  flag is disabled.
+- If the future-action flag is enabled before the real backend exists, clicking
+  those actions should show shared info notifications instead of calling OAuth
+  or opening a reset flow.

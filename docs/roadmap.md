@@ -170,7 +170,8 @@ separate sidebar polish task.
 ## Auth UI Cleanup
 
 Placeholder auth actions should stay hidden until they work end to end. Hide the
-Google OAuth action and its `or` separator until Google sign-in is implemented.
+Google OAuth action, its `or` separator, and the forgot-password/reset action
+until those flows are implemented.
 
 Registration needs more vertical space than login. Keep the registration panel
 centered inside the auth page's `110vh` minimum height, with enough top and
