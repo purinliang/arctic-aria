@@ -42,8 +42,9 @@ system through web or Discord. Infrastructure services provide storage now and
 can later provide cache, dataflow, scheduling, and external adapters.
 
 Currently implemented product features are Auth, Settings, Projects, Routines,
-Memories, and Dashboard. Ideas, Scheduler, Reviews, Discord bot, plugin
-workers, Redis/cache, dataflow, and background jobs are planned directions.
+Memories, Dashboard, and the first Ideas capture foundation. The Discord bot
+has an initial `/idea` runtime scaffold. Scheduler, Reviews, plugin workers,
+Redis/cache, dataflow, and background jobs are planned directions.
 
 Documentation follows the same shape:
 

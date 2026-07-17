@@ -17,6 +17,10 @@ translation is required to clarify a requirement.
 - When the user asks or comments with numbered points, answer with matching
   numbered points so each response can be checked directly.
 
+- Call the human collaborating with Codex the `developer`. Use `user` for
+  Arctic Aria product users unless the current sentence clearly means the
+  developer.
+
 ## Context
 
 Before making code changes, read:

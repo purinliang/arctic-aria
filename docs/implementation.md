@@ -11,7 +11,10 @@ credential, and data-protection policy are documented in
 
 ## Current Status
 
-The only implemented app is the Next.js web app in `apps/web`.
+Implemented apps:
+
+- Next.js web app in `apps/web`
+- Discord bot runtime scaffold in `apps/discord-bot`
 
 Implemented:
 
@@ -25,6 +28,7 @@ Implemented:
 - Settings page with local theme/language preference controls and version
   metadata
 - read-only Ideas page and backend capture foundation
+- Discord `/idea` capture runtime scaffold
 - shared web UI primitives and form controls
 - SQL migrations and direct SQL repositories
 - focused Node test coverage for validation, services, repositories, database
@@ -32,7 +36,7 @@ Implemented:
 
 Not implemented yet:
 
-- Discord bot runtime and Discord slash-command handling
+- production Discord deployment and token-based account binding
 - Redis/cache
 - event bus or dataflow service
 - background worker service
@@ -79,6 +83,11 @@ workspace yet.
 ```text
 arctic-aria/
 |-- apps/
+|   |-- discord-bot/
+|   |   |-- src/
+|   |   |   |-- __tests__/
+|   |   |   |-- index.ts
+|   |   |   `-- register-commands.ts
 |   `-- web/
 |       |-- AGENTS.md
 |       |-- database/
@@ -268,11 +277,10 @@ Planned infrastructure:
 - event/dataflow support after reminder, review, and plugin flows become clear
 - deployment environment management
 
-The first Discord bot implementation should be a separate TypeScript app using
-`discord.js`, likely under `apps/discord-bot`. Its first workflow should be
-`/idea` quick capture. Python remains a good fit for future plugin workers that
-need agent workflows, retrieval, document processing, speech practice, or
-ML/data tooling.
+The first Discord bot implementation is a separate TypeScript app using
+`discord.js` under `apps/discord-bot`. Its first workflow is `/idea` quick
+capture. Python remains a good fit for future plugin workers that need agent
+workflows, retrieval, document processing, speech practice, or ML/data tooling.
 
 ## Verification Commands
 
@@ -284,6 +292,13 @@ pnpm lint
 pnpm build
 pnpm db:migrate
 pnpm dev
+```
+
+Run from `apps/discord-bot`:
+
+```bash
+pnpm test
+pnpm build
 ```
 
 For documentation-only changes, run at least:

@@ -73,6 +73,44 @@ explicitly requires an unpooled connection.
 `NEON_AUTH_BASE_URL` is not used because Arctic Aria currently implements its
 own username/password auth instead of Neon Auth.
 
+## Discord Bot
+
+Example file:
+
+- `apps/discord-bot/.env.example`
+
+Local secret file:
+
+- `apps/discord-bot/.env.local`
+
+The current Discord bot is an HTTP Interactions process. It is not deployed
+inside the Vercel web app yet, so these Discord variables usually do not belong
+in Vercel unless a later deployment design runs the interaction endpoint there.
+
+Current variables:
+
+| Variable | Required now | Purpose |
+| --- | --- | --- |
+| `DISCORD_BOT_TOKEN` | Yes to register slash commands and send future Discord API messages | Secret bot token from the Discord Developer Portal. |
+| `DISCORD_APP_ID` | Yes to register slash commands | App ID from the Discord Developer Portal. |
+| `DISCORD_PUBLIC_KEY` | Yes to run the HTTP interaction endpoint | Public Key used to verify requests from Discord. |
+| `DISCORD_DEVELOPER_USER_ID` | Required for the developer prototype binding | Developer's Discord account id. |
+| `ARCTIC_ARIA_DEVELOPER_USERNAME` | Required for the developer prototype binding | Existing Arctic Aria username used by the developer in the web app. |
+| `NEON_POSTGRES_URL` | Yes | Same Neon PostgreSQL database used by the web app. |
+| `PORT` | Optional | Local HTTP port for `/interactions`; defaults to `3001`. |
+
+Use `DISCORD_APP_ID` consistently for the Discord app id. Discord OAuth2 calls
+the same value `client_id`, but keeping one Arctic Aria env name avoids
+duplicate values drifting apart.
+
+The first bot does not have a normal user self-service binding flow. On startup,
+it can bind `DISCORD_DEVELOPER_USER_ID` to `ARCTIC_ARIA_DEVELOPER_USERNAME` by
+inserting or updating one row in `discord_accounts`. That lets the developer
+test `/idea` before a full user-facing binding page exists.
+
+If the developer binding variables are missing, the bot can still start, but
+`/idea` will reply that the Discord account is not linked.
+
 ## Optional App Metadata
 
 The web app can read optional metadata override variables such as `APP_VERSION`,

@@ -156,7 +156,7 @@ Shared Web UI:
 Apps And Infrastructure:
 
 - [docs/apps/discord-bot/overview.md](docs/apps/discord-bot/overview.md):
-  Discord bot app-surface direction.
+  Discord bot `/idea` capture runtime and app-surface direction.
 - [docs/infrastructure/database.md](docs/infrastructure/database.md): database
   direction, data lifecycle, credential/data protection, and current Neon
   PostgreSQL notes.

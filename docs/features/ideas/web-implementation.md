@@ -21,14 +21,15 @@ The backend capture service can create `untriaged` ideas from trusted callers.
 The web UI does not expose add, edit, delete, triage, or conversion controls
 yet.
 
-Discord `/idea` should call the Ideas capture service after Discord account
-binding is validated.
+Discord `/idea` uses the same Ideas table after Discord account binding is
+validated by the Discord bot app.
 
 ## Verification
 
 Focused coverage:
 
 - `apps/web/src/features/ideas/__tests__/idea-service.test.ts`
+- `apps/discord-bot/src/__tests__/idea-capture.test.ts`
 
 Broad verification:
 
