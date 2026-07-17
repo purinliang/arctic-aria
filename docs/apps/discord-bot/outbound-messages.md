@@ -12,10 +12,9 @@ The first version supports plain text DM delivery only. Buttons, channel
 messages, reminder workflows, retries, queues, and scheduling remain future
 work.
 
-The first web caller is Settings -> Discord -> Send Test. It sends a simple
-hello message to the currently signed-in Arctic Aria user's bound Discord
-account so the developer can verify binding, the private push secret, and DM
-delivery without writing a manual HTTP request.
+Settings -> Discord -> Send Test uses the same server-side delivery logic
+directly. The private HTTP endpoint is for other internal callers that need a
+stable service-to-service route.
 
 Naming note:
 
@@ -94,6 +93,10 @@ Arctic Aria service
 
 The Discord app surface may call Discord HTTP directly. It should not require a
 Gateway connection for outbound messages.
+
+Settings -> Discord -> Send Test skips the HTTP endpoint and calls the delivery
+logic directly inside the web server. It therefore does not use
+`DISCORD_MESSAGE_PUSH_SECRET`.
 
 ## Delivery Records
 

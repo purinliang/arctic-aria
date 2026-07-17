@@ -89,15 +89,6 @@ and in the Vercel web project environment for deployment:
 - `DISCORD_MESSAGE_PUSH_SECRET`
 - `NEON_POSTGRES_URL`
 
-`DISCORD_MESSAGE_PUSH_URL` is optional. Local development defaults to:
-
-```text
-http://localhost:3000/api/internal/discord/messages
-```
-
-Production on Vercel defaults to the same web app route when `VERCEL_URL` is
-available.
-
 ## Command Registration
 
 After changing slash command metadata in
@@ -275,10 +266,10 @@ idea" behavior without separate privacy, rate-limit, and intent rules.
   reachable, the endpoint URL ends with `/api/discord/interactions`, and
   `DISCORD_PUBLIC_KEY` is configured in the web environment.
 - `Discord message push is not configured` from Settings `Send Test` means the
-  web environment is missing `DISCORD_BOT_TOKEN` or
-  `DISCORD_MESSAGE_PUSH_SECRET`.
+  web environment is missing `DISCORD_BOT_TOKEN`.
 - `Discord message-push secret was rejected` means the caller and endpoint do
-  not use the same `DISCORD_MESSAGE_PUSH_SECRET`.
+  not use the same `DISCORD_MESSAGE_PUSH_SECRET`. This applies to direct HTTP
+  callers of `/api/internal/discord/messages`, not Settings `Send Test`.
 
 ## Deferred Workflows
 

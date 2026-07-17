@@ -4,14 +4,14 @@ import { createDiscordTestMessageService } from "../server/discord-test-message-
 
 const userId = "123e4567-e89b-12d3-a456-426614174000";
 
-test("discord test message service posts a manual hello message", async () => {
-  const fetcher = createFetchStub({ ok: true, status: 200 });
+test("discord test message service sends a manual hello message directly", async () => {
+  const sender = createSenderStub({ status: 200 });
   const service = createDiscordTestMessageService({
     config: {
-      messagePushSecret: "test-secret",
-      messagePushUrl: "http://localhost:3000/api/internal/discord/messages",
+      discordBotToken: "test-bot-token",
+      missingEnvVars: [],
     },
-    fetcher,
+    sender,
   });
 
   const result = await service.sendTestMessage(userId);
@@ -20,19 +20,10 @@ test("discord test message service posts a manual hello message", async () => {
     ok: true,
     code: "settings_discord_test_sent",
   });
-  assert.equal(fetcher.calls.length, 1);
-  assert.equal(
-    String(fetcher.calls[0]?.input),
-    "http://localhost:3000/api/internal/discord/messages",
-  );
-  assert.equal(
-    fetcher.calls[0]?.init.headers.authorization,
-    "Bearer test-secret",
-  );
-  assert.deepEqual(JSON.parse(fetcher.calls[0]?.init.body ?? "{}"), {
+  assert.equal(sender.calls.length, 1);
+  assert.deepEqual(sender.calls[0], {
     userId,
-    idempotencyKey: JSON.parse(fetcher.calls[0]?.init.body ?? "{}")
-      .idempotencyKey,
+    idempotencyKey: sender.calls[0]?.idempotencyKey,
     text: "Hello from Arctic Aria. Discord message push is working.",
     source: "manual",
     metadata: {
@@ -41,19 +32,19 @@ test("discord test message service posts a manual hello message", async () => {
     },
   });
   assert.match(
-    JSON.parse(fetcher.calls[0]?.init.body ?? "{}").idempotencyKey,
+    String(sender.calls[0]?.idempotencyKey),
     /^settings-discord-test-/,
   );
 });
 
-test("discord test message service reports missing web secret", async () => {
-  const fetcher = createFetchStub({ ok: true, status: 200 });
+test("discord test message service reports missing bot token", async () => {
+  const sender = createSenderStub({ status: 200 });
   const service = createDiscordTestMessageService({
     config: {
-      messagePushSecret: null,
-      messagePushUrl: "http://localhost:3000/api/internal/discord/messages",
+      discordBotToken: null,
+      missingEnvVars: ["DISCORD_BOT_TOKEN"],
     },
-    fetcher,
+    sender,
   });
 
   const result = await service.sendTestMessage(userId);
@@ -62,39 +53,18 @@ test("discord test message service reports missing web secret", async () => {
     ok: false,
     code: "settings_discord_test_config_missing",
     message:
-      "Set DISCORD_MESSAGE_PUSH_SECRET in apps/web/.env.local and restart the web server.",
+      "Discord configuration is missing. Check the web server log.",
   });
-  assert.equal(fetcher.calls.length, 0);
-});
-
-test("discord test message service reports missing message push url", async () => {
-  const fetcher = createFetchStub({ ok: true, status: 200 });
-  const service = createDiscordTestMessageService({
-    config: {
-      messagePushSecret: "test-secret",
-      messagePushUrl: null,
-    },
-    fetcher,
-  });
-
-  const result = await service.sendTestMessage(userId);
-
-  assert.deepEqual(result, {
-    ok: false,
-    code: "settings_discord_test_config_missing",
-    message:
-      "Set DISCORD_MESSAGE_PUSH_URL or deploy with VERCEL_URL so the web app can call its Discord message endpoint.",
-  });
-  assert.equal(fetcher.calls.length, 0);
+  assert.equal(sender.calls.length, 0);
 });
 
 test("discord test message service reports missing binding", async () => {
   const service = createDiscordTestMessageService({
     config: {
-      messagePushSecret: "test-secret",
-      messagePushUrl: "http://localhost:3000/api/internal/discord/messages",
+      discordBotToken: "test-bot-token",
+      missingEnvVars: [],
     },
-    fetcher: createFetchStub({ ok: false, status: 404 }),
+    sender: createSenderStub({ status: 404 }),
   });
 
   const result = await service.sendTestMessage(userId);
@@ -106,32 +76,13 @@ test("discord test message service reports missing binding", async () => {
   });
 });
 
-test("discord test message service reports mismatched secret", async () => {
+test("discord test message service reports unconfigured bot sender", async () => {
   const service = createDiscordTestMessageService({
     config: {
-      messagePushSecret: "test-secret",
-      messagePushUrl: "http://localhost:3000/api/internal/discord/messages",
+      discordBotToken: "test-bot-token",
+      missingEnvVars: [],
     },
-    fetcher: createFetchStub({ ok: false, status: 401 }),
-  });
-
-  const result = await service.sendTestMessage(userId);
-
-  assert.deepEqual(result, {
-    ok: false,
-    code: "settings_discord_test_secret_rejected",
-    message:
-      "Discord message-push secret was rejected. Check DISCORD_MESSAGE_PUSH_SECRET in the web environment.",
-  });
-});
-
-test("discord test message service reports unconfigured bot endpoint", async () => {
-  const service = createDiscordTestMessageService({
-    config: {
-      messagePushSecret: "test-secret",
-      messagePushUrl: "http://localhost:3000/api/internal/discord/messages",
-    },
-    fetcher: createFetchStub({ ok: false, status: 503 }),
+    sender: createSenderStub({ status: 503 }),
   });
 
   const result = await service.sendTestMessage(userId);
@@ -140,17 +91,17 @@ test("discord test message service reports unconfigured bot endpoint", async () 
     ok: false,
     code: "settings_discord_test_bot_unavailable",
     message:
-      "Discord message push is not configured. Set DISCORD_BOT_TOKEN and DISCORD_MESSAGE_PUSH_SECRET in the web environment.",
+      "Discord configuration is missing. Check the web server log.",
   });
 });
 
 test("discord test message service reports delivery failure", async () => {
   const service = createDiscordTestMessageService({
     config: {
-      messagePushSecret: "test-secret",
-      messagePushUrl: "http://localhost:3000/api/internal/discord/messages",
+      discordBotToken: "test-bot-token",
+      missingEnvVars: [],
     },
-    fetcher: createFetchStub({ ok: false, status: 502 }),
+    sender: createSenderStub({ status: 502 }),
   });
 
   const result = await service.sendTestMessage(userId);
@@ -159,54 +110,47 @@ test("discord test message service reports delivery failure", async () => {
     ok: false,
     code: "settings_discord_test_delivery_failed",
     message:
-      "Discord test message could not be delivered. Check the web server log for the outbound_message_handled status.",
+      "Discord test message could not be delivered. Check the web server log for the settings_test_message_handled status.",
   });
 });
 
-test("discord test message service reports unreachable bot endpoint", async () => {
+test("discord test message service reports sender errors as delivery failures", async () => {
   const service = createDiscordTestMessageService({
     config: {
-      messagePushSecret: "test-secret",
-      messagePushUrl: "http://localhost:3000/api/internal/discord/messages",
+      discordBotToken: "test-bot-token",
+      missingEnvVars: [],
     },
-    fetcher: createFetchStub(new Error("connect failed")),
+    sender: createSenderStub(new Error("send failed")),
   });
 
   const result = await service.sendTestMessage(userId);
 
   assert.deepEqual(result, {
     ok: false,
-    code: "settings_discord_test_unreachable",
+    code: "settings_discord_test_delivery_failed",
     message:
-      "Discord message endpoint is unreachable. Check DISCORD_MESSAGE_PUSH_URL or the web app deployment.",
+      "Discord test message could not be delivered. Check the web server log for the settings_test_message_handled status.",
   });
 });
 
-function createFetchStub(response: { ok: boolean; status: number } | Error) {
-  const calls: Array<{
-    input: string | URL;
-    init: {
-      body: string;
-      headers: Record<string, string>;
-      method: "POST";
-    };
-  }> = [];
-  const fetcher = async (
-    input: string | URL,
-    init: {
-      body: string;
-      headers: Record<string, string>;
-      method: "POST";
-    },
-  ) => {
-    calls.push({ input, init });
+function createSenderStub(response: { status: number } | Error) {
+  const calls: Array<Record<string, unknown>> = [];
+  const sender = async (input: unknown) => {
+    calls.push(input as Record<string, unknown>);
 
     if (response instanceof Error) {
       throw response;
     }
 
-    return response;
+    return {
+      status: response.status,
+      body: {},
+      log: {
+        deliveryId: "test-delivery",
+        status: response.status,
+      },
+    };
   };
 
-  return Object.assign(fetcher, { calls });
+  return Object.assign(sender, { calls });
 }
