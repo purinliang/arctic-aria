@@ -79,6 +79,7 @@ semantic Arctic Aria aliases:
 - `--aa-color-header`
 - `--aa-color-control`
 - `--aa-color-control-muted`
+- `--aa-color-control-hover`
 - `--aa-color-border`
 - `--aa-color-border-strong`
 - `--aa-color-text`
@@ -123,6 +124,12 @@ Use shared component color helpers for these roles:
 - icon text
 - hover and active row backgrounds
 - disabled controls
+
+Normal list rows may use the softer `--aa-color-control-muted` hover so dense
+lists do not become visually noisy. Interactive controls such as unselected
+buttons, dropdown options, choice buttons, and date/time picker choices should
+use `--aa-color-control-hover` so their hover state is clearly visible in both
+light and dark mode.
 
 Do not use Tailwind palettes such as `slate-*`, `neutral-*`, `white`, or `black`
 for normal UI chrome. Reserve semantic colors such as red, green, amber, cyan,

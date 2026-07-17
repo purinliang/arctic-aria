@@ -251,7 +251,7 @@ function DayButton({
         "h-8 rounded-md text-sm transition disabled:cursor-not-allowed disabled:opacity-30",
         selected
           ? "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
-          : "text-[var(--aa-color-text)] hover:bg-[var(--aa-color-hover)]",
+          : "text-[var(--aa-color-text)] hover:bg-[var(--aa-color-control-hover)]",
       )}
       type="button"
       disabled={disabled}

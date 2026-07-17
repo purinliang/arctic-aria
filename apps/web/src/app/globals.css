@@ -66,6 +66,7 @@
   --aa-color-header: var(--gray-2);
   --aa-color-control: var(--gray-1);
   --aa-color-control-muted: var(--gray-2);
+  --aa-color-control-hover: var(--gray-4);
   --aa-color-border: var(--gray-7);
   --aa-color-border-strong: var(--gray-8);
   --aa-color-text: var(--gray-12);
@@ -152,6 +153,7 @@
   --aa-color-header: var(--gray-3);
   --aa-color-control: var(--gray-2);
   --aa-color-control-muted: var(--gray-3);
+  --aa-color-control-hover: var(--gray-4);
   --aa-color-border: var(--gray-7);
   --aa-color-border-strong: var(--gray-8);
   --aa-color-text: var(--gray-12);

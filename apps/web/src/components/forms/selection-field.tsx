@@ -191,7 +191,7 @@ export function SelectInput({
                       "flex w-full items-start justify-between gap-3 px-2 py-2 text-left text-sm transition first:rounded-t-sm last:rounded-b-sm disabled:cursor-not-allowed disabled:opacity-40",
                       selected
                         ? "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
-                        : "text-[var(--aa-color-text)] hover:bg-[var(--aa-color-control-muted)]",
+                        : "text-[var(--aa-color-text)] hover:bg-[var(--aa-color-control-hover)]",
                     )}
                     type="button"
                     role="option"
@@ -294,7 +294,7 @@ export function CheckboxControl({
         props.disabled ? "cursor-not-allowed opacity-60" : "",
         props.checked
           ? "border-[var(--aa-color-selected-border)] bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
-          : "border-[var(--aa-color-border)] hover:border-[var(--aa-color-border-strong)]",
+          : "border-[var(--aa-color-border)] hover:border-[var(--aa-color-border-strong)] hover:bg-[var(--aa-color-control-hover)]",
         className,
       )}
     >
