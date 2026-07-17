@@ -224,7 +224,7 @@ export function DiscordBindingSettings({
       );
     } catch {
       showErrorNotification(
-        messages.discord.results.settings_discord_test_failed,
+        messages.discord.results.settings_discord_test_unreachable,
         messages.discord.notifications.testFailed,
       );
     } finally {

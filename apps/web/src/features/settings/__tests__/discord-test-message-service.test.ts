@@ -46,7 +46,7 @@ test("discord test message service posts a manual hello message", async () => {
   );
 });
 
-test("discord test message service requires a message push secret", async () => {
+test("discord test message service reports missing web secret", async () => {
   const fetcher = createFetchStub({ ok: true, status: 200 });
   const service = createDiscordTestMessageService({
     config: {
@@ -60,8 +60,30 @@ test("discord test message service requires a message push secret", async () => 
 
   assert.deepEqual(result, {
     ok: false,
-    code: "settings_discord_test_unavailable",
-    message: "Discord message push is unavailable.",
+    code: "settings_discord_test_config_missing",
+    message:
+      "Set DISCORD_MESSAGE_PUSH_SECRET in apps/web/.env.local and restart the web server.",
+  });
+  assert.equal(fetcher.calls.length, 0);
+});
+
+test("discord test message service reports missing message push url", async () => {
+  const fetcher = createFetchStub({ ok: true, status: 200 });
+  const service = createDiscordTestMessageService({
+    config: {
+      messagePushSecret: "test-secret",
+      messagePushUrl: null,
+    },
+    fetcher,
+  });
+
+  const result = await service.sendTestMessage(userId);
+
+  assert.deepEqual(result, {
+    ok: false,
+    code: "settings_discord_test_config_missing",
+    message:
+      "Set DISCORD_MESSAGE_PUSH_URL to the Discord bot message endpoint and restart the web server.",
   });
   assert.equal(fetcher.calls.length, 0);
 });
@@ -84,7 +106,45 @@ test("discord test message service reports missing binding", async () => {
   });
 });
 
-test("discord test message service reports endpoint failure", async () => {
+test("discord test message service reports mismatched secret", async () => {
+  const service = createDiscordTestMessageService({
+    config: {
+      messagePushSecret: "test-secret",
+      messagePushUrl: "http://localhost:3001/internal/discord/messages",
+    },
+    fetcher: createFetchStub({ ok: false, status: 401 }),
+  });
+
+  const result = await service.sendTestMessage(userId);
+
+  assert.deepEqual(result, {
+    ok: false,
+    code: "settings_discord_test_secret_rejected",
+    message:
+      "Discord message-push secret was rejected. Use the same DISCORD_MESSAGE_PUSH_SECRET in web and bot env files, then restart both servers.",
+  });
+});
+
+test("discord test message service reports unconfigured bot endpoint", async () => {
+  const service = createDiscordTestMessageService({
+    config: {
+      messagePushSecret: "test-secret",
+      messagePushUrl: "http://localhost:3001/internal/discord/messages",
+    },
+    fetcher: createFetchStub({ ok: false, status: 503 }),
+  });
+
+  const result = await service.sendTestMessage(userId);
+
+  assert.deepEqual(result, {
+    ok: false,
+    code: "settings_discord_test_bot_unavailable",
+    message:
+      "Discord bot message push is not configured. Set DISCORD_BOT_TOKEN and DISCORD_MESSAGE_PUSH_SECRET in apps/discord-bot/.env.local, then restart the bot server.",
+  });
+});
+
+test("discord test message service reports delivery failure", async () => {
   const service = createDiscordTestMessageService({
     config: {
       messagePushSecret: "test-secret",
@@ -97,12 +157,32 @@ test("discord test message service reports endpoint failure", async () => {
 
   assert.deepEqual(result, {
     ok: false,
-    code: "settings_discord_test_failed",
-    message: "Discord test message could not be sent.",
+    code: "settings_discord_test_delivery_failed",
+    message:
+      "Discord test message could not be delivered. Check the bot log for the outbound_message_handled status.",
   });
 });
 
-function createFetchStub(response: { ok: boolean; status: number }) {
+test("discord test message service reports unreachable bot endpoint", async () => {
+  const service = createDiscordTestMessageService({
+    config: {
+      messagePushSecret: "test-secret",
+      messagePushUrl: "http://localhost:3001/internal/discord/messages",
+    },
+    fetcher: createFetchStub(new Error("connect failed")),
+  });
+
+  const result = await service.sendTestMessage(userId);
+
+  assert.deepEqual(result, {
+    ok: false,
+    code: "settings_discord_test_unreachable",
+    message:
+      "Discord bot message endpoint is unreachable. Start apps/discord-bot or check DISCORD_MESSAGE_PUSH_URL.",
+  });
+});
+
+function createFetchStub(response: { ok: boolean; status: number } | Error) {
   const calls: Array<{
     input: string | URL;
     init: {
@@ -120,6 +200,10 @@ function createFetchStub(response: { ok: boolean; status: number }) {
     },
   ) => {
     calls.push({ input, init });
+
+    if (response instanceof Error) {
+      throw response;
+    }
 
     return response;
   };
