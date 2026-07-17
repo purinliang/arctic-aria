@@ -251,7 +251,7 @@ function SidebarFrame({
               darkMode={darkMode}
               tone="ghost"
               size="icon-sm"
-              className="border-0 shadow-none"
+              className="-mr-4 border-0 shadow-none"
               aria-label={messages.closeNavigation}
               icon={<X size={18} aria-hidden="true" />}
               onClick={onClose}
