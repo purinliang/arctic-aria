@@ -72,6 +72,8 @@ Responses:
 - `404`: no active Discord binding for the Arctic Aria user
 - `409`: idempotency key reused for different content
 - `502`: Discord API rejected or failed the send request
+- `503`: outbound messages unavailable because the bot process is missing
+  `DISCORD_BOT_TOKEN` or `DISCORD_MESSAGE_PUSH_SECRET`
 
 Successful responses should include only delivery metadata, not the raw
 message text.

@@ -16,7 +16,6 @@ The current web implementation supports database-backed memory testing:
 - show pinned memories on the dashboard from Neon
 - mark pinned memories done
 - cancel pinned memory done
-- replace a pinned memory with another same-category memory when available
 
 Projects and Routines are database-backed.
 
@@ -61,7 +60,8 @@ Header:
 
 Suggestion list:
 
-- Before the user clicks `Refresh`, show muted text:
+- The page may show cached suggestions when the user opens the Memories page.
+- If no cached suggestions are available, show muted text:
   `Click Refresh to load suggestions.`
 - While loading, show muted text:
   `Loading suggestions...`
@@ -77,7 +77,8 @@ Suggestion list:
 Button behavior:
 
 - `Refresh` calls the backend suggestion service.
-- Suggestions should not refresh automatically when the page loads.
+- Suggestions may be loaded from cache when the page loads, but page load should
+  not record ignored suggestion events.
 - `Pin` pins only that suggestion and removes it from the current suggestion
   list after the backend succeeds.
 - There is no visible `Ignore` button.
@@ -97,6 +98,7 @@ What should not happen:
 - Suggestions should not appear on the home dashboard.
 - Refreshing suggestions should not create database rows except event rows
   caused by explicit user actions such as `Refresh` or `Pin`.
+- Viewing cached suggestions should not create database rows.
 - Pinning a suggestion should not close memory/category dialogs.
 - Pinning one suggestion should not automatically refresh the whole suggestion
   list.

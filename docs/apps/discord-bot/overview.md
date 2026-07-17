@@ -4,12 +4,13 @@ The Discord bot is an Arctic Aria app surface. It exists for quick interaction
 when the user is away from the web app, but it must not own product planning,
 routine, idea, scheduler, or review rules.
 
-The first bot runtime scaffold is implemented under `apps/discord-bot`.
+The first bot implementation is under `apps/discord-bot`.
 
-The next Discord design work adds two capabilities:
+Implemented Discord capabilities:
 
-- user-facing Discord binding through inbound Discord interactions
-- outbound Discord messages from Arctic Aria services to Discord DMs
+- user-facing Discord binding through `/bind code:<code>`
+- quick idea capture through `/idea text:<raw text>`
+- outbound Discord direct messages through the private message-push endpoint
 
 Direction terms:
 
@@ -380,6 +381,19 @@ Arctic Aria service
     - Sign in to the same Arctic Aria account.
     - Click `Ideas` in the left sidebar.
 
+13. Verify outbound push from the web app:
+
+    - Ensure `DISCORD_MESSAGE_PUSH_SECRET` is the same non-empty value in
+      `apps/web/.env.local` and `apps/discord-bot/.env.local`.
+    - Ensure `apps/web/.env.local` has
+      `DISCORD_MESSAGE_PUSH_URL=http://localhost:3001/internal/discord/messages`
+      for local development, or leave it unset to use that local default.
+    - Restart both `pnpm --dir apps/web dev` and
+      `pnpm --dir apps/discord-bot dev` after editing env files.
+    - Open Settings -> Discord -> `Send Test`.
+    - Expected Discord DM:
+      `Hello from Arctic Aria. Discord message push is working.`
+
 ## Troubleshooting
 
 - `{"error":"Not found."}` at the ngrok root URL is expected. Use `/health`
@@ -404,6 +418,16 @@ Arctic Aria service
 - If `/idea` does not appear in the app DM, run it from a server channel after
   user-installing the app. The command is intentionally registered for
   `GUILD`, `BOT_DM`, and `PRIVATE_CHANNEL` contexts.
+- `Discord bot message push is not configured` from Settings `Send Test` means
+  the bot endpoint is reachable but the running bot process does not have both
+  `DISCORD_BOT_TOKEN` and `DISCORD_MESSAGE_PUSH_SECRET`. Check
+  `apps/discord-bot/.env.local` and restart `pnpm --dir apps/discord-bot dev`.
+- `Discord message-push secret was rejected` from Settings `Send Test` means
+  the web and bot `DISCORD_MESSAGE_PUSH_SECRET` values differ. Use the same
+  value in both env files and restart both servers.
+- `Discord bot message endpoint is unreachable` from Settings `Send Test`
+  means the web app cannot reach `DISCORD_MESSAGE_PUSH_URL`. Start the bot
+  server or correct the URL.
 
 ## Deployment Direction
 

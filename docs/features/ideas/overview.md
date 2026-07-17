@@ -5,7 +5,8 @@ memories, plugin requests, or review notes. The goal is low-friction capture:
 the user should be able to save a thought before deciding what it means.
 
 Ideas persistence and the backend capture service foundation are implemented.
-The web app currently has a read-only Ideas page; user-facing add/edit/triage
+The web app currently has a read-only Ideas page. Discord `/idea` can create
+untriaged ideas for a bound Arctic Aria user. User-facing web add/edit/triage
 controls are not implemented yet.
 
 UI behavior is documented in [ui.md](ui.md). Persistence direction is documented

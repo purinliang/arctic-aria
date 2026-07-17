@@ -29,13 +29,13 @@ not a medical, therapy, or mental health treatment product.
 
 Arctic Aria is organized around features and supporting services:
 
-- Features: auth, settings, projects, routines, memories, dashboard, reviews,
-  and future idea capture.
+- Features: auth, settings, projects, routines, memories, dashboard, ideas,
+  and future reviews.
 - Plugins: optional helpers such as rewards, English coach, research coach,
   cuisine and sightseeing planner, movie or anime recommender, and future
   specialized assistants.
-- Apps: web dashboard for full control and Discord bot for reminders, quick
-  capture, daily push messages, and review prompts.
+- Apps: web dashboard for full control and Discord bot for quick idea capture,
+  account binding, test direct messages, and future reminders or review prompts.
 - Infrastructure: Neon PostgreSQL now, with future cache, background job,
   dataflow, and external service adapters added only when needed.
 
@@ -156,7 +156,7 @@ Shared Web UI:
 Apps And Infrastructure:
 
 - [docs/apps/discord-bot/overview.md](docs/apps/discord-bot/overview.md):
-  Discord bot `/idea` capture runtime and app-surface direction.
+  Discord bot `/bind`, `/idea`, message push, and app-surface direction.
 - [docs/infrastructure/database.md](docs/infrastructure/database.md): database
   direction, data lifecycle, credential/data protection, and current Neon
   PostgreSQL notes.
