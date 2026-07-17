@@ -69,15 +69,11 @@ function buttonToneClass(
   active: boolean,
 ) {
   if (tone === "primary" || active) {
-    return darkMode
-      ? "border border-white bg-white text-black hover:bg-neutral-200"
-      : "border border-neutral-950 bg-neutral-950 text-white hover:bg-neutral-800";
+    return "border border-[var(--aa-color-primary)] bg-[var(--aa-color-primary)] text-[var(--aa-color-inverse-text)] hover:border-[var(--aa-color-primary-hover)] hover:bg-[var(--aa-color-primary-hover)]";
   }
 
   if (tone === "ghost") {
-    return darkMode
-      ? "text-neutral-300 hover:bg-white/10 hover:text-white"
-      : "text-neutral-500 hover:bg-neutral-100 hover:text-black";
+    return "text-[var(--aa-color-muted)] hover:bg-[var(--aa-color-hover)] hover:text-[var(--aa-color-text)]";
   }
 
   if (tone === "success") {
@@ -86,7 +82,5 @@ function buttonToneClass(
       : "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300";
   }
 
-  return darkMode
-    ? "border border-neutral-700 text-neutral-200 hover:border-white hover:text-white"
-    : "border border-neutral-300 text-neutral-700 hover:border-neutral-500";
+  return "border border-[var(--aa-color-border)] text-[var(--aa-color-muted)] hover:border-[var(--aa-color-border-strong)] hover:text-[var(--aa-color-text)]";
 }

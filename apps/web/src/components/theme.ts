@@ -2,21 +2,19 @@ import { useEffect } from "react";
 
 export const appThemeColors = {
   light: {
-    background: "#f3f3f3",
-    foreground: "#000000",
-    mutedForeground: "#555555",
+    background: "var(--aa-color-page)",
+    foreground: "var(--aa-color-text)",
+    mutedForeground: "var(--aa-color-muted)",
   },
   dark: {
-    background: "#000000",
-    foreground: "#ffffff",
-    mutedForeground: "#a3a3a3",
+    background: "var(--aa-color-page)",
+    foreground: "var(--aa-color-text)",
+    mutedForeground: "var(--aa-color-muted)",
   },
 } as const;
 
-export function appShellClass(darkMode: boolean) {
-  return darkMode
-    ? "bg-[var(--aa-grey-0)] text-[var(--aa-grey-63)]"
-    : "bg-[var(--aa-grey-60)] text-[var(--aa-grey-0)]";
+export function appShellClass(_darkMode: boolean) {
+  return "bg-[var(--aa-color-page)] text-[var(--aa-color-text)]";
 }
 
 export function useDocumentTheme(darkMode: boolean) {
@@ -24,11 +22,13 @@ export function useDocumentTheme(darkMode: boolean) {
     const root = document.documentElement;
     const theme = darkMode ? appThemeColors.dark : appThemeColors.light;
 
+    root.dataset.aaTheme = darkMode ? "dark" : "light";
     root.style.setProperty("--background", theme.background);
     root.style.setProperty("--foreground", theme.foreground);
     root.style.setProperty("--muted-foreground", theme.mutedForeground);
 
     return () => {
+      delete root.dataset.aaTheme;
       root.style.removeProperty("--background");
       root.style.removeProperty("--foreground");
       root.style.removeProperty("--muted-foreground");

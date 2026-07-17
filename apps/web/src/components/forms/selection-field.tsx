@@ -152,7 +152,7 @@ export function SelectInput({
         className={cx(
           formControlClass(darkMode, hasError),
           "flex items-center justify-between gap-3 text-left font-normal",
-          !selectedOption && (darkMode ? "text-neutral-500" : "text-neutral-400"),
+          !selectedOption && "text-[var(--aa-color-muted)]",
           className,
         )}
         type="button"
@@ -190,12 +190,8 @@ export function SelectInput({
                     className={cx(
                       "flex w-full items-start justify-between gap-3 px-2 py-2 text-left text-sm transition first:rounded-t-sm last:rounded-b-sm disabled:cursor-not-allowed disabled:opacity-40",
                       selected
-                        ? darkMode
-                          ? "bg-white text-black"
-                          : "bg-neutral-950 text-white"
-                      : darkMode
-                        ? "text-neutral-200 hover:bg-white/10"
-                        : "text-neutral-700 hover:bg-neutral-100",
+                        ? "bg-[var(--aa-color-selected)] text-[var(--aa-color-inverse-text)]"
+                        : "text-[var(--aa-color-text)] hover:bg-[var(--aa-color-hover)]",
                     )}
                     type="button"
                     role="option"
@@ -216,9 +212,7 @@ export function SelectInput({
                             "text-xs leading-5",
                             selected
                               ? "opacity-70"
-                              : darkMode
-                                ? "text-neutral-400"
-                                : "text-neutral-500",
+                              : "text-[var(--aa-color-muted)]",
                           )}
                         >
                           {option.description}
@@ -254,13 +248,9 @@ export function CheckboxField({
     <label
       className={cx(
         "flex cursor-pointer items-start gap-3 rounded-md border px-3 py-2 text-sm transition",
-        darkMode
-          ? "border-neutral-800 hover:border-neutral-600"
-          : "border-neutral-200 hover:border-neutral-300",
+        "border-[var(--aa-color-border)] hover:border-[var(--aa-color-border-strong)]",
         props.checked
-          ? darkMode
-            ? "bg-white/10"
-            : "bg-neutral-50"
+          ? "bg-[var(--aa-color-selected)] text-[var(--aa-color-inverse-text)]"
           : false,
         className,
       )}
@@ -269,22 +259,18 @@ export function CheckboxField({
         className={cx(
           "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border",
           props.checked
-            ? darkMode
-              ? "border-white bg-white text-black"
-              : "border-neutral-950 bg-neutral-950 text-white"
-            : darkMode
-              ? "border-neutral-600"
-              : "border-neutral-300",
+            ? "border-[var(--aa-color-selected)] bg-[var(--aa-color-selected)] text-[var(--aa-color-inverse-text)]"
+            : "border-[var(--aa-color-border)]",
         )}
       >
         {props.checked ? <Check className="h-3.5 w-3.5" /> : null}
       </span>
       <span className="grid gap-0.5">
-        <span className={darkMode ? "text-white" : "text-black"}>
+        <span className="text-[var(--aa-color-text)]">
           {label}
         </span>
         {description ? (
-          <span className={darkMode ? "text-neutral-400" : "text-neutral-500"}>
+          <span className="text-[var(--aa-color-muted)]">
             {description}
           </span>
         ) : null}
@@ -307,12 +293,8 @@ export function CheckboxControl({
         "inline-flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded border transition",
         props.disabled ? "cursor-not-allowed opacity-60" : "",
         props.checked
-          ? darkMode
-            ? "border-white bg-white text-black"
-            : "border-neutral-950 bg-neutral-950 text-white"
-          : darkMode
-            ? "border-neutral-600 hover:border-neutral-400"
-            : "border-neutral-300 hover:border-neutral-500",
+          ? "border-[var(--aa-color-selected)] bg-[var(--aa-color-selected)] text-[var(--aa-color-inverse-text)]"
+          : "border-[var(--aa-color-border)] hover:border-[var(--aa-color-border-strong)]",
         className,
       )}
     >

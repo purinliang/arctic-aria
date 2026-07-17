@@ -7,11 +7,9 @@ export function formControlClass(
   className?: string,
 ) {
   return cx(
-    "h-11 w-full rounded-md border px-3 text-sm shadow-sm outline-none transition placeholder:text-neutral-400 disabled:cursor-not-allowed disabled:opacity-100 disabled:shadow-none",
+    "h-11 w-full rounded-md border px-3 text-sm shadow-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-100 disabled:shadow-none",
     inputColorClass(darkMode, hasError),
-    darkMode
-      ? "disabled:border-neutral-800 disabled:bg-neutral-900 disabled:text-neutral-500 disabled:placeholder:text-neutral-600"
-      : "disabled:border-neutral-200 disabled:bg-neutral-100 disabled:text-neutral-400 disabled:placeholder:text-neutral-300",
+    "placeholder:text-[var(--aa-color-muted)] disabled:border-[var(--aa-color-border)] disabled:bg-[var(--aa-color-control-muted)] disabled:text-[var(--aa-color-muted)] disabled:placeholder:text-[var(--aa-color-muted)]",
     className,
   );
 }
@@ -19,9 +17,7 @@ export function formControlClass(
 export function formControlPopupClass(darkMode: boolean, className?: string) {
   return cx(
     "absolute z-[70] rounded-md border p-2 shadow-xl",
-    darkMode
-      ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-3)] text-[var(--aa-grey-63)]"
-      : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-63)] text-[var(--aa-grey-0)]",
+    "border-[var(--aa-color-border)] bg-[var(--aa-color-surface)] text-[var(--aa-color-text)]",
     className,
   );
 }

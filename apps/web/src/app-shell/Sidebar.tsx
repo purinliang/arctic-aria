@@ -229,11 +229,7 @@ function SidebarFrame({
               open ? "translate-x-0" : "-translate-x-full"
             }`
           : "hidden h-screen w-[300px] shrink-0 lg:sticky lg:top-0 lg:flex"
-      } relative flex-col border-r ${
-        darkMode
-          ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-4)] text-[var(--aa-grey-63)]"
-          : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-63)] text-[var(--aa-grey-0)]"
-      }`}
+      } relative flex-col border-r border-[var(--aa-color-border)] bg-[var(--aa-color-surface)] text-[var(--aa-color-text)]`}
     >
       <div
         ref={sidebarRef}
@@ -318,12 +314,7 @@ function SidebarFrame({
             darkMode={darkMode}
             onClick={() => onSelectView("settings")}
           />
-          <div
-            className={`my-2 border-t ${
-              darkMode ? "border-[var(--aa-grey-57)]" : "border-[var(--aa-grey-6)]"
-            }`}
-            aria-hidden="true"
-          />
+          <div className="my-2 border-t border-[var(--aa-color-border)]" aria-hidden="true" />
           <SidebarItem
             icon={
               darkMode ? (
@@ -356,7 +347,7 @@ function SidebarFrame({
         <span
           className={`pointer-events-none absolute right-1 top-0 block w-0.5 rounded-full transition-opacity duration-200 ${
             scrollbarState.visible ? "opacity-100" : "opacity-0"
-          } ${darkMode ? "bg-neutral-500/70" : "bg-neutral-400/70"}`}
+          } bg-[var(--aa-color-border-strong)]`}
           style={{
             height: scrollbarState.thumbHeight,
             transform: `translateY(${scrollbarState.thumbTop}px)`,
@@ -398,12 +389,8 @@ function SidebarItem({
       size="md"
       className={`w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md ${
         active
-          ? darkMode
-            ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-52)] text-[var(--aa-grey-0)] hover:bg-[var(--aa-grey-52)] hover:text-[var(--aa-grey-0)]"
-            : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-15)] text-[var(--aa-grey-63)] hover:bg-[var(--aa-grey-15)] hover:text-[var(--aa-grey-63)]"
-          : darkMode
-            ? "hover:bg-[var(--aa-grey-40)] hover:text-[var(--aa-grey-0)]"
-            : "hover:bg-[var(--aa-grey-27)] hover:text-[var(--aa-grey-63)]"
+          ? "border-[var(--aa-color-selected)] bg-[var(--aa-color-selected)] text-[var(--aa-color-inverse-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-inverse-text)]"
+          : "hover:bg-[var(--aa-color-hover)] hover:text-[var(--aa-color-text)]"
       }`}
       disabled={disabled}
       icon={itemIcon}
