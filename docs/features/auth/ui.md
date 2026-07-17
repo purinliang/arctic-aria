@@ -9,13 +9,13 @@ and [data-model.md](data-model.md).
 - While the app checks the existing session, center the loading state on the
   page.
 - Use the same brand row as the login and sidebar surfaces: Sparkles icon plus
-  `Arctic Aria`.
+  the localized brand name.
 - Show a visible loading spinner and the text `Opening your workspace...` in
   one horizontal row below the brand row.
 - Use the resolved app theme so the loading screen matches the signed-out auth
   page and the authenticated app shell.
-- Use the resolved app language for loading text. `Arctic Aria` remains the
-  brand text in every language.
+- Use the resolved app language for loading text. The brand text is
+  `ArcticAria` in English and `北极阿莉雅` in Simplified Chinese.
 - Do not show the login/register panel until the session check finishes.
 
 ## Registration Tab
@@ -25,7 +25,7 @@ and [data-model.md](data-model.md).
   padding so users can scroll the form and metadata closer to the visual center
   on small screens.
 - Show a centered brand row above the tabs as the first component. It should
-  include a Sparkles icon and the text `Arctic Aria`.
+  include a Sparkles icon and the localized brand name.
 - Show a centered description below the brand row, such as `Your personal life
   assistant under the aurora.`
 - Show a small light/dark theme button above the auth panel. It changes the

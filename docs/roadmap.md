@@ -151,9 +151,11 @@ start and end of adjacent item groups. Separator lines should be reviewed and
 removed where they make the item group feel visually broken.
 
 The sidebar now restores a compact brand block: first row Sparkles icon plus
-small `ArcticAria` text without a space, then a larger page/workspace label
-such as `Workspace` in the normal app font. The `Workspace` label should be
-roughly 1.7x the size of `ArcticAria`.
+small localized brand text, then a larger page/workspace label such as
+`Workspace` in the normal app font. In English the brand text is `ArcticAria`
+without a space; in Simplified Chinese it is `北极阿莉雅`. The workspace label
+should remain visually larger than the brand text, and short translations such
+as `工作区` can render larger than the English label.
 
 The mobile sidebar close button should stay borderless.
 
@@ -161,6 +163,9 @@ Pinned project sidebar rows now use invisible icon spacers to align their
 text with normal menu items while preserving the indented hierarchy. The spacer
 icons should use the same size and gap as visible menu icons. Pinned project
 names should stay on one line and truncate automatically.
+
+Sidebar menu-item spacing and active/hover details can be refined later as a
+separate sidebar polish task.
 
 ## Auth UI Cleanup
 

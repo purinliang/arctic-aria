@@ -151,6 +151,7 @@ function SidebarFrame({
     >
       <div className="flex items-start justify-between gap-3 px-4">
         <ArcticAriaLogo
+          brandText={messages.brandName}
           variant="sidebar"
           workspaceLabel={messages.workspace}
         />

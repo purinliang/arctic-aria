@@ -74,7 +74,10 @@ name in the sidebar or page title bar. Theme behavior is documented in
 ## Brand
 
 The sidebar shows a compact brand block at the top-left: first row Sparkles
-icon plus `ArcticAria`, second row larger `Workspace` label. The brand block
-should stay aligned with the navigation menu item content and should not be
-shown as uppercase helper text. The `Workspace` label should be visually larger
-than `ArcticAria`, roughly 1.7x its size.
+icon plus localized brand text, second row larger workspace label. In English
+the brand text is `ArcticAria`; in Simplified Chinese it is `北极阿莉雅`. The
+brand block should stay aligned with the navigation menu item content and
+should not be shown as uppercase helper text. The workspace label should be
+visually larger than the brand text. Short labels such as `工作区` may render
+larger than English `Workspace` so the sidebar hierarchy stays balanced. Keep
+the gap between the brand row and workspace row compact.

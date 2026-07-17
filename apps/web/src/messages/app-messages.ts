@@ -39,6 +39,7 @@ export type VersionStatusMessages = AppMessages["versionStatus"];
 
 const englishMessages = {
   appShell: {
+    brandName: "ArcticAria",
     closeNavigation: "Close navigation",
     closeNavigationOverlay: "Close navigation overlay",
     openNavigation: "Open navigation",
@@ -59,6 +60,7 @@ const englishMessages = {
     },
   },
   auth: {
+    brandName: "ArcticAria",
     brandDescription: "Your personal life assistant under the aurora.",
     fields: {
       displayName: "Display name",
@@ -238,6 +240,7 @@ const englishMessages = {
 
 const simplifiedChineseMessages: AppMessages = {
   appShell: {
+    brandName: "北极阿莉雅",
     closeNavigation: "关闭导航",
     closeNavigationOverlay: "关闭导航遮罩",
     openNavigation: "打开导航",
@@ -258,6 +261,7 @@ const simplifiedChineseMessages: AppMessages = {
     },
   },
   auth: {
+    brandName: "北极阿莉雅",
     brandDescription: "极光下的个人生活助手。",
     fields: {
       displayName: "显示名称",
