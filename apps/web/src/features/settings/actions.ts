@@ -33,7 +33,10 @@ export async function saveUserPreferences(
     return unauthorizedResult();
   }
 
-  return settingsService.savePreferences(user.id, normalizeUserPreferences(input));
+  return settingsService.savePreferences(
+    user.id,
+    normalizeUserPreferences(input),
+  );
 }
 
 export async function getDiscordBinding(): Promise<DiscordBindingActionResult> {
@@ -46,7 +49,9 @@ export async function getDiscordBinding(): Promise<DiscordBindingActionResult> {
   return discordBindingService.getBinding(user.id);
 }
 
-export async function createDiscordBindingCode(): Promise<DiscordBindingActionResult> {
+export async function createDiscordBindingCode(): Promise<
+  DiscordBindingActionResult
+> {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -56,7 +61,9 @@ export async function createDiscordBindingCode(): Promise<DiscordBindingActionRe
   return discordBindingService.createBindingCode(user.id);
 }
 
-export async function unbindDiscordAccount(): Promise<DiscordBindingActionResult> {
+export async function unbindDiscordAccount(): Promise<
+  DiscordBindingActionResult
+> {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -64,6 +71,18 @@ export async function unbindDiscordAccount(): Promise<DiscordBindingActionResult
   }
 
   return discordBindingService.unbind(user.id);
+}
+
+export async function cancelDiscordBindingCode(): Promise<
+  DiscordBindingActionResult
+> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedDiscordResult();
+  }
+
+  return discordBindingService.cancelBindingCode(user.id);
 }
 
 function unauthorizedResult(): SettingsActionResult {

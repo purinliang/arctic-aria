@@ -48,6 +48,7 @@ export function AppShell({
   onLogout,
   onNotificationDismiss,
   showErrorNotification,
+  showSuccessNotification,
 }: {
   currentUser: AuthUser;
   darkMode: boolean;
@@ -64,6 +65,7 @@ export function AppShell({
   onLogout: () => void;
   onNotificationDismiss: (notificationId: number) => void;
   showErrorNotification: (message: string, title?: string) => void;
+  showSuccessNotification: (message: string, title?: string) => void;
 }) {
   const [activeView, setActiveView] = useState<DashboardView>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -303,6 +305,8 @@ export function AppShell({
               onLanguagePreferenceChange={onLanguagePreferenceChange}
               onThemePreferenceChange={onThemePreferenceChange}
               onTimeFormatPreferenceChange={onTimeFormatPreferenceChange}
+              showErrorNotification={showErrorNotification}
+              showSuccessNotification={showSuccessNotification}
               timeFormatPreference={timeFormatPreference}
             />
           ) : (

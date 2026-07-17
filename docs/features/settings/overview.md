@@ -83,15 +83,14 @@ Current web source:
 
 ## Discord Binding
 
-Progress: planned
+Progress: partially implemented
 
 Discord binding belongs in Settings because it is account-scoped configuration
 for one Arctic Aria user. The binding connects an Arctic Aria user to one
 Discord account so the Discord bot can accept `/idea` and later send direct
 messages to that user.
 
-Settings should show a Discord row or section inside the existing Settings
-panel.
+Settings shows a Discord row inside the existing Settings panel.
 
 Unbound state:
 
@@ -133,6 +132,16 @@ Expected notifications:
   fails
 - do not show raw code hashes, internal secrets, Discord bot tokens, or raw
   backend errors
+
+Current implementation:
+
+- Settings can load the active Discord binding for the signed-in Arctic Aria
+  user.
+- Settings can create, regenerate, and cancel one-time binding codes.
+- Settings can unbind the active Discord account after confirmation.
+- The Discord bot implements `/bind code:<code>` and consumes those codes.
+- The UI does not yet poll automatically after the user completes `/bind` in
+  Discord; users can use the refresh button.
 
 ## Attributes
 

@@ -136,6 +136,16 @@ export class PostgresDiscordAccountRepository {
     );
   }
 
+  async cancelBindingCodesByUserId(userId: string, canceledAt: Date) {
+    await this.getSql().query(
+      `UPDATE discord_binding_codes
+       SET consumed_at = $2
+       WHERE user_id = $1
+         AND consumed_at IS NULL`,
+      [userId, canceledAt],
+    );
+  }
+
   async revokeActiveByUserId(userId: string, revokedAt: Date) {
     const rows = (await this.getSql().query(
       `UPDATE discord_accounts

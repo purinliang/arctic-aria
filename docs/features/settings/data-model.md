@@ -71,6 +71,7 @@ Backend rules:
 - codes expire after 10 minutes
 - `/bind` consumes only unexpired and unconsumed codes
 - creating a new code consumes previous unconsumed codes for the same user
+- canceling a pending code marks unconsumed codes for that user as consumed
 - consuming a code and upserting `discord_accounts` happens in one atomic SQL
   statement
 - expired and consumed codes are not valid for binding

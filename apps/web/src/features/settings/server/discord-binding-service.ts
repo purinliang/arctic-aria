@@ -18,6 +18,7 @@ export type DiscordBindingActionResult =
       ok: true;
       code:
         | "settings_discord_binding_loaded"
+        | "settings_discord_code_canceled"
         | "settings_discord_code_created"
         | "settings_discord_unbound";
       binding: DiscordBindingView | null;
@@ -31,6 +32,7 @@ export type DiscordBindingActionResult =
       code:
         | "settings_unauthorized"
         | "settings_discord_binding_unavailable"
+        | "settings_discord_code_cancel_failed"
         | "settings_discord_code_create_failed"
         | "settings_discord_unbind_failed";
       message: string;
@@ -38,7 +40,10 @@ export type DiscordBindingActionResult =
 
 type DiscordBindingRepository = Pick<
   PostgresDiscordAccountRepository,
-  "createBindingCode" | "findActiveByUserId" | "revokeActiveByUserId"
+  | "cancelBindingCodesByUserId"
+  | "createBindingCode"
+  | "findActiveByUserId"
+  | "revokeActiveByUserId"
 >;
 
 export function createDiscordBindingService(
@@ -112,6 +117,27 @@ export function createDiscordBindingService(
           ok: false,
           code: "settings_discord_unbind_failed",
           message: "Discord account could not be disconnected.",
+        };
+      }
+    },
+
+    async cancelBindingCode(
+      userId: string,
+    ): Promise<DiscordBindingActionResult> {
+      try {
+        await repository.cancelBindingCodesByUserId(userId, new Date());
+        const binding = await repository.findActiveByUserId(userId);
+
+        return {
+          ok: true,
+          code: "settings_discord_code_canceled",
+          binding: binding ? toBindingView(binding) : null,
+        };
+      } catch {
+        return {
+          ok: false,
+          code: "settings_discord_code_cancel_failed",
+          message: "Discord connection code could not be canceled.",
         };
       }
     },

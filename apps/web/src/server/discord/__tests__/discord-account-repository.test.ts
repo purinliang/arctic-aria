@@ -83,6 +83,17 @@ test("discord account repository creates a one-time binding code", async () => {
   ]);
 });
 
+test("discord account repository cancels active binding codes by user id", async () => {
+  const { records, sql } = createSqlStub([]);
+  const repository = new PostgresDiscordAccountRepository(sql as never);
+
+  await repository.cancelBindingCodesByUserId("user-1", now);
+
+  assert.match(records[0]?.text ?? "", /UPDATE discord_binding_codes/);
+  assert.match(records[0]?.text ?? "", /consumed_at IS NULL/);
+  assert.deepEqual(records[0]?.params, ["user-1", now]);
+});
+
 test("discord account repository revokes active bindings by user id", async () => {
   const { records, sql } = createSqlStub([]);
   const repository = new PostgresDiscordAccountRepository(sql as never);

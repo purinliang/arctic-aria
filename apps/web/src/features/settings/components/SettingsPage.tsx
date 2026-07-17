@@ -1,3 +1,5 @@
+"use client";
+
 // Settings Page.
 import { Settings } from "lucide-react";
 import type { ThemePreference } from "@/app-shell/app-preferences";
@@ -15,6 +17,7 @@ import type {
   VersionStatusMessages,
 } from "@/messages/app-messages";
 import type { LanguagePreference } from "@/messages/languages";
+import { DiscordBindingSettings } from "./DiscordBindingSettings";
 
 export function SettingsPage({
   darkMode,
@@ -23,6 +26,8 @@ export function SettingsPage({
   onLanguagePreferenceChange,
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
+  showErrorNotification,
+  showSuccessNotification,
   themePreference,
   timeFormatPreference,
   versionMessages,
@@ -34,6 +39,8 @@ export function SettingsPage({
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
+  showErrorNotification: (message: string, title?: string) => void;
+  showSuccessNotification: (message: string, title?: string) => void;
   themePreference: ThemePreference;
   timeFormatPreference: TimeFormatPreference;
   versionMessages: VersionStatusMessages;
@@ -109,6 +116,13 @@ export function SettingsPage({
               </FieldLabel>
             </div>
           </ListItem>
+          <DiscordBindingSettings
+            darkMode={darkMode}
+            languagePreference={languagePreference}
+            messages={messages}
+            showErrorNotification={showErrorNotification}
+            showSuccessNotification={showSuccessNotification}
+          />
           <ListItem darkMode={darkMode} className="items-start">
             <div className="min-w-0 flex-1">
               <VersionStatusRows
