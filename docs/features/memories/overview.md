@@ -77,7 +77,7 @@ does not need to show an event-history view.
 A memory category groups related memories and controls how often that category
 appears in suggestions.
 
-Default categories:
+Built-in default categories:
 
 - Cuisine
 - Sightseeing
@@ -86,24 +86,58 @@ Cuisine can have a higher default base weight because food-related experiences
 can be repeated more often. Sightseeing can have a lower default base weight
 because sightseeing places are usually not revisited as frequently.
 
-Later categories can include:
+Built-in categories should have:
 
+- a stable built-in key, such as `cuisine` or `sightseeing`
+- a fixed default icon
+- default translations in every supported language
+- a dashboard visibility setting
+
+The name, icon, and built-in identity of default categories should not be
+editable or deletable by the user. The current implementation creates real
+per-user category rows in the database, and this should remain the simple model
+for now because each memory needs a concrete `category_id`. Later migration or
+initialization code can backfill missing built-in category rows for existing
+users.
+
+User-created categories should allow:
+
+- a user-authored name in any language
+- a user-authored description
+- one icon selected from a small memory icon set, roughly 12 choices
+
+User-created category names are not automatically translated in the current
+product direction. They should display exactly as the user entered them. This
+avoids inconsistent UI where built-in categories are translated but custom
+category names are machine-translated unexpectedly.
+
+Later selectable category templates can include:
+
+- Movie
 - Anime
-- Games
-- Books
+- Book
+- Music
+- Game
 - Shopping
+
+Template categories can have default translations and icons, like Cuisine and
+Sightseeing. They should still become normal per-user categories when selected
+so memories can reference them consistently.
 
 The first dashboard supports Cuisine and Sightseeing only. Category add and edit
 actions belong on the Memories page, not on the dashboard.
 
 ### Suggested Memories
 
-Suggested memories are temporary choices generated from the memory library when
-the user manually clicks refresh on the Memories page. They are not refreshed
-automatically in the background.
+Suggested memories are temporary choices generated from the memory library.
 
 The system should recommend a small number of memories per category, usually
 three to five items.
+
+When the user opens the Memories page, the UI may load the most recent
+suggestion page from a browser cache, backend cache, or database-backed cache.
+Normal page view should not record ignored suggestion events and should not
+insert new suggestion-history rows.
 
 The user can:
 
@@ -111,9 +145,10 @@ The user can:
 - manually refresh suggestions
 - open the memory detail page
 
-Pin actions should be recorded as events. When the user refreshes suggestions,
-currently visible suggestions that were not pinned should be treated as ignored
-signals and recorded as `ignored` events for future recommendation improvements.
+Pin actions should be recorded as events. When the user manually refreshes
+suggestions or explicitly passes a suggestion, currently visible suggestions
+that were not pinned should be treated as ignored signals and recorded as
+`ignored` events for future recommendation improvements.
 
 ### Pinned Memories
 
@@ -124,23 +159,25 @@ Pinned memories are closer to a soft shortlist or temporary favorites list.
 The dashboard should use the title `Pinned Memories`.
 
 The dashboard's primary responsibility is to show the user's pinned memories.
-The first dashboard only supports default dashboard categories:
+The first dashboard only supports built-in categories marked as shown on the
+dashboard. The current defaults are:
 
 - Cuisine
 - Sightseeing
 
 Custom categories can exist in the Memories page, but they should not appear in
-the dashboard pinned-memory list until dashboard support for more categories is
-explicitly designed.
+the dashboard pinned-memory list until the category has an explicit dashboard
+visibility configuration.
 
 The user can:
 
 - mark a pinned memory as done
 - cancel done if it was a misclick
-- replace a pinned memory with another memory from the same category
 - unpin a memory
 
 Pinned memory dashboard rows do not expand or collapse in the current UI.
+The dashboard should not expose a single-row refresh or replace button for
+pinned memories. Detailed pin and unpin management belongs on the Memories page.
 
 ### Optional Later Tables
 
@@ -189,7 +226,10 @@ Rules:
 
 - Suggestions should appear on the Memories page, not directly on the
   dashboard.
-- Suggestions refresh only when the user clicks refresh.
+- Opening the Memories page may load a cached suggestion page without recording
+  ignored events.
+- Suggestions refresh with ignored-event recording only when the user clicks
+  refresh or explicitly passes a suggestion.
 - The first web implementation can show suggestions in a right-side panel on
   the Memories page instead of a separate suggestion page.
 - Pinning a suggestion changes pin state but does not refresh the whole
@@ -229,17 +269,12 @@ Dashboard behavior:
 - Cleanup and expiry replacement must preserve category limits. The final
   dashboard list should still contain at most 3 Cuisine memories and at most 3
   Sightseeing memories.
-- Replacing a pinned memory selects a new memory from the same category and
-  position. The replacement should not already be showing and should not already
-  be completed.
-- The replacement should update only the clicked row position.
 
 Visibility timing:
 
 - When a pinned memory appears, set `visible_until` to a random duration after
   `last_shown_at`.
 - Allowed durations are 24, 30, 36, 42, and 48 hours.
-- Replacing a pinned memory should refresh `visible_until`.
 - Completing a pinned memory should set `completed_cleanup_at`.
 - Visibility timing is separate from the 2-hour completed cleanup timing.
 

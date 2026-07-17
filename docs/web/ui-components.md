@@ -184,8 +184,12 @@ browser or operating-system colors, corners, and spacing.
 `forms/choice-group.tsx` owns visible button-group choices for single and
 multiple selection. Use it when the user should clearly see a compact set of
 choices. Do not use passive label chips as selectable buttons. Selected choices
-show the check icon on the left, before the label, matching normal icon-plus-text
-button direction.
+should be indicated by color and border only; do not add a check icon to
+selected choices.
+
+Choice groups may use normal button height when they behave like filters or
+compact option buttons. They should use input-field height only when they are
+visually replacing a form input in a form row.
 
 ## Switch
 

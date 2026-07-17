@@ -49,6 +49,26 @@ Current fields:
 - `created_at`
 - `updated_at`
 
+Current implementation note:
+
+- Default categories are created as normal per-user rows when memory service
+  initialization runs.
+- Keep this simple row-based model for now because every memory references a
+  real `memory_categories.id`.
+
+Future built-in category direction:
+
+- Add stable metadata for built-in categories, such as `built_in_key`,
+  `built_in_icon`, and `shown_on_dashboard`, or an equivalent structure.
+- Built-in keys should be unique per user when present.
+- Built-in category name, icon, identity, and delete behavior should be
+  app-controlled so categories such as Cuisine and Sightseeing cannot lose
+  their default translation, icon, or dashboard meaning.
+- Existing users should be backfilled by migration or by safe category
+  initialization when the user opens a memory-backed page.
+- User-created categories should keep user-authored names as-is and should not
+  be auto-translated by the database or backend.
+
 Current database protection:
 
 - `user_id` references `users.id`.

@@ -57,11 +57,10 @@ Planned v0.6.0 work:
 - Fix deferred UI consistency bugs that are intentionally excluded from the
   `v0.5.1` hotfix, including Memories-page pinned/unpinned management and
   removing the dashboard pinned-memory single-item replace/refresh action.
-- Review dashboard memory category scope. The current dashboard only supports
-  Cuisine and Sightseeing; v0.6.0 should decide whether dashboard categories
-  become user-configurable or default to all eligible memory categories.
-  Memory categories can keep defaults such as Cuisine and Sightseeing, but the
-  dashboard should not rely on hard-coded category names long term.
+- Formalize built-in memory categories. Cuisine and Sightseeing can remain
+  default categories with fixed icons, default translations, and dashboard
+  visibility, but the dashboard should use a category configuration flag rather
+  than hard-coded category names.
 - Review category UI affordances and choose distinct icons where useful instead
   of relying only on text labels.
 - Review repeated edit actions in project and memory lists. There may be too

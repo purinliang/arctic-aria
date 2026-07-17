@@ -27,22 +27,16 @@ For each pinned memory, show:
 - title
 - short description
 - category and status metadata
-- right-side icon-only `Replace` button with `RefreshCw`
+- optional right-side navigation affordance if the row opens the Memories page
 
 Pinned memory dashboard rows should not expand or collapse. Do not show a
-dashboard `View` button.
+dashboard `View` button. Do not show a single-row refresh or replace button on
+dashboard pinned memories.
 
 If the user checks the done checkbox, optimistically show the completed state.
 If the user unchecks it before cleanup, cancel the completion. If the backend
 later rejects the command, restore the previous visible state and show the
 backend message in the shared notification component.
-
-If the user clicks `Replace`, replace only that one item and keep other
-positions unchanged after the backend returns the replacement data.
-
-`Replace` is lightweight but may need backend replacement data. Show loading on
-the clicked row's replace button while it is pending. Do not block unrelated
-pinned memory rows when the command can be tracked per row.
 
 On dashboard load or reload:
 
@@ -116,6 +110,9 @@ Click behavior:
 - Clicking `All` removes the category filter.
 - Clicking `Manage` opens category management.
 - Category filtering is local UI state and should not call the backend.
+- Category filters should use the shared single-choice group style. Selected
+  state is shown by color and border only; do not add a check icon to selected
+  choices.
 
 ### Memory List Section
 
@@ -184,6 +181,8 @@ Click behavior:
 
 Refresh behavior:
 
+- Opening the Memories page may show cached suggestions without recording
+  ignored events or creating suggestion-history rows.
 - Clicking `Refresh` loads a new suggestion list. While processing, show a
   loading icon inside the button and disable it.
 - When `Refresh` is clicked, visible suggestions that were not pinned are
@@ -205,9 +204,6 @@ that hotfix.
   unpin memories from that page, which is a known bug deferred to `v0.6.0`.
 - Pin and unpin actions in that panel should use the same icon-only outline
   button style as memory suggestions and project pin actions.
-- The dashboard `Pinned Memories` panel should later remove the single-memory
-  `Replace` / `RefreshCw` action so pinned-memory rows match other dashboard
-  checkbox rows more closely.
 - The dashboard should remain a lightweight daily surface; detailed pin/unpin
   management belongs on the Memories page.
 
