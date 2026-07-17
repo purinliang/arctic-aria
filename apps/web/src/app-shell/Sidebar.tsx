@@ -397,11 +397,13 @@ function SidebarItem({
       tone={active ? "primary" : "ghost"}
       size="md"
       className={`w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md ${
-        active && darkMode
-          ? "border-[var(--aa-grey-3)] bg-[var(--aa-grey-2)] text-[var(--aa-grey-15)] hover:bg-[var(--aa-grey-3)]"
+        active
+          ? darkMode
+            ? "border-[var(--aa-grey-5)] bg-[var(--aa-grey-4)] text-[var(--aa-grey-15)] hover:bg-[var(--aa-grey-5)]"
+            : "border-[var(--aa-grey-9)] bg-[var(--aa-grey-11)] text-[var(--aa-grey-0)] hover:bg-[var(--aa-grey-10)]"
           : darkMode
             ? "hover:bg-[var(--aa-grey-3)]"
-          : ""
+            : "hover:bg-[var(--aa-grey-13)]"
       }`}
       disabled={disabled}
       icon={itemIcon}
