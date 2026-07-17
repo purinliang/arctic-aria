@@ -91,6 +91,7 @@ semantic Arctic Aria aliases:
 - `--aa-color-hover`
 - `--aa-color-selected`
 - `--aa-color-selected-hover`
+- `--aa-color-selected-hover-text`
 - `--aa-color-focus`
 
 Light and dark modes both keep Radix's intended hierarchy: page and surface
@@ -106,7 +107,9 @@ items and primary buttons are visible enough. In dark mode, selected aliases
 also use the stronger accent range while keeping step `12` text. Primary
 action buttons should use the same selected aliases in both light and dark mode
 so buttons, selected menu items, and selected choice groups stay visually
-consistent.
+consistent. Primary hover states must control both background and text through
+the selected hover aliases. In light mode, primary hover should stay on a solid
+accent fill with white text, not the pale row-hover surface.
 
 Use shared component color helpers for these roles:
 
