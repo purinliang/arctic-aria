@@ -8,12 +8,20 @@ The first bot runtime scaffold is implemented under `apps/discord-bot`.
 
 The next Discord design work adds two capabilities:
 
-- user-facing Discord binding for an Arctic Aria user
+- user-facing Discord binding through inbound Discord interactions
 - outbound Discord messages from Arctic Aria services to Discord DMs
 
-## First Workflow
+Direction terms:
 
-The first Discord workflow is quick idea capture:
+- `inbound interaction`: Discord sends a slash command or interaction to Arctic
+  Aria through the bot endpoint
+- `outbound message`: Arctic Aria asks the bot to send a Discord DM
+
+Use these terms from the Arctic Aria system point of view.
+
+## Inbound Interaction Workflows
+
+The first inbound Discord workflow is quick idea capture:
 
 ```text
 /idea text:<raw text>
@@ -30,7 +38,7 @@ The bot should:
 The command name is `/idea`, not `/capture`, so the app surface matches the
 product entity.
 
-The next Discord workflow is user-facing account binding:
+The next inbound Discord workflow is user-facing account binding:
 
 ```text
 /bind code:<one-time code>
@@ -39,7 +47,7 @@ The next Discord workflow is user-facing account binding:
 The web Settings page owns code creation. The Discord bot owns code redemption
 because it can verify the Discord user id that invoked the command.
 
-## First Runtime Direction
+## Inbound Interaction Runtime
 
 The first implementation is a separate TypeScript app under
 `apps/discord-bot`, using Discord HTTP Interactions.
@@ -83,8 +91,8 @@ Local scripts read `apps/discord-bot/.env.local`. Use
 ## Code Locations
 
 - Runtime: `apps/discord-bot/src/index.ts`
-- HTTP interaction server: `apps/discord-bot/src/interaction-server.ts`
-- HTTP interaction handler: `apps/discord-bot/src/interaction-handler.ts`
+- Inbound interaction server: `apps/discord-bot/src/interaction-server.ts`
+- Inbound interaction handler: `apps/discord-bot/src/interaction-handler.ts`
 - Command registration: `apps/discord-bot/src/register-commands.ts`
 - Slash command metadata: `apps/discord-bot/src/discord-commands.ts`
 - `/idea` capture command: `apps/discord-bot/src/idea-capture.ts`
@@ -211,7 +219,7 @@ The planned first outbound message API is documented in
 
 ## Data Flow
 
-First `/idea` flow:
+Inbound `/idea` flow:
 
 ```text
 Discord slash command
@@ -227,7 +235,7 @@ Discord slash command
 The bot should not write planning, routine, memory, or review tables directly.
 It should call product commands that own validation and state transitions.
 
-Planned `/bind` flow:
+Planned inbound `/bind` flow:
 
 ```text
 Settings page

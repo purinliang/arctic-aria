@@ -15,6 +15,8 @@ work.
 Naming note:
 
 - use `outbound messages` for this feature in docs
+- use `inbound interactions` for Discord slash commands and interaction
+  requests sent to Arctic Aria
 - keep `/internal/discord/messages` as the private service-to-service endpoint
 - use `secret`, not `key`, because the value must remain private and is used
   only to authorize this private endpoint
