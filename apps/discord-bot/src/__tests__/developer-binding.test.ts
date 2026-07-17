@@ -38,7 +38,7 @@ describe("ensureDeveloperDiscordBinding", () => {
     const sql = new FakeSql([[{ id: "user-1" }], []]);
     const result = await ensureDeveloperDiscordBinding(sql, {
       discordUserId: "123456789",
-      developerUsername: "purin",
+      developerUsername: "testusername",
       occurredAt,
     });
 

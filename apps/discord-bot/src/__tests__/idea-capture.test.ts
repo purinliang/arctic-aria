@@ -52,7 +52,7 @@ describe("captureDiscordIdea", () => {
     const sql = new FakeSql([[]]);
     const result = await captureDiscordIdea(sql, {
       discordUserId: "123456789",
-      discordUsername: "purin",
+      discordUsername: "testdiscordusername",
       dmChannelId: "987654321",
       rawText: "check the visa list",
       occurredAt: new Date("2026-07-17T10:00:00.000Z"),
@@ -73,7 +73,7 @@ describe("captureDiscordIdea", () => {
 
     const result = await captureDiscordIdea(sql, {
       discordUserId: "123456789",
-      discordUsername: "purin",
+      discordUsername: "testdiscordusername",
       dmChannelId: "987654321",
       rawText: "  check the visa list  ",
       occurredAt,
@@ -91,7 +91,7 @@ describe("captureDiscordIdea", () => {
       "check the visa list",
       JSON.stringify({
         discordUserId: "123456789",
-        discordUsername: "purin",
+        discordUsername: "testdiscordusername",
         dmChannelId: "987654321",
       }),
       occurredAt,

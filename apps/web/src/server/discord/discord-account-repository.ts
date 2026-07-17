@@ -18,7 +18,7 @@ export type DiscordAccountRecord = {
   revokedAt: Date | null;
 };
 
-export type UpsertOwnerDiscordBindingInput = {
+export type UpsertDeveloperDiscordBindingInput = {
   userId: string;
   discordUserId: string;
   discordUsername?: string | null;
@@ -86,7 +86,7 @@ export class PostgresDiscordAccountRepository {
     return rows[0] ? mapDiscordAccount(rows[0]) : null;
   }
 
-  async upsertOwnerBinding(input: UpsertOwnerDiscordBindingInput) {
+  async upsertDeveloperBinding(input: UpsertDeveloperDiscordBindingInput) {
     const rows = (await this.getSql().query(
       `INSERT INTO discord_accounts (
          user_id,
