@@ -118,9 +118,10 @@ Related UI cleanup:
 ### Version Metadata UI
 
 The login page should keep database-version metadata available for debugging
-without showing it in normal use. Hide it from the visible login page by
-default, but leave enough DOM/debug access that the developer can inspect it
-when needed.
+without showing it in normal use. For normal users, the database-version line
+should be visually gone or collapsed, not removed from the rendered page
+entirely. It should remain inspectable through browser developer tools when the
+developer needs to debug deployment or migration state.
 
 Do not add developer-account-specific display rules for version metadata.
 Production behavior should be role- or environment-based only after a real
