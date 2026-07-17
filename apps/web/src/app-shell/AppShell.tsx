@@ -296,6 +296,7 @@ export function AppShell({
             />
           ) : activeView === "settings" ? (
             <SettingsPage
+              currentUserId={currentUser.id}
               darkMode={darkMode}
               languagePreference={languagePreference}
               messages={messages.settings}
