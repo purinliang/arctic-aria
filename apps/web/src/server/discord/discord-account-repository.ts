@@ -18,14 +18,6 @@ export type DiscordAccountRecord = {
   revokedAt: Date | null;
 };
 
-export type UpsertDeveloperDiscordBindingInput = {
-  userId: string;
-  discordUserId: string;
-  discordUsername?: string | null;
-  dmChannelId?: string | null;
-  occurredAt: Date;
-};
-
 export type CreateDiscordBindingCodeInput = {
   userId: string;
   codeHash: string;
@@ -169,51 +161,6 @@ export class PostgresDiscordAccountRepository {
     )) as DiscordAccountRow[];
 
     return rows[0] ? mapDiscordAccount(rows[0]) : null;
-  }
-
-  async upsertDeveloperBinding(input: UpsertDeveloperDiscordBindingInput) {
-    const rows = (await this.getSql().query(
-      `INSERT INTO discord_accounts (
-         user_id,
-         discord_user_id,
-         discord_username,
-         dm_channel_id,
-         binding_status,
-         last_interaction_at,
-         created_at,
-         updated_at,
-         revoked_at
-       )
-       VALUES ($1, $2, $3, $4, 'active', $5, $5, $5, NULL)
-       ON CONFLICT (user_id) DO UPDATE SET
-         discord_user_id = EXCLUDED.discord_user_id,
-         discord_username = EXCLUDED.discord_username,
-         dm_channel_id = EXCLUDED.dm_channel_id,
-         binding_status = 'active',
-         last_interaction_at = EXCLUDED.last_interaction_at,
-         updated_at = EXCLUDED.updated_at,
-         revoked_at = NULL
-       RETURNING
-         id,
-         user_id,
-         discord_user_id,
-         discord_username,
-         dm_channel_id,
-         binding_status,
-         last_interaction_at,
-         created_at,
-         updated_at,
-         revoked_at`,
-      [
-        input.userId,
-        input.discordUserId,
-        input.discordUsername ?? null,
-        input.dmChannelId ?? null,
-        input.occurredAt,
-      ],
-    )) as DiscordAccountRow[];
-
-    return mapDiscordAccount(rows[0]);
   }
 
   private getSql() {
