@@ -44,9 +44,8 @@ export function ProjectPageTitle({
   const [open, setOpen] = useState(false);
   const selectedProject =
     projects.find((project) => project.id === selectedProjectId) ?? null;
-  const breadcrumbButtonClass = darkMode
-    ? "hover:bg-white/10 hover:shadow-[0_0_0_5px_rgba(255,255,255,0.12)] focus-visible:bg-white/10 focus-visible:shadow-[0_0_0_5px_rgba(255,255,255,0.12)]"
-    : "hover:bg-slate-200 hover:shadow-[0_0_0_5px_rgb(226,232,240)] focus-visible:bg-slate-200 focus-visible:shadow-[0_0_0_5px_rgb(226,232,240)]";
+  const breadcrumbButtonClass =
+    "hover:bg-[var(--aa-color-hover)] hover:text-[var(--aa-color-text)] hover:outline hover:outline-2 hover:outline-[var(--aa-color-hover)] focus-visible:bg-[var(--aa-color-hover)] focus-visible:text-[var(--aa-color-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--aa-color-hover)]";
 
   if (!selectedProject) {
     return (
@@ -117,12 +116,8 @@ export function ProjectPageTitle({
                       className={cx(
                         "grid w-full gap-1 rounded-md px-3 py-2 text-left transition",
                         active
-                          ? darkMode
-                            ? "bg-white text-black"
-                            : "bg-slate-950 text-white"
-                          : darkMode
-                            ? "hover:bg-white/10"
-                            : "hover:bg-slate-100",
+                          ? "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
+                          : "text-[var(--aa-color-text)] hover:bg-[var(--aa-color-control-hover)]",
                       )}
                       type="button"
                       title={project.title}

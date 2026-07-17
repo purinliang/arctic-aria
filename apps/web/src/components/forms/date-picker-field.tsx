@@ -93,7 +93,7 @@ export function DatePickerField({
         className={cx(
           formControlClass(darkMode, hasError),
           "flex items-center justify-between gap-3 text-left",
-          !formattedValue && (darkMode ? "text-neutral-500" : "text-neutral-400"),
+          !formattedValue && "text-[var(--aa-color-muted)]",
           className,
         )}
         type="button"
@@ -173,7 +173,7 @@ export function DatePickerField({
             {messages.weekdayNames.map((weekday) => (
               <div
                 key={weekday}
-                className={darkMode ? "text-neutral-500" : "text-neutral-500"}
+                className="text-[var(--aa-color-muted)]"
               >
                 {weekday}
               </div>
@@ -250,12 +250,8 @@ function DayButton({
       className={cx(
         "h-8 rounded-md text-sm transition disabled:cursor-not-allowed disabled:opacity-30",
         selected
-          ? darkMode
-            ? "bg-white text-black"
-            : "bg-neutral-950 text-white"
-        : darkMode
-          ? "text-neutral-200 hover:bg-white/10"
-          : "text-neutral-700 hover:bg-neutral-100",
+          ? "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
+          : "text-[var(--aa-color-text)] hover:bg-[var(--aa-color-control-hover)]",
       )}
       type="button"
       disabled={disabled}

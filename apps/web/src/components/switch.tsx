@@ -16,12 +16,8 @@ export function Switch({
       className={cx(
         "h-7 w-12 rounded-full border p-1 transition",
         checked
-          ? darkMode
-            ? "border-white bg-white"
-            : "border-neutral-950 bg-neutral-950"
-        : darkMode
-          ? "border-neutral-700 bg-neutral-900"
-          : "border-neutral-300 bg-neutral-200",
+          ? "border-[var(--aa-color-selected)] bg-[var(--aa-color-selected)]"
+          : "border-[var(--aa-color-border)] bg-[var(--aa-color-control)]",
       )}
       type="button"
       role="switch"
@@ -33,10 +29,8 @@ export function Switch({
         className={cx(
           "block h-4 w-4 rounded-full transition",
           checked
-            ? darkMode
-              ? "translate-x-5 bg-black"
-              : "translate-x-5 bg-white"
-            : "translate-x-0 bg-white",
+            ? "translate-x-5 bg-[var(--aa-color-inverse-text)]"
+            : "translate-x-0 bg-[var(--aa-color-muted)]",
         )}
       />
     </button>

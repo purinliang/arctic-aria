@@ -56,51 +56,61 @@ The page background should stay consistent while loading, signing in, and using
 authenticated pages. Loading, auth, 404, and app-shell screens should share the
 same Arctic Aria brand direction.
 
-## Neutral Scale
+## Color Tokens
 
-The web app should use one restrained neutral scale as the default palette for
-both light and dark mode. The scale does not need to be mathematically pure
-grey; a slightly cool or warm neutral is acceptable when it improves the Arctic
-Aria visual direction. The important rule is that the app uses one coherent
-scale instead of mixing unrelated grey families.
+The web app uses Radix-style generated color scales as the base palette:
 
-The concrete shared scale lives in `apps/web/src/app/globals.css` as
-`--aa-grey-0` through `--aa-grey-63`. Step `0` is black, step `63` is white, and
-the steps should stay equal distance from each other. Shared color helpers
-should use those variables for normal app chrome so changing the scale does not
-require editing every component.
+- `--blue-*` for the Arctic Aria accent scale
+- `--gray-*` for neutral app chrome
+- alpha variants such as `--blue-a*` and `--gray-a*` when a future component
+  needs translucent role colors
 
-Design and tune the light-mode scale first. Light mode should define the
-intended relationship between page background, surfaces, headers, borders,
-icons, supporting text, and main text. Dark mode should then reverse those
-roles from the same scale: light surfaces become dark surfaces, dark text
-becomes light text, and middle neutral steps keep similar visual distance from
-their surrounding surfaces. Do not collapse page background, sidebar, cards,
-panels, inputs, and headers into one pure black surface; dark mode should keep
-the same visible hierarchy that light mode has.
+The current palette is generated from the Radix custom palette tool with light
+accent `#1B46DE` and dark accent `#12276E`. The copied tokens live in
+`apps/web/src/app/globals.css`, including sRGB fallbacks and P3 `oklch` /
+`color(display-p3 ...)` values.
 
-Current core surface mapping:
+Feature and shared component code should not reference raw Radix step tokens
+directly unless a new shared role is being designed. Normal UI should use the
+semantic Arctic Aria aliases:
 
-- light page background: `--aa-grey-60`
-- light card and panel header: `--aa-grey-61`
-- light card, panel, sidebar, and input content: `--aa-grey-63`
-- light main text, titles, descriptions, and normal icons: `--aa-grey-0`
-- light supporting text, supporting icons, borders, and dividers:
-  `--aa-grey-6`
-- light hover background: 36 steps deeper than the base surface, with reversed
-  text
-- light selected background: 48 steps deeper than the base surface, with
-  reversed text
-- dark page background: `--aa-grey-0`
-- dark card and panel header: `--aa-grey-3`
-- dark card, panel, sidebar, and input content: `--aa-grey-4`
-- dark main text, titles, descriptions, and normal icons: `--aa-grey-63`
-- dark supporting text, supporting icons, borders, and dividers:
-  `--aa-grey-57`
-- dark hover background: 36 steps lighter than the base surface, with reversed
-  text
-- dark selected background: 48 steps lighter than the base surface, with
-  reversed text
+- `--aa-color-page`
+- `--aa-color-surface`
+- `--aa-color-header`
+- `--aa-color-control`
+- `--aa-color-control-muted`
+- `--aa-color-control-hover`
+- `--aa-color-border`
+- `--aa-color-border-strong`
+- `--aa-color-text`
+- `--aa-color-muted`
+- `--aa-color-inverse-text`
+- `--aa-color-primary`
+- `--aa-color-primary-hover`
+- `--aa-color-primary-muted`
+- `--aa-color-primary-muted-text`
+- `--aa-color-hover`
+- `--aa-color-selected`
+- `--aa-color-selected-hover`
+- `--aa-color-selected-hover-text`
+- `--aa-color-focus`
+
+Light and dark modes both keep Radix's intended hierarchy: page and surface
+backgrounds use subtle neutral steps, selected and primary states use stronger
+accent steps, border steps stay distinct from surfaces, and high steps are used
+for readable text. Do not reintroduce a custom numeric grey scale such as
+`--aa-grey-*`.
+
+Selected or active navigation rows, dropdown options, list rows, and choice
+items should use the selected aliases. In light mode, selected aliases use a
+stronger accent step than the default Radix selected background so selected
+items and primary buttons are visible enough. In dark mode, selected aliases
+also use the stronger accent range while keeping step `12` text. Primary
+action buttons should use the same selected aliases in both light and dark mode
+so buttons, selected menu items, and selected choice groups stay visually
+consistent. Primary hover states must control both background and text through
+the selected hover aliases. Primary hover should stay on a solid accent fill
+with white text in both light and dark mode, not the pale row-hover surface.
 
 Use shared component color helpers for these roles:
 
@@ -115,9 +125,17 @@ Use shared component color helpers for these roles:
 - hover and active row backgrounds
 - disabled controls
 
-Do not use blue-grey palettes such as `slate-*` for normal UI chrome. Reserve
-semantic colors such as red, green, amber, cyan, or blue for status, validation,
-brand identity, or clearly meaningful feature states.
+Normal list rows may use the softer `--aa-color-control-muted` hover so dense
+lists do not become visually noisy. Interactive controls such as unselected
+buttons, dropdown options, choice buttons, and date/time picker choices should
+use `--aa-color-control-hover` so their hover state is clearly visible in both
+light and dark mode.
+
+Do not use Tailwind palettes such as `slate-*`, `neutral-*`, `white`, or `black`
+for normal UI chrome. Reserve semantic colors such as red, green, amber, cyan,
+or blue for status, validation, brand identity, or clearly meaningful feature
+states. Translucent black remains acceptable for modal and mobile-sidebar
+backdrops.
 
 ## Dark Mode
 

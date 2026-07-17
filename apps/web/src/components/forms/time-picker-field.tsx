@@ -85,7 +85,7 @@ export function TimePickerField({
         className={cx(
           formControlClass(darkMode, hasError),
           "flex items-center justify-between gap-3 text-left",
-          !formattedValue && (darkMode ? "text-neutral-500" : "text-neutral-400"),
+          !formattedValue && "text-[var(--aa-color-muted)]",
           className,
         )}
         type="button"
@@ -129,12 +129,8 @@ export function TimePickerField({
                     className={cx(
                       "h-9 rounded-md border px-3 text-xs font-semibold transition",
                       selectedParts.period === period
-                        ? darkMode
-                          ? "border-white bg-white text-black"
-                          : "border-neutral-950 bg-neutral-950 text-white"
-                      : darkMode
-                        ? "border-neutral-700 text-neutral-200 hover:border-neutral-400"
-                        : "border-neutral-300 text-neutral-700 hover:border-neutral-500",
+                        ? "border-[var(--aa-color-selected-border)] bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
+                        : "border-[var(--aa-color-border)] text-[var(--aa-color-muted)] hover:border-[var(--aa-color-border-strong)] hover:bg-[var(--aa-color-control-hover)] hover:text-[var(--aa-color-text)]",
                     )}
                     type="button"
                     onClick={() => setDraftParts({ ...selectedParts, period })}
@@ -147,7 +143,7 @@ export function TimePickerField({
             <p
               className={cx(
                 "text-xs leading-5",
-                darkMode ? "text-neutral-400" : "text-neutral-500",
+                "text-[var(--aa-color-muted)]",
               )}
             >
               {formatTimeDisplay(
@@ -217,9 +213,7 @@ function TimeTextInput({
       <input
         className={cx(
           "h-12 w-full min-w-0 rounded-md border px-2 text-center text-xl font-semibold tabular-nums outline-none transition",
-          darkMode
-            ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-4)] text-[var(--aa-grey-63)] focus:border-[var(--aa-grey-63)]"
-            : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-62)] text-[var(--aa-grey-0)] focus:border-[var(--aa-grey-0)]",
+          "border-[var(--aa-color-border)] bg-[var(--aa-color-control)] text-[var(--aa-color-text)] focus:border-[var(--aa-color-border-strong)]",
         )}
         type="text"
         inputMode="text"

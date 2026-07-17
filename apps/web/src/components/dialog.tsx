@@ -56,6 +56,9 @@ export function DialogFrame({
   return (
     <section
       className={cx(dialogFrameClass(darkMode, size, padding), className)}
+      style={{
+        backgroundColor: "var(--aa-color-surface)",
+      }}
     >
       {children}
     </section>
@@ -69,6 +72,7 @@ export function dialogFrameClass(
 ) {
   return cx(
     "relative rounded-md border shadow-2xl",
+    "bg-[var(--aa-color-surface)]",
     padding === "md" ? "p-4" : "",
     size === "sm"
       ? "w-[min(calc(100vw-2rem),28rem)]"
@@ -156,7 +160,11 @@ export function ConfirmDialog({
           closeLabel={closeLabel}
           onClose={onCancel}
         />
-        <p className={darkMode ? "text-sm leading-6 text-neutral-400" : "text-sm leading-6 text-neutral-500"}>
+        <p
+          className={
+            "text-sm leading-6 text-[var(--aa-color-muted)]"
+          }
+        >
           {description}
         </p>
         <div className="mt-4 flex flex-wrap justify-end gap-2">

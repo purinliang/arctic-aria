@@ -201,9 +201,7 @@ function NotificationToast({
       <button
         className={cx(
           "flex h-[18px] w-[18px] items-center justify-center self-start rounded transition",
-          darkMode
-            ? "text-current opacity-80 hover:bg-white/10 hover:opacity-100"
-            : "text-current opacity-80 hover:bg-black/5 hover:opacity-100",
+          "text-current opacity-80 hover:bg-[var(--aa-color-hover)] hover:text-[var(--aa-color-text)] hover:opacity-100",
         )}
         type="button"
         aria-label={messages.dismiss}

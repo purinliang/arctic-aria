@@ -8,36 +8,28 @@ export type Tone =
   | "neutral"
   | "red";
 
-export function surfaceClass(darkMode: boolean) {
-  return darkMode
-    ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-4)] text-[var(--aa-grey-63)]"
-    : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-63)] text-[var(--aa-grey-0)]";
+export function surfaceClass(_darkMode: boolean) {
+  return "border-[var(--aa-color-border)] bg-[var(--aa-color-surface)] text-[var(--aa-color-text)]";
 }
 
-export function headerSurfaceClass(darkMode: boolean) {
-  return darkMode
-    ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-3)]"
-    : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-61)]";
+export function headerSurfaceClass(_darkMode: boolean) {
+  return "border-[var(--aa-color-border)] bg-[var(--aa-color-header)]";
 }
 
-export function mutedTextClass(darkMode: boolean) {
-  return darkMode ? "text-[var(--aa-grey-57)]" : "text-[var(--aa-grey-6)]";
+export function mutedTextClass(_darkMode: boolean) {
+  return "text-[var(--aa-color-muted)]";
 }
 
-export function dividerClass(darkMode: boolean) {
-  return darkMode
-    ? "divide-y divide-[var(--aa-grey-57)]"
-    : "divide-y divide-[var(--aa-grey-6)]";
+export function dividerClass(_darkMode: boolean) {
+  return "divide-y divide-[var(--aa-color-border)]";
 }
 
-export function sectionBorderClass(darkMode: boolean) {
-  return darkMode ? "border-[var(--aa-grey-57)]" : "border-[var(--aa-grey-6)]";
+export function sectionBorderClass(_darkMode: boolean) {
+  return "border-[var(--aa-color-border)]";
 }
 
-export function controlGroupSurfaceClass(darkMode: boolean) {
-  return darkMode
-    ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-3)]"
-    : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-60)]";
+export function controlGroupSurfaceClass(_darkMode: boolean) {
+  return "border-[var(--aa-color-border)] bg-[var(--aa-color-control-muted)]";
 }
 
 export function toneClass(darkMode: boolean, tone: Tone) {
@@ -60,9 +52,7 @@ export function toneClass(darkMode: boolean, tone: Tone) {
   }
 
   if (tone === "neutral") {
-    return darkMode
-      ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-3)] text-[var(--aa-grey-57)]"
-      : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-60)] text-[var(--aa-grey-6)]";
+    return "border-[var(--aa-color-border)] bg-[var(--aa-color-control-muted)] text-[var(--aa-color-muted)]";
   }
 
   if (tone === "red") {
@@ -79,13 +69,11 @@ export function toneClass(darkMode: boolean, tone: Tone) {
 export function inputColorClass(darkMode: boolean, hasError = false) {
   if (hasError) {
     return darkMode
-      ? "border-red-400 bg-[var(--aa-grey-4)] text-[var(--aa-grey-63)] focus:border-red-300"
-      : "border-red-500 bg-[var(--aa-grey-63)] text-[var(--aa-grey-0)] focus:border-red-600";
+      ? "border-red-400 bg-[var(--aa-color-control)] text-[var(--aa-color-text)] focus:border-red-300"
+      : "border-red-500 bg-[var(--aa-color-control)] text-[var(--aa-color-text)] focus:border-red-600";
   }
 
-  return darkMode
-    ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-4)] text-[var(--aa-grey-63)] focus:border-[var(--aa-grey-63)]"
-    : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-63)] text-[var(--aa-grey-0)] focus:border-[var(--aa-grey-0)]";
+  return "border-[var(--aa-color-border)] bg-[var(--aa-color-control)] text-[var(--aa-color-text)] focus:border-[var(--aa-color-border-strong)]";
 }
 
 export function statusMessageClass(

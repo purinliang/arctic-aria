@@ -55,7 +55,7 @@ export function LabelText({
     <span
       className={cx(
         "text-left text-sm font-semibold leading-6",
-        darkMode ? "text-neutral-200" : "text-neutral-700",
+        "text-[var(--aa-color-text)]",
         className,
       )}
     >

@@ -133,12 +133,8 @@ function itemToneClass(
   }
 
   if (active) {
-    return darkMode
-      ? "bg-[var(--aa-grey-52)] text-[var(--aa-grey-0)]"
-      : "bg-[var(--aa-grey-15)] text-[var(--aa-grey-63)]";
+    return "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]";
   }
 
-  return darkMode
-    ? "hover:bg-[var(--aa-grey-40)] hover:text-[var(--aa-grey-0)]"
-    : "hover:bg-[var(--aa-grey-27)] hover:text-[var(--aa-grey-63)]";
+  return "hover:bg-[var(--aa-color-control-muted)] hover:text-[var(--aa-color-text)]";
 }
