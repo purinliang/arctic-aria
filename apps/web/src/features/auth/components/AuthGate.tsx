@@ -60,6 +60,7 @@ const hydrationSafeAuthMessages = getAppMessages("en").auth;
 export function AuthGate() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
+  const [loadingThemeReady, setLoadingThemeReady] = useState(false);
   const [mode, setMode] = useState<AuthMode>("login");
   const [registerInput, setRegisterInput] = useState<RegisterInput>(emptyRegister);
   const [loginInput, setLoginInput] = useState<LoginInput>(emptyLogin);
@@ -88,6 +89,16 @@ export function AuthGate() {
   } = useNotifications(messages.notifications);
 
   useDocumentTheme(darkMode);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setLoadingThemeReady(true);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -157,27 +168,34 @@ export function AuthGate() {
   }, [applyUserPreferences, currentUser]);
 
   if (!sessionChecked) {
+    const loadingDarkMode = loadingThemeReady
+      ? darkMode
+      : hydrationSafeLoadingDarkMode;
+    const loadingMessages = loadingThemeReady
+      ? messages.auth
+      : hydrationSafeAuthMessages;
+
     return (
       <main
-        className={`grid min-h-screen place-items-center px-4 transition-colors ${appShellClass(hydrationSafeLoadingDarkMode)}`}
+        className={`grid min-h-screen place-items-center px-4 transition-colors ${appShellClass(loadingDarkMode)}`}
       >
         <div
           className="grid justify-items-center gap-4 text-center"
           role="status"
           aria-live="polite"
         >
-          <ArcticAriaLogo brandText={hydrationSafeAuthMessages.brandName} />
+          <ArcticAriaLogo brandText={loadingMessages.brandName} />
           <div className="flex items-center justify-center gap-2">
             <LoaderCircle
               size={18}
-              className={`animate-spin ${mutedTextClass(hydrationSafeLoadingDarkMode)}`}
+              className={`animate-spin ${mutedTextClass(loadingDarkMode)}`}
               aria-hidden="true"
             />
             <SupportingText
-              darkMode={hydrationSafeLoadingDarkMode}
+              darkMode={loadingDarkMode}
               className="font-medium"
             >
-              {hydrationSafeAuthMessages.loading.openingWorkspace}
+              {loadingMessages.loading.openingWorkspace}
             </SupportingText>
           </div>
         </div>
