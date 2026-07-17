@@ -91,8 +91,8 @@ Local scripts read `apps/discord-bot/.env.local`. Use
 ## Code Locations
 
 - Runtime: `apps/discord-bot/src/index.ts`
-- Inbound interaction server: `apps/discord-bot/src/interaction-server.ts`
-- Inbound interaction handler: `apps/discord-bot/src/interaction-handler.ts`
+- Inbound interaction server: `apps/discord-bot/src/inbound-interaction-server.ts`
+- Inbound interaction handler: `apps/discord-bot/src/inbound-interaction-handler.ts`
 - Command registration: `apps/discord-bot/src/register-commands.ts`
 - Slash command metadata: `apps/discord-bot/src/discord-commands.ts`
 - `/idea` capture command: `apps/discord-bot/src/idea-capture.ts`
@@ -357,7 +357,7 @@ Arctic Aria service
 10. Confirm the bot server logs:
 
     ```text
-    [discord-bot] interaction_handled { command: '/idea', status: 200 }
+    [discord-bot] inbound_interaction_handled { command: '/idea', status: 200 }
     ```
 
 11. Check captured ideas in the web app:
@@ -380,7 +380,7 @@ Arctic Aria service
   from the interaction endpoint in time. Check that `pnpm --dir
   apps/discord-bot dev` is still running, ngrok is still online, the Discord
   endpoint URL ends with `/interactions`, and the bot terminal prints
-  `interaction_handled { command: '/idea', status: 200 }`.
+  `inbound_interaction_handled { command: '/idea', status: 200 }`.
 - `startup_failed` with `code: 'EADDRINUSE'` means another local process is
   already using the configured `PORT`. Stop the existing bot process or set a
   different `PORT` in `apps/discord-bot/.env.local` and update the ngrok

@@ -7,7 +7,7 @@ import { ideaCommandName } from "./discord-commands.ts";
 import { captureDiscordIdea } from "./idea-capture.ts";
 import type { QueryExecutor } from "./query-executor.ts";
 
-export type DiscordInteractionResult = {
+export type InboundDiscordInteractionResult = {
   status: number;
   body: Record<string, unknown>;
 };
@@ -34,10 +34,10 @@ type DiscordInteractionUser = {
   username?: string;
 };
 
-export async function handleDiscordInteraction(
+export async function handleInboundDiscordInteraction(
   sql: QueryExecutor,
   interaction: unknown,
-): Promise<DiscordInteractionResult> {
+): Promise<InboundDiscordInteractionResult> {
   if (!isRecord(interaction)) {
     return errorResponse(400, "Invalid Discord interaction payload.");
   }
@@ -92,7 +92,7 @@ function readOptionString(interaction: DiscordInteraction, name: string) {
 function messageResponse(
   interaction: DiscordInteraction,
   content: string,
-): DiscordInteractionResult {
+): InboundDiscordInteractionResult {
   const data: Record<string, unknown> = {
     content,
   };
@@ -113,7 +113,7 @@ function messageResponse(
 function errorResponse(
   status: number,
   message: string,
-): DiscordInteractionResult {
+): InboundDiscordInteractionResult {
   return {
     status,
     body: {

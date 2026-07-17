@@ -1,12 +1,12 @@
 import { createServer } from "node:http";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { verifyKey } from "discord-interactions";
-import { handleDiscordInteraction } from "./interaction-handler.ts";
+import { handleInboundDiscordInteraction } from "./inbound-interaction-handler.ts";
 import type { QueryExecutor } from "./query-executor.ts";
 
 const maxBodyBytes = 64 * 1024;
 
-export function createInteractionServer(
+export function createInboundInteractionServer(
   options: { discordPublicKey: string },
   sql: QueryExecutor,
 ) {
@@ -18,7 +18,7 @@ export function createInteractionServer(
       }
 
       if (request.method === "GET" && request.url === "/interactions") {
-        sendJson(response, 405, browserInteractionHelpResponse());
+        sendJson(response, 405, browserInboundInteractionHelpResponse());
         return;
       }
 
@@ -49,22 +49,22 @@ export function createInteractionServer(
       }
 
       const payload = JSON.parse(rawBody.toString("utf8")) as unknown;
-      const result = await handleDiscordInteraction(sql, payload);
-      console.log("[discord-bot]", "interaction_handled", {
-        command: interactionLogLabel(payload),
+      const result = await handleInboundDiscordInteraction(sql, payload);
+      console.log("[discord-bot]", "inbound_interaction_handled", {
+        command: inboundInteractionLogLabel(payload),
         status: result.status,
       });
       sendJson(response, result.status, result.body);
     } catch (error) {
-      console.error("[discord-bot]", "interaction_request_failed", {
+      console.error("[discord-bot]", "inbound_interaction_request_failed", {
         message: error instanceof Error ? error.message : "unknown",
       });
-      sendJson(response, 500, { error: "Interaction failed." });
+      sendJson(response, 500, { error: "Inbound interaction failed." });
     }
   });
 }
 
-export function browserInteractionHelpResponse() {
+export function browserInboundInteractionHelpResponse() {
   return {
     error:
       "Discord interactions use POST requests. Set the public Discord endpoint URL to this path, but do not open it directly in a browser.",
@@ -117,7 +117,7 @@ function sendJson(
   response.end(payload);
 }
 
-function interactionLogLabel(payload: unknown) {
+function inboundInteractionLogLabel(payload: unknown) {
   if (!payload || typeof payload !== "object") {
     return "unknown";
   }
