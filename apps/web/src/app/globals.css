@@ -62,6 +62,16 @@ input:focus-visible {
   animation: aa-notification-fade 220ms ease-in both;
 }
 
+.sidebar-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar {
+  height: 0;
+  width: 0;
+}
+
 @keyframes aa-notification-pop {
   from {
     opacity: 0;
