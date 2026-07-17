@@ -88,10 +88,11 @@ arctic-aria/
 |   |   |   |-- __tests__/
 |   |   |   |-- index.ts
 |   |   |   `-- register-commands.ts
+|   |-- infrastructure/
+|   |   `-- database/
+|   |       `-- migrations/
 |   `-- web/
 |       |-- AGENTS.md
-|       |-- database/
-|       |   `-- migrations/
 |       |-- scripts/
 |       |   `-- migrate.mjs
 |       |-- src/
@@ -250,7 +251,7 @@ Feature page and panel entry points:
 Persistence entry points:
 
 - `apps/web/src/server/database/neon.ts`
-- `apps/web/database/migrations`
+- `apps/infrastructure/database/migrations`
 - `apps/web/scripts/migrate.mjs`
 - `apps/web/src/features/<feature>/server`
 

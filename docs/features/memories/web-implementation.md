@@ -153,8 +153,8 @@ apps/web/src/features/memories/server/
 Database migration:
 
 ```text
-apps/web/database/migrations/0002_create_memories.sql
-apps/web/database/migrations/0007_add_memory_category_description.sql
+apps/infrastructure/database/migrations/0002_create_memories.sql
+apps/infrastructure/database/migrations/0007_add_memory_category_description.sql
 ```
 
 ## Verification

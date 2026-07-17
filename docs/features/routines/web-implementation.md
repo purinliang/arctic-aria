@@ -113,7 +113,7 @@ apps/web/src/features/routines/server/
 Database migration:
 
 ```text
-apps/web/database/migrations/0003_create_routines.sql
+apps/infrastructure/database/migrations/0003_create_routines.sql
 ```
 
 Focused tests:
