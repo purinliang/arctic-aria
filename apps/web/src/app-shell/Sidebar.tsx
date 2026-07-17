@@ -160,6 +160,7 @@ function SidebarFrame({
             darkMode={darkMode}
             tone="ghost"
             size="icon-sm"
+            className="border-0 shadow-none"
             aria-label={messages.closeNavigation}
             icon={<X size={18} aria-hidden="true" />}
             onClick={onClose}
@@ -167,7 +168,7 @@ function SidebarFrame({
         ) : null}
       </div>
 
-      <nav className="mt-4 grid overflow-hidden rounded-md">
+      <nav className="mt-4 grid">
         <SidebarItem
           icon={<LayoutDashboard size={18} aria-hidden="true" />}
           label={messages.pages.dashboard}
@@ -231,7 +232,7 @@ function SidebarFrame({
           darkMode ? "border-neutral-800" : "border-slate-200"
         }`}
       >
-        <div className="grid overflow-hidden rounded-md">
+        <div className="grid">
           <SidebarItem
             icon={
               darkMode ? (
@@ -278,20 +279,26 @@ function SidebarItem({
   child?: boolean;
   onClick: () => void;
 }) {
+  const itemIcon = child ? (
+    <span className="h-[18px] w-[18px] shrink-0 opacity-0" aria-hidden="true" />
+  ) : (
+    icon
+  );
+
   return (
     <Button
       darkMode={darkMode}
       tone={active ? "primary" : "ghost"}
       size="md"
-      className="w-full justify-start overflow-hidden !rounded-none"
+      className="w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md"
       disabled={disabled}
-      icon={icon}
+      icon={itemIcon}
       onClick={onClick}
     >
-      {child ? (
-        <span className="h-[18px] w-[18px] shrink-0 opacity-0" aria-hidden="true" />
-      ) : null}
-      <span className={`min-w-0 truncate ${child ? "pl-4" : ""}`}>
+      <span
+        className={`min-w-0 flex-1 truncate text-left ${child ? "pl-4" : ""}`}
+        title={label}
+      >
         {label}
       </span>
     </Button>
