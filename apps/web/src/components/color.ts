@@ -10,34 +10,34 @@ export type Tone =
 
 export function surfaceClass(darkMode: boolean) {
   return darkMode
-    ? "border-[var(--aa-grey-12)] bg-[var(--aa-grey-4)] text-[var(--aa-grey-63)]"
-    : "border-[var(--aa-grey-52)] bg-[var(--aa-grey-63)] text-[var(--aa-grey-0)]";
+    ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-4)] text-[var(--aa-grey-63)]"
+    : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-63)] text-[var(--aa-grey-0)]";
 }
 
 export function headerSurfaceClass(darkMode: boolean) {
   return darkMode
-    ? "border-[var(--aa-grey-12)] bg-[var(--aa-grey-3)]"
-    : "border-[var(--aa-grey-52)] bg-[var(--aa-grey-61)]";
+    ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-3)]"
+    : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-61)]";
 }
 
 export function mutedTextClass(darkMode: boolean) {
-  return darkMode ? "text-[var(--aa-grey-46)]" : "text-[var(--aa-grey-21)]";
+  return darkMode ? "text-[var(--aa-grey-57)]" : "text-[var(--aa-grey-6)]";
 }
 
 export function dividerClass(darkMode: boolean) {
   return darkMode
-    ? "divide-y divide-[var(--aa-grey-3)]"
-    : "divide-y divide-[var(--aa-grey-52)]";
+    ? "divide-y divide-[var(--aa-grey-57)]"
+    : "divide-y divide-[var(--aa-grey-6)]";
 }
 
 export function sectionBorderClass(darkMode: boolean) {
-  return darkMode ? "border-[var(--aa-grey-12)]" : "border-[var(--aa-grey-52)]";
+  return darkMode ? "border-[var(--aa-grey-57)]" : "border-[var(--aa-grey-6)]";
 }
 
 export function controlGroupSurfaceClass(darkMode: boolean) {
   return darkMode
-    ? "border-[var(--aa-grey-12)] bg-[var(--aa-grey-3)]"
-    : "border-[var(--aa-grey-52)] bg-[var(--aa-grey-60)]";
+    ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-3)]"
+    : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-60)]";
 }
 
 export function toneClass(darkMode: boolean, tone: Tone) {
@@ -61,8 +61,8 @@ export function toneClass(darkMode: boolean, tone: Tone) {
 
   if (tone === "neutral") {
     return darkMode
-      ? "border-[var(--aa-grey-16)] bg-[var(--aa-grey-3)] text-[var(--aa-grey-48)]"
-      : "border-[var(--aa-grey-52)] bg-[var(--aa-grey-60)] text-[var(--aa-grey-21)]";
+      ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-3)] text-[var(--aa-grey-57)]"
+      : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-60)] text-[var(--aa-grey-6)]";
   }
 
   if (tone === "red") {
@@ -84,8 +84,8 @@ export function inputColorClass(darkMode: boolean, hasError = false) {
   }
 
   return darkMode
-    ? "border-[var(--aa-grey-16)] bg-[var(--aa-grey-4)] text-[var(--aa-grey-63)] focus:border-[var(--aa-grey-63)]"
-    : "border-[var(--aa-grey-52)] bg-[var(--aa-grey-63)] text-[var(--aa-grey-0)] focus:border-[var(--aa-grey-21)]";
+    ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-4)] text-[var(--aa-grey-63)] focus:border-[var(--aa-grey-63)]"
+    : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-63)] text-[var(--aa-grey-0)] focus:border-[var(--aa-grey-0)]";
 }
 
 export function statusMessageClass(

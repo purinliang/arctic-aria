@@ -84,9 +84,23 @@ Current core surface mapping:
 - light page background: `--aa-grey-60`
 - light card and panel header: `--aa-grey-61`
 - light card, panel, sidebar, and input content: `--aa-grey-63`
+- light main text, titles, descriptions, and normal icons: `--aa-grey-0`
+- light supporting text, supporting icons, borders, and dividers:
+  `--aa-grey-6`
+- light hover background: 36 steps deeper than the base surface, with reversed
+  text
+- light selected background: 48 steps deeper than the base surface, with
+  reversed text
 - dark page background: `--aa-grey-0`
 - dark card and panel header: `--aa-grey-3`
 - dark card, panel, sidebar, and input content: `--aa-grey-4`
+- dark main text, titles, descriptions, and normal icons: `--aa-grey-63`
+- dark supporting text, supporting icons, borders, and dividers:
+  `--aa-grey-57`
+- dark hover background: 36 steps lighter than the base surface, with reversed
+  text
+- dark selected background: 48 steps lighter than the base surface, with
+  reversed text
 
 Use shared component color helpers for these roles:
 

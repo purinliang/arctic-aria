@@ -231,8 +231,8 @@ function SidebarFrame({
           : "hidden h-screen w-[300px] shrink-0 lg:sticky lg:top-0 lg:flex"
       } relative flex-col border-r ${
         darkMode
-          ? "border-[var(--aa-grey-12)] bg-[var(--aa-grey-4)] text-[var(--aa-grey-63)]"
-          : "border-[var(--aa-grey-52)] bg-[var(--aa-grey-63)] text-[var(--aa-grey-0)]"
+          ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-4)] text-[var(--aa-grey-63)]"
+          : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-63)] text-[var(--aa-grey-0)]"
       }`}
     >
       <div
@@ -320,7 +320,7 @@ function SidebarFrame({
           />
           <div
             className={`my-2 border-t ${
-              darkMode ? "border-[var(--aa-grey-12)]" : "border-[var(--aa-grey-52)]"
+              darkMode ? "border-[var(--aa-grey-57)]" : "border-[var(--aa-grey-6)]"
             }`}
             aria-hidden="true"
           />
@@ -394,16 +394,16 @@ function SidebarItem({
   return (
     <Button
       darkMode={darkMode}
-      tone={active ? "primary" : "ghost"}
+      tone="ghost"
       size="md"
       className={`w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md ${
         active
           ? darkMode
-            ? "border-[var(--aa-grey-16)] bg-[var(--aa-grey-11)] text-[var(--aa-grey-63)] hover:bg-[var(--aa-grey-16)]"
-            : "border-[var(--aa-grey-54)] bg-[var(--aa-grey-58)] text-[var(--aa-grey-0)] hover:bg-[var(--aa-grey-57)]"
+            ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-52)] text-[var(--aa-grey-0)] hover:bg-[var(--aa-grey-52)] hover:text-[var(--aa-grey-0)]"
+            : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-15)] text-[var(--aa-grey-63)] hover:bg-[var(--aa-grey-15)] hover:text-[var(--aa-grey-63)]"
           : darkMode
-            ? "hover:bg-[var(--aa-grey-9)]"
-            : "hover:bg-[var(--aa-grey-60)]"
+            ? "hover:bg-[var(--aa-grey-40)] hover:text-[var(--aa-grey-0)]"
+            : "hover:bg-[var(--aa-grey-27)] hover:text-[var(--aa-grey-63)]"
       }`}
       disabled={disabled}
       icon={itemIcon}
