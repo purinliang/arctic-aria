@@ -6,6 +6,7 @@ work. It is no longer organized as numbered phases.
 ## Current Baseline
 
 Current released version: `v0.5.1`.
+Current development target: `v0.6.0`.
 
 The web dashboard baseline in the latest release is mostly complete for the
 current prototype:
@@ -20,7 +21,7 @@ current prototype:
 - Neon PostgreSQL migrations and migration checksum tracking
 - app/database version metadata
 
-Current unreleased `develop` work also includes the first Discord prototype:
+Current unreleased `develop` work includes the first Discord prototype:
 
 - Discord HTTP Interactions app under `apps/discord-bot`
 - user-facing Discord binding from Settings through `/bind code:<code>`
@@ -28,16 +29,30 @@ Current unreleased `develop` work also includes the first Discord prototype:
 - internal outbound Discord message API
 - Settings -> Discord -> `Send Test` for manual message-push verification
 
+Current unreleased `develop` work also includes web and data-model polish:
+
+- built-in memory categories for Cuisine, Sightseeing, Movie, Anime, Book,
+  Music, Game, and Shopping, with fixed icons, localized built-in display text,
+  and backfill for existing accounts
+- shared localized brand logo text: `ArcticAria` in English and `北极阿莉雅` in
+  Simplified Chinese
+- hidden future auth actions for Google sign-in and forgot-password/reset, kept
+  behind a disabled flag until the real flows exist
+- collapsed database-version metadata in login and Settings/About, still
+  inspectable through browser developer tools
+- Settings `About` card for visible app-version information
+
 ## Next: v0.6.0
 
 Goal: harden the current prototype and prepare the next feature cycle without
 turning one release into a broad schema audit.
 
-No large new user-facing feature development is planned for `v0.6.0`. Bug
-fixes, documentation, tests, Redis/cache design, Discord bot hardening, and
-small UI consistency work are in scope.
+For the remaining `v0.6.0` work, do not start another large user-facing feature
+until hardening and documentation catch up. Bug fixes, documentation, tests,
+Redis/cache design, Discord bot hardening, and small UI consistency work are in
+scope.
 
-Planned v0.6.0 work:
+Remaining v0.6.0 work:
 
 - Design Redis usage without implementing it prematurely. Redis should support
   latency reduction, short-lived coordination, rate limiting, idempotency, or
@@ -57,9 +72,6 @@ Planned v0.6.0 work:
 - Fix deferred UI consistency bugs that are intentionally excluded from the
   `v0.5.1` hotfix, including Memories-page pinned/unpinned management and
   removing the dashboard pinned-memory single-item replace/refresh action.
-- Formalize built-in memory categories. Current built-ins are Cuisine,
-  Sightseeing, Movie, Anime, Book, Music, Game, and Shopping. They have fixed
-  icons and are backfilled for existing accounts.
 - Review category UI affordances and choose distinct icons where useful instead
   of relying only on text labels.
 - Review repeated edit actions in project and memory lists. There may be too
@@ -68,19 +80,20 @@ Planned v0.6.0 work:
 
 ### Memory Category Direction
 
-Built-in memory categories are a continuing design direction. The current
-default set is Cuisine, Sightseeing, Movie, Anime, Book, Music, Game, and
-Shopping.
+Status: mostly implemented on `develop`.
 
-First implementation target:
+The current built-in set is Cuisine, Sightseeing, Movie, Anime, Book, Music,
+Game, and Shopping.
+
+Implemented direction:
 
 - Keep real per-user `memory_categories` rows. This is the simplest model
   because every memory still needs a concrete `category_id`.
-- Add stable built-in category metadata, such as a built-in key and icon name.
-  The existing `shown_on_dashboard` column can remain as legacy metadata until a
-  later schema cleanup, but dashboard pinned memories should not be filtered by
-  it.
-- Backfill built-in category rows for existing users when the metadata is added.
+- Use stable built-in category metadata, including a built-in key and icon
+  name. The existing `shown_on_dashboard` column can remain as legacy metadata
+  until a later schema cleanup, but dashboard pinned memories should not be
+  filtered by it.
+- Backfill built-in category rows for existing users through migrations.
   Backfill should apply to all existing users, not a hard-coded developer
   account.
 - Treat Cuisine, Sightseeing, Movie, Anime, Book, Music, Game, and Shopping as
@@ -89,16 +102,16 @@ First implementation target:
 - Stop filtering dashboard pinned memories by hard-coded display names,
   built-in keys, dashboard metadata, or per-category count limits.
 
-Built-in category/template work:
+Current built-in category/template state:
 
 - Current built-in templates include Movie (`film`), Anime (`wand-sparkles`),
   Book (`book-open-text`), Music (`music`), Game (`gamepad-2`), and Shopping
   (`shopping-cart`).
-- Built-in templates may have default icons and default translations in every
+- Built-in templates have default icons and default translations in every
   supported language.
 - Built-in templates are normal per-user category rows with stable built-in
   metadata.
-- Existing accounts receive built-in category rows through the migration, and
+- Existing accounts receive built-in category rows through migrations, and
   the default-category initialization path remains a safety net for future users
   and partially initialized accounts.
 - User-created categories should allow names in any language and a selected
@@ -107,7 +120,7 @@ Built-in category/template work:
   auto-translate user-created category names unless a later feature explicitly
   designs per-category translations.
 
-Related UI cleanup:
+Remaining category UI cleanup:
 
 - The memory category `All` filter should have its own neutral icon.
 - Single-choice and multi-choice groups can use normal button height when they
@@ -123,6 +136,8 @@ Related UI cleanup:
   action. Detailed pin/unpin management belongs on the Memories page.
 
 ### Version Metadata UI
+
+Status: implemented on `develop`; future admin/debug display remains undecided.
 
 The login page and Settings page should keep database-version metadata available
 for debugging without showing it in normal use. For normal signed-out and
@@ -142,44 +157,55 @@ than expected before changing the display text.
 
 ## Sidebar Refinement
 
-The light-mode and sign-out rows should visually follow the same menu-item
-pattern as the preceding sidebar navigation items. Do not place them in a
-separate visual container or give them a different row style unless the sidebar
-design is revised explicitly.
+Status: in progress on `develop`; several sidebar behavior rules are specified
+but not fully finished. Remaining sidebar bugs should be handled as focused UI
+fix branches.
 
-Sidebar list items should handle rounded corners consistently, especially at the
-start and end of adjacent item groups. Separator lines should be reviewed and
-removed where they make the item group feel visually broken.
+Established sidebar direction:
 
-The sidebar now restores a compact brand block: first row Sparkles icon plus
-small localized brand text, then a larger page/workspace label such as
-`Workspace` in the normal app font. In English the brand text is `ArcticAria`
-without a space; in Simplified Chinese it is `北极阿莉雅`. The workspace label
-should remain visually larger than the brand text, and short translations such
-as `工作区` can render larger than the English label.
+- The sidebar uses a compact brand block: first row Sparkles icon plus small
+  localized brand text, then a larger page/workspace label such as `Workspace`
+  in the normal app font. In English the brand text is `ArcticAria` without a
+  space; in Simplified Chinese it is `北极阿莉雅`.
+- The workspace label should remain visually larger than the brand text, and
+  short translations such as `工作区` can render larger than the English label.
 
-The mobile sidebar close button should stay borderless.
+Remaining sidebar cleanup:
 
-Pinned project sidebar rows now use invisible icon spacers to align their
-text with normal menu items while preserving the indented hierarchy. The spacer
-icons should use the same size and gap as visible menu icons. Pinned project
-names should stay on one line and truncate automatically.
-
-Sidebar menu-item spacing and active/hover details can be refined later as a
-separate sidebar polish task.
+- Make the light-mode and sign-out rows visually follow the same menu-item
+  pattern as the preceding sidebar navigation items. Do not place them in a
+  separate visual container or give them a different row style unless the
+  sidebar design is revised explicitly.
+- Keep the mobile sidebar close button borderless.
+- Finish pinned project shortcut alignment with invisible icon spacers while
+  preserving the indented hierarchy. The spacer icons should use the same size
+  and gap as visible menu icons. Pinned project names should stay on one line
+  and truncate automatically.
+- Sidebar list items should handle rounded corners consistently, especially at
+  the start and end of adjacent item groups.
+- Adjacent sidebar menu items should not show unwanted gaps between rows,
+  including hover and active states.
+- Separator lines should be reviewed and removed where they make item groups
+  feel visually broken.
+- Sidebar menu-item spacing, active state, and hover details should be refined
+  as a separate sidebar polish task.
 
 ## Auth UI Cleanup
+
+Status: implemented on `develop`; real Google OAuth and password reset remain
+future auth features.
 
 Placeholder auth actions should stay hidden until they work end to end. Hide the
 Google OAuth action, its `or` separator, and the forgot-password/reset action
 until those flows are implemented.
 
-Registration needs more vertical space than login. Keep the registration panel
-centered inside the auth page's `110vh` minimum height, with enough top and
-bottom space for scrolling. The login panel should keep the same top alignment
-as registration, while its bottom space may differ. This keeps tab switching
-visually stable and keeps the desktop scrollbar present. When implemented,
-reflect the exact spacing rules in [auth/ui.md](features/auth/ui.md).
+The code may keep hidden future-action UI behind an explicit disabled flag so
+the existing Google/reset placeholder work can be reused later without showing
+non-working controls to users.
+
+Auth page spacing is now documented in [auth/ui.md](features/auth/ui.md). Keep
+the registration panel inside the auth page's `110vh` minimum height, with
+enough top and bottom space for scrolling.
 
 ## Ongoing Feature Review
 
@@ -231,8 +257,8 @@ Likely future items:
   is reliable.
 - Add backup, sync, and account lifecycle strategy when the data model is more
   stable.
-- Add multilingual support later, especially Chinese, after the core private
-  workflow and settings model are stable.
+- Improve multilingual support later, especially Chinese coverage and copy
+  quality, after the core private workflow and settings model are stable.
 
 ## Removed From Active Roadmap
 
