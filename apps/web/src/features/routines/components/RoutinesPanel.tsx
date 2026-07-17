@@ -18,7 +18,6 @@ export function RoutinesPanel({
   darkMode,
   routines,
   loading,
-  disabled,
   messages,
   timeMessages,
   timeFormatPreference,
@@ -28,7 +27,6 @@ export function RoutinesPanel({
   darkMode: boolean;
   routines: Routine[];
   loading: boolean;
-  disabled: boolean;
   messages: DashboardMessages["routines"];
   timeMessages: TimePickerMessages;
   timeFormatPreference: TimeFormatPreference;
@@ -54,7 +52,6 @@ export function RoutinesPanel({
             key={routine.id}
             routine={routine}
             darkMode={darkMode}
-            disabled={disabled}
             messages={messages}
             timeMessages={timeMessages}
             timeFormatPreference={timeFormatPreference}
@@ -71,7 +68,6 @@ export function RoutinesPanel({
 function RoutineRow({
   routine,
   darkMode,
-  disabled,
   messages,
   timeMessages,
   timeFormatPreference,
@@ -80,7 +76,6 @@ function RoutineRow({
 }: {
   routine: Routine;
   darkMode: boolean;
-  disabled: boolean;
   messages: DashboardMessages["routines"];
   timeMessages: TimePickerMessages;
   timeFormatPreference: TimeFormatPreference;
@@ -94,7 +89,6 @@ function RoutineRow({
           darkMode={darkMode}
           className="mt-1"
           checked={routine.status === "completed"}
-          disabled={disabled}
           aria-label={
             routine.status === "completed"
               ? messages.reopen(routine.title)

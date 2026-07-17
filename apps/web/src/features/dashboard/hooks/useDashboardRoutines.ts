@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   completeRoutineInstance,
   deleteRoutine,
@@ -15,7 +15,10 @@ import type {
   DashboardMessages,
   RoutineMessages,
 } from "@/messages/app-messages";
-import { applyOptimisticRoutineStatus } from "../optimistic-updates";
+import {
+  applyOptimisticRoutineStatus,
+  restoreRoutineSnapshot,
+} from "../optimistic-updates";
 import type {
   Routine,
   RoutineDefinition,
@@ -37,6 +40,9 @@ export function useDashboardRoutines(
   >([]);
   const [routineLoading, setRoutineLoading] = useState(true);
   const [routineActionPending, setRoutineActionPending] = useState(false);
+  const routineActionPendingCount = useRef(0);
+  const routineStatusRequestChains = useRef(new Map<string, Promise<void>>());
+  const routineStatusRequestVersions = useRef(new Map<string, number>());
 
   const applyRoutineData = useCallback((data: RoutineDashboardData) => {
     setRoutines(data.routines);
@@ -61,23 +67,18 @@ export function useDashboardRoutines(
     setRoutineLoading(false);
   }, [applyRoutineData, messages, resultMessages, showErrorNotification]);
 
-  async function runRoutineAction(
-    action: RoutineDataAction,
-    onFailure?: () => void,
-  ) {
+  function beginRoutineAction() {
+    routineActionPendingCount.current += 1;
     setRoutineActionPending(true);
+  }
 
-    try {
-      const result = await action();
+  function finishRoutineAction() {
+    routineActionPendingCount.current = Math.max(
+      routineActionPendingCount.current - 1,
+      0,
+    );
 
-      if (!result.ok) {
-        onFailure?.();
-        showErrorNotification(localizedActionMessage(result, resultMessages));
-        return;
-      }
-
-      applyRoutineData(result.data);
-    } finally {
+    if (routineActionPendingCount.current === 0) {
       setRoutineActionPending(false);
     }
   }
@@ -86,7 +87,7 @@ export function useDashboardRoutines(
     action: RoutineDataAction,
     failureTitle: string,
   ) {
-    setRoutineActionPending(true);
+    beginRoutineAction();
 
     try {
       const result = await action();
@@ -102,25 +103,80 @@ export function useDashboardRoutines(
       applyRoutineData(result.data);
       return true;
     } finally {
-      setRoutineActionPending(false);
+      finishRoutineAction();
+    }
+  }
+
+  async function runRoutineStatusAction({
+    routineId,
+    requestVersion,
+    snapshot,
+    action,
+  }: {
+    routineId: string;
+    requestVersion: number;
+    snapshot: Routine[];
+    action: RoutineDataAction;
+  }) {
+    beginRoutineAction();
+
+    try {
+      const result = await action();
+
+      if (!result.ok) {
+        if (
+          routineStatusRequestVersions.current.get(routineId) !==
+          requestVersion
+        ) {
+          return;
+        }
+
+        setRoutines((current) =>
+          restoreRoutineSnapshot(current, snapshot, routineId),
+        );
+        showErrorNotification(localizedActionMessage(result, resultMessages));
+        return;
+      }
+    } finally {
+      finishRoutineAction();
     }
   }
 
   function updateRoutine(routineId: string, status: RoutineStatus) {
-    const previousRoutines = routines;
+    let previousRoutines = routines;
+    const requestVersion =
+      (routineStatusRequestVersions.current.get(routineId) ?? 0) + 1;
 
-    setRoutines((current) =>
-      applyOptimisticRoutineStatus(current, routineId, status),
-    );
-    void runRoutineAction(
-      () =>
-        status === "completed"
-          ? completeRoutineInstance(routineId)
-          : status === "skipped"
-            ? skipRoutineInstance(routineId)
-            : reopenRoutineInstance(routineId),
-      () => setRoutines(previousRoutines),
-    );
+    routineStatusRequestVersions.current.set(routineId, requestVersion);
+
+    setRoutines((current) => {
+      previousRoutines = current;
+      return applyOptimisticRoutineStatus(current, routineId, status);
+    });
+    const previousRequest =
+      routineStatusRequestChains.current.get(routineId) ?? Promise.resolve();
+    const request = previousRequest
+      .catch(() => undefined)
+      .then(() =>
+        runRoutineStatusAction({
+          routineId,
+          requestVersion,
+          snapshot: previousRoutines,
+          action: () =>
+            status === "completed"
+              ? completeRoutineInstance(routineId)
+              : status === "skipped"
+                ? skipRoutineInstance(routineId)
+                : reopenRoutineInstance(routineId),
+        }),
+      );
+
+    routineStatusRequestChains.current.set(routineId, request);
+    void request.finally(() => {
+      if (routineStatusRequestChains.current.get(routineId) === request) {
+        routineStatusRequestChains.current.delete(routineId);
+      }
+    });
   }
 
   return {

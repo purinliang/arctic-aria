@@ -17,7 +17,6 @@ export function PinnedMemoriesPanel({
   darkMode,
   pinnedMemories,
   loading,
-  disabled,
   messages,
   dateMessages,
   onDone,
@@ -27,7 +26,6 @@ export function PinnedMemoriesPanel({
   darkMode: boolean;
   pinnedMemories: PinnedMemory[];
   loading: boolean;
-  disabled: boolean;
   messages: DashboardMessages["pinnedMemories"];
   dateMessages: DatePickerMessages;
   onDone: (pinnedMemoryId: string) => void;
@@ -53,7 +51,6 @@ export function PinnedMemoriesPanel({
             key={memory.id}
             memory={memory}
             darkMode={darkMode}
-            disabled={disabled}
             messages={messages}
             dateMessages={dateMessages}
             onDone={() => onDone(memory.id)}
@@ -70,7 +67,6 @@ export function PinnedMemoriesPanel({
 function PinnedMemoryRow({
   memory,
   darkMode,
-  disabled,
   messages,
   dateMessages,
   onDone,
@@ -79,7 +75,6 @@ function PinnedMemoryRow({
 }: {
   memory: PinnedMemory;
   darkMode: boolean;
-  disabled: boolean;
   messages: DashboardMessages["pinnedMemories"];
   dateMessages: DatePickerMessages;
   onDone: () => void;
@@ -95,7 +90,6 @@ function PinnedMemoryRow({
           darkMode={darkMode}
           className="mt-1"
           checked={completed}
-          disabled={disabled}
           aria-label={
             completed
               ? messages.cancelDone(memory.title)
