@@ -231,8 +231,8 @@ function SidebarFrame({
           : "hidden h-screen w-[300px] shrink-0 lg:sticky lg:top-0 lg:flex"
       } relative flex-col border-r ${
         darkMode
-          ? "border-[var(--aa-grey-3)] bg-[var(--aa-grey-1)] text-[var(--aa-grey-15)]"
-          : "border-[var(--aa-grey-11)] bg-[var(--aa-grey-15)] text-[var(--aa-grey-0)]"
+          ? "border-[var(--aa-grey-12)] bg-[var(--aa-grey-4)] text-[var(--aa-grey-63)]"
+          : "border-[var(--aa-grey-52)] bg-[var(--aa-grey-63)] text-[var(--aa-grey-0)]"
       }`}
     >
       <div
@@ -320,7 +320,7 @@ function SidebarFrame({
           />
           <div
             className={`my-2 border-t ${
-              darkMode ? "border-[var(--aa-grey-3)]" : "border-[var(--aa-grey-11)]"
+              darkMode ? "border-[var(--aa-grey-12)]" : "border-[var(--aa-grey-52)]"
             }`}
             aria-hidden="true"
           />
@@ -399,11 +399,11 @@ function SidebarItem({
       className={`w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md ${
         active
           ? darkMode
-            ? "border-[var(--aa-grey-5)] bg-[var(--aa-grey-4)] text-[var(--aa-grey-15)] hover:bg-[var(--aa-grey-5)]"
-            : "border-[var(--aa-grey-9)] bg-[var(--aa-grey-11)] text-[var(--aa-grey-0)] hover:bg-[var(--aa-grey-10)]"
+            ? "border-[var(--aa-grey-16)] bg-[var(--aa-grey-11)] text-[var(--aa-grey-63)] hover:bg-[var(--aa-grey-16)]"
+            : "border-[var(--aa-grey-54)] bg-[var(--aa-grey-58)] text-[var(--aa-grey-0)] hover:bg-[var(--aa-grey-57)]"
           : darkMode
-            ? "hover:bg-[var(--aa-grey-3)]"
-            : "hover:bg-[var(--aa-grey-13)]"
+            ? "hover:bg-[var(--aa-grey-9)]"
+            : "hover:bg-[var(--aa-grey-60)]"
       }`}
       disabled={disabled}
       icon={itemIcon}
