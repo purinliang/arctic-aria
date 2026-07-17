@@ -3,7 +3,8 @@ import {
   InteractionResponseType,
   InteractionType,
 } from "discord-interactions";
-import { ideaCommandName } from "./discord-commands.ts";
+import { bindDiscordAccount } from "./account-binding.ts";
+import { bindCommandName, ideaCommandName } from "./discord-commands.ts";
 import { captureDiscordIdea } from "./idea-capture.ts";
 import type { QueryExecutor } from "./query-executor.ts";
 
@@ -57,22 +58,36 @@ export async function handleInboundDiscordInteraction(
     return messageResponse(body, "Unsupported Discord interaction.");
   }
 
-  if (body.data?.name !== ideaCommandName) {
+  if (
+    body.data?.name !== ideaCommandName &&
+    body.data?.name !== bindCommandName
+  ) {
     return messageResponse(body, "Unknown Arctic Aria command.");
   }
 
   const user = readInteractionUser(body);
-  const rawText = readOptionString(body, "text");
 
   if (!user?.id) {
     return messageResponse(body, "This Discord account id is invalid.");
+  }
+
+  if (body.data?.name === bindCommandName) {
+    const result = await bindDiscordAccount(sql, {
+      discordUserId: user.id,
+      discordUsername: user.username ?? null,
+      dmChannelId: body.channel_id ?? null,
+      rawCode: readOptionString(body, "code"),
+      occurredAt: new Date(),
+    });
+
+    return messageResponse(body, result.reply);
   }
 
   const result = await captureDiscordIdea(sql, {
     discordUserId: user.id,
     discordUsername: user.username ?? null,
     dmChannelId: body.channel_id ?? null,
-    rawText,
+    rawText: readOptionString(body, "text"),
     occurredAt: new Date(),
   });
 

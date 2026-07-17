@@ -123,4 +123,33 @@ describe("handleInboundDiscordInteraction", () => {
       },
     });
   });
+
+  it("binds a Discord account from an app DM slash command", async () => {
+    const result = await handleInboundDiscordInteraction(
+      new FakeSql([[{ user_id: "user-1" }]]),
+      {
+        type: InteractionType.APPLICATION_COMMAND,
+        context: 1,
+        data: {
+          name: "bind",
+          options: [{ name: "code", value: "ABCD-EFGH-JKLM" }],
+        },
+        user: {
+          id: "123456789",
+          username: "testdiscordusername",
+        },
+        channel_id: "channel-1",
+      },
+    );
+
+    assert.deepEqual(result, {
+      status: 200,
+      body: {
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: "Discord connected to Arctic Aria.",
+        },
+      },
+    });
+  });
 });

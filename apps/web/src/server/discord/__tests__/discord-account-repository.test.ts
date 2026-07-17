@@ -23,6 +23,21 @@ test("discord account repository looks up active bindings by discord user id", a
   assert.deepEqual(records[0]?.params, ["1234567890"]);
 });
 
+test("discord account repository looks up active bindings by user id", async () => {
+  const { records, sql } = createSqlStub([
+    row({ user_id: "user-1", discord_user_id: "1234567890" }),
+  ]);
+  const repository = new PostgresDiscordAccountRepository(sql as never);
+
+  const binding = await repository.findActiveByUserId("user-1");
+
+  assert.equal(binding?.userId, "user-1");
+  assert.equal(binding?.discordUserId, "1234567890");
+  assert.match(records[0]?.text ?? "", /WHERE user_id = \$1/);
+  assert.match(records[0]?.text ?? "", /binding_status = 'active'/);
+  assert.deepEqual(records[0]?.params, ["user-1"]);
+});
+
 test("discord account repository upserts developer binding by user id", async () => {
   const { records, sql } = createSqlStub([]);
   const repository = new PostgresDiscordAccountRepository(sql as never);
@@ -47,6 +62,39 @@ test("discord account repository upserts developer binding by user id", async ()
   ]);
 });
 
+test("discord account repository creates a one-time binding code", async () => {
+  const { records, sql } = createSqlStub([]);
+  const repository = new PostgresDiscordAccountRepository(sql as never);
+
+  await repository.createBindingCode({
+    userId: "user-1",
+    codeHash: "a".repeat(64),
+    expiresAt: new Date("2026-07-17T10:40:00.000Z"),
+    createdAt: now,
+  });
+
+  assert.match(records[0]?.text ?? "", /UPDATE discord_binding_codes/);
+  assert.match(records[0]?.text ?? "", /INSERT INTO discord_binding_codes/);
+  assert.deepEqual(records[0]?.params, [
+    "user-1",
+    "a".repeat(64),
+    new Date("2026-07-17T10:40:00.000Z"),
+    now,
+  ]);
+});
+
+test("discord account repository revokes active bindings by user id", async () => {
+  const { records, sql } = createSqlStub([]);
+  const repository = new PostgresDiscordAccountRepository(sql as never);
+
+  const binding = await repository.revokeActiveByUserId("user-1", now);
+
+  assert.equal(binding?.bindingStatus, "revoked");
+  assert.match(records[0]?.text ?? "", /UPDATE discord_accounts/);
+  assert.match(records[0]?.text ?? "", /binding_status = 'active'/);
+  assert.deepEqual(records[0]?.params, ["user-1", now]);
+});
+
 function createSqlStub(findRows: unknown[]) {
   const records: QueryRecord[] = [];
   const sql = {
@@ -60,6 +108,16 @@ function createSqlStub(findRows: unknown[]) {
             discord_user_id: params[1] as string,
             discord_username: params[2] as string | null,
             dm_channel_id: params[3] as string | null,
+          }),
+        ];
+      }
+
+      if (text.includes("UPDATE discord_accounts")) {
+        return [
+          row({
+            user_id: params[0] as string,
+            binding_status: "revoked",
+            revoked_at: params[1] as Date,
           }),
         ];
       }

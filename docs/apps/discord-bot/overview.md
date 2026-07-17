@@ -38,14 +38,14 @@ The bot should:
 The command name is `/idea`, not `/capture`, so the app surface matches the
 product entity.
 
-The next inbound Discord workflow is user-facing account binding:
+The second inbound Discord workflow is user-facing account binding:
 
 ```text
 /bind code:<one-time code>
 ```
 
-The web Settings page owns code creation. The Discord bot owns code redemption
-because it can verify the Discord user id that invoked the command.
+The web Settings backend owns code creation. The Discord bot owns code
+redemption because it can verify the Discord user id that invoked the command.
 
 ## Inbound Interaction Runtime
 
@@ -95,6 +95,7 @@ Local scripts read `apps/discord-bot/.env.local`. Use
 - Inbound interaction handler: `apps/discord-bot/src/inbound-interaction-handler.ts`
 - Command registration: `apps/discord-bot/src/register-commands.ts`
 - Slash command metadata: `apps/discord-bot/src/discord-commands.ts`
+- `/bind` account binding command: `apps/discord-bot/src/account-binding.ts`
 - `/idea` capture command: `apps/discord-bot/src/idea-capture.ts`
 - Developer prototype binding: `apps/discord-bot/src/developer-binding.ts`
 - Database URL helper: `apps/discord-bot/src/database.ts`
@@ -119,14 +120,14 @@ The first developer prototype uses environment settings to bind the
 developer's Discord account to one existing Arctic Aria user. This is a local
 prototype path only.
 
-The next user-facing binding flow uses one-time codes:
+The implemented user-facing binding flow uses one-time codes:
 
 - Settings creates a short-lived binding code for the signed-in Arctic Aria
   user.
 - The code is stored hashed in `discord_binding_codes`.
 - The user runs `/bind code:<code>` in Discord.
 - The bot validates the code, consumes it once, and creates or reactivates the
-  `discord_accounts` row for that Arctic Aria user.
+  `discord_accounts` row for that Arctic Aria user in one atomic SQL statement.
 - A Discord account already bound to another active Arctic Aria user is
   rejected.
 - Reconnecting replaces the previous Discord binding for the same Arctic Aria
@@ -161,26 +162,28 @@ Implemented `discord_accounts` fields:
 
 Implemented constraints:
 
-- `discord_user_id` is unique.
+- active `discord_user_id` values are unique.
 - `user_id` is unique.
 - `binding_status` is one of `active` or `revoked`.
 - queries that load a binding for product commands must require
   `binding_status = 'active'`.
 
-Planned `discord_binding_codes` fields:
+Implemented `discord_binding_codes` fields:
 
 - `id uuid PRIMARY KEY`
 - `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
-- `code_hash text NOT NULL`
+- `code_hash text NOT NULL UNIQUE`
 - `expires_at timestamptz NOT NULL`
 - `consumed_at timestamptz`
 - `created_at timestamptz NOT NULL DEFAULT now()`
 
-Planned binding-code rules:
+Implemented binding-code rules:
 
 - codes expire after 10 minutes
 - codes can be consumed once
 - raw codes are never stored
+- creating a new code consumes previous unconsumed codes for the same Arctic
+  Aria user
 - expired and consumed codes are ignored by normal binding lookups
 
 ## Chat Scope

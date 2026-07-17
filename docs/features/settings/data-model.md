@@ -48,11 +48,11 @@ Settings rules:
 `discord_binding_codes` stores short-lived one-time codes created from Settings
 and consumed by the Discord `/bind` command.
 
-Planned columns:
+Implemented columns:
 
 - `id uuid PRIMARY KEY DEFAULT gen_random_uuid()`
 - `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
-- `code_hash text NOT NULL`
+- `code_hash text NOT NULL UNIQUE`
 - `expires_at timestamptz NOT NULL`
 - `consumed_at timestamptz`
 - `created_at timestamptz NOT NULL DEFAULT now()`
@@ -60,7 +60,8 @@ Planned columns:
 Constraints and indexes:
 
 - index active codes by `code_hash`
-- index unexpired user codes by `user_id`
+- `code_hash` must be a lowercase SHA-256 hex digest
+- index unconsumed user codes by `user_id`
 - `expires_at` must be after `created_at`
 
 Backend rules:
@@ -69,7 +70,9 @@ Backend rules:
 - raw codes are returned to the frontend only once, immediately after creation
 - codes expire after 10 minutes
 - `/bind` consumes only unexpired and unconsumed codes
-- consuming a code and upserting `discord_accounts` happens in one transaction
+- creating a new code consumes previous unconsumed codes for the same user
+- consuming a code and upserting `discord_accounts` happens in one atomic SQL
+  statement
 - expired and consumed codes are not valid for binding
 
 Deletion and lifecycle:
