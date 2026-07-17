@@ -1,6 +1,6 @@
 # Web Color
 
-This document defines the target web color roles. Theme preference loading
+This document defines the shared web color roles. Theme preference loading
 remains documented in [theme.md](theme.md), and component structure remains
 documented in [ui-components.md](ui-components.md).
 
@@ -16,6 +16,21 @@ Feature pages must not create feature-local color systems. If a page needs a
 new repeated color pattern, update the shared role system first.
 
 Docs should use color tokens, not raw color values.
+
+## Palette
+
+The base palette uses generated Radix-style `blue` and `gray` scales:
+
+- `blue-1` through `blue-12`
+- `gray-1` through `gray-12`
+- matching alpha, contrast, surface, indicator, and track tokens where useful
+
+Light and dark mode define the same palette token names with different values.
+Shared Arctic Aria roles then map those palette tokens to product UI behavior.
+
+The `--aa-gray-*` intermediate tokens are narrow helper steps between adjacent
+Radix gray values. They exist only to make panel, panel-hover, and panel-header
+surfaces feel distinct without creating a separate color system.
 
 ## Core Roles
 
@@ -39,7 +54,7 @@ Text is independent from page and panel backgrounds:
 
 Light and dark mode should resolve the same role names to different values in
 `globals.css`. Components should not need separate light-mode and dark-mode
-class logic for normal color behavior. Components that share the same visual
+class logic for normal chrome behavior. Components that share the same visual
 role must reference the same token, so changing or renaming one role updates
 all components mapped to that role.
 
@@ -89,6 +104,7 @@ supportive hints use secondary text.
 | `Button` icon/menu utility presentation | Secondary button |
 | `Button` with `tone="ghost"` | Secondary button (borderless) |
 | `Button` with `tone="success"` | Status tone exception |
+| Sidebar root | Panel header |
 | `SidebarItem` | Secondary button |
 | Active `SidebarItem` | Primary button |
 | `ListItem`, `ExpandableListItem` | Panel |

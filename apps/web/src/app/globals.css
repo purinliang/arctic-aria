@@ -61,63 +61,47 @@
   --gray-indicator: #8b8d98;
   --gray-track: #8b8d98;
   --color-background: #fff;
-  --aa-page-bg: var(--gray-6);
-  --aa-panel-bg: var(--gray-1);
-  --aa-panel-hover-bg: var(--gray-2);
-  --aa-panel-header-bg: var(--gray-3);
-  --aa-primary-text: var(--gray-12);
-  --aa-secondary-text: var(--gray-11);
-  --aa-primary-button-bg: var(--blue-9);
-  --aa-primary-button-text: var(--blue-contrast);
-  --aa-primary-button-hover-bg: var(--blue-10);
-  --aa-primary-button-hover-text: var(--blue-contrast);
-  --aa-primary-button-disabled-bg: var(--blue-6);
-  --aa-primary-button-disabled-text: var(--blue-12);
-  --aa-secondary-button-bg: var(--gray-1);
-  --aa-secondary-button-text: var(--gray-11);
-  --aa-secondary-button-border: var(--gray-6);
-  --aa-secondary-button-hover-bg: var(--gray-3);
-  --aa-secondary-button-hover-border: var(--gray-7);
-  --aa-secondary-button-hover-text: var(--gray-12);
-  --aa-secondary-button-disabled-border: var(--gray-5);
-  --aa-secondary-button-disabled-bg: var(--gray-2);
-  --aa-secondary-button-disabled-text: var(--gray-11);
-  --background: var(--aa-page-bg);
-  --foreground: var(--aa-primary-text);
-  --muted-foreground: var(--aa-secondary-text);
+  --aa-gray-1-25: color-mix(in srgb, var(--gray-1) 75%, var(--gray-2) 25%);
+  --aa-gray-1-50: color-mix(in srgb, var(--gray-1) 50%, var(--gray-2) 50%);
+  --aa-gray-1-75: color-mix(in srgb, var(--gray-1) 25%, var(--gray-2) 75%);
+  --aa-gray-2-25: color-mix(in srgb, var(--gray-2) 75%, var(--gray-3) 25%);
+  --aa-gray-2-50: color-mix(in srgb, var(--gray-2) 50%, var(--gray-3) 50%);
+  --aa-gray-2-75: color-mix(in srgb, var(--gray-2) 25%, var(--gray-3) 75%);
+  --aa-gray-3-25: color-mix(in srgb, var(--gray-3) 75%, var(--gray-4) 25%);
+  --aa-gray-3-50: color-mix(in srgb, var(--gray-3) 50%, var(--gray-4) 50%);
 }
 
 :root[data-aa-theme="dark"],
 .dark,
 .dark-theme {
   --blue-1: #0b111e;
-  --blue-2: #0f1728;
-  --blue-3: #132350;
-  --blue-4: #142a71;
-  --blue-5: #1b3483;
-  --blue-6: #243f92;
-  --blue-7: #2d4ca7;
-  --blue-8: #365bc6;
-  --blue-9: #3b63db;
-  --blue-10: #3357c2;
-  --blue-11: #8eb3ff;
-  --blue-12: #d2e2ff;
+  --blue-2: #0f1729;
+  --blue-3: #102351;
+  --blue-4: #112b71;
+  --blue-5: #173584;
+  --blue-6: #204093;
+  --blue-7: #294da9;
+  --blue-8: #305bc8;
+  --blue-9: #3664db;
+  --blue-10: #2e58c4;
+  --blue-11: #8bb4ff;
+  --blue-12: #d1e3ff;
   --blue-a1: #0012fe0e;
-  --blue-a2: #004ffc19;
-  --blue-a3: #1955fe44;
-  --blue-a4: #194fff67;
-  --blue-a5: #265afd7b;
-  --blue-a6: #3465fe8b;
-  --blue-a7: #3e6fffa1;
-  --blue-a8: #4273ffc2;
-  --blue-a9: #4271fed9;
-  --blue-a10: #3f6fffbe;
-  --blue-a11: #8eb3ff;
-  --blue-a12: #d2e2ff;
+  --blue-a2: #004cfd1a;
+  --blue-a3: #0e54fe45;
+  --blue-a4: #1152ff67;
+  --blue-a5: #1d5bfd7c;
+  --blue-a6: #2c66fe8c;
+  --blue-a7: #376fffa3;
+  --blue-a8: #3971fec5;
+  --blue-a9: #3c72fed9;
+  --blue-a10: #3870ffc0;
+  --blue-a11: #8bb4ff;
+  --blue-a12: #d1e3ff;
   --blue-contrast: #ffffff;
-  --blue-surface: #0e1d3f80;
-  --blue-indicator: #3b63db;
-  --blue-track: #3b63db;
+  --blue-surface: #0e1d4180;
+  --blue-indicator: #3664db;
+  --blue-track: #3664db;
   --gray-1: #111113;
   --gray-2: #19191b;
   --gray-3: #222325;
@@ -147,26 +131,43 @@
   --gray-indicator: #6c6e79;
   --gray-track: #6c6e79;
   --color-background: #111111;
+  --aa-gray-1-25: color-mix(in srgb, var(--gray-1) 75%, var(--gray-2) 25%);
+  --aa-gray-1-50: color-mix(in srgb, var(--gray-1) 50%, var(--gray-2) 50%);
+  --aa-gray-1-75: color-mix(in srgb, var(--gray-1) 25%, var(--gray-2) 75%);
+  --aa-gray-2-25: color-mix(in srgb, var(--gray-2) 75%, var(--gray-3) 25%);
+  --aa-gray-2-50: color-mix(in srgb, var(--gray-2) 50%, var(--gray-3) 50%);
+  --aa-gray-2-75: color-mix(in srgb, var(--gray-2) 25%, var(--gray-3) 75%);
+  --aa-gray-3-25: color-mix(in srgb, var(--gray-3) 75%, var(--gray-4) 25%);
+  --aa-gray-3-50: color-mix(in srgb, var(--gray-3) 50%, var(--gray-4) 50%);
+}
+
+:root,
+:root[data-aa-theme="light"],
+:root[data-aa-theme="dark"],
+.light,
+.light-theme,
+.dark,
+.dark-theme {
   --aa-page-bg: var(--gray-1);
-  --aa-panel-bg: var(--gray-2);
-  --aa-panel-hover-bg: var(--gray-3);
-  --aa-panel-header-bg: var(--gray-4);
+  --aa-panel-bg: var(--aa-gray-1-25);
+  --aa-panel-hover-bg: var(--gray-2);
+  --aa-panel-header-bg: var(--aa-gray-2-25);
   --aa-primary-text: var(--gray-12);
   --aa-secondary-text: var(--gray-11);
   --aa-primary-button-bg: var(--blue-9);
   --aa-primary-button-text: var(--blue-contrast);
   --aa-primary-button-hover-bg: var(--blue-10);
   --aa-primary-button-hover-text: var(--blue-contrast);
-  --aa-primary-button-disabled-bg: var(--blue-4);
+  --aa-primary-button-disabled-bg: var(--blue-3);
   --aa-primary-button-disabled-text: var(--gray-11);
   --aa-secondary-button-bg: var(--gray-2);
   --aa-secondary-button-text: var(--gray-11);
-  --aa-secondary-button-border: var(--gray-6);
+  --aa-secondary-button-border: var(--gray-7);
   --aa-secondary-button-hover-bg: var(--gray-4);
   --aa-secondary-button-hover-border: var(--gray-8);
   --aa-secondary-button-hover-text: var(--gray-12);
-  --aa-secondary-button-disabled-border: var(--gray-5);
-  --aa-secondary-button-disabled-bg: var(--gray-3);
+  --aa-secondary-button-disabled-border: var(--gray-6);
+  --aa-secondary-button-disabled-bg: var(--gray-2);
   --aa-secondary-button-disabled-text: var(--gray-11);
 }
 
@@ -238,34 +239,34 @@
     :root[data-aa-theme="dark"],
     .dark,
     .dark-theme {
-      --blue-1: oklch(17.8% 0.0281 266.2);
-      --blue-2: oklch(20.6% 0.037 266.2);
-      --blue-3: oklch(27.2% 0.0865 266.2);
-      --blue-4: oklch(31.8% 0.1259 266.2);
-      --blue-5: oklch(35.9% 0.1362 266.2);
-      --blue-6: oklch(40% 0.1402 266.2);
-      --blue-7: oklch(44.8% 0.151 266.2);
-      --blue-8: oklch(50.6% 0.1732 266.2);
-      --blue-9: oklch(54.1% 0.1888 266.2);
-      --blue-10: oklch(49.4% 0.1732 266.2);
-      --blue-11: oklch(77.6% 0.1624 266.2);
-      --blue-12: oklch(91.3% 0.0527 266.2);
+      --blue-1: oklch(17.8% 0.0295 264.6);
+      --blue-2: oklch(20.6% 0.038 264.6);
+      --blue-3: oklch(27.1% 0.0883 264.6);
+      --blue-4: oklch(31.8% 0.1261 264.6);
+      --blue-5: oklch(35.9% 0.1376 264.6);
+      --blue-6: oklch(40.1% 0.1425 264.6);
+      --blue-7: oklch(44.9% 0.1539 264.6);
+      --blue-8: oklch(50.5% 0.1762 264.6);
+      --blue-9: oklch(54.2% 0.1891 264.6);
+      --blue-10: oklch(49.5% 0.1762 264.6);
+      --blue-11: oklch(77.6% 0.1634 264.6);
+      --blue-12: oklch(91.3% 0.0538 264.6);
       --blue-a1: color(display-p3 0 0.0706 0.9922 / 0.051);
-      --blue-a2: color(display-p3 0.0667 0.3216 0.9961 / 0.093);
-      --blue-a3: color(display-p3 0.1608 0.3451 0.9961 / 0.253);
-      --blue-a4: color(display-p3 0.149 0.3137 1 / 0.387);
-      --blue-a5: color(display-p3 0.2039 0.3608 1 / 0.458);
-      --blue-a6: color(display-p3 0.2549 0.4078 1 / 0.522);
-      --blue-a7: color(display-p3 0.2941 0.4431 0.9961 / 0.606);
-      --blue-a8: color(display-p3 0.3059 0.4549 0.9961 / 0.732);
-      --blue-a9: color(display-p3 0.3137 0.4588 1 / 0.816);
-      --blue-a10: color(display-p3 0.298 0.4431 1 / 0.715);
-      --blue-a11: color(display-p3 0.6 0.7176 1 / 0.975);
-      --blue-a12: color(display-p3 0.8471 0.8941 1 / 0.988);
+      --blue-a2: color(display-p3 0.0667 0.3098 1 / 0.097);
+      --blue-a3: color(display-p3 0.1294 0.3412 0.9961 / 0.257);
+      --blue-a4: color(display-p3 0.1412 0.3216 1 / 0.387);
+      --blue-a5: color(display-p3 0.1882 0.3647 1 / 0.463);
+      --blue-a6: color(display-p3 0.2392 0.4118 1 / 0.526);
+      --blue-a7: color(display-p3 0.2745 0.4431 0.9961 / 0.614);
+      --blue-a8: color(display-p3 0.2863 0.4549 1 / 0.74);
+      --blue-a9: color(display-p3 0.298 0.4627 1 / 0.816);
+      --blue-a10: color(display-p3 0.2784 0.4471 1 / 0.723);
+      --blue-a11: color(display-p3 0.5922 0.7216 1 / 0.975);
+      --blue-a12: color(display-p3 0.8431 0.898 1 / 0.988);
       --blue-contrast: #ffffff;
-      --blue-surface: color(display-p3 0.0627 0.102 0.2353 / 0.5);
-      --blue-indicator: oklch(54.1% 0.1888 266.2);
-      --blue-track: oklch(54.1% 0.1888 266.2);
+      --blue-surface: color(display-p3 0.0588 0.1098 0.2353 / 0.5);
+      --blue-indicator: oklch(54.2% 0.1891 264.6);
+      --blue-track: oklch(54.2% 0.1891 264.6);
       --gray-1: oklch(17.8% 0.0042 277.7);
       --gray-2: oklch(21.5% 0.004 277.7);
       --gray-3: oklch(25.5% 0.0055 277.7);
@@ -303,13 +304,13 @@
 }
 
 html {
-  background: var(--background);
+  background: var(--aa-page-bg);
 }
 
 body {
   margin: 0;
   background: transparent;
-  color: var(--foreground);
+  color: var(--aa-primary-text);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -320,7 +321,7 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: var(--background);
+  background: var(--aa-page-bg);
 }
 
 button,

@@ -16,7 +16,7 @@ The root auth gate and authenticated app shell own:
 - persisted user preference state, with local fallback
 - resolved light or dark mode
 - root page background
-- root CSS variable synchronization for browser overscroll background
+- root theme attribute synchronization for browser overscroll background
 - passing `darkMode` into shared UI components
 
 Feature pages should not write root CSS variables directly. They should receive
@@ -67,9 +67,9 @@ documented in [color.md](color.md).
 Dark mode is an account setting for logged-in users and a local fallback setting
 before login.
 
-Dark mode should update the browser pull-down and pull-up overscroll background
-so mobile browsers do not reveal an inconsistent light background behind the
-app shell.
+Dark mode should update the root theme attribute so browser pull-down and
+pull-up overscroll backgrounds do not reveal an inconsistent light background
+behind the app shell.
 
 The logged-in user's saved theme preference overrides local/browser defaults. If
 the user setting is missing or unavailable, fall back to the local/browser

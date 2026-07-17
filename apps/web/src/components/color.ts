@@ -46,16 +46,16 @@ const lightToneClasses = {
 } satisfies Record<Tone, string>;
 
 const darkToneClasses = {
-  amber: "border-amber-400/40 bg-amber-500/15 text-amber-200",
-  blue: "border-blue-400/40 bg-blue-500/15 text-blue-200",
-  cyan: "border-cyan-400/40 bg-cyan-500/15 text-cyan-200",
-  emerald: "border-emerald-400/40 bg-emerald-500/15 text-emerald-200",
-  indigo: "border-indigo-400/40 bg-indigo-500/15 text-indigo-200",
-  lime: "border-lime-400/40 bg-lime-500/15 text-lime-200",
+  amber: "border-amber-400/40 bg-amber-950 text-amber-200",
+  blue: "border-blue-400/40 bg-blue-950 text-blue-200",
+  cyan: "border-cyan-400/40 bg-cyan-950 text-cyan-200",
+  emerald: "border-emerald-400/40 bg-emerald-950 text-emerald-200",
+  indigo: "border-indigo-400/40 bg-indigo-950 text-indigo-200",
+  lime: "border-lime-400/40 bg-lime-950 text-lime-200",
   neutral: neutralToneClass,
-  orange: "border-orange-400/40 bg-orange-500/15 text-orange-200",
-  pink: "border-pink-400/40 bg-pink-500/15 text-pink-200",
-  red: "border-red-400/40 bg-red-500/15 text-red-200",
+  orange: "border-orange-400/40 bg-orange-950 text-orange-200",
+  pink: "border-pink-400/40 bg-pink-950 text-pink-200",
+  red: "border-red-400/40 bg-red-950 text-red-200",
 } satisfies Record<Tone, string>;
 
 export function toneClass(darkMode: boolean, tone: Tone = "neutral") {

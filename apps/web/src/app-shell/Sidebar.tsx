@@ -229,7 +229,7 @@ function SidebarFrame({
               open ? "translate-x-0" : "-translate-x-full"
             }`
           : "hidden h-screen w-[300px] shrink-0 lg:sticky lg:top-0 lg:flex"
-      } relative flex-col border-r border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-bg)] text-[var(--aa-primary-text)]`}
+      } relative flex-col border-r border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-header-bg)] text-[var(--aa-primary-text)]`}
     >
       <div
         ref={sidebarRef}
