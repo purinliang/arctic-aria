@@ -73,7 +73,7 @@ export function Sidebar({
   return (
     <>
       <div
-        className={`fixed inset-0 z-40 transition lg:hidden ${
+        className={`fixed inset-0 z-40 bg-[var(--background)] transition lg:hidden ${
           open ? "pointer-events-auto" : "pointer-events-none"
         }`}
         aria-hidden={!open}
