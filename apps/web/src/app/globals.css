@@ -79,8 +79,8 @@ input:focus-visible {
 }
 
 .sidebar-scrollbar.sidebar-scrollbar-visible::-webkit-scrollbar {
-  height: 8px;
-  width: 8px;
+  height: 4px;
+  width: 4px;
 }
 
 .sidebar-scrollbar::-webkit-scrollbar-track {
@@ -88,9 +88,7 @@ input:focus-visible {
 }
 
 .sidebar-scrollbar::-webkit-scrollbar-thumb {
-  background-clip: content-box;
   background-color: rgb(148 163 184 / 0.55);
-  border: 2px solid transparent;
   border-radius: 999px;
 }
 
