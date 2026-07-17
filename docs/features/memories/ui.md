@@ -8,18 +8,17 @@ and [data-model.md](data-model.md).
 
 The home dashboard should show a compact `Pinned Memories` panel. Its icon
 should match the Memories item in the hamburger menu. Use the Lucide
-`ClipboardList` icon.
+`Album` icon.
 
 The dashboard's required first behavior is to show pinned memories only.
 
-The first dashboard should show pinned memories from supported dashboard
-categories only:
+The dashboard should show pinned memories from supported dashboard categories
+only. The code uses `shown_on_dashboard` category metadata for this decision.
+Current built-in dashboard categories are Cuisine and Sightseeing.
 
-- up to 3 Cuisine memories
-- up to 3 Sightseeing memories
-
-Do not show dashboard pinned memories from custom categories until a later UI
-feature designs that behavior.
+For now, show up to 3 pinned memories per dashboard-enabled category. Do not
+show dashboard pinned memories from custom categories until a later UI feature
+designs that behavior.
 
 For each pinned memory, show:
 
@@ -51,7 +50,7 @@ On dashboard load or reload:
 
 The Memories page is the full management page for this feature. It can be opened
 from the hamburger menu. Its icon should match the `Pinned Memories` dashboard
-section; use the Lucide `ClipboardList` icon.
+section; use the Lucide `Album` icon.
 
 The page should allow the user to:
 
@@ -79,7 +78,7 @@ The title section is at the top of the Memories page.
 
 Layout:
 
-- Left side: Lucide `ClipboardList` icon, title, and description.
+- Left side: Lucide `Album` icon, title, and description.
 - Right side: `New` button with a plus icon, using secondary styling.
 - The title text is `Memories`.
 - The description text is `Saved experiences to revisit when the day needs a gentle option.`
@@ -94,8 +93,10 @@ list.
 Layout:
 
 - Show the text `Categories:` using shared `LabelText`.
-- Show filter buttons starting with `All`, followed by user categories such as
-  `Cuisine`.
+- Show filter buttons starting with `All`, followed by all user categories such
+  as `Cuisine`, even when a category has no memories yet.
+- The `All` filter should show a neutral memory icon.
+- Category filter buttons should show the category icon when one is available.
 - If there are too many categories, the filter buttons should wrap onto multiple
   lines.
 - Show a Lucide `Settings2` button with text `Manage`.
@@ -219,6 +220,9 @@ The user must be able to:
 - add a memory category
 - edit a memory category
 - delete a memory category when it is not used by memories
+
+Built-in categories should remain visible in Manage Categories with their icon
+and built-in metadata. Do not show an edit action for built-in categories.
 
 The add and edit controls should not appear as inline panels inside the memory
 list. Inline panels are hard to distinguish from page content and make it

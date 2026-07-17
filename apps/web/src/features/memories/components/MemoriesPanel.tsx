@@ -16,17 +16,24 @@ import {
   LabelText,
   SupportingText,
 } from "@/components/text";
-import type { MemoryRecord } from "@/features/dashboard/types";
+import type {
+  MemoryCategoryOption,
+  MemoryRecord,
+} from "@/features/dashboard/types";
 import type { MemoryMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
-import type { MemoryFilter } from "./memory-page-helpers";
+import { MemoryCategoryIcon } from "./MemoryCategoryIcon";
+import {
+  getMemoryFilterNames,
+  type MemoryFilter,
+} from "./memory-page-helpers";
 
 export function MemoriesPanel({
   darkMode,
   loading,
   pending,
   filter,
-  filters,
+  categories,
   memories,
   messages,
   dateMessages,
@@ -39,7 +46,7 @@ export function MemoriesPanel({
   loading: boolean;
   pending: boolean;
   filter: MemoryFilter;
-  filters: MemoryFilter[];
+  categories: MemoryCategoryOption[];
   memories: MemoryRecord[];
   messages: MemoryMessages["panel"];
   dateMessages: DatePickerMessages;
@@ -48,6 +55,10 @@ export function MemoriesPanel({
   onManage: () => void;
   onEditMemory: (memory: MemoryRecord) => void;
 }) {
+  const categoryByName = new Map(
+    categories.map((category) => [category.name, category]),
+  );
+
   return (
     <Panel darkMode={darkMode} className="min-w-0">
       <CardHeader
@@ -74,10 +85,20 @@ export function MemoriesPanel({
         <SingleChoiceGroup
           darkMode={darkMode}
           value={filter}
-          options={filters.map((item) => ({
-            value: item,
-            label: item === "All" ? messages.all : item,
-          }))}
+          options={getMemoryFilterNames(categories).map((item) => {
+            const category = categoryByName.get(item);
+
+            return {
+              value: item,
+              label: item === "All" ? messages.all : item,
+              icon:
+                item === "All" ? (
+                  <Album size={14} aria-hidden="true" />
+                ) : category ? (
+                  <MemoryCategoryIcon iconName={category.iconName} />
+                ) : undefined,
+            };
+          })}
           onChange={(value) => onFilterChange(value as MemoryFilter)}
         />
         <Button

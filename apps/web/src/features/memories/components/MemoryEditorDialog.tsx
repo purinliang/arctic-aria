@@ -22,6 +22,7 @@ import { LabelText } from "@/components/text";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryInput } from "@/features/memories/actions";
 import type { MemoryMessages } from "@/messages/app-messages";
+import { MemoryCategoryIcon } from "./MemoryCategoryIcon";
 
 export function MemoryEditorDialog({
   darkMode,
@@ -90,6 +91,7 @@ export function MemoryEditorDialog({
                   options={categories.map((category) => ({
                     value: category.id,
                     label: category.name,
+                    icon: <MemoryCategoryIcon iconName={category.iconName} />,
                   }))}
                   onChange={(categoryId) => {
                     const category = categories.find(
