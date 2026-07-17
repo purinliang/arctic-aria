@@ -14,11 +14,16 @@ import {
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { List, ListItem } from "@/components/list";
-import { DescriptionText } from "@/components/text";
+import { DescriptionText, SupportingText } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryCategoryInput } from "@/features/memories/actions";
 import type { MemoryMessages } from "@/messages/app-messages";
+
+type CategoryDeleteTarget = Pick<
+  MemoryCategoryOption,
+  "id" | "name" | "description"
+>;
 
 export function CategoryManagerDialog({
   darkMode,
@@ -47,7 +52,7 @@ export function CategoryManagerDialog({
   onOpenNew: () => void;
   onOpenEdit: (category: MemoryCategoryOption) => void;
   onSubmit: () => void;
-  onDelete: (category: MemoryCategoryOption) => void;
+  onDelete: (category: CategoryDeleteTarget) => void;
 }) {
   return (
     <>
@@ -98,15 +103,24 @@ export function CategoryManagerDialog({
                   <DescriptionText darkMode={darkMode} className="mt-1">
                     {category.description || messages.noDescription}
                   </DescriptionText>
+                  {category.builtInKey ? (
+                    <SupportingText darkMode={darkMode} className="mt-2 block">
+                      {category.shownOnDashboard
+                        ? `${messages.builtIn} · ${messages.shownOnDashboard}`
+                        : messages.builtIn}
+                    </SupportingText>
+                  ) : null}
                 </div>
-                <Button
-                  darkMode={darkMode}
-                  disabled={pending}
-                  icon={<Edit3 size={15} aria-hidden="true" />}
-                  onClick={() => onOpenEdit(category)}
-                >
-                  {messages.edit}
-                </Button>
+                {category.builtInKey ? null : (
+                  <Button
+                    darkMode={darkMode}
+                    disabled={pending}
+                    icon={<Edit3 size={15} aria-hidden="true" />}
+                    onClick={() => onOpenEdit(category)}
+                  >
+                    {messages.edit}
+                  </Button>
+                )}
               </ListItem>
             ))}
           </List>

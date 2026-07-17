@@ -1,4 +1,5 @@
 import type {
+  BuiltInMemoryCategoryKey,
   MemoryCategoryName,
   MemoryCategoryRecord,
   MemoryRecord,
@@ -10,6 +11,9 @@ export type MemoryCategoryRow = {
   user_id: string;
   name: MemoryCategoryName;
   description: string;
+  built_in_key: BuiltInMemoryCategoryKey | null;
+  icon_name: string;
+  shown_on_dashboard: boolean;
   created_at: Date | string;
   updated_at: Date | string;
 };
@@ -19,6 +23,8 @@ export type MemoryRow = {
   user_id: string;
   category_id: string;
   category_name: MemoryCategoryName;
+  category_built_in_key: BuiltInMemoryCategoryKey | null;
+  category_shown_on_dashboard: boolean;
   title: string;
   description: string;
   last_done_at: Date | string | null;
@@ -35,6 +41,8 @@ export type PinnedMemoryRow = {
   memory_id: string;
   category_id: string;
   category_name: MemoryCategoryName;
+  category_built_in_key: BuiltInMemoryCategoryKey | null;
+  category_shown_on_dashboard: boolean;
   title: string;
   description: string;
   position: number;
@@ -63,6 +71,9 @@ export function mapCategory(row: MemoryCategoryRow): MemoryCategoryRecord {
     userId: row.user_id,
     name: row.name,
     description: row.description,
+    builtInKey: row.built_in_key,
+    iconName: row.icon_name,
+    shownOnDashboard: row.shown_on_dashboard,
     createdAt: toDate(row.created_at),
     updatedAt: toDate(row.updated_at),
   };
@@ -74,6 +85,8 @@ export function mapMemory(row: MemoryRow): MemoryRecord {
     userId: row.user_id,
     categoryId: row.category_id,
     categoryName: row.category_name,
+    categoryBuiltInKey: row.category_built_in_key,
+    categoryShownOnDashboard: row.category_shown_on_dashboard,
     title: row.title,
     description: row.description,
     lastDoneAt: toNullableDate(row.last_done_at),
@@ -92,6 +105,8 @@ export function mapPinnedMemory(row: PinnedMemoryRow): PinnedMemoryRecord {
     memoryId: row.memory_id,
     categoryId: row.category_id,
     categoryName: row.category_name,
+    categoryBuiltInKey: row.category_built_in_key,
+    categoryShownOnDashboard: row.category_shown_on_dashboard,
     title: row.title,
     description: row.description,
     position: row.position,
@@ -113,6 +128,8 @@ export const memorySelect = `
     memories.user_id,
     memories.category_id,
     memory_categories.name AS category_name,
+    memory_categories.built_in_key AS category_built_in_key,
+    memory_categories.shown_on_dashboard AS category_shown_on_dashboard,
     memories.title,
     memories.description,
     memories.last_done_at,
@@ -132,6 +149,8 @@ export const pinnedMemorySelect = `
     pinned_memories.memory_id,
     memories.category_id,
     memory_categories.name AS category_name,
+    memory_categories.built_in_key AS category_built_in_key,
+    memory_categories.shown_on_dashboard AS category_shown_on_dashboard,
     memories.title,
     memories.description,
     pinned_memories.position,
@@ -156,6 +175,8 @@ export const pinnedSelectFromUpdatedPin = `
     updated_pin.memory_id,
     memories.category_id,
     memory_categories.name AS category_name,
+    memory_categories.built_in_key AS category_built_in_key,
+    memory_categories.shown_on_dashboard AS category_shown_on_dashboard,
     memories.title,
     memories.description,
     updated_pin.position,

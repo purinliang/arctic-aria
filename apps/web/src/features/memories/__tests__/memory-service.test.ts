@@ -23,10 +23,16 @@ test("initializes default memory categories for a user", async () => {
   const categories = await service.initializeUserMemoryDefaults(userId);
 
   assert.deepEqual(
-    categories.map((category) => [category.name, category.description]),
+    categories.map((category) => [
+      category.name,
+      category.description,
+      category.builtInKey,
+      category.iconName,
+      category.shownOnDashboard,
+    ]),
     [
-      ["Cuisine", ""],
-      ["Sightseeing", ""],
+      ["Cuisine", "", "cuisine", "utensils", true],
+      ["Sightseeing", "", "sightseeing", "landmark", true],
     ],
   );
 
@@ -58,6 +64,29 @@ test("creates memory in a newly created custom category", async () => {
   assert.equal(createdMemory.categoryId, category.id);
   assert.equal(createdMemory.categoryName, "Custom");
   assert.equal(createdMemory.title, "Custom memory");
+});
+
+test("does not edit or delete built-in memory categories", async () => {
+  const repository = new InMemoryMemoryRepository();
+  const service = createMemoryService({
+    memories: repository,
+    now: () => now,
+  });
+  const [category] = await service.initializeUserMemoryDefaults(userId);
+
+  const updated = await service.updateCategory(
+    userId,
+    category.id,
+    "Changed",
+    "Changed description",
+  );
+  const deleted = await service.deleteCategory(userId, category.id);
+  const categories = await service.listMemoryCategories(userId);
+
+  assert.equal(updated, null);
+  assert.equal(deleted, false);
+  assert.equal(categories[0].name, "Cuisine");
+  assert.equal(categories[0].builtInKey, "cuisine");
 });
 
 test("complete pinned memory records completion and cleanup timing", async () => {
@@ -137,7 +166,7 @@ test("cancel pinned memory done clears completion state", async () => {
   assert.equal(repository.getEvents()[0]?.eventType, "completed_canceled");
 });
 
-test("dashboard pinned memories only include supported default categories", async () => {
+test("dashboard pinned memories use category dashboard visibility", async () => {
   const repository = new InMemoryMemoryRepository({
     categories: [
       ...memoryCategories,
@@ -146,6 +175,9 @@ test("dashboard pinned memories only include supported default categories", asyn
         userId,
         name: "Anime",
         description: "",
+        builtInKey: null,
+        iconName: "sparkles",
+        shownOnDashboard: false,
         createdAt: new Date("2026-06-01T00:00:00.000Z"),
         updatedAt: new Date("2026-06-01T00:00:00.000Z"),
       },
@@ -154,6 +186,7 @@ test("dashboard pinned memories only include supported default categories", asyn
       memory({
         id: "memory-1",
         categoryId: "category-cuisine",
+        categoryName: "Food",
         title: "Ramen",
       }),
       memory({
@@ -173,6 +206,7 @@ test("dashboard pinned memories only include supported default categories", asyn
         id: "pin-1",
         memoryId: "memory-1",
         categoryId: "category-cuisine",
+        categoryName: "Food",
         title: "Ramen",
       }),
       pinnedMemory({
@@ -199,7 +233,7 @@ test("dashboard pinned memories only include supported default categories", asyn
 
   assert.deepEqual(
     result.map((memory) => memory.categoryName),
-    ["Cuisine", "Sightseeing"],
+    ["Food", "Sightseeing"],
   );
 });
 

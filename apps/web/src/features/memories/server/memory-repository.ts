@@ -10,7 +10,7 @@ import type {
 
 export { getDefaultMemoryCategories } from "./memory-repository-types.ts";
 export type {
-  CancelPinnedMemoryInput, CompletePinnedMemoryInput,
+  BuiltInMemoryCategoryKey, CancelPinnedMemoryInput, CompletePinnedMemoryInput,
   CreateMemoryCategoryInput, CreateMemoryInput, DeleteMemoryCategoryInput,
   DeleteMemoryInput, IgnoreMemoryInput, MemoryCategoryName, MemoryCategoryRecord,
   MemoryEventType, MemoryRecord, MemoryRepository, PinMemoryInput,
@@ -45,7 +45,9 @@ export class InMemoryMemoryRepository implements MemoryRepository {
     for (const category of getDefaultMemoryCategories()) {
       const exists = this.categories.some(
         (existing) =>
-          existing.userId === userId && existing.name === category.name,
+          existing.userId === userId &&
+          (existing.name === category.name ||
+            existing.builtInKey === category.builtInKey),
       );
 
       if (!exists) {
@@ -54,9 +56,25 @@ export class InMemoryMemoryRepository implements MemoryRepository {
           userId,
           name: category.name,
           description: category.description,
+          builtInKey: category.builtInKey,
+          iconName: category.iconName,
+          shownOnDashboard: category.shownOnDashboard,
           createdAt: now,
           updatedAt: now,
         });
+      } else {
+        this.categories = this.categories.map((existing) =>
+          existing.userId === userId &&
+          (existing.name === category.name ||
+            existing.builtInKey === category.builtInKey)
+            ? {
+                ...existing,
+                builtInKey: category.builtInKey,
+                iconName: category.iconName,
+                shownOnDashboard: category.shownOnDashboard,
+              }
+            : existing,
+        );
       }
     }
 
@@ -79,6 +97,9 @@ export class InMemoryMemoryRepository implements MemoryRepository {
       userId: input.userId,
       name: input.name,
       description: input.description,
+      builtInKey: null,
+      iconName: "bookmark",
+      shownOnDashboard: false,
       createdAt: input.occurredAt,
       updatedAt: input.occurredAt,
     };
@@ -98,6 +119,10 @@ export class InMemoryMemoryRepository implements MemoryRepository {
       return null;
     }
 
+    if (category.builtInKey) {
+      return null;
+    }
+
     category.name = input.name;
     category.description = input.description;
     category.updatedAt = input.occurredAt;
@@ -110,6 +135,17 @@ export class InMemoryMemoryRepository implements MemoryRepository {
       this.memories.some(
         (memory) =>
           memory.userId === input.userId && memory.categoryId === input.categoryId,
+      )
+    ) {
+      return false;
+    }
+
+    if (
+      this.categories.some(
+        (category) =>
+          category.userId === input.userId &&
+          category.id === input.categoryId &&
+          category.builtInKey,
       )
     ) {
       return false;
@@ -139,6 +175,8 @@ export class InMemoryMemoryRepository implements MemoryRepository {
       userId: input.userId,
       categoryId: input.categoryId,
       categoryName: category.name,
+      categoryBuiltInKey: category.builtInKey,
+      categoryShownOnDashboard: category.shownOnDashboard,
       title: input.title,
       description: input.description,
       lastDoneAt: null,
@@ -169,6 +207,8 @@ export class InMemoryMemoryRepository implements MemoryRepository {
 
     memory.categoryId = input.categoryId;
     memory.categoryName = category.name;
+    memory.categoryBuiltInKey = category.builtInKey;
+    memory.categoryShownOnDashboard = category.shownOnDashboard;
     memory.title = input.title;
     memory.description = input.description;
     memory.updatedAt = input.occurredAt;
@@ -205,6 +245,8 @@ export class InMemoryMemoryRepository implements MemoryRepository {
       memoryId: memory.id,
       categoryId: memory.categoryId,
       categoryName: memory.categoryName,
+      categoryBuiltInKey: memory.categoryBuiltInKey,
+      categoryShownOnDashboard: memory.categoryShownOnDashboard,
       title: memory.title,
       description: memory.description,
       position: input.position,
