@@ -171,7 +171,7 @@ export function AuthGate() {
 
     return (
       <main
-        className="grid min-h-screen place-items-center bg-[var(--aa-page-bg)] px-4 text-[var(--aa-primary-text)] transition-colors"
+        className="grid min-h-[100svh] place-items-center bg-[var(--aa-page-bg)] px-4 text-[var(--aa-primary-text)] transition-colors sm:min-h-screen"
       >
         <div
           className="grid justify-items-center gap-4 text-center"

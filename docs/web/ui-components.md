@@ -149,6 +149,9 @@ typed field should accept compact values such as `910` for `9:10` and 24-hour
 values such as `19:30` for `7:30 PM`. While the popover is open, edits stay in a
 local draft until the user clicks `Confirm`. Do not show an extra visible
 `Time` title inside the popover; the surrounding form field owns the label.
+When the popover opens, autofocus the typed time field and select its current
+value so keyboard entry can start immediately. The typed field placeholder
+should show example formats, such as `9:30PM or 21:30`.
 Before confirmation, show a preview with the normalized time and a capitalized
 day period, such as `12:30 AM Midnight`, `09:30 PM Night`, or `21:30 Night`.
 When no value exists, the picker defaults to the current time plus 15 minutes,

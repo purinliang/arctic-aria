@@ -183,11 +183,15 @@ Breadcrumb row:
 - first item: `Projects`, which returns to the list page
 - divider: `/`
 - second item: project name switcher
+- mobile: keep the hamburger, `Projects /`, and project actions on the first
+  row, then place the project name switcher on a second row aligned with the
+  hamburger button
 - switching through the project name keeps the user on the detail page
 - title action: `Edit3` icon plus `Edit`, placed to the right of the
   breadcrumb and opening the project editor dialog
 - adjacent title action: icon-only outline `Pin` or `PinOff` button, updating
   the sidebar shortcut state for the selected project
+- mobile actions: keep pin/unpin and edit on the first row, right aligned
 
 Project overview card:
 
