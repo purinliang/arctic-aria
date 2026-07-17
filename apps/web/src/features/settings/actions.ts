@@ -13,6 +13,10 @@ import {
   discordBindingService,
   type DiscordBindingActionResult,
 } from "./server/discord-binding-service";
+import {
+  discordTestMessageService,
+  type DiscordTestMessageActionResult,
+} from "./server/discord-test-message-service";
 
 export async function getUserPreferences(): Promise<SettingsActionResult> {
   const user = await getCurrentUser();
@@ -85,6 +89,18 @@ export async function cancelDiscordBindingCode(): Promise<
   return discordBindingService.cancelBindingCode(user.id);
 }
 
+export async function sendDiscordTestMessage(): Promise<
+  DiscordTestMessageActionResult
+> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedDiscordTestResult();
+  }
+
+  return discordTestMessageService.sendTestMessage(user.id);
+}
+
 function unauthorizedResult(): SettingsActionResult {
   return {
     ok: false,
@@ -94,6 +110,14 @@ function unauthorizedResult(): SettingsActionResult {
 }
 
 function unauthorizedDiscordResult(): DiscordBindingActionResult {
+  return {
+    ok: false,
+    code: "settings_unauthorized",
+    message: "Sign in before changing settings.",
+  };
+}
+
+function unauthorizedDiscordTestResult(): DiscordTestMessageActionResult {
   return {
     ok: false,
     code: "settings_unauthorized",

@@ -12,6 +12,11 @@ The first version supports plain text DM delivery only. Buttons, channel
 messages, reminder workflows, retries, queues, and scheduling remain future
 work.
 
+The first web caller is Settings -> Discord -> Send Test. It sends a simple
+hello message to the currently signed-in Arctic Aria user's bound Discord
+account so the developer can verify binding, the private push secret, and DM
+delivery without writing a manual HTTP request.
+
 Naming note:
 
 - use `outbound messages` for this feature in docs
