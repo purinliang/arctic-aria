@@ -1,11 +1,11 @@
 # Discord Outbound Messages
 
 This document describes the internal API for sending Arctic Aria messages to a
-user's Discord DM through the Discord bot service.
+user's Discord DM through the Discord app surface.
 
 ## Purpose
 
-Outbound messages let Arctic Aria services ask the Discord bot to deliver a
+Outbound messages let Arctic Aria services ask the Discord app surface to deliver a
 plain DM to a Discord account already bound to an Arctic Aria user.
 
 The first version supports plain text DM delivery only. Buttons, channel
@@ -22,7 +22,8 @@ Naming note:
 - use `outbound messages` for this feature in docs
 - use `inbound interactions` for Discord slash commands and interaction
   requests sent to Arctic Aria
-- keep `/internal/discord/messages` as the private service-to-service endpoint
+- keep `/api/internal/discord/messages` as the private service-to-service
+  endpoint
 - use `secret`, not `key`, because the value must remain private and is used
   only to authorize this private endpoint
 
@@ -31,13 +32,13 @@ Naming note:
 Endpoint:
 
 ```text
-POST /internal/discord/messages
+POST /api/internal/discord/messages
 ```
 
 Authentication:
 
 - caller sends `Authorization: Bearer <DISCORD_MESSAGE_PUSH_SECRET>`
-- bot compares the bearer token to `DISCORD_MESSAGE_PUSH_SECRET`
+- endpoint compares the bearer token to `DISCORD_MESSAGE_PUSH_SECRET`
 - reject missing or mismatched secrets with `401`
 - never log the secret or raw request body
 
@@ -72,7 +73,7 @@ Responses:
 - `404`: no active Discord binding for the Arctic Aria user
 - `409`: idempotency key reused for different content
 - `502`: Discord API rejected or failed the send request
-- `503`: outbound messages unavailable because the bot process is missing
+- `503`: outbound messages unavailable because the web environment is missing
   `DISCORD_BOT_TOKEN` or `DISCORD_MESSAGE_PUSH_SECRET`
 
 Successful responses should include only delivery metadata, not the raw
@@ -82,17 +83,17 @@ message text.
 
 ```text
 Arctic Aria service
-  -> POST /internal/discord/messages
-  -> bot validates message-push secret
-  -> bot validates request body
-  -> bot loads active discord_accounts row by Arctic Aria user id
-  -> bot sends DM through Discord HTTP API
-  -> bot records delivery status
-  -> bot returns delivery result
+  -> POST /api/internal/discord/messages
+  -> web route validates message-push secret
+  -> web route validates request body
+  -> web route loads active discord_accounts row by Arctic Aria user id
+  -> web route sends DM through Discord HTTP API
+  -> web route records delivery status
+  -> web route returns delivery result
 ```
 
-The Discord bot may call Discord HTTP directly. It should not require a Gateway
-connection for outbound messages.
+The Discord app surface may call Discord HTTP directly. It should not require a
+Gateway connection for outbound messages.
 
 ## Delivery Records
 
@@ -153,7 +154,7 @@ Logs must not include:
 Successful delivery log shape:
 
 ```text
-[discord-bot] outbound_message_handled { status: 200, deliveryId: "..." }
+[discord-web] outbound_message_handled { status: 200, deliveryId: "..." }
 ```
 
 ## Future Work

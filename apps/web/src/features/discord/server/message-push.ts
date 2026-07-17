@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import type { DiscordMessageSender } from "../infrastructure/api.ts";
-import type { QueryExecutor } from "../infrastructure/database.ts";
+import type { DiscordMessageSender } from "./discord-api.ts";
+import type { QueryExecutor } from "./query.ts";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -66,7 +66,9 @@ export async function handleOutboundDiscordMessage(
   });
 
   if (delivery.kind === "conflict") {
-    return result(409, { error: "Idempotency key reused for different content." });
+    return result(409, {
+      error: "Idempotency key reused for different content.",
+    });
   }
 
   if (delivery.kind === "existing") {

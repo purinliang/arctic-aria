@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "discord:register-commands": "node --env-file-if-exists=.env.local src/features/discord/server/register-commands.ts",
     "db:migrate": "node scripts/migrate.mjs",
     "lint": "eslint",
     "test": "node --test \"src/**/*.test.ts\""

@@ -22,14 +22,14 @@ The web UI does not expose add, edit, delete, triage, or conversion controls
 yet.
 
 Discord `/idea` uses the same Ideas table after Discord account binding is
-validated by the Discord bot app.
+validated by the Discord app surface.
 
 ## Verification
 
 Focused coverage:
 
 - `apps/web/src/features/ideas/__tests__/idea-service.test.ts`
-- `apps/discord-bot/src/__tests__/idea-capturing.test.ts`
+- `apps/web/src/features/discord/__tests__/interactions.test.ts`
 
 Broad verification:
 

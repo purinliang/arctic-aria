@@ -8,14 +8,17 @@ into `main`.
 
 ## Format
 
-For `v0.6.1` and later, release PRs should usually include:
+For `v0.6.1` release docs, release PRs usually included:
 
 - `Summary`
 - `Changes`
 
-Keep the PR text concise. Do not include routine `Verification` or `Notes`
-sections unless the developer explicitly asks or a release-blocking caveat must
-be visible in GitHub.
+For `v0.7.0` and later, keep release PRs simpler: write one release title and
+one release text block, then use the same text as the PR body and main release
+commit body. Do not duplicate the same information into a long Changes section.
+
+Do not include routine `Verification` or `Notes` sections unless the developer
+explicitly asks or a release-blocking caveat must be visible in GitHub.
 
 Older release files may include longer verification and notes blocks. Keep them
 as historical records.
@@ -41,3 +44,4 @@ documentation updates. Keep the body specific enough to be useful when reading
 - [v0.5.1.md](v0.5.1.md): hotfix release record.
 - [v0.6.0.md](v0.6.0.md)
 - [v0.6.1.md](v0.6.1.md): patch release record.
+- [v0.7.0.md](v0.7.0.md)

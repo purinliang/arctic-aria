@@ -9,18 +9,6 @@ export type DiscordDirectMessageResult = {
   dmChannelId: string | null;
 };
 
-export type DiscordInteractionResponseInput = {
-  applicationId: string;
-  interactionToken: string;
-  content: string;
-};
-
-export type DiscordInteractionResponseEditor = {
-  editOriginalInteractionResponse(
-    input: DiscordInteractionResponseInput,
-  ): Promise<void>;
-};
-
 export type DiscordMessageSender = {
   sendDirectMessage(
     input: DiscordDirectMessageInput,
@@ -37,7 +25,9 @@ export class DiscordApiError extends Error {
   }
 }
 
-export function createDiscordMessageSender(botToken: string): DiscordMessageSender {
+export function createDiscordMessageSender(
+  botToken: string,
+): DiscordMessageSender {
   return {
     async sendDirectMessage(input) {
       const dmChannelId =
@@ -53,15 +43,10 @@ export function createDiscordMessageSender(botToken: string): DiscordMessageSend
   };
 }
 
-export function createDiscordInteractionResponseEditor(): DiscordInteractionResponseEditor {
-  return {
-    async editOriginalInteractionResponse(input) {
-      await editOriginalInteractionResponse(input);
-    },
-  };
-}
-
-async function createDirectMessageChannel(botToken: string, discordUserId: string) {
+async function createDirectMessageChannel(
+  botToken: string,
+  discordUserId: string,
+) {
   const body = await discordRequest(botToken, "/users/@me/channels", {
     recipient_id: discordUserId,
   });
@@ -82,32 +67,6 @@ async function sendChannelMessage(
   return discordRequest(botToken, `/channels/${channelId}/messages`, {
     content,
   });
-}
-
-async function editOriginalInteractionResponse(
-  input: DiscordInteractionResponseInput,
-) {
-  const applicationId = encodeURIComponent(input.applicationId);
-  const interactionToken = encodeURIComponent(input.interactionToken);
-  const response = await fetch(
-    `https://discord.com/api/v10/webhooks/${applicationId}/${interactionToken}/messages/@original`,
-    {
-      method: "PATCH",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        content: input.content,
-        allowed_mentions: {
-          parse: [],
-        },
-      }),
-    },
-  );
-
-  if (!response.ok) {
-    throw new DiscordApiError(`discord_http_${response.status}`);
-  }
 }
 
 async function discordRequest(

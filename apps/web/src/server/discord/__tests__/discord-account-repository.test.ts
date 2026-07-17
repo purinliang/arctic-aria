@@ -59,6 +59,32 @@ test("discord account repository creates a one-time binding code", async () => {
   ]);
 });
 
+test("discord account repository redeems a binding code", async () => {
+  const { records, sql } = createSqlStub([
+    row({ user_id: "user-1", discord_user_id: "1234567890" }),
+  ]);
+  const repository = new PostgresDiscordAccountRepository(sql as never);
+
+  const binding = await repository.redeemBindingCode({
+    codeHash: "a".repeat(64),
+    discordUserId: "1234567890",
+    discordUsername: "testdisplayname",
+    dmChannelId: "channel-1",
+    occurredAt: now,
+  });
+
+  assert.equal(binding?.userId, "user-1");
+  assert.match(records[0]?.text ?? "", /UPDATE discord_binding_codes/);
+  assert.match(records[0]?.text ?? "", /INSERT INTO discord_accounts/);
+  assert.deepEqual(records[0]?.params, [
+    "a".repeat(64),
+    "1234567890",
+    "testdisplayname",
+    "channel-1",
+    now,
+  ]);
+});
+
 test("discord account repository cancels active binding codes by user id", async () => {
   const { records, sql } = createSqlStub([]);
   const repository = new PostgresDiscordAccountRepository(sql as never);
@@ -68,6 +94,27 @@ test("discord account repository cancels active binding codes by user id", async
   assert.match(records[0]?.text ?? "", /UPDATE discord_binding_codes/);
   assert.match(records[0]?.text ?? "", /consumed_at IS NULL/);
   assert.deepEqual(records[0]?.params, ["user-1", now]);
+});
+
+test("discord account repository records interaction metadata", async () => {
+  const { records, sql } = createSqlStub([]);
+  const repository = new PostgresDiscordAccountRepository(sql as never);
+
+  await repository.recordInteraction({
+    discordUserId: "1234567890",
+    discordUsername: "testdisplayname",
+    dmChannelId: "channel-1",
+    occurredAt: now,
+  });
+
+  assert.match(records[0]?.text ?? "", /UPDATE discord_accounts/);
+  assert.match(records[0]?.text ?? "", /last_interaction_at/);
+  assert.deepEqual(records[0]?.params, [
+    "1234567890",
+    now,
+    "testdisplayname",
+    "channel-1",
+  ]);
 });
 
 test("discord account repository revokes active bindings by user id", async () => {
@@ -91,7 +138,9 @@ function createSqlStub(findRows: unknown[]) {
       if (text.includes("INSERT INTO discord_accounts")) {
         return [
           row({
-            user_id: params[0] as string,
+            user_id: text.includes("discord_binding_codes")
+              ? "user-1"
+              : (params[0] as string),
             discord_user_id: params[1] as string,
             discord_username: params[2] as string | null,
             dm_channel_id: params[3] as string | null,

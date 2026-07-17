@@ -5,8 +5,8 @@ work. It is no longer organized as numbered phases.
 
 ## Current Baseline
 
-Current released version: `v0.5.1`.
-Current development target: `v0.6.0`.
+Current released version: `v0.6.1`.
+Current development target: `v0.7.0`.
 
 The web dashboard baseline in the latest release is mostly complete for the
 current prototype:
@@ -21,15 +21,15 @@ current prototype:
 - Neon PostgreSQL migrations and migration checksum tracking
 - app/database version metadata
 
-Current unreleased `develop` work includes the first Discord prototype:
+Current Discord work includes the first Discord prototype:
 
-- Discord HTTP Interactions app under `apps/discord-bot`
+- Discord HTTP Interactions routes under `apps/web`
 - user-facing Discord binding from Settings through `/bind code:<code>`
 - Discord `/idea text:<raw text>` capture into untriaged Ideas
 - internal outbound Discord message API
 - Settings -> Discord -> `Send Test` for manual message-push verification
 
-Current unreleased `develop` work also includes web and data-model polish:
+The latest released web baseline also includes web and data-model polish:
 
 - built-in memory categories for Cuisine, Sightseeing, Movie, Anime, Book,
   Music, Game, and Shopping, with fixed icons, localized built-in display text,
@@ -42,29 +42,29 @@ Current unreleased `develop` work also includes web and data-model polish:
   inspectable through browser developer tools
 - Settings `About` card for visible app-version information
 
-## Next: v0.6.0
+## Next: v0.7.0
 
 Goal: harden the current prototype and prepare the next feature cycle without
 turning one release into a broad schema audit.
 
-For the remaining `v0.6.0` work, do not start another large user-facing feature
+For the remaining `v0.7.0` work, do not start another large user-facing feature
 until hardening and documentation catch up. Bug fixes, documentation, tests,
-Redis/cache design, Discord bot hardening, and small UI consistency work are in
-scope.
+Redis/cache design, Discord app-surface hardening, and small UI consistency
+work are in scope.
 
-Remaining v0.6.0 work:
+Remaining v0.7.0 work:
 
 - Design Redis usage without implementing it prematurely. Redis should support
   latency reduction, short-lived coordination, rate limiting, idempotency, or
   queue-like behavior only when the database remains the source of truth.
-- Review the implemented Discord bot prototype, including account binding,
+- Review the implemented Discord app surface, including account binding,
   `/idea` quick capture, outbound message push, local ngrok runbook, command
   registration and reinstall steps, secrets, failure messages, and deployment
   direction.
 - Design future Discord reminder behavior without implementing it yet,
   including reminder messages, button interactions, message update strategy,
   daily review prompts, retry behavior, and quiet/noise rules.
-- Update architecture, database, Redis, Discord bot, and feature data-model
+- Update architecture, database, Redis, Discord app surface, and feature data-model
   docs to reflect the review decisions.
 - Add or improve automated tests around existing backend behavior where the
   hardening work finds risk.

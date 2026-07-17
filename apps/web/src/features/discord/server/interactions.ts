@@ -1,12 +1,14 @@
-import {
-  InteractionResponseFlags,
-  InteractionResponseType,
-  InteractionType,
-} from "discord-interactions";
-import { bindDiscordAccount } from "../features/account-binding.ts";
-import { captureDiscordIdea } from "../features/idea-capturing.ts";
-import type { QueryExecutor } from "../infrastructure/database.ts";
+import { PostgresDiscordAccountRepository } from "../../../server/discord/discord-account-repository.ts";
+import { PostgresIdeaRepository } from "../../ideas/server/postgres-idea-repository.ts";
+import { bindDiscordAccount } from "./account-binding.ts";
 import { bindCommandName, ideaCommandName } from "./commands.ts";
+import { captureDiscordIdea } from "./idea-capturing.ts";
+
+const interactionTypePing = 1;
+const interactionTypeApplicationCommand = 2;
+const interactionResponseTypePong = 1;
+const interactionResponseTypeMessage = 4;
+const interactionResponseFlagEphemeral = 1 << 6;
 
 export type InboundDiscordInteractionResult = {
   status: number;
@@ -36,8 +38,11 @@ type DiscordInteractionUser = {
 };
 
 export async function handleInboundDiscordInteraction(
-  sql: QueryExecutor,
   interaction: unknown,
+  repositories = {
+    discordAccounts: new PostgresDiscordAccountRepository(),
+    ideas: new PostgresIdeaRepository(),
+  },
 ): Promise<InboundDiscordInteractionResult> {
   if (!isRecord(interaction)) {
     return errorResponse(400, "Invalid Discord interaction payload.");
@@ -45,16 +50,16 @@ export async function handleInboundDiscordInteraction(
 
   const body = interaction as DiscordInteraction;
 
-  if (body.type === InteractionType.PING) {
+  if (body.type === interactionTypePing) {
     return {
       status: 200,
       body: {
-        type: InteractionResponseType.PONG,
+        type: interactionResponseTypePong,
       },
     };
   }
 
-  if (body.type !== InteractionType.APPLICATION_COMMAND) {
+  if (body.type !== interactionTypeApplicationCommand) {
     return messageResponse(body, "Unsupported Discord interaction.");
   }
 
@@ -72,7 +77,7 @@ export async function handleInboundDiscordInteraction(
   }
 
   if (body.data?.name === bindCommandName) {
-    const result = await bindDiscordAccount(sql, {
+    const result = await bindDiscordAccount(repositories.discordAccounts, {
       discordUserId: user.id,
       discordUsername: user.username ?? null,
       dmChannelId: body.channel_id ?? null,
@@ -83,7 +88,7 @@ export async function handleInboundDiscordInteraction(
     return messageResponse(body, result.reply);
   }
 
-  const result = await captureDiscordIdea(sql, {
+  const result = await captureDiscordIdea(repositories, {
     discordUserId: user.id,
     discordUsername: user.username ?? null,
     dmChannelId: body.channel_id ?? null,
@@ -92,6 +97,24 @@ export async function handleInboundDiscordInteraction(
   });
 
   return messageResponse(body, result.reply);
+}
+
+export function inboundInteractionLogLabel(payload: unknown) {
+  const commandName = readInboundCommandName(payload);
+
+  if (typeof commandName === "string") {
+    return `/${commandName}`;
+  }
+
+  const interactionType = readInteractionType(payload);
+
+  if (interactionType === interactionTypePing) {
+    return "ping";
+  }
+
+  return typeof interactionType === "number"
+    ? `interaction_type_${interactionType}`
+    : "unknown";
 }
 
 function readInteractionUser(interaction: DiscordInteraction) {
@@ -113,13 +136,13 @@ function messageResponse(
   };
 
   if (interaction.context === 0) {
-    data.flags = InteractionResponseFlags.EPHEMERAL;
+    data.flags = interactionResponseFlagEphemeral;
   }
 
   return {
     status: 200,
     body: {
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      type: interactionResponseTypeMessage,
       data,
     },
   };
@@ -135,6 +158,33 @@ function errorResponse(
       error: message,
     },
   };
+}
+
+function readInboundCommandName(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const interaction = payload as {
+    data?: {
+      name?: unknown;
+    };
+  };
+  const commandName = interaction.data?.name;
+
+  return typeof commandName === "string" ? commandName : null;
+}
+
+function readInteractionType(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const interaction = payload as {
+    type?: unknown;
+  };
+
+  return typeof interaction.type === "number" ? interaction.type : null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

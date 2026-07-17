@@ -294,8 +294,8 @@ dashboard-backed feature data.
 Future persistence areas may include:
 
 - user settings, such as timezone and day boundary
-- Discord account bindings, documented by the Discord bot app until a broader
-  account-linking feature exists
+- Discord account bindings, documented by the Discord app surface until a
+  broader account-linking feature exists
 - daily plans and daily reviews
 - reminder jobs and delivery attempts
 - plugin registrations and plugin run records
