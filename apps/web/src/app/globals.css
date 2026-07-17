@@ -74,8 +74,10 @@
   --aa-color-primary-muted: var(--blue-3);
   --aa-color-primary-muted-text: var(--blue-12);
   --aa-color-hover: var(--gray-4);
-  --aa-color-selected: var(--blue-9);
-  --aa-color-selected-hover: var(--blue-10);
+  --aa-color-selected: var(--blue-5);
+  --aa-color-selected-hover: var(--blue-5);
+  --aa-color-selected-border: var(--blue-7);
+  --aa-color-selected-text: var(--blue-12);
   --aa-color-focus: var(--blue-9);
   --background: var(--aa-color-page);
   --foreground: var(--aa-color-text);
@@ -157,8 +159,10 @@
   --aa-color-primary-muted: var(--blue-3);
   --aa-color-primary-muted-text: var(--blue-12);
   --aa-color-hover: var(--gray-4);
-  --aa-color-selected: var(--blue-9);
-  --aa-color-selected-hover: var(--blue-10);
+  --aa-color-selected: var(--blue-5);
+  --aa-color-selected-hover: var(--blue-5);
+  --aa-color-selected-border: var(--blue-7);
+  --aa-color-selected-text: var(--blue-12);
   --aa-color-focus: var(--blue-11);
 }
 

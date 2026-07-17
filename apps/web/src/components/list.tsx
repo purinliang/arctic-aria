@@ -133,7 +133,7 @@ function itemToneClass(
   }
 
   if (active) {
-    return "bg-[var(--aa-color-selected)] text-[var(--aa-color-inverse-text)]";
+    return "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)]";
   }
 
   return "hover:bg-[var(--aa-color-hover)] hover:text-[var(--aa-color-text)]";

@@ -389,7 +389,7 @@ function SidebarItem({
       size="md"
       className={`w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md ${
         active
-          ? "border-[var(--aa-color-primary-muted)] bg-[var(--aa-color-primary-muted)] text-[var(--aa-color-primary-muted-text)] hover:bg-[var(--aa-color-primary-muted)] hover:text-[var(--aa-color-primary-muted-text)]"
+          ? "border-[var(--aa-color-selected-border)] bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-text)]"
           : "hover:bg-[var(--aa-color-hover)] hover:text-[var(--aa-color-text)]"
       }`}
       disabled={disabled}

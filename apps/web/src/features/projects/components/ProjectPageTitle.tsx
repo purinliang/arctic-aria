@@ -116,7 +116,7 @@ export function ProjectPageTitle({
                       className={cx(
                         "grid w-full gap-1 rounded-md px-3 py-2 text-left transition",
                         active
-                          ? "bg-[var(--aa-color-selected)] text-[var(--aa-color-inverse-text)]"
+                          ? "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)]"
                           : "text-[var(--aa-color-text)] hover:bg-[var(--aa-color-hover)]",
                       )}
                       type="button"

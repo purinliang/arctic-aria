@@ -145,7 +145,7 @@ function ChoiceButton({
         "inline-flex items-center gap-2 rounded-md border text-left font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
         compact ? "h-9 px-3 text-xs" : "min-h-11 px-3 py-2 text-sm",
         selected
-          ? "border-[var(--aa-color-selected)] bg-[var(--aa-color-selected)] text-[var(--aa-color-inverse-text)]"
+          ? "border-[var(--aa-color-selected-border)] bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)]"
           : "border-[var(--aa-color-border)] text-[var(--aa-color-muted)] hover:border-[var(--aa-color-border-strong)] hover:text-[var(--aa-color-text)]",
         className,
       )}
@@ -160,7 +160,7 @@ function ChoiceButton({
             className={cx(
               "text-xs font-normal",
               selected
-                ? "text-[var(--aa-color-inverse-text)] opacity-80"
+                ? "text-[var(--aa-color-selected-text)] opacity-80"
                 : "text-[var(--aa-color-muted)]",
             )}
           >

@@ -250,7 +250,7 @@ function DayButton({
       className={cx(
         "h-8 rounded-md text-sm transition disabled:cursor-not-allowed disabled:opacity-30",
         selected
-          ? "bg-[var(--aa-color-selected)] text-[var(--aa-color-inverse-text)]"
+          ? "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)]"
           : "text-[var(--aa-color-text)] hover:bg-[var(--aa-color-hover)]",
       )}
       type="button"
