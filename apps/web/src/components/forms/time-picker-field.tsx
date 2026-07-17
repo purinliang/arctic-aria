@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Clock, X } from "lucide-react";
 import { Button } from "../button";
 import { formatTimeDisplay } from "./time-display";
@@ -207,12 +207,19 @@ function TimeTextInput({
   void darkMode;
 
   const [draft, setDraft] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const value = draft ?? formatTimeInputValue(parts, timeFormatPreference);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  }, []);
 
   return (
     <label className="grid min-w-0">
       <span className="sr-only">{messages.time}</span>
       <input
+        ref={inputRef}
         className={cx(
           "h-12 w-full min-w-0 rounded-md border px-2 text-center text-xl font-semibold tabular-nums outline-none transition",
           "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-primary-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] focus:border-[var(--aa-secondary-button-hover-border)] focus:bg-[var(--aa-secondary-button-hover-bg)]",

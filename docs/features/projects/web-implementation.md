@@ -101,6 +101,14 @@ expand, collapse, or task-management detail controls. If the backend rejects
 the command, the previous visible state is restored and the shared notification
 component shows the error.
 
+The checkbox must remain enabled while the backend request is pending so the
+user can immediately undo the optimistic state. Do not disable the clicked
+checkbox, other dashboard task checkboxes, or the row navigation action.
+Successful checkbox responses stay silent and must not apply a full dashboard
+data refresh to checkbox rows while another lightweight checkbox request may be
+in progress. Failed requests roll back only the affected task row when that
+failed request is still the latest request for that row.
+
 Dashboard task rows should not show standalone project progress visualization,
 editable numeric progress, or colored tag chips.
 
@@ -175,11 +183,15 @@ Breadcrumb row:
 - first item: `Projects`, which returns to the list page
 - divider: `/`
 - second item: project name switcher
+- mobile: keep the hamburger, `Projects /`, and project actions on the first
+  row, then place the project name switcher on a second row aligned with the
+  hamburger button
 - switching through the project name keeps the user on the detail page
 - title action: `Edit3` icon plus `Edit`, placed to the right of the
   breadcrumb and opening the project editor dialog
 - adjacent title action: icon-only outline `Pin` or `PinOff` button, updating
   the sidebar shortcut state for the selected project
+- mobile actions: keep pin/unpin and edit on the first row, right aligned
 
 Project overview card:
 

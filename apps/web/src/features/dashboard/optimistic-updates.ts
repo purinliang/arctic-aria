@@ -76,6 +76,22 @@ export function applyOptimisticRoutineStatus(
   );
 }
 
+export function restoreRoutineSnapshot(
+  routines: Routine[],
+  snapshot: Routine[],
+  routineId: string,
+): Routine[] {
+  const previousRoutine = snapshot.find((routine) => routine.id === routineId);
+
+  if (!previousRoutine) {
+    return routines;
+  }
+
+  return routines.map((routine) =>
+    routine.id === routineId ? previousRoutine : routine,
+  );
+}
+
 export function applyOptimisticPinnedMemoryStatus(
   pinnedMemories: PinnedMemory[],
   pinnedMemoryId: string,
@@ -92,6 +108,24 @@ export function applyOptimisticPinnedMemoryStatus(
               : "Visible window restored",
         }
       : memory,
+  );
+}
+
+export function restorePinnedMemorySnapshot(
+  pinnedMemories: PinnedMemory[],
+  snapshot: PinnedMemory[],
+  pinnedMemoryId: string,
+): PinnedMemory[] {
+  const previousPinnedMemory = snapshot.find(
+    (memory) => memory.id === pinnedMemoryId,
+  );
+
+  if (!previousPinnedMemory) {
+    return pinnedMemories;
+  }
+
+  return pinnedMemories.map((memory) =>
+    memory.id === pinnedMemoryId ? previousPinnedMemory : memory,
   );
 }
 

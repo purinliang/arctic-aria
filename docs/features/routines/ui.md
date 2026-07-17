@@ -29,6 +29,15 @@ Click behavior:
 - Checkbox changes should optimistically update the visible routine status. If
   the backend later rejects the command, restore the previous visible state and
   show the backend message in the shared notification component.
+- The checkbox must remain enabled while the backend request is pending so the
+  user can immediately undo the optimistic state. Do not disable the clicked
+  checkbox, other routine checkboxes, or the row navigation action for this
+  lightweight dashboard command.
+- Successful checkbox responses should stay silent and must not apply a full
+  dashboard data refresh to checkbox rows while another lightweight checkbox
+  request may still be in progress. Failed requests should roll back only the
+  affected routine row when that failed request is still the latest request for
+  that row.
 - `Busy` and `Skip` are deferred reminder-response actions, not dashboard
   controls in the current UI.
 

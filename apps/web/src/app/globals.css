@@ -375,6 +375,23 @@ input:focus-visible {
   width: 0 !important;
 }
 
+.aa-language-block,
+.aa-language-inline {
+  display: none !important;
+}
+
+:root:not([data-aa-language]) .aa-language-option-en.aa-language-block,
+:root[data-aa-language="en"] .aa-language-option-en.aa-language-block,
+:root[data-aa-language="zh-CN"] .aa-language-option-zh.aa-language-block {
+  display: flex !important;
+}
+
+:root:not([data-aa-language]) .aa-language-option-en.aa-language-inline,
+:root[data-aa-language="en"] .aa-language-option-en.aa-language-inline,
+:root[data-aa-language="zh-CN"] .aa-language-option-zh.aa-language-inline {
+  display: inline !important;
+}
+
 @keyframes aa-notification-pop {
   from {
     opacity: 0;

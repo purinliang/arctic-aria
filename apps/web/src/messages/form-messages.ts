@@ -48,7 +48,7 @@ export const englishFormMessages = {
   },
   timePicker: {
     time: "Time",
-    timePlaceholder: "910 or 19:30",
+    timePlaceholder: "9:30PM or 21:30",
     confirm: "Confirm",
     preview: (time: string, dayPeriod: string) => `${time} ${dayPeriod}`,
     dayPeriods: {
@@ -126,7 +126,7 @@ export const simplifiedChineseFormMessages: FormMessages = {
   },
   timePicker: {
     time: "时间",
-    timePlaceholder: "例如 910 或 19:30",
+    timePlaceholder: "9:30PM 或 21:30",
     confirm: "确认",
     preview: (time, dayPeriod) => `${time} ${dayPeriod}`,
     dayPeriods: {
