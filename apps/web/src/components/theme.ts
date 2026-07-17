@@ -4,10 +4,12 @@ export const appThemeColors = {
   light: {
     background: "#eef2f5",
     foreground: "#0f172a",
+    mutedForeground: "#64748b",
   },
   dark: {
     background: "#000000",
     foreground: "#ffffff",
+    mutedForeground: "#a3a3a3",
   },
 } as const;
 
@@ -22,10 +24,12 @@ export function useDocumentTheme(darkMode: boolean) {
 
     root.style.setProperty("--background", theme.background);
     root.style.setProperty("--foreground", theme.foreground);
+    root.style.setProperty("--muted-foreground", theme.mutedForeground);
 
     return () => {
       root.style.removeProperty("--background");
       root.style.removeProperty("--foreground");
+      root.style.removeProperty("--muted-foreground");
     };
   }, [darkMode]);
 }
