@@ -67,6 +67,53 @@ Planned v0.6.0 work:
   many visible `Edit` buttons, so v0.6.0 should consider a cleaner interaction
   pattern.
 
+### Memory Category Direction
+
+Built-in memory categories are a continuing design direction, not a one-step
+change limited to Cuisine and Sightseeing.
+
+First implementation target:
+
+- Keep real per-user `memory_categories` rows. This is the simplest model
+  because every memory still needs a concrete `category_id`.
+- Add stable built-in category metadata, such as a built-in key, icon name, and
+  `shown_on_dashboard` flag.
+- Backfill built-in category rows for existing users when the metadata is added.
+- Treat Cuisine and Sightseeing as the first built-in categories. Their
+  built-in identity, default name, icon, and default translations should not be
+  editable or deletable by the user.
+- Stop filtering dashboard pinned memories by hard-coded display names. The
+  dashboard can still be called `dashboard` in code, even though the user-facing
+  title is `Today`.
+
+Later built-in category/template work:
+
+- Add more built-in templates only after the category UI is ready. Candidate
+  templates include Movie, Anime, Book, Music, Game, and Shopping.
+- Built-in templates may have default icons and default translations in every
+  supported language.
+- When a user chooses a built-in template, it should become a normal per-user
+  category row with stable built-in metadata.
+- User-created categories should allow names in any language and a selected
+  icon from a small memory icon set, roughly 12 choices.
+- User-created category names should display exactly as written. Do not
+  auto-translate user-created category names unless a later feature explicitly
+  designs per-category translations.
+
+Related UI cleanup:
+
+- Single-choice and multi-choice groups can use normal button height when they
+  behave like filter/action buttons. Use input height only when they replace a
+  form input.
+- Choice groups should not show a check icon; selected color and border are
+  enough.
+- The Memories page can load cached suggestion pages when opened, but a normal
+  view should not insert suggestion-history rows or record ignore events.
+- Suggestion ignore events should be recorded only when the user explicitly
+  refreshes or passes a suggestion.
+- The dashboard `Pinned Memories` panel should not expose a single-row refresh
+  action. Detailed pin/unpin management belongs on the Memories page.
+
 ## Ongoing Feature Review
 
 Database and concurrency review should happen during later feature development,
