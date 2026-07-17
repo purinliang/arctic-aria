@@ -16,6 +16,13 @@ translation is required to clarify a requirement.
   English speaker to edit.
 - When the user asks or comments with numbered points, answer with matching
   numbered points so each response can be checked directly.
+- Call the human collaborating with Codex the `developer`. Use `user` for
+  Arctic Aria product users unless the current sentence clearly means the
+  developer.
+- Do not use the developer's real username, display name, email address, or
+  other personal identifiers as test data, sample data, logs, documentation
+  examples, or placeholders. Use neutral fixtures such as `testusername`,
+  `testdisplayname`, and `testpassword`.
 
 ## Context
 
@@ -143,7 +150,9 @@ user.
   defects identifiable instead of collapsing everything into a vague failure.
 - For unexpected backend or database errors, prefer structured server logs with
   the feature name, command name, error code, and safe identifiers needed for
-  debugging. Do not log secrets, passwords, auth cookies, or full database URLs.
+  debugging. Do not log secrets, passwords, auth cookies, full database URLs, or
+  raw user-authored product content such as project titles, task descriptions,
+  routine text, memory text, or idea text.
 - When adding or changing persistence behavior, inspect the relevant migration
   history and repository tests for nearby constraints, nullable fields, foreign
   keys, and delete/archive behavior.

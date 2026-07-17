@@ -23,10 +23,9 @@ import {
 import {
   getCurrentUser,
   getPublicVersionStatus,
-  loginUser,
   logoutUser,
-  registerUser,
 } from "../actions";
+import { submitLogin, submitRegister } from "../auth-client";
 import type { AuthUser } from "../server/auth-service";
 import {
   hasAuthErrors,
@@ -313,8 +312,8 @@ export function AuthGate() {
     startTransition(async () => {
       const result =
         mode === "register"
-          ? await registerUser(registerInput)
-          : await loginUser(loginInput);
+          ? await submitRegister(registerInput)
+          : await submitLogin(loginInput);
 
       if (!result.ok) {
         setServerErrors(result.fieldErrors ?? {});
@@ -324,9 +323,6 @@ export function AuthGate() {
             ? messages.auth.notifications.signUpFailed
             : messages.auth.notifications.signInFailed,
         );
-        console.warn("[auth-ui]", `${mode}_failed`, {
-          fields: result.fieldErrors ? Object.keys(result.fieldErrors) : [],
-        });
         return;
       }
 
@@ -336,9 +332,6 @@ export function AuthGate() {
           ? messages.auth.notifications.accountCreated
           : messages.auth.notifications.signedIn,
       );
-      console.info("[auth-ui]", `${mode}_success`, {
-        displayName: result.displayName,
-      });
 
       setCurrentUser(result.user);
     });

@@ -24,10 +24,10 @@ test("register validation enforces username and password rules", () => {
 
 test("register validation accepts optional display name", () => {
   const errors = validateRegisterTyping({
-    username: "purin",
+    username: "testusername",
     displayName: "",
-    password: "password1",
-    repeatPassword: "password1",
+    password: "testpassword",
+    repeatPassword: "testpassword",
   });
 
   assert.deepEqual(errors, {});
@@ -78,24 +78,24 @@ test("register validation enforces maximum field lengths", () => {
 
 test("register normalization trims fields and falls back display name to username", () => {
   const input = normalizeRegisterInput({
-    username: " purin ",
+    username: " testusername ",
     displayName: "   ",
-    password: " password1 ",
-    repeatPassword: " password1 ",
+    password: " testpassword ",
+    repeatPassword: " testpassword ",
   });
 
   assert.deepEqual(input, {
-    username: "purin",
-    displayName: "purin",
-    password: "password1",
-    repeatPassword: "password1",
+    username: "testusername",
+    displayName: "testusername",
+    password: "testpassword",
+    repeatPassword: "testpassword",
   });
 });
 
 test("login validation uses shared username and password rules", () => {
   const errors = validateLoginTyping({
     username: "bad name",
-    password: "password1",
+    password: "testpassword",
   });
 
   assert.equal(errors.username, "Use visible ASCII characters only, with no spaces.");
