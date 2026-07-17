@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 export const appThemeColors = {
   light: {
-    background: "#eef2f5",
+    background: "#f3f3f3",
     foreground: "#000000",
     mutedForeground: "#555555",
   },
@@ -15,8 +15,8 @@ export const appThemeColors = {
 
 export function appShellClass(darkMode: boolean) {
   return darkMode
-    ? "bg-[var(--aa-grey-0)] text-[var(--aa-grey-15)]"
-    : "bg-[var(--aa-grey-13)] text-[var(--aa-grey-0)]";
+    ? "bg-[var(--aa-grey-0)] text-[var(--aa-grey-63)]"
+    : "bg-[var(--aa-grey-60)] text-[var(--aa-grey-0)]";
 }
 
 export function useDocumentTheme(darkMode: boolean) {
