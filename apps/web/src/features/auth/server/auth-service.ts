@@ -40,11 +40,16 @@ export type AuthActionResult =
 type AuthServiceOptions = {
   users?: UserRepository;
   passwordHasher?: PasswordHasher;
-  log?: (event: string, details: Record<string, unknown>) => void;
+  log?: (event: string, details?: Record<string, unknown>) => void;
 };
 
-function defaultAuthLog(event: string, details: Record<string, unknown>) {
-  console.log("[auth]", event, details);
+function defaultAuthLog(event: string, details?: Record<string, unknown>) {
+  if (details && Object.keys(details).length > 0) {
+    console.log("[auth]", event, details);
+    return;
+  }
+
+  console.log("[auth]", event);
 }
 
 function toAuthUser(user: Pick<UserRecord, "id" | "username" | "displayName">) {
@@ -76,7 +81,6 @@ export function createAuthService(options: AuthServiceOptions = {}) {
 
       if (hasAuthErrors(fieldErrors)) {
         log("register_validation_failed", {
-          username: normalizedInput.username,
           fields: Object.keys(fieldErrors),
         });
 
@@ -91,7 +95,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
       const existingUser = await users.findByUsername(normalizedInput.username);
 
       if (existingUser) {
-        log("register_username_taken", { username: normalizedInput.username });
+        log("register_username_taken");
 
         return usernameTakenResult();
       }
@@ -108,9 +112,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
         });
       } catch (error) {
         if (error instanceof DuplicateUsernameError) {
-          log("register_username_taken_after_create", {
-            username: normalizedInput.username,
-          });
+          log("register_username_taken_after_create");
 
           return usernameTakenResult();
         }
@@ -118,7 +120,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
         throw error;
       }
 
-      log("register_success", { username: normalizedInput.username });
+      log("register_success");
 
       return {
         ok: true,
@@ -135,7 +137,6 @@ export function createAuthService(options: AuthServiceOptions = {}) {
 
       if (hasAuthErrors(fieldErrors)) {
         log("login_validation_failed", {
-          username: normalizedInput.username,
           fields: Object.keys(fieldErrors),
         });
 
@@ -153,7 +154,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
         : false;
 
       if (!user || !passwordValid) {
-        log("login_failed", { username: normalizedInput.username });
+        log("login_failed");
 
         return {
           ok: false,
@@ -162,7 +163,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
         };
       }
 
-      log("login_success", { username: normalizedInput.username });
+      log("login_success");
 
       return {
         ok: true,

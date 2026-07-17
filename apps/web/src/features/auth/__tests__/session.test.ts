@@ -9,8 +9,8 @@ import {
 
 const user = {
   id: "user-1",
-  username: "purin",
-  displayName: "Purin",
+  username: "testusername",
+  displayName: "testdisplayname",
 };
 
 test("auth session token round trips a user for 30 days", () => {

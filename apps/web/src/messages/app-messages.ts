@@ -98,6 +98,8 @@ const englishMessages = {
       auth_validation_failed: "Please fix the highlighted fields.",
       auth_username_taken: "Username is already taken.",
       auth_invalid_credentials: "Invalid username or password.",
+      auth_request_failed: "Authentication request failed.",
+      auth_request_invalid: "Authentication request was invalid.",
     },
     themeToggle: {
       dark: "Dark",
@@ -221,6 +223,8 @@ const simplifiedChineseMessages: AppMessages = {
       auth_validation_failed: "请修正标出的字段。",
       auth_username_taken: "用户名已被使用。",
       auth_invalid_credentials: "用户名或密码无效。",
+      auth_request_failed: "认证请求失败。",
+      auth_request_invalid: "认证请求无效。",
     },
     themeToggle: {
       dark: "深色",
