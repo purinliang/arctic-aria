@@ -24,6 +24,11 @@ the user setting is missing or unavailable, fall back to English. If the user
 explicitly chooses system language and the browser language is unsupported, fall
 back to English.
 
+The auth session-loading surface should use the cached local language
+preference immediately, before the database-backed user settings request
+finishes. This prevents a visible English-to-selected-language translation flash
+when the user refreshes the app.
+
 ## Message Catalogs
 
 Do not hard-code translated strings in feature components once localization

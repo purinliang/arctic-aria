@@ -26,6 +26,34 @@ const themeBootScript = `
 })();
 `;
 
+const languageBootScript = `
+(() => {
+  try {
+    const preference = window.localStorage.getItem("arctic-aria.language-preference");
+    const browserLanguages = navigator.languages?.length
+      ? navigator.languages
+      : [navigator.language || "en"];
+    const browserLanguage = Array.from(browserLanguages).some((language) =>
+      String(language).toLowerCase().startsWith("zh")
+    )
+      ? "zh-CN"
+      : "en";
+    const language =
+      preference === "zh-CN" || preference === "en"
+        ? preference
+        : preference === "system"
+          ? browserLanguage
+          : "en";
+    const root = document.documentElement;
+
+    root.dataset.aaLanguage = language;
+    root.lang = language;
+  } catch {
+    // Keep the HTML English fallback if browser storage is unavailable.
+  }
+})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -35,6 +63,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+        <script dangerouslySetInnerHTML={{ __html: languageBootScript }} />
       </head>
       <body>{children}</body>
     </html>

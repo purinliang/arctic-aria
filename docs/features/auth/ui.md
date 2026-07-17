@@ -18,6 +18,9 @@ and [data-model.md](data-model.md).
   page and the authenticated app shell.
 - Use the resolved app language for loading text. The brand text is
   `Arctic Aria` in English and `北极阿莉雅` in Simplified Chinese.
+- Use the cached local language preference immediately during session loading
+  so refreshing the app does not visibly switch the loading text from English
+  into the user's selected language.
 - Do not show the login/register panel until the session check finishes.
 
 ## Registration Tab
