@@ -1,7 +1,9 @@
 import { randomUUID } from "node:crypto";
+import { createDiscordMessageSender } from "../../discord/server/discord-api.ts";
+import { handleOutboundDiscordMessage } from "../../discord/server/message-push.ts";
+import type { OutboundMessageResult } from "../../discord/server/message-push.ts";
+import { getSql } from "../../../server/database/neon.ts";
 
-const localMessagePushUrl = "http://localhost:3000/api/internal/discord/messages";
-const webMessagePushPath = "/api/internal/discord/messages";
 const testMessageText =
   "Hello from Arctic Aria. Discord message push is working.";
 
@@ -17,74 +19,59 @@ export type DiscordTestMessageActionResult =
         | "settings_discord_test_bot_unavailable"
         | "settings_discord_test_config_missing"
         | "settings_discord_test_delivery_failed"
-        | "settings_discord_test_no_binding"
-        | "settings_discord_test_secret_rejected"
-        | "settings_discord_test_unreachable";
+        | "settings_discord_test_no_binding";
       message: string;
     };
 
-type Fetcher = (
-  input: string | URL,
-  init: {
-    body: string;
-    headers: Record<string, string>;
-    method: "POST";
-  },
-) => Promise<{
-  ok: boolean;
-  status: number;
-}>;
-
 type DiscordTestMessageConfig = {
-  messagePushSecret: string | null;
-  messagePushUrl: string | null;
+  discordBotToken: string | null;
+  missingEnvVars?: readonly string[];
 };
+
+type DiscordTestMessageSender = (
+  input: unknown,
+) => Promise<OutboundMessageResult>;
 
 export function createDiscordTestMessageService({
   config = readDiscordTestMessageConfig(),
-  fetcher = globalThis.fetch as Fetcher,
+  sender = createDefaultTestMessageSender(config),
 }: {
   config?: DiscordTestMessageConfig;
-  fetcher?: Fetcher;
+  sender?: DiscordTestMessageSender;
 } = {}) {
   return {
     async sendTestMessage(
       userId: string,
     ): Promise<DiscordTestMessageActionResult> {
-      const targetUrl = parseMessagePushUrl(config.messagePushUrl);
+      const missingEnvVars = readMissingEnvVars(config);
 
-      if (!config.messagePushSecret) {
-        return configMissingResult(
-          "Set DISCORD_MESSAGE_PUSH_SECRET in apps/web/.env.local and restart the web server.",
-        );
-      }
+      if (missingEnvVars.length > 0) {
+        console.warn("[discord-web]", "settings_test_message_config_missing", {
+          missingEnvVars,
+        });
 
-      if (!targetUrl) {
-        return configMissingResult(
-          "Set DISCORD_MESSAGE_PUSH_URL or deploy with VERCEL_URL so the web app can call its Discord message endpoint.",
-        );
+        return configMissingResult();
       }
 
       try {
-        const response = await fetcher(targetUrl, {
-          method: "POST",
-          headers: {
-            authorization: `Bearer ${config.messagePushSecret}`,
-            "content-type": "application/json",
+        const response = await sender({
+          userId,
+          idempotencyKey: `settings-discord-test-${randomUUID()}`,
+          text: testMessageText,
+          source: "manual",
+          metadata: {
+            feature: "settings",
+            action: "discord-test-message",
           },
-          body: JSON.stringify({
-            userId,
-            idempotencyKey: `settings-discord-test-${randomUUID()}`,
-            text: testMessageText,
-            source: "manual",
-            metadata: {
-              feature: "settings",
-              action: "discord-test-message",
-            },
-          }),
         });
 
-        if (response.ok) {
+        console.log(
+          "[discord-web]",
+          "settings_test_message_handled",
+          response.log,
+        );
+
+        if (response.status === 200) {
           return {
             ok: true,
             code: "settings_discord_test_sent",
@@ -99,36 +86,32 @@ export function createDiscordTestMessageService({
           };
         }
 
-        if (response.status === 401) {
-          return {
-            ok: false,
-            code: "settings_discord_test_secret_rejected",
-            message:
-              "Discord message-push secret was rejected. Check DISCORD_MESSAGE_PUSH_SECRET in the web environment.",
-          };
-        }
-
         if (response.status === 503) {
+          console.warn(
+            "[discord-web]",
+            "settings_test_message_config_missing",
+            response.log,
+          );
+
           return {
             ok: false,
             code: "settings_discord_test_bot_unavailable",
-            message:
-              "Discord message push is not configured. Set DISCORD_BOT_TOKEN and DISCORD_MESSAGE_PUSH_SECRET in the web environment.",
+            message: configMissingMessage,
           };
         }
 
         return {
-            ok: false,
-            code: "settings_discord_test_delivery_failed",
-            message:
-              "Discord test message could not be delivered. Check the web server log for the outbound_message_handled status.",
+          ok: false,
+          code: "settings_discord_test_delivery_failed",
+          message:
+            "Discord test message could not be delivered. Check the web server log for the settings_test_message_handled status.",
         };
       } catch {
         return {
           ok: false,
-          code: "settings_discord_test_unreachable",
+          code: "settings_discord_test_delivery_failed",
           message:
-            "Discord message endpoint is unreachable. Check DISCORD_MESSAGE_PUSH_URL or the web app deployment.",
+            "Discord test message could not be delivered. Check the web server log for the settings_test_message_handled status.",
         };
       }
     },
@@ -139,33 +122,9 @@ function readDiscordTestMessageConfig(
   env: NodeJS.ProcessEnv = process.env,
 ): DiscordTestMessageConfig {
   return {
-    messagePushSecret: readOptionalEnv(env, "DISCORD_MESSAGE_PUSH_SECRET"),
-    messagePushUrl:
-      readOptionalEnv(env, "DISCORD_MESSAGE_PUSH_URL") ??
-      readDefaultMessagePushUrl(env),
+    discordBotToken: readOptionalEnv(env, "DISCORD_BOT_TOKEN"),
+    missingEnvVars: readMissingRequiredEnvVars(env, ["DISCORD_BOT_TOKEN"]),
   };
-}
-
-function readDefaultMessagePushUrl(env: NodeJS.ProcessEnv) {
-  if (env.NODE_ENV !== "production") {
-    return localMessagePushUrl;
-  }
-
-  const vercelUrl = readOptionalEnv(env, "VERCEL_URL");
-
-  return vercelUrl ? `https://${vercelUrl}${webMessagePushPath}` : null;
-}
-
-function parseMessagePushUrl(value: string | null) {
-  if (!value) {
-    return null;
-  }
-
-  try {
-    return new URL(value);
-  } catch {
-    return null;
-  }
 }
 
 function readOptionalEnv(env: NodeJS.ProcessEnv, key: string) {
@@ -174,11 +133,41 @@ function readOptionalEnv(env: NodeJS.ProcessEnv, key: string) {
   return value && value.length > 0 ? value : null;
 }
 
-function configMissingResult(message: string): DiscordTestMessageActionResult {
+const configMissingMessage =
+  "Discord configuration is missing. Check the web server log.";
+
+function configMissingResult(): DiscordTestMessageActionResult {
   return {
     ok: false,
     code: "settings_discord_test_config_missing",
-    message,
+    message: configMissingMessage,
+  };
+}
+
+function readMissingRequiredEnvVars(env: NodeJS.ProcessEnv, keys: string[]) {
+  return keys.filter((key) => !readOptionalEnv(env, key));
+}
+
+function readMissingEnvVars(config: DiscordTestMessageConfig) {
+  return (
+    config.missingEnvVars ??
+    (config.discordBotToken ? [] : ["DISCORD_BOT_TOKEN"])
+  );
+}
+
+function createDefaultTestMessageSender(
+  config: DiscordTestMessageConfig,
+): DiscordTestMessageSender {
+  return (input) => {
+    if (!config.discordBotToken) {
+      throw new Error("Missing Discord bot token.");
+    }
+
+    return handleOutboundDiscordMessage(
+      getSql(),
+      input,
+      createDiscordMessageSender(config.discordBotToken),
+    );
   };
 }
 

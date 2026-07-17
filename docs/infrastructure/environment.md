@@ -30,8 +30,7 @@ Current variables:
 | `DISCORD_BOT_TOKEN` | Yes for Discord interactions and outbound messages | Local and Vercel | Secret bot token from the Discord Developer Portal. |
 | `DISCORD_APP_ID` | Yes for command registration | Local and Vercel | App ID from the Discord Developer Portal. |
 | `DISCORD_PUBLIC_KEY` | Yes for Discord interactions | Local and Vercel | Public Key used to verify requests from Discord. |
-| `DISCORD_MESSAGE_PUSH_SECRET` | Yes for Settings Discord test messages or other internal sends | Local and Vercel | Shared secret used by callers of the private Discord message endpoint. |
-| `DISCORD_MESSAGE_PUSH_URL` | Optional | Local and Vercel | Full URL for `POST /api/internal/discord/messages`. Local development defaults to `http://localhost:3000/api/internal/discord/messages`; Vercel production defaults to the same route when `VERCEL_URL` is available. |
+| `DISCORD_MESSAGE_PUSH_SECRET` | Yes for private message endpoint callers | Local and Vercel | Shared secret used by callers of the private Discord message endpoint. Settings `Send Test` does not use this secret. |
 
 The web code reads `NEON_POSTGRES_URL` only. If the Vercel Neon integration
 creates `NEON_DATABASE_URL`, copy that pooled URL into a new Vercel variable
@@ -56,11 +55,9 @@ openssl rand -base64 48
 ```
 
 The Settings page can send a Discord test message to the signed-in user's bound
-Discord account. That web action calls the web app's private message-push
-endpoint. Local development may omit `DISCORD_MESSAGE_PUSH_URL` when the web app
-runs on `http://localhost:3000`. Production on Vercel may also omit it when
-`VERCEL_URL` is available. Other hosts should set the full deployed web URL
-explicitly.
+Discord account. That web action calls the same server-side delivery logic as
+outbound messages, so it needs `DISCORD_BOT_TOKEN` but does not call the
+private HTTP endpoint or use `DISCORD_MESSAGE_PUSH_SECRET`.
 
 ## Vercel Neon Variables
 
