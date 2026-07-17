@@ -65,9 +65,10 @@ Aria visual direction. The important rule is that the app uses one coherent
 scale instead of mixing unrelated grey families.
 
 The concrete shared scale lives in `apps/web/src/app/globals.css` as
-`--aa-grey-0` through `--aa-grey-15`. Shared color helpers should use those
-variables for normal app chrome so changing the scale does not require editing
-every component.
+`--aa-grey-0` through `--aa-grey-63`. Step `0` is black, step `63` is white, and
+the steps should stay equal distance from each other. Shared color helpers
+should use those variables for normal app chrome so changing the scale does not
+require editing every component.
 
 Design and tune the light-mode scale first. Light mode should define the
 intended relationship between page background, surfaces, headers, borders,
@@ -77,6 +78,15 @@ becomes light text, and middle neutral steps keep similar visual distance from
 their surrounding surfaces. Do not collapse page background, sidebar, cards,
 panels, inputs, and headers into one pure black surface; dark mode should keep
 the same visible hierarchy that light mode has.
+
+Current core surface mapping:
+
+- light page background: `--aa-grey-60`
+- light card and panel header: `--aa-grey-61`
+- light card, panel, sidebar, and input content: `--aa-grey-63`
+- dark page background: `--aa-grey-0`
+- dark card and panel header: `--aa-grey-3`
+- dark card, panel, sidebar, and input content: `--aa-grey-4`
 
 Use shared component color helpers for these roles:
 

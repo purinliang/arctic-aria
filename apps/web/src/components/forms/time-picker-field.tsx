@@ -218,8 +218,8 @@ function TimeTextInput({
         className={cx(
           "h-12 w-full min-w-0 rounded-md border px-2 text-center text-xl font-semibold tabular-nums outline-none transition",
           darkMode
-            ? "border-[var(--aa-grey-4)] bg-[var(--aa-grey-1)] text-[var(--aa-grey-15)] focus:border-[var(--aa-grey-10)]"
-            : "border-[var(--aa-grey-11)] bg-[var(--aa-grey-14)] text-[var(--aa-grey-0)] focus:border-[var(--aa-grey-5)]",
+            ? "border-[var(--aa-grey-16)] bg-[var(--aa-grey-4)] text-[var(--aa-grey-63)] focus:border-[var(--aa-grey-48)]"
+            : "border-[var(--aa-grey-52)] bg-[var(--aa-grey-62)] text-[var(--aa-grey-0)] focus:border-[var(--aa-grey-21)]",
         )}
         type="text"
         inputMode="text"

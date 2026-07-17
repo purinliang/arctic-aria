@@ -133,10 +133,10 @@ function itemToneClass(
   }
 
   if (active) {
-    return darkMode ? "bg-[var(--aa-grey-2)]" : "bg-[var(--aa-grey-13)]";
+    return darkMode ? "bg-[var(--aa-grey-9)]" : "bg-[var(--aa-grey-58)]";
   }
 
   return darkMode
-    ? "hover:bg-[var(--aa-grey-2)]"
-    : "hover:bg-[var(--aa-grey-14)]";
+    ? "hover:bg-[var(--aa-grey-6)]"
+    : "hover:bg-[var(--aa-grey-60)]";
 }
