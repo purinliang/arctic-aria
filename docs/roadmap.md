@@ -34,7 +34,7 @@ Current unreleased `develop` work also includes web and data-model polish:
 - built-in memory categories for Cuisine, Sightseeing, Movie, Anime, Book,
   Music, Game, and Shopping, with fixed icons, localized built-in display text,
   and backfill for existing accounts
-- shared localized brand logo text: `ArcticAria` in English and `北极阿莉雅` in
+- shared localized brand logo text: `Arctic Aria` in English and `北极阿莉雅` in
   Simplified Chinese
 - hidden future auth actions for Google sign-in and forgot-password/reset, kept
   behind a disabled flag until the real flows exist
@@ -164,8 +164,8 @@ Implemented sidebar direction:
 
 - The sidebar uses a compact brand block: first row Sparkles icon plus small
   localized brand text, then a larger page/workspace label such as `Workspace`
-  in the normal app font. In English the brand text is `ArcticAria` without a
-  space; in Simplified Chinese it is `北极阿莉雅`.
+  in the normal app font. In English the brand text is `Arctic Aria`; in
+  Simplified Chinese it is `北极阿莉雅`.
 - The workspace label should remain visually larger than the brand text, and
   short translations such as `工作区` can render larger than the English label.
 - Sidebar order should be: Today, Projects, pinned projects, Routines,

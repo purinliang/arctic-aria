@@ -4,7 +4,7 @@ import { cx } from "./utils";
 type ArcticAriaLogoVariant = "inline" | "sidebar";
 
 export function ArcticAriaLogo({
-  brandText = "ArcticAria",
+  brandText = "Arctic Aria",
   variant = "inline",
   className,
   workspaceLabel,

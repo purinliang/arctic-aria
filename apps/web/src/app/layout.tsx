@@ -5,6 +5,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Arctic Aria",
   description: "A personal planning workspace prototype.",
+  icons: {
+    icon: "/icons/sparkles.svg",
+  },
 };
 
 const themeBootScript = `

@@ -66,7 +66,7 @@ the username in the sidebar.
 
 The sidebar brand block appears at the top-left. It uses a stacked structure:
 first row Sparkles icon plus compact localized brand text, then a larger
-workspace label below. In English the brand text is `ArcticAria`; in Simplified
+workspace label below. In English the brand text is `Arctic Aria`; in Simplified
 Chinese it is `北极阿莉雅`. Both text lines use the normal app font. Keep it
 left aligned with the navigation item content and do not use all-caps
 conversion. The workspace label should be visually larger than the brand text.

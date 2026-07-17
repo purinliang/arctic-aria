@@ -39,7 +39,7 @@ export type VersionStatusMessages = AppMessages["versionStatus"];
 
 const englishMessages = {
   appShell: {
-    brandName: "ArcticAria",
+    brandName: "Arctic Aria",
     closeNavigation: "Close navigation",
     closeNavigationOverlay: "Close navigation overlay",
     openNavigation: "Open navigation",
@@ -60,7 +60,7 @@ const englishMessages = {
     },
   },
   auth: {
-    brandName: "ArcticAria",
+    brandName: "Arctic Aria",
     brandDescription: "Your personal life assistant under the aurora.",
     fields: {
       displayName: "Display name",

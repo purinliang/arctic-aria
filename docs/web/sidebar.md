@@ -70,7 +70,7 @@ documented in [theme.md](theme.md).
 
 The sidebar shows a compact brand block at the top-left: first row Sparkles
 icon plus localized brand text, second row larger workspace label. In English
-the brand text is `ArcticAria`; in Simplified Chinese it is `北极阿莉雅`. The
+the brand text is `Arctic Aria`; in Simplified Chinese it is `北极阿莉雅`. The
 brand block should stay aligned with the navigation menu item content and
 should not be shown as uppercase helper text. The workspace label should be
 visually larger than the brand text. Short labels such as `工作区` may render

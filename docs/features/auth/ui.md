@@ -15,7 +15,7 @@ and [data-model.md](data-model.md).
 - Use the resolved app theme so the loading screen matches the signed-out auth
   page and the authenticated app shell.
 - Use the resolved app language for loading text. The brand text is
-  `ArcticAria` in English and `北极阿莉雅` in Simplified Chinese.
+  `Arctic Aria` in English and `北极阿莉雅` in Simplified Chinese.
 - Do not show the login/register panel until the session check finishes.
 
 ## Registration Tab
