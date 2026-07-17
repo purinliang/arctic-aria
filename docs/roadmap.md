@@ -145,7 +145,9 @@ than expected before changing the display text.
 The light-mode and sign-out rows should visually follow the same menu-item
 pattern as the preceding sidebar navigation items. Do not place them in a
 separate visual container; they should be in the same sidebar list pattern,
-directly below the separating line.
+directly below the separating line after Settings. Sidebar order should be:
+Today, Projects, pinned projects, Routines, Memories, Ideas, Settings,
+separator, theme mode, sign out.
 
 Sidebar list items should handle rounded corners consistently, especially at the
 start and end of adjacent item groups.

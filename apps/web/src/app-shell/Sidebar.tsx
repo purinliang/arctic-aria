@@ -198,13 +198,6 @@ function SidebarFrame({
           />
         ))}
         <SidebarItem
-          icon={<Lightbulb size={18} aria-hidden="true" />}
-          label={messages.pages.ideas}
-          active={activeView === "ideas"}
-          darkMode={darkMode}
-          onClick={() => onSelectView("ideas")}
-        />
-        <SidebarItem
           icon={<Bell size={18} aria-hidden="true" />}
           label={messages.pages.routines}
           active={activeView === "routines"}
@@ -219,45 +212,47 @@ function SidebarFrame({
           onClick={() => onSelectView("memories")}
         />
         <SidebarItem
+          icon={<Lightbulb size={18} aria-hidden="true" />}
+          label={messages.pages.ideas}
+          active={activeView === "ideas"}
+          darkMode={darkMode}
+          onClick={() => onSelectView("ideas")}
+        />
+        <SidebarItem
           icon={<Settings size={18} aria-hidden="true" />}
           label={messages.pages.settings}
           active={activeView === "settings"}
           darkMode={darkMode}
           onClick={() => onSelectView("settings")}
         />
+        <div
+          className={`my-2 border-t ${
+            darkMode ? "border-neutral-800" : "border-slate-200"
+          }`}
+          aria-hidden="true"
+        />
+        <SidebarItem
+          icon={
+            darkMode ? (
+              <Moon size={18} aria-hidden="true" />
+            ) : (
+              <Sun size={18} aria-hidden="true" />
+            )
+          }
+          label={darkMode ? messages.sidebar.darkMode : messages.sidebar.lightMode}
+          darkMode={darkMode}
+          onClick={() => onThemeChange(!darkMode)}
+        />
+        <SidebarItem
+          icon={<LogOut size={18} aria-hidden="true" />}
+          label={
+            logoutPending ? messages.sidebar.signingOut : messages.sidebar.signOut
+          }
+          darkMode={darkMode}
+          disabled={logoutPending}
+          onClick={onLogout}
+        />
       </nav>
-
-      <div
-        className={`mt-auto border-t pt-4 ${
-          darkMode ? "border-neutral-800" : "border-slate-200"
-        }`}
-      >
-        <div className="grid">
-          <SidebarItem
-            icon={
-              darkMode ? (
-                <Moon size={18} aria-hidden="true" />
-              ) : (
-                <Sun size={18} aria-hidden="true" />
-              )
-            }
-            label={
-              darkMode ? messages.sidebar.darkMode : messages.sidebar.lightMode
-            }
-            darkMode={darkMode}
-            onClick={() => onThemeChange(!darkMode)}
-          />
-          <SidebarItem
-            icon={<LogOut size={18} aria-hidden="true" />}
-            label={
-              logoutPending ? messages.sidebar.signingOut : messages.sidebar.signOut
-            }
-            darkMode={darkMode}
-            disabled={logoutPending}
-            onClick={onLogout}
-          />
-        </div>
-      </div>
     </aside>
   );
 }
