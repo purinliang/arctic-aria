@@ -95,6 +95,9 @@ Later built-in category/template work:
   supported language.
 - When a user chooses a built-in template, it should become a normal per-user
   category row with stable built-in metadata.
+- Existing accounts should receive built-in category rows through the same
+  default-category initialization path used when memory data is loaded. Do not
+  require a developer-account-specific script.
 - User-created categories should allow names in any language and a selected
   icon from a small memory icon set, roughly 12 choices.
 - User-created category names should display exactly as written. Do not
@@ -103,6 +106,7 @@ Later built-in category/template work:
 
 Related UI cleanup:
 
+- The memory category `All` filter should have its own neutral icon.
 - Single-choice and multi-choice groups can use normal button height when they
   behave like filter/action buttons. Use input height only when they replace a
   form input.
@@ -112,6 +116,9 @@ Related UI cleanup:
   view should not insert suggestion-history rows or record ignore events.
 - Suggestion ignore events should be recorded only when the user explicitly
   refreshes or passes a suggestion.
+- Decide later whether dashboard pinned memories should show every
+  dashboard-enabled category and whether the current per-category count limit
+  should be removed.
 - The dashboard `Pinned Memories` panel should not expose a single-row refresh
   action. Detailed pin/unpin management belongs on the Memories page.
 
@@ -150,6 +157,18 @@ product style. Below the compact brand row, show a larger page/workspace label
 such as `Workspace` in the normal app font.
 
 The mobile sidebar close button should be borderless.
+
+## Auth UI Cleanup
+
+Placeholder auth actions should stay hidden until they work end to end. Hide the
+Google OAuth action and its `or` separator until Google sign-in is implemented.
+
+Registration needs more vertical space than login. Keep the registration panel
+centered inside the auth page's `110vh` minimum height, with enough top and
+bottom space for scrolling. The login panel should keep the same top alignment
+as registration, while its bottom space may differ. This keeps tab switching
+visually stable and keeps the desktop scrollbar present. When implemented,
+reflect the exact spacing rules in [auth/ui.md](features/auth/ui.md).
 
 ## Ongoing Feature Review
 
