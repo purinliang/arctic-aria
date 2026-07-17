@@ -37,7 +37,14 @@ async function main() {
     }
 
     startupStep = "http_server";
-    const server = createDiscordHttpServer({ discordPublicKey }, sql);
+    const server = createDiscordHttpServer(
+      {
+        discordBotToken: config.discordBotToken,
+        discordMessagePushSecret: config.discordMessagePushSecret,
+        discordPublicKey,
+      },
+      sql,
+    );
     await listenServer(server, config.port);
 
     const localBaseUrl = `http://localhost:${config.port}`;

@@ -97,9 +97,11 @@ Local scripts read `apps/discord-bot/.env.local`. Use
 - Slash command metadata: `apps/discord-bot/src/discord-commands.ts`
 - `/bind` account binding command: `apps/discord-bot/src/account-binding.ts`
 - `/idea` capture command: `apps/discord-bot/src/idea-capture.ts`
+- Outbound message command: `apps/discord-bot/src/outbound-message.ts`
+- Discord HTTP API sender: `apps/discord-bot/src/discord-api.ts`
 - Developer prototype binding: `apps/discord-bot/src/developer-binding.ts`
 - Database URL helper: `apps/discord-bot/src/database.ts`
-- Planned outbound message endpoint: `POST /internal/discord/messages`
+- Outbound message endpoint: `POST /internal/discord/messages`
 
 ## Account Binding
 
@@ -212,12 +214,12 @@ Reminder delivery will need Scheduler or reminder-job design before
 implementation. Redis, queues, and event/dataflow should remain deferred until a
 concrete delivery, retry, idempotency, or rate-limit need appears.
 
-Future outbound messages from Arctic Aria services should be implemented as an
-explicit HTTP/job interface into the Discord app surface, then the Discord app
-can send messages through the Discord HTTP API. Do not add a long-running
-Gateway listener just to receive Arctic Aria notification work.
+Outbound messages from Arctic Aria services are implemented as an explicit
+HTTP interface into the Discord app surface. The Discord app sends messages
+through the Discord HTTP API. Do not add a long-running Gateway listener just
+to receive Arctic Aria notification work.
 
-The planned first outbound message API is documented in
+The first outbound message API is documented in
 [outbound-messages.md](outbound-messages.md).
 
 ## Data Flow
@@ -238,7 +240,7 @@ Discord slash command
 The bot should not write planning, routine, memory, or review tables directly.
 It should call product commands that own validation and state transitions.
 
-Planned inbound `/bind` flow:
+Inbound `/bind` flow:
 
 ```text
 Settings page
@@ -251,7 +253,7 @@ Settings page
   -> bot sends private acknowledgement
 ```
 
-Planned outbound message flow:
+Outbound message flow:
 
 ```text
 Arctic Aria service
@@ -272,6 +274,7 @@ Arctic Aria service
    - `DISCORD_PUBLIC_KEY`
    - `DISCORD_DEVELOPER_USER_ID`
    - `ARCTIC_ARIA_DEVELOPER_USERNAME`
+   - `DISCORD_MESSAGE_PUSH_SECRET`
    - `NEON_POSTGRES_URL`
 
    Optional key:

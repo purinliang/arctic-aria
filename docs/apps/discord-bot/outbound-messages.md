@@ -1,7 +1,7 @@
 # Discord Outbound Messages
 
-This document describes the planned internal API for sending Arctic Aria
-messages to a user's Discord DM through the Discord bot service.
+This document describes the internal API for sending Arctic Aria messages to a
+user's Discord DM through the Discord bot service.
 
 ## Purpose
 
@@ -89,10 +89,10 @@ connection for outbound messages.
 
 ## Delivery Records
 
-Add a delivery/idempotency table when implementing outbound messages. The table
-should store delivery state without raw message text.
+Outbound messages use a delivery/idempotency table. The table stores delivery
+state without raw message text.
 
-Planned `discord_message_deliveries` fields:
+Implemented `discord_message_deliveries` fields:
 
 - `id uuid PRIMARY KEY`
 - `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
@@ -101,7 +101,7 @@ Planned `discord_message_deliveries` fields:
 - `content_hash text NOT NULL`
 - `source text NOT NULL`
 - `metadata jsonb NOT NULL DEFAULT '{}'::jsonb`
-- `delivery_status text NOT NULL`
+- `delivery_status text NOT NULL DEFAULT 'pending'`
 - `discord_message_id text`
 - `error_code text`
 - `created_at timestamptz NOT NULL DEFAULT now()`
@@ -112,16 +112,18 @@ Constraints:
 
 - `(user_id, idempotency_key)` is unique
 - `source` is `web`, `scheduler`, `manual`, or `agent`
-- `delivery_status` is `sent`, `failed`, or `skipped`
-- exactly one of `sent_at` or `failed_at` is set for terminal sent/failed rows
+- `delivery_status` is `pending`, `sent`, `failed`, or `skipped`
+- sent rows must set `sent_at` and not `failed_at`
+- failed rows must set `failed_at` and not `sent_at`
+- pending and skipped rows must not set `sent_at` or `failed_at`
 
 Idempotency behavior:
 
 - same `userId`, same `idempotencyKey`, same `contentHash`: return the existing
   delivery result and do not send again
 - same `userId`, same `idempotencyKey`, different `contentHash`: return `409`
-- failed sends keep the idempotency row; retry behavior needs a later retry
-  design
+- failed sends keep the idempotency row; the current endpoint returns the
+  existing failed result for the same idempotency key
 
 ## Logging
 

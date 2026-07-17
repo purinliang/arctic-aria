@@ -91,12 +91,12 @@ Current and planned variables:
 
 | Variable | Required now | Purpose |
 | --- | --- | --- |
-| `DISCORD_BOT_TOKEN` | Yes to register slash commands and send future Discord API messages | Secret bot token from the Discord Developer Portal. |
+| `DISCORD_BOT_TOKEN` | Yes to register slash commands and send outbound Discord messages | Secret bot token from the Discord Developer Portal. |
 | `DISCORD_APP_ID` | Yes to register slash commands | App ID from the Discord Developer Portal. |
 | `DISCORD_PUBLIC_KEY` | Yes to run the HTTP interaction endpoint | Public Key used to verify requests from Discord. |
 | `DISCORD_DEVELOPER_USER_ID` | Required for the developer prototype binding | Developer's Discord account id. |
 | `ARCTIC_ARIA_DEVELOPER_USERNAME` | Required for the developer prototype binding | Existing Arctic Aria username used by the developer in the web app. |
-| `DISCORD_MESSAGE_PUSH_SECRET` | Planned for outbound Discord messages | Shared secret used by Arctic Aria services when calling the Discord bot message-send endpoint. |
+| `DISCORD_MESSAGE_PUSH_SECRET` | Yes for outbound Discord messages | Shared secret used by Arctic Aria services when calling the Discord bot message-send endpoint. |
 | `NEON_POSTGRES_URL` | Yes | Same Neon PostgreSQL database used by the web app. |
 | `PORT` | Optional | Local HTTP port for `/interactions`; defaults to `3001`. |
 
