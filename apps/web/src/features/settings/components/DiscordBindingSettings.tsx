@@ -221,22 +221,24 @@ export function DiscordBindingSettings({
                 }
                 viewLabel={messages.discord.viewAccountId}
               />
-              <Button
-                darkMode={darkMode}
-                disabled={discordAction !== null}
-                icon={<Unlink size={14} aria-hidden="true" />}
-                size="field"
-                onClick={() => setConfirmUnbindOpen(true)}
-              >
-                {messages.discord.unbind}
-              </Button>
+              {discordLoading ? null : (
+                <Button
+                  darkMode={darkMode}
+                  disabled={discordAction !== null}
+                  icon={<Unlink size={14} aria-hidden="true" />}
+                  size="field"
+                  onClick={() => setConfirmUnbindOpen(true)}
+                >
+                  {messages.discord.unbind}
+                </Button>
+              )}
             </div>
           ) : (
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <DescriptionText darkMode={darkMode} className="shrink-0">
                 {discordStatusText}
               </DescriptionText>
-              {bindingStatusFailed && !pendingBindingCode ? (
+              {discordLoading ? null : bindingStatusFailed && !pendingBindingCode ? (
                 <CheckAgainButton
                   darkMode={darkMode}
                   loading={discordAction === "load"}
