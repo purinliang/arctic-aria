@@ -8,12 +8,13 @@ import { ConfirmDialog } from "@/components/dialog";
 import { ListItem } from "@/components/list";
 import { DescriptionText } from "@/components/text";
 import type { SettingsMessages } from "@/messages/app-messages";
-import { DiscordBoundAccountField } from "./DiscordBoundAccountField";
+import { DiscordBoundAccountControls } from "./DiscordBoundAccountControls";
 import { DiscordBindingCodeStatus } from "./DiscordBindingCodeStatus";
 import {
   cancelDiscordBindingCode,
   createDiscordBindingCode,
   getDiscordBinding,
+  sendDiscordTestMessage,
   unbindDiscordAccount,
 } from "../actions";
 
@@ -23,7 +24,7 @@ type DiscordBindingView = {
 };
 
 type PendingBindingCode = { value: string; expiresAt: string };
-type DiscordAction = "bind" | "cancel" | "load" | "unbind";
+type DiscordAction = "bind" | "cancel" | "load" | "test" | "unbind";
 
 export function DiscordBindingSettings({
   darkMode,
@@ -203,36 +204,52 @@ export function DiscordBindingSettings({
     }
   }
 
+  async function handleSendTestMessage() {
+    setDiscordAction("test");
+
+    try {
+      const result = await sendDiscordTestMessage();
+
+      if (!result.ok) {
+        showErrorNotification(
+          bindingResultMessage(result.code, result.message, messages),
+          messages.discord.notifications.testFailed,
+        );
+        return;
+      }
+
+      showSuccessNotification(
+        bindingResultMessage(result.code, undefined, messages),
+        messages.discord.notifications.testSent,
+      );
+    } catch {
+      showErrorNotification(
+        messages.discord.results.settings_discord_test_failed,
+        messages.discord.notifications.testFailed,
+      );
+    } finally {
+      setDiscordAction(null);
+    }
+  }
+
   return (
     <>
       <ListItem darkMode={darkMode} className="items-start">
         <div className="min-w-0 flex-1">
           {discordBinding ? (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-              <DiscordBoundAccountField
-                accountId={discordBinding.discordUserId}
-                className="flex-1 sm:max-w-sm"
-                darkMode={darkMode}
-                hidden={!accountIdVisible}
-                hideLabel={messages.discord.hideAccountId}
-                label={messages.discord.boundAccountIdLabel}
-                onToggleHidden={() =>
-                  setAccountIdVisible((visible) => !visible)
-                }
-                viewLabel={messages.discord.viewAccountId}
-              />
-              {discordLoading ? null : (
-                <Button
-                  darkMode={darkMode}
-                  disabled={discordAction !== null}
-                  icon={<Unlink size={14} aria-hidden="true" />}
-                  size="field"
-                  onClick={() => setConfirmUnbindOpen(true)}
-                >
-                  {messages.discord.unbind}
-                </Button>
-              )}
-            </div>
+            <DiscordBoundAccountControls
+              accountId={discordBinding.discordUserId}
+              accountIdVisible={accountIdVisible}
+              action={discordAction}
+              darkMode={darkMode}
+              loading={discordLoading}
+              messages={messages}
+              onSendTestMessage={handleSendTestMessage}
+              onToggleAccountId={() =>
+                setAccountIdVisible((visible) => !visible)
+              }
+              onUnbind={() => setConfirmUnbindOpen(true)}
+            />
           ) : (
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <DescriptionText darkMode={darkMode} className="shrink-0">
@@ -258,7 +275,7 @@ export function DiscordBindingSettings({
           )}
           {pendingBindingCode ? (
             <DiscordBindingCodeStatus
-              action={discordAction}
+              action={discordAction === "test" ? null : discordAction}
               darkMode={darkMode}
               code={pendingBindingCode.value}
               expiresAt={pendingBindingCode.expiresAt}

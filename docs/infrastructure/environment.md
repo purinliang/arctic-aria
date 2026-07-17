@@ -27,6 +27,8 @@ Current variables:
 | --- | --- | --- | --- |
 | `NEON_POSTGRES_URL` | Yes | Local and Vercel | PostgreSQL connection URL used by the web app and migration runner. |
 | `AUTH_SESSION_SECRET` | Yes | Local and Vercel | Secret used to sign the 30-day auth session cookie. |
+| `DISCORD_MESSAGE_PUSH_SECRET` | Only when using Settings Discord test messages or other web-to-bot sends | Local and any deployed web environment that calls the bot | Shared secret sent by the web app when calling the Discord bot message-send endpoint. |
+| `DISCORD_MESSAGE_PUSH_URL` | Optional locally; required for deployed web-to-bot sends | Local and any deployed web environment that calls the bot | Full URL for the Discord bot `POST /internal/discord/messages` endpoint. Local development defaults to `http://localhost:3001/internal/discord/messages` when unset. |
 
 The web code reads `NEON_POSTGRES_URL` only. If the Vercel Neon integration
 creates `NEON_DATABASE_URL`, copy that pooled URL into a new Vercel variable
@@ -49,6 +51,14 @@ Generate one independent session secret per environment with:
 ```bash
 openssl rand -base64 48
 ```
+
+The Settings page can send a Discord test message to the signed-in user's bound
+Discord account. That web action calls the Discord bot's private message-push
+endpoint. Local development may omit `DISCORD_MESSAGE_PUSH_URL` if the bot runs
+on `http://localhost:3001`, but `DISCORD_MESSAGE_PUSH_SECRET` must be set in
+both `apps/web/.env.local` and `apps/discord-bot/.env.local` with the same
+value. Production or preview environments must set the full deployed bot URL
+explicitly.
 
 ## Vercel Neon Variables
 
