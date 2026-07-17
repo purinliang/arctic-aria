@@ -58,14 +58,18 @@ Current implementation note:
   initialization runs.
 - Keep this simple row-based model for now because every memory references a
   real `memory_categories.id`.
-- Built-in categories use stable metadata through `built_in_key`, `icon_name`,
-  and `shown_on_dashboard`.
-- Current built-in keys are `cuisine` and `sightseeing`.
-- Built-in category name, icon, identity, and delete behavior are
+- Built-in categories use stable metadata through `built_in_key` and
+  `icon_name`.
+- Current built-in keys are `cuisine`, `sightseeing`, `movie`, `anime`,
+  `book`, `music`, `game`, and `shopping`.
+- Built-in category name, description, icon, identity, and delete behavior are
   app-controlled so categories such as Cuisine and Sightseeing cannot lose
-  their default translation, icon, or dashboard meaning.
+  their default translation, description, or icon.
+- `shown_on_dashboard` remains in the schema as legacy metadata for now, but
+  the current dashboard pinned-memory list does not filter by this field.
 - Existing users are backfilled by migration, and memory category
-  initialization can safely restore missing default category metadata.
+  initialization can safely restore missing default category metadata for future
+  users or partially initialized accounts.
 - User-created categories should keep user-authored names as-is and should not
   be auto-translated by the database or backend.
 
@@ -78,7 +82,8 @@ Current database protection:
 - `built_in_key` is null or one of the allowed built-in keys.
 - `description` is 500 characters or fewer.
 - `icon_name` defaults to `bookmark`.
-- `shown_on_dashboard` defaults to `false`.
+- `shown_on_dashboard` defaults to `false`; do not use it for current dashboard
+  pinned-memory filtering.
 
 Delete behavior:
 
@@ -189,9 +194,9 @@ Current database protection:
 - `position` is positive.
 - `completed_cleanup_at` is null or not before `completed_at`.
 
-The dashboard should still enforce category limits and replacement rules in the
-backend service because those rules depend on current visible rows and
-candidate selection.
+The dashboard should not enforce per-category count limits. Replacement rules
+still belong in the backend service because they depend on current visible rows
+and candidate selection.
 
 Lifecycle behavior:
 

@@ -18,7 +18,12 @@ import { CategoryManagerDialog } from "./CategoryManagerDialog";
 import { MemoryEditorDialog } from "./MemoryEditorDialog";
 import { MemoriesPanel } from "./MemoriesPanel";
 import { SuggestionsPanel } from "./SuggestionsPanel";
-import { emptyCategoryDraft } from "./memory-page-helpers";
+import {
+  emptyCategoryDraft,
+  getMemoryCategoryName,
+  getVisibleMemoryFilterCategories,
+  sortMemoryCategories,
+} from "./memory-page-helpers";
 import type { MemoryFilter } from "./memory-page-helpers";
 
 type EditorResult = Promise<boolean>;
@@ -77,6 +82,7 @@ export function MemoriesPage({
   messages: MemoryMessages;
   formMessages: FormMessages;
 }) {
+  const sortedCategories = sortMemoryCategories(categories);
   const [filter, setFilter] = useState<MemoryFilter>("All");
   const [memoryEditorOpen, setMemoryEditorOpen] = useState(false);
   const [categoryEditorOpen, setCategoryEditorOpen] = useState(false);
@@ -84,8 +90,8 @@ export function MemoriesPage({
   const [confirmationTarget, setConfirmationTarget] =
     useState<ConfirmationTarget | null>(null);
   const [memoryDraft, setMemoryDraft] = useState<MemoryInput>({
-    categoryId: categories[0]?.id ?? "",
-    categoryName: categories[0]?.name,
+    categoryId: sortedCategories[0]?.id ?? "",
+    categoryName: sortedCategories[0]?.name,
     title: "",
     description: "",
   });
@@ -93,6 +99,10 @@ export function MemoriesPage({
     useState<MemoryCategoryInput>(emptyCategoryDraft);
   const visibleMemories = memoryRecords.filter(
     (memory) => filter === "All" || memory.category === filter,
+  );
+  const filterCategories = getVisibleMemoryFilterCategories(
+    sortedCategories,
+    memoryRecords,
   );
   const editingMemory = Boolean(memoryDraft.id);
 
@@ -228,9 +238,10 @@ export function MemoriesPage({
             loading={loading}
             pending={pending}
             filter={filter}
-            categories={categories}
+            categories={filterCategories}
             memories={visibleMemories}
             messages={messages.panel}
+            categoryMessages={messages.categories.builtIns}
             dateMessages={formMessages.datePicker}
             onAdd={openNewMemoryEditor}
             onFilterChange={setFilter}
@@ -245,8 +256,9 @@ export function MemoriesPage({
             suggestionsRequested={suggestionsRequested}
             pinnedSuggestionIds={pinnedSuggestionIds}
             pendingSuggestionIds={pendingSuggestionIds}
-            messages={messages.suggestions}
-            dateMessages={formMessages.datePicker}
+          messages={messages.suggestions}
+          categoryMessages={messages.categories.builtIns}
+          dateMessages={formMessages.datePicker}
             onSuggestionsRefresh={onSuggestionsRefresh}
             onSuggestionPin={onSuggestionPin}
             onSuggestionCancel={onSuggestionCancel}
@@ -260,9 +272,10 @@ export function MemoriesPage({
           pending={pending}
           editingMemory={editingMemory}
           memoryDraft={memoryDraft}
-          categories={categories}
+          categories={sortedCategories}
           setMemoryDraft={setMemoryDraft}
           messages={messages.editor}
+          categoryMessages={messages.categories.builtIns}
           onClose={closeMemoryEditor}
           onSubmit={() => void submitMemory()}
           onManageCategories={openManageCategories}
@@ -282,7 +295,7 @@ export function MemoriesPage({
         <CategoryManagerDialog
           darkMode={darkMode}
           pending={pending}
-          categories={categories}
+          categories={sortedCategories}
           categoryDraft={categoryDraft}
           categoryFormOpen={categoryFormOpen}
           messages={messages.categories}
@@ -296,7 +309,10 @@ export function MemoriesPage({
             setConfirmationTarget({
               type: "category",
               id: category.id,
-              title: category.name,
+              title: getMemoryCategoryName(
+                category,
+                messages.categories.builtIns,
+              ),
             })
           }
         />

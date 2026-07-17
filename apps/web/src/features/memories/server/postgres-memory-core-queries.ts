@@ -20,20 +20,44 @@ type Sql = NeonQueryFunction<false, false>;
 
 export async function ensureDefaultCategories(sql: Sql, userId: string) {
   for (const category of getDefaultMemoryCategories()) {
-    await sql`
-      INSERT INTO memory_categories (
-        user_id, name, description, built_in_key, icon_name, shown_on_dashboard
-      )
-      VALUES (
-        ${userId}, ${category.name}, ${category.description},
-        ${category.builtInKey}, ${category.iconName},
-        ${category.shownOnDashboard}
-      )
-      ON CONFLICT (user_id, name) DO UPDATE
-      SET built_in_key = EXCLUDED.built_in_key,
-        icon_name = EXCLUDED.icon_name,
-        shown_on_dashboard = EXCLUDED.shown_on_dashboard
-    `;
+    await sql.query(
+      `WITH updated_by_key AS (
+         UPDATE memory_categories
+         SET name = $2,
+           description = $3,
+           built_in_key = $4,
+           icon_name = $5,
+           shown_on_dashboard = $6
+         WHERE user_id = $1
+           AND built_in_key = $4
+         RETURNING id
+       ),
+       inserted AS (
+         INSERT INTO memory_categories (
+           user_id, name, description, built_in_key, icon_name,
+           shown_on_dashboard
+         )
+         SELECT $1, $2, $3, $4, $5, $6
+         WHERE NOT EXISTS (SELECT 1 FROM updated_by_key)
+         ON CONFLICT (user_id, name) DO UPDATE
+         SET built_in_key = EXCLUDED.built_in_key,
+           description = EXCLUDED.description,
+           icon_name = EXCLUDED.icon_name,
+           shown_on_dashboard = EXCLUDED.shown_on_dashboard
+         RETURNING id
+       )
+       SELECT id FROM updated_by_key
+       UNION ALL
+       SELECT id FROM inserted`,
+      [
+        userId,
+        category.name,
+        category.description,
+        category.builtInKey,
+        category.iconName,
+        category.shownOnDashboard,
+      ],
+    );
   }
 
   const rows = (await sql`

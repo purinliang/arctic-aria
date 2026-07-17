@@ -18,6 +18,7 @@ export function SingleChoiceGroup({
   disabled = false,
   size = "button",
   className,
+  children,
 }: {
   darkMode: boolean;
   options: ChoiceOption[];
@@ -26,22 +27,26 @@ export function SingleChoiceGroup({
   disabled?: boolean;
   size?: ChoiceGroupSize;
   className?: string;
+  children?: ReactNode;
 }) {
   return (
-    <div className={cx("flex flex-wrap gap-2", className)} role="radiogroup">
-      {options.map((option) => (
-        <ChoiceButton
-          key={option.value}
-          darkMode={darkMode}
-          option={option}
-          selected={option.value === value}
-          disabled={disabled}
-          size={size}
-          role="radio"
-          aria-checked={option.value === value}
-          onClick={() => onChange(option.value)}
-        />
-      ))}
+    <div className={cx("flex flex-wrap gap-2", className)}>
+      <div className="contents" role="radiogroup">
+        {options.map((option) => (
+          <ChoiceButton
+            key={option.value}
+            darkMode={darkMode}
+            option={option}
+            selected={option.value === value}
+            disabled={disabled}
+            size={size}
+            role="radio"
+            aria-checked={option.value === value}
+            onClick={() => onChange(option.value)}
+          />
+        ))}
+      </div>
+      {children}
     </div>
   );
 }
@@ -90,6 +95,32 @@ export function MultipleChoiceGroup({
         );
       })}
     </div>
+  );
+}
+
+export function ChoiceActionButton({
+  darkMode,
+  option,
+  disabled = false,
+  size = "button",
+  className,
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
+  darkMode: boolean;
+  option: ChoiceOption;
+  disabled?: boolean;
+  size?: ChoiceGroupSize;
+}) {
+  return (
+    <ChoiceButton
+      darkMode={darkMode}
+      option={option}
+      selected={false}
+      disabled={disabled}
+      size={size}
+      className={className}
+      {...props}
+    />
   );
 }
 

@@ -1,5 +1,13 @@
 export type MemoryCategoryName = string;
-export type BuiltInMemoryCategoryKey = "cuisine" | "sightseeing";
+export type BuiltInMemoryCategoryKey =
+  | "cuisine"
+  | "sightseeing"
+  | "movie"
+  | "anime"
+  | "book"
+  | "music"
+  | "game"
+  | "shopping";
 
 export type MemoryEventType =
   | "pinned"
@@ -171,16 +179,58 @@ const defaultCategoryInputs: Array<{
 }> = [
   {
     name: "Cuisine",
-    description: "",
+    description: "Restaurants, cafes, meals, and food experiences worth revisiting.",
     builtInKey: "cuisine",
     iconName: "utensils",
     shownOnDashboard: true,
   },
   {
     name: "Sightseeing",
-    description: "",
+    description: "Places, walks, views, and visits worth seeing again.",
     builtInKey: "sightseeing",
-    iconName: "landmark",
+    iconName: "trees",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Movie",
+    description: "Films to watch, rewatch, or remember.",
+    builtInKey: "movie",
+    iconName: "film",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Anime",
+    description: "Anime series or films to continue or revisit.",
+    builtInKey: "anime",
+    iconName: "wand-sparkles",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Book",
+    description: "Books and reading experiences worth returning to.",
+    builtInKey: "book",
+    iconName: "book-open-text",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Music",
+    description: "Songs, albums, concerts, and listening moments to revisit.",
+    builtInKey: "music",
+    iconName: "music",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Game",
+    description: "Games and playful experiences worth returning to.",
+    builtInKey: "game",
+    iconName: "gamepad-2",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Shopping",
+    description: "Shops, items, and buying experiences worth remembering.",
+    builtInKey: "shopping",
+    iconName: "shopping-cart",
     shownOnDashboard: true,
   },
 ];

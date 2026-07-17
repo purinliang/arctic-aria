@@ -1,25 +1,33 @@
 // Memories Page - Memory Category Icon.
 import {
   Bookmark,
+  BookOpenText,
   Film,
   Gamepad2,
   Landmark,
   Music,
-  ShoppingBag,
+  ShoppingCart,
   Sparkles,
+  Trees,
   Utensils,
+  WandSparkles,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 const categoryIcons: Record<string, LucideIcon> = {
   anime: Sparkles,
   bookmark: Bookmark,
+  "book-open-text": BookOpenText,
   film: Film,
   gamepad: Gamepad2,
+  "gamepad-2": Gamepad2,
   landmark: Landmark,
   music: Music,
-  shopping: ShoppingBag,
+  shopping: ShoppingCart,
+  "shopping-cart": ShoppingCart,
+  trees: Trees,
   utensils: Utensils,
+  "wand-sparkles": WandSparkles,
 };
 
 export function MemoryCategoryIcon({

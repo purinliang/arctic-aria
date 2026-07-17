@@ -12,13 +12,9 @@ should match the Memories item in the hamburger menu. Use the Lucide
 
 The dashboard's required first behavior is to show pinned memories only.
 
-The dashboard should show pinned memories from supported dashboard categories
-only. The code uses `shown_on_dashboard` category metadata for this decision.
-Current built-in dashboard categories are Cuisine and Sightseeing.
-
-For now, show up to 3 pinned memories per dashboard-enabled category. Do not
-show dashboard pinned memories from custom categories until a later UI feature
-designs that behavior.
+The dashboard can show pinned memories from any category. Do not hard-code the
+dashboard to Cuisine and Sightseeing, and do not apply a per-category count
+limit in the UI or backend selection logic.
 
 For each pinned memory, show:
 
@@ -93,15 +89,21 @@ list.
 Layout:
 
 - Show the text `Categories:` using shared `LabelText`.
-- Show filter buttons starting with `All`, followed by all user categories such
-  as `Cuisine`, even when a category has no memories yet.
+- Show filter buttons starting with `All`.
+- Always show `Cuisine`, `Sightseeing`, and user-created categories, even when
+  they have no memories yet.
+- Hide other empty built-in categories, such as `Movie`, `Anime`, `Book`,
+  `Music`, `Game`, and `Shopping`, until they have at least one memory.
+- Sort category filters as `Cuisine`, `Sightseeing`, user-created categories,
+  then other built-in categories. Sort user-created categories and other
+  built-ins alphabetically by English display name within their groups.
 - The `All` filter should show a neutral memory icon.
 - Category filter buttons should show the category icon when one is available.
 - If there are too many categories, the filter buttons should wrap onto multiple
   lines.
 - Show a Lucide `Settings2` button with text `Manage`.
-- The `Manage` button should use the same style as filter items and be listed
-  with the filter buttons.
+- The `Manage` button should use the shared choice-action style, matching
+  filter items while remaining an action instead of a selected filter.
 - The categories strip should use the same horizontal separator line as list
   rows, but it is not itself a list item.
 
@@ -114,6 +116,19 @@ Click behavior:
 - Category filters should use the shared single-choice group style. Selected
   state is shown by color and border only; do not add a check icon to selected
   choices.
+- The memory editor category section should use the same grouped treatment:
+  category choices followed by a `Manage` choice-action item in the same row.
+
+Current built-in category icon mapping:
+
+- Cuisine uses `utensils`.
+- Sightseeing uses `trees`.
+- Movie uses `film`.
+- Anime uses `wand-sparkles`.
+- Book uses `book-open-text`.
+- Music uses `music`.
+- Game uses `gamepad-2`.
+- Shopping uses `shopping-cart`.
 
 ### Memory List Section
 
@@ -221,8 +236,9 @@ The user must be able to:
 - edit a memory category
 - delete a memory category when it is not used by memories
 
-Built-in categories should remain visible in Manage Categories with their icon
-and built-in metadata. Do not show an edit action for built-in categories.
+Built-in categories should remain visible in Manage Categories with their icon,
+name, and description only. Do not show built-in/user-created supportive
+metadata in the list. Do not show an edit action for built-in categories.
 
 The add and edit controls should not appear as inline panels inside the memory
 list. Inline panels are hard to distinguish from page content and make it

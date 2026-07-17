@@ -31,6 +31,16 @@ export const englishDashboardMessages = {
     replace: (title: string) => `Replace ${title}`,
     markDone: (title: string) => `Mark ${title} done`,
     cancelDone: (title: string) => `Cancel completion for ${title}`,
+    builtInCategories: {
+      cuisine: "Cuisine",
+      sightseeing: "Sightseeing",
+      movie: "Movie",
+      anime: "Anime",
+      book: "Book",
+      music: "Music",
+      game: "Game",
+      shopping: "Shopping",
+    },
   },
   notifications: {
     projectsUnavailable: "Projects unavailable",
@@ -84,6 +94,16 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
     replace: (title) => `替换 ${title}`,
     markDone: (title) => `将 ${title} 标记为完成`,
     cancelDone: (title) => `取消 ${title} 的完成状态`,
+    builtInCategories: {
+      cuisine: "美食",
+      sightseeing: "观光",
+      movie: "电影",
+      anime: "动画",
+      book: "书籍",
+      music: "音乐",
+      game: "游戏",
+      shopping: "购物",
+    },
   },
   notifications: {
     projectsUnavailable: "项目不可用",

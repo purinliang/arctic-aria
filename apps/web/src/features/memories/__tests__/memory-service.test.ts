@@ -31,14 +31,92 @@ test("initializes default memory categories for a user", async () => {
       category.shownOnDashboard,
     ]),
     [
-      ["Cuisine", "", "cuisine", "utensils", true],
-      ["Sightseeing", "", "sightseeing", "landmark", true],
+      [
+        "Cuisine",
+        "Restaurants, cafes, meals, and food experiences worth revisiting.",
+        "cuisine",
+        "utensils",
+        true,
+      ],
+      [
+        "Sightseeing",
+        "Places, walks, views, and visits worth seeing again.",
+        "sightseeing",
+        "trees",
+        true,
+      ],
+      ["Movie", "Films to watch, rewatch, or remember.", "movie", "film", true],
+      [
+        "Anime",
+        "Anime series or films to continue or revisit.",
+        "anime",
+        "wand-sparkles",
+        true,
+      ],
+      [
+        "Book",
+        "Books and reading experiences worth returning to.",
+        "book",
+        "book-open-text",
+        true,
+      ],
+      [
+        "Music",
+        "Songs, albums, concerts, and listening moments to revisit.",
+        "music",
+        "music",
+        true,
+      ],
+      [
+        "Game",
+        "Games and playful experiences worth returning to.",
+        "game",
+        "gamepad-2",
+        true,
+      ],
+      [
+        "Shopping",
+        "Shops, items, and buying experiences worth remembering.",
+        "shopping",
+        "shopping-cart",
+        true,
+      ],
     ],
   );
 
   const secondCall = await service.initializeUserMemoryDefaults(userId);
 
-  assert.equal(secondCall.length, 2);
+  assert.equal(secondCall.length, 8);
+});
+
+test("initialization updates existing built-in category metadata", async () => {
+  const repository = new InMemoryMemoryRepository({
+    categories: [
+      {
+        ...memoryCategories[1],
+        description: "",
+        iconName: "landmark",
+        shownOnDashboard: false,
+      },
+    ],
+  });
+  const service = createMemoryService({
+    memories: repository,
+    now: () => now,
+  });
+
+  const categories = await service.initializeUserMemoryDefaults(userId);
+  const sightseeing = categories.find(
+    (category) => category.builtInKey === "sightseeing",
+  );
+
+  assert.equal(categories.length, 8);
+  assert.equal(
+    sightseeing?.description,
+    "Places, walks, views, and visits worth seeing again.",
+  );
+  assert.equal(sightseeing?.iconName, "trees");
+  assert.equal(sightseeing?.shownOnDashboard, true);
 });
 
 test("creates memory in a newly created custom category", async () => {
@@ -166,7 +244,7 @@ test("cancel pinned memory done clears completion state", async () => {
   assert.equal(repository.getEvents()[0]?.eventType, "completed_canceled");
 });
 
-test("dashboard pinned memories use category dashboard visibility", async () => {
+test("dashboard pinned memories include custom categories", async () => {
   const repository = new InMemoryMemoryRepository({
     categories: [
       ...memoryCategories,
@@ -233,11 +311,11 @@ test("dashboard pinned memories use category dashboard visibility", async () => 
 
   assert.deepEqual(
     result.map((memory) => memory.categoryName),
-    ["Food", "Sightseeing"],
+    ["Food", "Sightseeing", "Anime"],
   );
 });
 
-test("dashboard pinned memories are limited to three per supported category", async () => {
+test("dashboard pinned memories are not limited by category count", async () => {
   const repository = new InMemoryMemoryRepository({
     categories: memoryCategories,
     pinnedMemories: [1, 2, 3, 4].map((position) =>
@@ -259,7 +337,7 @@ test("dashboard pinned memories are limited to three per supported category", as
 
   assert.deepEqual(
     result.map((memory) => memory.id),
-    ["pin-1", "pin-2", "pin-3"],
+    ["pin-1", "pin-2", "pin-3", "pin-4"],
   );
 });
 
@@ -344,41 +422,36 @@ test("suggest memories excludes already pinned memories", async () => {
   );
 });
 
-test("pin suggested memory appends a same-category dashboard pin", async () => {
+test("pin suggested memory appends after existing same-category pins", async () => {
   const repository = new InMemoryMemoryRepository({
     categories: memoryCategories,
     memories: [
       memory({
-        id: "memory-1",
+        id: "memory-4",
         categoryId: "category-cuisine",
-        title: "Ramen",
-      }),
-      memory({
-        id: "memory-2",
-        categoryId: "category-cuisine",
-        title: "Dumplings",
+        title: "Hot pot",
       }),
     ],
-    pinnedMemories: [
+    pinnedMemories: [1, 2, 3].map((position) =>
       pinnedMemory({
-        id: "pin-1",
-        memoryId: "memory-1",
+        id: `pin-${position}`,
+        memoryId: `memory-${position}`,
         categoryId: "category-cuisine",
-        title: "Ramen",
-        position: 1,
+        title: `Cuisine ${position}`,
+        position,
       }),
-    ],
+    ),
   });
   const service = createMemoryService({
     memories: repository,
     now: () => now,
   });
 
-  const result = await service.pinSuggestedMemory(userId, "memory-2");
+  const result = await service.pinSuggestedMemory(userId, "memory-4");
 
   assert.ok(result);
-  assert.equal(result.memoryId, "memory-2");
-  assert.equal(result.position, 2);
+  assert.equal(result.memoryId, "memory-4");
+  assert.equal(result.position, 4);
   assert.equal(result.status, "active");
   assert.equal(repository.getEvents()[0]?.eventType, "pinned");
 });

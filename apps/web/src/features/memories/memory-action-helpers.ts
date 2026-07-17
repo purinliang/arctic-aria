@@ -199,6 +199,7 @@ export function toMemorySuggestion(
   return {
     id: memory.id,
     category: memory.categoryName,
+    categoryBuiltInKey: memory.categoryBuiltInKey,
     title: memory.title,
     description: memory.description,
     lastDoneDate: dateKey(memory.lastDoneAt),
@@ -222,6 +223,7 @@ function toPinnedMemory(memory: DashboardPinnedMemory): PinnedMemory {
     id: memory.id,
     memoryId: memory.memoryId,
     category: memory.categoryName,
+    categoryBuiltInKey: memory.categoryBuiltInKey,
     title: memory.title,
     description: memory.description,
     meta: memory.completedAt
@@ -241,6 +243,7 @@ function toMemoryRecord(
     id: memory.id,
     categoryId: memory.categoryId,
     category: memory.categoryName,
+    categoryBuiltInKey: memory.categoryBuiltInKey,
     title: memory.title,
     description: memory.description,
     lastDoneDate: dateKey(memory.lastDoneAt),

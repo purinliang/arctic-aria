@@ -11,6 +11,7 @@ import { DescriptionText, SupportingText } from "@/components/text";
 import type { MemorySuggestion } from "@/features/dashboard/types";
 import type { MemoryMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
+import { getMemoryCategoryLabel } from "./memory-page-helpers";
 
 type SuggestionResult = Promise<boolean>;
 
@@ -22,6 +23,7 @@ export function SuggestionsPanel({
   pinnedSuggestionIds,
   pendingSuggestionIds,
   messages,
+  categoryMessages,
   dateMessages,
   onSuggestionsRefresh,
   onSuggestionPin,
@@ -34,6 +36,7 @@ export function SuggestionsPanel({
   pinnedSuggestionIds: string[];
   pendingSuggestionIds: string[];
   messages: MemoryMessages["suggestions"];
+  categoryMessages: MemoryMessages["categories"]["builtIns"];
   dateMessages: DatePickerMessages;
   onSuggestionsRefresh: () => Promise<void>;
   onSuggestionPin: (memoryId: string) => SuggestionResult;
@@ -94,6 +97,7 @@ export function SuggestionsPanel({
             pending={pendingSuggestionIds.includes(suggestion.id)}
             pinned={pinnedSuggestionIds.includes(suggestion.id)}
             messages={messages}
+            categoryMessages={categoryMessages}
             dateMessages={dateMessages}
             onPin={() => void onSuggestionPin(suggestion.id)}
             onCancel={() => void onSuggestionCancel(suggestion.id)}
@@ -111,6 +115,7 @@ function SuggestionRow({
   pending,
   pinned,
   messages,
+  categoryMessages,
   dateMessages,
   onPin,
   onCancel,
@@ -120,12 +125,17 @@ function SuggestionRow({
   pending: boolean;
   pinned: boolean;
   messages: MemoryMessages["suggestions"];
+  categoryMessages: MemoryMessages["categories"]["builtIns"];
   dateMessages: DatePickerMessages;
   onPin: () => void;
   onCancel: () => void;
 }) {
   const metadata = [
-    suggestion.category,
+    getMemoryCategoryLabel(
+      suggestion.category,
+      suggestion.categoryBuiltInKey,
+      categoryMessages,
+    ),
     lastDoneText(suggestion, messages, dateMessages),
     messages.doneTimes(suggestion.doneCount),
   ].join(" · ");
