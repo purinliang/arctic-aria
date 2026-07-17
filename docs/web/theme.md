@@ -56,6 +56,35 @@ The page background should stay consistent while loading, signing in, and using
 authenticated pages. Loading, auth, 404, and app-shell screens should share the
 same Arctic Aria brand direction.
 
+## Neutral Grey Scale
+
+The web app should use a neutral grey scale as the default palette for both
+light and dark mode. Think of the scale as roughly 16 steps from black to white:
+step `0` is black, step `15` is white, and the middle steps are light, mid, and
+deep greys.
+
+Light mode uses the white end of the scale for surfaces and the black end for
+text. Dark mode reverses the same roles: black surfaces and white text. Middle
+greys should keep similar visual distance from the active surface in both
+themes.
+
+Use shared component color helpers for these roles:
+
+- page background
+- panel and card surface
+- card header surface
+- border and divider
+- main text
+- label text
+- description and supporting text
+- icon text
+- hover and active row backgrounds
+- disabled controls
+
+Do not use blue-grey palettes such as `slate-*` for normal UI chrome. Reserve
+semantic colors such as red, green, amber, cyan, or blue for status, validation,
+brand identity, or clearly meaningful feature states.
+
 ## Dark Mode
 
 Dark mode is an account setting for logged-in users and a local fallback setting

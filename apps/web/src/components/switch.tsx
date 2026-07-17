@@ -18,10 +18,10 @@ export function Switch({
         checked
           ? darkMode
             ? "border-white bg-white"
-            : "border-slate-950 bg-slate-950"
-          : darkMode
-            ? "border-neutral-700 bg-neutral-900"
-            : "border-slate-300 bg-slate-200",
+            : "border-neutral-950 bg-neutral-950"
+        : darkMode
+          ? "border-neutral-700 bg-neutral-900"
+          : "border-neutral-300 bg-neutral-200",
       )}
       type="button"
       role="switch"

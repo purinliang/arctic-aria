@@ -2,8 +2,8 @@
 
 :root {
   --background: #eef2f5;
-  --foreground: #0f172a;
-  --muted-foreground: #64748b;
+  --foreground: #000000;
+  --muted-foreground: #737373;
 }
 
 * {

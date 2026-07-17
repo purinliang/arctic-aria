@@ -11,31 +11,31 @@ export type Tone =
 export function surfaceClass(darkMode: boolean) {
   return darkMode
     ? "border-neutral-800 bg-black text-white"
-    : "border-slate-300 bg-white text-slate-950";
+    : "border-neutral-300 bg-white text-black";
 }
 
 export function headerSurfaceClass(darkMode: boolean) {
   return darkMode
     ? "border-neutral-800 bg-neutral-950"
-    : "border-slate-200 bg-slate-50";
+    : "border-neutral-200 bg-neutral-50";
 }
 
 export function mutedTextClass(darkMode: boolean) {
-  return darkMode ? "text-neutral-400" : "text-slate-500";
+  return darkMode ? "text-neutral-400" : "text-neutral-500";
 }
 
 export function dividerClass(darkMode: boolean) {
-  return darkMode ? "divide-y divide-neutral-900" : "divide-y divide-slate-200";
+  return darkMode ? "divide-y divide-neutral-900" : "divide-y divide-neutral-200";
 }
 
 export function sectionBorderClass(darkMode: boolean) {
-  return darkMode ? "border-neutral-800" : "border-slate-200";
+  return darkMode ? "border-neutral-800" : "border-neutral-200";
 }
 
 export function controlGroupSurfaceClass(darkMode: boolean) {
   return darkMode
     ? "border-neutral-800 bg-neutral-950"
-    : "border-slate-300 bg-slate-100";
+    : "border-neutral-300 bg-neutral-100";
 }
 
 export function toneClass(darkMode: boolean, tone: Tone) {
@@ -60,7 +60,7 @@ export function toneClass(darkMode: boolean, tone: Tone) {
   if (tone === "neutral") {
     return darkMode
       ? "border-neutral-700 bg-neutral-900 text-neutral-300"
-      : "border-slate-200 bg-slate-100 text-slate-600";
+      : "border-neutral-200 bg-neutral-100 text-neutral-600";
   }
 
   if (tone === "red") {
@@ -78,12 +78,12 @@ export function inputColorClass(darkMode: boolean, hasError = false) {
   if (hasError) {
     return darkMode
       ? "border-red-400 bg-black text-white focus:border-red-300"
-      : "border-red-500 bg-white text-slate-950 focus:border-red-600";
+      : "border-red-500 bg-white text-black focus:border-red-600";
   }
 
   return darkMode
     ? "border-neutral-700 bg-black text-white focus:border-white"
-    : "border-slate-300 bg-white text-slate-950 focus:border-slate-600";
+    : "border-neutral-300 bg-white text-black focus:border-neutral-600";
 }
 
 export function statusMessageClass(
