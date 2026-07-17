@@ -254,6 +254,19 @@ request.
   `type(agent): merge <feature name>` over generic messages such as
   `merge: <branch name>`.
 
+## Release Preparation
+
+- Release PR drafts live in `docs/releases/vX.Y.Z.md`.
+- From `v0.6.1` onward, keep release PR text short. Use a concise PR title,
+  a short summary, and a focused Changes list.
+- Do not include long routine `Verification` or `Notes` sections in release PR
+  text unless the developer explicitly asks or a release-blocking caveat must
+  be visible in GitHub.
+- Keep the main release merge commit title and body in the release record so
+  future release messages stay consistent.
+- Release commit bodies should be useful in `git log`, but shorter than older
+  large release records when the release is a patch or UI polish release.
+
 ## Commits
 
 Use a Git-flow-friendly Conventional Commits style:
