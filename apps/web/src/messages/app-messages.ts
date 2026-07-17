@@ -164,17 +164,17 @@ const englishMessages = {
         settings_discord_code_create_failed:
           "Discord connection code could not be created.",
         settings_discord_test_bot_unavailable:
-          "Discord bot message push is not configured. Set DISCORD_BOT_TOKEN and DISCORD_MESSAGE_PUSH_SECRET in apps/discord-bot/.env.local, then restart the bot server.",
+          "Discord message push is not configured. Set DISCORD_BOT_TOKEN and DISCORD_MESSAGE_PUSH_SECRET in the web environment.",
         settings_discord_test_config_missing:
           "Discord test message config is missing. Check apps/web/.env.local and restart the web server.",
         settings_discord_test_delivery_failed:
-          "Discord test message could not be delivered. Check the bot log for outbound_message_handled.",
+          "Discord test message could not be delivered. Check the web server log for outbound_message_handled.",
         settings_discord_test_no_binding: "No active Discord binding.",
         settings_discord_test_secret_rejected:
-          "Discord message-push secret was rejected. Use the same DISCORD_MESSAGE_PUSH_SECRET in web and bot env files, then restart both servers.",
+          "Discord message-push secret was rejected. Check DISCORD_MESSAGE_PUSH_SECRET in the web environment.",
         settings_discord_test_sent: "Check your Discord DM.",
         settings_discord_test_unreachable:
-          "Discord bot message endpoint is unreachable. Start apps/discord-bot or check DISCORD_MESSAGE_PUSH_URL.",
+          "Discord message endpoint is unreachable. Check DISCORD_MESSAGE_PUSH_URL or the web app deployment.",
         settings_discord_unbound: "Discord unbound.",
         settings_discord_unbind_failed:
           "Discord account could not be disconnected.",
@@ -360,17 +360,17 @@ const simplifiedChineseMessages: AppMessages = {
         settings_discord_code_created: "请在 Discord 中使用此代码连接账户。",
         settings_discord_code_create_failed: "Discord 连接代码无法创建。",
         settings_discord_test_bot_unavailable:
-          "Discord bot 消息推送未配置。请在 apps/discord-bot/.env.local 设置 DISCORD_BOT_TOKEN 和 DISCORD_MESSAGE_PUSH_SECRET，然后重启 bot 服务器。",
+          "Discord 消息推送未配置。请在 web 环境中设置 DISCORD_BOT_TOKEN 和 DISCORD_MESSAGE_PUSH_SECRET。",
         settings_discord_test_config_missing:
           "Discord 测试消息配置缺失。请检查 apps/web/.env.local 并重启 web 服务器。",
         settings_discord_test_delivery_failed:
-          "Discord 测试消息无法送达。请检查 bot 日志中的 outbound_message_handled。",
+          "Discord 测试消息无法送达。请检查 web 服务器日志中的 outbound_message_handled。",
         settings_discord_test_no_binding: "没有有效的 Discord 绑定。",
         settings_discord_test_secret_rejected:
-          "Discord 消息推送 secret 被拒绝。请在 web 和 bot 环境文件中使用相同的 DISCORD_MESSAGE_PUSH_SECRET，然后重启两个服务器。",
+          "Discord 消息推送 secret 被拒绝。请检查 web 环境中的 DISCORD_MESSAGE_PUSH_SECRET。",
         settings_discord_test_sent: "请检查你的 Discord 私信。",
         settings_discord_test_unreachable:
-          "Discord bot 消息端点无法连接。请启动 apps/discord-bot 或检查 DISCORD_MESSAGE_PUSH_URL。",
+          "Discord 消息端点无法连接。请检查 DISCORD_MESSAGE_PUSH_URL 或 web app 部署。",
         settings_discord_unbound: "Discord 已解绑。",
         settings_discord_unbind_failed: "Discord 账户无法断开。",
         settings_unauthorized: "请先登录再更改设置。",

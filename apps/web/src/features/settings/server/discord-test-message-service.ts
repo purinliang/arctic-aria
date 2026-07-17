@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 
-const localMessagePushUrl = "http://localhost:3001/internal/discord/messages";
+const localMessagePushUrl = "http://localhost:3000/api/internal/discord/messages";
+const webMessagePushPath = "/api/internal/discord/messages";
 const testMessageText =
   "Hello from Arctic Aria. Discord message push is working.";
 
@@ -60,7 +61,7 @@ export function createDiscordTestMessageService({
 
       if (!targetUrl) {
         return configMissingResult(
-          "Set DISCORD_MESSAGE_PUSH_URL to the Discord bot message endpoint and restart the web server.",
+          "Set DISCORD_MESSAGE_PUSH_URL or deploy with VERCEL_URL so the web app can call its Discord message endpoint.",
         );
       }
 
@@ -103,7 +104,7 @@ export function createDiscordTestMessageService({
             ok: false,
             code: "settings_discord_test_secret_rejected",
             message:
-              "Discord message-push secret was rejected. Use the same DISCORD_MESSAGE_PUSH_SECRET in web and bot env files, then restart both servers.",
+              "Discord message-push secret was rejected. Check DISCORD_MESSAGE_PUSH_SECRET in the web environment.",
           };
         }
 
@@ -112,22 +113,22 @@ export function createDiscordTestMessageService({
             ok: false,
             code: "settings_discord_test_bot_unavailable",
             message:
-              "Discord bot message push is not configured. Set DISCORD_BOT_TOKEN and DISCORD_MESSAGE_PUSH_SECRET in apps/discord-bot/.env.local, then restart the bot server.",
+              "Discord message push is not configured. Set DISCORD_BOT_TOKEN and DISCORD_MESSAGE_PUSH_SECRET in the web environment.",
           };
         }
 
         return {
-          ok: false,
-          code: "settings_discord_test_delivery_failed",
-          message:
-            "Discord test message could not be delivered. Check the bot log for the outbound_message_handled status.",
+            ok: false,
+            code: "settings_discord_test_delivery_failed",
+            message:
+              "Discord test message could not be delivered. Check the web server log for the outbound_message_handled status.",
         };
       } catch {
         return {
           ok: false,
           code: "settings_discord_test_unreachable",
           message:
-            "Discord bot message endpoint is unreachable. Start apps/discord-bot or check DISCORD_MESSAGE_PUSH_URL.",
+            "Discord message endpoint is unreachable. Check DISCORD_MESSAGE_PUSH_URL or the web app deployment.",
         };
       }
     },
@@ -141,8 +142,18 @@ function readDiscordTestMessageConfig(
     messagePushSecret: readOptionalEnv(env, "DISCORD_MESSAGE_PUSH_SECRET"),
     messagePushUrl:
       readOptionalEnv(env, "DISCORD_MESSAGE_PUSH_URL") ??
-      (env.NODE_ENV === "production" ? null : localMessagePushUrl),
+      readDefaultMessagePushUrl(env),
   };
+}
+
+function readDefaultMessagePushUrl(env: NodeJS.ProcessEnv) {
+  if (env.NODE_ENV !== "production") {
+    return localMessagePushUrl;
+  }
+
+  const vercelUrl = readOptionalEnv(env, "VERCEL_URL");
+
+  return vercelUrl ? `https://${vercelUrl}${webMessagePushPath}` : null;
 }
 
 function parseMessagePushUrl(value: string | null) {

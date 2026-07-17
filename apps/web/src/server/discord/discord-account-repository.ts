@@ -25,6 +25,14 @@ export type CreateDiscordBindingCodeInput = {
   createdAt: Date;
 };
 
+export type RedeemDiscordBindingCodeInput = {
+  codeHash: string;
+  discordUserId: string;
+  discordUsername: string | null;
+  dmChannelId: string | null;
+  occurredAt: Date;
+};
+
 type DiscordAccountRow = {
   id: string;
   user_id: string;
@@ -128,6 +136,76 @@ export class PostgresDiscordAccountRepository {
     );
   }
 
+  async redeemBindingCode(input: RedeemDiscordBindingCodeInput) {
+    const rows = (await this.getSql().query(
+      `WITH valid_code AS (
+         SELECT id, user_id
+         FROM discord_binding_codes
+         WHERE code_hash = $1
+           AND consumed_at IS NULL
+           AND expires_at > $5
+         ORDER BY created_at DESC
+         LIMIT 1
+       ),
+       consumed_code AS (
+         UPDATE discord_binding_codes
+         SET consumed_at = $5
+         WHERE id IN (SELECT id FROM valid_code)
+         RETURNING user_id
+       )
+       INSERT INTO discord_accounts (
+         user_id,
+         discord_user_id,
+         discord_username,
+         dm_channel_id,
+         binding_status,
+         last_interaction_at,
+         created_at,
+         updated_at,
+         revoked_at
+       )
+       SELECT
+         user_id,
+         $2,
+         $3,
+         $4,
+         'active',
+         $5,
+         $5,
+         $5,
+         NULL
+       FROM consumed_code
+       ON CONFLICT (user_id) DO UPDATE SET
+         discord_user_id = EXCLUDED.discord_user_id,
+         discord_username = EXCLUDED.discord_username,
+         dm_channel_id = EXCLUDED.dm_channel_id,
+         binding_status = 'active',
+         last_interaction_at = EXCLUDED.last_interaction_at,
+         updated_at = EXCLUDED.updated_at,
+         revoked_at = NULL
+       RETURNING
+         id,
+         user_id,
+         discord_user_id,
+         discord_username,
+         dm_channel_id,
+         binding_status,
+         last_interaction_at,
+         created_at,
+         updated_at,
+         revoked_at`,
+      [
+        input.codeHash,
+        input.discordUserId,
+        input.discordUsername,
+        input.dmChannelId,
+        input.occurredAt,
+      ],
+    )) as DiscordAccountRow[];
+
+    return rows[0] ? mapDiscordAccount(rows[0]) : null;
+  }
+
   async cancelBindingCodesByUserId(userId: string, canceledAt: Date) {
     await this.getSql().query(
       `UPDATE discord_binding_codes
@@ -161,6 +239,29 @@ export class PostgresDiscordAccountRepository {
     )) as DiscordAccountRow[];
 
     return rows[0] ? mapDiscordAccount(rows[0]) : null;
+  }
+
+  async recordInteraction(input: {
+    discordUserId: string;
+    discordUsername: string | null;
+    dmChannelId: string | null;
+    occurredAt: Date;
+  }) {
+    await this.getSql().query(
+      `UPDATE discord_accounts
+       SET last_interaction_at = $2,
+           discord_username = COALESCE($3, discord_username),
+           dm_channel_id = COALESCE($4, dm_channel_id),
+           updated_at = $2
+       WHERE discord_user_id = $1
+         AND binding_status = 'active'`,
+      [
+        input.discordUserId,
+        input.occurredAt,
+        input.discordUsername,
+        input.dmChannelId,
+      ],
+    );
   }
 
   private getSql() {

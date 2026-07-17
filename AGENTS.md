@@ -203,12 +203,13 @@ detailed shared component rules in `docs/web/ui-components.md`.
 ## Discord Bot Work
 
 - When slash-command metadata changes, update
-  `apps/discord-bot/src/interactions/commands.ts`, run the command registration
-  script, and remind the developer to reinstall or re-authorize the
-  user-installed Discord app if new or changed commands do not appear.
+  `apps/web/src/features/discord/server/commands.ts`, run
+  `pnpm --dir apps/web discord:register-commands`, and remind the developer to
+  reinstall or re-authorize the user-installed Discord app if new or changed
+  commands do not appear.
 - Keep the local runbook in `docs/apps/discord-bot/overview.md` aligned with
-  the current command registration, interaction endpoint, ngrok, and install
-  steps.
+  the current web route runtime, command registration, interaction endpoint,
+  ngrok, Vercel, and install steps.
 
 ## Branches
 

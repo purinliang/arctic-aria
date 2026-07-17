@@ -28,7 +28,7 @@ Constraints:
 ### `discord_accounts`
 
 `discord_accounts` stores the active or revoked Discord binding for an Arctic
-Aria user. The table is shared by Settings and the Discord bot.
+Aria user. The table is shared by Settings and the Discord app surface.
 
 Columns are documented in `docs/apps/discord-bot/overview.md`. Settings should
 read only the row owned by the signed-in Arctic Aria user.
@@ -79,9 +79,8 @@ Backend rules:
 ### `discord_message_deliveries`
 
 Settings does not own Discord delivery records, but the `Send Test` action uses
-the Discord bot outbound message endpoint. Delivery rows and idempotency rules
-are documented in
-`docs/apps/discord-bot/outbound-messages.md`.
+the Discord outbound message endpoint. Delivery rows and idempotency rules are
+documented in `docs/apps/discord-bot/outbound-messages.md`.
 
 Deletion and lifecycle:
 

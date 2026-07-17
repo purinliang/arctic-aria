@@ -1,4 +1,5 @@
-import type { QueryExecutor } from "../infrastructure/database.ts";
+import type { PostgresDiscordAccountRepository } from "../../../server/discord/discord-account-repository.ts";
+import type { PostgresIdeaRepository } from "../../ideas/server/postgres-idea-repository.ts";
 
 export const ideaTextMaxLength = 2000;
 
@@ -22,21 +23,13 @@ export type DiscordIdeaCaptureResult =
   | {
       ok: false;
       code:
-        | "discord_user_invalid"
         | "discord_account_not_bound"
+        | "discord_user_invalid"
+        | "idea_capture_failed"
         | "idea_text_required"
-        | "idea_text_too_long"
-        | "idea_capture_failed";
+        | "idea_text_too_long";
       reply: string;
     };
-
-type DiscordAccountRow = {
-  user_id: string;
-};
-
-type IdeaRow = {
-  id: string;
-};
 
 export function validateDiscordIdeaText(rawText: string) {
   const text = rawText.trim();
@@ -64,7 +57,13 @@ export function validateDiscordIdeaText(rawText: string) {
 }
 
 export async function captureDiscordIdea(
-  sql: QueryExecutor,
+  repositories: {
+    discordAccounts: Pick<
+      PostgresDiscordAccountRepository,
+      "findActiveByDiscordUserId" | "recordInteraction"
+    >;
+    ideas: Pick<PostgresIdeaRepository, "capture">;
+  },
   input: DiscordIdeaCaptureInput,
 ): Promise<DiscordIdeaCaptureResult> {
   if (!discordSnowflakePattern.test(input.discordUserId)) {
@@ -81,16 +80,9 @@ export async function captureDiscordIdea(
     return validation;
   }
 
-  const bindingRows = (await sql.query(
-    `SELECT user_id
-     FROM discord_accounts
-     WHERE discord_user_id = $1
-       AND binding_status = 'active'
-     LIMIT 1`,
-    [input.discordUserId],
-  )) as DiscordAccountRow[];
-
-  const binding = bindingRows[0];
+  const binding = await repositories.discordAccounts.findActiveByDiscordUserId(
+    input.discordUserId,
+  );
 
   if (!binding) {
     return {
@@ -102,61 +94,35 @@ export async function captureDiscordIdea(
   }
 
   try {
-    const sourceMetadata = {
+    const idea = await repositories.ideas.capture({
+      userId: binding.userId,
+      rawText: validation.text,
+      source: "discord",
+      sourceMetadata: {
+        discordUserId: input.discordUserId,
+        discordUsername: input.discordUsername,
+        dmChannelId: input.dmChannelId,
+      },
+      occurredAt: input.occurredAt,
+    });
+
+    await repositories.discordAccounts.recordInteraction({
       discordUserId: input.discordUserId,
       discordUsername: input.discordUsername,
       dmChannelId: input.dmChannelId,
-    };
-
-    const ideaRows = (await sql.query(
-      `INSERT INTO ideas (
-         user_id,
-         raw_text,
-         source,
-         triage_status,
-         source_metadata,
-         created_at,
-         updated_at
-       )
-       VALUES ($1, $2, 'discord', 'untriaged', $3::jsonb, $4, $4)
-       RETURNING id`,
-      [
-        binding.user_id,
-        validation.text,
-        JSON.stringify(sourceMetadata),
-        input.occurredAt,
-      ],
-    )) as IdeaRow[];
-
-    await sql.query(
-      `UPDATE discord_accounts
-       SET last_interaction_at = $2,
-           discord_username = COALESCE($3, discord_username),
-           dm_channel_id = COALESCE($4, dm_channel_id),
-           updated_at = $2
-       WHERE discord_user_id = $1
-         AND binding_status = 'active'`,
-      [
-        input.discordUserId,
-        input.occurredAt,
-        input.discordUsername,
-        input.dmChannelId,
-      ],
-    );
+      occurredAt: input.occurredAt,
+    });
 
     return {
       ok: true,
       code: "idea_captured",
-      ideaId: ideaRows[0].id,
+      ideaId: idea.id,
       reply: "Idea captured.",
     };
   } catch (error) {
-    console.error("[discord-bot]", "idea_capture_failed", {
+    console.error("[discord-web]", "idea_capture_failed", {
       discordUserId: input.discordUserId,
-      errorCode:
-        error && typeof error === "object" && "code" in error
-          ? String(error.code)
-          : "unknown",
+      errorCode: readErrorCode(error),
     });
 
     return {
@@ -165,4 +131,10 @@ export async function captureDiscordIdea(
       reply: "Idea could not be captured.",
     };
   }
+}
+
+function readErrorCode(error: unknown) {
+  return error && typeof error === "object" && "code" in error
+    ? String(error.code)
+    : "unknown";
 }

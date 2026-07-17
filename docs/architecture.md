@@ -284,8 +284,8 @@ because the user may forget to open the web app.
 
 Implemented Discord workflows are account binding with `/bind`, quick idea
 capture with `/idea`, and outbound direct-message delivery through a private
-message-push endpoint. The bot should call product commands instead of owning
-product rules directly.
+message-push endpoint. The Discord app surface should call product commands
+instead of owning product rules directly.
 
 It may eventually own:
 
@@ -295,12 +295,12 @@ It may eventually own:
 - review prompts
 - concise status updates
 
-The Discord bot should call product commands. It should not implement its own
-planning or routine rules.
+The Discord app surface should call product commands. It should not implement
+its own planning or routine rules.
 
 Detailed docs:
 
-- [apps/discord-bot/overview.md](apps/discord-bot/overview.md)
+- [docs/apps/discord-bot/overview.md](apps/discord-bot/overview.md)
 
 ## Infrastructure Services
 
