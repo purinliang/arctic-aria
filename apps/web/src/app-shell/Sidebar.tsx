@@ -396,7 +396,13 @@ function SidebarItem({
       darkMode={darkMode}
       tone={active ? "primary" : "ghost"}
       size="md"
-      className="w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md"
+      className={`w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md ${
+        active && darkMode
+          ? "border-[var(--aa-grey-3)] bg-[var(--aa-grey-2)] text-[var(--aa-grey-15)] hover:bg-[var(--aa-grey-3)]"
+          : darkMode
+            ? "hover:bg-[var(--aa-grey-3)]"
+          : ""
+      }`}
       disabled={disabled}
       icon={itemIcon}
       onClick={onClick}
