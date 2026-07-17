@@ -144,12 +144,11 @@ than expected before changing the display text.
 
 The light-mode and sign-out rows should visually follow the same menu-item
 pattern as the preceding sidebar navigation items. Do not place them in a
-separate visual container or give them a different row style unless the sidebar
-design is revised explicitly.
+separate visual container; they should be in the same sidebar list pattern,
+directly below the separating line.
 
 Sidebar list items should handle rounded corners consistently, especially at the
-start and end of adjacent item groups. Separator lines should be reviewed and
-removed where they make the item group feel visually broken.
+start and end of adjacent item groups.
 
 The sidebar now restores a compact brand block: first row Sparkles icon plus
 small localized brand text, then a larger page/workspace label such as
@@ -158,9 +157,9 @@ without a space; in Simplified Chinese it is `北极阿莉雅`. The workspace la
 should remain visually larger than the brand text, and short translations such
 as `工作区` can render larger than the English label.
 
-The mobile sidebar close button should stay borderless.
+The mobile sidebar close button should be borderless.
 
-Pinned project sidebar rows now use invisible icon spacers to align their
+Pinned project sidebar rows should use invisible icon spacers to align their
 text with normal menu items while preserving the indented hierarchy. The spacer
 icons should use the same size and gap as visible menu icons. Pinned project
 names should stay on one line and truncate automatically.
