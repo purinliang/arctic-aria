@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
 import { Button } from "@/components/button";
 import type { DashboardView } from "@/features/dashboard/types";
 import type { AppShellMessages } from "@/messages/app-messages";
@@ -148,19 +149,24 @@ function SidebarFrame({
           : "border-slate-200 bg-white text-slate-950"
       }`}
     >
-      {mobile ? (
-        <div className="flex justify-end">
+      <div className="flex items-start justify-between gap-3 px-4">
+        <ArcticAriaLogo
+          variant="sidebar"
+          workspaceLabel={messages.workspace}
+        />
+        {mobile ? (
           <Button
             darkMode={darkMode}
+            tone="ghost"
             size="icon-sm"
             aria-label={messages.closeNavigation}
             icon={<X size={18} aria-hidden="true" />}
             onClick={onClose}
           />
-        </div>
-      ) : null}
+        ) : null}
+      </div>
 
-      <nav className={`${mobile ? "mt-4" : ""} grid overflow-hidden rounded-md`}>
+      <nav className="mt-4 grid overflow-hidden rounded-md">
         <SidebarItem
           icon={<LayoutDashboard size={18} aria-hidden="true" />}
           label={messages.pages.dashboard}
@@ -281,7 +287,10 @@ function SidebarItem({
       icon={icon}
       onClick={onClick}
     >
-      <span className={`min-w-0 truncate ${child ? "pl-7" : ""}`}>
+      {child ? (
+        <span className="h-[18px] w-[18px] shrink-0 opacity-0" aria-hidden="true" />
+      ) : null}
+      <span className={`min-w-0 truncate ${child ? "pl-4" : ""}`}>
         {label}
       </span>
     </Button>

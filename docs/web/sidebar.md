@@ -37,6 +37,7 @@ The main navigation area should contain:
 - Dashboard
 - Projects
   - up to three pinned project shortcuts, shown as indented children when set
+- Ideas
 - Routines
 - Memories
 - Settings
@@ -72,6 +73,8 @@ name in the sidebar or page title bar. Theme behavior is documented in
 
 ## Brand
 
-The sidebar brand is hidden in the current UI. If it is restored later, it
-should match the login page naming: `Arctic Aria`, same letter case, led by a
-Sparkles icon. It should not be shown as uppercase helper text.
+The sidebar shows a compact brand block at the top-left: first row Sparkles
+icon plus `ArcticAria`, second row larger `Workspace` label. The brand block
+should stay aligned with the navigation menu item content and should not be
+shown as uppercase helper text. The `Workspace` label should be visually larger
+than `ArcticAria`, roughly 1.7x its size.

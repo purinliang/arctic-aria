@@ -1,8 +1,9 @@
 "use client";
 
 // Auth Page.
-import { Moon, Sparkles, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
+import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
 import { Button } from "@/components/button";
 import { mutedTextClass } from "@/components/color";
 import { Panel } from "@/components/panel";
@@ -52,12 +53,7 @@ export function AuthPage({
             </Button>
           </div>
           <Panel darkMode={darkMode} className="w-full p-5 shadow-sm sm:p-8">
-            <div className="flex items-center justify-center gap-2">
-              <Sparkles size={22} aria-hidden="true" />
-              <h1 className="text-2xl font-semibold tracking-normal">
-                Arctic Aria
-              </h1>
-            </div>
+            <ArcticAriaLogo />
             <p
               className={`mx-auto mb-8 mt-2 max-w-[320px] text-center text-sm leading-6 ${mutedTextClass(darkMode)}`}
             >

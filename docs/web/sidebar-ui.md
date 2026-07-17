@@ -59,10 +59,14 @@ switch control. Do not show the username in the sidebar.
 
 ## Brand
 
-The sidebar brand row is intentionally hidden in the current UI. Keep the
-sidebar focused on navigation and bottom actions. If the brand row is restored
-later, it should use a Sparkles icon followed by `Arctic Aria`, with the same
-casing as the login page and no all-caps conversion.
+The sidebar brand block appears at the top-left. It uses a stacked structure:
+first row Sparkles icon plus compact `ArcticAria`, then a larger `Workspace`
+label below. Both text lines use the normal app font. Keep it left aligned with
+the navigation item content and do not use all-caps conversion. The `Workspace`
+label should be roughly 1.7x the visual size of `ArcticAria`.
+
+The mobile close button is a ghost icon button so it reads as a borderless
+close affordance beside the brand row.
 
 ## Expandable Lists Near Sidebar Pages
 

@@ -42,6 +42,7 @@ const englishMessages = {
     closeNavigation: "Close navigation",
     closeNavigationOverlay: "Close navigation overlay",
     openNavigation: "Open navigation",
+    workspace: "Workspace",
     pages: {
       dashboard: "Today",
       ideas: "Ideas",
@@ -240,6 +241,7 @@ const simplifiedChineseMessages: AppMessages = {
     closeNavigation: "关闭导航",
     closeNavigationOverlay: "关闭导航遮罩",
     openNavigation: "打开导航",
+    workspace: "工作区",
     pages: {
       dashboard: "今日",
       ideas: "想法",
