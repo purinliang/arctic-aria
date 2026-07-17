@@ -9,7 +9,7 @@ The first bot runtime scaffold is implemented under `apps/discord-bot`.
 The next Discord design work adds two capabilities:
 
 - user-facing Discord binding for an Arctic Aria user
-- internal reverse message push from Arctic Aria services to Discord DMs
+- outbound Discord messages from Arctic Aria services to Discord DMs
 
 ## First Workflow
 
@@ -66,7 +66,7 @@ Planned environment variables:
 - `DISCORD_PUBLIC_KEY`
 - `DISCORD_DEVELOPER_USER_ID`
 - `ARCTIC_ARIA_DEVELOPER_USERNAME`
-- `DISCORD_INTERNAL_PUSH_SECRET`
+- `DISCORD_MESSAGE_PUSH_SECRET`
 - `NEON_POSTGRES_URL`
 - optional `PORT`, defaulting to `3001`
 
@@ -90,7 +90,7 @@ Local scripts read `apps/discord-bot/.env.local`. Use
 - `/idea` capture command: `apps/discord-bot/src/idea-capture.ts`
 - Developer prototype binding: `apps/discord-bot/src/developer-binding.ts`
 - Database URL helper: `apps/discord-bot/src/database.ts`
-- Planned reverse push endpoint: `POST /internal/discord/messages`
+- Planned outbound message endpoint: `POST /internal/discord/messages`
 
 ## Account Binding
 
@@ -201,13 +201,13 @@ Reminder delivery will need Scheduler or reminder-job design before
 implementation. Redis, queues, and event/dataflow should remain deferred until a
 concrete delivery, retry, idempotency, or rate-limit need appears.
 
-Future notification pushes from Arctic Aria services should be implemented as
-an explicit HTTP/job interface into the Discord app surface, then the Discord
-app can send messages through the Discord HTTP API. Do not add a long-running
-Gateway listener just to receive internal Arctic Aria notification work.
+Future outbound messages from Arctic Aria services should be implemented as an
+explicit HTTP/job interface into the Discord app surface, then the Discord app
+can send messages through the Discord HTTP API. Do not add a long-running
+Gateway listener just to receive Arctic Aria notification work.
 
-The planned first reverse push API is documented in
-[reverse-message-push.md](reverse-message-push.md).
+The planned first outbound message API is documented in
+[outbound-messages.md](outbound-messages.md).
 
 ## Data Flow
 
@@ -240,11 +240,11 @@ Settings page
   -> bot sends private acknowledgement
 ```
 
-Planned reverse push flow:
+Planned outbound message flow:
 
 ```text
 Arctic Aria service
-  -> POST /internal/discord/messages with internal secret
+  -> POST /internal/discord/messages with bearer secret
   -> bot validates request and active Discord binding
   -> bot sends plain DM through Discord HTTP API
   -> bot records delivery status without raw message text
@@ -315,7 +315,7 @@ Arctic Aria service
    ngrok http 3001
    ```
 
-   If using a reserved ngrok domain:
+   If using a fixed ngrok domain:
 
    ```bash
    ngrok http --url=<your-ngrok-domain> 3001

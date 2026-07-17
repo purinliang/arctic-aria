@@ -1,16 +1,23 @@
-# Discord Reverse Message Push
+# Discord Outbound Messages
 
 This document describes the planned internal API for sending Arctic Aria
 messages to a user's Discord DM through the Discord bot service.
 
 ## Purpose
 
-Reverse push lets Arctic Aria services ask the Discord bot to deliver a plain
-DM to a Discord account already bound to an Arctic Aria user.
+Outbound messages let Arctic Aria services ask the Discord bot to deliver a
+plain DM to a Discord account already bound to an Arctic Aria user.
 
 The first version supports plain text DM delivery only. Buttons, channel
 messages, reminder workflows, retries, queues, and scheduling remain future
 work.
+
+Naming note:
+
+- use `outbound messages` for this feature in docs
+- keep `/internal/discord/messages` as the private service-to-service endpoint
+- use `secret`, not `key`, because the value must remain private and is used
+  only to authorize this private endpoint
 
 ## API
 
@@ -22,8 +29,8 @@ POST /internal/discord/messages
 
 Authentication:
 
-- caller sends `X-Arctic-Aria-Internal-Secret`
-- bot compares it to `DISCORD_INTERNAL_PUSH_SECRET`
+- caller sends `Authorization: Bearer <DISCORD_MESSAGE_PUSH_SECRET>`
+- bot compares the bearer token to `DISCORD_MESSAGE_PUSH_SECRET`
 - reject missing or mismatched secrets with `401`
 - never log the secret or raw request body
 
@@ -54,7 +61,7 @@ Responses:
 
 - `200`: message already delivered or accepted and delivered
 - `400`: invalid request body
-- `401`: invalid internal secret
+- `401`: invalid message-push secret
 - `404`: no active Discord binding for the Arctic Aria user
 - `409`: idempotency key reused for different content
 - `502`: Discord API rejected or failed the send request
@@ -67,7 +74,7 @@ message text.
 ```text
 Arctic Aria service
   -> POST /internal/discord/messages
-  -> bot validates internal secret
+  -> bot validates message-push secret
   -> bot validates request body
   -> bot loads active discord_accounts row by Arctic Aria user id
   -> bot sends DM through Discord HTTP API
@@ -76,11 +83,11 @@ Arctic Aria service
 ```
 
 The Discord bot may call Discord HTTP directly. It should not require a Gateway
-connection for reverse push.
+connection for outbound messages.
 
 ## Delivery Records
 
-Add a delivery/idempotency table when implementing reverse push. The table
+Add a delivery/idempotency table when implementing outbound messages. The table
 should store delivery state without raw message text.
 
 Planned `discord_message_deliveries` fields:
@@ -126,7 +133,7 @@ Logs may include:
 
 Logs must not include:
 
-- `DISCORD_INTERNAL_PUSH_SECRET`
+- `DISCORD_MESSAGE_PUSH_SECRET`
 - `DISCORD_BOT_TOKEN`
 - raw message text
 - full request body
@@ -135,7 +142,7 @@ Logs must not include:
 Successful delivery log shape:
 
 ```text
-[discord-bot] message_push_handled { status: 200, deliveryId: "..." }
+[discord-bot] outbound_message_handled { status: 200, deliveryId: "..." }
 ```
 
 ## Future Work
