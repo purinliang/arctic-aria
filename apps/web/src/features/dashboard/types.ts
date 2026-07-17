@@ -109,4 +109,7 @@ export type MemoryCategoryOption = {
   id: string;
   name: string;
   description: string;
+  builtInKey: "cuisine" | "sightseeing" | null;
+  iconName: string;
+  shownOnDashboard: boolean;
 };

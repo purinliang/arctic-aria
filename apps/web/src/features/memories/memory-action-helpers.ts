@@ -85,6 +85,9 @@ export async function loadMemoryDashboardData(
       id: category.id,
       name: category.name,
       description: category.description,
+      builtInKey: category.builtInKey,
+      iconName: category.iconName,
+      shownOnDashboard: category.shownOnDashboard,
     })),
     pinnedMemories: pinnedMemories.map(toPinnedMemory),
     memoryRecords: memoryRecords.map((memory) =>

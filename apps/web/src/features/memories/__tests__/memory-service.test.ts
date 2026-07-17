@@ -23,10 +23,16 @@ test("initializes default memory categories for a user", async () => {
   const categories = await service.initializeUserMemoryDefaults(userId);
 
   assert.deepEqual(
-    categories.map((category) => [category.name, category.description]),
+    categories.map((category) => [
+      category.name,
+      category.description,
+      category.builtInKey,
+      category.iconName,
+      category.shownOnDashboard,
+    ]),
     [
-      ["Cuisine", ""],
-      ["Sightseeing", ""],
+      ["Cuisine", "", "cuisine", "utensils", true],
+      ["Sightseeing", "", "sightseeing", "landmark", true],
     ],
   );
 
@@ -137,7 +143,7 @@ test("cancel pinned memory done clears completion state", async () => {
   assert.equal(repository.getEvents()[0]?.eventType, "completed_canceled");
 });
 
-test("dashboard pinned memories only include supported default categories", async () => {
+test("dashboard pinned memories use category dashboard visibility", async () => {
   const repository = new InMemoryMemoryRepository({
     categories: [
       ...memoryCategories,
@@ -146,6 +152,9 @@ test("dashboard pinned memories only include supported default categories", asyn
         userId,
         name: "Anime",
         description: "",
+        builtInKey: null,
+        iconName: "sparkles",
+        shownOnDashboard: false,
         createdAt: new Date("2026-06-01T00:00:00.000Z"),
         updatedAt: new Date("2026-06-01T00:00:00.000Z"),
       },
@@ -154,6 +163,7 @@ test("dashboard pinned memories only include supported default categories", asyn
       memory({
         id: "memory-1",
         categoryId: "category-cuisine",
+        categoryName: "Food",
         title: "Ramen",
       }),
       memory({
@@ -173,6 +183,7 @@ test("dashboard pinned memories only include supported default categories", asyn
         id: "pin-1",
         memoryId: "memory-1",
         categoryId: "category-cuisine",
+        categoryName: "Food",
         title: "Ramen",
       }),
       pinnedMemory({
@@ -199,7 +210,7 @@ test("dashboard pinned memories only include supported default categories", asyn
 
   assert.deepEqual(
     result.map((memory) => memory.categoryName),
-    ["Cuisine", "Sightseeing"],
+    ["Food", "Sightseeing"],
   );
 });
 

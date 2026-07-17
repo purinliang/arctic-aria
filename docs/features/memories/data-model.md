@@ -46,6 +46,9 @@ Current fields:
 - `user_id`
 - `name`
 - `description`
+- `built_in_key`
+- `icon_name`
+- `shown_on_dashboard`
 - `created_at`
 - `updated_at`
 
@@ -55,17 +58,14 @@ Current implementation note:
   initialization runs.
 - Keep this simple row-based model for now because every memory references a
   real `memory_categories.id`.
-
-Future built-in category direction:
-
-- Add stable metadata for built-in categories, such as `built_in_key`,
-  `built_in_icon`, and `shown_on_dashboard`, or an equivalent structure.
-- Built-in keys should be unique per user when present.
-- Built-in category name, icon, identity, and delete behavior should be
+- Built-in categories use stable metadata through `built_in_key`, `icon_name`,
+  and `shown_on_dashboard`.
+- Current built-in keys are `cuisine` and `sightseeing`.
+- Built-in category name, icon, identity, and delete behavior are
   app-controlled so categories such as Cuisine and Sightseeing cannot lose
   their default translation, icon, or dashboard meaning.
-- Existing users should be backfilled by migration or by safe category
-  initialization when the user opens a memory-backed page.
+- Existing users are backfilled by migration, and memory category
+  initialization can safely restore missing default category metadata.
 - User-created categories should keep user-authored names as-is and should not
   be auto-translated by the database or backend.
 
@@ -74,10 +74,15 @@ Current database protection:
 - `user_id` references `users.id`.
 - `name` is required and 1-40 characters.
 - `(user_id, name)` is unique.
+- `(user_id, built_in_key)` is unique when `built_in_key` is not null.
+- `built_in_key` is null or one of the allowed built-in keys.
 - `description` is 500 characters or fewer.
+- `icon_name` defaults to `bookmark`.
+- `shown_on_dashboard` defaults to `false`.
 
 Delete behavior:
 
+- Built-in categories cannot be deleted through normal category management.
 - Category delete should be refused while any memory still references the
   category.
 - The backend should translate that database refusal into a clear user-facing

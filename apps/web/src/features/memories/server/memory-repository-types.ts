@@ -1,4 +1,5 @@
 export type MemoryCategoryName = string;
+export type BuiltInMemoryCategoryKey = "cuisine" | "sightseeing";
 
 export type MemoryEventType =
   | "pinned"
@@ -14,6 +15,9 @@ export type MemoryCategoryRecord = {
   userId: string;
   name: MemoryCategoryName;
   description: string;
+  builtInKey: BuiltInMemoryCategoryKey | null;
+  iconName: string;
+  shownOnDashboard: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -23,6 +27,8 @@ export type MemoryRecord = {
   userId: string;
   categoryId: string;
   categoryName: MemoryCategoryName;
+  categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
+  categoryShownOnDashboard: boolean;
   title: string;
   description: string;
   lastDoneAt: Date | null;
@@ -39,6 +45,8 @@ export type PinnedMemoryRecord = {
   memoryId: string;
   categoryId: string;
   categoryName: MemoryCategoryName;
+  categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
+  categoryShownOnDashboard: boolean;
   title: string;
   description: string;
   position: number;
@@ -157,9 +165,24 @@ export type MemoryRepository = {
 const defaultCategoryInputs: Array<{
   name: MemoryCategoryName;
   description: string;
+  builtInKey: BuiltInMemoryCategoryKey;
+  iconName: string;
+  shownOnDashboard: boolean;
 }> = [
-  { name: "Cuisine", description: "" },
-  { name: "Sightseeing", description: "" },
+  {
+    name: "Cuisine",
+    description: "",
+    builtInKey: "cuisine",
+    iconName: "utensils",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Sightseeing",
+    description: "",
+    builtInKey: "sightseeing",
+    iconName: "landmark",
+    shownOnDashboard: true,
+  },
 ];
 
 export function getDefaultMemoryCategories() {
