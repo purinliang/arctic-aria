@@ -1,0 +1,148 @@
+export const englishFormMessages = {
+  datePicker: {
+    monthNames: [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ],
+    shortMonthNames: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
+    weekdayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    longWeekdayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    previousYear: "Previous year",
+    previousMonth: "Previous month",
+    nextMonth: "Next month",
+    nextYear: "Next year",
+    clearDate: "Clear date",
+    monthYear: (monthName: string, year: number) => `${monthName} ${year}`,
+    dateValue: (
+      shortMonthName: string,
+      day: number,
+      year: number,
+      weekdayName?: string,
+    ) =>
+      weekdayName
+        ? `${shortMonthName} ${day}, ${year} ${weekdayName}`
+        : `${shortMonthName} ${day}, ${year}`,
+  },
+  timePicker: {
+    time: "Time",
+    timePlaceholder: "910 or 19:30",
+    confirm: "Confirm",
+    preview: (time: string, dayPeriod: string) => `${time} ${dayPeriod}`,
+    dayPeriods: {
+      midnight: "midnight",
+      morning: "morning",
+      noon: "noon",
+      afternoon: "afternoon",
+      evening: "evening",
+      night: "night",
+    },
+    periodLabels: {
+      AM: "AM",
+      PM: "PM",
+    },
+    clear: "Clear Time",
+    value: (hour12: number, minute: number, period: string) =>
+      `${hour12}:${String(minute).padStart(2, "0")} ${period}`,
+  },
+};
+
+export type FormMessages = typeof englishFormMessages;
+export type DatePickerMessages = FormMessages["datePicker"];
+export type TimePickerMessages = FormMessages["timePicker"];
+
+export const simplifiedChineseFormMessages: FormMessages = {
+  datePicker: {
+    monthNames: [
+      "一月",
+      "二月",
+      "三月",
+      "四月",
+      "五月",
+      "六月",
+      "七月",
+      "八月",
+      "九月",
+      "十月",
+      "十一月",
+      "十二月",
+    ],
+    shortMonthNames: [
+      "1月",
+      "2月",
+      "3月",
+      "4月",
+      "5月",
+      "6月",
+      "7月",
+      "8月",
+      "9月",
+      "10月",
+      "11月",
+      "12月",
+    ],
+    weekdayNames: ["日", "一", "二", "三", "四", "五", "六"],
+    longWeekdayNames: [
+      "星期日",
+      "星期一",
+      "星期二",
+      "星期三",
+      "星期四",
+      "星期五",
+      "星期六",
+    ],
+    previousYear: "上一年",
+    previousMonth: "上个月",
+    nextMonth: "下个月",
+    nextYear: "下一年",
+    clearDate: "清除日期",
+    monthYear: (monthName, year) => `${year}年${monthName}`,
+    dateValue: (shortMonthName, day, year, weekdayName) =>
+      weekdayName
+        ? `${year}年${shortMonthName}${day}日 ${weekdayName}`
+        : `${year}年${shortMonthName}${day}日`,
+  },
+  timePicker: {
+    time: "时间",
+    timePlaceholder: "例如 910 或 19:30",
+    confirm: "确认",
+    preview: (time, dayPeriod) => `${time} ${dayPeriod}`,
+    dayPeriods: {
+      midnight: "午夜",
+      morning: "早上",
+      noon: "中午",
+      afternoon: "下午",
+      evening: "傍晚",
+      night: "晚上",
+    },
+    periodLabels: {
+      AM: "上午",
+      PM: "下午",
+    },
+    clear: "清除时间",
+    value: (hour12, minute, period) =>
+      `${period} ${hour12}:${String(minute).padStart(2, "0")}`,
+  },
+};

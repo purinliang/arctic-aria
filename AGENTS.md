@@ -8,13 +8,25 @@ rules so changes stay easy to review and integrate.
 Even when the user provides requirements in Chinese, use English unless
 translation is required to clarify a requirement.
 
-- Write all code, comments, commit messages, documentation, and user-facing app
-  text in English.
+- Write all code, comments, commit messages, documentation, and default
+  user-facing app text in English. Localized user-facing strings may use their
+  target language inside explicit localization catalogs.
 - Write agent responses in English unless translation is needed.
 - Use clear, simple English so future documentation is easy for a non-native
   English speaker to edit.
 - When the user asks or comments with numbered points, answer with matching
   numbered points so each response can be checked directly.
+- Call the human collaborating with Codex the `developer`. Use `user` for
+  Arctic Aria product users unless the current sentence clearly means the
+  developer.
+- Do not use the developer's real username, display name, email address, or
+  other personal identifiers as test data, sample data, logs, documentation
+  examples, or placeholders. Use neutral fixtures such as `testusername`,
+  `testdisplayname`, and `testpassword`.
+
+- Call the human collaborating with Codex the `developer`. Use `user` for
+  Arctic Aria product users unless the current sentence clearly means the
+  developer.
 
 ## Context
 
@@ -142,7 +154,9 @@ user.
   defects identifiable instead of collapsing everything into a vague failure.
 - For unexpected backend or database errors, prefer structured server logs with
   the feature name, command name, error code, and safe identifiers needed for
-  debugging. Do not log secrets, passwords, auth cookies, or full database URLs.
+  debugging. Do not log secrets, passwords, auth cookies, full database URLs, or
+  raw user-authored product content such as project titles, task descriptions,
+  routine text, memory text, or idea text.
 - When adding or changing persistence behavior, inspect the relevant migration
   history and repository tests for nearby constraints, nullable fields, foreign
   keys, and delete/archive behavior.
@@ -185,6 +199,16 @@ Web-specific source organization, TypeScript style, UI component rules,
 interaction defaults, generated-file rules, and web verification commands live
 in `apps/web/AGENTS.md`. Human-facing UI guidance starts at `docs/ui.md`, with
 detailed shared component rules in `docs/web/ui-components.md`.
+
+## Discord Bot Work
+
+- When slash-command metadata changes, update
+  `apps/discord-bot/src/interactions/commands.ts`, run the command registration
+  script, and remind the developer to reinstall or re-authorize the
+  user-installed Discord app if new or changed commands do not appear.
+- Keep the local runbook in `docs/apps/discord-bot/overview.md` aligned with
+  the current command registration, interaction endpoint, ngrok, and install
+  steps.
 
 ## Branches
 

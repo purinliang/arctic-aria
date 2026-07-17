@@ -38,7 +38,7 @@ backend actions should translate conflicts into clean messages.
 
 ## `memory_categories`
 
-Stores user-owned categories and suggestion weights.
+Stores user-owned categories.
 
 Current fields:
 
@@ -46,20 +46,48 @@ Current fields:
 - `user_id`
 - `name`
 - `description`
-- `base_weight`
+- `built_in_key`
+- `icon_name`
+- `shown_on_dashboard`
 - `created_at`
 - `updated_at`
+
+Current implementation note:
+
+- Default categories are created as normal per-user rows when memory service
+  initialization runs.
+- Keep this simple row-based model for now because every memory references a
+  real `memory_categories.id`.
+- Built-in categories use stable metadata through `built_in_key` and
+  `icon_name`.
+- Current built-in keys are `cuisine`, `sightseeing`, `movie`, `anime`,
+  `book`, `music`, `game`, and `shopping`.
+- Built-in category name, description, icon, identity, and delete behavior are
+  app-controlled so categories such as Cuisine and Sightseeing cannot lose
+  their default translation, description, or icon.
+- `shown_on_dashboard` remains in the schema as legacy metadata for now, but
+  the current dashboard pinned-memory list does not filter by this field.
+- Existing users are backfilled by migration, and memory category
+  initialization can safely restore missing default category metadata for future
+  users or partially initialized accounts.
+- User-created categories should keep user-authored names as-is and should not
+  be auto-translated by the database or backend.
 
 Current database protection:
 
 - `user_id` references `users.id`.
 - `name` is required and 1-40 characters.
 - `(user_id, name)` is unique.
+- `(user_id, built_in_key)` is unique when `built_in_key` is not null.
+- `built_in_key` is null or one of the allowed built-in keys.
 - `description` is 500 characters or fewer.
-- `base_weight` is greater than `0`.
+- `icon_name` defaults to `bookmark`.
+- `shown_on_dashboard` defaults to `false`; do not use it for current dashboard
+  pinned-memory filtering.
 
 Delete behavior:
 
+- Built-in categories cannot be deleted through normal category management.
 - Category delete should be refused while any memory still references the
   category.
 - The backend should translate that database refusal into a clear user-facing
@@ -166,9 +194,9 @@ Current database protection:
 - `position` is positive.
 - `completed_cleanup_at` is null or not before `completed_at`.
 
-The dashboard should still enforce category limits and replacement rules in the
-backend service because those rules depend on current visible rows and
-candidate selection.
+The dashboard should not enforce per-category count limits. Replacement rules
+still belong in the backend service because they depend on current visible rows
+and candidate selection.
 
 Lifecycle behavior:
 

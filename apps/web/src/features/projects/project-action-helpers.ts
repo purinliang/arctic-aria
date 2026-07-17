@@ -1,9 +1,4 @@
-import type { Task } from "@/features/dashboard/types";
-import {
-  durationDaysForRange,
-  durationLabelForDays,
-  durationRangeForDays,
-} from "./project-duration";
+import { durationDaysForRange } from "./project-duration";
 import {
   isValidProjectDate,
   validateRequiredProjectDate,
@@ -12,50 +7,7 @@ import type {
   ProjectDurationRange,
   ProjectTimelineType,
 } from "./project-duration";
-import type {
-  ProjectMilestoneRecord,
-  ProjectPriority,
-  ProjectRecord,
-  ProjectTaskRecord,
-  ProjectTaskStatus,
-} from "./server/project-repository";
-import { projectService } from "./server/project-service";
-
-export type ProjectView = {
-  id: string;
-  title: string;
-  description: string;
-  status: ProjectRecord["status"];
-  priority: ProjectPriority;
-  startDate: string;
-  deadlineDate: string;
-  expectedDurationDays: string;
-  durationRange: ProjectDurationRange;
-  sidebarPinOrder: number | null;
-  timelineText: string;
-  currentMilestone: string;
-  progressText: string;
-  tasks: ProjectTaskView[];
-  milestones: MilestoneView[];
-};
-
-export type MilestoneView = {
-  id: string;
-  projectId: string;
-  title: string;
-  objective: string;
-  status: ProjectMilestoneRecord["status"];
-  startDate: string;
-  deadlineDate: string;
-  expectedDurationDays: string;
-  progressText: string;
-  tasks: ProjectTaskView[];
-};
-
-export type ProjectTaskView = Task & {
-  projectId: string;
-  milestoneId: string;
-};
+import type { ProjectPriority, ProjectTaskStatus } from "./server/project-repository";
 
 export type ProjectInput = {
   id?: string;
@@ -92,11 +44,6 @@ export type ProjectTaskInput = {
   deadlineDate: string;
 };
 
-export type ProjectDashboardData = {
-  tasks: ProjectTaskView[];
-  projects: ProjectView[];
-};
-
 export type ProjectActionResult<T> =
   | {
       ok: true;
@@ -105,31 +52,14 @@ export type ProjectActionResult<T> =
   | {
       ok: false;
       message: string;
+      code?: string;
     };
-
-const dateFormatter = new Intl.DateTimeFormat("en", {
-  month: "short",
-  day: "numeric",
-});
 
 export function unauthorizedResult<T>(): ProjectActionResult<T> {
   return {
     ok: false,
     message: "Please sign in again.",
-  };
-}
-
-export async function loadProjectDashboardData(
-  userId: string,
-): Promise<ProjectDashboardData> {
-  const [tasks, projects] = await Promise.all([
-    projectService.listDashboardTasks(userId),
-    projectService.listProjects(userId),
-  ]);
-
-  return {
-    tasks: tasks.map(toTaskView),
-    projects: projects.map(toProjectView),
+    code: "auth_required",
   };
 }
 
@@ -140,13 +70,18 @@ export function validateProjectInput(input: ProjectInput) {
   let expectedDurationDays: number | null = null;
 
   if (title.length < 1 || title.length > 120) {
-    return { ok: false as const, message: "Project title must be 1-120 characters." };
+    return {
+      ok: false as const,
+      message: "Project title must be 1-120 characters.",
+      code: "project_title_invalid",
+    };
   }
 
   if (description.length < 1 || description.length > 1000) {
     return {
       ok: false as const,
       message: "Project description must be 1-1000 characters.",
+      code: "project_description_invalid",
     };
   }
 
@@ -154,10 +89,12 @@ export function validateProjectInput(input: ProjectInput) {
     value: input.startDate,
     missingMessage: "Select a start date.",
     invalidMessage: "Start date must be a real date in YYYY-MM-DD format.",
+    missingCode: "project_start_date_missing",
+    invalidCode: "project_start_date_invalid",
   });
 
   if (!startDate.ok) {
-    return { ok: false as const, message: startDate.message };
+    return { ok: false as const, message: startDate.message, code: startDate.code };
   }
 
   if (input.timelineType === "deadline") {
@@ -165,22 +102,32 @@ export function validateProjectInput(input: ProjectInput) {
       value: input.deadlineDate,
       missingMessage: "Select a deadline date.",
       invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
+      missingCode: "project_deadline_missing",
+      invalidCode: "project_deadline_invalid",
     });
 
     if (!deadline.ok) {
-      return { ok: false as const, message: deadline.message };
+      return { ok: false as const, message: deadline.message, code: deadline.code };
     }
 
     deadlineDate = deadline.value;
 
     if (deadlineDate < startDate.value) {
-      return { ok: false as const, message: "Deadline cannot be before start date." };
+      return {
+        ok: false as const,
+        message: "Deadline cannot be before start date.",
+        code: "project_deadline_before_start",
+      };
     }
   } else {
     expectedDurationDays = durationDaysForRange(input.durationRange);
 
     if (!expectedDurationDays) {
-      return { ok: false as const, message: "Choose an expected duration." };
+      return {
+        ok: false as const,
+        message: "Choose an expected duration.",
+        code: "project_duration_missing",
+      };
     }
   }
 
@@ -202,21 +149,31 @@ export function validateMilestoneInput(input: MilestoneInput) {
   let expectedDurationDays: number | null = null;
 
   if (title.length < 1 || title.length > 120) {
-    return { ok: false as const, message: "Milestone title must be 1-120 characters." };
+    return {
+      ok: false as const,
+      message: "Milestone title must be 1-120 characters.",
+      code: "milestone_title_invalid",
+    };
   }
 
   if (objective.length > 500) {
-    return { ok: false as const, message: "Milestone objective must be 500 characters or fewer." };
+    return {
+      ok: false as const,
+      message: "Milestone objective must be 500 characters or fewer.",
+      code: "milestone_objective_invalid",
+    };
   }
 
   const startDate = validateRequiredProjectDate({
     value: input.startDate,
     missingMessage: "Select a start date.",
     invalidMessage: "Start date must be a real date in YYYY-MM-DD format.",
+    missingCode: "project_start_date_missing",
+    invalidCode: "project_start_date_invalid",
   });
 
   if (!startDate.ok) {
-    return { ok: false as const, message: startDate.message };
+    return { ok: false as const, message: startDate.message, code: startDate.code };
   }
 
   if (input.timelineType === "deadline") {
@@ -224,22 +181,32 @@ export function validateMilestoneInput(input: MilestoneInput) {
       value: input.deadlineDate,
       missingMessage: "Select a deadline date.",
       invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
+      missingCode: "project_deadline_missing",
+      invalidCode: "project_deadline_invalid",
     });
 
     if (!deadline.ok) {
-      return { ok: false as const, message: deadline.message };
+      return { ok: false as const, message: deadline.message, code: deadline.code };
     }
 
     deadlineDate = deadline.value;
 
     if (deadlineDate < startDate.value) {
-      return { ok: false as const, message: "Deadline cannot be before start date." };
+      return {
+        ok: false as const,
+        message: "Deadline cannot be before start date.",
+        code: "project_deadline_before_start",
+      };
     }
   } else {
     expectedDurationDays = durationDaysForRange(input.durationRange);
 
     if (!expectedDurationDays) {
-      return { ok: false as const, message: "Choose an expected duration." };
+      return {
+        ok: false as const,
+        message: "Choose an expected duration.",
+        code: "project_duration_missing",
+      };
     }
   }
 
@@ -262,11 +229,19 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
   const deadlineDate = input.deadlineDate.trim() || null;
 
   if (title.length < 1 || title.length > 120) {
-    return { ok: false as const, message: "Task title must be 1-120 characters." };
+    return {
+      ok: false as const,
+      message: "Task title must be 1-120 characters.",
+      code: "task_title_invalid",
+    };
   }
 
   if (description.length > 2000) {
-    return { ok: false as const, message: "Task description must be 2000 characters or fewer." };
+    return {
+      ok: false as const,
+      message: "Task description must be 2000 characters or fewer.",
+      code: "task_description_invalid",
+    };
   }
 
   for (const value of [scheduledDate, startDate, deadlineDate]) {
@@ -274,12 +249,17 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
       return {
         ok: false as const,
         message: "Dates must be real calendar dates in YYYY-MM-DD format.",
+        code: "project_dates_invalid",
       };
     }
   }
 
   if (startDate && deadlineDate && deadlineDate < startDate) {
-    return { ok: false as const, message: "Deadline cannot be before start date." };
+    return {
+      ok: false as const,
+      message: "Deadline cannot be before start date.",
+      code: "project_deadline_before_start",
+    };
   }
 
   return {
@@ -293,96 +273,6 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
   };
 }
 
-function toProjectView(project: ProjectRecord): ProjectView {
-  const tasks = [...project.tasks].sort(compareProjectTasks);
-  const doneCount = tasks.filter((task) => task.status === "done").length;
-  const activeMilestone = project.milestones.find(
-    (milestone) => milestone.status === "active",
-  );
-
-  return {
-    id: project.id,
-    title: project.title,
-    description: project.importanceReason || project.objective,
-    status: project.status,
-    priority: project.priority,
-    startDate: project.startDate,
-    deadlineDate: project.deadlineDate ?? "",
-    expectedDurationDays: project.expectedDurationDays?.toString() ?? "",
-    durationRange: durationRangeForDays(project.expectedDurationDays),
-    sidebarPinOrder: project.sidebarPinOrder,
-    timelineText: project.deadlineDate
-      ? `Due ${formatDate(project.deadlineDate)}`
-      : project.expectedDurationDays
-        ? `${durationLabelForDays(project.expectedDurationDays)} expected`
-        : "Open-ended",
-    currentMilestone: activeMilestone?.title ?? "No active milestone",
-    progressText: `${doneCount} of ${tasks.length} tasks done`,
-    tasks: tasks.map(toTaskView),
-    milestones: project.milestones.map(toMilestoneView),
-  };
-}
-
-function toMilestoneView(milestone: ProjectMilestoneRecord): MilestoneView {
-  const doneCount = milestone.tasks.filter((task) => task.status === "done").length;
-
-  return {
-    id: milestone.id,
-    projectId: milestone.projectId,
-    title: milestone.title,
-    objective: milestone.objective,
-    status: milestone.status,
-    startDate: milestone.startDate ?? "",
-    deadlineDate: milestone.deadlineDate ?? "",
-    expectedDurationDays: milestone.expectedDurationDays?.toString() ?? "",
-    progressText: `${doneCount} of ${milestone.tasks.length} tasks done`,
-    tasks: [...milestone.tasks].sort(compareProjectTasks).map(toTaskView),
-  };
-}
-
-function toTaskView(task: ProjectTaskRecord): ProjectTaskView {
-  return {
-    id: task.id,
-    projectId: task.projectId,
-    milestoneId: task.milestoneId ?? "",
-    title: task.title,
-    description: task.description,
-    projectLabel: task.projectTitle,
-    milestoneLabel: task.milestoneTitle,
-    deadline: task.deadlineDate ? formatDate(task.deadlineDate) : "No deadline",
-    priority: task.priority,
-    status: task.status,
-    scheduledDate: task.scheduledDate ?? "",
-    startDate: task.startDate ?? "",
-    deadlineDate: task.deadlineDate ?? "",
-  };
-}
-
-function formatDate(date: string) {
-  return dateFormatter.format(new Date(`${date}T00:00:00.000Z`));
-}
-
 function validateDate(value: string) {
   return isValidProjectDate(value);
-}
-
-function compareProjectTasks(
-  left: ProjectTaskRecord,
-  right: ProjectTaskRecord,
-) {
-  const statusDifference = statusSortValue(left.status) - statusSortValue(right.status);
-
-  return (
-    statusDifference ||
-    dateSortValue(left.deadlineDate) - dateSortValue(right.deadlineDate) ||
-    dateSortValue(left.startDate) - dateSortValue(right.startDate)
-  );
-}
-
-function statusSortValue(status: ProjectTaskStatus) {
-  return status === "done" ? 1 : 0;
-}
-
-function dateSortValue(date: string | null) {
-  return date ? Date.parse(date) : Number.POSITIVE_INFINITY;
 }

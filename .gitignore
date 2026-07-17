@@ -1,6 +1,5 @@
 .vercel
+node_modules
 
-# Local environment files may contain database URLs and tokens.
 .env*
 !.env.example
-!.env.*.example

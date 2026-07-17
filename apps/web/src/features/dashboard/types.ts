@@ -8,6 +8,7 @@ export type TaskStatus =
 
 export type DashboardView =
   | "dashboard"
+  | "ideas"
   | "projects"
   | "routines"
   | "memories"
@@ -67,6 +68,15 @@ export type RoutineDefinition = {
 };
 
 export type MemoryCategory = string;
+export type BuiltInMemoryCategoryKey =
+  | "cuisine"
+  | "sightseeing"
+  | "movie"
+  | "anime"
+  | "book"
+  | "music"
+  | "game"
+  | "shopping";
 
 export type PinnedMemoryStatus = "active" | "completed";
 
@@ -74,9 +84,11 @@ export type PinnedMemory = {
   id: string;
   memoryId: string;
   category: MemoryCategory;
+  categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
   title: string;
   description: string;
   meta: string;
+  visibleUntilDate: string;
   position: number;
   status: PinnedMemoryStatus;
 };
@@ -85,8 +97,10 @@ export type MemoryRecord = {
   id: string;
   categoryId: string;
   category: MemoryCategory;
+  categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
   title: string;
   description: string;
+  lastDoneDate: string;
   lastDoneText: string;
   doneCount: number;
   pinned: boolean;
@@ -95,8 +109,10 @@ export type MemoryRecord = {
 export type MemorySuggestion = {
   id: string;
   category: MemoryCategory;
+  categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
   title: string;
   description: string;
+  lastDoneDate: string;
   lastDoneText: string;
   doneCount: number;
 };
@@ -105,5 +121,7 @@ export type MemoryCategoryOption = {
   id: string;
   name: string;
   description: string;
-  baseWeight: number;
+  builtInKey: BuiltInMemoryCategoryKey | null;
+  iconName: string;
+  shownOnDashboard: boolean;
 };

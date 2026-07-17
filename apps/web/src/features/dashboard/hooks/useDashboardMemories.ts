@@ -7,7 +7,6 @@ import {
   deleteMemoryCategory,
   getMemoryDashboardData,
   pinMemorySuggestion,
-  replacePinnedMemory,
   refreshMemorySuggestions,
   saveMemory,
   saveMemoryCategory,
@@ -16,6 +15,11 @@ import {
   type MemoryDashboardData,
   type MemoryInput,
 } from "@/features/memories/actions";
+import { localizedActionMessage } from "@/messages/action-result";
+import type {
+  DashboardMessages,
+  MemoryMessages,
+} from "@/messages/app-messages";
 import {
   addPendingSuggestionId,
   applyOptimisticPinnedMemoryStatus,
@@ -35,6 +39,8 @@ type MemoryDataAction = () => Promise<
 
 export function useDashboardMemories(
   showErrorNotification: (message: string, title?: string) => void,
+  messages?: DashboardMessages["notifications"],
+  resultMessages?: MemoryMessages["results"],
 ) {
   const [pinnedMemories, setPinnedMemories] = useState<PinnedMemory[]>([]);
   const [memoryCategories, setMemoryCategories] = useState<
@@ -61,7 +67,10 @@ export function useDashboardMemories(
     const result = await getMemoryDashboardData();
 
     if (!result.ok) {
-      showErrorNotification(result.message, "Memories unavailable");
+      showErrorNotification(
+        localizedActionMessage(result, resultMessages),
+        messages?.memoriesUnavailable ?? "Memories unavailable",
+      );
       setPinnedMemories([]);
       setMemoryCategories([]);
       setMemoryRecords([]);
@@ -71,7 +80,7 @@ export function useDashboardMemories(
 
     applyMemoryData(result.data);
     setMemoryLoading(false);
-  }, [applyMemoryData, showErrorNotification]);
+  }, [applyMemoryData, messages, resultMessages, showErrorNotification]);
 
   async function runMemoryAction(
     action: MemoryDataAction,
@@ -84,7 +93,7 @@ export function useDashboardMemories(
 
       if (!result.ok) {
         onFailure?.();
-        showErrorNotification(result.message);
+        showErrorNotification(localizedActionMessage(result, resultMessages));
         return;
       }
 
@@ -101,7 +110,7 @@ export function useDashboardMemories(
       const result = await action();
 
       if (!result.ok) {
-        showErrorNotification(result.message);
+        showErrorNotification(localizedActionMessage(result, resultMessages));
         return false;
       }
 
@@ -119,7 +128,7 @@ export function useDashboardMemories(
       const result = await action();
 
       if (!result.ok) {
-        showErrorNotification(result.message);
+        showErrorNotification(localizedActionMessage(result, resultMessages));
         return null;
       }
 
@@ -169,7 +178,7 @@ export function useDashboardMemories(
       const result = await refreshMemorySuggestions(ignoredMemoryIds);
 
       if (!result.ok) {
-        showErrorNotification(result.message);
+        showErrorNotification(localizedActionMessage(result, resultMessages));
         setMemorySuggestions([]);
         setPinnedSuggestionIds([]);
         return;
@@ -192,7 +201,7 @@ export function useDashboardMemories(
       const result = await pinMemorySuggestion(memoryId);
 
       if (!result.ok) {
-        showErrorNotification(result.message);
+        showErrorNotification(localizedActionMessage(result, resultMessages));
         return false;
       }
 
@@ -220,7 +229,7 @@ export function useDashboardMemories(
       const result = await cancelPinnedMemorySuggestion(memoryId);
 
       if (!result.ok) {
-        showErrorNotification(result.message);
+        showErrorNotification(localizedActionMessage(result, resultMessages));
         return false;
       }
 
@@ -250,8 +259,6 @@ export function useDashboardMemories(
     refreshMemoryData,
     markMemoryDone,
     cancelMemoryDone,
-    replaceMemory: (pinnedMemoryId: string) =>
-      void runMemoryAction(() => replacePinnedMemory(pinnedMemoryId)),
     saveMemoryFromPage: (input: MemoryInput) =>
       runMemoryManagementAction(() => saveMemory(input)),
     deleteMemoryFromPage: (memoryId: string) =>

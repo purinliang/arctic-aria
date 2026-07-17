@@ -27,7 +27,7 @@ selected work for today.
 
 Section title:
 
-`Today's tasks to move projects forward`
+`Tasks`
 
 Dashboard task rows should show:
 
@@ -54,7 +54,7 @@ pinned memories stay in the right-side dashboard column.
 Panel header:
 
 - icon: `Check`
-- title: `Today's tasks to move projects forward`
+- title: `Tasks`
 - no header count metadata
 
 Task row layout:

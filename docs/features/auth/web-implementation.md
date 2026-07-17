@@ -40,8 +40,9 @@ apps/web/src/features/auth/components/
 `AuthGate` checks the current session and chooses between `AppShell` and the
 signed-out auth UI. `AuthPage` owns the signed-out page shell, brand header,
 and centered panel. `AuthForm` owns credential fields, tab switching, submit
-actions, and auth-related placeholder actions such as Google sign-in and
-password reset.
+actions, and hidden future-action UI such as Google sign-in and password reset.
+Those future actions remain behind an explicit disabled flag until the
+corresponding backend flows are implemented.
 
 Auth actions and shared validation:
 
@@ -65,7 +66,7 @@ Database client and migrations:
 
 ```text
 apps/web/src/server/database/neon.ts
-apps/web/database/migrations/0001_create_users.sql
+apps/infrastructure/database/migrations/0001_create_users.sql
 apps/web/scripts/migrate.mjs
 ```
 
@@ -130,10 +131,9 @@ connects, and it also requires `NEON_POSTGRES_URL`.
 The current implementation stores login state in an HTTP-only signed cookie named
 `arctic_aria_session`. The cookie lasts 30 days.
 
-The session token is signed with `AUTH_SESSION_SECRET` when it is set. For local
-development, the app falls back to `NEON_POSTGRES_URL` or a development-only
-fallback secret. A deployed environment should set `AUTH_SESSION_SECRET`
-explicitly.
+The session token is signed with `AUTH_SESSION_SECRET`. Every environment,
+including local development, must set it explicitly. The app does not fall back
+to the database URL or a default development string.
 
 The current session payload stores user id, username, display name, and expiry.
 It is signed to prevent tampering, but it is not encrypted. Do not add
@@ -152,14 +152,14 @@ Auth UI should follow the existing web rules:
 - Disable submit while non-empty typing validation fails.
 - Show the first non-empty typing validation error when hovering a disabled
   submit button.
-- Use the shared notification stack for login/register success, login/register
-  failure, and unavailable auth actions. Do not render separate auth-only
-  success or failure messages inside the form.
-- Keep OAuth as a placeholder until the username and password flow is stable.
-- Use the Google-provided multicolor logo component for the Google placeholder.
-- Clicking the placeholder Google action should show a shared info notification.
-- Clicking the placeholder password reset action should show a shared info
-  notification.
+- Use the shared notification stack for login/register success and
+  login/register failure. Do not render separate auth-only success or failure
+  messages inside the form.
+- Keep OAuth and password reset hidden behind the disabled future-action flag
+  until the real flows are implemented.
+- Keep the Google-provided multicolor logo component available for future OAuth.
+- If the future-action flag is enabled before the real backend exists, clicking
+  Google sign-in or password reset should show a shared info notification.
 - Avoid unrelated actions on the auth screen.
 
 ## Useful Commands

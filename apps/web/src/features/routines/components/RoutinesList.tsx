@@ -1,11 +1,15 @@
 // Routines Page - Routines List.
 import { Edit3 } from "lucide-react";
 import { Button } from "@/components/button";
-import { mutedTextClass } from "@/components/color";
+import { secondaryTextColorClass } from "@/components/color";
+import { formatTimeDisplay } from "@/components/forms/time-display";
 import { List, ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { RoutineDefinition } from "@/features/dashboard/types";
+import type { TimeFormatPreference } from "@/features/settings/preferences";
+import type { RoutineMessages } from "@/messages/app-messages";
+import type { TimePickerMessages } from "@/messages/form-messages";
 import { ruleSummary } from "./routine-page-helpers";
 
 export function RoutinesList({
@@ -13,22 +17,30 @@ export function RoutinesList({
   loading,
   pending,
   routines,
+  messages,
+  ruleMessages,
+  timeMessages,
+  timeFormatPreference,
   onEdit,
 }: {
   darkMode: boolean;
   loading: boolean;
   pending: boolean;
   routines: RoutineDefinition[];
+  messages: RoutineMessages["page"];
+  ruleMessages: RoutineMessages;
+  timeMessages: TimePickerMessages;
+  timeFormatPreference: TimeFormatPreference;
   onEdit: (routine: RoutineDefinition) => void;
 }) {
   return (
     <List darkMode={darkMode}>
       {loading ? (
-        <LoadingLine darkMode={darkMode} text="Loading routines..." />
+        <LoadingLine darkMode={darkMode} text={messages.loading} />
       ) : null}
       {!loading && routines.length === 0 ? (
-        <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
-          No routines yet.
+        <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
+          {messages.empty}
         </p>
       ) : null}
       {routines.map((routine) => (
@@ -38,10 +50,16 @@ export function RoutinesList({
               <h3 className="text-sm font-semibold">{routine.title}</h3>
             </div>
             <DescriptionText darkMode={darkMode} className="mt-1">
-              {routine.description || "No description."}
+              {routine.description || messages.noDescription}
             </DescriptionText>
             <SupportingText darkMode={darkMode} className="mt-2 block">
-              {routine.preferredTime ?? "Flexible"} · {ruleSummary(routine)}
+              {routineTimeText(
+                routine.preferredTime,
+                messages.flexible,
+                timeMessages,
+                timeFormatPreference,
+              )} ·{" "}
+              {ruleSummary(routine, ruleMessages)}
             </SupportingText>
           </div>
           <Button
@@ -50,10 +68,19 @@ export function RoutinesList({
             icon={<Edit3 size={15} aria-hidden="true" />}
             onClick={() => onEdit(routine)}
           >
-            Edit
+            {messages.edit}
           </Button>
         </ListItem>
       ))}
     </List>
   );
+}
+
+function routineTimeText(
+  value: string | null,
+  fallback: string,
+  messages: TimePickerMessages,
+  preference: TimeFormatPreference,
+) {
+  return value ? formatTimeDisplay(value, messages, preference) || value : fallback;
 }

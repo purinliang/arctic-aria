@@ -2,6 +2,9 @@
 import { PinnedMemoriesPanel } from "@/features/memories/components/PinnedMemoriesPanel";
 import { ProjectTasksPanel } from "@/features/projects/components/ProjectTasksPanel";
 import { RoutinesPanel } from "@/features/routines/components/RoutinesPanel";
+import type { DashboardMessages } from "@/messages/app-messages";
+import type { FormMessages } from "@/messages/app-messages";
+import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type {
   PinnedMemory,
   Routine,
@@ -24,10 +27,12 @@ export function Dashboard({
   onRoutineStatus,
   onMemoryDone,
   onMemoryCancelDone,
-  onMemoryReplace,
   onTaskOpen,
   onRoutineOpen,
   onMemoryOpen,
+  messages,
+  formMessages,
+  timeFormatPreference,
 }: {
   darkMode: boolean;
   tasks: Task[];
@@ -45,10 +50,12 @@ export function Dashboard({
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
   onMemoryDone: (pinnedMemoryId: string) => void;
   onMemoryCancelDone: (pinnedMemoryId: string) => void;
-  onMemoryReplace: (pinnedMemoryId: string) => void;
   onTaskOpen: (projectId: string) => void;
   onRoutineOpen: () => void;
   onMemoryOpen: () => void;
+  messages: DashboardMessages;
+  formMessages: FormMessages;
+  timeFormatPreference: TimeFormatPreference;
 }) {
   return (
     <section className="aa-split-container">
@@ -57,6 +64,8 @@ export function Dashboard({
           darkMode={darkMode}
           tasks={tasks}
           loading={taskLoading}
+          messages={messages.projectTasks}
+          dateMessages={formMessages.datePicker}
           onTaskStatus={onTaskStatus}
           onTaskOpen={onTaskOpen}
         />
@@ -67,6 +76,9 @@ export function Dashboard({
             routines={routines}
             loading={routineLoading}
             disabled={routineActionPending}
+            messages={messages.routines}
+            timeMessages={formMessages.timePicker}
+            timeFormatPreference={timeFormatPreference}
             onRoutineStatus={onRoutineStatus}
             onRoutineOpen={onRoutineOpen}
           />
@@ -76,9 +88,10 @@ export function Dashboard({
             pinnedMemories={pinnedMemories}
             loading={memoryLoading}
             disabled={memoryActionPending}
+            messages={messages.pinnedMemories}
+            dateMessages={formMessages.datePicker}
             onDone={onMemoryDone}
             onCancelDone={onMemoryCancelDone}
-            onReplace={onMemoryReplace}
             onMemoryOpen={onMemoryOpen}
           />
         </aside>

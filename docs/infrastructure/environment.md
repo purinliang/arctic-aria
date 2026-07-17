@@ -1,0 +1,139 @@
+# Environment Variables
+
+This document explains which environment variables Arctic Aria currently uses,
+what each one is for, and where it belongs.
+
+Do not commit real values. The committed `.env.example` files are placeholders
+only. Real values belong in ignored local env files or deployment secret
+storage.
+
+## Web App
+
+Example file:
+
+- `apps/web/.env.example`
+
+Local secret file:
+
+- `apps/web/.env.local`
+
+Production secret storage:
+
+- Vercel project environment variables for the web app
+
+Current variables:
+
+| Variable | Required now | Where | Purpose |
+| --- | --- | --- | --- |
+| `NEON_POSTGRES_URL` | Yes | Local and Vercel | PostgreSQL connection URL used by the web app and migration runner. |
+| `AUTH_SESSION_SECRET` | Yes | Local and Vercel | Secret used to sign the 30-day auth session cookie. |
+| `DISCORD_MESSAGE_PUSH_SECRET` | Only when using Settings Discord test messages or other web-to-bot sends | Local and any deployed web environment that calls the bot | Shared secret sent by the web app when calling the Discord bot message-send endpoint. |
+| `DISCORD_MESSAGE_PUSH_URL` | Optional locally; required for deployed web-to-bot sends | Local and any deployed web environment that calls the bot | Full URL for the Discord bot `POST /internal/discord/messages` endpoint. Local development defaults to `http://localhost:3001/internal/discord/messages` when unset. |
+
+The web code reads `NEON_POSTGRES_URL` only. If the Vercel Neon integration
+creates `NEON_DATABASE_URL`, copy that pooled URL into a new Vercel variable
+named `NEON_POSTGRES_URL`.
+
+Every environment, including local development, must set
+`AUTH_SESSION_SECRET`. The app does not fall back to `NEON_POSTGRES_URL` or a
+default development string. This keeps the cookie-signing secret independent of
+the database URL.
+
+Use a different `AUTH_SESSION_SECRET` for local development, preview, and
+production. A cookie signed by one environment's secret cannot be verified by
+another environment's secret. Browsers also keep `localhost` cookies separate
+from production-domain cookies. Changing a deployed environment's
+`AUTH_SESSION_SECRET` invalidates existing login cookies for that environment,
+so users must sign in again.
+
+Generate one independent session secret per environment with:
+
+```bash
+openssl rand -base64 48
+```
+
+The Settings page can send a Discord test message to the signed-in user's bound
+Discord account. That web action calls the Discord bot's private message-push
+endpoint. Local development may omit `DISCORD_MESSAGE_PUSH_URL` if the bot runs
+on `http://localhost:3001`, but `DISCORD_MESSAGE_PUSH_SECRET` must be set in
+both `apps/web/.env.local` and `apps/discord-bot/.env.local` with the same
+value. Production or preview environments must set the full deployed bot URL
+explicitly.
+
+## Vercel Neon Variables
+
+The Neon integration may create variables such as:
+
+- `NEON_AUTH_BASE_URL`
+- `NEON_DATABASE_URL`
+- `NEON_DATABASE_URL_UNPOOLED`
+- `NEON_PGDATABASE`
+- `NEON_PGHOST`
+- `NEON_PGHOST_UNPOOLED`
+- `NEON_PGPASSWORD`
+- `NEON_PGUSER`
+
+The current Arctic Aria code does not read these names directly. They are Neon
+integration details. Use `NEON_DATABASE_URL` as the source value for
+`NEON_POSTGRES_URL`.
+
+Do not use `NEON_DATABASE_URL_UNPOOLED` unless a later database operation
+explicitly requires an unpooled connection.
+
+`NEON_AUTH_BASE_URL` is not used because Arctic Aria currently implements its
+own username/password auth instead of Neon Auth.
+
+## Discord Bot
+
+Example file:
+
+- `apps/discord-bot/.env.example`
+
+Local secret file:
+
+- `apps/discord-bot/.env.local`
+
+The current Discord bot is an HTTP Interactions process. It is not deployed
+inside the Vercel web app yet, so these Discord variables usually do not belong
+in Vercel unless a later deployment design runs the interaction endpoint there.
+
+Current and planned variables:
+
+| Variable | Required now | Purpose |
+| --- | --- | --- |
+| `DISCORD_BOT_TOKEN` | Yes to register slash commands and send outbound Discord messages | Secret bot token from the Discord Developer Portal. |
+| `DISCORD_APP_ID` | Yes to register slash commands | App ID from the Discord Developer Portal. |
+| `DISCORD_PUBLIC_KEY` | Yes to run the HTTP interaction endpoint | Public Key used to verify requests from Discord. |
+| `DISCORD_MESSAGE_PUSH_SECRET` | Yes for outbound Discord messages | Shared secret used by Arctic Aria services when calling the Discord bot message-send endpoint. |
+| `NEON_POSTGRES_URL` | Yes | Same Neon PostgreSQL database used by the web app. |
+| `PORT` | Optional | Local HTTP port for `/interactions`; defaults to `3001`. |
+
+Use `DISCORD_APP_ID` consistently for the Discord app id. Discord OAuth2 calls
+the same value `client_id`, but keeping one Arctic Aria env name avoids
+duplicate values drifting apart.
+
+Discord account binding is user-facing. The signed-in Arctic Aria user creates
+a one-time code in Settings, then runs `/bind code:<code>` in Discord. The old
+developer auto-binding prototype is removed and should not be configured.
+
+`DISCORD_MESSAGE_PUSH_SECRET` must be different from `AUTH_SESSION_SECRET`,
+Discord tokens, and database credentials. Store it in every environment that
+runs a caller of `POST /internal/discord/messages` and in the Discord bot
+service environment. The caller sends it with
+`Authorization: Bearer <DISCORD_MESSAGE_PUSH_SECRET>`. Generate it like other
+shared service secrets:
+
+```bash
+openssl rand -base64 48
+```
+
+## Optional App Metadata
+
+The web app can read optional metadata override variables such as `APP_VERSION`,
+`APP_COMMIT`, `APP_BRANCH`, and `APP_SOURCE_STATE`. Normal local development
+does not need these variables because the app derives metadata from Git when
+possible.
+
+Do not set generated `NEXT_PUBLIC_*` metadata variables manually unless
+debugging the build system. `apps/web/next.config.ts` generates them from Git,
+Vercel metadata, and migration files.

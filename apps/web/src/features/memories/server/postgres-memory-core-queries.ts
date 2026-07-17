@@ -20,15 +20,49 @@ type Sql = NeonQueryFunction<false, false>;
 
 export async function ensureDefaultCategories(sql: Sql, userId: string) {
   for (const category of getDefaultMemoryCategories()) {
-    await sql`
-      INSERT INTO memory_categories (user_id, name, description, base_weight)
-      VALUES (${userId}, ${category.name}, ${category.description}, ${category.baseWeight})
-      ON CONFLICT (user_id, name) DO NOTHING
-    `;
+    await sql.query(
+      `WITH updated_by_key AS (
+         UPDATE memory_categories
+         SET name = $2,
+           description = $3,
+           built_in_key = $4,
+           icon_name = $5,
+           shown_on_dashboard = $6
+         WHERE user_id = $1
+           AND built_in_key = $4
+         RETURNING id
+       ),
+       inserted AS (
+         INSERT INTO memory_categories (
+           user_id, name, description, built_in_key, icon_name,
+           shown_on_dashboard
+         )
+         SELECT $1, $2, $3, $4, $5, $6
+         WHERE NOT EXISTS (SELECT 1 FROM updated_by_key)
+         ON CONFLICT (user_id, name) DO UPDATE
+         SET built_in_key = EXCLUDED.built_in_key,
+           description = EXCLUDED.description,
+           icon_name = EXCLUDED.icon_name,
+           shown_on_dashboard = EXCLUDED.shown_on_dashboard
+         RETURNING id
+       )
+       SELECT id FROM updated_by_key
+       UNION ALL
+       SELECT id FROM inserted`,
+      [
+        userId,
+        category.name,
+        category.description,
+        category.builtInKey,
+        category.iconName,
+        category.shownOnDashboard,
+      ],
+    );
   }
 
   const rows = (await sql`
-    SELECT id, user_id, name, description, base_weight, created_at, updated_at
+    SELECT id, user_id, name, description, built_in_key, icon_name,
+      shown_on_dashboard, created_at, updated_at
     FROM memory_categories
     WHERE user_id = ${userId}
     ORDER BY name
@@ -41,7 +75,8 @@ export async function listCategories(sql: Sql, userId: string) {
   await ensureDefaultCategories(sql, userId);
 
   const rows = (await sql`
-    SELECT id, user_id, name, description, base_weight, created_at, updated_at
+    SELECT id, user_id, name, description, built_in_key, icon_name,
+      shown_on_dashboard, created_at, updated_at
     FROM memory_categories
     WHERE user_id = ${userId}
     ORDER BY name
@@ -53,13 +88,14 @@ export async function listCategories(sql: Sql, userId: string) {
 export async function createCategory(sql: Sql, input: CreateMemoryCategoryInput) {
   const rows = (await sql`
     INSERT INTO memory_categories (
-      user_id, name, description, base_weight, created_at, updated_at
+      user_id, name, description, created_at, updated_at
     )
     VALUES (
-      ${input.userId}, ${input.name}, ${input.description}, ${input.baseWeight},
+      ${input.userId}, ${input.name}, ${input.description},
       ${input.occurredAt}, ${input.occurredAt}
     )
-    RETURNING id, user_id, name, description, base_weight, created_at, updated_at
+    RETURNING id, user_id, name, description, built_in_key, icon_name,
+      shown_on_dashboard, created_at, updated_at
   `) as MemoryCategoryRow[];
 
   return mapCategory(rows[0]);
@@ -70,11 +106,12 @@ export async function updateCategory(sql: Sql, input: UpdateMemoryCategoryInput)
     UPDATE memory_categories
     SET name = ${input.name},
       description = ${input.description},
-      base_weight = ${input.baseWeight},
       updated_at = ${input.occurredAt}
     WHERE id = ${input.categoryId}
       AND user_id = ${input.userId}
-    RETURNING id, user_id, name, description, base_weight, created_at, updated_at
+      AND built_in_key IS NULL
+    RETURNING id, user_id, name, description, built_in_key, icon_name,
+      shown_on_dashboard, created_at, updated_at
   `) as MemoryCategoryRow[];
 
   return rows[0] ? mapCategory(rows[0]) : null;
@@ -85,6 +122,7 @@ export async function deleteCategory(sql: Sql, input: DeleteMemoryCategoryInput)
     DELETE FROM memory_categories
     WHERE id = ${input.categoryId}
       AND user_id = ${input.userId}
+      AND built_in_key IS NULL
     RETURNING id
   `) as Array<{ id: string }>;
 
@@ -115,6 +153,8 @@ export async function createMemory(sql: Sql, input: CreateMemoryInput) {
      )
      SELECT inserted.id, inserted.user_id, inserted.category_id,
        memory_categories.name AS category_name, inserted.title,
+       memory_categories.built_in_key AS category_built_in_key,
+       memory_categories.shown_on_dashboard AS category_shown_on_dashboard,
        inserted.description, inserted.last_done_at, inserted.done_count,
        inserted.last_pinned_at, inserted.last_ignored_at, inserted.created_at,
        inserted.updated_at
@@ -150,6 +190,8 @@ export async function updateMemory(sql: Sql, input: UpdateMemoryInput) {
      )
      SELECT updated.id, updated.user_id, updated.category_id,
        memory_categories.name AS category_name, updated.title,
+       memory_categories.built_in_key AS category_built_in_key,
+       memory_categories.shown_on_dashboard AS category_shown_on_dashboard,
        updated.description, updated.last_done_at, updated.done_count,
        updated.last_pinned_at, updated.last_ignored_at, updated.created_at,
        updated.updated_at

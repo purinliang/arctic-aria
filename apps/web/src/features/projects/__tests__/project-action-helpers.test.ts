@@ -38,10 +38,13 @@ test("required project date validation asks the user to select empty dates", () 
       value: "",
       missingMessage: "Select a deadline date.",
       invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
+      missingCode: "project_deadline_missing",
+      invalidCode: "project_deadline_invalid",
     }),
     {
       ok: false,
       message: "Select a deadline date.",
+      code: "project_deadline_missing",
     },
   );
 });
@@ -52,10 +55,13 @@ test("required project date validation explains malformed dates", () => {
       value: "2026-08-48",
       missingMessage: "Select a deadline date.",
       invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
+      missingCode: "project_deadline_missing",
+      invalidCode: "project_deadline_invalid",
     }),
     {
       ok: false,
       message: "Deadline date must be a real date in YYYY-MM-DD format.",
+      code: "project_deadline_invalid",
     },
   );
 });
@@ -66,6 +72,8 @@ test("required project date validation returns trimmed valid dates", () => {
       value: " 2026-08-16 ",
       missingMessage: "Select a deadline date.",
       invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
+      missingCode: "project_deadline_missing",
+      invalidCode: "project_deadline_invalid",
     }),
     {
       ok: true,

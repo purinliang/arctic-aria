@@ -37,10 +37,16 @@ URLs, passwords, dumps, or generated local database files.
 Use `NEON_POSTGRES_URL` as the single database URL environment variable for the
 web app and migration runner.
 
+Environment variable ownership and Vercel Neon variable mapping are documented
+in [environment.md](environment.md).
+
 Schema migration files are safe to commit. The current migration entry point is
 `apps/web/scripts/migrate.mjs`, exposed as `pnpm db:migrate` from `apps/web`.
 From the repository root, run the same migration entry point with
 `pnpm --dir apps/web db:migrate`.
+
+Migration files live in `apps/infrastructure/database/migrations` because the
+database schema is shared infrastructure, not part of the web UI surface.
 
 `schema_migrations` records each newly applied migration, a SHA-256 checksum of
 that migration file, and the app metadata that was active when it ran: app
@@ -148,8 +154,9 @@ Credential rules:
   auth commands.
 - Session cookies are signed and HTTP-only. The current session token is not
   encrypted, so its payload must remain non-sensitive.
-- Production should set an explicit `AUTH_SESSION_SECRET`. The development
-  fallback is only for local work.
+- Every environment, including local development, must set an explicit
+  `AUTH_SESSION_SECRET`. The app does not use the database URL or a default
+  string as a session secret fallback.
 
 Product data rules:
 
@@ -269,13 +276,15 @@ Do not duplicate feature schemas in this infrastructure document.
 Current feature data-model docs:
 
 - Auth: [auth/data-model.md](../features/auth/data-model.md)
+- Settings: [settings/data-model.md](../features/settings/data-model.md)
 - Projects: [projects/data-model.md](../features/projects/data-model.md)
 - Routines: [routines/data-model.md](../features/routines/data-model.md)
 - Memories: [memories/data-model.md](../features/memories/data-model.md)
+- Ideas: [ideas/data-model.md](../features/ideas/data-model.md)
 
 Planned feature data-model docs should be added under their owning feature
-folder before implementation starts, for example Settings, Ideas, Scheduler,
-Reviews, Discord account binding, and future plugins.
+folder before implementation starts, for example Scheduler, Reviews, Discord
+account binding, and future plugins.
 
 ## Future Persistence Areas
 
@@ -285,7 +294,8 @@ dashboard-backed feature data.
 Future persistence areas may include:
 
 - user settings, such as timezone and day boundary
-- Discord account bindings
+- Discord account bindings, documented by the Discord bot app until a broader
+  account-linking feature exists
 - daily plans and daily reviews
 - reminder jobs and delivery attempts
 - plugin registrations and plugin run records

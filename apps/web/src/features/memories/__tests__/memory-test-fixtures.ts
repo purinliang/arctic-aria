@@ -13,7 +13,9 @@ export const memoryCategories: MemoryCategoryRecord[] = [
     userId,
     name: "Cuisine",
     description: "",
-    baseWeight: 1.2,
+    builtInKey: "cuisine",
+    iconName: "utensils",
+    shownOnDashboard: true,
     createdAt: new Date("2026-06-01T00:00:00.000Z"),
     updatedAt: new Date("2026-06-01T00:00:00.000Z"),
   },
@@ -22,7 +24,9 @@ export const memoryCategories: MemoryCategoryRecord[] = [
     userId,
     name: "Sightseeing",
     description: "",
-    baseWeight: 0.8,
+    builtInKey: "sightseeing",
+    iconName: "trees",
+    shownOnDashboard: true,
     createdAt: new Date("2026-06-01T00:00:00.000Z"),
     updatedAt: new Date("2026-06-01T00:00:00.000Z"),
   },
@@ -38,6 +42,17 @@ export function memory(
     categoryName:
       input.categoryName ??
       (input.categoryId === "category-cuisine" ? "Cuisine" : "Sightseeing"),
+    categoryBuiltInKey:
+      input.categoryBuiltInKey ??
+      (input.categoryId === "category-cuisine"
+        ? "cuisine"
+        : input.categoryId === "category-sightseeing"
+          ? "sightseeing"
+          : null),
+    categoryShownOnDashboard:
+      input.categoryShownOnDashboard ??
+      (input.categoryId === "category-cuisine" ||
+        input.categoryId === "category-sightseeing"),
     title: input.title,
     description: input.description ?? `${input.title} description`,
     lastDoneAt: input.lastDoneAt ?? null,
@@ -61,6 +76,17 @@ export function pinnedMemory(
     categoryName:
       input.categoryName ??
       (input.categoryId === "category-cuisine" ? "Cuisine" : "Sightseeing"),
+    categoryBuiltInKey:
+      input.categoryBuiltInKey ??
+      (input.categoryId === "category-cuisine"
+        ? "cuisine"
+        : input.categoryId === "category-sightseeing"
+          ? "sightseeing"
+          : null),
+    categoryShownOnDashboard:
+      input.categoryShownOnDashboard ??
+      (input.categoryId === "category-cuisine" ||
+        input.categoryId === "category-sightseeing"),
     title: input.title,
     description: input.description ?? `${input.title} description`,
     position: input.position ?? 1,

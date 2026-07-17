@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cx } from "./utils";
 
 export type ButtonTone = "primary" | "secondary" | "ghost" | "success";
-export type ButtonSize = "xs" | "sm" | "md" | "icon-sm";
+export type ButtonSize = "xs" | "sm" | "md" | "icon-sm" | "field";
 
 export function Button({
   darkMode,
@@ -28,7 +28,7 @@ export function Button({
   return (
     <button
       className={cx(
-        "inline-flex shrink-0 items-center justify-center gap-2 rounded-md font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
+        "inline-flex shrink-0 items-center justify-center gap-2 rounded-md font-semibold transition disabled:cursor-not-allowed",
         buttonSizeClass(size),
         buttonToneClass(darkMode, tone, active),
         className,
@@ -56,6 +56,10 @@ function buttonSizeClass(size: ButtonSize) {
     return "h-9 w-9 px-0 text-xs";
   }
 
+  if (size === "field") {
+    return "h-11 px-4 text-sm";
+  }
+
   return "h-9 px-3 text-xs";
 }
 
@@ -65,15 +69,11 @@ function buttonToneClass(
   active: boolean,
 ) {
   if (tone === "primary" || active) {
-    return darkMode
-      ? "border border-white bg-white text-black hover:bg-neutral-200"
-      : "border border-slate-950 bg-slate-950 text-white hover:bg-slate-800";
+    return "border border-[var(--aa-primary-button-hover-bg)] bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:border-[var(--aa-primary-button-hover-bg)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)] disabled:border-[var(--aa-primary-button-disabled-bg)] disabled:bg-[var(--aa-primary-button-disabled-bg)] disabled:text-[var(--aa-primary-button-disabled-text)] disabled:hover:border-[var(--aa-primary-button-disabled-bg)] disabled:hover:bg-[var(--aa-primary-button-disabled-bg)] disabled:hover:text-[var(--aa-primary-button-disabled-text)]";
   }
 
   if (tone === "ghost") {
-    return darkMode
-      ? "text-neutral-300 hover:bg-white/10 hover:text-white"
-      : "text-slate-500 hover:bg-slate-100 hover:text-slate-950";
+    return "text-[var(--aa-secondary-button-text)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]";
   }
 
   if (tone === "success") {
@@ -82,7 +82,5 @@ function buttonToneClass(
       : "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300";
   }
 
-  return darkMode
-    ? "border border-neutral-700 text-neutral-200 hover:border-white hover:text-white"
-    : "border border-slate-300 text-slate-700 hover:border-slate-500";
+  return "border border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:border-[var(--aa-secondary-button-disabled-border)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:border-[var(--aa-secondary-button-disabled-border)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]";
 }

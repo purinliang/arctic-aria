@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { LoaderCircle, X } from "lucide-react";
 import { Button } from "./button";
-import { surfaceClass } from "./color";
+import { panelColorClass } from "./color";
 import { cx } from "./utils";
 
 export function DialogOverlay({
@@ -14,11 +14,11 @@ export function DialogOverlay({
   return (
     <div
       className={cx(
-        "fixed inset-0 grid place-items-center overflow-y-auto bg-black/65 px-4 py-6",
+        "fixed inset-0 overflow-y-auto bg-black/65 px-4 py-8 sm:py-10",
         zIndex,
       )}
     >
-      {children}
+      <div className="grid min-h-full place-items-center">{children}</div>
     </div>
   );
 }
@@ -56,6 +56,9 @@ export function DialogFrame({
   return (
     <section
       className={cx(dialogFrameClass(darkMode, size, padding), className)}
+      style={{
+        backgroundColor: "var(--aa-panel-bg)",
+      }}
     >
       {children}
     </section>
@@ -69,11 +72,12 @@ export function dialogFrameClass(
 ) {
   return cx(
     "relative rounded-md border shadow-2xl",
+    "bg-[var(--aa-panel-bg)]",
     padding === "md" ? "p-4" : "",
     size === "sm"
       ? "w-[min(calc(100vw-2rem),28rem)]"
-      : "w-[min(calc(100vw-2rem),42rem)]",
-    surfaceClass(darkMode),
+      : "w-[min(calc(100vw-2rem),46rem)]",
+    panelColorClass,
   );
 }
 
@@ -127,6 +131,8 @@ export function ConfirmDialog({
   title,
   description,
   confirmText = "Delete",
+  cancelText = "Cancel",
+  closeLabel = "Close confirmation",
   confirmIcon,
   loadingIcon,
   onCancel,
@@ -137,6 +143,8 @@ export function ConfirmDialog({
   title: string;
   description: string;
   confirmText?: string;
+  cancelText?: string;
+  closeLabel?: string;
   confirmIcon?: ReactNode;
   loadingIcon?: ReactNode;
   onCancel: () => void;
@@ -144,20 +152,24 @@ export function ConfirmDialog({
 }) {
   return (
     <DialogOverlay zIndex="z-[60]">
-      <DialogBackdrop label="Close confirmation" onClick={onCancel} />
+      <DialogBackdrop label={closeLabel} onClick={onCancel} />
       <DialogFrame darkMode={darkMode} size="sm">
         <DialogHeader
           darkMode={darkMode}
           title={title}
-          closeLabel="Close confirmation"
+          closeLabel={closeLabel}
           onClose={onCancel}
         />
-        <p className={darkMode ? "text-sm leading-6 text-neutral-400" : "text-sm leading-6 text-slate-500"}>
+        <p
+          className={
+            "text-sm leading-6 text-[var(--aa-secondary-text)]"
+          }
+        >
           {description}
         </p>
         <div className="mt-4 flex flex-wrap justify-end gap-2">
           <Button darkMode={darkMode} disabled={pending} onClick={onCancel}>
-            Cancel
+            {cancelText}
           </Button>
           <Button
             darkMode={darkMode}

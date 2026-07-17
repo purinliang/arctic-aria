@@ -3,6 +3,7 @@
 import { getCurrentUser } from "@/features/auth/actions";
 import {
   databaseMessage,
+  databaseCode,
   loadMemoryDashboardData,
   resolveMemoryInputCategory,
   toMemorySuggestion,
@@ -111,28 +112,50 @@ export async function saveMemoryCategory(
   const validation = validateCategoryInput(input);
 
   if (!validation.ok) {
-    return { ok: false, message: validation.message };
+    return { ok: false, message: validation.message, code: validation.code };
   }
 
   try {
     if (input.id) {
+      const category = (await memoryService.listMemoryCategories(user.id)).find(
+        (item) => item.id === input.id,
+      );
+
+      if (!category) {
+        return {
+          ok: false,
+          message: "Category was not found.",
+          code: "memory_category_not_found",
+        };
+      }
+
+      if (category.builtInKey) {
+        return {
+          ok: false,
+          message: "Built-in categories cannot be edited.",
+          code: "memory_category_built_in_protected",
+        };
+      }
+
       await memoryService.updateCategory(
         user.id,
         input.id,
         validation.name,
         validation.description,
-        validation.baseWeight,
       );
     } else {
       await memoryService.createCategory(
         user.id,
         validation.name,
         validation.description,
-        validation.baseWeight,
       );
     }
   } catch (error) {
-    return { ok: false, message: databaseMessage(error) };
+    return {
+      ok: false,
+      message: databaseMessage(error),
+      code: databaseCode(error),
+    };
   }
 
   return {
@@ -151,13 +174,41 @@ export async function deleteMemoryCategory(
   }
 
   try {
+    const category = (await memoryService.listMemoryCategories(user.id)).find(
+      (item) => item.id === categoryId,
+    );
+
+    if (!category) {
+      return {
+        ok: false,
+        message: "Category was not found.",
+        code: "memory_category_not_found",
+      };
+    }
+
+    if (category.builtInKey) {
+      return {
+        ok: false,
+        message: "Built-in categories cannot be deleted.",
+        code: "memory_category_built_in_protected",
+      };
+    }
+
     const deleted = await memoryService.deleteCategory(user.id, categoryId);
 
     if (!deleted) {
-      return { ok: false, message: "Category was not found." };
+      return {
+        ok: false,
+        message: "Category was not found.",
+        code: "memory_category_not_found",
+      };
     }
   } catch (error) {
-    return { ok: false, message: databaseMessage(error) };
+    return {
+      ok: false,
+      message: databaseMessage(error),
+      code: databaseCode(error),
+    };
   }
 
   return {
@@ -178,7 +229,7 @@ export async function saveMemory(
   const validation = validateMemoryInput(input);
 
   if (!validation.ok) {
-    return { ok: false, message: validation.message };
+    return { ok: false, message: validation.message, code: validation.code };
   }
 
   const categoryId = resolveMemoryInputCategory(
@@ -196,7 +247,11 @@ export async function saveMemory(
     );
 
     if (!memory) {
-      return { ok: false, message: "Memory or category was not found." };
+      return {
+        ok: false,
+        message: "Memory or category was not found.",
+        code: "memory_or_category_not_found",
+      };
     }
   } else {
     const memory = await memoryService.createMemory(
@@ -207,7 +262,11 @@ export async function saveMemory(
     );
 
     if (!memory) {
-      return { ok: false, message: "Category was not found." };
+      return {
+        ok: false,
+        message: "Category was not found.",
+        code: "memory_category_not_found",
+      };
     }
   }
 
@@ -229,7 +288,11 @@ export async function deleteMemory(
   const deleted = await memoryService.deleteMemory(user.id, memoryId);
 
   if (!deleted) {
-    return { ok: false, message: "Memory was not found." };
+    return {
+      ok: false,
+      message: "Memory was not found.",
+      code: "memory_not_found",
+    };
   }
 
   return {
@@ -281,6 +344,7 @@ export async function pinMemorySuggestion(
     return {
       ok: false,
       message: "Memory cannot be pinned right now.",
+      code: "memory_pin_unavailable",
     };
   }
 
@@ -307,6 +371,7 @@ export async function ignoreMemorySuggestion(
     return {
       ok: false,
       message: "Memory was not found.",
+      code: "memory_not_found",
     };
   }
 
@@ -333,6 +398,7 @@ export async function cancelPinnedMemorySuggestion(
     return {
       ok: false,
       message: "Pinned memory was not found.",
+      code: "pinned_memory_not_found",
     };
   }
 

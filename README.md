@@ -29,13 +29,13 @@ not a medical, therapy, or mental health treatment product.
 
 Arctic Aria is organized around features and supporting services:
 
-- Features: auth, settings, projects, routines, memories, dashboard, reviews,
-  and future idea capture.
+- Features: auth, settings, projects, routines, memories, dashboard, ideas,
+  and future reviews.
 - Plugins: optional helpers such as rewards, English coach, research coach,
   cuisine and sightseeing planner, movie or anime recommender, and future
   specialized assistants.
-- Apps: web dashboard for full control and Discord bot for reminders, quick
-  capture, daily push messages, and review prompts.
+- Apps: web dashboard for full control and Discord bot for quick idea capture,
+  account binding, test direct messages, and future reminders or review prompts.
 - Infrastructure: Neon PostgreSQL now, with future cache, background job,
   dataflow, and external service adapters added only when needed.
 
@@ -76,6 +76,8 @@ Feature map:
   reviews.
 - [docs/features/settings/overview.md](docs/features/settings/overview.md):
   user-facing settings and preference rules.
+- [docs/features/settings/data-model.md](docs/features/settings/data-model.md):
+  settings persistence and constraints.
 
 Auth:
 
@@ -127,6 +129,17 @@ Dashboard:
 - [docs/features/dashboard/web-implementation.md](docs/features/dashboard/web-implementation.md):
   current web dashboard implementation notes.
 
+Ideas:
+
+- [docs/features/ideas/overview.md](docs/features/ideas/overview.md): idea
+  capture product rules.
+- [docs/features/ideas/data-model.md](docs/features/ideas/data-model.md):
+  idea persistence and constraints.
+- [docs/features/ideas/ui.md](docs/features/ideas/ui.md): Ideas page UI
+  behavior.
+- [docs/features/ideas/web-implementation.md](docs/features/ideas/web-implementation.md):
+  current Ideas web implementation notes.
+
 Shared Web UI:
 
 - [docs/ui.md](docs/ui.md): shared UI terminology and links to web component
@@ -136,15 +149,23 @@ Shared Web UI:
 - [docs/web/sidebar.md](docs/web/sidebar.md): sidebar product behavior.
 - [docs/web/sidebar-ui.md](docs/web/sidebar-ui.md): sidebar visual and
   interaction rules.
-- [docs/web/theme.md](docs/web/theme.md): theme behavior and color direction.
+- [docs/web/theme.md](docs/web/theme.md): theme preference and app-shell theme
+  behavior.
+- [docs/web/color.md](docs/web/color.md): color tokens, component color
+  mappings, and current color inconsistencies.
+- [docs/web/localization.md](docs/web/localization.md): language preference
+  detection and future message catalog direction.
 
 Apps And Infrastructure:
 
-- [docs/apps/discord-bot/prototype.md](docs/apps/discord-bot/prototype.md):
-  Discord bot prototype direction.
+- [docs/apps/discord-bot/overview.md](docs/apps/discord-bot/overview.md):
+  Discord bot `/bind`, `/idea`, message push, and app-surface direction.
 - [docs/infrastructure/database.md](docs/infrastructure/database.md): database
   direction, data lifecycle, credential/data protection, and current Neon
   PostgreSQL notes.
+- [docs/infrastructure/environment.md](docs/infrastructure/environment.md):
+  environment variable purpose, local setup files, and Vercel Neon variable
+  mapping.
 - [docs/infrastructure/redis.md](docs/infrastructure/redis.md): planned Redis
   direction for latency, cache, rate limiting, idempotency, and short-lived
   coordination.

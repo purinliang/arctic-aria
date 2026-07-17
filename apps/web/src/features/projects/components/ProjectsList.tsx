@@ -2,12 +2,16 @@
 import { ChevronRight, FolderKanban, Pin, PinOff, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
-import { mutedTextClass } from "@/components/color";
+import { secondaryTextColorClass } from "@/components/color";
+import { formatDateKey } from "@/components/forms/date-format";
 import { List, ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { ProjectView } from "@/features/projects/actions";
+import type { ProjectMessages } from "@/messages/app-messages";
+import type { DatePickerMessages } from "@/messages/form-messages";
+import type { ProjectDurationRange } from "@/features/projects/project-duration";
 
 export function ProjectsList({
   darkMode,
@@ -15,6 +19,10 @@ export function ProjectsList({
   pending,
   projects,
   pendingProjectPinIds,
+  messages,
+  timelineMessages,
+  durationMessages,
+  dateMessages,
   onViewProject,
   onPinProject,
   onUnpinProject,
@@ -25,6 +33,10 @@ export function ProjectsList({
   pending: boolean;
   projects: ProjectView[];
   pendingProjectPinIds: string[];
+  messages: ProjectMessages["list"];
+  timelineMessages: ProjectMessages["timeline"];
+  durationMessages: ProjectMessages["duration"];
+  dateMessages: DatePickerMessages;
   onViewProject: (projectId: string) => void;
   onPinProject: (projectId: string) => void;
   onUnpinProject: (projectId: string) => void;
@@ -35,8 +47,8 @@ export function ProjectsList({
       <CardHeader
         darkMode={darkMode}
         icon={<FolderKanban size={18} aria-hidden="true" />}
-        title="Projects"
-        description="Track long-running goals and the tasks that move them forward."
+        title={messages.title}
+        description={messages.description}
         action={
           <Button
             darkMode={darkMode}
@@ -44,18 +56,18 @@ export function ProjectsList({
             icon={<Plus size={15} aria-hidden="true" />}
             onClick={onAddProject}
           >
-            New
+            {messages.new}
           </Button>
         }
       />
 
       <List darkMode={darkMode}>
         {loading ? (
-          <LoadingLine darkMode={darkMode} text="Loading projects..." />
+          <LoadingLine darkMode={darkMode} text={messages.loading} />
         ) : null}
         {!loading && projects.length === 0 ? (
-          <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
-            No projects yet. Add a project for a larger goal.
+          <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
+            {messages.empty}
           </p>
         ) : null}
         {projects.map((project) => (
@@ -64,6 +76,10 @@ export function ProjectsList({
             darkMode={darkMode}
             project={project}
             pinPending={pendingProjectPinIds.includes(project.id)}
+            messages={messages}
+            timelineMessages={timelineMessages}
+            durationMessages={durationMessages}
+            dateMessages={dateMessages}
             onView={() => onViewProject(project.id)}
             onPin={() => onPinProject(project.id)}
             onUnpin={() => onUnpinProject(project.id)}
@@ -78,6 +94,10 @@ function ProjectListItem({
   darkMode,
   project,
   pinPending,
+  messages,
+  timelineMessages,
+  durationMessages,
+  dateMessages,
   onView,
   onPin,
   onUnpin,
@@ -85,6 +105,10 @@ function ProjectListItem({
   darkMode: boolean;
   project: ProjectView;
   pinPending: boolean;
+  messages: ProjectMessages["list"];
+  timelineMessages: ProjectMessages["timeline"];
+  durationMessages: ProjectMessages["duration"];
+  dateMessages: DatePickerMessages;
   onView: () => void;
   onPin: () => void;
   onUnpin: () => void;
@@ -101,7 +125,13 @@ function ProjectListItem({
           {project.description}
         </DescriptionText>
         <SupportingText darkMode={darkMode} className="mt-2 block">
-          {project.timelineText} · {project.progressText}
+          {projectTimelineText(
+            project,
+            timelineMessages,
+            durationMessages,
+            dateMessages,
+          )}{" "}
+          · {timelineMessages.progress(doneTaskCount(project), project.tasks.length)}
         </SupportingText>
       </div>
       <div className="flex shrink-0 items-center gap-2">
@@ -110,7 +140,7 @@ function ProjectListItem({
           size="icon-sm"
           className="rounded-full"
           disabled={pinPending}
-          aria-label={pinned ? "Unpin project" : "Pin project"}
+          aria-label={pinned ? messages.unpin : messages.pin}
           icon={
             pinned ? (
               <PinOff size={14} aria-hidden="true" />
@@ -124,11 +154,38 @@ function ProjectListItem({
           darkMode={darkMode}
           tone="ghost"
           size="icon-sm"
-          aria-label={`Open ${project.title}`}
+          aria-label={messages.open(project.title)}
           icon={<ChevronRight size={16} aria-hidden="true" />}
           onClick={onView}
         />
       </div>
     </ListItem>
   );
+}
+
+function projectTimelineText(
+  project: ProjectView,
+  messages: ProjectMessages["timeline"],
+  durations: ProjectMessages["duration"],
+  dateMessages: DatePickerMessages,
+) {
+  if (project.deadlineDate) {
+    return messages.due(formatDate(project.deadlineDate, dateMessages));
+  }
+
+  if (project.expectedDurationDays) {
+    return messages.expected(
+      durations[project.durationRange as ProjectDurationRange],
+    );
+  }
+
+  return messages.openEnded;
+}
+
+function doneTaskCount(project: ProjectView) {
+  return project.tasks.filter((task) => task.status === "done").length;
+}
+
+function formatDate(value: string, messages: DatePickerMessages) {
+  return formatDateKey(value, messages);
 }

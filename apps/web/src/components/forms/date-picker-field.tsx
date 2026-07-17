@@ -2,8 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ButtonHTMLAttributes } from "react";
-import { Calendar, ChevronLeft, ChevronRight, X } from "lucide-react";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  X,
+} from "lucide-react";
 import { Button } from "../button";
+import { buildCalendarMonthDays, shiftCalendarMonth } from "./date-calendar";
+import { formatDateKey } from "./date-format";
 import {
   formControlClass,
   formControlPopupClass,
@@ -12,39 +21,9 @@ import {
   popoverPlacementClass,
   usePopoverPlacement,
 } from "./use-popover-placement";
+import { englishFormMessages } from "@/messages/form-messages";
+import type { DatePickerMessages } from "@/messages/form-messages";
 import { cx } from "../utils";
-
-const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-const shortMonthNames = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
-const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 type VisibleMonth = {
   year: number;
@@ -62,6 +41,7 @@ export function DatePickerField({
   min,
   max,
   className,
+  messages = englishFormMessages.datePicker,
 }: {
   darkMode: boolean;
   value: string;
@@ -73,6 +53,7 @@ export function DatePickerField({
   min?: string;
   max?: string;
   className?: string;
+  messages?: DatePickerMessages;
 }) {
   const [open, setOpen] = useState(false);
   const [visibleMonth, setVisibleMonth] = useState<VisibleMonth>(() =>
@@ -100,16 +81,19 @@ export function DatePickerField({
     };
   }, [open, rootRef]);
 
-  const days = useMemo(() => buildMonthDays(visibleMonth), [visibleMonth]);
-  const formattedValue = formatDateValue(value);
+  const days = useMemo(
+    () => buildCalendarMonthDays(visibleMonth),
+    [visibleMonth],
+  );
+  const formattedValue = formatDateValue(value, messages);
 
   return (
     <div ref={rootRef} className="relative min-w-0">
       <button
         className={cx(
           formControlClass(darkMode, hasError),
-          "flex items-center justify-between gap-3 text-left",
-          !formattedValue && (darkMode ? "text-neutral-500" : "text-slate-400"),
+          "flex items-center justify-between gap-3 text-left hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
+          !formattedValue && "text-[var(--aa-secondary-text)]",
           className,
         )}
         type="button"
@@ -140,31 +124,56 @@ export function DatePickerField({
             ),
           )}
         >
-          <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="mb-2 grid grid-cols-[auto_auto_minmax(0,1fr)_auto_auto] items-center gap-1">
             <PickerIconButton
               darkMode={darkMode}
-              aria-label="Previous month"
-              onClick={() => setVisibleMonth(addMonths(visibleMonth, -1))}
+              aria-label={messages.previousYear}
+              onClick={() =>
+                setVisibleMonth(shiftCalendarMonth(visibleMonth, -12))
+              }
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </PickerIconButton>
+            <PickerIconButton
+              darkMode={darkMode}
+              aria-label={messages.previousMonth}
+              onClick={() =>
+                setVisibleMonth(shiftCalendarMonth(visibleMonth, -1))
+              }
             >
               <ChevronLeft className="h-4 w-4" />
             </PickerIconButton>
-            <div className="text-sm font-semibold">
-              {monthNames[visibleMonth.monthIndex]} {visibleMonth.year}
+            <div className="truncate px-1 text-center text-sm font-semibold">
+              {messages.monthYear(
+                messages.monthNames[visibleMonth.monthIndex],
+                visibleMonth.year,
+              )}
             </div>
             <PickerIconButton
               darkMode={darkMode}
-              aria-label="Next month"
-              onClick={() => setVisibleMonth(addMonths(visibleMonth, 1))}
+              aria-label={messages.nextMonth}
+              onClick={() =>
+                setVisibleMonth(shiftCalendarMonth(visibleMonth, 1))
+              }
             >
               <ChevronRight className="h-4 w-4" />
+            </PickerIconButton>
+            <PickerIconButton
+              darkMode={darkMode}
+              aria-label={messages.nextYear}
+              onClick={() =>
+                setVisibleMonth(shiftCalendarMonth(visibleMonth, 12))
+              }
+            >
+              <ChevronsRight className="h-4 w-4" />
             </PickerIconButton>
           </div>
 
           <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase tracking-normal">
-            {weekdayNames.map((weekday) => (
+            {messages.weekdayNames.map((weekday) => (
               <div
                 key={weekday}
-                className={darkMode ? "text-neutral-500" : "text-slate-500"}
+                className="text-[var(--aa-secondary-text)]"
               >
                 {weekday}
               </div>
@@ -200,7 +209,7 @@ export function DatePickerField({
               icon={<X className="h-3.5 w-3.5" />}
               onClick={() => onChange("")}
             >
-              Clear date
+              {messages.clearDate}
             </Button>
           ) : null}
         </div>
@@ -236,17 +245,15 @@ function DayButton({
   disabled: boolean;
   onClick: () => void;
 }) {
+  void darkMode;
+
   return (
     <button
       className={cx(
-        "h-8 rounded-md text-sm transition disabled:cursor-not-allowed disabled:opacity-30",
+        "h-8 rounded-md text-sm transition disabled:cursor-not-allowed",
         selected
-          ? darkMode
-            ? "bg-white text-black"
-            : "bg-slate-950 text-white"
-          : darkMode
-            ? "text-neutral-200 hover:bg-white/10"
-            : "text-slate-700 hover:bg-slate-100",
+          ? "bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)] disabled:bg-[var(--aa-primary-button-disabled-bg)] disabled:text-[var(--aa-primary-button-disabled-text)] disabled:hover:bg-[var(--aa-primary-button-disabled-bg)] disabled:hover:text-[var(--aa-primary-button-disabled-text)]"
+          : "bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
       )}
       type="button"
       disabled={disabled}
@@ -291,42 +298,8 @@ function parseDateValue(value: string) {
   return { year, monthIndex, day };
 }
 
-function formatDateValue(value: string) {
-  const parsed = parseDateValue(value);
-
-  if (!parsed) {
-    return "";
-  }
-
-  return `${shortMonthNames[parsed.monthIndex]} ${parsed.day}, ${parsed.year}`;
-}
-
-function buildMonthDays(month: VisibleMonth) {
-  const firstDay = new Date(month.year, month.monthIndex, 1).getDay();
-  const count = new Date(month.year, month.monthIndex + 1, 0).getDate();
-  const days: Array<{ day: number; value: string } | null> = [];
-
-  for (let index = 0; index < firstDay; index += 1) {
-    days.push(null);
-  }
-
-  for (let day = 1; day <= count; day += 1) {
-    days.push({
-      day,
-      value: toDateValue(month.year, month.monthIndex, day),
-    });
-  }
-
-  return days;
-}
-
-function addMonths(month: VisibleMonth, offset: number): VisibleMonth {
-  const date = new Date(month.year, month.monthIndex + offset, 1);
-  return { year: date.getFullYear(), monthIndex: date.getMonth() };
-}
-
-function toDateValue(year: number, monthIndex: number, day: number) {
-  return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+function formatDateValue(value: string, messages: DatePickerMessages) {
+  return formatDateKey(value, messages, "");
 }
 
 function isDateOutsideBounds(value: string, min?: string, max?: string) {

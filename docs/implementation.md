@@ -11,7 +11,10 @@ credential, and data-protection policy are documented in
 
 ## Current Status
 
-The only implemented app is the Next.js web app in `apps/web`.
+Implemented apps:
+
+- Next.js web app in `apps/web`
+- Discord bot HTTP Interactions app in `apps/discord-bot`
 
 Implemented:
 
@@ -22,6 +25,12 @@ Implemented:
 - Projects, Milestones, and Tasks
 - Routines and routine instances
 - Memories, categories, suggestions, and pinned memories
+- Settings page with local theme/language preference controls and version
+  metadata
+- read-only Ideas page and backend capture foundation
+- Discord account binding with `/bind code:<code>`
+- Discord `/idea` capture into untriaged Ideas
+- Discord outbound message push and Settings `Send Test` verification
 - shared web UI primitives and form controls
 - SQL migrations and direct SQL repositories
 - focused Node test coverage for validation, services, repositories, database
@@ -29,12 +38,11 @@ Implemented:
 
 Not implemented yet:
 
-- Discord bot
+- production Discord deployment
+- Discord reminders and reminder response buttons
 - Redis/cache
 - event bus or dataflow service
 - background worker service
-- user settings page
-- ideas feature
 - reviews feature
 - reward plugin
 - English coach or other plugin workers
@@ -78,10 +86,19 @@ workspace yet.
 ```text
 arctic-aria/
 |-- apps/
+|   |-- discord-bot/
+|   |   |-- src/
+|   |   |   |-- __tests__/
+|   |   |   |-- features/
+|   |   |   |-- infrastructure/
+|   |   |   |-- interactions/
+|   |   |   |-- index.ts
+|   |   |   `-- infrastructure/register-commands.ts
+|   |-- infrastructure/
+|   |   `-- database/
+|   |       `-- migrations/
 |   `-- web/
 |       |-- AGENTS.md
-|       |-- database/
-|       |   `-- migrations/
 |       |-- scripts/
 |       |   `-- migrate.mjs
 |       |-- src/
@@ -92,11 +109,14 @@ arctic-aria/
 |       |   |-- features/
 |       |   |   |-- auth/
 |       |   |   |-- dashboard/
+|       |   |   |-- ideas/
 |       |   |   |-- memories/
 |       |   |   |-- projects/
-|       |   |   `-- routines/
+|       |   |   |-- routines/
+|       |   |   `-- settings/
 |       |   `-- server/
-|       |       `-- database/
+|       |       |-- database/
+|       |       `-- discord/
 |       |-- package.json
 |       `-- pnpm-workspace.yaml
 |
@@ -181,13 +201,20 @@ Current feature implementation docs:
 - [features/memories/web-implementation.md](features/memories/web-implementation.md)
 - [features/projects/web-implementation.md](features/projects/web-implementation.md)
 - [features/routines/web-implementation.md](features/routines/web-implementation.md)
+- [features/ideas/web-implementation.md](features/ideas/web-implementation.md)
 
 Current feature data-model docs:
 
 - [features/auth/data-model.md](features/auth/data-model.md)
+- [features/settings/data-model.md](features/settings/data-model.md)
 - [features/memories/data-model.md](features/memories/data-model.md)
 - [features/projects/data-model.md](features/projects/data-model.md)
 - [features/routines/data-model.md](features/routines/data-model.md)
+- [features/ideas/data-model.md](features/ideas/data-model.md)
+
+App-surface docs:
+
+- [apps/discord-bot/overview.md](apps/discord-bot/overview.md)
 
 Shared web docs:
 
@@ -196,10 +223,13 @@ Shared web docs:
 - [web/sidebar.md](web/sidebar.md)
 - [web/sidebar-ui.md](web/sidebar-ui.md)
 - [web/theme.md](web/theme.md)
+- [web/color.md](web/color.md)
+- [web/localization.md](web/localization.md)
 
 Infrastructure docs:
 
 - [infrastructure/database.md](infrastructure/database.md)
+- [infrastructure/environment.md](infrastructure/environment.md)
 - [infrastructure/redis.md](infrastructure/redis.md)
 
 ## Current Entry Points
@@ -224,11 +254,12 @@ Feature page and panel entry points:
 - `apps/web/src/features/routines/components/RoutinesPanel.tsx`
 - `apps/web/src/features/memories/components/MemoriesPage.tsx`
 - `apps/web/src/features/memories/components/PinnedMemoriesPanel.tsx`
+- `apps/web/src/features/ideas/components/IdeasPage.tsx`
 
 Persistence entry points:
 
 - `apps/web/src/server/database/neon.ts`
-- `apps/web/database/migrations`
+- `apps/infrastructure/database/migrations`
 - `apps/web/scripts/migrate.mjs`
 - `apps/web/src/features/<feature>/server`
 
@@ -255,10 +286,13 @@ Planned infrastructure:
 - event/dataflow support after reminder, review, and plugin flows become clear
 - deployment environment management
 
-The Discord bot should likely use TypeScript and `discord.js` because it will
-share command contracts with the web app. Python remains a good fit for future
-plugin workers that need agent workflows, retrieval, document processing,
-speech practice, or ML/data tooling.
+The first Discord bot implementation is a separate TypeScript app under
+`apps/discord-bot`. It uses Discord HTTP Interactions for `/bind` and `/idea`,
+and a private HTTP endpoint for outbound direct-message push. `discord.js` is
+used for command registration and Discord HTTP helpers, not for a long-running
+Gateway listener. Python remains a good fit for future plugin workers that need
+agent workflows, retrieval, document processing, speech practice, or ML/data
+tooling.
 
 ## Verification Commands
 
@@ -270,6 +304,13 @@ pnpm lint
 pnpm build
 pnpm db:migrate
 pnpm dev
+```
+
+Run from `apps/discord-bot`:
+
+```bash
+pnpm test
+pnpm build
 ```
 
 For documentation-only changes, run at least:

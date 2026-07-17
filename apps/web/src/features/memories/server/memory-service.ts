@@ -20,8 +20,6 @@ export type MemorySuggestionRecord = MemoryRecord & {
 
 const completedCleanupDelayMs = 2 * 60 * 60 * 1000;
 const visibleDurationsHours = [24, 30, 36, 42, 48] as const;
-const maxPinnedPerCategory = 3;
-const dashboardCategoryNames = ["Cuisine", "Sightseeing"] as const;
 
 function addHours(date: Date, hours: number) {
   return new Date(date.getTime() + hours * 60 * 60 * 1000);
@@ -39,7 +37,7 @@ function daysBetween(left: Date, right: Date) {
   return Math.max(1, Math.floor(diff / (24 * 60 * 60 * 1000)));
 }
 
-function suggestionScore(memory: MemoryRecord, baseWeight: number, now: Date) {
+function suggestionScore(memory: MemoryRecord, now: Date) {
   const daysSource = memory.lastDoneAt ?? memory.createdAt;
   const daysScore = Math.log(1 + daysBetween(now, daysSource));
   const countScore = memory.lastDoneAt ? 1 + Math.log(1 + memory.doneCount) : 3;
@@ -48,7 +46,7 @@ function suggestionScore(memory: MemoryRecord, baseWeight: number, now: Date) {
     daysBetween(now, memory.lastIgnoredAt) <= 7;
   const ignoredFactor = ignoredRecently ? 0.25 : 1;
 
-  return Math.max(0.01, baseWeight * daysScore * countScore * ignoredFactor);
+  return Math.max(0.01, daysScore * countScore * ignoredFactor);
 }
 
 function weightedPick(
@@ -84,28 +82,6 @@ function toDashboardPinnedMemory(
   };
 }
 
-function filterDashboardPinnedMemories(memories: PinnedMemoryRecord[]) {
-  const pinnedByCategory = new Map<string, PinnedMemoryRecord[]>();
-
-  for (const categoryName of dashboardCategoryNames) {
-    pinnedByCategory.set(categoryName, []);
-  }
-
-  for (const memory of memories) {
-    const categoryPins = pinnedByCategory.get(memory.categoryName);
-
-    if (!categoryPins || categoryPins.length >= maxPinnedPerCategory) {
-      continue;
-    }
-
-    categoryPins.push(memory);
-  }
-
-  return dashboardCategoryNames.flatMap(
-    (categoryName) => pinnedByCategory.get(categoryName) ?? [],
-  );
-}
-
 export function createMemoryService(options: MemoryServiceOptions = {}) {
   const memories = options.memories ?? new PostgresMemoryRepository();
   const now = options.now ?? (() => new Date());
@@ -130,13 +106,11 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
       userId: string,
       name: string,
       description: string,
-      baseWeight: number,
     ) {
       return memories.createCategory({
         userId,
         name,
         description,
-        baseWeight,
         occurredAt: now(),
       });
     },
@@ -146,14 +120,12 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
       categoryId: string,
       name: string,
       description: string,
-      baseWeight: number,
     ) {
       return memories.updateCategory({
         userId,
         categoryId,
         name,
         description,
-        baseWeight,
         occurredAt: now(),
       });
     },
@@ -204,40 +176,18 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
 
     async suggestMemories(userId: string, count = 4) {
       const occurredAt = now();
-      const [categories, memoryRecords, pinnedMemories] = await Promise.all([
-        memories.listCategories(userId),
+      const [memoryRecords, pinnedMemories] = await Promise.all([
         memories.listMemories(userId),
         memories.listPinnedMemories(userId),
       ]);
       const pinnedMemoryIds = new Set(
         pinnedMemories.map((memory) => memory.memoryId),
       );
-      const pinnedCountByCategory = new Map<string, number>();
-
-      for (const pinnedMemory of pinnedMemories) {
-        pinnedCountByCategory.set(
-          pinnedMemory.categoryId,
-          (pinnedCountByCategory.get(pinnedMemory.categoryId) ?? 0) + 1,
-        );
-      }
-
-      const baseWeightByCategory = new Map(
-        categories.map((category) => [category.id, category.baseWeight]),
-      );
       const candidates = memoryRecords
-        .filter(
-          (memory) =>
-            !pinnedMemoryIds.has(memory.id) &&
-            (pinnedCountByCategory.get(memory.categoryId) ?? 0) <
-              maxPinnedPerCategory,
-        )
+        .filter((memory) => !pinnedMemoryIds.has(memory.id))
         .map((memory) => ({
           ...memory,
-          score: suggestionScore(
-            memory,
-            baseWeightByCategory.get(memory.categoryId) ?? 1,
-            occurredAt,
-          ),
+          score: suggestionScore(memory, occurredAt),
         }));
 
       return weightedPick(candidates, count, random);
@@ -256,10 +206,6 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
       const sameCategoryPins = pinnedMemories.filter(
         (pinnedMemory) => pinnedMemory.categoryId === memory.categoryId,
       );
-
-      if (sameCategoryPins.length >= maxPinnedPerCategory) {
-        return null;
-      }
 
       const position =
         sameCategoryPins.reduce(
@@ -297,9 +243,7 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
       await memories.ensureDefaultCategories(userId);
       const pinnedMemories = await memories.listPinnedMemories(userId);
 
-      return filterDashboardPinnedMemories(pinnedMemories).map(
-        toDashboardPinnedMemory,
-      );
+      return pinnedMemories.map(toDashboardPinnedMemory);
     },
 
     async completePinnedMemory(userId: string, pinnedMemoryId: string) {

@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
+import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import test from "node:test";
 import {
+  resolveMigrationsDir,
   schemaHashForMigrations,
   validateAppliedMigrationHistory,
 } from "../../../../scripts/migration-metadata.mjs";
@@ -91,4 +95,25 @@ test("schema hash represents the ordered whole migration history", () => {
 
   assert.notEqual(originalHash, reorderedHash);
   assert.notEqual(originalHash, changedHash);
+});
+
+test("migration directory resolves to shared infrastructure from web app root", () => {
+  const repoRoot = mkdtempSync(path.join(tmpdir(), "arctic-aria-"));
+  const webRoot = path.join(repoRoot, "apps", "web");
+  const migrationsDir = path.join(
+    repoRoot,
+    "apps",
+    "infrastructure",
+    "database",
+    "migrations",
+  );
+
+  mkdirSync(webRoot, { recursive: true });
+  mkdirSync(migrationsDir, { recursive: true });
+
+  try {
+    assert.equal(resolveMigrationsDir(webRoot), migrationsDir);
+  } finally {
+    rmSync(repoRoot, { recursive: true, force: true });
+  }
 });

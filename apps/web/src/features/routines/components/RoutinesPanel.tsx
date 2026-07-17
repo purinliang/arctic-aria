@@ -2,19 +2,26 @@
 import { Bell, ChevronRight } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
-import { mutedTextClass } from "@/components/color";
+import { secondaryTextColorClass } from "@/components/color";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { List, ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
+import { formatTimeDisplay } from "@/components/forms/time-display";
 import type { Routine, RoutineStatus } from "@/features/dashboard/types";
+import type { DashboardMessages } from "@/messages/app-messages";
+import type { TimeFormatPreference } from "@/features/settings/preferences";
+import type { TimePickerMessages } from "@/messages/form-messages";
 
 export function RoutinesPanel({
   darkMode,
   routines,
   loading,
   disabled,
+  messages,
+  timeMessages,
+  timeFormatPreference,
   onRoutineStatus,
   onRoutineOpen,
 }: {
@@ -22,6 +29,9 @@ export function RoutinesPanel({
   routines: Routine[];
   loading: boolean;
   disabled: boolean;
+  messages: DashboardMessages["routines"];
+  timeMessages: TimePickerMessages;
+  timeFormatPreference: TimeFormatPreference;
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
   onRoutineOpen: () => void;
 }) {
@@ -29,15 +39,15 @@ export function RoutinesPanel({
     <Panel darkMode={darkMode}>
       <CardHeader
         icon={<Bell size={18} aria-hidden="true" />}
-        title="Routines"
+        title={messages.title}
         darkMode={darkMode}
       />
       <List darkMode={darkMode}>
         {loading ? (
-          <LoadingLine darkMode={darkMode} text="Loading routines..." />
+          <LoadingLine darkMode={darkMode} text={messages.loading} />
         ) : null}
         {!loading && routines.length === 0 ? (
-          <EmptyLine darkMode={darkMode} text="No routines due today." />
+          <EmptyLine darkMode={darkMode} text={messages.empty} />
         ) : null}
         {routines.map((routine) => (
           <RoutineRow
@@ -45,6 +55,9 @@ export function RoutinesPanel({
             routine={routine}
             darkMode={darkMode}
             disabled={disabled}
+            messages={messages}
+            timeMessages={timeMessages}
+            timeFormatPreference={timeFormatPreference}
             onStatusChange={(status) => onRoutineStatus(routine.id, status)}
             onOpen={onRoutineOpen}
           />
@@ -59,12 +72,18 @@ function RoutineRow({
   routine,
   darkMode,
   disabled,
+  messages,
+  timeMessages,
+  timeFormatPreference,
   onStatusChange,
   onOpen,
 }: {
   routine: Routine;
   darkMode: boolean;
   disabled: boolean;
+  messages: DashboardMessages["routines"];
+  timeMessages: TimePickerMessages;
+  timeFormatPreference: TimeFormatPreference;
   onStatusChange: (status: RoutineStatus) => void;
   onOpen: () => void;
 }) {
@@ -78,8 +97,8 @@ function RoutineRow({
           disabled={disabled}
           aria-label={
             routine.status === "completed"
-              ? `Reopen ${routine.title}`
-              : `Mark ${routine.title} done`
+              ? messages.reopen(routine.title)
+              : messages.markDone(routine.title)
           }
           onChange={(event) =>
             onStatusChange(event.target.checked ? "completed" : "pending")
@@ -88,10 +107,13 @@ function RoutineRow({
         <div className="min-w-0">
           <h3 className="min-w-0 text-sm font-semibold">{routine.title}</h3>
           <DescriptionText darkMode={darkMode} className="mt-1">
-            {routine.description || "No description."}
+            {routine.description || messages.noDescription}
           </DescriptionText>
           <SupportingText darkMode={darkMode} className="mt-2 block">
-            {routine.scheduledTime} · {routine.streakText}
+            {routineTimeText(routine, messages, timeMessages, timeFormatPreference)} ·{" "}
+            {routine.status === "pending"
+              ? messages.dueToday
+              : messages.answeredToday}
           </SupportingText>
         </div>
       </div>
@@ -99,7 +121,7 @@ function RoutineRow({
         darkMode={darkMode}
         tone="ghost"
         size="icon-sm"
-        aria-label="Open routines"
+        aria-label={messages.open}
         icon={<ChevronRight size={16} aria-hidden="true" />}
         onClick={onOpen}
       />
@@ -107,9 +129,24 @@ function RoutineRow({
   );
 }
 
-function EmptyLine({ darkMode, text }: { darkMode: boolean; text: string }) {
+function routineTimeText(
+  routine: Routine,
+  messages: DashboardMessages["routines"],
+  timeMessages: TimePickerMessages,
+  timeFormatPreference: TimeFormatPreference,
+) {
+  return routine.scheduledTime === "Flexible"
+    ? messages.flexible
+    : formatTimeDisplay(
+        routine.scheduledTime,
+        timeMessages,
+        timeFormatPreference,
+      ) || routine.scheduledTime;
+}
+
+function EmptyLine({ text }: { darkMode: boolean; text: string }) {
   return (
-    <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+    <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
       {text}
     </p>
   );

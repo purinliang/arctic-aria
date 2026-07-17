@@ -2,9 +2,13 @@
 import { ChevronDown, Edit3, Pin, PinOff } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/button";
-import { mutedTextClass, surfaceClass } from "@/components/color";
+import { secondaryTextColorClass, panelColorClass } from "@/components/color";
+import { formatDateKey } from "@/components/forms/date-format";
 import { cx } from "@/components/utils";
 import type { ProjectView } from "@/features/projects/actions";
+import type { ProjectDurationRange } from "@/features/projects/project-duration";
+import type { ProjectMessages } from "@/messages/app-messages";
+import type { DatePickerMessages } from "@/messages/form-messages";
 
 export function ProjectPageTitle({
   darkMode,
@@ -17,6 +21,10 @@ export function ProjectPageTitle({
   onEditProject,
   onPinProject,
   onUnpinProject,
+  messages,
+  timelineMessages,
+  durationMessages,
+  dateMessages,
 }: {
   darkMode: boolean;
   projects: ProjectView[];
@@ -28,18 +36,21 @@ export function ProjectPageTitle({
   onEditProject?: (project: ProjectView) => void;
   onPinProject?: (projectId: string) => void;
   onUnpinProject?: (projectId: string) => void;
+  messages: ProjectMessages["pageTitle"];
+  timelineMessages: ProjectMessages["timeline"];
+  durationMessages: ProjectMessages["duration"];
+  dateMessages: DatePickerMessages;
 }) {
   const [open, setOpen] = useState(false);
   const selectedProject =
     projects.find((project) => project.id === selectedProjectId) ?? null;
-  const breadcrumbButtonClass = darkMode
-    ? "hover:bg-white/10 hover:shadow-[0_0_0_5px_rgba(255,255,255,0.12)] focus-visible:bg-white/10 focus-visible:shadow-[0_0_0_5px_rgba(255,255,255,0.12)]"
-    : "hover:bg-slate-200 hover:shadow-[0_0_0_5px_rgb(226,232,240)] focus-visible:bg-slate-200 focus-visible:shadow-[0_0_0_5px_rgb(226,232,240)]";
+  const breadcrumbButtonClass =
+    "hover:bg-[var(--aa-panel-hover-bg)] hover:text-[var(--aa-primary-text)] hover:outline hover:outline-2 hover:outline-[var(--aa-panel-hover-bg)] focus-visible:bg-[var(--aa-panel-hover-bg)] focus-visible:text-[var(--aa-primary-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--aa-panel-hover-bg)]";
 
   if (!selectedProject) {
     return (
       <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
-        Projects
+        {messages.projects}
       </h1>
     );
   }
@@ -58,9 +69,9 @@ export function ProjectPageTitle({
             onBackToList();
           }}
         >
-          Projects
+          {messages.projects}
         </button>
-        <span className={cx("shrink-0", mutedTextClass(darkMode))}>/</span>
+        <span className={cx("shrink-0", secondaryTextColorClass)}>/</span>
         <span className="relative min-w-0">
           <button
             className={cx(
@@ -87,13 +98,13 @@ export function ProjectPageTitle({
               <button
                 className="fixed inset-0 z-20 cursor-default"
                 type="button"
-                aria-label="Close project switcher"
+                aria-label={messages.closeSwitcher}
                 onClick={() => setOpen(false)}
               />
               <div
                 className={cx(
                   "absolute left-0 z-30 mt-2 max-h-[min(360px,60vh)] w-[min(520px,calc(100vw-2rem))] overflow-y-auto overflow-x-hidden rounded-md border p-1 text-sm shadow-xl",
-                  surfaceClass(darkMode),
+                  panelColorClass,
                 )}
               >
                 {projects.map((project) => {
@@ -105,12 +116,8 @@ export function ProjectPageTitle({
                       className={cx(
                         "grid w-full gap-1 rounded-md px-3 py-2 text-left transition",
                         active
-                          ? darkMode
-                            ? "bg-white text-black"
-                            : "bg-slate-950 text-white"
-                          : darkMode
-                            ? "hover:bg-white/10"
-                            : "hover:bg-slate-100",
+                          ? "bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)]"
+                          : "text-[var(--aa-primary-text)] hover:bg-[var(--aa-secondary-button-hover-bg)]",
                       )}
                       type="button"
                       title={project.title}
@@ -125,10 +132,19 @@ export function ProjectPageTitle({
                       <span
                         className={cx(
                           "truncate text-xs",
-                          active ? "" : mutedTextClass(darkMode),
+                          active ? "" : secondaryTextColorClass,
                         )}
                       >
-                        {project.timelineText} · {project.progressText}
+                        {projectTimelineText(
+                          project,
+                          timelineMessages,
+                          durationMessages,
+                          dateMessages,
+                        )}{" "}
+                        · {timelineMessages.progress(
+                          doneTaskCount(project),
+                          project.tasks.length,
+                        )}
                       </span>
                     </button>
                   );
@@ -147,8 +163,8 @@ export function ProjectPageTitle({
             disabled={pinPending}
             aria-label={
               selectedProject.sidebarPinOrder !== null
-                ? "Unpin project"
-                : "Pin project"
+                ? messages.unpin
+                : messages.pin
             }
             icon={
               selectedProject.sidebarPinOrder !== null ? (
@@ -172,10 +188,37 @@ export function ProjectPageTitle({
             icon={<Edit3 size={15} aria-hidden="true" />}
             onClick={() => onEditProject(selectedProject)}
           >
-            Edit
+            {messages.edit}
           </Button>
         </div>
       ) : null}
     </div>
   );
+}
+
+function projectTimelineText(
+  project: ProjectView,
+  messages: ProjectMessages["timeline"],
+  durations: ProjectMessages["duration"],
+  dateMessages: DatePickerMessages,
+) {
+  if (project.deadlineDate) {
+    return messages.due(formatDate(project.deadlineDate, dateMessages));
+  }
+
+  if (project.expectedDurationDays) {
+    return messages.expected(
+      durations[project.durationRange as ProjectDurationRange],
+    );
+  }
+
+  return messages.openEnded;
+}
+
+function doneTaskCount(project: ProjectView) {
+  return project.tasks.filter((task) => task.status === "done").length;
+}
+
+function formatDate(value: string, messages: DatePickerMessages) {
+  return formatDateKey(value, messages);
 }

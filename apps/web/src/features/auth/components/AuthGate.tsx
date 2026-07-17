@@ -1,19 +1,30 @@
 "use client";
 
 // Auth Gate.
-import { LoaderCircle, Sparkles } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { AppShell } from "@/app-shell/AppShell";
+import { useAppPreferences } from "@/app-shell/app-preferences";
+import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
 import { defaultDatabaseVersionStatus } from "@/components/app-metadata";
 import { NotificationStack, useNotifications } from "@/components/notification";
-import { SupportingText } from "@/components/text";
+import { useDocumentTheme } from "@/components/theme";
+import { localizedActionMessage } from "@/messages/action-result";
+import { getAppMessages } from "@/messages/app-messages";
+import {
+  getUserPreferences,
+  saveUserPreferences,
+} from "@/features/settings/actions";
+import {
+  normalizeUserPreferences,
+  type UserPreferences,
+} from "@/features/settings/preferences";
 import {
   getCurrentUser,
   getPublicVersionStatus,
-  loginUser,
   logoutUser,
-  registerUser,
 } from "../actions";
+import { submitLogin, submitRegister } from "../auth-client";
 import type { AuthUser } from "../server/auth-service";
 import {
   hasAuthErrors,
@@ -41,9 +52,12 @@ const emptyLogin: LoginInput = {
   password: "",
 };
 
+const hydrationSafeAuthMessages = getAppMessages("en").auth;
+
 export function AuthGate() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
+  const [loadingThemeReady, setLoadingThemeReady] = useState(false);
   const [mode, setMode] = useState<AuthMode>("login");
   const [registerInput, setRegisterInput] = useState<RegisterInput>(emptyRegister);
   const [loginInput, setLoginInput] = useState<LoginInput>(emptyLogin);
@@ -54,12 +68,34 @@ export function AuthGate() {
   );
   const [isPending, startTransition] = useTransition();
   const {
+    darkMode,
+    applyUserPreferences,
+    languagePreference,
+    resolvedLanguage,
+    setThemePreference,
+    themePreference,
+    timeFormatPreference,
+  } = useAppPreferences();
+  const messages = getAppMessages(resolvedLanguage);
+  const {
     notifications,
     dismissNotification,
     showErrorNotification,
     showInfoNotification,
     showSuccessNotification,
-  } = useNotifications();
+  } = useNotifications(messages.notifications);
+
+  useDocumentTheme(darkMode);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setLoadingThemeReady(true);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -94,9 +130,9 @@ export function AuthGate() {
         if (active) {
           setVersionStatus((current) => ({
             ...current,
-            actualDatabaseVersionText: "Unavailable",
+            actualDatabaseVersionText: messages.versionStatus.unavailable,
             aligned: false,
-            message: "Database version unavailable.",
+            message: messages.versionStatus.databaseUnavailable,
           }));
         }
       });
@@ -104,29 +140,54 @@ export function AuthGate() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [messages.versionStatus.databaseUnavailable, messages.versionStatus.unavailable]);
+
+  useEffect(() => {
+    if (!currentUser) {
+      return;
+    }
+
+    let active = true;
+
+    getUserPreferences()
+      .then((result) => {
+        if (active && result.ok) {
+          applyUserPreferences(result.preferences);
+        }
+      })
+      .catch(() => {
+        console.warn("[settings-ui]", "preferences_load_failed");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [applyUserPreferences, currentUser]);
 
   if (!sessionChecked) {
+    const loadingMessages = loadingThemeReady
+      ? messages.auth
+      : hydrationSafeAuthMessages;
+
     return (
-      <main className="grid min-h-screen place-items-center bg-[#eef2f5] px-4 text-slate-950">
+      <main
+        className="grid min-h-screen place-items-center bg-[var(--aa-page-bg)] px-4 text-[var(--aa-primary-text)] transition-colors"
+      >
         <div
           className="grid justify-items-center gap-4 text-center"
           role="status"
           aria-live="polite"
         >
-          <div className="flex items-center justify-center gap-2">
-            <Sparkles size={22} aria-hidden="true" />
-            <h1 className="text-2xl font-semibold tracking-normal">Arctic Aria</h1>
-          </div>
+          <ArcticAriaLogo brandText={loadingMessages.brandName} />
           <div className="flex items-center justify-center gap-2">
             <LoaderCircle
               size={18}
-              className="animate-spin text-slate-500"
+              className="animate-spin text-[var(--aa-secondary-text)]"
               aria-hidden="true"
             />
-            <SupportingText darkMode={false} className="font-medium">
-              Opening your workspace...
-            </SupportingText>
+            <span className="text-xs font-medium leading-5 text-[var(--aa-secondary-text)]">
+              {loadingMessages.loading.openingWorkspace}
+            </span>
           </div>
         </div>
       </main>
@@ -137,19 +198,37 @@ export function AuthGate() {
     return (
       <AppShell
         currentUser={currentUser}
+        darkMode={darkMode}
+        languagePreference={languagePreference}
+        messages={messages}
+        themePreference={themePreference}
         versionStatus={versionStatus}
         logoutPending={isPending}
         notifications={notifications}
+        onLanguagePreferenceChange={(nextPreference) =>
+          updateUserPreferences({ languagePreference: nextPreference })
+        }
+        onThemePreferenceChange={(nextPreference) =>
+          updateUserPreferences({ themePreference: nextPreference })
+        }
+        onTimeFormatPreferenceChange={(nextPreference) =>
+          updateUserPreferences({ timeFormatPreference: nextPreference })
+        }
+        timeFormatPreference={timeFormatPreference}
         onLogout={() => {
           startTransition(async () => {
             await logoutUser();
-            showSuccessNotification("You have signed out.", "Signed out");
+            showSuccessNotification(
+              messages.auth.notifications.signedOutMessage,
+              messages.auth.notifications.signedOutTitle,
+            );
             setCurrentUser(null);
             resetSubmitState(true);
           });
         }}
         onNotificationDismiss={dismissNotification}
         showErrorNotification={showErrorNotification}
+        showSuccessNotification={showSuccessNotification}
       />
     );
   }
@@ -191,6 +270,36 @@ export function AuthGate() {
     setLoginInput((current) => ({ ...current, [key]: value }));
   }
 
+  function updateUserPreferences(input: Partial<UserPreferences>) {
+    const nextPreferences = normalizeUserPreferences({
+      languagePreference,
+      themePreference,
+      timeFormatPreference,
+      ...input,
+    });
+
+    applyUserPreferences(nextPreferences);
+
+    void saveUserPreferences(nextPreferences)
+      .then((result) => {
+        if (result.ok) {
+          applyUserPreferences(result.preferences);
+          return;
+        }
+
+        showErrorNotification(
+          localizedActionMessage(result, messages.settings.results),
+          messages.settings.notifications.preferencesSaveFailed,
+        );
+      })
+      .catch(() => {
+        showErrorNotification(
+          messages.settings.results.settings_preferences_save_failed,
+          messages.settings.notifications.preferencesSaveFailed,
+        );
+      });
+  }
+
   function handleSubmit() {
     resetSubmitState();
     setSubmitAttempted(true);
@@ -202,8 +311,8 @@ export function AuthGate() {
 
     if (hasAuthErrors(fieldErrors)) {
       showErrorNotification(
-        "Please fix the highlighted fields.",
-        "Check the form",
+        messages.auth.notifications.checkFormMessage,
+        messages.auth.notifications.checkFormTitle,
       );
       return;
     }
@@ -211,28 +320,26 @@ export function AuthGate() {
     startTransition(async () => {
       const result =
         mode === "register"
-          ? await registerUser(registerInput)
-          : await loginUser(loginInput);
+          ? await submitRegister(registerInput)
+          : await submitLogin(loginInput);
 
       if (!result.ok) {
         setServerErrors(result.fieldErrors ?? {});
         showErrorNotification(
-          result.message,
-          mode === "register" ? "Sign up failed" : "Sign in failed",
+          localizedActionMessage(result, messages.auth.results),
+          mode === "register"
+            ? messages.auth.notifications.signUpFailed
+            : messages.auth.notifications.signInFailed,
         );
-        console.warn("[auth-ui]", `${mode}_failed`, {
-          fields: result.fieldErrors ? Object.keys(result.fieldErrors) : [],
-        });
         return;
       }
 
       showSuccessNotification(
-        result.message,
-        mode === "register" ? "Account created" : "Signed in",
+        localizedActionMessage(result, messages.auth.results),
+        mode === "register"
+          ? messages.auth.notifications.accountCreated
+          : messages.auth.notifications.signedIn,
       );
-      console.info("[auth-ui]", `${mode}_success`, {
-        displayName: result.displayName,
-      });
 
       setCurrentUser(result.user);
     });
@@ -240,21 +347,23 @@ export function AuthGate() {
 
   function showGooglePlaceholder() {
     showInfoNotification(
-      "Google sign-in is not implemented in this prototype yet.",
-      "Google sign-in unavailable",
+      messages.auth.notifications.googleMessage,
+      messages.auth.notifications.googleTitle,
     );
   }
 
   function showPasswordResetPlaceholder() {
     showInfoNotification(
-      "Password reset is not implemented in this prototype yet.",
-      "Password reset unavailable",
+      messages.auth.notifications.passwordResetMessage,
+      messages.auth.notifications.passwordResetTitle,
     );
   }
 
   return (
     <>
       <AuthPage
+        darkMode={darkMode}
+        messages={messages.auth}
         mode={mode}
         registerInput={registerInput}
         loginInput={loginInput}
@@ -268,11 +377,22 @@ export function AuthGate() {
         onSubmit={handleSubmit}
         onGoogleLogin={showGooglePlaceholder}
         onPasswordReset={showPasswordResetPlaceholder}
+        onThemeToggle={() => {
+          const nextPreference = darkMode ? "light" : "dark";
+
+          setThemePreference(nextPreference);
+
+          if (currentUser) {
+            updateUserPreferences({ themePreference: nextPreference });
+          }
+        }}
+        versionMessages={messages.versionStatus}
         versionStatus={versionStatus}
       />
       <NotificationStack
         notifications={notifications}
-        darkMode={false}
+        darkMode={darkMode}
+        messages={messages.notifications}
         onDismiss={dismissNotification}
       />
     </>

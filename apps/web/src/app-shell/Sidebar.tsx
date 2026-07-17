@@ -1,19 +1,36 @@
 // App Shell - Sidebar.
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Album,
   Bell,
   LayoutDashboard,
+  Lightbulb,
   FolderKanban,
   LogOut,
   Moon,
   Settings,
-  Sparkles,
   Sun,
   X,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
 import { Button } from "@/components/button";
 import type { DashboardView } from "@/features/dashboard/types";
+import type { AppShellMessages } from "@/messages/app-messages";
+
+type SidebarScrollbarState = {
+  canScroll: boolean;
+  visible: boolean;
+  thumbHeight: number;
+  thumbTop: number;
+};
+
+const hiddenScrollbarState: SidebarScrollbarState = {
+  canScroll: false,
+  visible: false,
+  thumbHeight: 0,
+  thumbTop: 0,
+};
 
 export type SidebarPinnedProject = {
   id: string;
@@ -27,6 +44,7 @@ export function Sidebar({
   activeView,
   selectedProjectId,
   pinnedProjects,
+  messages,
   logoutPending,
   onClose,
   onViewChange,
@@ -39,6 +57,7 @@ export function Sidebar({
   activeView: DashboardView;
   selectedProjectId: string | null;
   pinnedProjects: SidebarPinnedProject[];
+  messages: AppShellMessages;
   logoutPending: boolean;
   onClose: () => void;
   onViewChange: (view: DashboardView) => void;
@@ -54,8 +73,8 @@ export function Sidebar({
   return (
     <>
       <div
-        className={`fixed inset-0 z-40 transition lg:hidden ${
-          open ? "pointer-events-auto" : "pointer-events-none"
+        className={`fixed inset-0 z-40 bg-transparent lg:hidden ${
+          open ? "visible pointer-events-auto" : "invisible pointer-events-none"
         }`}
         aria-hidden={!open}
       >
@@ -64,7 +83,7 @@ export function Sidebar({
             open ? "opacity-100" : "opacity-0"
           }`}
           type="button"
-          aria-label="Close navigation overlay"
+          aria-label={messages.closeNavigationOverlay}
           onClick={onClose}
         />
         <SidebarFrame
@@ -74,6 +93,7 @@ export function Sidebar({
           activeView={activeView}
           selectedProjectId={selectedProjectId}
           pinnedProjects={pinnedProjects}
+          messages={messages}
           mobile
           onClose={onClose}
           onSelectView={selectView}
@@ -90,6 +110,7 @@ export function Sidebar({
         activeView={activeView}
         selectedProjectId={selectedProjectId}
         pinnedProjects={pinnedProjects}
+        messages={messages}
         onClose={onClose}
         onSelectView={selectView}
         onProjectShortcut={onProjectShortcut}
@@ -107,6 +128,7 @@ function SidebarFrame({
   activeView,
   selectedProjectId,
   pinnedProjects,
+  messages,
   mobile = false,
   onClose,
   onSelectView,
@@ -120,6 +142,7 @@ function SidebarFrame({
   activeView: DashboardView;
   selectedProjectId: string | null;
   pinnedProjects: SidebarPinnedProject[];
+  messages: AppShellMessages;
   mobile?: boolean;
   onClose: () => void;
   onSelectView: (view: DashboardView) => void;
@@ -127,96 +150,171 @@ function SidebarFrame({
   onThemeChange: (darkMode: boolean) => void;
   onLogout: () => void;
 }) {
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
+  const scrollHideTimer = useRef<number | null>(null);
+  const [scrollbarState, setScrollbarState] = useState<SidebarScrollbarState>(
+    hiddenScrollbarState,
+  );
+
+  const updateScrollbarState = useCallback((visible: boolean) => {
+    const sidebar = sidebarRef.current;
+
+    if (!sidebar || sidebar.clientHeight <= 0) {
+      setScrollbarState(hiddenScrollbarState);
+      return;
+    }
+
+    const canScroll = sidebar.scrollHeight > sidebar.clientHeight + 1;
+
+    if (!canScroll) {
+      setScrollbarState(hiddenScrollbarState);
+      return;
+    }
+
+    const trackPadding = 8;
+    const trackHeight = Math.max(0, sidebar.clientHeight - trackPadding * 2);
+    const thumbHeight = Math.max(
+      32,
+      Math.round((sidebar.clientHeight / sidebar.scrollHeight) * trackHeight),
+    );
+    const maxScrollTop = sidebar.scrollHeight - sidebar.clientHeight;
+    const maxThumbTop = Math.max(0, trackHeight - thumbHeight);
+    const thumbTop =
+      trackPadding +
+      (maxScrollTop > 0 ? (sidebar.scrollTop / maxScrollTop) * maxThumbTop : 0);
+
+    setScrollbarState({
+      canScroll: true,
+      visible,
+      thumbHeight,
+      thumbTop,
+    });
+  }, []);
+
+  useEffect(() => {
+    updateScrollbarState(false);
+
+    function handleResize() {
+      updateScrollbarState(false);
+    }
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      if (scrollHideTimer.current !== null) {
+        window.clearTimeout(scrollHideTimer.current);
+      }
+
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [open, pinnedProjects.length, updateScrollbarState]);
+
+  function handleScroll() {
+    updateScrollbarState(true);
+
+    if (scrollHideTimer.current !== null) {
+      window.clearTimeout(scrollHideTimer.current);
+    }
+
+    scrollHideTimer.current = window.setTimeout(() => {
+      updateScrollbarState(false);
+    }, 900);
+  }
+
   return (
     <aside
       className={`${
         mobile
-          ? `absolute left-0 top-0 h-full w-[300px] max-w-[86vw] shadow-xl transition-transform ${
+          ? `absolute left-0 top-0 flex h-full w-[300px] max-w-[86vw] shadow-xl transition-transform ${
               open ? "translate-x-0" : "-translate-x-full"
             }`
           : "hidden h-screen w-[300px] shrink-0 lg:sticky lg:top-0 lg:flex"
-      } flex-col overflow-y-auto overscroll-contain border-r p-4 ${
-        darkMode
-          ? "border-neutral-800 bg-black text-white"
-          : "border-slate-200 bg-white text-slate-950"
-      }`}
+      } relative flex-col border-r border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-header-bg)] text-[var(--aa-primary-text)]`}
     >
-      <div className="flex items-center justify-between gap-3 pl-4">
-        <div className="flex min-w-0 items-center gap-2">
-          <Sparkles size={22} aria-hidden="true" />
-          <h2 className="truncate text-2xl font-semibold tracking-normal">
-            Arctic Aria
-          </h2>
-        </div>
-        {mobile ? (
-          <Button
-            darkMode={darkMode}
-            size="icon-sm"
-            aria-label="Close navigation"
-            icon={<X size={18} aria-hidden="true" />}
-            onClick={onClose}
-          />
-        ) : null}
-      </div>
-
-      <nav className="mt-6 grid overflow-hidden rounded-md">
-        <SidebarItem
-          icon={<LayoutDashboard size={18} aria-hidden="true" />}
-          label="Dashboard"
-          active={activeView === "dashboard"}
-          darkMode={darkMode}
-          onClick={() => onSelectView("dashboard")}
-        />
-        <SidebarItem
-          icon={<FolderKanban size={18} aria-hidden="true" />}
-          label="Projects"
-          active={activeView === "projects" && selectedProjectId === null}
-          darkMode={darkMode}
-          onClick={() => onSelectView("projects")}
-        />
-        {pinnedProjects.map((project) => (
-          <SidebarItem
-            key={project.id}
-            icon={null}
-            label={project.title}
-            active={activeView === "projects" && selectedProjectId === project.id}
-            darkMode={darkMode}
-            child
-            onClick={() => {
-              onProjectShortcut(project.id);
-              onClose();
-            }}
-          />
-        ))}
-        <SidebarItem
-          icon={<Bell size={18} aria-hidden="true" />}
-          label="Routines"
-          active={activeView === "routines"}
-          darkMode={darkMode}
-          onClick={() => onSelectView("routines")}
-        />
-        <SidebarItem
-          icon={<Album size={18} aria-hidden="true" />}
-          label="Memories"
-          active={activeView === "memories"}
-          darkMode={darkMode}
-          onClick={() => onSelectView("memories")}
-        />
-        <SidebarItem
-          icon={<Settings size={18} aria-hidden="true" />}
-          label="Settings"
-          active={activeView === "settings"}
-          darkMode={darkMode}
-          onClick={() => onSelectView("settings")}
-        />
-      </nav>
-
       <div
-        className={`mt-auto border-t pt-4 ${
-          darkMode ? "border-neutral-800" : "border-slate-200"
-        }`}
+        ref={sidebarRef}
+        className="sidebar-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain p-4"
+        onScroll={handleScroll}
       >
-        <div className="grid overflow-hidden rounded-md">
+        <div className="flex items-start justify-between gap-3 px-4">
+          <ArcticAriaLogo
+            brandText={messages.brandName}
+            variant="sidebar"
+            workspaceLabel={messages.workspace}
+          />
+          {mobile ? (
+            <Button
+              darkMode={darkMode}
+              tone="ghost"
+              size="icon-sm"
+              className="-mr-4 border-0 shadow-none"
+              aria-label={messages.closeNavigation}
+              icon={<X size={18} aria-hidden="true" />}
+              onClick={onClose}
+            />
+          ) : null}
+        </div>
+
+        <nav className="mt-4 grid">
+          <SidebarItem
+            icon={<LayoutDashboard size={18} aria-hidden="true" />}
+            label={messages.pages.dashboard}
+            active={activeView === "dashboard"}
+            darkMode={darkMode}
+            onClick={() => onSelectView("dashboard")}
+          />
+          <SidebarItem
+            icon={<FolderKanban size={18} aria-hidden="true" />}
+            label={messages.pages.projects}
+            active={activeView === "projects" && selectedProjectId === null}
+            darkMode={darkMode}
+            onClick={() => onSelectView("projects")}
+          />
+          {pinnedProjects.map((project) => (
+            <SidebarItem
+              key={project.id}
+              icon={null}
+              label={project.title}
+              active={
+                activeView === "projects" && selectedProjectId === project.id
+              }
+              darkMode={darkMode}
+              child
+              onClick={() => {
+                onProjectShortcut(project.id);
+                onClose();
+              }}
+            />
+          ))}
+          <SidebarItem
+            icon={<Bell size={18} aria-hidden="true" />}
+            label={messages.pages.routines}
+            active={activeView === "routines"}
+            darkMode={darkMode}
+            onClick={() => onSelectView("routines")}
+          />
+          <SidebarItem
+            icon={<Album size={18} aria-hidden="true" />}
+            label={messages.pages.memories}
+            active={activeView === "memories"}
+            darkMode={darkMode}
+            onClick={() => onSelectView("memories")}
+          />
+          <SidebarItem
+            icon={<Lightbulb size={18} aria-hidden="true" />}
+            label={messages.pages.ideas}
+            active={activeView === "ideas"}
+            darkMode={darkMode}
+            onClick={() => onSelectView("ideas")}
+          />
+          <SidebarItem
+            icon={<Settings size={18} aria-hidden="true" />}
+            label={messages.pages.settings}
+            active={activeView === "settings"}
+            darkMode={darkMode}
+            onClick={() => onSelectView("settings")}
+          />
+          <div className="my-2 border-t border-[var(--aa-secondary-button-border)]" aria-hidden="true" />
           <SidebarItem
             icon={
               darkMode ? (
@@ -225,19 +323,38 @@ function SidebarFrame({
                 <Sun size={18} aria-hidden="true" />
               )
             }
-            label={darkMode ? "Dark mode" : "Light mode"}
+            label={
+              darkMode ? messages.sidebar.darkMode : messages.sidebar.lightMode
+            }
             darkMode={darkMode}
             onClick={() => onThemeChange(!darkMode)}
           />
           <SidebarItem
             icon={<LogOut size={18} aria-hidden="true" />}
-            label={logoutPending ? "Signing out..." : "Sign out"}
+            label={
+              logoutPending
+                ? messages.sidebar.signingOut
+                : messages.sidebar.signOut
+            }
             darkMode={darkMode}
             disabled={logoutPending}
             onClick={onLogout}
           />
-        </div>
+        </nav>
       </div>
+
+      {scrollbarState.canScroll ? (
+        <span
+          className={`pointer-events-none absolute right-1 top-0 block w-0.5 rounded-full transition-opacity duration-200 ${
+            scrollbarState.visible ? "opacity-100" : "opacity-0"
+          } bg-[var(--aa-secondary-button-hover-bg)]`}
+          style={{
+            height: scrollbarState.thumbHeight,
+            transform: `translateY(${scrollbarState.thumbTop}px)`,
+          }}
+          aria-hidden="true"
+        />
+      ) : null}
     </aside>
   );
 }
@@ -259,17 +376,27 @@ function SidebarItem({
   child?: boolean;
   onClick: () => void;
 }) {
+  const itemIcon = child ? (
+    <span className="h-[18px] w-[18px] shrink-0 opacity-0" aria-hidden="true" />
+  ) : (
+    icon
+  );
+
   return (
     <Button
       darkMode={darkMode}
-      tone={active ? "primary" : "ghost"}
+      tone="ghost"
+      active={active}
       size="md"
-      className="w-full justify-start overflow-hidden !rounded-none"
+      className="w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md"
       disabled={disabled}
-      icon={icon}
+      icon={itemIcon}
       onClick={onClick}
     >
-      <span className={`min-w-0 truncate ${child ? "pl-7" : ""}`}>
+      <span
+        className={`min-w-0 flex-1 truncate text-left ${child ? "pl-4" : ""}`}
+        title={label}
+      >
         {label}
       </span>
     </Button>

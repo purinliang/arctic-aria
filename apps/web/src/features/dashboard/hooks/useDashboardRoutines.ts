@@ -10,6 +10,11 @@ import {
   type RoutineDashboardData,
   type RoutineInput,
 } from "@/features/routines/actions";
+import { localizedActionMessage } from "@/messages/action-result";
+import type {
+  DashboardMessages,
+  RoutineMessages,
+} from "@/messages/app-messages";
 import { applyOptimisticRoutineStatus } from "../optimistic-updates";
 import type {
   Routine,
@@ -23,6 +28,8 @@ type RoutineDataAction = () => Promise<
 
 export function useDashboardRoutines(
   showErrorNotification: (message: string, title?: string) => void,
+  messages?: DashboardMessages["notifications"],
+  resultMessages?: RoutineMessages["results"],
 ) {
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [routineDefinitions, setRoutineDefinitions] = useState<
@@ -40,7 +47,10 @@ export function useDashboardRoutines(
     const result = await getRoutineDashboardData();
 
     if (!result.ok) {
-      showErrorNotification(result.message, "Routines unavailable");
+      showErrorNotification(
+        localizedActionMessage(result, resultMessages),
+        messages?.routinesUnavailable ?? "Routines unavailable",
+      );
       setRoutines([]);
       setRoutineDefinitions([]);
       setRoutineLoading(false);
@@ -49,7 +59,7 @@ export function useDashboardRoutines(
 
     applyRoutineData(result.data);
     setRoutineLoading(false);
-  }, [applyRoutineData, showErrorNotification]);
+  }, [applyRoutineData, messages, resultMessages, showErrorNotification]);
 
   async function runRoutineAction(
     action: RoutineDataAction,
@@ -62,7 +72,7 @@ export function useDashboardRoutines(
 
       if (!result.ok) {
         onFailure?.();
-        showErrorNotification(result.message);
+        showErrorNotification(localizedActionMessage(result, resultMessages));
         return;
       }
 
@@ -82,7 +92,10 @@ export function useDashboardRoutines(
       const result = await action();
 
       if (!result.ok) {
-        showErrorNotification(result.message, failureTitle);
+        showErrorNotification(
+          localizedActionMessage(result, resultMessages),
+          failureTitle,
+        );
         return false;
       }
 
@@ -118,11 +131,14 @@ export function useDashboardRoutines(
     refreshRoutineData,
     updateRoutine,
     saveRoutineFromPage: (input: RoutineInput) =>
-      runRoutineManagementAction(() => saveRoutine(input), "Routine save failed"),
+      runRoutineManagementAction(
+        () => saveRoutine(input),
+        messages?.routineSaveFailed ?? "Routine save failed",
+      ),
     deleteRoutineFromPage: (routineId: string) =>
       runRoutineManagementAction(
         () => deleteRoutine(routineId),
-        "Routine delete failed",
+        messages?.routineDeleteFailed ?? "Routine delete failed",
       ),
   };
 }

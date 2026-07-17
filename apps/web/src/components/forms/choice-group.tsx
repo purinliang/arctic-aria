@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { Check } from "lucide-react";
 import { cx } from "../utils";
+
+type ChoiceGroupSize = "button" | "field";
 
 export type ChoiceOption = {
   value: string;
@@ -15,29 +16,37 @@ export function SingleChoiceGroup({
   value,
   onChange,
   disabled = false,
+  size = "button",
   className,
+  children,
 }: {
   darkMode: boolean;
   options: ChoiceOption[];
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
+  size?: ChoiceGroupSize;
   className?: string;
+  children?: ReactNode;
 }) {
   return (
-    <div className={cx("flex flex-wrap gap-2", className)} role="radiogroup">
-      {options.map((option) => (
-        <ChoiceButton
-          key={option.value}
-          darkMode={darkMode}
-          option={option}
-          selected={option.value === value}
-          disabled={disabled}
-          role="radio"
-          aria-checked={option.value === value}
-          onClick={() => onChange(option.value)}
-        />
-      ))}
+    <div className={cx("flex flex-wrap gap-2", className)}>
+      <div className="contents" role="radiogroup">
+        {options.map((option) => (
+          <ChoiceButton
+            key={option.value}
+            darkMode={darkMode}
+            option={option}
+            selected={option.value === value}
+            disabled={disabled}
+            size={size}
+            role="radio"
+            aria-checked={option.value === value}
+            onClick={() => onChange(option.value)}
+          />
+        ))}
+      </div>
+      {children}
     </div>
   );
 }
@@ -48,6 +57,7 @@ export function MultipleChoiceGroup({
   values,
   onChange,
   disabled = false,
+  size = "button",
   className,
 }: {
   darkMode: boolean;
@@ -55,6 +65,7 @@ export function MultipleChoiceGroup({
   values: string[];
   onChange: (values: string[]) => void;
   disabled?: boolean;
+  size?: ChoiceGroupSize;
   className?: string;
 }) {
   const selectedValues = new Set(values);
@@ -71,6 +82,7 @@ export function MultipleChoiceGroup({
             option={option}
             selected={selected}
             disabled={disabled}
+            size={size}
             aria-pressed={selected}
             onClick={() => {
               onChange(
@@ -86,34 +98,62 @@ export function MultipleChoiceGroup({
   );
 }
 
+export function ChoiceActionButton({
+  darkMode,
+  option,
+  disabled = false,
+  size = "button",
+  className,
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
+  darkMode: boolean;
+  option: ChoiceOption;
+  disabled?: boolean;
+  size?: ChoiceGroupSize;
+}) {
+  return (
+    <ChoiceButton
+      darkMode={darkMode}
+      option={option}
+      selected={false}
+      disabled={disabled}
+      size={size}
+      className={className}
+      {...props}
+    />
+  );
+}
+
 function ChoiceButton({
   darkMode,
   option,
   selected,
+  size,
   className,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   darkMode: boolean;
   option: ChoiceOption;
   selected: boolean;
+  size: ChoiceGroupSize;
 }) {
+  void darkMode;
+
+  const compact = size === "button" && !option.description;
+
   return (
     <button
       className={cx(
-        "inline-flex min-h-11 items-center gap-2 rounded-md border px-3 py-2 text-left text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
+        "inline-flex items-center gap-2 rounded-md border text-left font-semibold transition disabled:cursor-not-allowed",
+        compact ? "h-9 px-3 text-xs" : "min-h-11 px-3 py-2 text-sm",
         selected
-          ? darkMode
-            ? "border-white bg-white text-black"
-            : "border-slate-950 bg-slate-950 text-white"
-          : darkMode
-            ? "border-neutral-700 text-neutral-200 hover:border-neutral-400"
-            : "border-slate-300 text-slate-700 hover:border-slate-500",
+          ? "border-[var(--aa-primary-button-hover-bg)] bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)] disabled:border-[var(--aa-primary-button-disabled-bg)] disabled:bg-[var(--aa-primary-button-disabled-bg)] disabled:text-[var(--aa-primary-button-disabled-text)] disabled:hover:bg-[var(--aa-primary-button-disabled-bg)] disabled:hover:text-[var(--aa-primary-button-disabled-text)]"
+          : "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:border-[var(--aa-secondary-button-disabled-border)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:border-[var(--aa-secondary-button-disabled-border)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
         className,
       )}
       type="button"
       {...props}
     >
-      {selected ? <Check className="h-3.5 w-3.5 shrink-0" /> : null}
       {option.icon}
       <span className="grid gap-0.5">
         <span>{option.label}</span>
@@ -122,12 +162,8 @@ function ChoiceButton({
             className={cx(
               "text-xs font-normal",
               selected
-                ? darkMode
-                  ? "text-neutral-800"
-                  : "text-slate-200"
-                : darkMode
-                  ? "text-neutral-400"
-                  : "text-slate-500",
+                ? "text-[var(--aa-primary-button-text)] opacity-80"
+                : "text-[var(--aa-secondary-button-text)]",
             )}
           >
             {option.description}

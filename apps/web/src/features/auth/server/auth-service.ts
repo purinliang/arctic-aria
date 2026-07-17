@@ -25,12 +25,14 @@ export type AuthUser = {
 export type AuthActionResult =
   | {
       ok: true;
+      code: string;
       message: string;
       displayName: string;
       user: AuthUser;
     }
   | {
       ok: false;
+      code: string;
       message: string;
       fieldErrors?: AuthFieldErrors;
     };
@@ -38,11 +40,16 @@ export type AuthActionResult =
 type AuthServiceOptions = {
   users?: UserRepository;
   passwordHasher?: PasswordHasher;
-  log?: (event: string, details: Record<string, unknown>) => void;
+  log?: (event: string, details?: Record<string, unknown>) => void;
 };
 
-function defaultAuthLog(event: string, details: Record<string, unknown>) {
-  console.log("[auth]", event, details);
+function defaultAuthLog(event: string, details?: Record<string, unknown>) {
+  if (details && Object.keys(details).length > 0) {
+    console.log("[auth]", event, details);
+    return;
+  }
+
+  console.log("[auth]", event);
 }
 
 function toAuthUser(user: Pick<UserRecord, "id" | "username" | "displayName">) {
@@ -56,6 +63,7 @@ function toAuthUser(user: Pick<UserRecord, "id" | "username" | "displayName">) {
 function usernameTakenResult(): AuthActionResult {
   return {
     ok: false,
+    code: "auth_username_taken",
     message: "Username is already taken.",
     fieldErrors: { username: "Username is already taken." },
   };
@@ -73,12 +81,12 @@ export function createAuthService(options: AuthServiceOptions = {}) {
 
       if (hasAuthErrors(fieldErrors)) {
         log("register_validation_failed", {
-          username: normalizedInput.username,
           fields: Object.keys(fieldErrors),
         });
 
         return {
           ok: false,
+          code: "auth_validation_failed",
           message: "Please fix the highlighted fields.",
           fieldErrors,
         };
@@ -87,7 +95,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
       const existingUser = await users.findByUsername(normalizedInput.username);
 
       if (existingUser) {
-        log("register_username_taken", { username: normalizedInput.username });
+        log("register_username_taken");
 
         return usernameTakenResult();
       }
@@ -104,9 +112,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
         });
       } catch (error) {
         if (error instanceof DuplicateUsernameError) {
-          log("register_username_taken_after_create", {
-            username: normalizedInput.username,
-          });
+          log("register_username_taken_after_create");
 
           return usernameTakenResult();
         }
@@ -114,11 +120,12 @@ export function createAuthService(options: AuthServiceOptions = {}) {
         throw error;
       }
 
-      log("register_success", { username: normalizedInput.username });
+      log("register_success");
 
       return {
         ok: true,
-        message: "Account created. Opening dashboard...",
+        code: "auth_account_created",
+        message: "Account created successfully.",
         displayName: normalizedInput.displayName,
         user: toAuthUser(user),
       };
@@ -130,12 +137,12 @@ export function createAuthService(options: AuthServiceOptions = {}) {
 
       if (hasAuthErrors(fieldErrors)) {
         log("login_validation_failed", {
-          username: normalizedInput.username,
           fields: Object.keys(fieldErrors),
         });
 
         return {
           ok: false,
+          code: "auth_validation_failed",
           message: "Please fix the highlighted fields.",
           fieldErrors,
         };
@@ -147,19 +154,21 @@ export function createAuthService(options: AuthServiceOptions = {}) {
         : false;
 
       if (!user || !passwordValid) {
-        log("login_failed", { username: normalizedInput.username });
+        log("login_failed");
 
         return {
           ok: false,
+          code: "auth_invalid_credentials",
           message: "Invalid username or password.",
         };
       }
 
-      log("login_success", { username: normalizedInput.username });
+      log("login_success");
 
       return {
         ok: true,
-        message: "Signed in. Opening dashboard...",
+        code: "auth_signed_in",
+        message: "Signed in successfully.",
         displayName: user.displayName,
         user: toAuthUser(user),
       };

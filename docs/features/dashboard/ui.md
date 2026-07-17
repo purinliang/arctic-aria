@@ -42,7 +42,7 @@ Dashboard behavior. Shared shell behavior is documented in:
 Dashboard body layout:
 
 - parent layout: shared split layout
-- left panel: `Today's tasks to move projects forward`
+- left panel: `Tasks`
 - right panel: stacked `Routines` and `Pinned Memories`
 - desktop: left panel should be wider than the right panel through the shared
   split classes
@@ -60,7 +60,7 @@ rules belong to the Projects feature, not to a separate Dashboard task model.
 Header:
 
 - icon: `Check`
-- title: `Today's tasks to move projects forward`
+- title: `Tasks`
 - no header count metadata
 
 Task row layout:
@@ -124,23 +124,20 @@ Pinned memory row layout:
 - parent surface: shared list item
 - left: done checkbox
 - middle: title, description, and supporting metadata
-- right: icon-only `Replace` button
+- right: optional outlineless right-arrow button to open the Memories page
 - description is always visible
 - supporting metadata uses category and status text
 
 Pinned memory rows should not expand or collapse. Do not show a Dashboard
-`View` button.
+`View` button. Do not show a single-row refresh or replace button.
 
 Checking a pinned memory marks it completed. Completed pinned memories should
 not use a green background or strikethrough text. If the user cancels before
 cleanup, restore the active state. If the backend rejects either command, roll
 back the visible state and show the shared notification.
 
-`Replace` affects only the clicked pinned memory row.
-
 Clicking the row's outlineless right-arrow button opens the Memories page. The
-whole row is not clickable. Clicking the checkbox or `Replace` button must not
-navigate.
+whole row is not clickable. Clicking the checkbox must not navigate.
 
 ## Review And Rewards
 

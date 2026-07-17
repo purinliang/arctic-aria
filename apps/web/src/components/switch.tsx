@@ -11,17 +11,15 @@ export function Switch({
   label: string;
   onChange: (checked: boolean) => void;
 }) {
+  void darkMode;
+
   return (
     <button
       className={cx(
         "h-7 w-12 rounded-full border p-1 transition",
         checked
-          ? darkMode
-            ? "border-white bg-white"
-            : "border-slate-950 bg-slate-950"
-          : darkMode
-            ? "border-neutral-700 bg-neutral-900"
-            : "border-slate-300 bg-slate-200",
+          ? "border-[var(--aa-primary-button-bg)] bg-[var(--aa-primary-button-bg)]"
+          : "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)]",
       )}
       type="button"
       role="switch"
@@ -33,10 +31,8 @@ export function Switch({
         className={cx(
           "block h-4 w-4 rounded-full transition",
           checked
-            ? darkMode
-              ? "translate-x-5 bg-black"
-              : "translate-x-5 bg-white"
-            : "translate-x-0 bg-white",
+            ? "translate-x-5 bg-[var(--aa-primary-button-text)]"
+            : "translate-x-0 bg-[var(--aa-secondary-text)]",
         )}
       />
     </button>

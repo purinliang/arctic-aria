@@ -1,4 +1,13 @@
 export type MemoryCategoryName = string;
+export type BuiltInMemoryCategoryKey =
+  | "cuisine"
+  | "sightseeing"
+  | "movie"
+  | "anime"
+  | "book"
+  | "music"
+  | "game"
+  | "shopping";
 
 export type MemoryEventType =
   | "pinned"
@@ -14,7 +23,9 @@ export type MemoryCategoryRecord = {
   userId: string;
   name: MemoryCategoryName;
   description: string;
-  baseWeight: number;
+  builtInKey: BuiltInMemoryCategoryKey | null;
+  iconName: string;
+  shownOnDashboard: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -24,6 +35,8 @@ export type MemoryRecord = {
   userId: string;
   categoryId: string;
   categoryName: MemoryCategoryName;
+  categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
+  categoryShownOnDashboard: boolean;
   title: string;
   description: string;
   lastDoneAt: Date | null;
@@ -40,6 +53,8 @@ export type PinnedMemoryRecord = {
   memoryId: string;
   categoryId: string;
   categoryName: MemoryCategoryName;
+  categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
+  categoryShownOnDashboard: boolean;
   title: string;
   description: string;
   position: number;
@@ -78,7 +93,6 @@ export type CreateMemoryCategoryInput = {
   userId: string;
   name: string;
   description: string;
-  baseWeight: number;
   occurredAt: Date;
 };
 
@@ -159,10 +173,66 @@ export type MemoryRepository = {
 const defaultCategoryInputs: Array<{
   name: MemoryCategoryName;
   description: string;
-  baseWeight: number;
+  builtInKey: BuiltInMemoryCategoryKey;
+  iconName: string;
+  shownOnDashboard: boolean;
 }> = [
-  { name: "Cuisine", description: "", baseWeight: 1.2 },
-  { name: "Sightseeing", description: "", baseWeight: 0.8 },
+  {
+    name: "Cuisine",
+    description: "Restaurants, cafes, meals, and food experiences worth revisiting.",
+    builtInKey: "cuisine",
+    iconName: "utensils",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Sightseeing",
+    description: "Places, walks, views, and visits worth seeing again.",
+    builtInKey: "sightseeing",
+    iconName: "trees",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Movie",
+    description: "Films to watch, rewatch, or remember.",
+    builtInKey: "movie",
+    iconName: "film",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Anime",
+    description: "Anime series or films to continue or revisit.",
+    builtInKey: "anime",
+    iconName: "wand-sparkles",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Book",
+    description: "Books and reading experiences worth returning to.",
+    builtInKey: "book",
+    iconName: "book-open-text",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Music",
+    description: "Songs, albums, concerts, and listening moments to revisit.",
+    builtInKey: "music",
+    iconName: "music",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Game",
+    description: "Games and playful experiences worth returning to.",
+    builtInKey: "game",
+    iconName: "gamepad-2",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Shopping",
+    description: "Shops, items, and buying experiences worth remembering.",
+    builtInKey: "shopping",
+    iconName: "shopping-cart",
+    shownOnDashboard: true,
+  },
 ];
 
 export function getDefaultMemoryCategories() {

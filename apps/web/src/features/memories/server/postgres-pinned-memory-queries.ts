@@ -44,6 +44,8 @@ export async function pinMemory(sql: Sql, input: PinMemoryInput) {
      )
      SELECT inserted_pin.id, inserted_pin.user_id, inserted_pin.memory_id,
        memories.category_id, memory_categories.name AS category_name,
+       memory_categories.built_in_key AS category_built_in_key,
+       memory_categories.shown_on_dashboard AS category_shown_on_dashboard,
        memories.title, memories.description, inserted_pin.position,
        inserted_pin.pinned_at, inserted_pin.last_shown_at,
        inserted_pin.visible_until, inserted_pin.completed_at,

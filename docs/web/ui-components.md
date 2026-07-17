@@ -18,7 +18,9 @@ apps/web/src/components/forms/
 
 ## Color
 
-`color.ts` owns reusable color and border class helpers.
+`color.ts` owns reusable color and border class helpers. Color tokens,
+component color mappings, and known inconsistencies are documented in
+[color.md](color.md).
 
 Use it for:
 
@@ -84,6 +86,10 @@ Buttons support:
 
 Feature pages should not define local button class helpers.
 
+Use button size `field` for inline form-row actions that must align with a
+standard input, select, date picker, or time picker height. Do not hand-code
+height classes locally for those actions.
+
 Create buttons in card or panel headers should use secondary styling and the
 label `New` when the header title already names the object being created, such
 as `Projects`, `Routines`, `Memories`, or `Milestones`. Do not use primary
@@ -129,14 +135,28 @@ control components instead of being treated as generic input fields.
 ## Date And Time Pickers
 
 `forms/date-picker-field.tsx` owns date selection. It must render an app-styled
-calendar popup with English month names and weekday labels. Do not use native
-browser `type=date` controls for primary UI, because the popup can follow the
-user's browser or operating-system locale and cannot be styled consistently.
+calendar popup with month and year navigation. The day grid must reserve six
+weeks so months with five and six visual rows do not change the picker height.
+Month names and weekday labels must come from the active localization messages.
+Do not use native browser `type=date` controls for primary UI, because the
+popup can follow the user's browser or operating-system locale and cannot be
+styled consistently.
 
 `forms/time-picker-field.tsx` owns time selection. It must render a compact
-app-styled picker with hour, minute, and AM/PM controls, then return normalized
-`HH:mm` values. Do not use native browser `type=time` controls for primary UI
-and do not use a long scroll list for routine time selection.
+app-styled picker with one typed time field and AM/PM controls when the active
+time-format preference is 12-hour, then return normalized `HH:mm` values. The
+typed field should accept compact values such as `910` for `9:10` and 24-hour
+values such as `19:30` for `7:30 PM`. While the popover is open, edits stay in a
+local draft until the user clicks `Confirm`. Do not show an extra visible
+`Time` title inside the popover; the surrounding form field owns the label.
+Before confirmation, show a preview with the normalized time and a capitalized
+day period, such as `12:30 AM Midnight`, `09:30 PM Night`, or `21:30 Night`.
+When no value exists, the picker defaults to the current time plus 15 minutes,
+rounded up to the next 15-minute boundary. Do not use native browser
+`type=time` controls for primary UI and do not use a long scroll list or
+quick-minute button strip for routine time selection.
+The action buttons should be vertical and full width: `Confirm` first, then
+`X Clear Time` when a clear action is available.
 
 Date and time pickers are still controlled form components. Feature code owns
 the current value, validation rules, and validation timing. Picker popovers
@@ -144,6 +164,10 @@ should render as absolute overlays inside the field wrapper with stable widths
 so opening them does not change the parent card, dialog, list item, or field
 layout. Do not render picker popovers through a viewport portal unless there is
 a specific clipping bug that cannot be solved in the dialog/layout component.
+
+Visible time strings outside the picker must use the same shared time formatter
+and the user's time-format preference. Do not render raw stored `HH:mm` strings
+directly in feature rows.
 
 ## Number, Text Area, And Selection Fields
 
@@ -159,11 +183,20 @@ absolute popover surface as date and time pickers. Do not rely on native
 `select` popup styling for primary UI, because the opened menu can inherit
 browser or operating-system colors, corners, and spacing.
 
+Single-select dropdowns may render their opened menu through a viewport portal
+when the field sits inside a clipped list or panel. The portal should preserve
+the same rounded popover surface, font size, option spacing, and dark-mode
+colors while avoiding parent `overflow-hidden` clipping.
+
 `forms/choice-group.tsx` owns visible button-group choices for single and
 multiple selection. Use it when the user should clearly see a compact set of
 choices. Do not use passive label chips as selectable buttons. Selected choices
-show the check icon on the left, before the label, matching normal icon-plus-text
-button direction.
+should be indicated by color and border only; do not add a check icon to
+selected choices.
+
+Choice groups may use normal button height when they behave like filters or
+compact option buttons. They should use input-field height only when they are
+visually replacing a form input in a form row.
 
 ## Switch
 
@@ -224,6 +257,10 @@ Card and panel headers should use `px-4 py-3`, a bottom border, and a subtle
 header background that differs from the content surface. The tighter vertical
 padding keeps dashboard and management cards compact.
 
+Header icons should use the same foreground color as the header title. Do not
+style header icons as muted/supporting text; muted color is reserved for
+descriptions, metadata, and helper copy.
+
 Use cards for repeated compact objects. Do not use cards as page sections or as
 containers around other cards.
 
@@ -263,7 +300,11 @@ decision or when the current workflow cannot safely continue.
 Dialog frames use the same `px-4 py-4` padding rhythm as notifications. Form
 dialogs should use the default dialog width so input fields, date pickers, and
 other long controls do not collapse into a narrow column. Small confirmation
-dialogs may use the `sm` size.
+dialogs may use the `sm` size. Dialog overlays must provide enough top and
+bottom viewport padding and must allow vertical scrolling when form content is
+taller than the viewport. Feature dialogs should use the shared `DialogOverlay`,
+`DialogBackdrop`, `DialogFrame`, and `DialogHeader` pieces instead of
+hand-rolling fixed overlay containers.
 
 Add/edit form dialogs should use `DialogActionRow` and `DialogPrimaryButton`
 for the save action. The primary save button should be full width with clear

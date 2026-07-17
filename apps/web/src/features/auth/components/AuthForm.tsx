@@ -4,6 +4,11 @@
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/button";
+import {
+  panelHoverContainerColorClass,
+  secondaryTextColorClass,
+  secondaryButtonBorderColorClass,
+} from "@/components/color";
 import type { AuthMode } from "./AuthGate";
 import {
   authFieldOrder,
@@ -14,8 +19,11 @@ import {
 } from "../validation";
 import { AuthTextField } from "./AuthTextField";
 import { GoogleIcon } from "./GoogleIcon";
+import type { AuthMessages } from "@/messages/app-messages";
 
 export type AuthFormProps = {
+  darkMode: boolean;
+  messages: AuthMessages;
   mode: AuthMode;
   registerInput: RegisterInput;
   loginInput: LoginInput;
@@ -42,7 +50,11 @@ const visibleFields: Record<AuthMode, AuthField[]> = {
   register: ["username", "displayName", "password", "repeatPassword"],
 };
 
+const showFutureAuthActions = false;
+
 export function AuthForm({
+  darkMode,
+  messages,
   mode,
   registerInput,
   loginInput,
@@ -76,38 +88,44 @@ export function AuthForm({
     setTouched((current) => ({ ...current, [field]: true }));
   }
 
-  const title = mode === "register" ? "Create an account" : "Welcome back";
+  const title =
+    mode === "register" ? messages.form.createAccount : messages.form.welcomeBack;
   const buttonText = pending
-    ? "Checking..."
+    ? messages.form.checking
     : mode === "register"
-      ? "Sign up"
-      : "Sign in";
+      ? messages.form.signUp
+      : messages.form.signIn;
   const switchPrompt =
-    mode === "register" ? "Already have an account?" : "New here?";
-  const switchLabel = mode === "register" ? "Sign in" : "Sign up";
+    mode === "register"
+      ? messages.form.alreadyHaveAccount
+      : messages.form.newHere;
+  const switchLabel =
+    mode === "register" ? messages.form.signIn : messages.form.signUp;
   const switchTarget = mode === "register" ? "login" : "register";
   const showSubmitErrors = submitAttempted;
 
   return (
     <>
-      <div className="mb-6 grid grid-cols-2 rounded-md border border-slate-300 bg-slate-100 p-1">
+      <div
+        className={`mb-6 grid grid-cols-2 rounded-md border p-1 ${panelHoverContainerColorClass}`}
+      >
         <Button
-          darkMode={false}
+          darkMode={darkMode}
           tone={mode === "login" ? "primary" : "ghost"}
           size="md"
           className="h-10"
           onClick={() => switchMode("login")}
         >
-          Sign in
+          {messages.form.signIn}
         </Button>
         <Button
-          darkMode={false}
+          darkMode={darkMode}
           tone={mode === "register" ? "primary" : "ghost"}
           size="md"
           className="h-10"
           onClick={() => switchMode("register")}
         >
-          Sign up
+          {messages.form.signUp}
         </Button>
       </div>
 
@@ -121,7 +139,8 @@ export function AuthForm({
         <h2 className="text-xl font-semibold tracking-normal">{title}</h2>
 
         <AuthTextField
-          label="Username"
+          darkMode={darkMode}
+          label={messages.fields.username}
           value={mode === "register" ? registerInput.username : loginInput.username}
           error={errors.username}
           touched={Boolean(touched.username || showSubmitErrors)}
@@ -136,7 +155,8 @@ export function AuthForm({
 
         {mode === "register" ? (
           <AuthTextField
-            label="Display name"
+            darkMode={darkMode}
+            label={messages.fields.displayName}
             optional
             value={registerInput.displayName}
             error={errors.displayName}
@@ -148,7 +168,8 @@ export function AuthForm({
         ) : null}
 
         <AuthTextField
-          label="Password"
+          darkMode={darkMode}
+          label={messages.fields.password}
           value={
             mode === "register" ? registerInput.password : loginInput.password
           }
@@ -158,12 +179,16 @@ export function AuthForm({
           autoComplete={mode === "register" ? "new-password" : "current-password"}
           trailingButton={
             <Button
-              darkMode={false}
+              darkMode={darkMode}
               tone="ghost"
               size="icon-sm"
               className="h-8 w-8"
               onClick={() => setShowPassword((current) => !current)}
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={
+                showPassword
+                  ? messages.form.hidePassword
+                  : messages.form.showPassword
+              }
               icon={
                 showPassword ? (
                   <EyeOff size={18} aria-hidden="true" />
@@ -183,7 +208,8 @@ export function AuthForm({
 
         {mode === "register" ? (
           <AuthTextField
-            label="Repeat password"
+            darkMode={darkMode}
+            label={messages.fields.repeatPassword}
             value={registerInput.repeatPassword}
             error={errors.repeatPassword}
             touched={Boolean(touched.repeatPassword || showSubmitErrors)}
@@ -191,12 +217,16 @@ export function AuthForm({
             autoComplete="new-password"
             trailingButton={
               <Button
-                darkMode={false}
+                darkMode={darkMode}
                 tone="ghost"
                 size="icon-sm"
                 className="h-8 w-8"
                 onClick={() => setShowPassword((current) => !current)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={
+                  showPassword
+                    ? messages.form.hidePassword
+                    : messages.form.showPassword
+                }
                 icon={
                   showPassword ? (
                     <EyeOff size={18} aria-hidden="true" />
@@ -216,7 +246,7 @@ export function AuthForm({
           title={disabled && firstError ? errors[firstError] : undefined}
         >
           <Button
-            darkMode={false}
+            darkMode={darkMode}
             tone="primary"
             size="md"
             className="w-full"
@@ -228,42 +258,44 @@ export function AuthForm({
           </Button>
         </span>
 
-        {mode === "login" ? (
+        {showFutureAuthActions && mode === "login" ? (
           <>
-            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm text-slate-400">
-              <span className="h-px bg-slate-200" />
-              <span>or</span>
-              <span className="h-px bg-slate-200" />
+            <div
+              className={`grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm ${secondaryTextColorClass}`}
+            >
+              <span className={`h-px border-t ${secondaryButtonBorderColorClass}`} />
+              <span>{messages.form.or}</span>
+              <span className={`h-px border-t ${secondaryButtonBorderColorClass}`} />
             </div>
 
             <Button
-              darkMode={false}
+              darkMode={darkMode}
               size="md"
               icon={<GoogleIcon />}
               onClick={onGoogleLogin}
             >
-              Continue with Google
+              {messages.form.continueWithGoogle}
             </Button>
 
-            <p className="text-center text-sm text-slate-600">
-              Forgot your password?{" "}
+            <p className={`text-center text-sm ${secondaryTextColorClass}`}>
+              {messages.form.forgotPassword}{" "}
               <Button
-                darkMode={false}
+                darkMode={darkMode}
                 tone="ghost"
                 size="xs"
                 className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"
                 onClick={onPasswordReset}
               >
-                Reset password
+                {messages.form.resetPassword}
               </Button>
             </p>
           </>
         ) : null}
 
-        <p className="text-center text-sm text-slate-600">
+        <p className={`text-center text-sm ${secondaryTextColorClass}`}>
           {switchPrompt}{" "}
           <Button
-            darkMode={false}
+            darkMode={darkMode}
             tone="ghost"
             size="xs"
             className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"

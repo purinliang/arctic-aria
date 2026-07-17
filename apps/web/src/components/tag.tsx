@@ -5,7 +5,7 @@ import { cx } from "./utils";
 
 export function Tag({
   darkMode,
-  tone = "blue",
+  tone = "neutral",
   children,
 }: {
   darkMode: boolean;

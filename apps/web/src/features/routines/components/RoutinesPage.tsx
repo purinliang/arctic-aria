@@ -7,6 +7,8 @@ import { ConfirmDialog } from "@/components/dialog";
 import { Panel } from "@/components/panel";
 import type { RoutineDefinition } from "@/features/dashboard/types";
 import type { RoutineInput } from "@/features/routines/actions";
+import type { TimeFormatPreference } from "@/features/settings/preferences";
+import type { FormMessages, RoutineMessages } from "@/messages/app-messages";
 import { RoutineEditorDialog } from "./RoutineEditorDialog";
 import { RoutinesList } from "./RoutinesList";
 import { emptyDraft, toDraft } from "./routine-page-helpers";
@@ -22,6 +24,9 @@ export function RoutinesPage({
   routines,
   loading,
   pending,
+  messages,
+  formMessages,
+  timeFormatPreference,
   onRoutineSave,
   onRoutineDelete,
 }: {
@@ -29,6 +34,9 @@ export function RoutinesPage({
   routines: RoutineDefinition[];
   loading: boolean;
   pending: boolean;
+  messages: RoutineMessages;
+  formMessages: FormMessages;
+  timeFormatPreference: TimeFormatPreference;
   onRoutineSave: (input: RoutineInput) => RoutineResult;
   onRoutineDelete: (routineId: string) => RoutineResult;
 }) {
@@ -83,6 +91,7 @@ export function RoutinesPage({
         <RoutinesPageHeader
           darkMode={darkMode}
           pending={pending}
+          messages={messages.page}
           onAdd={openNewEditor}
         />
         <RoutinesList
@@ -90,6 +99,10 @@ export function RoutinesPage({
           routines={routines}
           loading={loading}
           pending={pending}
+          messages={messages.page}
+          ruleMessages={messages}
+          timeMessages={formMessages.timePicker}
+          timeFormatPreference={timeFormatPreference}
           onEdit={openEditor}
         />
       </Panel>
@@ -100,13 +113,16 @@ export function RoutinesPage({
           pending={pending}
           draft={draft}
           setDraft={setDraft}
+          messages={messages}
+          formMessages={formMessages}
+          timeFormatPreference={timeFormatPreference}
           onClose={closeEditor}
           onSubmit={() => void submitRoutine()}
           onDelete={() =>
             draft.id
               ? setConfirmationTarget({
                   id: draft.id,
-                  title: draft.title || "this routine",
+                  title: draft.title || messages.confirm.fallback,
                 })
               : undefined
           }
@@ -117,8 +133,11 @@ export function RoutinesPage({
         <ConfirmDialog
           darkMode={darkMode}
           pending={pending}
-          title="Delete routine"
-          description={`Delete "${confirmationTarget.title}"? It will be removed from normal views.`}
+          title={messages.confirm.title}
+          description={messages.confirm.description(confirmationTarget.title)}
+          cancelText={messages.confirm.cancel}
+          confirmText={messages.confirm.confirm}
+          closeLabel={messages.confirm.close}
           confirmIcon={<Trash2 size={14} aria-hidden="true" />}
           onCancel={() => {
             if (!pending) {
@@ -135,18 +154,20 @@ export function RoutinesPage({
 function RoutinesPageHeader({
   darkMode,
   pending,
+  messages,
   onAdd,
 }: {
   darkMode: boolean;
   pending: boolean;
+  messages: RoutineMessages["page"];
   onAdd: () => void;
 }) {
   return (
     <CardHeader
       darkMode={darkMode}
       icon={<Bell size={18} aria-hidden="true" />}
-      title="Routines"
-      description="Repeatable checks for the current personal day."
+      title={messages.title}
+      description={messages.description}
       action={
         <Button
           darkMode={darkMode}
@@ -154,7 +175,7 @@ function RoutinesPageHeader({
           icon={<Plus size={15} aria-hidden="true" />}
           onClick={onAdd}
         >
-          New
+          {messages.new}
         </Button>
       }
     />

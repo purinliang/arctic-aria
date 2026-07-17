@@ -1,28 +1,32 @@
 // Routines Page - Routine Editor Dialog.
-import { LoaderCircle, Save, Trash2, X } from "lucide-react";
+import { LoaderCircle, Save, Trash2 } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
-import {
-  MultipleChoiceGroup,
-  SingleChoiceGroup,
-} from "@/components/forms/choice-group";
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import {
   DialogActionRow,
+  DialogBackdrop,
+  DialogFrame,
+  DialogHeader,
+  DialogOverlay,
   DialogPrimaryButton,
-  dialogFrameClass,
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
-import { NumberInput } from "@/components/forms/number-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { TimePickerField } from "@/components/forms/time-picker-field";
 import type { RoutineInput } from "@/features/routines/actions";
-import { ruleOptions, weekdayOptions } from "./routine-page-helpers";
+import { normalizeRoutineRecurrenceDraft } from "@/features/routines/routine-recurrence";
+import type { TimeFormatPreference } from "@/features/settings/preferences";
+import type { FormMessages, RoutineMessages } from "@/messages/app-messages";
+import { RoutineRecurrenceFields } from "./RoutineRecurrenceFields";
 
 export function RoutineEditorDialog({
   darkMode,
   pending,
   draft,
+  messages,
+  formMessages,
+  timeFormatPreference,
   setDraft,
   onClose,
   onSubmit,
@@ -31,88 +35,86 @@ export function RoutineEditorDialog({
   darkMode: boolean;
   pending: boolean;
   draft: RoutineInput;
+  messages: RoutineMessages;
+  formMessages: FormMessages;
+  timeFormatPreference: TimeFormatPreference;
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
   onClose: () => void;
   onSubmit: () => void;
   onDelete: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/65 px-4 py-6">
-      <button
-        className="absolute inset-0 cursor-default"
-        type="button"
-        aria-label="Close routine editor"
-        onClick={onClose}
-      />
+    <DialogOverlay>
+      <DialogBackdrop label={messages.editor.close} onClick={onClose} />
       <form
-        className={dialogFrameClass(darkMode)}
         onSubmit={(event) => {
           event.preventDefault();
           onSubmit();
         }}
       >
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-base font-semibold">
-            {draft.id ? "Edit routine" : "Add routine"}
-          </h3>
-          <Button
+        <DialogFrame darkMode={darkMode}>
+          <DialogHeader
             darkMode={darkMode}
-            tone="ghost"
-            size="icon-sm"
-            aria-label="Close routine editor"
-            icon={<X size={16} aria-hidden="true" />}
-            onClick={onClose}
+            title={draft.id ? messages.editor.edit : messages.editor.add}
+            closeLabel={messages.editor.close}
+            onClose={onClose}
           />
-        </div>
-        <div className="grid gap-3">
-          <RoutineTextFields
-            darkMode={darkMode}
-            pending={pending}
-            draft={draft}
-            setDraft={setDraft}
-          />
-          <RecurrenceFields
-            darkMode={darkMode}
-            pending={pending}
-            draft={draft}
-            setDraft={setDraft}
-          />
-          <RoutineScheduleFields
-            darkMode={darkMode}
-            pending={pending}
-            draft={draft}
-            setDraft={setDraft}
-          />
-        </div>
-        <DialogActionRow>
-          <DialogPrimaryButton
-            darkMode={darkMode}
-            type="submit"
-            loading={pending}
-            icon={<Save size={14} aria-hidden="true" />}
-            loadingIcon={
-              <LoaderCircle
-                className="animate-spin"
-                size={14}
-                aria-hidden="true"
-              />
-            }
-          >
-            Save
-          </DialogPrimaryButton>
-          {draft.id ? (
-            <Button
+          <div className="grid gap-3">
+            <RoutineTextFields
               darkMode={darkMode}
-              disabled={pending}
-              icon={<Trash2 size={14} aria-hidden="true" />}
-              onClick={onDelete}
+              pending={pending}
+              draft={draft}
+              messages={messages.editor}
+              setDraft={setDraft}
+            />
+            <RecurrenceFields
+              darkMode={darkMode}
+              pending={pending}
+              draft={draft}
+              messages={messages}
+              formMessages={formMessages}
+              setDraft={setDraft}
+            />
+            <RoutineScheduleFields
+              darkMode={darkMode}
+              pending={pending}
+              draft={draft}
+              messages={messages.editor}
+              formMessages={formMessages}
+              timeFormatPreference={timeFormatPreference}
+              setDraft={setDraft}
+            />
+          </div>
+          <DialogActionRow>
+            <DialogPrimaryButton
+              darkMode={darkMode}
+              type="submit"
+              loading={pending}
+              icon={<Save size={14} aria-hidden="true" />}
+              loadingIcon={
+                <LoaderCircle
+                  className="animate-spin"
+                  size={14}
+                  aria-hidden="true"
+                />
+              }
             >
-              Delete
-            </Button>
-          ) : null}
-        </DialogActionRow>
+              {messages.editor.save}
+            </DialogPrimaryButton>
+            {draft.id ? (
+              <Button
+                darkMode={darkMode}
+                disabled={pending}
+                icon={<Trash2 size={14} aria-hidden="true" />}
+                onClick={onDelete}
+              >
+                {messages.editor.delete}
+              </Button>
+            ) : null}
+          </DialogActionRow>
+        </DialogFrame>
       </form>
-    </div>
+    </DialogOverlay>
   );
 }
 
@@ -120,28 +122,30 @@ function RoutineTextFields({
   darkMode,
   pending,
   draft,
+  messages,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: RoutineInput;
+  messages: RoutineMessages["editor"];
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
 }) {
   return (
     <>
-      <FieldLabel darkMode={darkMode} label="Title">
+      <FieldLabel darkMode={darkMode} label={messages.title}>
         <TextInput
           darkMode={darkMode}
           value={draft.title}
           maxLength={120}
-          placeholder="Routine title"
+          placeholder={messages.titlePlaceholder}
           disabled={pending}
           onChange={(event) =>
             setDraft((current) => ({ ...current, title: event.target.value }))
           }
         />
       </FieldLabel>
-      <FieldLabel darkMode={darkMode} label="Description">
+      <FieldLabel darkMode={darkMode} label={messages.description}>
         <TextArea
           darkMode={darkMode}
           className="min-h-24"
@@ -164,111 +168,26 @@ function RecurrenceFields({
   darkMode,
   pending,
   draft,
+  messages,
+  formMessages,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: RoutineInput;
+  messages: RoutineMessages;
+  formMessages: FormMessages;
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
 }) {
   return (
-    <>
-      <div className="grid gap-2">
-        <span className="text-xs font-semibold">Recurrence</span>
-        <SingleChoiceGroup
-          darkMode={darkMode}
-          disabled={pending}
-          value={draft.ruleType}
-          options={ruleOptions.map((option) => ({
-            value: option.type,
-            label: option.label,
-          }))}
-          onChange={(ruleType) =>
-            setDraft((current) => ({
-              ...current,
-              ruleType: ruleType as RoutineInput["ruleType"],
-            }))
-          }
-        />
-      </div>
-      {draft.ruleType === "weekly" ? (
-        <div className="grid gap-2">
-          <span className="text-xs font-semibold">Weekdays</span>
-          <MultipleChoiceGroup
-            darkMode={darkMode}
-            disabled={pending}
-            values={(draft.weekdays ?? []).map(String)}
-            options={weekdayOptions.map((weekday) => ({
-              value: String(weekday.value),
-              label: weekday.label,
-            }))}
-            onChange={(values) =>
-              setDraft((current) => ({
-                ...current,
-                weekdays: values.map(Number).sort((left, right) => left - right),
-              }))
-            }
-          />
-        </div>
-      ) : null}
-      {draft.ruleType === "monthly_by_date" ||
-      draft.ruleType === "day_interval" ? (
-        <IntervalFields
-          darkMode={darkMode}
-          pending={pending}
-          draft={draft}
-          setDraft={setDraft}
-        />
-      ) : null}
-    </>
-  );
-}
-
-function IntervalFields({
-  darkMode,
-  pending,
-  draft,
-  setDraft,
-}: {
-  darkMode: boolean;
-  pending: boolean;
-  draft: RoutineInput;
-  setDraft: Dispatch<SetStateAction<RoutineInput>>;
-}) {
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <FieldLabel darkMode={darkMode} label="Interval">
-        <NumberInput
-          darkMode={darkMode}
-          min={1}
-          value={draft.intervalValue ?? 1}
-          disabled={pending}
-          onChange={(event) =>
-            setDraft((current) => ({
-              ...current,
-              intervalValue: Number(event.target.value),
-            }))
-          }
-        />
-      </FieldLabel>
-      {draft.ruleType === "monthly_by_date" ? (
-        <FieldLabel darkMode={darkMode} label="Day of month">
-          <NumberInput
-            darkMode={darkMode}
-            min={1}
-            max={31}
-            value={draft.dayOfMonth ?? 1}
-            disabled={pending}
-            onChange={(event) =>
-              setDraft((current) => ({
-                ...current,
-                dayOfMonth: Number(event.target.value),
-              }))
-            }
-          />
-        </FieldLabel>
-      ) : null}
-    </div>
+    <RoutineRecurrenceFields
+      darkMode={darkMode}
+      pending={pending}
+      draft={draft}
+      messages={messages}
+      formMessages={formMessages}
+      setDraft={setDraft}
+    />
   );
 }
 
@@ -276,33 +195,43 @@ function RoutineScheduleFields({
   darkMode,
   pending,
   draft,
+  messages,
+  formMessages,
+  timeFormatPreference,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: RoutineInput;
+  messages: RoutineMessages["editor"];
+  formMessages: FormMessages;
+  timeFormatPreference: TimeFormatPreference;
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
 }) {
   return (
     <div className="grid gap-3 sm:grid-cols-3">
-      <FieldLabel darkMode={darkMode} label="First start date">
+      <FieldLabel darkMode={darkMode} label={messages.firstStartDate}>
         <DatePickerField
           darkMode={darkMode}
-          placeholder="Select first date"
+          placeholder={messages.selectFirstDate}
+          messages={formMessages.datePicker}
           value={draft.firstStartDate}
           disabled={pending}
           onChange={(firstStartDate) =>
-            setDraft((current) => ({
-              ...current,
-              firstStartDate,
-            }))
+            setDraft((current) =>
+              normalizeRoutineRecurrenceDraft({
+                ...current,
+                firstStartDate,
+              }),
+            )
           }
         />
       </FieldLabel>
-      <FieldLabel darkMode={darkMode} label="End date" optional>
+      <FieldLabel darkMode={darkMode} label={messages.endDate}>
         <DatePickerField
           darkMode={darkMode}
-          placeholder="Select end date"
+          placeholder={messages.selectEndDate}
+          messages={formMessages.datePicker}
           value={draft.endDate ?? ""}
           disabled={pending}
           onChange={(endDate) =>
@@ -310,10 +239,12 @@ function RoutineScheduleFields({
           }
         />
       </FieldLabel>
-      <FieldLabel darkMode={darkMode} label="Preferred time" optional>
+      <FieldLabel darkMode={darkMode} label={messages.preferredTime}>
         <TimePickerField
           darkMode={darkMode}
-          placeholder="Select time"
+          placeholder={messages.selectTime}
+          messages={formMessages.timePicker}
+          timeFormatPreference={timeFormatPreference}
           value={draft.preferredTime ?? ""}
           disabled={pending}
           onChange={(preferredTime) =>

@@ -82,12 +82,39 @@ Fields:
 - title
 - description
 - recurrence rule
+- recurrence preview
 - preferred time
 - first start date
-- optional end date
+- end date
 
-The recurrence rule control should use simple option buttons or segmented
-controls first. Avoid a dense cron expression UI.
+The repeat rule control should use the shared dropdown/select component, not a
+button group. Each option should have a short title and a description so labels
+such as monthly or custom day intervals are easy to understand. Avoid a dense
+cron expression UI.
+
+The routine editor should keep recurrence choices ordered by likely usefulness:
+
+- `Daily`: every day from the first start date.
+- `Weekly`: every 7 days from the first start date. Do not show a weekday
+  multi-select.
+- `Monthly`: every month on the day implied by the first start date. This is
+  typical for bills and renewal checks.
+- `Every 14 days`: every 14 days from the first start date.
+- `Every 30 days`: every 30 days from the first start date.
+- `Fixed day interval`: repeat after an explicit number of days. Default this
+  field to 90 days because 30 days already has a preset. This is typical for
+  software memberships or subscription-like checks.
+
+The first start date and end date should be enough for most schedules. Keep the
+visible field labels short; do not append technical qualifiers such as
+`optional` or `inclusive` to routine field labels.
+
+After the recurrence control, show a short preview of the next generated dates
+when the first start date is valid. The preview should show the first three
+occurrences that fit before the inclusive end date, with weekday names, for
+example: `Jul 16, 2026 Thu`, `Jul 23, 2026 Thu`, `Jul 30, 2026 Thu`, `and so
+on...`. If the end date stops the schedule before three dates, show only the
+dates that exist.
 
 Save behavior:
 

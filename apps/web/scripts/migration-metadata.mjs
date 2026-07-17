@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 export function readMigrationFiles(appRoot = process.cwd()) {
-  const migrationsDir = path.join(appRoot, "database", "migrations");
+  const migrationsDir = resolveMigrationsDir(appRoot);
 
   if (!existsSync(migrationsDir)) {
     return [];
@@ -22,6 +22,10 @@ export function readMigrationFiles(appRoot = process.cwd()) {
         filePath,
       };
     });
+}
+
+export function resolveMigrationsDir(appRoot = process.cwd()) {
+  return path.resolve(appRoot, "..", "infrastructure", "database", "migrations");
 }
 
 export function resolveExpectedDatabaseMetadata(appRoot = process.cwd()) {

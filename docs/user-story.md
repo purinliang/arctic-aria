@@ -41,6 +41,9 @@ task, project, routine, idea record, or plugin request.
 The capture flow should be low-friction because many useful ideas happen away
 from the desk, such as on a train.
 
+The first Discord capture direction is a private `/idea` command that stores raw
+text as an untriaged idea.
+
 ## Memories
 
 The user should be able to save repeatable personal experiences, such as
@@ -61,12 +64,11 @@ Repeating routines should produce reminders and completion checks. If a routine
 is skipped often, the system should suggest changing the schedule, reducing the
 scope, or pausing the routine.
 
-For the initial personal workflow, the Discord bot should send daily reminder
-checks at `20:30`, `22:00`, `23:30`, `01:00`, and `02:30`. The user's day ends
-at `04:00`. Each reminder should let the user answer with actions such as
-completed, skipped, or "busy now". The busy action should silence that reminder
-for two hours. If the user does not reply, the bot should send another reminder
-after 15 minutes.
+A later Discord reminder workflow should send daily reminder checks at `20:30`,
+`22:00`, `23:30`, `01:00`, and `02:30`. The user's day ends at `04:00`. Each
+reminder should let the user answer with actions such as completed, skipped, or
+"busy now". The busy action should silence that reminder for two hours. If the
+user does not reply, the bot should send another reminder after 15 minutes.
 
 To avoid noisy Discord channels, reminder messages should be concise. Where
 possible, the bot should update an existing message instead of sending many new

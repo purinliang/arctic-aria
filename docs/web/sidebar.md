@@ -39,7 +39,11 @@ The main navigation area should contain:
   - up to three pinned project shortcuts, shown as indented children when set
 - Routines
 - Memories
+- Ideas
 - Settings
+- separator line
+- theme mode item
+- sign out item
 
 Implemented items should navigate or open the intended dialog. Placeholder
 items should show a non-blocking notification instead of silently doing
@@ -52,26 +56,23 @@ project shortcuts are optional and should not replace the main Projects item.
 Review is hidden from the sidebar until the review feature has a stable
 navigation design.
 
-## Bottom Account Area
+## Sidebar Actions
 
-The bottom area should be separated from the page navigation by a line, not by a
-large card that makes the sign out action look like part of the dark-mode
-setting.
-
-Order from top to bottom:
-
-- separator line
-- theme mode item
-- sign out item
-
-The theme mode and sign out actions should look like other sidebar menu items:
-same left alignment, icon position, row height, and button surface. Do not use a
-separate switch control in the sidebar. Do not show the current user display
-name in the sidebar or page title bar. Theme behavior is documented in
-[theme.md](theme.md).
+Theme mode and sign out belong in the same sidebar list as the page navigation.
+Place them directly below a separator line after Settings. They should look
+like other sidebar menu items: same left alignment, icon position, row height,
+and button surface. Do not place them in a separate bottom list or visual
+container. Do not use a separate switch control in the sidebar. Do not show the
+current user display name in the sidebar or page title bar. Theme behavior is
+documented in [theme.md](theme.md).
 
 ## Brand
 
-The sidebar brand should match the login page naming: `Arctic Aria`, same
-letter case, led by a Sparkles icon. It should not be shown as uppercase helper
-text.
+The sidebar shows a compact brand block at the top-left: first row Sparkles
+icon plus localized brand text, second row larger workspace label. In English
+the brand text is `Arctic Aria`; in Simplified Chinese it is `北极阿莉雅`. The
+brand block should stay aligned with the navigation menu item content and
+should not be shown as uppercase helper text. The workspace label should be
+visually larger than the brand text. Short labels such as `工作区` may render
+larger than English `Workspace` so the sidebar hierarchy stays balanced. Keep
+the gap between the brand row and workspace row compact.

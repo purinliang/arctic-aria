@@ -2,7 +2,8 @@
 import { ChevronRight, ListChecks } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
-import { mutedTextClass } from "@/components/color";
+import { secondaryTextColorClass } from "@/components/color";
+import { formatDateKey } from "@/components/forms/date-format";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { List, ListItem } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
@@ -10,17 +11,23 @@ import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import { dashboardTaskStatusForChecked } from "@/features/dashboard/optimistic-updates";
 import type { Task, TaskStatus } from "@/features/dashboard/types";
+import type { DashboardMessages } from "@/messages/app-messages";
+import type { DatePickerMessages } from "@/messages/form-messages";
 
 export function ProjectTasksPanel({
   darkMode,
   tasks,
   loading,
+  messages,
+  dateMessages,
   onTaskStatus,
   onTaskOpen,
 }: {
   darkMode: boolean;
   tasks: Task[];
   loading: boolean;
+  messages: DashboardMessages["projectTasks"];
+  dateMessages: DatePickerMessages;
   onTaskStatus: (
     taskId: string,
     status: Exclude<TaskStatus, "archived">,
@@ -31,21 +38,23 @@ export function ProjectTasksPanel({
     <Panel darkMode={darkMode} className="min-w-0">
       <CardHeader
         icon={<ListChecks size={18} aria-hidden="true" />}
-        title="Today's tasks to move projects forward"
+        title={messages.title}
         darkMode={darkMode}
       />
       <List darkMode={darkMode}>
         {loading ? (
-          <LoadingLine darkMode={darkMode} text="Loading tasks..." />
+          <LoadingLine darkMode={darkMode} text={messages.loading} />
         ) : null}
         {!loading && tasks.length === 0 ? (
-          <EmptyLine darkMode={darkMode} text="No tasks selected for today." />
+          <EmptyLine darkMode={darkMode} text={messages.empty} />
         ) : null}
         {tasks.map((task) => (
           <ProjectTaskRow
             key={task.id}
             task={task}
             darkMode={darkMode}
+            messages={messages}
+            dateMessages={dateMessages}
             onTaskStatus={(status) => onTaskStatus(task.id, status)}
             onOpen={() => onTaskOpen(task.projectId)}
           />
@@ -59,18 +68,22 @@ export function ProjectTasksPanel({
 function ProjectTaskRow({
   task,
   darkMode,
+  messages,
+  dateMessages,
   onTaskStatus,
   onOpen,
 }: {
   task: Task;
   darkMode: boolean;
+  messages: DashboardMessages["projectTasks"];
+  dateMessages: DatePickerMessages;
   onTaskStatus: (status: Exclude<TaskStatus, "archived">) => void;
   onOpen: () => void;
 }) {
   const metadata = [
     task.projectLabel,
     task.milestoneLabel,
-    deadlineText(task.deadline),
+    deadlineText(task, messages, dateMessages),
   ]
     .filter(Boolean)
     .join(" · ");
@@ -82,7 +95,7 @@ function ProjectTaskRow({
           darkMode={darkMode}
           className="mt-1"
           checked={task.status === "done"}
-          aria-label={`Mark ${task.title} done`}
+          aria-label={messages.markDone(task.title)}
           onChange={(event) =>
             onTaskStatus(dashboardTaskStatusForChecked(event.target.checked))
           }
@@ -90,7 +103,7 @@ function ProjectTaskRow({
         <div className="min-w-0">
           <h3 className="min-w-0 text-base font-semibold">{task.title}</h3>
           <DescriptionText darkMode={darkMode} className="mt-1">
-            {task.description || "No description."}
+            {task.description || messages.noDescription}
           </DescriptionText>
           <SupportingText darkMode={darkMode} className="mt-2 block">
             {metadata}
@@ -101,7 +114,7 @@ function ProjectTaskRow({
         darkMode={darkMode}
         tone="ghost"
         size="icon-sm"
-        aria-label={`Open project for ${task.title}`}
+        aria-label={messages.openProject(task.title)}
         icon={<ChevronRight size={16} aria-hidden="true" />}
         onClick={onOpen}
       />
@@ -109,13 +122,23 @@ function ProjectTaskRow({
   );
 }
 
-function deadlineText(deadline: string) {
-  return deadline === "No deadline" ? deadline : `Deadline ${deadline}`;
+function deadlineText(
+  task: Task,
+  messages: DashboardMessages["projectTasks"],
+  dateMessages: DatePickerMessages,
+) {
+  return task.deadlineDate
+    ? messages.deadline(formatDate(task.deadlineDate, dateMessages))
+    : messages.noDeadline;
 }
 
-function EmptyLine({ darkMode, text }: { darkMode: boolean; text: string }) {
+function formatDate(value: string, messages: DatePickerMessages) {
+  return formatDateKey(value, messages);
+}
+
+function EmptyLine({ text }: { darkMode: boolean; text: string }) {
   return (
-    <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+    <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
       {text}
     </p>
   );

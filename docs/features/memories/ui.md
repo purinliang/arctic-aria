@@ -8,18 +8,13 @@ and [data-model.md](data-model.md).
 
 The home dashboard should show a compact `Pinned Memories` panel. Its icon
 should match the Memories item in the hamburger menu. Use the Lucide
-`ClipboardList` icon.
+`Album` icon.
 
 The dashboard's required first behavior is to show pinned memories only.
 
-The first dashboard should show pinned memories from supported dashboard
-categories only:
-
-- up to 3 Cuisine memories
-- up to 3 Sightseeing memories
-
-Do not show dashboard pinned memories from custom categories until a later UI
-feature designs that behavior.
+The dashboard can show pinned memories from any category. Do not hard-code the
+dashboard to Cuisine and Sightseeing, and do not apply a per-category count
+limit in the UI or backend selection logic.
 
 For each pinned memory, show:
 
@@ -27,22 +22,16 @@ For each pinned memory, show:
 - title
 - short description
 - category and status metadata
-- right-side icon-only `Replace` button with `RefreshCw`
+- optional right-side navigation affordance if the row opens the Memories page
 
 Pinned memory dashboard rows should not expand or collapse. Do not show a
-dashboard `View` button.
+dashboard `View` button. Do not show a single-row refresh or replace button on
+dashboard pinned memories.
 
 If the user checks the done checkbox, optimistically show the completed state.
 If the user unchecks it before cleanup, cancel the completion. If the backend
 later rejects the command, restore the previous visible state and show the
 backend message in the shared notification component.
-
-If the user clicks `Replace`, replace only that one item and keep other
-positions unchanged after the backend returns the replacement data.
-
-`Replace` is lightweight but may need backend replacement data. Show loading on
-the clicked row's replace button while it is pending. Do not block unrelated
-pinned memory rows when the command can be tracked per row.
 
 On dashboard load or reload:
 
@@ -57,7 +46,7 @@ On dashboard load or reload:
 
 The Memories page is the full management page for this feature. It can be opened
 from the hamburger menu. Its icon should match the `Pinned Memories` dashboard
-section; use the Lucide `ClipboardList` icon.
+section; use the Lucide `Album` icon.
 
 The page should allow the user to:
 
@@ -85,7 +74,7 @@ The title section is at the top of the Memories page.
 
 Layout:
 
-- Left side: Lucide `ClipboardList` icon, title, and description.
+- Left side: Lucide `Album` icon, title, and description.
 - Right side: `New` button with a plus icon, using secondary styling.
 - The title text is `Memories`.
 - The description text is `Saved experiences to revisit when the day needs a gentle option.`
@@ -100,13 +89,21 @@ list.
 Layout:
 
 - Show the text `Categories:` using shared `LabelText`.
-- Show filter buttons starting with `All`, followed by user categories such as
-  `Cuisine`.
+- Show filter buttons starting with `All`.
+- Always show `Cuisine`, `Sightseeing`, and user-created categories, even when
+  they have no memories yet.
+- Hide other empty built-in categories, such as `Movie`, `Anime`, `Book`,
+  `Music`, `Game`, and `Shopping`, until they have at least one memory.
+- Sort category filters as `Cuisine`, `Sightseeing`, user-created categories,
+  then other built-in categories. Sort user-created categories and other
+  built-ins alphabetically by English display name within their groups.
+- The `All` filter should show a neutral memory icon.
+- Category filter buttons should show the category icon when one is available.
 - If there are too many categories, the filter buttons should wrap onto multiple
   lines.
 - Show a Lucide `Settings2` button with text `Manage`.
-- The `Manage` button should use the same style as filter items and be listed
-  with the filter buttons.
+- The `Manage` button should use the shared choice-action style, matching
+  filter items while remaining an action instead of a selected filter.
 - The categories strip should use the same horizontal separator line as list
   rows, but it is not itself a list item.
 
@@ -116,6 +113,22 @@ Click behavior:
 - Clicking `All` removes the category filter.
 - Clicking `Manage` opens category management.
 - Category filtering is local UI state and should not call the backend.
+- Category filters should use the shared single-choice group style. Selected
+  state is shown by color and border only; do not add a check icon to selected
+  choices.
+- The memory editor category section should use the same grouped treatment:
+  category choices followed by a `Manage` choice-action item in the same row.
+
+Current built-in category icon mapping:
+
+- Cuisine uses `utensils`.
+- Sightseeing uses `trees`.
+- Movie uses `film`.
+- Anime uses `wand-sparkles`.
+- Book uses `book-open-text`.
+- Music uses `music`.
+- Game uses `gamepad-2`.
+- Shopping uses `shopping-cart`.
 
 ### Memory List Section
 
@@ -184,6 +197,8 @@ Click behavior:
 
 Refresh behavior:
 
+- Opening the Memories page may show cached suggestions without recording
+  ignored events or creating suggestion-history rows.
 - Clicking `Refresh` loads a new suggestion list. While processing, show a
   loading icon inside the button and disable it.
 - When `Refresh` is clicked, visible suggestions that were not pinned are
@@ -205,9 +220,6 @@ that hotfix.
   unpin memories from that page, which is a known bug deferred to `v0.6.0`.
 - Pin and unpin actions in that panel should use the same icon-only outline
   button style as memory suggestions and project pin actions.
-- The dashboard `Pinned Memories` panel should later remove the single-memory
-  `Replace` / `RefreshCw` action so pinned-memory rows match other dashboard
-  checkbox rows more closely.
 - The dashboard should remain a lightweight daily surface; detailed pin/unpin
   management belongs on the Memories page.
 
@@ -223,6 +235,10 @@ The user must be able to:
 - add a memory category
 - edit a memory category
 - delete a memory category when it is not used by memories
+
+Built-in categories should remain visible in Manage Categories with their icon,
+name, and description only. Do not show built-in/user-created supportive
+metadata in the list. Do not show an edit action for built-in categories.
 
 The add and edit controls should not appear as inline panels inside the memory
 list. Inline panels are hard to distinguish from page content and make it
@@ -317,15 +333,15 @@ Componentize the shared dialog patterns for reuse.
 
 Clicking the `Manage` button should show a Manage Categories dialog. Keep the
 current dialog direction, but document and implement the details below. Do not
-show weights in the edit list because they are internal.
+show scoring controls in the edit list. Category scoring is no longer exposed in
+the current UI.
 
 Manage Categories dialog layout:
 
 - top row: `Manage Categories` title on the left
 - top row right side: `New` button with `Plus`, then close icon button
 - category list rows use the shared `ListItem`
-- each category row shows title, `DescriptionText`, and one `SupportingText`
-  line for the suggestion period
+- each category row shows title and `DescriptionText`
 - each category row has an `Edit` button with `Edit3` and text `Edit`
 - category rows do not show a delete button
 
@@ -339,9 +355,8 @@ Use a clear label: `Category name`.
 Use the shared field-label and text-input components for the category name. Use
 the shared multiline text-area component for optional category description.
 
-Suggestion period should be selected with the shared single-choice component:
-`Weekly` and `Monthly`. Sightseeing defaults to monthly; Cuisine defaults to
-weekly. The selection should automatically translate into the internal weight.
+Do not show a suggestion period, weekly/monthly selector, or category weight
+control.
 
 Always keep the same design as the Add Memory dialog for consistency.
 

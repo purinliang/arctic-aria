@@ -19,6 +19,11 @@ individually.
 The sidebar should scroll internally when the viewport height is too small for
 all sidebar content.
 
+The sidebar scrollbar should be visually hidden by default. When the user
+scrolls the sidebar, reveal a subtle scrollbar thumb and hide it again after
+scrolling stops. Keep the track transparent and avoid a permanent native
+scrollbar unless the browser forces one.
+
 ## Mobile
 
 Use the hamburger button only on mobile and tablet-sized viewports. The opened
@@ -43,24 +48,34 @@ the response area stays the same as other sidebar items. The project title must
 truncate on one line when long, with no horizontal scrollbar. The active pinned
 project shortcut uses the active state when that project detail page is open.
 
-## Bottom Controls
+## Sidebar Actions
 
-The bottom controls are not a card. Use a top border separator and compact
-vertical spacing.
+Theme mode and sign out are not a separate bottom list. They appear in the same
+sidebar list after Settings, below a separator line:
 
-The bottom controls appear in this order:
-
+- separator line
 - Theme mode menu item
 - Sign out menu item
 
-Theme mode and sign out should use the same visual style as navigation menu
-items. They should share the same left alignment and should not use a separate
-switch control. Do not show the username in the sidebar.
+Theme mode and sign out should use the same visual style as navigation items.
+They should share the same left alignment, icon slot, row height, hover state,
+and active/disabled behavior. Do not use a separate switch control. Do not show
+the username in the sidebar.
 
 ## Brand
 
-The brand row uses a Sparkles icon followed by `Arctic Aria`. The label uses the
-same casing as the login page and should not be converted to all caps.
+The sidebar brand block appears at the top-left. It uses a stacked structure:
+first row Sparkles icon plus compact localized brand text, then a larger
+workspace label below. In English the brand text is `Arctic Aria`; in Simplified
+Chinese it is `北极阿莉雅`. Both text lines use the normal app font. Keep it
+left aligned with the navigation item content and do not use all-caps
+conversion. The workspace label should be visually larger than the brand text.
+Short labels such as `工作区` may render larger than English `Workspace` so the
+sidebar hierarchy stays balanced. Keep the vertical gap between the brand row
+and workspace row compact.
+
+The mobile close button is a ghost icon button so it reads as a borderless
+close affordance beside the brand row.
 
 ## Expandable Lists Near Sidebar Pages
 

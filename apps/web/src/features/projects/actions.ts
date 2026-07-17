@@ -1,39 +1,46 @@
 "use server";
 
 import { getCurrentUser } from "@/features/auth/actions";
-import { projectDatabaseErrorMessage } from "./project-database-errors";
 import {
-  loadProjectDashboardData,
+  projectDatabaseErrorCode,
+  projectDatabaseErrorMessage,
+} from "./project-database-errors";
+import {
   unauthorizedResult,
   validateMilestoneInput,
   validateProjectInput,
   validateProjectTaskInput,
 } from "./project-action-helpers";
 import { projectService } from "./server/project-service";
+import { loadProjectDashboardData } from "./project-view-models";
 import type { ProjectTaskStatus } from "./server/project-repository";
 import type {
   MilestoneInput,
   ProjectActionResult,
-  ProjectDashboardData,
+  ProjectInput,
+  ProjectTaskInput,
+} from "./project-action-helpers";
+import type { ProjectDashboardData } from "./project-view-models";
+
+export type {
+  MilestoneInput,
+  ProjectActionResult,
   ProjectInput,
   ProjectTaskInput,
 } from "./project-action-helpers";
 
 export type {
-  MilestoneInput,
-  ProjectActionResult,
   ProjectDashboardData,
-  ProjectInput,
-  ProjectTaskInput,
   ProjectTaskView,
   ProjectView,
-} from "./project-action-helpers";
+} from "./project-view-models";
 
 type ProjectCommandResult = ProjectActionResult<null>;
 
 async function withProjectData(
   action: (userId: string) => Promise<boolean>,
   notFoundMessage: string,
+  notFoundCode: string,
 ): Promise<ProjectActionResult<ProjectDashboardData>> {
   const user = await getCurrentUser();
 
@@ -45,7 +52,7 @@ async function withProjectData(
     const ok = await action(user.id);
 
     if (!ok) {
-      return { ok: false, message: notFoundMessage };
+      return { ok: false, message: notFoundMessage, code: notFoundCode };
     }
 
     return {
@@ -53,13 +60,18 @@ async function withProjectData(
       data: await loadProjectDashboardData(user.id),
     };
   } catch (error) {
-    return { ok: false, message: projectDatabaseErrorMessage(error) };
+    return {
+      ok: false,
+      message: projectDatabaseErrorMessage(error),
+      code: projectDatabaseErrorCode(error),
+    };
   }
 }
 
 async function withProjectCommand(
   action: (userId: string) => Promise<boolean>,
   notFoundMessage: string,
+  notFoundCode: string,
 ): Promise<ProjectCommandResult> {
   const user = await getCurrentUser();
 
@@ -71,7 +83,7 @@ async function withProjectCommand(
     const ok = await action(user.id);
 
     if (!ok) {
-      return { ok: false, message: notFoundMessage };
+      return { ok: false, message: notFoundMessage, code: notFoundCode };
     }
 
     return {
@@ -79,7 +91,11 @@ async function withProjectCommand(
       data: null,
     };
   } catch (error) {
-    return { ok: false, message: projectDatabaseErrorMessage(error) };
+    return {
+      ok: false,
+      message: projectDatabaseErrorMessage(error),
+      code: projectDatabaseErrorCode(error),
+    };
   }
 }
 
@@ -98,7 +114,11 @@ export async function getProjectDashboardData(): Promise<
       data: await loadProjectDashboardData(user.id),
     };
   } catch (error) {
-    return { ok: false, message: projectDatabaseErrorMessage(error) };
+    return {
+      ok: false,
+      message: projectDatabaseErrorMessage(error),
+      code: projectDatabaseErrorCode(error),
+    };
   }
 }
 
@@ -114,7 +134,7 @@ export async function saveProject(
   const validation = validateProjectInput(input);
 
   if (!validation.ok) {
-    return { ok: false, message: validation.message };
+    return { ok: false, message: validation.message, code: validation.code };
   }
 
   try {
@@ -130,7 +150,11 @@ export async function saveProject(
     });
 
     if (!projectId) {
-      return { ok: false, message: "Project was not found." };
+      return {
+        ok: false,
+        message: "Project was not found.",
+        code: "project_not_found",
+      };
     }
 
     return {
@@ -138,7 +162,11 @@ export async function saveProject(
       data: await loadProjectDashboardData(user.id),
     };
   } catch (error) {
-    return { ok: false, message: projectDatabaseErrorMessage(error) };
+    return {
+      ok: false,
+      message: projectDatabaseErrorMessage(error),
+      code: projectDatabaseErrorCode(error),
+    };
   }
 }
 
@@ -154,7 +182,7 @@ export async function saveMilestone(
   const validation = validateMilestoneInput(input);
 
   if (!validation.ok) {
-    return { ok: false, message: validation.message };
+    return { ok: false, message: validation.message, code: validation.code };
   }
 
   try {
@@ -169,7 +197,11 @@ export async function saveMilestone(
     });
 
     if (!milestoneId) {
-      return { ok: false, message: "Project or milestone was not found." };
+      return {
+        ok: false,
+        message: "Project or milestone was not found.",
+        code: "project_or_milestone_not_found",
+      };
     }
 
     return {
@@ -177,7 +209,11 @@ export async function saveMilestone(
       data: await loadProjectDashboardData(user.id),
     };
   } catch (error) {
-    return { ok: false, message: projectDatabaseErrorMessage(error) };
+    return {
+      ok: false,
+      message: projectDatabaseErrorMessage(error),
+      code: projectDatabaseErrorCode(error),
+    };
   }
 }
 
@@ -193,7 +229,7 @@ export async function saveProjectTask(
   const validation = validateProjectTaskInput(input);
 
   if (!validation.ok) {
-    return { ok: false, message: validation.message };
+    return { ok: false, message: validation.message, code: validation.code };
   }
 
   try {
@@ -214,6 +250,7 @@ export async function saveProjectTask(
       return {
         ok: false,
         message: "Project, milestone, or task was not found.",
+        code: "project_milestone_or_task_not_found",
       };
     }
 
@@ -222,7 +259,11 @@ export async function saveProjectTask(
       data: await loadProjectDashboardData(user.id),
     };
   } catch (error) {
-    return { ok: false, message: projectDatabaseErrorMessage(error) };
+    return {
+      ok: false,
+      message: projectDatabaseErrorMessage(error),
+      code: projectDatabaseErrorCode(error),
+    };
   }
 }
 
@@ -232,6 +273,7 @@ export async function archiveProject(
   return withProjectData(
     (userId) => projectService.archiveProject(userId, projectId),
     "Project was not found.",
+    "project_not_found",
   );
 }
 
@@ -248,11 +290,19 @@ export async function pinProject(
     const result = await projectService.pinProject(user.id, projectId);
 
     if (result === "not_found") {
-      return { ok: false, message: "Project was not found." };
+      return {
+        ok: false,
+        message: "Project was not found.",
+        code: "project_not_found",
+      };
     }
 
     if (result === "limit_reached") {
-      return { ok: false, message: "You can pin up to 3 projects." };
+      return {
+        ok: false,
+        message: "You can pin up to 3 projects.",
+        code: "project_pin_limit",
+      };
     }
 
     return {
@@ -260,7 +310,11 @@ export async function pinProject(
       data: await loadProjectDashboardData(user.id),
     };
   } catch (error) {
-    return { ok: false, message: projectDatabaseErrorMessage(error) };
+    return {
+      ok: false,
+      message: projectDatabaseErrorMessage(error),
+      code: projectDatabaseErrorCode(error),
+    };
   }
 }
 
@@ -270,6 +324,7 @@ export async function unpinProject(
   return withProjectData(
     (userId) => projectService.unpinProject(userId, projectId),
     "Project was not found.",
+    "project_not_found",
   );
 }
 
@@ -279,6 +334,7 @@ export async function archiveMilestone(
   return withProjectData(
     (userId) => projectService.archiveMilestone(userId, milestoneId),
     "Milestone was not found.",
+    "milestone_not_found",
   );
 }
 
@@ -288,6 +344,7 @@ export async function archiveProjectTask(
   return withProjectData(
     (userId) => projectService.archiveTask(userId, taskId),
     "Task was not found.",
+    "task_not_found",
   );
 }
 
@@ -322,5 +379,6 @@ export async function updateProjectTaskStatus(
   return withProjectCommand(
     (userId) => projectService.updateTaskStatus(userId, taskId, status),
     "Task was not found.",
+    "task_not_found",
   );
 }

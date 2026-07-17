@@ -1,9 +1,8 @@
 import type { ReactNode } from "react";
-import { headerSurfaceClass, mutedTextClass, surfaceClass } from "./color";
+import { panelHeaderColorClass, secondaryTextColorClass, panelColorClass } from "./color";
 import { cx } from "./utils";
 
 export function Card({
-  darkMode,
   className,
   children,
 }: {
@@ -13,7 +12,7 @@ export function Card({
 }) {
   return (
     <article
-      className={cx("rounded-md border", surfaceClass(darkMode), className)}
+      className={cx("rounded-md border", panelColorClass, className)}
     >
       {children}
     </article>
@@ -26,7 +25,6 @@ export function CardHeader({
   description,
   meta,
   action,
-  darkMode,
   className,
 }: {
   icon?: ReactNode;
@@ -41,19 +39,19 @@ export function CardHeader({
     <div
       className={cx(
         "grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 rounded-t-md border-b px-4 py-3",
-        headerSurfaceClass(darkMode),
+        panelHeaderColorClass,
         className,
       )}
     >
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           {icon ? (
-            <span className={mutedTextClass(darkMode)}>{icon}</span>
+            <span className="inline-flex text-current">{icon}</span>
           ) : null}
           <h2 className="text-base font-semibold">{title}</h2>
         </div>
         {description ? (
-          <p className={cx("mt-1 text-sm", mutedTextClass(darkMode))}>
+          <p className={cx("mt-1 text-sm", secondaryTextColorClass)}>
             {description}
           </p>
         ) : null}
@@ -61,7 +59,7 @@ export function CardHeader({
       {action || meta ? (
         <div className="shrink-0 justify-self-end">
           {action ?? (
-            <span className={`text-sm ${mutedTextClass(darkMode)}`}>
+            <span className={`text-sm ${secondaryTextColorClass}`}>
               {meta}
             </span>
           )}

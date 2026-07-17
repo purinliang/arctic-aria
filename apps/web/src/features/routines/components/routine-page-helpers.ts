@@ -1,19 +1,6 @@
-import type {
-  RoutineDefinition,
-  RoutineRuleType,
-} from "@/features/dashboard/types";
+import type { RoutineDefinition } from "@/features/dashboard/types";
 import type { RoutineInput } from "@/features/routines/actions";
-
-export const ruleOptions: Array<{
-  type: RoutineRuleType;
-  label: string;
-}> = [
-  { type: "daily", label: "Daily" },
-  { type: "weekly", label: "Weekly" },
-  { type: "bi_weekly", label: "Bi-weekly" },
-  { type: "monthly_by_date", label: "Monthly date" },
-  { type: "day_interval", label: "Day interval" },
-];
+import type { RoutineMessages } from "@/messages/app-messages";
 
 export const weekdayOptions = [
   { value: 0, label: "Sun" },
@@ -32,7 +19,7 @@ export function emptyDraft(): RoutineInput {
     firstStartDate: new Date().toISOString().slice(0, 10),
     endDate: "",
     ruleType: "daily",
-    intervalValue: 1,
+    intervalValue: 90,
     weekdays: [new Date().getDay()],
     dayOfMonth: new Date().getDate(),
     preferredTime: "",
@@ -48,7 +35,7 @@ export function toDraft(routine: RoutineDefinition): RoutineInput {
     firstStartDate: routine.firstStartDate,
     endDate: routine.endDate ?? "",
     ruleType: routine.ruleType,
-    intervalValue: routine.intervalValue ?? 1,
+    intervalValue: routine.intervalValue ?? 90,
     weekdays: routine.weekdays ?? [],
     dayOfMonth: routine.dayOfMonth ?? 1,
     preferredTime: routine.preferredTime ?? "",
@@ -56,31 +43,48 @@ export function toDraft(routine: RoutineDefinition): RoutineInput {
   };
 }
 
-export function ruleSummary(routine: RoutineDefinition) {
+export function ruleSummary(
+  routine: RoutineDefinition,
+  messages?: RoutineMessages,
+) {
   if (routine.ruleType === "daily") {
-    return "Daily";
+    return messages?.rules.daily ?? "Daily";
   }
 
   if (routine.ruleType === "weekly") {
     const weekdays = routine.weekdays ?? [];
+    const weekdayLabels =
+      messages?.weekdays ?? weekdayOptions.map((weekday) => weekday.label);
 
-    return `Weekly: ${
+    const selectedDays =
       weekdayOptions
         .filter((weekday) => weekdays.includes(weekday.value))
-        .map((weekday) => weekday.label)
-        .join(", ") || "No day selected"
-    }`;
+        .map((weekday) => weekdayLabels[weekday.value])
+        .join(", ");
+
+    return messages
+      ? messages.summary.weekly(
+          selectedDays || messages.summary.noDaySelected,
+        )
+      : `Weekly: ${selectedDays || "No day selected"}`;
   }
 
   if (routine.ruleType === "bi_weekly") {
-    return "Every 14 days";
+    return messages?.summary.every14Days ?? "Every 14 days";
   }
 
   if (routine.ruleType === "monthly_by_date") {
-    return `Every ${routine.intervalValue ?? 1} month(s) on day ${
-      routine.dayOfMonth ?? 1
-    }`;
+    const interval = routine.intervalValue ?? 1;
+    const day = routine.dayOfMonth ?? 1;
+
+    return messages
+      ? messages.summary.monthly(interval, day)
+      : `Every ${interval} month(s) on day ${day}`;
   }
 
-  return `Every ${routine.intervalValue ?? 1} day(s)`;
+  const interval = routine.intervalValue ?? 1;
+
+  return messages
+    ? messages.summary.dayInterval(interval)
+    : `Every ${interval} day(s)`;
 }
