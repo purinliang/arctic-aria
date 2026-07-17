@@ -4,7 +4,7 @@
 import { Menu } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/button";
-import { sectionBorderClass } from "@/components/color";
+import { secondaryButtonBorderColorClass } from "@/components/color";
 import {
   NotificationStack,
   type NotificationItem,
@@ -189,7 +189,7 @@ export function AppShell({
 
         <div className="mx-auto flex min-h-[110vh] min-w-0 flex-1 flex-col gap-4 px-4 pb-12 pt-4 sm:px-6 sm:pb-16 lg:max-w-[1200px] lg:px-8 lg:pb-20">
           <header
-            className={`flex items-center gap-3 border-b pb-4 ${sectionBorderClass(darkMode)}`}
+            className={`flex items-center gap-3 border-b pb-4 ${secondaryButtonBorderColorClass}`}
           >
             <Button
               darkMode={darkMode}

@@ -84,8 +84,8 @@ export function TimePickerField({
       <button
         className={cx(
           formControlClass(darkMode, hasError),
-          "flex items-center justify-between gap-3 text-left",
-          !formattedValue && "text-[var(--aa-color-muted)]",
+          "flex items-center justify-between gap-3 text-left hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
+          !formattedValue && "text-[var(--aa-secondary-text)]",
           className,
         )}
         type="button"
@@ -129,8 +129,8 @@ export function TimePickerField({
                     className={cx(
                       "h-9 rounded-md border px-3 text-xs font-semibold transition",
                       selectedParts.period === period
-                        ? "border-[var(--aa-color-selected-border)] bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
-                        : "border-[var(--aa-color-border)] text-[var(--aa-color-muted)] hover:border-[var(--aa-color-border-strong)] hover:bg-[var(--aa-color-control-hover)] hover:text-[var(--aa-color-text)]",
+                        ? "border-[var(--aa-primary-button-hover-bg)] bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)]"
+                        : "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)]",
                     )}
                     type="button"
                     onClick={() => setDraftParts({ ...selectedParts, period })}
@@ -143,7 +143,7 @@ export function TimePickerField({
             <p
               className={cx(
                 "text-xs leading-5",
-                "text-[var(--aa-color-muted)]",
+                "text-[var(--aa-secondary-text)]",
               )}
             >
               {formatTimeDisplay(
@@ -204,6 +204,8 @@ function TimeTextInput({
   timeFormatPreference: TimeFormatPreference;
   onChange: (parts: TimeParts) => void;
 }) {
+  void darkMode;
+
   const [draft, setDraft] = useState<string | null>(null);
   const value = draft ?? formatTimeInputValue(parts, timeFormatPreference);
 
@@ -213,7 +215,7 @@ function TimeTextInput({
       <input
         className={cx(
           "h-12 w-full min-w-0 rounded-md border px-2 text-center text-xl font-semibold tabular-nums outline-none transition",
-          "border-[var(--aa-color-border)] bg-[var(--aa-color-control)] text-[var(--aa-color-text)] focus:border-[var(--aa-color-border-strong)]",
+          "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-primary-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] focus:border-[var(--aa-secondary-button-hover-border)] focus:bg-[var(--aa-secondary-button-hover-bg)]",
         )}
         type="text"
         inputMode="text"

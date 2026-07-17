@@ -4,9 +4,9 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import {
-  controlGroupSurfaceClass,
-  mutedTextClass,
-  sectionBorderClass,
+  panelHoverContainerColorClass,
+  secondaryTextColorClass,
+  secondaryButtonBorderColorClass,
 } from "@/components/color";
 import type { SettingsMessages } from "@/messages/app-messages";
 
@@ -48,10 +48,10 @@ export function DiscordBindingCodeStatus({
 
   return (
     <div
-      className={`mt-3 rounded-md border px-3 py-3 ${controlGroupSurfaceClass(darkMode)}`}
+      className={`mt-3 rounded-md border px-3 py-3 ${panelHoverContainerColorClass}`}
     >
       <p className="text-sm font-semibold tracking-[0.08em]">{code}</p>
-      <p className={`mt-2 text-xs leading-5 ${mutedTextClass(darkMode)}`}>
+      <p className={`mt-2 text-xs leading-5 ${secondaryTextColorClass}`}>
         {messages.discord.bindInstruction}
       </p>
       {expired ? (
@@ -59,12 +59,12 @@ export function DiscordBindingCodeStatus({
           {messages.discord.expired}
         </p>
       ) : remainingText ? (
-        <p className={`text-xs leading-5 ${mutedTextClass(darkMode)}`}>
+        <p className={`text-xs leading-5 ${secondaryTextColorClass}`}>
           {remainingText}
         </p>
       ) : null}
       <div
-        className={`mt-3 flex flex-wrap gap-2 border-t pt-3 ${sectionBorderClass(darkMode)}`}
+        className={`mt-3 flex flex-wrap gap-2 border-t pt-3 ${secondaryButtonBorderColorClass}`}
       >
         <Button
           darkMode={darkMode}

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { mutedTextClass, statusMessageClass } from "./color";
+import { secondaryTextColorClass, statusMessageClass } from "./color";
+import type { Tone } from "./color";
 import { cx } from "./utils";
 
 export function PageTitle({
@@ -35,8 +36,10 @@ export function DescriptionText({
   children: ReactNode;
   className?: string;
 }) {
+  void darkMode;
+
   return (
-    <p className={cx("text-sm leading-6", mutedTextClass(darkMode), className)}>
+    <p className={cx("text-sm leading-6", secondaryTextColorClass, className)}>
       {children}
     </p>
   );
@@ -51,11 +54,13 @@ export function LabelText({
   children: ReactNode;
   className?: string;
 }) {
+  void darkMode;
+
   return (
     <span
       className={cx(
         "text-left text-sm font-semibold leading-6",
-        "text-[var(--aa-color-text)]",
+        "text-[var(--aa-primary-text)]",
         className,
       )}
     >
@@ -65,7 +70,6 @@ export function LabelText({
 }
 
 export function SupportingText({
-  darkMode,
   children,
   className,
 }: {
@@ -74,7 +78,7 @@ export function SupportingText({
   className?: string;
 }) {
   return (
-    <span className={cx("text-xs leading-5", mutedTextClass(darkMode), className)}>
+    <span className={cx("text-xs leading-5", secondaryTextColorClass, className)}>
       {children}
     </span>
   );
@@ -82,12 +86,12 @@ export function SupportingText({
 
 export function InlineMessage({
   darkMode,
-  tone = "amber",
+  tone = "neutral",
   children,
   className,
 }: {
   darkMode: boolean;
-  tone?: "amber" | "emerald" | "red";
+  tone?: Tone;
   children: ReactNode;
   className?: string;
 }) {

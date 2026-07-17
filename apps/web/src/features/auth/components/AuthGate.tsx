@@ -171,7 +171,7 @@ export function AuthGate() {
 
     return (
       <main
-        className="grid min-h-screen place-items-center bg-[var(--background)] px-4 text-[var(--foreground)] transition-colors"
+        className="grid min-h-screen place-items-center bg-[var(--aa-page-bg)] px-4 text-[var(--aa-primary-text)] transition-colors"
       >
         <div
           className="grid justify-items-center gap-4 text-center"
@@ -182,10 +182,10 @@ export function AuthGate() {
           <div className="flex items-center justify-center gap-2">
             <LoaderCircle
               size={18}
-              className="animate-spin text-[var(--muted-foreground)]"
+              className="animate-spin text-[var(--aa-secondary-text)]"
               aria-hidden="true"
             />
-            <span className="text-xs font-medium leading-5 text-[var(--muted-foreground)]">
+            <span className="text-xs font-medium leading-5 text-[var(--aa-secondary-text)]">
               {loadingMessages.loading.openingWorkspace}
             </span>
           </div>

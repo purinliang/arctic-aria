@@ -1,11 +1,10 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { dividerClass } from "./color";
+import { secondaryButtonDividerColorClass } from "./color";
 import { cx } from "./utils";
 
 type ListItemTone = "default" | "success";
 
 export function List({
-  darkMode,
   className,
   children,
 }: {
@@ -17,7 +16,7 @@ export function List({
     <div
       className={cx(
         "overflow-hidden rounded-b-md",
-        dividerClass(darkMode),
+        secondaryButtonDividerColorClass,
         className,
       )}
     >
@@ -133,8 +132,8 @@ function itemToneClass(
   }
 
   if (active) {
-    return "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]";
+    return "bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)]";
   }
 
-  return "hover:bg-[var(--aa-color-control-muted)] hover:text-[var(--aa-color-text)]";
+  return "hover:bg-[var(--aa-panel-hover-bg)] hover:text-[var(--aa-primary-text)]";
 }

@@ -151,8 +151,8 @@ export function SelectInput({
       <button
         className={cx(
           formControlClass(darkMode, hasError),
-          "flex items-center justify-between gap-3 text-left font-normal",
-          !selectedOption && "text-[var(--aa-color-muted)]",
+          "flex items-center justify-between gap-3 text-left font-normal hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
+          !selectedOption && "text-[var(--aa-secondary-text)]",
           className,
         )}
         type="button"
@@ -188,10 +188,10 @@ export function SelectInput({
                   <button
                     key={option.value}
                     className={cx(
-                      "flex w-full items-start justify-between gap-3 px-2 py-2 text-left text-sm transition first:rounded-t-sm last:rounded-b-sm disabled:cursor-not-allowed disabled:opacity-40",
+                      "flex w-full items-start justify-between gap-3 px-2 py-2 text-left text-sm transition first:rounded-t-sm last:rounded-b-sm disabled:cursor-not-allowed",
                       selected
-                        ? "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
-                        : "text-[var(--aa-color-text)] hover:bg-[var(--aa-color-control-hover)]",
+                        ? "bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)] disabled:bg-[var(--aa-primary-button-disabled-bg)] disabled:text-[var(--aa-primary-button-disabled-text)] disabled:hover:bg-[var(--aa-primary-button-disabled-bg)] disabled:hover:text-[var(--aa-primary-button-disabled-text)]"
+                        : "bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
                     )}
                     type="button"
                     role="option"
@@ -212,7 +212,7 @@ export function SelectInput({
                             "text-xs leading-5",
                             selected
                               ? "opacity-70"
-                              : "text-[var(--aa-color-muted)]",
+                              : "text-[var(--aa-secondary-button-text)]",
                           )}
                         >
                           {option.description}
@@ -244,33 +244,41 @@ export function CheckboxField({
   label: ReactNode;
   description?: ReactNode;
 }) {
+  void darkMode;
+
   return (
     <label
       className={cx(
-        "flex cursor-pointer items-start gap-3 rounded-md border px-3 py-2 text-sm transition",
-        "border-[var(--aa-color-border)] hover:border-[var(--aa-color-border-strong)]",
+        "flex items-start gap-3 rounded-md border px-3 py-2 text-sm transition",
+        props.disabled ? "cursor-not-allowed" : "cursor-pointer",
         props.checked
-          ? "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
-          : false,
+          ? props.disabled
+            ? "border-[var(--aa-primary-button-disabled-bg)] bg-[var(--aa-primary-button-disabled-bg)] text-[var(--aa-primary-button-disabled-text)]"
+            : "border-[var(--aa-primary-button-hover-bg)] bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)]"
+          : props.disabled
+            ? "border-[var(--aa-secondary-button-disabled-border)] bg-[var(--aa-secondary-button-disabled-bg)] text-[var(--aa-secondary-button-disabled-text)]"
+            : "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)]",
         className,
       )}
     >
       <span
         className={cx(
           "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border",
-        props.checked
-          ? "border-[var(--aa-color-selected-border)] bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
-          : "border-[var(--aa-color-border)]",
+          props.checked
+            ? props.disabled
+              ? "border-[var(--aa-primary-button-disabled-bg)] bg-[var(--aa-primary-button-disabled-bg)] text-[var(--aa-primary-button-disabled-text)]"
+              : "border-[var(--aa-primary-button-hover-bg)] bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)]"
+            : props.disabled
+              ? "border-[var(--aa-secondary-button-disabled-border)] bg-[var(--aa-secondary-button-disabled-bg)]"
+              : "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)]",
         )}
       >
         {props.checked ? <Check className="h-3.5 w-3.5" /> : null}
       </span>
       <span className="grid gap-0.5">
-        <span className="text-[var(--aa-color-text)]">
-          {label}
-        </span>
+        <span>{label}</span>
         {description ? (
-          <span className="text-[var(--aa-color-muted)]">
+          <span className={props.checked ? "opacity-80" : undefined}>
             {description}
           </span>
         ) : null}
@@ -287,14 +295,20 @@ export function CheckboxControl({
 }: Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
   darkMode: boolean;
 }) {
+  void darkMode;
+
   return (
     <label
       className={cx(
         "inline-flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded border transition",
-        props.disabled ? "cursor-not-allowed opacity-60" : "",
+        props.disabled ? "cursor-not-allowed" : "",
         props.checked
-          ? "border-[var(--aa-color-selected-border)] bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
-          : "border-[var(--aa-color-border)] hover:border-[var(--aa-color-border-strong)] hover:bg-[var(--aa-color-control-hover)]",
+          ? props.disabled
+            ? "border-[var(--aa-primary-button-disabled-bg)] bg-[var(--aa-primary-button-disabled-bg)] text-[var(--aa-primary-button-disabled-text)]"
+            : "border-[var(--aa-primary-button-hover-bg)] bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)]"
+          : props.disabled
+            ? "border-[var(--aa-secondary-button-disabled-border)] bg-[var(--aa-secondary-button-disabled-bg)]"
+            : "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)]",
         className,
       )}
     >

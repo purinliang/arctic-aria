@@ -5,9 +5,9 @@ import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/button";
 import {
-  controlGroupSurfaceClass,
-  mutedTextClass,
-  sectionBorderClass,
+  panelHoverContainerColorClass,
+  secondaryTextColorClass,
+  secondaryButtonBorderColorClass,
 } from "@/components/color";
 import type { AuthMode } from "./AuthGate";
 import {
@@ -107,7 +107,7 @@ export function AuthForm({
   return (
     <>
       <div
-        className={`mb-6 grid grid-cols-2 rounded-md border p-1 ${controlGroupSurfaceClass(darkMode)}`}
+        className={`mb-6 grid grid-cols-2 rounded-md border p-1 ${panelHoverContainerColorClass}`}
       >
         <Button
           darkMode={darkMode}
@@ -261,11 +261,11 @@ export function AuthForm({
         {showFutureAuthActions && mode === "login" ? (
           <>
             <div
-              className={`grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm ${mutedTextClass(darkMode)}`}
+              className={`grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm ${secondaryTextColorClass}`}
             >
-              <span className={`h-px border-t ${sectionBorderClass(darkMode)}`} />
+              <span className={`h-px border-t ${secondaryButtonBorderColorClass}`} />
               <span>{messages.form.or}</span>
-              <span className={`h-px border-t ${sectionBorderClass(darkMode)}`} />
+              <span className={`h-px border-t ${secondaryButtonBorderColorClass}`} />
             </div>
 
             <Button
@@ -277,7 +277,7 @@ export function AuthForm({
               {messages.form.continueWithGoogle}
             </Button>
 
-            <p className={`text-center text-sm ${mutedTextClass(darkMode)}`}>
+            <p className={`text-center text-sm ${secondaryTextColorClass}`}>
               {messages.form.forgotPassword}{" "}
               <Button
                 darkMode={darkMode}
@@ -292,7 +292,7 @@ export function AuthForm({
           </>
         ) : null}
 
-        <p className={`text-center text-sm ${mutedTextClass(darkMode)}`}>
+        <p className={`text-center text-sm ${secondaryTextColorClass}`}>
           {switchPrompt}{" "}
           <Button
             darkMode={darkMode}

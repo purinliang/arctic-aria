@@ -201,7 +201,7 @@ function NotificationToast({
       <button
         className={cx(
           "flex h-[18px] w-[18px] items-center justify-center self-start rounded transition",
-          "text-current opacity-80 hover:bg-[var(--aa-color-hover)] hover:text-[var(--aa-color-text)] hover:opacity-100",
+          "text-current opacity-80 hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] hover:opacity-100",
         )}
         type="button"
         aria-label={messages.dismiss}

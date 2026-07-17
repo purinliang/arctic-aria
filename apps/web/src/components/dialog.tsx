@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { LoaderCircle, X } from "lucide-react";
 import { Button } from "./button";
-import { surfaceClass } from "./color";
+import { panelColorClass } from "./color";
 import { cx } from "./utils";
 
 export function DialogOverlay({
@@ -57,7 +57,7 @@ export function DialogFrame({
     <section
       className={cx(dialogFrameClass(darkMode, size, padding), className)}
       style={{
-        backgroundColor: "var(--aa-color-surface)",
+        backgroundColor: "var(--aa-panel-bg)",
       }}
     >
       {children}
@@ -72,12 +72,12 @@ export function dialogFrameClass(
 ) {
   return cx(
     "relative rounded-md border shadow-2xl",
-    "bg-[var(--aa-color-surface)]",
+    "bg-[var(--aa-panel-bg)]",
     padding === "md" ? "p-4" : "",
     size === "sm"
       ? "w-[min(calc(100vw-2rem),28rem)]"
       : "w-[min(calc(100vw-2rem),46rem)]",
-    surfaceClass(darkMode),
+    panelColorClass,
   );
 }
 
@@ -162,7 +162,7 @@ export function ConfirmDialog({
         />
         <p
           className={
-            "text-sm leading-6 text-[var(--aa-color-muted)]"
+            "text-sm leading-6 text-[var(--aa-secondary-text)]"
           }
         >
           {description}

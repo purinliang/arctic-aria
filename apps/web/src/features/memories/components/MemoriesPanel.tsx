@@ -3,8 +3,8 @@ import { Album, Edit3, Plus, Settings2 } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import {
-  mutedTextClass,
-  sectionBorderClass,
+  secondaryTextColorClass,
+  secondaryButtonBorderColorClass,
 } from "@/components/color";
 import {
   ChoiceActionButton,
@@ -85,7 +85,7 @@ export function MemoriesPanel({
       />
 
       <div
-        className={`flex flex-wrap items-center gap-2 border-b px-4 py-3 ${sectionBorderClass(darkMode)}`}
+        className={`flex flex-wrap items-center gap-2 border-b px-4 py-3 ${secondaryButtonBorderColorClass}`}
       >
         <LabelText darkMode={darkMode}>{messages.categories}</LabelText>
         <SingleChoiceGroup
@@ -231,9 +231,9 @@ function formatDate(
   return formatDateKey(value, messages, fallback);
 }
 
-function EmptyLine({ darkMode, text }: { darkMode: boolean; text: string }) {
+function EmptyLine({ text }: { darkMode: boolean; text: string }) {
   return (
-    <p className={`px-4 py-4 text-sm ${mutedTextClass(darkMode)}`}>
+    <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
       {text}
     </p>
   );

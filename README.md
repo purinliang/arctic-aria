@@ -149,7 +149,10 @@ Shared Web UI:
 - [docs/web/sidebar.md](docs/web/sidebar.md): sidebar product behavior.
 - [docs/web/sidebar-ui.md](docs/web/sidebar-ui.md): sidebar visual and
   interaction rules.
-- [docs/web/theme.md](docs/web/theme.md): theme behavior and color direction.
+- [docs/web/theme.md](docs/web/theme.md): theme preference and app-shell theme
+  behavior.
+- [docs/web/color.md](docs/web/color.md): color tokens, component color
+  mappings, and current color inconsistencies.
 - [docs/web/localization.md](docs/web/localization.md): language preference
   detection and future message catalog direction.
 

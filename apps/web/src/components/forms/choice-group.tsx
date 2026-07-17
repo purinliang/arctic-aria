@@ -137,16 +137,18 @@ function ChoiceButton({
   selected: boolean;
   size: ChoiceGroupSize;
 }) {
+  void darkMode;
+
   const compact = size === "button" && !option.description;
 
   return (
     <button
       className={cx(
-        "inline-flex items-center gap-2 rounded-md border text-left font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
+        "inline-flex items-center gap-2 rounded-md border text-left font-semibold transition disabled:cursor-not-allowed",
         compact ? "h-9 px-3 text-xs" : "min-h-11 px-3 py-2 text-sm",
         selected
-          ? "border-[var(--aa-color-selected-border)] bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)] hover:bg-[var(--aa-color-selected-hover)] hover:text-[var(--aa-color-selected-hover-text)]"
-          : "border-[var(--aa-color-border)] text-[var(--aa-color-muted)] hover:border-[var(--aa-color-border-strong)] hover:bg-[var(--aa-color-control-hover)] hover:text-[var(--aa-color-text)]",
+          ? "border-[var(--aa-primary-button-hover-bg)] bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)] disabled:border-[var(--aa-primary-button-disabled-bg)] disabled:bg-[var(--aa-primary-button-disabled-bg)] disabled:text-[var(--aa-primary-button-disabled-text)] disabled:hover:bg-[var(--aa-primary-button-disabled-bg)] disabled:hover:text-[var(--aa-primary-button-disabled-text)]"
+          : "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:border-[var(--aa-secondary-button-disabled-border)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:border-[var(--aa-secondary-button-disabled-border)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
         className,
       )}
       type="button"
@@ -160,8 +162,8 @@ function ChoiceButton({
             className={cx(
               "text-xs font-normal",
               selected
-                ? "text-[var(--aa-color-selected-text)] opacity-80"
-                : "text-[var(--aa-color-muted)]",
+                ? "text-[var(--aa-primary-button-text)] opacity-80"
+                : "text-[var(--aa-secondary-button-text)]",
             )}
           >
             {option.description}
