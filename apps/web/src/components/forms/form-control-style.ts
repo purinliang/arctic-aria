@@ -20,8 +20,8 @@ export function formControlPopupClass(darkMode: boolean, className?: string) {
   return cx(
     "absolute z-[70] rounded-md border p-2 shadow-xl",
     darkMode
-      ? "border-[var(--aa-grey-16)] bg-[var(--aa-grey-3)] text-[var(--aa-grey-63)]"
-      : "border-[var(--aa-grey-52)] bg-[var(--aa-grey-63)] text-[var(--aa-grey-0)]",
+      ? "border-[var(--aa-grey-57)] bg-[var(--aa-grey-3)] text-[var(--aa-grey-63)]"
+      : "border-[var(--aa-grey-6)] bg-[var(--aa-grey-63)] text-[var(--aa-grey-0)]",
     className,
   );
 }
