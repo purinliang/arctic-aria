@@ -1,8 +1,9 @@
 # Web Theme
 
-This document describes shared web theme behavior. Component-level styling
-rules live in [ui-components.md](ui-components.md), and sidebar placement rules
-live in [sidebar.md](sidebar.md).
+This document describes shared web theme behavior. Color tokens and component
+color usage live in [color.md](color.md). Component-level styling rules live in
+[ui-components.md](ui-components.md), and sidebar placement rules live in
+[sidebar.md](sidebar.md).
 
 ## Ownership
 
@@ -21,9 +22,9 @@ The root auth gate and authenticated app shell own:
 Feature pages should not write root CSS variables directly. They should receive
 theme state from the app shell and pass it into shared components.
 
-Color values and reusable palette classes belong in `apps/web/src/components/`
-helpers such as `theme.ts` and `color.ts`. Auth, Settings, Dashboard, and
-feature components must not own their own palette decisions.
+Color values and reusable palette classes belong in shared theme and color
+helpers. Auth, Settings, Dashboard, and feature components must not own their
+own palette decisions.
 
 ## Preference Loading
 
@@ -56,86 +57,10 @@ The page background should stay consistent while loading, signing in, and using
 authenticated pages. Loading, auth, 404, and app-shell screens should share the
 same Arctic Aria brand direction.
 
-## Color Tokens
+## Color
 
-The web app uses Radix-style generated color scales as the base palette:
-
-- `--blue-*` for the Arctic Aria accent scale
-- `--gray-*` for neutral app chrome
-- alpha variants such as `--blue-a*` and `--gray-a*` when a future component
-  needs translucent role colors
-
-The current palette is generated from the Radix custom palette tool with light
-accent `#1B46DE` and dark accent `#12276E`. The copied tokens live in
-`apps/web/src/app/globals.css`, including sRGB fallbacks and P3 `oklch` /
-`color(display-p3 ...)` values.
-
-Feature and shared component code should not reference raw Radix step tokens
-directly unless a new shared role is being designed. Normal UI should use the
-semantic Arctic Aria aliases:
-
-- `--aa-color-page`
-- `--aa-color-surface`
-- `--aa-color-header`
-- `--aa-color-control`
-- `--aa-color-control-muted`
-- `--aa-color-control-hover`
-- `--aa-color-border`
-- `--aa-color-border-strong`
-- `--aa-color-text`
-- `--aa-color-muted`
-- `--aa-color-inverse-text`
-- `--aa-color-primary`
-- `--aa-color-primary-hover`
-- `--aa-color-primary-muted`
-- `--aa-color-primary-muted-text`
-- `--aa-color-hover`
-- `--aa-color-selected`
-- `--aa-color-selected-hover`
-- `--aa-color-selected-hover-text`
-- `--aa-color-focus`
-
-Light and dark modes both keep Radix's intended hierarchy: page and surface
-backgrounds use subtle neutral steps, selected and primary states use stronger
-accent steps, border steps stay distinct from surfaces, and high steps are used
-for readable text. Do not reintroduce a custom numeric grey scale such as
-`--aa-grey-*`.
-
-Selected or active navigation rows, dropdown options, list rows, and choice
-items should use the selected aliases. In light mode, selected aliases use a
-stronger accent step than the default Radix selected background so selected
-items and primary buttons are visible enough. In dark mode, selected aliases
-also use the stronger accent range while keeping step `12` text. Primary
-action buttons should use the same selected aliases in both light and dark mode
-so buttons, selected menu items, and selected choice groups stay visually
-consistent. Primary hover states must control both background and text through
-the selected hover aliases. Primary hover should stay on a solid accent fill
-with white text in both light and dark mode, not the pale row-hover surface.
-
-Use shared component color helpers for these roles:
-
-- page background
-- panel and card surface
-- card header surface
-- border and divider
-- main text
-- label text
-- description and supporting text
-- icon text
-- hover and active row backgrounds
-- disabled controls
-
-Normal list rows may use the softer `--aa-color-control-muted` hover so dense
-lists do not become visually noisy. Interactive controls such as unselected
-buttons, dropdown options, choice buttons, and date/time picker choices should
-use `--aa-color-control-hover` so their hover state is clearly visible in both
-light and dark mode.
-
-Do not use Tailwind palettes such as `slate-*`, `neutral-*`, `white`, or `black`
-for normal UI chrome. Reserve semantic colors such as red, green, amber, cyan,
-or blue for status, validation, brand identity, or clearly meaningful feature
-states. Translucent black remains acceptable for modal and mobile-sidebar
-backdrops.
+Color tokens, component color mappings, and current color inconsistencies are
+documented in [color.md](color.md).
 
 ## Dark Mode
 

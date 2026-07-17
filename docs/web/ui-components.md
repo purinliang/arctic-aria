@@ -18,7 +18,9 @@ apps/web/src/components/forms/
 
 ## Color
 
-`color.ts` owns reusable color and border class helpers.
+`color.ts` owns reusable color and border class helpers. Color tokens,
+component color mappings, and known inconsistencies are documented in
+[color.md](color.md).
 
 Use it for:
 
