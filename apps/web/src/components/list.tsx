@@ -136,5 +136,5 @@ function itemToneClass(
     return "bg-[var(--aa-color-selected)] text-[var(--aa-color-selected-text)]";
   }
 
-  return "hover:bg-[var(--aa-color-hover)] hover:text-[var(--aa-color-text)]";
+  return "hover:bg-[var(--aa-color-control-muted)] hover:text-[var(--aa-color-text)]";
 }
