@@ -57,10 +57,9 @@ Planned v0.6.0 work:
 - Fix deferred UI consistency bugs that are intentionally excluded from the
   `v0.5.1` hotfix, including Memories-page pinned/unpinned management and
   removing the dashboard pinned-memory single-item replace/refresh action.
-- Formalize built-in memory categories. Cuisine and Sightseeing can remain
-  default categories with fixed icons, default translations, and dashboard
-  visibility, but the dashboard should use a category configuration flag rather
-  than hard-coded category names.
+- Formalize built-in memory categories. Current built-ins are Cuisine,
+  Sightseeing, Movie, Anime, Book, Music, Game, and Shopping. They have fixed
+  icons and are backfilled for existing accounts.
 - Review category UI affordances and choose distinct icons where useful instead
   of relying only on text labels.
 - Review repeated edit actions in project and memory lists. There may be too
@@ -69,35 +68,39 @@ Planned v0.6.0 work:
 
 ### Memory Category Direction
 
-Built-in memory categories are a continuing design direction, not a one-step
-change limited to Cuisine and Sightseeing.
+Built-in memory categories are a continuing design direction. The current
+default set is Cuisine, Sightseeing, Movie, Anime, Book, Music, Game, and
+Shopping.
 
 First implementation target:
 
 - Keep real per-user `memory_categories` rows. This is the simplest model
   because every memory still needs a concrete `category_id`.
-- Add stable built-in category metadata, such as a built-in key, icon name, and
-  `shown_on_dashboard` flag. The code may still call the home surface
-  `dashboard`, even though the user-facing title is `Today`.
+- Add stable built-in category metadata, such as a built-in key and icon name.
+  The existing `shown_on_dashboard` column can remain as legacy metadata until a
+  later schema cleanup, but dashboard pinned memories should not be filtered by
+  it.
 - Backfill built-in category rows for existing users when the metadata is added.
   Backfill should apply to all existing users, not a hard-coded developer
   account.
-- Treat Cuisine and Sightseeing as the first built-in categories. Their
-  built-in identity, default name, icon, and default translations should not be
-  editable or deletable by the user.
-- Stop filtering dashboard pinned memories by hard-coded display names.
+- Treat Cuisine, Sightseeing, Movie, Anime, Book, Music, Game, and Shopping as
+  built-in categories. Their built-in identity, default name, icon, and default
+  translations should not be editable or deletable by the user.
+- Stop filtering dashboard pinned memories by hard-coded display names,
+  built-in keys, dashboard metadata, or per-category count limits.
 
-Later built-in category/template work:
+Built-in category/template work:
 
-- Add more built-in templates only after the category UI is ready. Candidate
-  templates include Movie, Anime, Book, Music, Game, and Shopping.
+- Current built-in templates include Movie (`film`), Anime (`book-open-text`),
+  Book (`book-open-text`), Music (`music`), Game (`gamepad-2`), and Shopping
+  (`shopping-cart`).
 - Built-in templates may have default icons and default translations in every
   supported language.
-- When a user chooses a built-in template, it should become a normal per-user
-  category row with stable built-in metadata.
-- Existing accounts should receive built-in category rows through the same
-  default-category initialization path used when memory data is loaded. Do not
-  require a developer-account-specific script.
+- Built-in templates are normal per-user category rows with stable built-in
+  metadata.
+- Existing accounts receive built-in category rows through the migration, and
+  the default-category initialization path remains a safety net for future users
+  and partially initialized accounts.
 - User-created categories should allow names in any language and a selected
   icon from a small memory icon set, roughly 12 choices.
 - User-created category names should display exactly as written. Do not
@@ -116,9 +119,6 @@ Related UI cleanup:
   view should not insert suggestion-history rows or record ignore events.
 - Suggestion ignore events should be recorded only when the user explicitly
   refreshes or passes a suggestion.
-- Decide later whether dashboard pinned memories should show every
-  dashboard-enabled category and whether the current per-category count limit
-  should be removed.
 - The dashboard `Pinned Memories` panel should not expose a single-row refresh
   action. Detailed pin/unpin management belongs on the Memories page.
 

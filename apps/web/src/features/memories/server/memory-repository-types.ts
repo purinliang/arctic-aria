@@ -1,5 +1,13 @@
 export type MemoryCategoryName = string;
-export type BuiltInMemoryCategoryKey = "cuisine" | "sightseeing";
+export type BuiltInMemoryCategoryKey =
+  | "cuisine"
+  | "sightseeing"
+  | "movie"
+  | "anime"
+  | "book"
+  | "music"
+  | "game"
+  | "shopping";
 
 export type MemoryEventType =
   | "pinned"
@@ -180,7 +188,49 @@ const defaultCategoryInputs: Array<{
     name: "Sightseeing",
     description: "",
     builtInKey: "sightseeing",
-    iconName: "landmark",
+    iconName: "trees",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Movie",
+    description: "",
+    builtInKey: "movie",
+    iconName: "film",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Anime",
+    description: "",
+    builtInKey: "anime",
+    iconName: "book-open-text",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Book",
+    description: "",
+    builtInKey: "book",
+    iconName: "book-open-text",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Music",
+    description: "",
+    builtInKey: "music",
+    iconName: "music",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Game",
+    description: "",
+    builtInKey: "game",
+    iconName: "gamepad-2",
+    shownOnDashboard: true,
+  },
+  {
+    name: "Shopping",
+    description: "",
+    builtInKey: "shopping",
+    iconName: "shopping-cart",
     shownOnDashboard: true,
   },
 ];

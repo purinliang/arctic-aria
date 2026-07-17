@@ -109,7 +109,16 @@ export type MemoryCategoryOption = {
   id: string;
   name: string;
   description: string;
-  builtInKey: "cuisine" | "sightseeing" | null;
+  builtInKey:
+    | "cuisine"
+    | "sightseeing"
+    | "movie"
+    | "anime"
+    | "book"
+    | "music"
+    | "game"
+    | "shopping"
+    | null;
   iconName: string;
   shownOnDashboard: boolean;
 };

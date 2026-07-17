@@ -18,7 +18,7 @@ test("memory filters include categories even when they have no memories", () => 
       name: "Sightseeing",
       description: "Places worth seeing again.",
       builtInKey: "sightseeing",
-      iconName: "landmark",
+      iconName: "trees",
       shownOnDashboard: true,
     },
   ];

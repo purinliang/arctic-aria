@@ -109,9 +109,7 @@ export function CategoryManagerDialog({
                   </DescriptionText>
                   {category.builtInKey ? (
                     <SupportingText darkMode={darkMode} className="mt-2 block">
-                      {category.shownOnDashboard
-                        ? `${messages.builtIn} · ${messages.shownOnDashboard}`
-                        : messages.builtIn}
+                      {messages.builtIn}
                     </SupportingText>
                   ) : null}
                 </div>

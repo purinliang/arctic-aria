@@ -81,6 +81,12 @@ Built-in default categories:
 
 - Cuisine
 - Sightseeing
+- Movie
+- Anime
+- Book
+- Music
+- Game
+- Shopping
 
 Cuisine can have a higher default base weight because food-related experiences
 can be repeated more often. Sightseeing can have a lower default base weight
@@ -91,7 +97,6 @@ Built-in categories should have:
 - a stable built-in key, such as `cuisine` or `sightseeing`
 - a fixed default icon
 - default translations in every supported language
-- a dashboard visibility setting
 
 The name, icon, and built-in identity of default categories should not be
 editable or deletable by the user. The current implementation creates real
@@ -111,20 +116,20 @@ product direction. They should display exactly as the user entered them. This
 avoids inconsistent UI where built-in categories are translated but custom
 category names are machine-translated unexpectedly.
 
-Later selectable category templates can include:
+Current built-in category icons:
 
-- Movie
-- Anime
-- Book
-- Music
-- Game
-- Shopping
+- Movie, with the `film` icon
+- Anime, with the `book-open-text` icon
+- Book, with the `book-open-text` icon
+- Music, with the `music` icon
+- Game, with the `gamepad-2` icon
+- Shopping, with the `shopping-cart` icon
 
-Template categories can have default translations and icons, like Cuisine and
-Sightseeing. They should still become normal per-user categories when selected
-so memories can reference them consistently.
+Built-in categories can have default translations and icons. They are still
+normal per-user categories in storage so memories can reference them
+consistently.
 
-The first dashboard supports Cuisine and Sightseeing only. Category add and edit
+The dashboard can show pinned memories from any category. Category add and edit
 actions belong on the Memories page, not on the dashboard.
 
 ### Suggested Memories
@@ -159,15 +164,9 @@ Pinned memories are closer to a soft shortlist or temporary favorites list.
 The dashboard should use the title `Pinned Memories`.
 
 The dashboard's primary responsibility is to show the user's pinned memories.
-The first dashboard only supports built-in categories marked as shown on the
-dashboard. The current defaults are:
-
-- Cuisine
-- Sightseeing
-
-Custom categories can exist in the Memories page, but they should not appear in
-the dashboard pinned-memory list until the category has an explicit dashboard
-visibility configuration.
+Pinned memories from custom categories can appear on the dashboard. Do not
+filter dashboard pinned memories by display name, built-in key, dashboard
+metadata, or per-category count.
 
 The user can:
 
@@ -250,9 +249,8 @@ strong manual signal.
 
 Dashboard behavior:
 
-- The first dashboard should show up to 3 Cuisine memories and up to 3
-  Sightseeing memories.
-- The first dashboard should not show pinned memories from custom categories.
+- The dashboard should show pinned memories from any category.
+- The dashboard should not apply a per-category count limit.
 - The first dashboard should not support adding or editing memory categories.
 - Pinned memory order should remain stable across refreshes and dashboard loads.
 - Marking a pinned memory as done records a `completed` event, updates memory
@@ -266,9 +264,9 @@ Dashboard behavior:
   if one is available.
 - Cleanup and expiry should run before the dashboard response is returned so the
   user sees the final active pinned-memory list after reload.
-- Cleanup and expiry replacement must preserve category limits. The final
-  dashboard list should still contain at most 3 Cuisine memories and at most 3
-  Sightseeing memories.
+- Cleanup and expiry replacement should prefer another memory from the same
+  category when one is available, but the final dashboard list does not enforce
+  category limits.
 
 Visibility timing:
 

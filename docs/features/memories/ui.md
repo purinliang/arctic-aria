@@ -12,13 +12,9 @@ should match the Memories item in the hamburger menu. Use the Lucide
 
 The dashboard's required first behavior is to show pinned memories only.
 
-The dashboard should show pinned memories from supported dashboard categories
-only. The code uses `shown_on_dashboard` category metadata for this decision.
-Current built-in dashboard categories are Cuisine and Sightseeing.
-
-For now, show up to 3 pinned memories per dashboard-enabled category. Do not
-show dashboard pinned memories from custom categories until a later UI feature
-designs that behavior.
+The dashboard can show pinned memories from any category. Do not hard-code the
+dashboard to Cuisine and Sightseeing, and do not apply a per-category count
+limit in the UI or backend selection logic.
 
 For each pinned memory, show:
 
