@@ -64,32 +64,13 @@ input:focus-visible {
 
 .sidebar-scrollbar {
   -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.sidebar-scrollbar.sidebar-scrollbar-visible {
-  -ms-overflow-style: auto;
-  scrollbar-color: rgb(148 163 184 / 0.55) transparent;
-  scrollbar-width: thin;
+  scrollbar-width: none !important;
 }
 
 .sidebar-scrollbar::-webkit-scrollbar {
-  height: 0;
-  width: 0;
-}
-
-.sidebar-scrollbar.sidebar-scrollbar-visible::-webkit-scrollbar {
-  height: 4px;
-  width: 4px;
-}
-
-.sidebar-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sidebar-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgb(148 163 184 / 0.55);
-  border-radius: 999px;
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
 }
 
 @keyframes aa-notification-pop {
