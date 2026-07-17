@@ -21,6 +21,7 @@ import { DiscordBindingSettings } from "./DiscordBindingSettings";
 import { DiscordIcon } from "./DiscordIcon";
 
 export function SettingsPage({
+  currentUserId,
   darkMode,
   languagePreference,
   messages,
@@ -34,6 +35,7 @@ export function SettingsPage({
   versionMessages,
   versionStatus,
 }: {
+  currentUserId: string;
   darkMode: boolean;
   languagePreference: LanguagePreference;
   messages: SettingsMessages;
@@ -128,6 +130,7 @@ export function SettingsPage({
         />
         <List darkMode={darkMode}>
           <DiscordBindingSettings
+            currentUserId={currentUserId}
             darkMode={darkMode}
             messages={messages}
             showErrorNotification={showErrorNotification}

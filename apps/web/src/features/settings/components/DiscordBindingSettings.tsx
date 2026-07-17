@@ -8,6 +8,10 @@ import { ConfirmDialog } from "@/components/dialog";
 import { ListItem } from "@/components/list";
 import { DescriptionText } from "@/components/text";
 import type { SettingsMessages } from "@/messages/app-messages";
+import {
+  readDiscordBindingCache,
+  writeDiscordBindingCache,
+} from "../discord-binding-cache";
 import { DiscordBoundAccountControls } from "./DiscordBoundAccountControls";
 import { DiscordBindingCodeStatus } from "./DiscordBindingCodeStatus";
 import {
@@ -27,26 +31,32 @@ type PendingBindingCode = { value: string; expiresAt: string };
 type DiscordAction = "bind" | "cancel" | "load" | "test" | "unbind";
 
 export function DiscordBindingSettings({
+  currentUserId,
   darkMode,
   messages,
   showErrorNotification,
   showSuccessNotification,
 }: {
+  currentUserId: string;
   darkMode: boolean;
   messages: SettingsMessages;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
 }) {
+  const [initialCache] = useState(() => readDiscordBindingCache(currentUserId));
   const [discordBinding, setDiscordBinding] =
-    useState<DiscordBindingView | null>(null);
+    useState<DiscordBindingView | null>(initialCache?.binding ?? null);
   const [pendingBindingCode, setPendingBindingCode] =
-    useState<PendingBindingCode | null>(null);
-  const [discordLoading, setDiscordLoading] = useState(true);
+    useState<PendingBindingCode | null>(
+      initialCache?.pendingBindingCode ?? null,
+    );
+  const [discordLoading, setDiscordLoading] = useState(!initialCache);
   const [discordAction, setDiscordAction] = useState<DiscordAction | null>(null);
   const [confirmUnbindOpen, setConfirmUnbindOpen] = useState(false);
   const [accountIdVisible, setAccountIdVisible] = useState(false);
   const [bindingStatusFailed, setBindingStatusFailed] = useState(false);
   const messagesRef = useRef(messages);
+  const pendingBindingCodeRef = useRef(pendingBindingCode);
   const showErrorNotificationRef = useRef(showErrorNotification);
   const discordStatusText = getDiscordStatusText({
     bindingStatusFailed,
@@ -58,6 +68,10 @@ export function DiscordBindingSettings({
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
+
+  useEffect(() => {
+    pendingBindingCodeRef.current = pendingBindingCode;
+  }, [pendingBindingCode]);
 
   useEffect(() => {
     showErrorNotificationRef.current = showErrorNotification;
@@ -75,12 +89,17 @@ export function DiscordBindingSettings({
         const result = await getDiscordBinding();
 
         if (result.ok) {
-          setDiscordBinding(result.binding);
-          setBindingStatusFailed(false);
+          const nextPendingBindingCode = result.binding
+            ? null
+            : pendingBindingCodeRef.current;
 
-          if (result.binding) {
-            setPendingBindingCode(null);
-          }
+          setDiscordBinding(result.binding);
+          setPendingBindingCode(nextPendingBindingCode);
+          setBindingStatusFailed(false);
+          writeDiscordBindingCache(currentUserId, {
+            binding: result.binding,
+            pendingBindingCode: nextPendingBindingCode,
+          });
 
           return true;
         }
@@ -111,16 +130,20 @@ export function DiscordBindingSettings({
         setDiscordAction(null);
       }
     },
-    [],
+    [currentUserId],
   );
 
   useEffect(() => {
+    if (initialCache) {
+      return;
+    }
+
     const timeoutId = window.setTimeout(() => {
       void refreshDiscordBinding(false);
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, [refreshDiscordBinding]);
+  }, [initialCache, refreshDiscordBinding]);
 
   async function handleCreateCode() {
     setDiscordAction("bind");
@@ -138,6 +161,10 @@ export function DiscordBindingSettings({
 
       setDiscordBinding(result.binding);
       setPendingBindingCode(result.bindingCode ?? null);
+      writeDiscordBindingCache(currentUserId, {
+        binding: result.binding,
+        pendingBindingCode: result.bindingCode ?? null,
+      });
       showSuccessNotification(
         bindingResultMessage(result.code, undefined, messages),
         messages.discord.notifications.codeCreated,
@@ -172,6 +199,10 @@ export function DiscordBindingSettings({
 
       setDiscordBinding(result.binding);
       setPendingBindingCode(null);
+      writeDiscordBindingCache(currentUserId, {
+        binding: result.binding,
+        pendingBindingCode: null,
+      });
       showSuccessNotification(
         bindingResultMessage(result.code, undefined, messages),
         messages.discord.notifications.codeCanceled,
@@ -203,6 +234,10 @@ export function DiscordBindingSettings({
       setConfirmUnbindOpen(false);
       setDiscordBinding(null);
       setPendingBindingCode(null);
+      writeDiscordBindingCache(currentUserId, {
+        binding: null,
+        pendingBindingCode: null,
+      });
       showSuccessNotification(
         bindingResultMessage(result.code, undefined, messages),
         messages.discord.notifications.unbound,
