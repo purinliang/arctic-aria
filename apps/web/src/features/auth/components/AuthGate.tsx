@@ -1,10 +1,11 @@
 "use client";
 
 // Auth Gate.
-import { LoaderCircle, Sparkles } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { AppShell } from "@/app-shell/AppShell";
 import { useAppPreferences } from "@/app-shell/app-preferences";
+import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
 import { defaultDatabaseVersionStatus } from "@/components/app-metadata";
 import { mutedTextClass } from "@/components/color";
 import { NotificationStack, useNotifications } from "@/components/notification";
@@ -165,10 +166,7 @@ export function AuthGate() {
           role="status"
           aria-live="polite"
         >
-          <div className="flex items-center justify-center gap-2">
-            <Sparkles size={22} aria-hidden="true" />
-            <h1 className="text-2xl font-semibold tracking-normal">Arctic Aria</h1>
-          </div>
+          <ArcticAriaLogo />
           <div className="flex items-center justify-center gap-2">
             <LoaderCircle
               size={18}

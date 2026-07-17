@@ -150,15 +150,14 @@ Sidebar list items should handle rounded corners consistently, especially at the
 start and end of adjacent item groups. Separator lines should be reviewed and
 removed where they make the item group feel visually broken.
 
-The top of the sidebar should restore a compact brand row: Sparkles icon on the
-left, followed by small `ArcticAria` text without a space. The brand text may
-use a distinct free font style if it stays readable and consistent with the
-product style. Below the compact brand row, show a larger page/workspace label
-such as `Workspace` in the normal app font.
+The sidebar now restores a compact brand block: first row Sparkles icon plus
+small `ArcticAria` text without a space, then a larger page/workspace label
+such as `Workspace` in the normal app font. The `Workspace` label should be
+roughly 1.7x the size of `ArcticAria`.
 
-The mobile sidebar close button should be borderless.
+The mobile sidebar close button should stay borderless.
 
-Pinned project sidebar rows should use invisible icon spacers to align their
+Pinned project sidebar rows now use invisible icon spacers to align their
 text with normal menu items while preserving the indented hierarchy. The spacer
 icons should use the same size and gap as visible menu icons. Pinned project
 names should stay on one line and truncate automatically.
