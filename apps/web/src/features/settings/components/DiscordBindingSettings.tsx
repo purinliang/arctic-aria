@@ -225,6 +225,7 @@ export function DiscordBindingSettings({
                 darkMode={darkMode}
                 disabled={discordAction !== null}
                 icon={<Unlink size={14} aria-hidden="true" />}
+                size="field"
                 onClick={() => setConfirmUnbindOpen(true)}
               >
                 {messages.discord.unbind}
@@ -333,6 +334,7 @@ function BindButton({
       loadingIcon={
         <LoaderCircle className="animate-spin" size={14} aria-hidden="true" />
       }
+      size="field"
       onClick={onClick}
     >
       {label}
@@ -360,6 +362,7 @@ function CheckAgainButton({
       loadingIcon={
         <LoaderCircle className="animate-spin" size={14} aria-hidden="true" />
       }
+      size="field"
       onClick={onClick}
     >
       {label}

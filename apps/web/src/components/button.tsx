@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cx } from "./utils";
 
 export type ButtonTone = "primary" | "secondary" | "ghost" | "success";
-export type ButtonSize = "xs" | "sm" | "md" | "icon-sm";
+export type ButtonSize = "xs" | "sm" | "md" | "icon-sm" | "field";
 
 export function Button({
   darkMode,
@@ -54,6 +54,10 @@ function buttonSizeClass(size: ButtonSize) {
 
   if (size === "icon-sm") {
     return "h-9 w-9 px-0 text-xs";
+  }
+
+  if (size === "field") {
+    return "h-11 px-4 text-sm";
   }
 
   return "h-9 px-3 text-xs";
