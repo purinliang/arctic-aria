@@ -66,6 +66,29 @@ test("creates memory in a newly created custom category", async () => {
   assert.equal(createdMemory.title, "Custom memory");
 });
 
+test("does not edit or delete built-in memory categories", async () => {
+  const repository = new InMemoryMemoryRepository();
+  const service = createMemoryService({
+    memories: repository,
+    now: () => now,
+  });
+  const [category] = await service.initializeUserMemoryDefaults(userId);
+
+  const updated = await service.updateCategory(
+    userId,
+    category.id,
+    "Changed",
+    "Changed description",
+  );
+  const deleted = await service.deleteCategory(userId, category.id);
+  const categories = await service.listMemoryCategories(userId);
+
+  assert.equal(updated, null);
+  assert.equal(deleted, false);
+  assert.equal(categories[0].name, "Cuisine");
+  assert.equal(categories[0].builtInKey, "cuisine");
+});
+
 test("complete pinned memory records completion and cleanup timing", async () => {
   const repository = new InMemoryMemoryRepository({
     memories: [

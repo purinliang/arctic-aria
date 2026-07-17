@@ -152,6 +152,10 @@ export function MemoriesPage({
   }
 
   function openCategoryEditor(category: MemoryCategoryOption) {
+    if (category.builtInKey) {
+      return;
+    }
+
     setCategoryDraft({
       id: category.id,
       name: category.name,

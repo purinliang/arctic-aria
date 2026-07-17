@@ -117,6 +117,26 @@ export async function saveMemoryCategory(
 
   try {
     if (input.id) {
+      const category = (await memoryService.listMemoryCategories(user.id)).find(
+        (item) => item.id === input.id,
+      );
+
+      if (!category) {
+        return {
+          ok: false,
+          message: "Category was not found.",
+          code: "memory_category_not_found",
+        };
+      }
+
+      if (category.builtInKey) {
+        return {
+          ok: false,
+          message: "Built-in categories cannot be edited.",
+          code: "memory_category_built_in_protected",
+        };
+      }
+
       await memoryService.updateCategory(
         user.id,
         input.id,
@@ -154,6 +174,26 @@ export async function deleteMemoryCategory(
   }
 
   try {
+    const category = (await memoryService.listMemoryCategories(user.id)).find(
+      (item) => item.id === categoryId,
+    );
+
+    if (!category) {
+      return {
+        ok: false,
+        message: "Category was not found.",
+        code: "memory_category_not_found",
+      };
+    }
+
+    if (category.builtInKey) {
+      return {
+        ok: false,
+        message: "Built-in categories cannot be deleted.",
+        code: "memory_category_built_in_protected",
+      };
+    }
+
     const deleted = await memoryService.deleteCategory(user.id, categoryId);
 
     if (!deleted) {
