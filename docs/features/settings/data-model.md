@@ -68,7 +68,7 @@ Backend rules:
 
 - Settings creates a random code and stores only a hash
 - raw codes are returned to the frontend only once, immediately after creation
-- codes expire after 10 minutes
+- codes expire after 15 minutes
 - `/bind` consumes only unexpired and unconsumed codes
 - creating a new code consumes previous unconsumed codes for the same user
 - canceling a pending code marks unconsumed codes for that user as consumed

@@ -7,8 +7,11 @@ export function formControlClass(
   className?: string,
 ) {
   return cx(
-    "h-11 w-full rounded-md border px-3 text-sm shadow-sm outline-none transition placeholder:text-slate-400",
+    "h-11 w-full rounded-md border px-3 text-sm shadow-sm outline-none transition placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-100 disabled:shadow-none",
     inputColorClass(darkMode, hasError),
+    darkMode
+      ? "disabled:border-neutral-800 disabled:bg-neutral-900 disabled:text-neutral-500 disabled:placeholder:text-neutral-600"
+      : "disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:placeholder:text-slate-300",
     className,
   );
 }

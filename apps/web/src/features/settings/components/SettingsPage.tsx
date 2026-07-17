@@ -1,7 +1,7 @@
 "use client";
 
 // Settings Page.
-import { Settings } from "lucide-react";
+import { Info, MessageCircle, Settings } from "lucide-react";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import { CardHeader } from "@/components/card";
@@ -62,13 +62,13 @@ export function SettingsPage({
   ];
 
   return (
-    <section className="aa-split-container">
+    <section className="grid gap-4">
       <Panel darkMode={darkMode} className="min-w-0">
         <CardHeader
           darkMode={darkMode}
           icon={<Settings size={18} aria-hidden="true" />}
-          title={messages.title}
-          description={messages.description}
+          title={messages.preferencesTitle}
+          description={messages.preferencesDescription}
         />
         <List darkMode={darkMode}>
           <ListItem darkMode={darkMode} className="items-start">
@@ -116,13 +116,32 @@ export function SettingsPage({
               </FieldLabel>
             </div>
           </ListItem>
+        </List>
+      </Panel>
+      <Panel darkMode={darkMode} className="min-w-0">
+        <CardHeader
+          darkMode={darkMode}
+          icon={<MessageCircle size={18} aria-hidden="true" />}
+          title={messages.discord.title}
+          description={messages.discord.description}
+        />
+        <List darkMode={darkMode}>
           <DiscordBindingSettings
             darkMode={darkMode}
-            languagePreference={languagePreference}
             messages={messages}
             showErrorNotification={showErrorNotification}
             showSuccessNotification={showSuccessNotification}
           />
+        </List>
+      </Panel>
+      <Panel darkMode={darkMode} className="min-w-0">
+        <CardHeader
+          darkMode={darkMode}
+          icon={<Info size={18} aria-hidden="true" />}
+          title={messages.appInformationTitle}
+          description={messages.appInformationDescription}
+        />
+        <List darkMode={darkMode}>
           <ListItem darkMode={darkMode} className="items-start">
             <div className="min-w-0 flex-1">
               <VersionStatusRows

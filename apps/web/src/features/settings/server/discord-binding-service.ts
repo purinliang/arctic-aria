@@ -2,9 +2,9 @@ import { PostgresDiscordAccountRepository } from "../../../server/discord/discor
 import {
   createDiscordBindingCodeValue,
   hashDiscordBindingCode,
-} from "./discord-binding-code";
+} from "./discord-binding-code.ts";
 
-const codeExpiryMinutes = 10;
+const codeExpiryMinutes = 15;
 
 export type DiscordBindingView = {
   discordUserId: string;

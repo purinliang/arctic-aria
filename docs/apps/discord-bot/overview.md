@@ -181,7 +181,7 @@ Implemented `discord_binding_codes` fields:
 
 Implemented binding-code rules:
 
-- codes expire after 10 minutes
+- codes expire after 15 minutes
 - codes can be consumed once
 - raw codes are never stored
 - creating a new code consumes previous unconsumed codes for the same Arctic

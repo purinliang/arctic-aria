@@ -1,24 +1,15 @@
 "use client";
 
 // Settings Page - Discord Binding Settings.
-import {
-  LoaderCircle,
-  RefreshCw,
-  Unlink,
-  WalletCards,
-} from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, LoaderCircle, RefreshCw, Unlink } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/button";
-import {
-  controlGroupSurfaceClass,
-  mutedTextClass,
-  sectionBorderClass,
-} from "@/components/color";
 import { ConfirmDialog } from "@/components/dialog";
 import { ListItem } from "@/components/list";
 import { SupportingText } from "@/components/text";
 import type { SettingsMessages } from "@/messages/app-messages";
-import type { LanguagePreference } from "@/messages/languages";
+import { DiscordBoundAccountField } from "./DiscordBoundAccountField";
+import { DiscordBindingCodeStatus } from "./DiscordBindingCodeStatus";
 import {
   cancelDiscordBindingCode,
   createDiscordBindingCode,
@@ -32,17 +23,15 @@ type DiscordBindingView = {
 };
 
 type PendingBindingCode = { value: string; expiresAt: string };
-type DiscordAction = "cancel" | "connect" | "refresh" | "unbind";
+type DiscordAction = "bind" | "cancel" | "load" | "unbind";
 
 export function DiscordBindingSettings({
   darkMode,
-  languagePreference,
   messages,
   showErrorNotification,
   showSuccessNotification,
 }: {
   darkMode: boolean;
-  languagePreference: LanguagePreference;
   messages: SettingsMessages;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
@@ -54,34 +43,35 @@ export function DiscordBindingSettings({
   const [discordLoading, setDiscordLoading] = useState(true);
   const [discordAction, setDiscordAction] = useState<DiscordAction | null>(null);
   const [confirmUnbindOpen, setConfirmUnbindOpen] = useState(false);
-  const discordDisplayName = useMemo(() => {
-    if (!discordBinding) {
-      return null;
-    }
-
-    return discordBinding.discordUsername || discordBinding.discordUserId;
-  }, [discordBinding]);
-  const discordStatusText = discordLoading
-    ? messages.discord.checking
-    : discordDisplayName
-      ? messages.discord.connectedAs(discordDisplayName)
-      : messages.discord.notConnected;
-  const bindingCodeExpiry = pendingBindingCode
-    ? formatBindingCodeExpiry(pendingBindingCode.expiresAt, languagePreference)
-    : null;
+  const [accountIdVisible, setAccountIdVisible] = useState(false);
+  const [bindingStatusFailed, setBindingStatusFailed] = useState(false);
+  const discordStatusText = getDiscordStatusText({
+    bindingStatusFailed,
+    discordBinding,
+    discordLoading,
+    messages,
+  });
 
   const refreshDiscordBinding = useCallback(
     async (showFailure = true) => {
       setDiscordLoading(true);
-      setDiscordAction("refresh");
+      setDiscordAction("load");
 
       try {
         const result = await getDiscordBinding();
 
         if (result.ok) {
           setDiscordBinding(result.binding);
-          return;
+          setBindingStatusFailed(false);
+
+          if (result.binding) {
+            setPendingBindingCode(null);
+          }
+
+          return true;
         }
+
+        setBindingStatusFailed(true);
 
         if (showFailure) {
           showErrorNotification(
@@ -89,13 +79,19 @@ export function DiscordBindingSettings({
             messages.discord.notifications.loadFailed,
           );
         }
+
+        return false;
       } catch {
+        setBindingStatusFailed(true);
+
         if (showFailure) {
           showErrorNotification(
             messages.discord.results.settings_discord_binding_unavailable,
             messages.discord.notifications.loadFailed,
           );
         }
+
+        return false;
       } finally {
         setDiscordLoading(false);
         setDiscordAction(null);
@@ -105,11 +101,15 @@ export function DiscordBindingSettings({
   );
 
   useEffect(() => {
-    void refreshDiscordBinding(false);
+    const timeoutId = window.setTimeout(() => {
+      void refreshDiscordBinding(false);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [refreshDiscordBinding]);
 
   async function handleCreateCode() {
-    setDiscordAction("connect");
+    setDiscordAction("bind");
 
     try {
       const result = await createDiscordBindingCode();
@@ -136,6 +136,10 @@ export function DiscordBindingSettings({
     } finally {
       setDiscordAction(null);
     }
+  }
+
+  async function handleCheckAgain() {
+    await refreshDiscordBinding(true);
   }
 
   async function handleCancelCode() {
@@ -203,58 +207,20 @@ export function DiscordBindingSettings({
     <>
       <ListItem darkMode={darkMode} className="items-start">
         <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold">
-                {messages.discord.label}
-              </p>
-              <SupportingText darkMode={darkMode}>
-                {discordStatusText}
-              </SupportingText>
-            </div>
-            <RefreshButton
-              darkMode={darkMode}
-              loading={discordAction === "refresh"}
-              label={messages.discord.refresh}
-              onClick={() => {
-                setPendingBindingCode(null);
-                void refreshDiscordBinding();
-              }}
-            />
-          </div>
-          {pendingBindingCode ? (
-            <BindingCodeBox
-              darkMode={darkMode}
-              code={pendingBindingCode.value}
-              expiresAt={bindingCodeExpiry}
-              messages={messages}
-            />
-          ) : null}
-          <div
-            className={`mt-3 flex flex-wrap gap-2 border-t pt-3 ${sectionBorderClass(darkMode)}`}
-          >
-            <ConnectButton
-              darkMode={darkMode}
-              loading={discordAction === "connect"}
-              label={
-                pendingBindingCode
-                  ? messages.discord.regenerate
-                  : discordBinding
-                    ? messages.discord.reconnect
-                    : messages.discord.connect
-              }
-              onClick={handleCreateCode}
-            />
-            {pendingBindingCode ? (
-              <Button
+          {discordBinding ? (
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+              <DiscordBoundAccountField
+                accountId={discordBinding.discordUserId}
+                className="flex-1 sm:max-w-sm"
                 darkMode={darkMode}
-                disabled={discordAction !== null}
-                onClick={handleCancelCode}
-              >
-                {messages.discord.cancel}
-              </Button>
-            ) : null}
-            {discordBinding ? (
+                hidden={!accountIdVisible}
+                hideLabel={messages.discord.hideAccountId}
+                label={messages.discord.boundAccountIdLabel}
+                onToggleHidden={() =>
+                  setAccountIdVisible((visible) => !visible)
+                }
+                viewLabel={messages.discord.viewAccountId}
+              />
               <Button
                 darkMode={darkMode}
                 disabled={discordAction !== null}
@@ -263,8 +229,42 @@ export function DiscordBindingSettings({
               >
                 {messages.discord.unbind}
               </Button>
-            ) : null}
-          </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <SupportingText darkMode={darkMode}>
+                {discordStatusText}
+              </SupportingText>
+              {bindingStatusFailed && !pendingBindingCode ? (
+                <CheckAgainButton
+                  darkMode={darkMode}
+                  loading={discordAction === "load"}
+                  label={messages.discord.checkAgain}
+                  onClick={handleCheckAgain}
+                />
+              ) : !pendingBindingCode ? (
+                <BindButton
+                  darkMode={darkMode}
+                  disabled={discordLoading}
+                  loading={discordAction === "bind"}
+                  label={messages.discord.bind}
+                  onClick={handleCreateCode}
+                />
+              ) : null}
+            </div>
+          )}
+          {pendingBindingCode ? (
+            <DiscordBindingCodeStatus
+              action={discordAction}
+              darkMode={darkMode}
+              code={pendingBindingCode.value}
+              expiresAt={pendingBindingCode.expiresAt}
+              messages={messages}
+              onCancel={handleCancelCode}
+              onCheckAgain={handleCheckAgain}
+              onRegenerate={handleCreateCode}
+            />
+          ) : null}
         </div>
       </ListItem>
       {confirmUnbindOpen ? (
@@ -285,40 +285,41 @@ export function DiscordBindingSettings({
   );
 }
 
-function RefreshButton({
-  darkMode,
-  label,
-  loading,
-  onClick,
+function getDiscordStatusText({
+  bindingStatusFailed,
+  discordBinding,
+  discordLoading,
+  messages,
 }: {
-  darkMode: boolean;
-  label: string;
-  loading: boolean;
-  onClick: () => void;
+  bindingStatusFailed: boolean;
+  discordBinding: DiscordBindingView | null;
+  discordLoading: boolean;
+  messages: SettingsMessages;
 }) {
-  return (
-    <Button
-      darkMode={darkMode}
-      tone="ghost"
-      size="icon-sm"
-      aria-label={label}
-      loading={loading}
-      icon={<RefreshCw size={15} aria-hidden="true" />}
-      loadingIcon={
-        <LoaderCircle className="animate-spin" size={15} aria-hidden="true" />
-      }
-      onClick={onClick}
-    />
-  );
+  if (discordLoading) {
+    return messages.discord.checking;
+  }
+
+  if (bindingStatusFailed) {
+    return messages.discord.checkFailed;
+  }
+
+  if (discordBinding) {
+    return messages.discord.bound;
+  }
+
+  return messages.discord.notConnected;
 }
 
-function ConnectButton({
+function BindButton({
   darkMode,
+  disabled,
   label,
   loading,
   onClick,
 }: {
   darkMode: boolean;
+  disabled: boolean;
   label: string;
   loading: boolean;
   onClick: () => void;
@@ -326,10 +327,9 @@ function ConnectButton({
   return (
     <Button
       darkMode={darkMode}
+      disabled={disabled}
       loading={loading}
-      icon={
-        loading ? undefined : <WalletCards size={14} aria-hidden="true" />
-      }
+      icon={loading ? undefined : <Link size={14} aria-hidden="true" />}
       loadingIcon={
         <LoaderCircle className="animate-spin" size={14} aria-hidden="true" />
       }
@@ -340,31 +340,30 @@ function ConnectButton({
   );
 }
 
-function BindingCodeBox({
-  code,
+function CheckAgainButton({
   darkMode,
-  expiresAt,
-  messages,
+  label,
+  loading,
+  onClick,
 }: {
-  code: string;
   darkMode: boolean;
-  expiresAt: string | null;
-  messages: SettingsMessages;
+  label: string;
+  loading: boolean;
+  onClick: () => void;
 }) {
   return (
-    <div
-      className={`mt-3 rounded-md border px-3 py-3 ${controlGroupSurfaceClass(darkMode)}`}
+    <Button
+      darkMode={darkMode}
+      disabled={loading}
+      loading={loading}
+      icon={loading ? undefined : <RefreshCw size={14} aria-hidden="true" />}
+      loadingIcon={
+        <LoaderCircle className="animate-spin" size={14} aria-hidden="true" />
+      }
+      onClick={onClick}
     >
-      <p className="text-sm font-semibold tracking-[0.08em]">{code}</p>
-      <p className={`mt-2 text-xs leading-5 ${mutedTextClass(darkMode)}`}>
-        {messages.discord.bindInstruction}
-      </p>
-      {expiresAt ? (
-        <p className={`text-xs leading-5 ${mutedTextClass(darkMode)}`}>
-          {messages.discord.expiresAt(expiresAt)}
-        </p>
-      ) : null}
-    </div>
+      {label}
+    </Button>
   );
 }
 
@@ -376,23 +375,4 @@ function bindingResultMessage(
   const results = messages.discord.results as Record<string, string>;
 
   return results[code] ?? fallback ?? messages.discord.genericError;
-}
-
-function formatBindingCodeExpiry(
-  value: string,
-  languagePreference: LanguagePreference,
-) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-
-  return date.toLocaleTimeString(
-    languagePreference === "zh-CN" ? "zh-CN" : "en-US",
-    {
-      hour: "2-digit",
-      minute: "2-digit",
-    },
-  );
 }
