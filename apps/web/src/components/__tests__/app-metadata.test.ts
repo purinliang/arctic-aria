@@ -3,7 +3,6 @@ import test from "node:test";
 import {
   appMetadataVersionText,
   defaultDatabaseVersionStatus,
-  shouldShowDatabaseVersion,
   shouldShowExpectedDatabaseVersion,
   type AppMetadata,
 } from "../app-metadata.ts";
@@ -49,7 +48,7 @@ test("app metadata appends the commit for non-release versions", () => {
   );
 });
 
-test("database version is silent for aligned exact release versions", () => {
+test("database expected hash is silent for exact release versions", () => {
   const status = defaultDatabaseVersionStatus(
     metadata({
       version: "v0.5.0",
@@ -58,18 +57,16 @@ test("database version is silent for aligned exact release versions", () => {
     }),
   );
 
-  assert.equal(shouldShowDatabaseVersion(status), false);
   assert.equal(shouldShowExpectedDatabaseVersion(status), false);
 });
 
-test("database version shows expected hash for aligned development versions", () => {
+test("database expected hash is available for development versions", () => {
   const status = defaultDatabaseVersionStatus();
 
-  assert.equal(shouldShowDatabaseVersion(status), true);
   assert.equal(shouldShowExpectedDatabaseVersion(status), true);
 });
 
-test("database version shows mismatches for exact release versions", () => {
+test("database expected hash stays silent for exact release mismatches", () => {
   const status = {
     ...defaultDatabaseVersionStatus(
       metadata({
@@ -82,6 +79,5 @@ test("database version shows mismatches for exact release versions", () => {
     message: "expected 4b4173a36c56; database schema is behind",
   };
 
-  assert.equal(shouldShowDatabaseVersion(status), true);
   assert.equal(shouldShowExpectedDatabaseVersion(status), false);
 });

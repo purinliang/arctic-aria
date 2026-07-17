@@ -35,12 +35,12 @@ and [data-model.md](data-model.md).
 - Show a small deployment metadata footer below the auth panel when app
   metadata is available. It should use shared `SupportingText` styling and
   follow the same version visibility rules as Settings.
-- Do not show migration filenames in the signed-out footer. Exact release
-  builds should show only `App Version` when the database is aligned. Develop,
-  feature, fix, and hotfix builds should also show `Database Version` with the
-  expected schema hash in normal text. If the schema is not aligned, show
-  `Database Version` and append the same short red parenthetical message used by
-  Settings.
+- Do not show migration filenames in the signed-out footer.
+- Show `App Version` visibly.
+- Keep the `Database Version` row rendered but visually collapsed for normal
+  signed-out users, regardless of whether the database schema is aligned. This
+  keeps the value inspectable in browser developer tools without showing it in
+  the normal UI.
 - `Sign up` should be the right tab in a two-tab control. The other tab is
   `Sign in`.
 - Below the tabs, stack the form vertically:
