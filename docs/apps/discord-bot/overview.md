@@ -6,9 +6,22 @@ routine, idea, scheduler, or review rules.
 
 The first bot runtime scaffold is implemented under `apps/discord-bot`.
 
-## First Workflow
+The next Discord design work adds two capabilities:
 
-The first Discord workflow is quick idea capture:
+- user-facing Discord binding through inbound Discord interactions
+- outbound Discord messages from Arctic Aria services to Discord DMs
+
+Direction terms:
+
+- `inbound interaction`: Discord sends a slash command or interaction to Arctic
+  Aria through the bot endpoint
+- `outbound message`: Arctic Aria asks the bot to send a Discord DM
+
+Use these terms from the Arctic Aria system point of view.
+
+## Inbound Interaction Workflows
+
+The first inbound Discord workflow is quick idea capture:
 
 ```text
 /idea text:<raw text>
@@ -25,7 +38,16 @@ The bot should:
 The command name is `/idea`, not `/capture`, so the app surface matches the
 product entity.
 
-## First Runtime Direction
+The next inbound Discord workflow is user-facing account binding:
+
+```text
+/bind code:<one-time code>
+```
+
+The web Settings page owns code creation. The Discord bot owns code redemption
+because it can verify the Discord user id that invoked the command.
+
+## Inbound Interaction Runtime
 
 The first implementation is a separate TypeScript app under
 `apps/discord-bot`, using Discord HTTP Interactions.
@@ -52,6 +74,7 @@ Planned environment variables:
 - `DISCORD_PUBLIC_KEY`
 - `DISCORD_DEVELOPER_USER_ID`
 - `ARCTIC_ARIA_DEVELOPER_USERNAME`
+- `DISCORD_MESSAGE_PUSH_SECRET`
 - `NEON_POSTGRES_URL`
 - optional `PORT`, defaulting to `3001`
 
@@ -68,13 +91,14 @@ Local scripts read `apps/discord-bot/.env.local`. Use
 ## Code Locations
 
 - Runtime: `apps/discord-bot/src/index.ts`
-- HTTP interaction server: `apps/discord-bot/src/interaction-server.ts`
-- HTTP interaction handler: `apps/discord-bot/src/interaction-handler.ts`
+- Inbound interaction server: `apps/discord-bot/src/interaction-server.ts`
+- Inbound interaction handler: `apps/discord-bot/src/interaction-handler.ts`
 - Command registration: `apps/discord-bot/src/register-commands.ts`
 - Slash command metadata: `apps/discord-bot/src/discord-commands.ts`
 - `/idea` capture command: `apps/discord-bot/src/idea-capture.ts`
 - Developer prototype binding: `apps/discord-bot/src/developer-binding.ts`
 - Database URL helper: `apps/discord-bot/src/database.ts`
+- Planned outbound message endpoint: `POST /internal/discord/messages`
 
 ## Account Binding
 
@@ -92,8 +116,24 @@ The first binding model should enforce:
 - a clear link to `users.id`
 
 The first developer prototype uses environment settings to bind the
-developer's Discord account to one existing Arctic Aria user. Token-based
-binding can be added later when the bot needs normal multi-user setup.
+developer's Discord account to one existing Arctic Aria user. This is a local
+prototype path only.
+
+The next user-facing binding flow uses one-time codes:
+
+- Settings creates a short-lived binding code for the signed-in Arctic Aria
+  user.
+- The code is stored hashed in `discord_binding_codes`.
+- The user runs `/bind code:<code>` in Discord.
+- The bot validates the code, consumes it once, and creates or reactivates the
+  `discord_accounts` row for that Arctic Aria user.
+- A Discord account already bound to another active Arctic Aria user is
+  rejected.
+- Reconnecting replaces the previous Discord binding for the same Arctic Aria
+  user.
+
+This code flow is the first user-facing implementation. Discord OAuth remains
+deferred.
 
 For personal local testing in Discord Developer Portal:
 
@@ -127,6 +167,22 @@ Implemented constraints:
 - queries that load a binding for product commands must require
   `binding_status = 'active'`.
 
+Planned `discord_binding_codes` fields:
+
+- `id uuid PRIMARY KEY`
+- `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
+- `code_hash text NOT NULL`
+- `expires_at timestamptz NOT NULL`
+- `consumed_at timestamptz`
+- `created_at timestamptz NOT NULL DEFAULT now()`
+
+Planned binding-code rules:
+
+- codes expire after 10 minutes
+- codes can be consumed once
+- raw codes are never stored
+- expired and consumed codes are ignored by normal binding lookups
+
 ## Chat Scope
 
 The first bot supports command chat only. It should reply conversationally to
@@ -153,14 +209,17 @@ Reminder delivery will need Scheduler or reminder-job design before
 implementation. Redis, queues, and event/dataflow should remain deferred until a
 concrete delivery, retry, idempotency, or rate-limit need appears.
 
-Future notification pushes from the web app should be implemented as an
+Future outbound messages from Arctic Aria services should be implemented as an
 explicit HTTP/job interface into the Discord app surface, then the Discord app
 can send messages through the Discord HTTP API. Do not add a long-running
-Gateway listener just to receive internal Arctic Aria notification work.
+Gateway listener just to receive Arctic Aria notification work.
+
+The planned first outbound message API is documented in
+[outbound-messages.md](outbound-messages.md).
 
 ## Data Flow
 
-First `/idea` flow:
+Inbound `/idea` flow:
 
 ```text
 Discord slash command
@@ -175,6 +234,29 @@ Discord slash command
 
 The bot should not write planning, routine, memory, or review tables directly.
 It should call product commands that own validation and state transitions.
+
+Planned inbound `/bind` flow:
+
+```text
+Settings page
+  -> creates one-time binding code for signed-in Arctic Aria user
+  -> user runs /bind code:<code> in Discord
+  -> Discord POSTs to /interactions
+  -> bot verifies Discord request signature
+  -> bot validates and consumes binding code
+  -> bot upserts discord_accounts for the Arctic Aria user
+  -> bot sends private acknowledgement
+```
+
+Planned outbound message flow:
+
+```text
+Arctic Aria service
+  -> POST /internal/discord/messages with bearer secret
+  -> bot validates request and active Discord binding
+  -> bot sends plain DM through Discord HTTP API
+  -> bot records delivery status without raw message text
+```
 
 ## Local Runbook
 
@@ -241,7 +323,7 @@ It should call product commands that own validation and state transitions.
    ngrok http 3001
    ```
 
-   If using a reserved ngrok domain:
+   If using a fixed ngrok domain:
 
    ```bash
    ngrok http --url=<your-ngrok-domain> 3001
