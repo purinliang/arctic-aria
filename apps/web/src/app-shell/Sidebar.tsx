@@ -231,8 +231,8 @@ function SidebarFrame({
           : "hidden h-screen w-[300px] shrink-0 lg:sticky lg:top-0 lg:flex"
       } relative flex-col border-r ${
         darkMode
-          ? "border-neutral-800 bg-black text-white"
-          : "border-neutral-200 bg-white text-black"
+          ? "border-[var(--aa-grey-3)] bg-[var(--aa-grey-1)] text-[var(--aa-grey-15)]"
+          : "border-[var(--aa-grey-11)] bg-[var(--aa-grey-15)] text-[var(--aa-grey-0)]"
       }`}
     >
       <div
@@ -320,7 +320,7 @@ function SidebarFrame({
           />
           <div
             className={`my-2 border-t ${
-              darkMode ? "border-neutral-800" : "border-neutral-200"
+              darkMode ? "border-[var(--aa-grey-3)]" : "border-[var(--aa-grey-11)]"
             }`}
             aria-hidden="true"
           />

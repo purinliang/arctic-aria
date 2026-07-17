@@ -4,7 +4,7 @@ export const appThemeColors = {
   light: {
     background: "#eef2f5",
     foreground: "#000000",
-    mutedForeground: "#737373",
+    mutedForeground: "#555555",
   },
   dark: {
     background: "#000000",
@@ -14,7 +14,9 @@ export const appThemeColors = {
 } as const;
 
 export function appShellClass(darkMode: boolean) {
-  return darkMode ? "bg-black text-white" : "bg-[#eef2f5] text-black";
+  return darkMode
+    ? "bg-[var(--aa-grey-0)] text-[var(--aa-grey-15)]"
+    : "bg-[var(--aa-grey-13)] text-[var(--aa-grey-0)]";
 }
 
 export function useDocumentTheme(darkMode: boolean) {

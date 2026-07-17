@@ -64,12 +64,19 @@ grey; a slightly cool or warm neutral is acceptable when it improves the Arctic
 Aria visual direction. The important rule is that the app uses one coherent
 scale instead of mixing unrelated grey families.
 
+The concrete shared scale lives in `apps/web/src/app/globals.css` as
+`--aa-grey-0` through `--aa-grey-15`. Shared color helpers should use those
+variables for normal app chrome so changing the scale does not require editing
+every component.
+
 Design and tune the light-mode scale first. Light mode should define the
 intended relationship between page background, surfaces, headers, borders,
 icons, supporting text, and main text. Dark mode should then reverse those
 roles from the same scale: light surfaces become dark surfaces, dark text
 becomes light text, and middle neutral steps keep similar visual distance from
-their surrounding surfaces.
+their surrounding surfaces. Do not collapse page background, sidebar, cards,
+panels, inputs, and headers into one pure black surface; dark mode should keep
+the same visible hierarchy that light mode has.
 
 Use shared component color helpers for these roles:
 
