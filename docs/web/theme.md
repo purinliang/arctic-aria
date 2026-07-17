@@ -94,9 +94,17 @@ semantic Arctic Aria aliases:
 - `--aa-color-focus`
 
 Light and dark modes both keep Radix's intended hierarchy: background steps are
-subtle, interactive and border steps are stronger, solid accent steps are used
-for primary or selected controls, and high steps are used for readable text.
-Do not reintroduce a custom numeric grey scale such as `--aa-grey-*`.
+subtle, interactive and selected backgrounds stay in steps `3` through `5`,
+border steps are stronger, solid accent steps are used for primary actions,
+and high steps are used for readable text. Do not reintroduce a custom numeric
+grey scale such as `--aa-grey-*`.
+
+Selected or active navigation rows, dropdown options, list rows, and choice
+items should use the selected aliases, which map to Radix step `5` backgrounds,
+step `7` borders, and step `12` text. Primary action buttons should use the
+primary aliases, which map to solid Radix step `9` backgrounds, step `10`
+hover backgrounds, and contrast text. Do not make selected state look like a
+primary submit action unless the component is actually an action button.
 
 Use shared component color helpers for these roles:
 
