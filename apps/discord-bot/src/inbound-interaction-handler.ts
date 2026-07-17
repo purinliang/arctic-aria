@@ -3,11 +3,12 @@ import {
   InteractionResponseType,
   InteractionType,
 } from "discord-interactions";
-import { ideaCommandName } from "./discord-commands.ts";
+import { bindDiscordAccount } from "./account-binding.ts";
+import { bindCommandName, ideaCommandName } from "./discord-commands.ts";
 import { captureDiscordIdea } from "./idea-capture.ts";
 import type { QueryExecutor } from "./query-executor.ts";
 
-export type DiscordInteractionResult = {
+export type InboundDiscordInteractionResult = {
   status: number;
   body: Record<string, unknown>;
 };
@@ -34,10 +35,10 @@ type DiscordInteractionUser = {
   username?: string;
 };
 
-export async function handleDiscordInteraction(
+export async function handleInboundDiscordInteraction(
   sql: QueryExecutor,
   interaction: unknown,
-): Promise<DiscordInteractionResult> {
+): Promise<InboundDiscordInteractionResult> {
   if (!isRecord(interaction)) {
     return errorResponse(400, "Invalid Discord interaction payload.");
   }
@@ -57,22 +58,36 @@ export async function handleDiscordInteraction(
     return messageResponse(body, "Unsupported Discord interaction.");
   }
 
-  if (body.data?.name !== ideaCommandName) {
+  if (
+    body.data?.name !== ideaCommandName &&
+    body.data?.name !== bindCommandName
+  ) {
     return messageResponse(body, "Unknown Arctic Aria command.");
   }
 
   const user = readInteractionUser(body);
-  const rawText = readOptionString(body, "text");
 
   if (!user?.id) {
     return messageResponse(body, "This Discord account id is invalid.");
+  }
+
+  if (body.data?.name === bindCommandName) {
+    const result = await bindDiscordAccount(sql, {
+      discordUserId: user.id,
+      discordUsername: user.username ?? null,
+      dmChannelId: body.channel_id ?? null,
+      rawCode: readOptionString(body, "code"),
+      occurredAt: new Date(),
+    });
+
+    return messageResponse(body, result.reply);
   }
 
   const result = await captureDiscordIdea(sql, {
     discordUserId: user.id,
     discordUsername: user.username ?? null,
     dmChannelId: body.channel_id ?? null,
-    rawText,
+    rawText: readOptionString(body, "text"),
     occurredAt: new Date(),
   });
 
@@ -92,7 +107,7 @@ function readOptionString(interaction: DiscordInteraction, name: string) {
 function messageResponse(
   interaction: DiscordInteraction,
   content: string,
-): DiscordInteractionResult {
+): InboundDiscordInteractionResult {
   const data: Record<string, unknown> = {
     content,
   };
@@ -113,7 +128,7 @@ function messageResponse(
 function errorResponse(
   status: number,
   message: string,
-): DiscordInteractionResult {
+): InboundDiscordInteractionResult {
   return {
     status,
     body: {

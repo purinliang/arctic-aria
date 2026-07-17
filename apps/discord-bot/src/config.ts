@@ -1,6 +1,7 @@
 export type DiscordBotConfig = {
   discordBotToken: string | null;
   discordAppId: string;
+  discordMessagePushSecret: string | null;
   discordPublicKey: string | null;
   developerDiscordUserId: string | null;
   developerUsername: string | null;
@@ -13,6 +14,7 @@ export function loadDiscordBotConfig(
   return {
     discordBotToken: readOptionalEnv(env, "DISCORD_BOT_TOKEN"),
     discordAppId: readRequiredEnv(env, "DISCORD_APP_ID"),
+    discordMessagePushSecret: readOptionalEnv(env, "DISCORD_MESSAGE_PUSH_SECRET"),
     discordPublicKey: readOptionalEnv(env, "DISCORD_PUBLIC_KEY"),
     developerDiscordUserId: readOptionalEnv(env, "DISCORD_DEVELOPER_USER_ID"),
     developerUsername: readOptionalEnv(env, "ARCTIC_ARIA_DEVELOPER_USERNAME"),

@@ -12,8 +12,11 @@ Settings should include personal configuration that affects how the product
 behaves for one user.
 
 The current prototype implements a Settings page opened from the sidebar
-`Settings` item. It shows persisted display preferences and app/database
-version metadata.
+`Settings` item. It is organized into three cards:
+
+- `Preferences`: persisted display, language, and time preferences
+- `Discord Binding`: Discord account binding controls
+- `App Information`: app and database version metadata
 
 Implemented user preferences:
 
@@ -48,12 +51,12 @@ Version metadata rows:
 - app version, with commit hash only for unreleased branch builds
 - actual database version
 
-This is a normal authenticated Settings surface. Version metadata is
+This is a normal authenticated `App Information` surface. Version metadata is
 intentionally more visible than the signed-out auth-page metadata footer,
 because signed-in users can use it to compare the deployed frontend/backend
 with database migration records.
 
-The Settings panel should show version rows:
+The `App Information` card should show version rows:
 
 - `App Version`: current build version. Exact release tags show only the
   release version, such as `v0.5.0`; develop, feature, fix, and hotfix branch
@@ -83,40 +86,39 @@ Current web source:
 
 ## Discord Binding
 
-Progress: planned
+Progress: partially implemented
 
 Discord binding belongs in Settings because it is account-scoped configuration
 for one Arctic Aria user. The binding connects an Arctic Aria user to one
 Discord account so the Discord bot can accept `/idea` and later send direct
 messages to that user.
 
-Settings should show a Discord row or section inside the existing Settings
-panel.
+Settings shows Discord controls inside a separate `Discord Binding` card.
 
 Unbound state:
 
 - show `Discord`
-- show supporting text explaining that Discord is not connected
-- show a secondary `Connect` button
+- show supporting text explaining that Discord can receive ideas and send
+  messages
+- show `Checking binding status...` while the initial status load is pending
+- show `Binding status unavailable.` and a `Check Again` action if the status
+  check fails
+- show `No bound account.` after loading when no active binding exists
+- show a secondary `Bind` button
 
 Pending code state:
 
 - show the one-time code
-- show expiry time
+- show relative expiry text such as `Expires in 15 minutes.`
+- show `Expired` in red when the code expires
 - show instructions: run `/bind code:<code>` in Discord
-- show `Regenerate` and `Cancel` actions
+- show `Check Again` and `Cancel` actions below the account binding setting
 
 Bound state:
 
-- show the Discord username when available, otherwise Discord user id
-- show last interaction time when available
-- show `Reconnect` and `Unbind` actions
-
-Reconnect:
-
-- creates a new one-time code
-- successful `/bind` replaces the previous Discord account for the same Arctic
-  Aria user
+- show `Bound Account ID` as a disabled password-style input field
+- show an icon-only view/hide button inside the input field
+- show `Unbind` in the same horizontal row as the input when width allows
 
 Unbind:
 
@@ -127,12 +129,23 @@ Unbind:
 
 Expected notifications:
 
-- show success notification when a code is generated, binding is refreshed, or
-  unbind succeeds
+- show success notification when a code is generated, canceled, or unbind
+  succeeds
 - show error notification when code creation, binding status loading, or unbind
   fails
 - do not show raw code hashes, internal secrets, Discord bot tokens, or raw
   backend errors
+
+Current implementation:
+
+- Settings can load the active Discord binding for the signed-in Arctic Aria
+  user.
+- Settings can create and cancel one-time binding codes.
+- Settings can unbind the active Discord account after confirmation.
+- The Discord bot implements `/bind code:<code>` and consumes those codes.
+- The UI does not yet poll automatically after the user completes `/bind` in
+  Discord; users can sign out and sign in again if they need to force a status
+  reload.
 
 ## Attributes
 

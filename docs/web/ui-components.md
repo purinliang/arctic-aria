@@ -84,6 +84,10 @@ Buttons support:
 
 Feature pages should not define local button class helpers.
 
+Use button size `field` for inline form-row actions that must align with a
+standard input, select, date picker, or time picker height. Do not hand-code
+height classes locally for those actions.
+
 Create buttons in card or panel headers should use secondary styling and the
 label `New` when the header title already names the object being created, such
 as `Projects`, `Routines`, `Memories`, or `Milestones`. Do not use primary

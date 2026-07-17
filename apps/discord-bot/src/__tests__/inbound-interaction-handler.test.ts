@@ -5,7 +5,7 @@ import {
   InteractionResponseType,
   InteractionType,
 } from "discord-interactions";
-import { handleDiscordInteraction } from "../interaction-handler.ts";
+import { handleInboundDiscordInteraction } from "../inbound-interaction-handler.ts";
 import type { QueryExecutor } from "../query-executor.ts";
 
 class FakeSql implements QueryExecutor {
@@ -24,9 +24,9 @@ class FakeSql implements QueryExecutor {
   }
 }
 
-describe("handleDiscordInteraction", () => {
+describe("handleInboundDiscordInteraction", () => {
   it("responds to Discord ping verification", async () => {
-    const result = await handleDiscordInteraction(new FakeSql([]), {
+    const result = await handleInboundDiscordInteraction(new FakeSql([]), {
       type: InteractionType.PING,
     });
 
@@ -40,7 +40,7 @@ describe("handleDiscordInteraction", () => {
 
   it("captures an idea from an app DM slash command", async () => {
     const sql = new FakeSql([[{ user_id: "user-1" }], [{ id: "idea-1" }], []]);
-    const result = await handleDiscordInteraction(sql, {
+    const result = await handleInboundDiscordInteraction(sql, {
       type: InteractionType.APPLICATION_COMMAND,
       context: 1,
       data: {
@@ -68,7 +68,7 @@ describe("handleDiscordInteraction", () => {
 
   it("keeps slash command replies ephemeral in guild channels", async () => {
     const sql = new FakeSql([[{ user_id: "user-1" }], [{ id: "idea-1" }], []]);
-    const result = await handleDiscordInteraction(sql, {
+    const result = await handleInboundDiscordInteraction(sql, {
       type: InteractionType.APPLICATION_COMMAND,
       context: 0,
       data: {
@@ -98,7 +98,7 @@ describe("handleDiscordInteraction", () => {
   });
 
   it("returns an ephemeral reply when the Discord account is not bound", async () => {
-    const result = await handleDiscordInteraction(new FakeSql([[]]), {
+    const result = await handleInboundDiscordInteraction(new FakeSql([[]]), {
       type: InteractionType.APPLICATION_COMMAND,
       context: 0,
       data: {
@@ -119,6 +119,35 @@ describe("handleDiscordInteraction", () => {
           content:
             "This Discord account is not linked to Arctic Aria yet. Open the web app settings before using /idea.",
           flags: InteractionResponseFlags.EPHEMERAL,
+        },
+      },
+    });
+  });
+
+  it("binds a Discord account from an app DM slash command", async () => {
+    const result = await handleInboundDiscordInteraction(
+      new FakeSql([[{ user_id: "user-1" }]]),
+      {
+        type: InteractionType.APPLICATION_COMMAND,
+        context: 1,
+        data: {
+          name: "bind",
+          options: [{ name: "code", value: "ABCD-EFGH-JKLM" }],
+        },
+        user: {
+          id: "123456789",
+          username: "testdiscordusername",
+        },
+        channel_id: "channel-1",
+      },
+    );
+
+    assert.deepEqual(result, {
+      status: 200,
+      body: {
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: "Discord connected to Arctic Aria.",
         },
       },
     });

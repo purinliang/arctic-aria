@@ -5,6 +5,7 @@ import {
 } from "discord.js";
 
 export const ideaCommandName = "idea";
+export const bindCommandName = "bind";
 
 export const discordCommandData = [
   {
@@ -23,6 +24,25 @@ export const discordCommandData = [
         type: ApplicationCommandOptionType.String,
         required: true,
         max_length: 2000,
+      },
+    ],
+  },
+  {
+    name: bindCommandName,
+    description: "Connect Discord to your Arctic Aria account.",
+    integration_types: [ApplicationIntegrationType.UserInstall],
+    contexts: [
+      InteractionContextType.Guild,
+      InteractionContextType.BotDM,
+      InteractionContextType.PrivateChannel,
+    ],
+    options: [
+      {
+        name: "code",
+        description: "Connection code from Arctic Aria Settings.",
+        type: ApplicationCommandOptionType.String,
+        required: true,
+        max_length: 32,
       },
     ],
   },

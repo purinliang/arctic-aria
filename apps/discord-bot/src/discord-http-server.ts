@@ -1,19 +1,31 @@
 import { createServer } from "node:http";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { verifyKey } from "discord-interactions";
-import { handleDiscordInteraction } from "./interaction-handler.ts";
+import { createDiscordMessageSender } from "./discord-api.ts";
+import { handleInboundDiscordInteraction } from "./inbound-interaction-handler.ts";
+import { handleOutboundDiscordMessage } from "./outbound-message.ts";
 import type { QueryExecutor } from "./query-executor.ts";
 
 const maxBodyBytes = 64 * 1024;
+const outboundMessagePath = "/internal/discord/messages";
 
-export function createInteractionServer(
-  options: { discordPublicKey: string },
+export function createDiscordHttpServer(
+  options: {
+    discordBotToken: string | null;
+    discordMessagePushSecret: string | null;
+    discordPublicKey: string;
+  },
   sql: QueryExecutor,
 ) {
   return createServer(async (request, response) => {
     try {
       if (request.method === "GET" && request.url === "/health") {
         sendJson(response, 200, { ok: true });
+        return;
+      }
+
+      if (request.url === outboundMessagePath) {
+        await handleOutboundMessageRequest(request, response, options, sql);
         return;
       }
 
@@ -49,17 +61,17 @@ export function createInteractionServer(
       }
 
       const payload = JSON.parse(rawBody.toString("utf8")) as unknown;
-      const result = await handleDiscordInteraction(sql, payload);
-      console.log("[discord-bot]", "interaction_handled", {
-        command: interactionLogLabel(payload),
+      const result = await handleInboundDiscordInteraction(sql, payload);
+      console.log("[discord-bot]", "inbound_interaction_handled", {
+        command: inboundInteractionLogLabel(payload),
         status: result.status,
       });
       sendJson(response, result.status, result.body);
     } catch (error) {
-      console.error("[discord-bot]", "interaction_request_failed", {
+      console.error("[discord-bot]", "discord_http_request_failed", {
         message: error instanceof Error ? error.message : "unknown",
       });
-      sendJson(response, 500, { error: "Interaction failed." });
+      sendJson(response, 500, { error: "Discord bot request failed." });
     }
   });
 }
@@ -70,6 +82,63 @@ export function browserInteractionHelpResponse() {
       "Discord interactions use POST requests. Set the public Discord endpoint URL to this path, but do not open it directly in a browser.",
     expectedMethod: "POST",
   };
+}
+
+export function browserOutboundMessageHelpResponse() {
+  return {
+    error:
+      "Outbound Discord messages use POST requests with Authorization: Bearer <secret>.",
+    expectedMethod: "POST",
+  };
+}
+
+export function readBearerToken(value: string | undefined) {
+  const match = /^Bearer\s+(.+)$/i.exec(value?.trim() ?? "");
+
+  return match?.[1]?.trim() ?? null;
+}
+
+async function handleOutboundMessageRequest(
+  request: IncomingMessage,
+  response: ServerResponse,
+  options: {
+    discordBotToken: string | null;
+    discordMessagePushSecret: string | null;
+  },
+  sql: QueryExecutor,
+) {
+  if (request.method === "GET") {
+    sendJson(response, 405, browserOutboundMessageHelpResponse());
+    return;
+  }
+
+  if (request.method !== "POST") {
+    sendJson(response, 405, { error: "Method not allowed." });
+    return;
+  }
+
+  if (!options.discordBotToken || !options.discordMessagePushSecret) {
+    sendJson(response, 503, { error: "Outbound Discord messages unavailable." });
+    return;
+  }
+
+  const bearerToken = readBearerToken(readHeader(request, "authorization"));
+
+  if (bearerToken !== options.discordMessagePushSecret) {
+    sendJson(response, 401, { error: "Invalid message-push secret." });
+    return;
+  }
+
+  const rawBody = await readRequestBody(request);
+  const payload = JSON.parse(rawBody.toString("utf8")) as unknown;
+  const result = await handleOutboundDiscordMessage(
+    sql,
+    payload,
+    createDiscordMessageSender(options.discordBotToken),
+  );
+
+  console.log("[discord-bot]", "outbound_message_handled", result.log);
+  sendJson(response, result.status, result.body);
 }
 
 function readHeader(request: IncomingMessage, name: string) {
@@ -117,7 +186,7 @@ function sendJson(
   response.end(payload);
 }
 
-function interactionLogLabel(payload: unknown) {
+function inboundInteractionLogLabel(payload: unknown) {
   if (!payload || typeof payload !== "object") {
     return "unknown";
   }

@@ -9,6 +9,10 @@ import {
   settingsService,
   type SettingsActionResult,
 } from "./server/settings-service";
+import {
+  discordBindingService,
+  type DiscordBindingActionResult,
+} from "./server/discord-binding-service";
 
 export async function getUserPreferences(): Promise<SettingsActionResult> {
   const user = await getCurrentUser();
@@ -29,10 +33,67 @@ export async function saveUserPreferences(
     return unauthorizedResult();
   }
 
-  return settingsService.savePreferences(user.id, normalizeUserPreferences(input));
+  return settingsService.savePreferences(
+    user.id,
+    normalizeUserPreferences(input),
+  );
+}
+
+export async function getDiscordBinding(): Promise<DiscordBindingActionResult> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedDiscordResult();
+  }
+
+  return discordBindingService.getBinding(user.id);
+}
+
+export async function createDiscordBindingCode(): Promise<
+  DiscordBindingActionResult
+> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedDiscordResult();
+  }
+
+  return discordBindingService.createBindingCode(user.id);
+}
+
+export async function unbindDiscordAccount(): Promise<
+  DiscordBindingActionResult
+> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedDiscordResult();
+  }
+
+  return discordBindingService.unbind(user.id);
+}
+
+export async function cancelDiscordBindingCode(): Promise<
+  DiscordBindingActionResult
+> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedDiscordResult();
+  }
+
+  return discordBindingService.cancelBindingCode(user.id);
 }
 
 function unauthorizedResult(): SettingsActionResult {
+  return {
+    ok: false,
+    code: "settings_unauthorized",
+    message: "Sign in before changing settings.",
+  };
+}
+
+function unauthorizedDiscordResult(): DiscordBindingActionResult {
   return {
     ok: false,
     code: "settings_unauthorized",

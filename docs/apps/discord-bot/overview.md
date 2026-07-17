@@ -38,14 +38,14 @@ The bot should:
 The command name is `/idea`, not `/capture`, so the app surface matches the
 product entity.
 
-The next inbound Discord workflow is user-facing account binding:
+The second inbound Discord workflow is user-facing account binding:
 
 ```text
 /bind code:<one-time code>
 ```
 
-The web Settings page owns code creation. The Discord bot owns code redemption
-because it can verify the Discord user id that invoked the command.
+The web Settings backend owns code creation. The Discord bot owns code
+redemption because it can verify the Discord user id that invoked the command.
 
 ## Inbound Interaction Runtime
 
@@ -91,14 +91,17 @@ Local scripts read `apps/discord-bot/.env.local`. Use
 ## Code Locations
 
 - Runtime: `apps/discord-bot/src/index.ts`
-- Inbound interaction server: `apps/discord-bot/src/interaction-server.ts`
-- Inbound interaction handler: `apps/discord-bot/src/interaction-handler.ts`
+- Discord HTTP server: `apps/discord-bot/src/discord-http-server.ts`
+- Inbound interaction handler: `apps/discord-bot/src/inbound-interaction-handler.ts`
 - Command registration: `apps/discord-bot/src/register-commands.ts`
 - Slash command metadata: `apps/discord-bot/src/discord-commands.ts`
+- `/bind` account binding command: `apps/discord-bot/src/account-binding.ts`
 - `/idea` capture command: `apps/discord-bot/src/idea-capture.ts`
+- Outbound message command: `apps/discord-bot/src/outbound-message.ts`
+- Discord HTTP API sender: `apps/discord-bot/src/discord-api.ts`
 - Developer prototype binding: `apps/discord-bot/src/developer-binding.ts`
 - Database URL helper: `apps/discord-bot/src/database.ts`
-- Planned outbound message endpoint: `POST /internal/discord/messages`
+- Outbound message endpoint: `POST /internal/discord/messages`
 
 ## Account Binding
 
@@ -119,14 +122,14 @@ The first developer prototype uses environment settings to bind the
 developer's Discord account to one existing Arctic Aria user. This is a local
 prototype path only.
 
-The next user-facing binding flow uses one-time codes:
+The implemented user-facing binding flow uses one-time codes:
 
 - Settings creates a short-lived binding code for the signed-in Arctic Aria
   user.
 - The code is stored hashed in `discord_binding_codes`.
 - The user runs `/bind code:<code>` in Discord.
 - The bot validates the code, consumes it once, and creates or reactivates the
-  `discord_accounts` row for that Arctic Aria user.
+  `discord_accounts` row for that Arctic Aria user in one atomic SQL statement.
 - A Discord account already bound to another active Arctic Aria user is
   rejected.
 - Reconnecting replaces the previous Discord binding for the same Arctic Aria
@@ -161,26 +164,28 @@ Implemented `discord_accounts` fields:
 
 Implemented constraints:
 
-- `discord_user_id` is unique.
+- active `discord_user_id` values are unique.
 - `user_id` is unique.
 - `binding_status` is one of `active` or `revoked`.
 - queries that load a binding for product commands must require
   `binding_status = 'active'`.
 
-Planned `discord_binding_codes` fields:
+Implemented `discord_binding_codes` fields:
 
 - `id uuid PRIMARY KEY`
 - `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
-- `code_hash text NOT NULL`
+- `code_hash text NOT NULL UNIQUE`
 - `expires_at timestamptz NOT NULL`
 - `consumed_at timestamptz`
 - `created_at timestamptz NOT NULL DEFAULT now()`
 
-Planned binding-code rules:
+Implemented binding-code rules:
 
-- codes expire after 10 minutes
+- codes expire after 15 minutes
 - codes can be consumed once
 - raw codes are never stored
+- creating a new code consumes previous unconsumed codes for the same Arctic
+  Aria user
 - expired and consumed codes are ignored by normal binding lookups
 
 ## Chat Scope
@@ -209,12 +214,12 @@ Reminder delivery will need Scheduler or reminder-job design before
 implementation. Redis, queues, and event/dataflow should remain deferred until a
 concrete delivery, retry, idempotency, or rate-limit need appears.
 
-Future outbound messages from Arctic Aria services should be implemented as an
-explicit HTTP/job interface into the Discord app surface, then the Discord app
-can send messages through the Discord HTTP API. Do not add a long-running
-Gateway listener just to receive Arctic Aria notification work.
+Outbound messages from Arctic Aria services are implemented as an explicit
+HTTP interface into the Discord app surface. The Discord app sends messages
+through the Discord HTTP API. Do not add a long-running Gateway listener just
+to receive Arctic Aria notification work.
 
-The planned first outbound message API is documented in
+The first outbound message API is documented in
 [outbound-messages.md](outbound-messages.md).
 
 ## Data Flow
@@ -235,7 +240,7 @@ Discord slash command
 The bot should not write planning, routine, memory, or review tables directly.
 It should call product commands that own validation and state transitions.
 
-Planned inbound `/bind` flow:
+Inbound `/bind` flow:
 
 ```text
 Settings page
@@ -248,7 +253,7 @@ Settings page
   -> bot sends private acknowledgement
 ```
 
-Planned outbound message flow:
+Outbound message flow:
 
 ```text
 Arctic Aria service
@@ -269,6 +274,7 @@ Arctic Aria service
    - `DISCORD_PUBLIC_KEY`
    - `DISCORD_DEVELOPER_USER_ID`
    - `ARCTIC_ARIA_DEVELOPER_USERNAME`
+   - `DISCORD_MESSAGE_PUSH_SECRET`
    - `NEON_POSTGRES_URL`
 
    Optional key:
@@ -357,7 +363,7 @@ Arctic Aria service
 10. Confirm the bot server logs:
 
     ```text
-    [discord-bot] interaction_handled { command: '/idea', status: 200 }
+    [discord-bot] inbound_interaction_handled { command: '/idea', status: 200 }
     ```
 
 11. Check captured ideas in the web app:
@@ -380,7 +386,7 @@ Arctic Aria service
   from the interaction endpoint in time. Check that `pnpm --dir
   apps/discord-bot dev` is still running, ngrok is still online, the Discord
   endpoint URL ends with `/interactions`, and the bot terminal prints
-  `interaction_handled { command: '/idea', status: 200 }`.
+  `inbound_interaction_handled { command: '/idea', status: 200 }`.
 - `startup_failed` with `code: 'EADDRINUSE'` means another local process is
   already using the configured `PORT`. Stop the existing bot process or set a
   different `PORT` in `apps/discord-bot/.env.local` and update the ngrok

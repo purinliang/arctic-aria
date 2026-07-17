@@ -26,6 +26,13 @@ export type UpsertDeveloperDiscordBindingInput = {
   occurredAt: Date;
 };
 
+export type CreateDiscordBindingCodeInput = {
+  userId: string;
+  codeHash: string;
+  expiresAt: Date;
+  createdAt: Date;
+};
+
 type DiscordAccountRow = {
   id: string;
   user_id: string;
@@ -81,6 +88,84 @@ export class PostgresDiscordAccountRepository {
          AND binding_status = 'active'
        LIMIT 1`,
       [discordUserId],
+    )) as DiscordAccountRow[];
+
+    return rows[0] ? mapDiscordAccount(rows[0]) : null;
+  }
+
+  async findActiveByUserId(userId: string) {
+    const rows = (await this.getSql().query(
+      `SELECT
+         id,
+         user_id,
+         discord_user_id,
+         discord_username,
+         dm_channel_id,
+         binding_status,
+         last_interaction_at,
+         created_at,
+         updated_at,
+         revoked_at
+       FROM discord_accounts
+       WHERE user_id = $1
+         AND binding_status = 'active'
+       LIMIT 1`,
+      [userId],
+    )) as DiscordAccountRow[];
+
+    return rows[0] ? mapDiscordAccount(rows[0]) : null;
+  }
+
+  async createBindingCode(input: CreateDiscordBindingCodeInput) {
+    await this.getSql().query(
+      `WITH canceled_codes AS (
+         UPDATE discord_binding_codes
+         SET consumed_at = $4
+         WHERE user_id = $1
+           AND consumed_at IS NULL
+         RETURNING id
+       )
+       INSERT INTO discord_binding_codes (
+         user_id,
+         code_hash,
+         expires_at,
+         created_at
+       )
+       VALUES ($1, $2, $3, $4)`,
+      [input.userId, input.codeHash, input.expiresAt, input.createdAt],
+    );
+  }
+
+  async cancelBindingCodesByUserId(userId: string, canceledAt: Date) {
+    await this.getSql().query(
+      `UPDATE discord_binding_codes
+       SET consumed_at = $2
+       WHERE user_id = $1
+         AND consumed_at IS NULL`,
+      [userId, canceledAt],
+    );
+  }
+
+  async revokeActiveByUserId(userId: string, revokedAt: Date) {
+    const rows = (await this.getSql().query(
+      `UPDATE discord_accounts
+       SET binding_status = 'revoked',
+           revoked_at = $2,
+           updated_at = $2
+       WHERE user_id = $1
+         AND binding_status = 'active'
+       RETURNING
+         id,
+         user_id,
+         discord_user_id,
+         discord_username,
+         dm_channel_id,
+         binding_status,
+         last_interaction_at,
+         created_at,
+         updated_at,
+         revoked_at`,
+      [userId, revokedAt],
     )) as DiscordAccountRow[];
 
     return rows[0] ? mapDiscordAccount(rows[0]) : null;
