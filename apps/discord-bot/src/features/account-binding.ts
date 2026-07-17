@@ -1,8 +1,5 @@
-import {
-  hashDiscordBindingCode,
-  normalizeDiscordBindingCode,
-} from "./binding-code.ts";
-import type { QueryExecutor } from "./query-executor.ts";
+import { createHash } from "node:crypto";
+import type { QueryExecutor } from "../infrastructure/database.ts";
 
 const discordSnowflakePattern = /^[0-9]{5,32}$/;
 
@@ -34,6 +31,16 @@ export type DiscordAccountBindResult =
 type BindingRow = {
   user_id: string;
 };
+
+export function normalizeDiscordBindingCode(input: string) {
+  return input.replace(/[\s-]/g, "").toUpperCase();
+}
+
+export function hashDiscordBindingCode(input: string) {
+  return createHash("sha256")
+    .update(normalizeDiscordBindingCode(input), "utf8")
+    .digest("hex");
+}
 
 export async function bindDiscordAccount(
   sql: QueryExecutor,

@@ -200,6 +200,16 @@ interaction defaults, generated-file rules, and web verification commands live
 in `apps/web/AGENTS.md`. Human-facing UI guidance starts at `docs/ui.md`, with
 detailed shared component rules in `docs/web/ui-components.md`.
 
+## Discord Bot Work
+
+- When slash-command metadata changes, update
+  `apps/discord-bot/src/interactions/commands.ts`, run the command registration
+  script, and remind the developer to reinstall or re-authorize the
+  user-installed Discord app if new or changed commands do not appear.
+- Keep the local runbook in `docs/apps/discord-bot/overview.md` aligned with
+  the current command registration, interaction endpoint, ngrok, and install
+  steps.
+
 ## Branches
 
 - `main` is the release and stable branch.

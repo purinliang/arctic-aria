@@ -335,7 +335,6 @@ function BindButton({
       loadingIcon={
         <LoaderCircle className="animate-spin" size={14} aria-hidden="true" />
       }
-      size="field"
       onClick={onClick}
     >
       {label}
@@ -359,7 +358,6 @@ function CheckAgainButton({
       darkMode={darkMode}
       disabled={loading}
       loading={loading}
-      size="field"
       onClick={onClick}
     >
       {label}

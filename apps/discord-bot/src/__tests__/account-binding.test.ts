@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { bindDiscordAccount } from "../account-binding.ts";
-import { hashDiscordBindingCode } from "../binding-code.ts";
-import type { QueryExecutor } from "../query-executor.ts";
+import {
+  bindDiscordAccount,
+  hashDiscordBindingCode,
+  normalizeDiscordBindingCode,
+} from "../features/account-binding.ts";
+import type { QueryExecutor } from "../infrastructure/database.ts";
 
 const now = new Date("2026-07-17T10:30:00.000Z");
 
@@ -27,6 +30,14 @@ class FakeSql implements QueryExecutor {
 }
 
 describe("bindDiscordAccount", () => {
+  it("normalizes spaces, hyphens, and case before hashing", () => {
+    assert.equal(normalizeDiscordBindingCode(" abcd-efgh jklm "), "ABCDEFGHJKLM");
+    assert.equal(
+      hashDiscordBindingCode("abcd-efgh jklm"),
+      hashDiscordBindingCode("ABCDEFGHJKLM"),
+    );
+  });
+
   it("consumes a valid binding code and links the Discord account", async () => {
     const sql = new FakeSql([{ user_id: "user-1" }]);
 

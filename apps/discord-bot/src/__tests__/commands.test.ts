@@ -8,7 +8,7 @@ import {
   bindCommandName,
   discordCommandData,
   ideaCommandName,
-} from "../discord-commands.ts";
+} from "../interactions/commands.ts";
 
 describe("discordCommandData", () => {
   it("registers slash commands as user-install commands for personal Discord use", () => {
