@@ -255,6 +255,10 @@ Card and panel headers should use `px-4 py-3`, a bottom border, and a subtle
 header background that differs from the content surface. The tighter vertical
 padding keeps dashboard and management cards compact.
 
+Header icons should use the same foreground color as the header title. Do not
+style header icons as muted/supporting text; muted color is reserved for
+descriptions, metadata, and helper copy.
+
 Use cards for repeated compact objects. Do not use cards as page sections or as
 containers around other cards.
 
