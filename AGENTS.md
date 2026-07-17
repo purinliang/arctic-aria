@@ -262,6 +262,10 @@ request.
   `docs/releases/vX.Y.Z.md` first. Copy the release title and release text from
   that file into the GitHub PR and later into the main release commit message.
   The release doc is the source of truth for release wording.
+- GitHub release PR bodies should be valid Markdown for reading in GitHub. Use
+  a short heading such as `## Release Text`, then paste the release text as
+  normal paragraphs. Do not paste the release doc's fenced code block or the
+  whole release doc into the PR body.
 - From `v0.7.0` onward, keep release PR text short. Use one release title and
   one release text block from the release doc instead of separate duplicated
   Summary, Changes, Verification, and Notes sections.
