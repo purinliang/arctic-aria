@@ -93,10 +93,11 @@ semantic Arctic Aria aliases:
 - `--aa-color-selected-hover`
 - `--aa-color-focus`
 
-Light and dark modes both keep Radix's intended hierarchy: background steps are
-subtle, interactive and selected backgrounds stay in steps `3` through `5`,
-border steps are stronger, and high steps are used for readable text. Do not
-reintroduce a custom numeric grey scale such as `--aa-grey-*`.
+Light and dark modes both keep Radix's intended hierarchy: page and surface
+backgrounds use subtle neutral steps, selected and primary states use stronger
+accent steps, border steps stay distinct from surfaces, and high steps are used
+for readable text. Do not reintroduce a custom numeric grey scale such as
+`--aa-grey-*`.
 
 Selected or active navigation rows, dropdown options, list rows, and choice
 items should use the selected aliases. In light mode, selected aliases use a
