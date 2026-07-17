@@ -8,6 +8,10 @@ import {
   simplifiedChineseFormMessages,
 } from "./form-messages";
 import {
+  englishIdeaMessages,
+  simplifiedChineseIdeaMessages,
+} from "./idea-messages";
+import {
   englishMemoryMessages,
   simplifiedChineseMemoryMessages,
 } from "./memory-messages";
@@ -25,6 +29,7 @@ export type AppShellMessages = AppMessages["appShell"];
 export type AuthMessages = AppMessages["auth"];
 export type DashboardMessages = AppMessages["dashboard"];
 export type FormMessages = AppMessages["forms"];
+export type IdeaMessages = AppMessages["ideas"];
 export type MemoryMessages = AppMessages["memories"];
 export type ProjectMessages = AppMessages["projects"];
 export type RoutineMessages = AppMessages["routines"];
@@ -39,6 +44,7 @@ const englishMessages = {
     openNavigation: "Open navigation",
     pages: {
       dashboard: "Today",
+      ideas: "Ideas",
       memories: "Memories",
       projects: "Projects",
       routines: "Routines",
@@ -145,6 +151,7 @@ const englishMessages = {
   },
   dashboard: englishDashboardMessages,
   forms: englishFormMessages,
+  ideas: englishIdeaMessages,
   memories: englishMemoryMessages,
   projects: englishProjectMessages,
   routines: englishRoutineMessages,
@@ -165,6 +172,7 @@ const simplifiedChineseMessages: AppMessages = {
     openNavigation: "打开导航",
     pages: {
       dashboard: "今日",
+      ideas: "想法",
       memories: "回忆",
       projects: "项目",
       routines: "日常",
@@ -270,6 +278,7 @@ const simplifiedChineseMessages: AppMessages = {
   },
   dashboard: simplifiedChineseDashboardMessages,
   forms: simplifiedChineseFormMessages,
+  ideas: simplifiedChineseIdeaMessages,
   memories: simplifiedChineseMemoryMessages,
   projects: simplifiedChineseProjectMessages,
   routines: simplifiedChineseRoutineMessages,

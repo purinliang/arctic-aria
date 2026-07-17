@@ -24,6 +24,10 @@ translation is required to clarify a requirement.
   examples, or placeholders. Use neutral fixtures such as `testusername`,
   `testdisplayname`, and `testpassword`.
 
+- Call the human collaborating with Codex the `developer`. Use `user` for
+  Arctic Aria product users unless the current sentence clearly means the
+  developer.
+
 ## Context
 
 Before making code changes, read:

@@ -8,6 +8,7 @@ export type TaskStatus =
 
 export type DashboardView =
   | "dashboard"
+  | "ideas"
   | "projects"
   | "routines"
   | "memories"

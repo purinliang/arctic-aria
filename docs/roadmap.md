@@ -45,8 +45,8 @@ Planned v0.6.0 work:
   latency reduction, short-lived coordination, rate limiting, idempotency, or
   queue-like behavior only when the database remains the source of truth.
 - Review Discord bot architecture before implementation, including account
-  linking, quick capture, reminder messages, button interactions, message
-  update strategy, daily review prompts, and failure behavior.
+  linking, `/idea` quick capture, reminder messages, button interactions,
+  message update strategy, daily review prompts, and failure behavior.
 - Update architecture, database, Redis, Discord bot, and feature data-model
   docs to reflect the review decisions.
 - Add or improve automated tests around existing backend behavior where the
@@ -81,14 +81,16 @@ Future work should be chosen after using the v0.6.0 prototype.
 Likely future items:
 
 - Add idea capture as a first-class lightweight feature after the v0.6.0
-  technical review.
+  technical review. The first implementation candidate is raw-text capture for
+  untriaged Ideas.
 - Add daily review as a first-class feature after the v0.6.0 technical review.
 - Improve project task planning after enough manual project/task usage exists.
 - Improve dashboard selection rules only after the user workflow feels stable.
 - Add stronger settings, including default theme and personal day-boundary time.
 - Improve memory suggestion logic after the memory data model and dashboard
   behavior are stable.
-- Add Discord quick capture when the web idea-capture flow is proven useful.
+- Add Discord `/idea` quick capture after the Ideas data model and binding
+  model are implemented.
 - Add Discord reminders after routine and daily review behavior are stable.
 - Add optional sharing and deployment hardening when the core private workflow
   is reliable.
