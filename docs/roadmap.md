@@ -158,6 +158,11 @@ such as `Workspace` in the normal app font.
 
 The mobile sidebar close button should be borderless.
 
+Pinned project sidebar rows should use invisible icon spacers to align their
+text with normal menu items while preserving the indented hierarchy. The spacer
+icons should use the same size and gap as visible menu icons. Pinned project
+names should stay on one line and truncate automatically.
+
 ## Auth UI Cleanup
 
 Placeholder auth actions should stay hidden until they work end to end. Hide the
