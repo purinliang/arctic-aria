@@ -19,6 +19,11 @@ individually.
 The sidebar should scroll internally when the viewport height is too small for
 all sidebar content.
 
+The sidebar scrollbar should be visually hidden by default. When the user
+scrolls the sidebar, reveal a subtle scrollbar thumb and hide it again after
+scrolling stops. Keep the track transparent and avoid a permanent native
+scrollbar unless the browser forces one.
+
 ## Mobile
 
 Use the hamburger button only on mobile and tablet-sized viewports. The opened
