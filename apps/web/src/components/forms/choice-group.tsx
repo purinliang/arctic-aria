@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { Check } from "lucide-react";
 import { cx } from "../utils";
+
+type ChoiceGroupSize = "button" | "field";
 
 export type ChoiceOption = {
   value: string;
@@ -15,6 +16,7 @@ export function SingleChoiceGroup({
   value,
   onChange,
   disabled = false,
+  size = "button",
   className,
 }: {
   darkMode: boolean;
@@ -22,6 +24,7 @@ export function SingleChoiceGroup({
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
+  size?: ChoiceGroupSize;
   className?: string;
 }) {
   return (
@@ -33,6 +36,7 @@ export function SingleChoiceGroup({
           option={option}
           selected={option.value === value}
           disabled={disabled}
+          size={size}
           role="radio"
           aria-checked={option.value === value}
           onClick={() => onChange(option.value)}
@@ -48,6 +52,7 @@ export function MultipleChoiceGroup({
   values,
   onChange,
   disabled = false,
+  size = "button",
   className,
 }: {
   darkMode: boolean;
@@ -55,6 +60,7 @@ export function MultipleChoiceGroup({
   values: string[];
   onChange: (values: string[]) => void;
   disabled?: boolean;
+  size?: ChoiceGroupSize;
   className?: string;
 }) {
   const selectedValues = new Set(values);
@@ -71,6 +77,7 @@ export function MultipleChoiceGroup({
             option={option}
             selected={selected}
             disabled={disabled}
+            size={size}
             aria-pressed={selected}
             onClick={() => {
               onChange(
@@ -90,17 +97,22 @@ function ChoiceButton({
   darkMode,
   option,
   selected,
+  size,
   className,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   darkMode: boolean;
   option: ChoiceOption;
   selected: boolean;
+  size: ChoiceGroupSize;
 }) {
+  const compact = size === "button" && !option.description;
+
   return (
     <button
       className={cx(
-        "inline-flex min-h-11 items-center gap-2 rounded-md border px-3 py-2 text-left text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
+        "inline-flex items-center gap-2 rounded-md border text-left font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
+        compact ? "h-9 px-3 text-xs" : "min-h-11 px-3 py-2 text-sm",
         selected
           ? darkMode
             ? "border-white bg-white text-black"
@@ -113,7 +125,6 @@ function ChoiceButton({
       type="button"
       {...props}
     >
-      {selected ? <Check className="h-3.5 w-3.5 shrink-0" /> : null}
       {option.icon}
       <span className="grid gap-0.5">
         <span>{option.label}</span>
