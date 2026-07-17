@@ -108,8 +108,8 @@ also use the stronger accent range while keeping step `12` text. Primary
 action buttons should use the same selected aliases in both light and dark mode
 so buttons, selected menu items, and selected choice groups stay visually
 consistent. Primary hover states must control both background and text through
-the selected hover aliases. In light mode, primary hover should stay on a solid
-accent fill with white text, not the pale row-hover surface.
+the selected hover aliases. Primary hover should stay on a solid accent fill
+with white text in both light and dark mode, not the pale row-hover surface.
 
 Use shared component color helpers for these roles:
 
