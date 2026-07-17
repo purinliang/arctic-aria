@@ -139,6 +139,18 @@ pattern as the preceding sidebar navigation items. Do not place them in a
 separate visual container or give them a different row style unless the sidebar
 design is revised explicitly.
 
+Sidebar list items should handle rounded corners consistently, especially at the
+start and end of adjacent item groups. Separator lines should be reviewed and
+removed where they make the item group feel visually broken.
+
+The top of the sidebar should restore a compact brand row: Sparkles icon on the
+left, followed by small `ArcticAria` text without a space. The brand text may
+use a distinct free font style if it stays readable and consistent with the
+product style. Below the compact brand row, show a larger page/workspace label
+such as `Workspace` in the normal app font.
+
+The mobile sidebar close button should be borderless.
+
 ## Ongoing Feature Review
 
 Database and concurrency review should happen during later feature development,
