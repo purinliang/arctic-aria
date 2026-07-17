@@ -8,7 +8,7 @@ import { useAppPreferences } from "@/app-shell/app-preferences";
 import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
 import { defaultDatabaseVersionStatus } from "@/components/app-metadata";
 import { NotificationStack, useNotifications } from "@/components/notification";
-import { useDocumentTheme } from "@/components/theme";
+import { useDocumentLanguage, useDocumentTheme } from "@/components/theme";
 import { localizedActionMessage } from "@/messages/action-result";
 import { getAppMessages } from "@/messages/app-messages";
 import {
@@ -52,12 +52,12 @@ const emptyLogin: LoginInput = {
   password: "",
 };
 
-const hydrationSafeAuthMessages = getAppMessages("en").auth;
+const englishAuthMessages = getAppMessages("en").auth;
+const simplifiedChineseAuthMessages = getAppMessages("zh-CN").auth;
 
 export function AuthGate() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
-  const [loadingThemeReady, setLoadingThemeReady] = useState(false);
   const [mode, setMode] = useState<AuthMode>("login");
   const [registerInput, setRegisterInput] = useState<RegisterInput>(emptyRegister);
   const [loginInput, setLoginInput] = useState<LoginInput>(emptyLogin);
@@ -86,16 +86,7 @@ export function AuthGate() {
   } = useNotifications(messages.notifications);
 
   useDocumentTheme(darkMode);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setLoadingThemeReady(true);
-    }, 0);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, []);
+  useDocumentLanguage(resolvedLanguage);
 
   useEffect(() => {
     let active = true;
@@ -165,10 +156,6 @@ export function AuthGate() {
   }, [applyUserPreferences, currentUser]);
 
   if (!sessionChecked) {
-    const loadingMessages = loadingThemeReady
-      ? messages.auth
-      : hydrationSafeAuthMessages;
-
     return (
       <main
         className="grid min-h-[100svh] place-items-center bg-[var(--aa-page-bg)] px-4 text-[var(--aa-primary-text)] transition-colors sm:min-h-screen"
@@ -178,15 +165,29 @@ export function AuthGate() {
           role="status"
           aria-live="polite"
         >
-          <ArcticAriaLogo brandText={loadingMessages.brandName} />
+          <ArcticAriaLogo
+            brandText={englishAuthMessages.brandName}
+            className="aa-language-block aa-language-option-en"
+          />
+          <ArcticAriaLogo
+            brandText={simplifiedChineseAuthMessages.brandName}
+            className="aa-language-block aa-language-option-zh"
+          />
           <div className="flex items-center justify-center gap-2">
             <LoaderCircle
               size={18}
               className="animate-spin text-[var(--aa-secondary-text)]"
               aria-hidden="true"
             />
-            <span className="text-xs font-medium leading-5 text-[var(--aa-secondary-text)]">
-              {loadingMessages.loading.openingWorkspace}
+            <span
+              className="aa-language-inline aa-language-option-en text-xs font-medium leading-5 text-[var(--aa-secondary-text)]"
+            >
+              {englishAuthMessages.loading.openingWorkspace}
+            </span>
+            <span
+              className="aa-language-inline aa-language-option-zh text-xs font-medium leading-5 text-[var(--aa-secondary-text)]"
+            >
+              {simplifiedChineseAuthMessages.loading.openingWorkspace}
             </span>
           </div>
         </div>

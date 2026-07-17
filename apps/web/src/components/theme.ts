@@ -18,3 +18,12 @@ export function useDocumentTheme(darkMode: boolean) {
     };
   }, [darkMode]);
 }
+
+export function useDocumentLanguage(language: "en" | "zh-CN") {
+  useEffect(() => {
+    const root = document.documentElement;
+
+    root.dataset.aaLanguage = language;
+    root.lang = language;
+  }, [language]);
+}
