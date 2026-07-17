@@ -91,7 +91,7 @@ Local scripts read `apps/discord-bot/.env.local`. Use
 ## Code Locations
 
 - Runtime: `apps/discord-bot/src/index.ts`
-- Inbound interaction server: `apps/discord-bot/src/inbound-interaction-server.ts`
+- Discord HTTP server: `apps/discord-bot/src/discord-http-server.ts`
 - Inbound interaction handler: `apps/discord-bot/src/inbound-interaction-handler.ts`
 - Command registration: `apps/discord-bot/src/register-commands.ts`
 - Slash command metadata: `apps/discord-bot/src/discord-commands.ts`

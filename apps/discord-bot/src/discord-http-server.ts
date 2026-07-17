@@ -6,7 +6,7 @@ import type { QueryExecutor } from "./query-executor.ts";
 
 const maxBodyBytes = 64 * 1024;
 
-export function createInboundInteractionServer(
+export function createDiscordHttpServer(
   options: { discordPublicKey: string },
   sql: QueryExecutor,
 ) {
@@ -18,7 +18,7 @@ export function createInboundInteractionServer(
       }
 
       if (request.method === "GET" && request.url === "/interactions") {
-        sendJson(response, 405, browserInboundInteractionHelpResponse());
+        sendJson(response, 405, browserInteractionHelpResponse());
         return;
       }
 
@@ -64,7 +64,7 @@ export function createInboundInteractionServer(
   });
 }
 
-export function browserInboundInteractionHelpResponse() {
+export function browserInteractionHelpResponse() {
   return {
     error:
       "Discord interactions use POST requests. Set the public Discord endpoint URL to this path, but do not open it directly in a browser.",

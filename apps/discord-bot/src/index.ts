@@ -2,7 +2,7 @@ import type { Server } from "node:http";
 import { loadDiscordBotConfig, requireDiscordPublicKey } from "./config.ts";
 import { getSql } from "./database.ts";
 import { ensureDeveloperDiscordBinding } from "./developer-binding.ts";
-import { createInboundInteractionServer } from "./inbound-interaction-server.ts";
+import { createDiscordHttpServer } from "./discord-http-server.ts";
 import {
   checkDatabaseConnection,
   formatStartupFailure,
@@ -37,7 +37,7 @@ async function main() {
     }
 
     startupStep = "http_server";
-    const server = createInboundInteractionServer({ discordPublicKey }, sql);
+    const server = createDiscordHttpServer({ discordPublicKey }, sql);
     await listenServer(server, config.port);
 
     const localBaseUrl = `http://localhost:${config.port}`;
