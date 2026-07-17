@@ -353,22 +353,16 @@ function SidebarFrame({
       </div>
 
       {scrollbarState.canScroll ? (
-        <div
-          className={`pointer-events-none absolute bottom-2 right-1 top-2 w-2 transition-opacity duration-200 ${
+        <span
+          className={`pointer-events-none absolute right-1 top-0 block w-0.5 rounded-full transition-opacity duration-200 ${
             scrollbarState.visible ? "opacity-100" : "opacity-0"
-          }`}
+          } ${darkMode ? "bg-neutral-500/70" : "bg-slate-400/70"}`}
+          style={{
+            height: scrollbarState.thumbHeight,
+            transform: `translateY(${scrollbarState.thumbTop}px)`,
+          }}
           aria-hidden="true"
-        >
-          <span
-            className={`absolute right-0 block w-1.5 rounded-full ${
-              darkMode ? "bg-neutral-500/70" : "bg-slate-400/70"
-            }`}
-            style={{
-              height: scrollbarState.thumbHeight,
-              transform: `translateY(${scrollbarState.thumbTop - 8}px)`,
-            }}
-          />
-        </div>
+        />
       ) : null}
     </aside>
   );
