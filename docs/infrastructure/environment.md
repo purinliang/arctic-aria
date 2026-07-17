@@ -27,8 +27,11 @@ Current variables:
 | --- | --- | --- | --- |
 | `NEON_POSTGRES_URL` | Yes | Local and Vercel | PostgreSQL connection URL used by the web app and migration runner. |
 | `AUTH_SESSION_SECRET` | Yes | Local and Vercel | Secret used to sign the 30-day auth session cookie. |
-| `DISCORD_MESSAGE_PUSH_SECRET` | Only when using Settings Discord test messages or other web-to-bot sends | Local and any deployed web environment that calls the bot | Shared secret sent by the web app when calling the Discord bot message-send endpoint. |
-| `DISCORD_MESSAGE_PUSH_URL` | Optional locally; required for deployed web-to-bot sends | Local and any deployed web environment that calls the bot | Full URL for the Discord bot `POST /internal/discord/messages` endpoint. Local development defaults to `http://localhost:3001/internal/discord/messages` when unset. |
+| `DISCORD_BOT_TOKEN` | Yes for Discord interactions and outbound messages | Local and Vercel | Secret bot token from the Discord Developer Portal. |
+| `DISCORD_APP_ID` | Yes for command registration | Local and Vercel | App ID from the Discord Developer Portal. |
+| `DISCORD_PUBLIC_KEY` | Yes for Discord interactions | Local and Vercel | Public Key used to verify requests from Discord. |
+| `DISCORD_MESSAGE_PUSH_SECRET` | Yes for Settings Discord test messages or other internal sends | Local and Vercel | Shared secret used by callers of the private Discord message endpoint. |
+| `DISCORD_MESSAGE_PUSH_URL` | Optional | Local and Vercel | Full URL for `POST /api/internal/discord/messages`. Local development defaults to `http://localhost:3000/api/internal/discord/messages`; Vercel production defaults to the same route when `VERCEL_URL` is available. |
 
 The web code reads `NEON_POSTGRES_URL` only. If the Vercel Neon integration
 creates `NEON_DATABASE_URL`, copy that pooled URL into a new Vercel variable
@@ -53,11 +56,10 @@ openssl rand -base64 48
 ```
 
 The Settings page can send a Discord test message to the signed-in user's bound
-Discord account. That web action calls the Discord bot's private message-push
-endpoint. Local development may omit `DISCORD_MESSAGE_PUSH_URL` if the bot runs
-on `http://localhost:3001`, but `DISCORD_MESSAGE_PUSH_SECRET` must be set in
-both `apps/web/.env.local` and `apps/discord-bot/.env.local` with the same
-value. Production or preview environments must set the full deployed bot URL
+Discord account. That web action calls the web app's private message-push
+endpoint. Local development may omit `DISCORD_MESSAGE_PUSH_URL` when the web app
+runs on `http://localhost:3000`. Production on Vercel may also omit it when
+`VERCEL_URL` is available. Other hosts should set the full deployed web URL
 explicitly.
 
 ## Vercel Neon Variables
@@ -83,30 +85,20 @@ explicitly requires an unpooled connection.
 `NEON_AUTH_BASE_URL` is not used because Arctic Aria currently implements its
 own username/password auth instead of Neon Auth.
 
-## Discord Bot
+## Discord App Surface
 
-Example file:
+The Discord app surface is implemented inside the web app. Configure these
+variables in `apps/web/.env.local` and in the Vercel web project.
 
-- `apps/discord-bot/.env.example`
-
-Local secret file:
-
-- `apps/discord-bot/.env.local`
-
-The current Discord bot is an HTTP Interactions process. It is not deployed
-inside the Vercel web app yet, so these Discord variables usually do not belong
-in Vercel unless a later deployment design runs the interaction endpoint there.
-
-Current and planned variables:
+Current variables:
 
 | Variable | Required now | Purpose |
 | --- | --- | --- |
 | `DISCORD_BOT_TOKEN` | Yes to register slash commands and send outbound Discord messages | Secret bot token from the Discord Developer Portal. |
 | `DISCORD_APP_ID` | Yes to register slash commands | App ID from the Discord Developer Portal. |
 | `DISCORD_PUBLIC_KEY` | Yes to run the HTTP interaction endpoint | Public Key used to verify requests from Discord. |
-| `DISCORD_MESSAGE_PUSH_SECRET` | Yes for outbound Discord messages | Shared secret used by Arctic Aria services when calling the Discord bot message-send endpoint. |
+| `DISCORD_MESSAGE_PUSH_SECRET` | Yes for outbound Discord messages | Shared secret used by Arctic Aria services when calling the Discord message-send endpoint. |
 | `NEON_POSTGRES_URL` | Yes | Same Neon PostgreSQL database used by the web app. |
-| `PORT` | Optional | Local HTTP port for `/interactions`; defaults to `3001`. |
 
 Use `DISCORD_APP_ID` consistently for the Discord app id. Discord OAuth2 calls
 the same value `client_id`, but keeping one Arctic Aria env name avoids
@@ -118,8 +110,7 @@ developer auto-binding prototype is removed and should not be configured.
 
 `DISCORD_MESSAGE_PUSH_SECRET` must be different from `AUTH_SESSION_SECRET`,
 Discord tokens, and database credentials. Store it in every environment that
-runs a caller of `POST /internal/discord/messages` and in the Discord bot
-service environment. The caller sends it with
+runs a caller of `POST /api/internal/discord/messages`. The caller sends it with
 `Authorization: Bearer <DISCORD_MESSAGE_PUSH_SECRET>`. Generate it like other
 shared service secrets:
 

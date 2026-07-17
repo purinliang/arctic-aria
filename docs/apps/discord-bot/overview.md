@@ -1,149 +1,206 @@
-# Discord Bot
+# Discord App Surface
 
-The Discord bot is an Arctic Aria app surface. It exists for quick interaction
-when the user is away from the web app, but it must not own product planning,
-routine, idea, scheduler, or review rules.
+Discord is an Arctic Aria app surface for quick interaction away from the web
+UI. It does not own product planning, routine, idea, scheduler, or review
+rules.
 
-The first bot implementation is under `apps/discord-bot`.
+Discord now runs through the Next.js web app, not a separate `apps/discord-bot`
+process.
 
-Implemented Discord capabilities:
+Implemented capabilities:
 
-- user-facing Discord binding through `/bind code:<code>`
-- quick idea capture through `/idea text:<raw text>`
+- `/bind code:<code>` for user-facing Discord account binding
+- `/idea text:<raw text>` for quick idea capture
 - outbound Discord direct messages through the private message-push endpoint
+- Settings -> Discord -> `Send Test` for manual direct-message verification
 
 Direction terms:
 
 - `inbound interaction`: Discord sends a slash command or interaction to Arctic
-  Aria through the bot endpoint
-- `outbound message`: Arctic Aria asks the bot to send a Discord DM
+  Aria
+- `outbound message`: Arctic Aria sends a Discord DM through the Discord HTTP
+  API
 
 Use these terms from the Arctic Aria system point of view.
 
-## Inbound Interaction Workflows
+## Runtime
 
-The first inbound Discord workflow is quick idea capture:
+Runtime code lives in `apps/web`.
+
+Code locations:
+
+- Interaction route: `apps/web/src/app/api/discord/interactions/route.ts`
+- Message push route:
+  `apps/web/src/app/api/internal/discord/messages/route.ts`
+- Interaction endpoint:
+  `apps/web/src/features/discord/server/interaction-endpoint.ts`
+- Message push endpoint:
+  `apps/web/src/features/discord/server/message-push-endpoint.ts`
+- Slash command metadata:
+  `apps/web/src/features/discord/server/commands.ts`
+- Command registration:
+  `apps/web/src/features/discord/server/register-commands.ts`
+- `/bind` behavior:
+  `apps/web/src/features/discord/server/account-binding.ts`
+- `/idea` behavior:
+  `apps/web/src/features/discord/server/idea-capturing.ts`
+- Outbound message behavior:
+  `apps/web/src/features/discord/server/message-push.ts`
+- Discord HTTP sender:
+  `apps/web/src/features/discord/server/discord-api.ts`
+
+The runtime uses Discord HTTP Interactions. Do not add a long-running Gateway
+listener unless a later feature genuinely needs Gateway events.
+
+## Endpoints
+
+Discord Developer Portal -> General Information -> Interactions Endpoint URL:
 
 ```text
-/idea text:<raw text>
+https://<web-host>/api/discord/interactions
 ```
 
-The bot should:
-
-- accept the command in a direct-message oriented personal workflow
-- validate that the Discord user is bound to an Arctic Aria user
-- pass the raw text to an Ideas command or service
-- store the idea as `untriaged`
-- reply with a concise private acknowledgement
-
-The command name is `/idea`, not `/capture`, so the app surface matches the
-product entity.
-
-The second inbound Discord workflow is user-facing account binding:
+Local development with ngrok:
 
 ```text
-/bind code:<one-time code>
+https://<ngrok-domain>/api/discord/interactions
 ```
 
-The web Settings backend owns code creation. The Discord bot owns code
-redemption because it can verify the Discord user id that invoked the command.
+Private outbound message endpoint:
 
-## Inbound Interaction Runtime
+```text
+POST /api/internal/discord/messages
+```
 
-The first implementation is a separate TypeScript app under
-`apps/discord-bot`, using Discord HTTP Interactions.
+The private endpoint requires:
 
-Do not run a long-lived Gateway connection for the first `/idea` workflow. The
-runtime should expose a public `/interactions` HTTP endpoint, verify Discord
-request signatures with `DISCORD_PUBLIC_KEY`, respond to Discord `PING`
-verification, and handle slash commands synchronously. Local development needs a
-public tunnel such as ngrok so Discord can reach the local endpoint.
+```text
+Authorization: Bearer <DISCORD_MESSAGE_PUSH_SECRET>
+```
 
-The first `/idea` command should support personal use without adding the app to
-a server. Register it with `integration_types = [USER_INSTALL]` and
-`contexts = [GUILD, BOT_DM, PRIVATE_CHANNEL]`. `GUILD` here still uses the
-personal user install; it lets the developer invoke `/idea` from a server
-channel without installing Arctic Aria into that server.
+## Environment
 
-`discord.js` is still used for command registration. It should not be used for
-`client.login()` unless a later feature genuinely needs Gateway events.
-
-Planned environment variables:
+All current Discord runtime variables belong in `apps/web/.env.local` locally
+and in the Vercel web project environment for deployment:
 
 - `DISCORD_BOT_TOKEN`
 - `DISCORD_APP_ID`
 - `DISCORD_PUBLIC_KEY`
 - `DISCORD_MESSAGE_PUSH_SECRET`
 - `NEON_POSTGRES_URL`
-- optional `PORT`, defaulting to `3001`
 
-Do not commit Discord tokens, application secrets, database URLs, or generated
-command credentials.
+`DISCORD_MESSAGE_PUSH_URL` is optional. Local development defaults to:
 
-Use `DISCORD_APP_ID` consistently for the Discord app id. Discord OAuth2 calls
-the same value `client_id`, but Arctic Aria should not configure a second env
-name unless a later OAuth implementation has a concrete provider constraint.
+```text
+http://localhost:3000/api/internal/discord/messages
+```
 
-Local scripts read `apps/discord-bot/.env.local`. Use
-`apps/discord-bot/.env.example` as the non-secret template.
+Production on Vercel defaults to the same web app route when `VERCEL_URL` is
+available.
 
-## Code Locations
+## Command Registration
 
-- Runtime: `apps/discord-bot/src/index.ts`
-- HTTP server: `apps/discord-bot/src/infrastructure/http-server.ts`
-- Interaction endpoint: `apps/discord-bot/src/infrastructure/interaction-endpoint.ts`
-- Message push endpoint: `apps/discord-bot/src/infrastructure/message-push-endpoint.ts`
-- Discord interaction handler: `apps/discord-bot/src/interactions/interaction-handler.ts`
-- Slash command metadata: `apps/discord-bot/src/interactions/commands.ts`
-- Command registration: `apps/discord-bot/src/infrastructure/register-commands.ts`
-- `/bind` account binding behavior: `apps/discord-bot/src/features/account-binding.ts`
-- `/idea` capture behavior: `apps/discord-bot/src/features/idea-capturing.ts`
-- Message push behavior: `apps/discord-bot/src/features/message-push.ts`
-- Discord HTTP API sender: `apps/discord-bot/src/infrastructure/api.ts`
-- Database URL helper: `apps/discord-bot/src/infrastructure/database.ts`
-- Outbound message endpoint: `POST /internal/discord/messages`
+After changing slash command metadata in
+`apps/web/src/features/discord/server/commands.ts`, run:
+
+```bash
+pnpm --dir apps/web discord:register-commands
+```
+
+For user-installed Discord apps, registration updates Discord's global command
+metadata, but an installed app can still show stale commands. After adding,
+renaming, or changing slash-command options, reinstall or re-authorize the app
+from Discord Developer Portal -> Installation -> Install Link, then refresh or
+restart the Discord client.
+
+Recommended Discord Developer Portal settings:
+
+- Installation -> Installation Contexts: enable `User Install`
+- Installation -> Default Install Settings -> User Install: add
+  `applications.commands`
+- Installation -> Install Link: use Discord Provided Link
+
+## Local Runbook
+
+1. Configure `apps/web/.env.local`.
+
+2. Apply database migrations:
+
+   ```bash
+   pnpm --dir apps/web db:migrate
+   ```
+
+3. Register slash commands if metadata changed:
+
+   ```bash
+   pnpm --dir apps/web discord:register-commands
+   ```
+
+4. Start the web app:
+
+   ```bash
+   pnpm --dir apps/web dev
+   ```
+
+5. Expose local Next.js with ngrok:
+
+   ```bash
+   ngrok http 3000
+   ```
+
+6. Set the Discord interaction endpoint to:
+
+   ```text
+   https://<ngrok-domain>/api/discord/interactions
+   ```
+
+7. Bind the Discord account from the web Settings page.
+
+   - Open `http://localhost:3000`.
+   - Sign in to the Arctic Aria account.
+   - Open `Settings`.
+   - Create a Discord binding code.
+   - Run `/bind code:<code>` in Discord.
+
+8. Run `/idea text:<raw text>` in Discord.
+
+9. Check captured ideas in the web app under `Ideas`.
+
+10. Verify outbound push with Settings -> Discord -> `Send Test`.
+
+Expected Discord DM:
+
+```text
+Hello from Arctic Aria. Discord message push is working.
+```
 
 ## Account Binding
 
-Discord account binding should use a separate `discord_accounts` table, not
-columns on `users`.
+Discord account binding uses a separate `discord_accounts` table, not columns on
+`users`.
 
 The `users` table is core Arctic Aria auth identity. Discord binding is
 app-surface identity and may need Discord-specific metadata, status, revocation,
 and audit fields later.
 
-The first binding model should enforce:
+The implemented binding model enforces:
 
-- one Arctic Aria user per Discord user
-- at most one Discord user per Arctic Aria user
+- one Arctic Aria user per active Discord user
+- at most one active Discord user per Arctic Aria user
 - a clear link to `users.id`
 
-The implemented user-facing binding flow uses one-time codes:
+The implemented code flow:
 
-- Settings creates a short-lived binding code for the signed-in Arctic Aria
-  user.
-- The code is stored hashed in `discord_binding_codes`.
-- The user runs `/bind code:<code>` in Discord.
-- The bot validates the code, consumes it once, and creates or reactivates the
-  `discord_accounts` row for that Arctic Aria user in one atomic SQL statement.
-- A Discord account already bound to another active Arctic Aria user is
-  rejected.
-- Reconnecting replaces the previous Discord binding for the same Arctic Aria
-  user.
-
-This code flow is the first user-facing implementation. Discord OAuth remains
-deferred.
-
-For personal local testing in Discord Developer Portal:
-
-- Installation -> Installation Contexts: enable `User Install`.
-- Installation -> Default Install Settings -> User Install: add
-  `applications.commands`.
-- Installation -> Install Link: use Discord Provided Link.
-- Open the install link and choose `Add to my apps`.
-- After install, run `/idea` from the app DM if Discord exposes it. If the app
-  DM is not available, run `/idea` from any server channel; it is still the
-  personal user-installed command, not a server-installed bot command.
+```text
+Settings page
+  -> creates one-time binding code for signed-in Arctic Aria user
+  -> user runs /bind code:<code> in Discord
+  -> Discord POSTs to /api/discord/interactions
+  -> web route verifies Discord request signature
+  -> web route validates and consumes binding code
+  -> web route upserts discord_accounts for the Arctic Aria user
+  -> web route sends private acknowledgement
+```
 
 Implemented `discord_accounts` fields:
 
@@ -160,11 +217,10 @@ Implemented `discord_accounts` fields:
 
 Implemented constraints:
 
-- active `discord_user_id` values are unique.
-- `user_id` is unique.
-- `binding_status` is one of `active` or `revoked`.
-- queries that load a binding for product commands must require
-  `binding_status = 'active'`.
+- active `discord_user_id` values are unique
+- `user_id` is unique
+- `binding_status` is one of `active` or `revoked`
+- product command lookups require `binding_status = 'active'`
 
 Implemented `discord_binding_codes` fields:
 
@@ -175,23 +231,54 @@ Implemented `discord_binding_codes` fields:
 - `consumed_at timestamptz`
 - `created_at timestamptz NOT NULL DEFAULT now()`
 
-Implemented binding-code rules:
+Binding-code rules:
 
 - codes expire after 15 minutes
 - codes can be consumed once
 - raw codes are never stored
-- creating a new code consumes previous unconsumed codes for the same Arctic
-  Aria user
+- creating a new code consumes previous unconsumed codes for the same user
 - expired and consumed codes are ignored by normal binding lookups
 
-## Chat Scope
+## `/idea`
+
+Inbound `/idea` flow:
+
+```text
+Discord slash command
+  -> Discord POSTs to /api/discord/interactions
+  -> web route verifies the Discord request signature
+  -> web route validates Discord binding
+  -> Ideas command validates raw text
+  -> database stores an untriaged idea
+  -> web route sends private acknowledgement
+```
+
+The command name is `/idea`, not `/capture`, so the app surface matches the
+product entity.
 
 The first bot supports command chat only. It should reply conversationally to
 slash commands, but normal direct messages are not captured.
 
 Do not add open AI conversation, message-content ingestion, or "every DM is an
-idea" behavior in the first bot implementation. Those behaviors need separate
-privacy, rate-limit, and intent rules.
+idea" behavior without separate privacy, rate-limit, and intent rules.
+
+## Troubleshooting
+
+- Opening `/api/discord/interactions` in a browser is expected to return a
+  method message because Discord uses signed `POST` requests.
+- `This command is outdated` usually means Discord is using cached command
+  metadata. Re-run `pnpm --dir apps/web discord:register-commands`, refresh or
+  restart Discord, and reinstall or re-authorize the user-installed app when
+  command options changed.
+- `The application did not respond` means Discord did not get a valid response
+  from the interaction endpoint in time. Check that the web deployment is
+  reachable, the endpoint URL ends with `/api/discord/interactions`, and
+  `DISCORD_PUBLIC_KEY` is configured in the web environment.
+- `Discord message push is not configured` from Settings `Send Test` means the
+  web environment is missing `DISCORD_BOT_TOKEN` or
+  `DISCORD_MESSAGE_PUSH_SECRET`.
+- `Discord message-push secret was rejected` means the caller and endpoint do
+  not use the same `DISCORD_MESSAGE_PUSH_SECRET`.
 
 ## Deferred Workflows
 
@@ -210,251 +297,12 @@ Reminder delivery will need Scheduler or reminder-job design before
 implementation. Redis, queues, and event/dataflow should remain deferred until a
 concrete delivery, retry, idempotency, or rate-limit need appears.
 
-Outbound messages from Arctic Aria services are implemented as an explicit
-HTTP interface into the Discord app surface. The Discord app sends messages
-through the Discord HTTP API. Do not add a long-running Gateway listener just
-to receive Arctic Aria notification work.
-
-The first outbound message API is documented in
-[outbound-messages.md](outbound-messages.md).
-
-## Data Flow
-
-Inbound `/idea` flow:
-
-```text
-Discord slash command
-  -> Discord POSTs to /interactions
-  -> bot verifies the Discord request signature
-  -> bot validates Discord binding
-  -> bot calls Ideas capture command
-  -> Ideas validates raw text
-  -> database stores an untriaged idea
-  -> bot sends private acknowledgement
-```
-
-The bot should not write planning, routine, memory, or review tables directly.
-It should call product commands that own validation and state transitions.
-
-Inbound `/bind` flow:
-
-```text
-Settings page
-  -> creates one-time binding code for signed-in Arctic Aria user
-  -> user runs /bind code:<code> in Discord
-  -> Discord POSTs to /interactions
-  -> bot verifies Discord request signature
-  -> bot validates and consumes binding code
-  -> bot upserts discord_accounts for the Arctic Aria user
-  -> bot sends private acknowledgement
-```
-
-Outbound message flow:
-
-```text
-Arctic Aria service
-  -> POST /internal/discord/messages with bearer secret
-  -> bot validates request and active Discord binding
-  -> bot sends plain DM through Discord HTTP API
-  -> bot records delivery status without raw message text
-```
-
-## Local Runbook
-
-1. Configure `apps/discord-bot/.env.local`.
-
-   Required keys:
-
-   - `DISCORD_BOT_TOKEN`
-   - `DISCORD_APP_ID`
-   - `DISCORD_PUBLIC_KEY`
-   - `DISCORD_MESSAGE_PUSH_SECRET`
-   - `NEON_POSTGRES_URL`
-
-   Optional key:
-
-   - `PORT`, defaulting to `3001`
-
-2. Apply web database migrations from the repo root:
-
-   ```bash
-   pnpm --dir apps/web db:migrate
-   ```
-
-3. Register slash commands after command metadata changes:
-
-   ```bash
-   pnpm --dir apps/discord-bot register-commands
-   ```
-
-   For user-installed Discord apps, registration updates Discord's global
-   command metadata but the installed app can still show stale commands. After
-   adding, renaming, or changing slash-command options, reinstall or
-   re-authorize the app from Discord Developer Portal -> Installation -> Install
-   Link, then refresh/restart the Discord client.
-
-4. Run the interaction HTTP server:
-
-   ```bash
-   pnpm --dir apps/discord-bot dev
-   ```
-
-   A healthy startup prints one concise `ready` log:
-
-   ```text
-   [discord-bot] ready {
-     port: 3001,
-     localBaseUrl: 'http://localhost:3001'
-   }
-   ```
-
-5. Check the local health endpoint:
-
-   ```bash
-   curl http://localhost:3001/health
-   ```
-
-   Expected response:
-
-   ```json
-   {"ok":true}
-   ```
-
-   `/health` is an Arctic Aria liveness check, not a Discord endpoint. It is
-   useful for checking that the local server or a deployed host is running.
-
-6. Expose the local server with ngrok during local development:
-
-   ```bash
-   ngrok http 3001
-   ```
-
-   If using a fixed ngrok domain:
-
-   ```bash
-   ngrok http --url=<your-ngrok-domain> 3001
-   ```
-
-7. Set Discord Developer Portal -> General Information ->
-   Interactions Endpoint URL to:
-
-   ```text
-   https://<your-ngrok-domain>/interactions
-   ```
-
-   Use `/interactions`, not `/` or `/health`. Discord sends `POST` requests to
-   this path. Opening `/interactions` directly in a browser sends `GET`, so the
-   server explains that it is not a browser page.
-
-8. In Discord Developer Portal -> Installation:
-
-   - Installation Contexts: enable `User Install`.
-   - Default Install Settings -> User Install: add `applications.commands`.
-   - Install Link: use Discord Provided Link.
-   - Open the install link and choose `Add to my apps`.
-
-9. Bind the Discord account from the web Settings page.
-
-   - Open `http://localhost:3000`.
-   - Sign in to the Arctic Aria account.
-   - Open `Settings`.
-   - Create a Discord binding code.
-   - Run `/bind code:<code>` in Discord.
-
-10. Run `/idea text:<raw text>` in Discord.
-
-   Prefer the Arctic Aria app DM if Discord exposes it. If the app DM is not
-   available, run `/idea` from any server channel; because the command is
-   registered as `USER_INSTALL`, this still uses the developer's personal app
-   install and does not require installing Arctic Aria into that server.
-
-11. Confirm the bot server logs:
-
-    ```text
-    [discord-bot] inbound_interaction_handled { command: '/idea', status: 200 }
-    ```
-
-12. Check captured ideas in the web app:
-
-    - Run `pnpm --dir apps/web dev` if needed.
-    - Open `http://localhost:3000`.
-    - Sign in to the same Arctic Aria account.
-    - Click `Ideas` in the left sidebar.
-
-13. Verify outbound push from the web app:
-
-    - Ensure `DISCORD_MESSAGE_PUSH_SECRET` is the same non-empty value in
-      `apps/web/.env.local` and `apps/discord-bot/.env.local`.
-    - Ensure `apps/web/.env.local` has
-      `DISCORD_MESSAGE_PUSH_URL=http://localhost:3001/internal/discord/messages`
-      for local development, or leave it unset to use that local default.
-    - Restart both `pnpm --dir apps/web dev` and
-      `pnpm --dir apps/discord-bot dev` after editing env files.
-    - Open Settings -> Discord -> `Send Test`.
-    - Expected Discord DM:
-      `Hello from Arctic Aria. Discord message push is working.`
-
-## Troubleshooting
-
-- `{"error":"Not found."}` at the ngrok root URL is expected. Use `/health`
-  for liveness checks and configure `/interactions` for Discord.
-- Opening `/interactions` in a browser is expected to return a method message
-  because the Discord endpoint only accepts signed `POST` requests.
-- `This command is outdated` usually means Discord is using cached command
-  metadata after `register-commands`. Refresh/restart Discord or wait a few
-  minutes.
-- If a newly registered command, such as `/bind`, does not appear while older
-  commands still work, reinstall or re-authorize the user-installed app from
-  the Discord Developer Portal install link, then refresh/restart Discord.
-- `The application did not respond` means Discord did not get a valid response
-  from the interaction endpoint in time. Check that `pnpm --dir
-  apps/discord-bot dev` is still running, ngrok is still online, the Discord
-  endpoint URL ends with `/interactions`, and the bot terminal prints
-  `inbound_interaction_handled { command: '/idea', status: 200 }`.
-- `startup_failed` with `code: 'EADDRINUSE'` means another local process is
-  already using the configured `PORT`. Stop the existing bot process or set a
-  different `PORT` in `apps/discord-bot/.env.local` and update the ngrok
-  command to the same port.
-- If `/idea` does not appear in the app DM, run it from a server channel after
-  user-installing the app. The command is intentionally registered for
-  `GUILD`, `BOT_DM`, and `PRIVATE_CHANNEL` contexts.
-- `Discord bot message push is not configured` from Settings `Send Test` means
-  the bot endpoint is reachable but the running bot process does not have both
-  `DISCORD_BOT_TOKEN` and `DISCORD_MESSAGE_PUSH_SECRET`. Check
-  `apps/discord-bot/.env.local` and restart `pnpm --dir apps/discord-bot dev`.
-- `Discord message-push secret was rejected` from Settings `Send Test` means
-  the web and bot `DISCORD_MESSAGE_PUSH_SECRET` values differ. Use the same
-  value in both env files and restart both servers.
-- `Discord bot message endpoint is unreachable` from Settings `Send Test`
-  means the web app cannot reach `DISCORD_MESSAGE_PUSH_URL`. Start the bot
-  server or correct the URL.
-
-## Deployment Direction
-
-ngrok is appropriate for local development because Discord needs a public HTTPS
-URL while the server is running on the developer's machine. It is not the
-production design.
-
-To avoid ngrok, deploy the Discord interaction server to a public HTTPS Node.js
-host and set Discord Developer Portal -> General Information -> Interactions
-Endpoint URL to:
-
-```text
-https://<deployed-discord-app-host>/interactions
-```
-
-The deployment must provide the same env values as local development and share
-the same Neon database. Possible hosting directions include a small Node service
-on a platform such as Railway, Fly.io, Render, or Google Cloud Run. A later
-review can also decide whether to move `/interactions` into the existing web
-deployment if keeping the Discord surface inside the Next.js app becomes more
-practical.
-
 ## Verification
 
-Run from `apps/discord-bot`:
+Run from `apps/web`:
 
 ```bash
 pnpm test
+pnpm lint
 pnpm build
 ```

@@ -14,7 +14,7 @@ credential, and data-protection policy are documented in
 Implemented apps:
 
 - Next.js web app in `apps/web`
-- Discord bot HTTP Interactions app in `apps/discord-bot`
+- Discord HTTP Interactions routes inside `apps/web`
 
 Implemented:
 
@@ -38,7 +38,6 @@ Implemented:
 
 Not implemented yet:
 
-- production Discord deployment
 - Discord reminders and reminder response buttons
 - Redis/cache
 - event bus or dataflow service
@@ -86,14 +85,6 @@ workspace yet.
 ```text
 arctic-aria/
 |-- apps/
-|   |-- discord-bot/
-|   |   |-- src/
-|   |   |   |-- __tests__/
-|   |   |   |-- features/
-|   |   |   |-- infrastructure/
-|   |   |   |-- interactions/
-|   |   |   |-- index.ts
-|   |   |   `-- infrastructure/register-commands.ts
 |   |-- infrastructure/
 |   |   `-- database/
 |   |       `-- migrations/
@@ -109,6 +100,7 @@ arctic-aria/
 |       |   |-- features/
 |       |   |   |-- auth/
 |       |   |   |-- dashboard/
+|       |   |   |-- discord/
 |       |   |   |-- ideas/
 |       |   |   |-- memories/
 |       |   |   |-- projects/
@@ -214,7 +206,7 @@ Current feature data-model docs:
 
 App-surface docs:
 
-- [apps/discord-bot/overview.md](apps/discord-bot/overview.md)
+- [docs/apps/discord-bot/overview.md](apps/discord-bot/overview.md)
 
 Shared web docs:
 
@@ -270,8 +262,8 @@ needs shared code.
 
 Add shared packages only when they remove real duplication:
 
-- `packages/contracts` when the Discord bot or plugins need shared command and
-  payload types
+- `packages/contracts` when the Discord app surface or plugins need shared
+  command and payload types
 - `packages/core` when product services must be shared outside Next.js server
   actions
 - `packages/database` only if database access becomes shared by multiple apps or
@@ -286,13 +278,13 @@ Planned infrastructure:
 - event/dataflow support after reminder, review, and plugin flows become clear
 - deployment environment management
 
-The first Discord bot implementation is a separate TypeScript app under
-`apps/discord-bot`. It uses Discord HTTP Interactions for `/bind` and `/idea`,
-and a private HTTP endpoint for outbound direct-message push. `discord.js` is
-used for command registration and Discord HTTP helpers, not for a long-running
-Gateway listener. Python remains a good fit for future plugin workers that need
-agent workflows, retrieval, document processing, speech practice, or ML/data
-tooling.
+The Discord app surface is implemented as Next.js route handlers under
+`apps/web`. It uses Discord HTTP Interactions for `/bind` and `/idea`, and a
+private HTTP endpoint for outbound direct-message push. The web app also owns
+the command-registration script. Do not add a long-running Gateway listener
+unless a later feature genuinely needs Gateway events. Python remains a good
+fit for future plugin workers that need agent workflows, retrieval, document
+processing, speech practice, or ML/data tooling.
 
 ## Verification Commands
 
@@ -304,13 +296,6 @@ pnpm lint
 pnpm build
 pnpm db:migrate
 pnpm dev
-```
-
-Run from `apps/discord-bot`:
-
-```bash
-pnpm test
-pnpm build
 ```
 
 For documentation-only changes, run at least:
@@ -331,5 +316,5 @@ git diff --check
   coordination requires Redis.
 - Whether future sensitive user content needs application-level field
   encryption.
-- When to extract shared packages for the Discord bot, plugins, or background
-  workers.
+- When to extract shared packages for the Discord app surface, plugins, or
+  background workers.
