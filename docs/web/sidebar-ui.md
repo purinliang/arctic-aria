@@ -30,6 +30,9 @@ Use the hamburger button only on mobile and tablet-sized viewports. The opened
 sidebar overlays the page and can be dismissed by clicking the overlay or the
 close button.
 
+When a mobile page title uses multiple rows, align the hamburger button to the
+top title row instead of centering it against the full wrapped title area.
+
 Browser overscroll background and dark-mode root colors are theme behavior,
 documented in [theme.md](theme.md).
 
