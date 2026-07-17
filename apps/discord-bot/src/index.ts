@@ -39,6 +39,7 @@ async function main() {
     startupStep = "http_server";
     const server = createDiscordHttpServer(
       {
+        discordAppId: config.discordAppId,
         discordBotToken: config.discordBotToken,
         discordMessagePushSecret: config.discordMessagePushSecret,
         discordPublicKey,

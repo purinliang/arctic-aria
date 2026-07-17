@@ -1,7 +1,16 @@
 import { createServer } from "node:http";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { verifyKey } from "discord-interactions";
-import { createDiscordMessageSender } from "./discord-api.ts";
+import {
+  InteractionResponseFlags,
+  InteractionResponseType,
+  verifyKey,
+} from "discord-interactions";
+import {
+  createDiscordInteractionResponseEditor,
+  createDiscordMessageSender,
+  type DiscordInteractionResponseEditor,
+} from "./discord-api.ts";
+import { bindCommandName } from "./discord-commands.ts";
 import { handleInboundDiscordInteraction } from "./inbound-interaction-handler.ts";
 import { handleOutboundDiscordMessage } from "./outbound-message.ts";
 import type { QueryExecutor } from "./query-executor.ts";
@@ -11,12 +20,17 @@ const outboundMessagePath = "/internal/discord/messages";
 
 export function createDiscordHttpServer(
   options: {
+    discordAppId: string;
     discordBotToken: string | null;
     discordMessagePushSecret: string | null;
     discordPublicKey: string;
+    interactionResponseEditor?: DiscordInteractionResponseEditor;
   },
   sql: QueryExecutor,
 ) {
+  const interactionResponseEditor =
+    options.interactionResponseEditor ?? createDiscordInteractionResponseEditor();
+
   return createServer(async (request, response) => {
     try {
       if (request.method === "GET" && request.url === "/health") {
@@ -61,6 +75,26 @@ export function createDiscordHttpServer(
       }
 
       const payload = JSON.parse(rawBody.toString("utf8")) as unknown;
+
+      if (shouldDeferInboundInteraction(payload)) {
+        sendJson(response, 200, createDeferredInteractionResponse(payload));
+        console.log("[discord-bot]", "inbound_interaction_deferred", {
+          command: inboundInteractionLogLabel(payload),
+          status: 200,
+        });
+
+        void handleDeferredInboundInteraction(sql, payload, {
+          discordAppId: options.discordAppId,
+          interactionResponseEditor,
+        }).catch((error) => {
+          console.error("[discord-bot]", "inbound_interaction_followup_failed", {
+            command: inboundInteractionLogLabel(payload),
+            message: error instanceof Error ? error.message : "unknown",
+          });
+        });
+        return;
+      }
+
       const result = await handleInboundDiscordInteraction(sql, payload);
       console.log("[discord-bot]", "inbound_interaction_handled", {
         command: inboundInteractionLogLabel(payload),
@@ -74,6 +108,53 @@ export function createDiscordHttpServer(
       sendJson(response, 500, { error: "Discord bot request failed." });
     }
   });
+}
+
+export async function handleDeferredInboundInteraction(
+  sql: QueryExecutor,
+  payload: unknown,
+  options: {
+    discordAppId: string;
+    interactionResponseEditor: DiscordInteractionResponseEditor;
+  },
+) {
+  const interactionToken = readInteractionToken(payload);
+
+  if (!interactionToken) {
+    throw new Error("Deferred Discord interaction is missing its token.");
+  }
+
+  const result = await handleInboundDiscordInteraction(sql, payload);
+  await options.interactionResponseEditor.editOriginalInteractionResponse({
+    applicationId: options.discordAppId,
+    interactionToken,
+    content: readInteractionResultContent(result),
+  });
+
+  console.log("[discord-bot]", "inbound_interaction_followup", {
+    command: inboundInteractionLogLabel(payload),
+    status: result.status,
+  });
+}
+
+export function shouldDeferInboundInteraction(payload: unknown) {
+  return (
+    readInboundCommandName(payload) === bindCommandName &&
+    readInteractionToken(payload) !== null
+  );
+}
+
+export function createDeferredInteractionResponse(payload: unknown) {
+  const data: Record<string, unknown> = {};
+
+  if (readInteractionContext(payload) === 0) {
+    data.flags = InteractionResponseFlags.EPHEMERAL;
+  }
+
+  return {
+    type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+    ...(Object.keys(data).length > 0 ? { data } : {}),
+  };
 }
 
 export function browserInteractionHelpResponse() {
@@ -187,32 +268,93 @@ function sendJson(
 }
 
 function inboundInteractionLogLabel(payload: unknown) {
-  if (!payload || typeof payload !== "object") {
-    return "unknown";
-  }
-
-  const interaction = payload as {
-    type?: unknown;
-    context?: unknown;
-    data?: {
-      name?: unknown;
-    };
-    user?: unknown;
-    member?: {
-      user?: unknown;
-    };
-  };
-  const commandName = interaction.data?.name;
+  const commandName = readInboundCommandName(payload);
 
   if (typeof commandName === "string") {
     return `/${commandName}`;
   }
 
-  if (interaction.type === 1) {
+  const interactionType = readInteractionType(payload);
+
+  if (interactionType === 1) {
     return "ping";
   }
 
-  return typeof interaction.type === "number"
-    ? `interaction_type_${interaction.type}`
+  return typeof interactionType === "number"
+    ? `interaction_type_${interactionType}`
     : "unknown";
+}
+
+function readInteractionResultContent(result: {
+  body: Record<string, unknown>;
+}) {
+  const body = result.body;
+  const data =
+    body.data && typeof body.data === "object"
+      ? (body.data as Record<string, unknown>)
+      : null;
+  const content = data?.content;
+
+  if (typeof content === "string" && content.length > 0) {
+    return content;
+  }
+
+  const error = body.error;
+
+  return typeof error === "string" && error.length > 0
+    ? error
+    : "Discord command finished.";
+}
+
+function readInboundCommandName(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const interaction = payload as {
+    data?: {
+      name?: unknown;
+    };
+  };
+  const commandName = interaction.data?.name;
+
+  return typeof commandName === "string" ? commandName : null;
+}
+
+function readInteractionContext(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const interaction = payload as {
+    context?: unknown;
+  };
+
+  return typeof interaction.context === "number" ? interaction.context : null;
+}
+
+function readInteractionToken(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const interaction = payload as {
+    token?: unknown;
+  };
+
+  return typeof interaction.token === "string" && interaction.token.length > 0
+    ? interaction.token
+    : null;
+}
+
+function readInteractionType(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const interaction = payload as {
+    type?: unknown;
+  };
+
+  return typeof interaction.type === "number" ? interaction.type : null;
 }
