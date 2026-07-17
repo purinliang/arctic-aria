@@ -76,6 +76,13 @@ Backend rules:
   statement
 - expired and consumed codes are not valid for binding
 
+### `discord_message_deliveries`
+
+Settings does not own Discord delivery records, but the `Send Test` action uses
+the Discord bot outbound message endpoint. Delivery rows and idempotency rules
+are documented in
+`docs/apps/discord-bot/outbound-messages.md`.
+
 Deletion and lifecycle:
 
 - `user_settings` is deleted automatically when the owning `users` row is

@@ -43,8 +43,9 @@ can later provide cache, dataflow, scheduling, and external adapters.
 
 Currently implemented product features are Auth, Settings, Projects, Routines,
 Memories, Dashboard, and the first Ideas capture foundation. The Discord bot
-has an initial `/idea` runtime scaffold. Scheduler, Reviews, plugin workers,
-Redis/cache, dataflow, and background jobs are planned directions.
+has a first local prototype for account binding, `/idea` capture, and outbound
+test messages. Scheduler, Reviews, plugin workers, Redis/cache, dataflow, and
+background jobs are planned directions.
 
 Documentation follows the same shape:
 
@@ -160,7 +161,9 @@ The Ideas feature owns:
 - triage state
 - conversion into a project, task, routine, idea record, or plugin request
 
-Ideas is planned but not implemented yet.
+Ideas persistence, read-only web listing, and Discord `/idea` capture are
+implemented. Web add/edit/triage and conversion controls are planned but not
+implemented yet.
 
 Detailed docs:
 
@@ -279,12 +282,13 @@ Detailed docs:
 The Discord bot is for notification and quick interaction. It is important
 because the user may forget to open the web app.
 
-The first Discord workflow is quick idea capture with `/idea`. The bot should
-call Ideas commands instead of writing product tables directly.
+Implemented Discord workflows are account binding with `/bind`, quick idea
+capture with `/idea`, and outbound direct-message delivery through a private
+message-push endpoint. The bot should call product commands instead of owning
+product rules directly.
 
 It may eventually own:
 
-- quick capture
 - pushed reminders
 - daily scheduler messages
 - reminder buttons

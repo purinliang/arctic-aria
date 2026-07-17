@@ -29,7 +29,7 @@ validated by the Discord bot app.
 Focused coverage:
 
 - `apps/web/src/features/ideas/__tests__/idea-service.test.ts`
-- `apps/discord-bot/src/__tests__/idea-capture.test.ts`
+- `apps/discord-bot/src/__tests__/idea-capturing.test.ts`
 
 Broad verification:
 

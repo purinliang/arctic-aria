@@ -118,6 +118,8 @@ Bound state:
 
 - show `Bound Account ID` as a disabled password-style input field
 - show an icon-only view/hide button inside the input field
+- show `Send Test` to send a simple Discord DM through the bot message-push
+  endpoint
 - show `Unbind` in the same horizontal row as the input when width allows
 
 Unbind:
@@ -131,8 +133,12 @@ Expected notifications:
 
 - show success notification when a code is generated, canceled, or unbind
   succeeds
+- show success notification when `Send Test` sends a Discord DM
 - show error notification when code creation, binding status loading, or unbind
   fails
+- show specific error notifications for test-message failures: missing web
+  message-push config, bot message-push config missing, secret mismatch, no
+  active binding, unreachable bot endpoint, or Discord delivery failure
 - do not show raw code hashes, internal secrets, Discord bot tokens, or raw
   backend errors
 
@@ -142,6 +148,8 @@ Current implementation:
   user.
 - Settings can create and cancel one-time binding codes.
 - Settings can unbind the active Discord account after confirmation.
+- Settings can send a test Discord DM to the active bound account through the
+  bot's private outbound message endpoint.
 - The Discord bot implements `/bind code:<code>` and consumes those codes.
 - The UI does not yet poll automatically after the user completes `/bind` in
   Discord; users can sign out and sign in again if they need to force a status

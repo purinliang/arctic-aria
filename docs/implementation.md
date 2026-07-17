@@ -14,7 +14,7 @@ credential, and data-protection policy are documented in
 Implemented apps:
 
 - Next.js web app in `apps/web`
-- Discord bot runtime scaffold in `apps/discord-bot`
+- Discord bot HTTP Interactions app in `apps/discord-bot`
 
 Implemented:
 
@@ -28,7 +28,9 @@ Implemented:
 - Settings page with local theme/language preference controls and version
   metadata
 - read-only Ideas page and backend capture foundation
-- Discord `/idea` capture runtime scaffold
+- Discord account binding with `/bind code:<code>`
+- Discord `/idea` capture into untriaged Ideas
+- Discord outbound message push and Settings `Send Test` verification
 - shared web UI primitives and form controls
 - SQL migrations and direct SQL repositories
 - focused Node test coverage for validation, services, repositories, database
@@ -36,7 +38,8 @@ Implemented:
 
 Not implemented yet:
 
-- production Discord deployment and token-based account binding
+- production Discord deployment
+- Discord reminders and reminder response buttons
 - Redis/cache
 - event bus or dataflow service
 - background worker service
@@ -86,8 +89,11 @@ arctic-aria/
 |   |-- discord-bot/
 |   |   |-- src/
 |   |   |   |-- __tests__/
+|   |   |   |-- features/
+|   |   |   |-- infrastructure/
+|   |   |   |-- interactions/
 |   |   |   |-- index.ts
-|   |   |   `-- register-commands.ts
+|   |   |   `-- infrastructure/register-commands.ts
 |   |-- infrastructure/
 |   |   `-- database/
 |   |       `-- migrations/
@@ -106,7 +112,8 @@ arctic-aria/
 |       |   |   |-- ideas/
 |       |   |   |-- memories/
 |       |   |   |-- projects/
-|       |   |   `-- routines/
+|       |   |   |-- routines/
+|       |   |   `-- settings/
 |       |   `-- server/
 |       |       |-- database/
 |       |       `-- discord/
@@ -278,10 +285,13 @@ Planned infrastructure:
 - event/dataflow support after reminder, review, and plugin flows become clear
 - deployment environment management
 
-The first Discord bot implementation is a separate TypeScript app using
-`discord.js` under `apps/discord-bot`. Its first workflow is `/idea` quick
-capture. Python remains a good fit for future plugin workers that need agent
-workflows, retrieval, document processing, speech practice, or ML/data tooling.
+The first Discord bot implementation is a separate TypeScript app under
+`apps/discord-bot`. It uses Discord HTTP Interactions for `/bind` and `/idea`,
+and a private HTTP endpoint for outbound direct-message push. `discord.js` is
+used for command registration and Discord HTTP helpers, not for a long-running
+Gateway listener. Python remains a good fit for future plugin workers that need
+agent workflows, retrieval, document processing, speech practice, or ML/data
+tooling.
 
 ## Verification Commands
 
