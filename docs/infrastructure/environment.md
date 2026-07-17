@@ -94,8 +94,6 @@ Current and planned variables:
 | `DISCORD_BOT_TOKEN` | Yes to register slash commands and send outbound Discord messages | Secret bot token from the Discord Developer Portal. |
 | `DISCORD_APP_ID` | Yes to register slash commands | App ID from the Discord Developer Portal. |
 | `DISCORD_PUBLIC_KEY` | Yes to run the HTTP interaction endpoint | Public Key used to verify requests from Discord. |
-| `DISCORD_DEVELOPER_USER_ID` | Required for the developer prototype binding | Developer's Discord account id. |
-| `ARCTIC_ARIA_DEVELOPER_USERNAME` | Required for the developer prototype binding | Existing Arctic Aria username used by the developer in the web app. |
 | `DISCORD_MESSAGE_PUSH_SECRET` | Yes for outbound Discord messages | Shared secret used by Arctic Aria services when calling the Discord bot message-send endpoint. |
 | `NEON_POSTGRES_URL` | Yes | Same Neon PostgreSQL database used by the web app. |
 | `PORT` | Optional | Local HTTP port for `/interactions`; defaults to `3001`. |
@@ -104,15 +102,9 @@ Use `DISCORD_APP_ID` consistently for the Discord app id. Discord OAuth2 calls
 the same value `client_id`, but keeping one Arctic Aria env name avoids
 duplicate values drifting apart.
 
-The first bot does not have a normal user self-service binding flow. On startup,
-it can bind `DISCORD_DEVELOPER_USER_ID` to `ARCTIC_ARIA_DEVELOPER_USERNAME` by
-inserting or updating one row in `discord_accounts`. That lets the developer
-test `/idea` before a full user-facing binding page exists.
-
-If the developer binding variables are missing, the bot can still start, but
-`/idea` will reply that the Discord account is not linked. These developer
-binding variables are a prototype path and should be removed after the
-Settings-driven `/bind` flow is implemented.
+Discord account binding is user-facing. The signed-in Arctic Aria user creates
+a one-time code in Settings, then runs `/bind code:<code>` in Discord. The old
+developer auto-binding prototype is removed and should not be configured.
 
 `DISCORD_MESSAGE_PUSH_SECRET` must be different from `AUTH_SESSION_SECRET`,
 Discord tokens, and database credentials. Store it in every environment that

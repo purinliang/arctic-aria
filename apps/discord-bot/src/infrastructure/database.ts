@@ -3,6 +3,10 @@ import type { NeonQueryFunction } from "@neondatabase/serverless";
 
 type Sql = NeonQueryFunction<false, false>;
 
+export type QueryExecutor = {
+  query(sql: string, parameters?: unknown[]): Promise<unknown[]>;
+};
+
 let sql: Sql | null = null;
 
 export function getSql() {

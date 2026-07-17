@@ -4,8 +4,8 @@ import {
   captureDiscordIdea,
   ideaTextMaxLength,
   validateDiscordIdeaText,
-} from "../features/ideas/idea-capture.ts";
-import type { QueryExecutor } from "../infrastructure/query-executor.ts";
+} from "../features/idea-capturing.ts";
+import type { QueryExecutor } from "../infrastructure/database.ts";
 
 class FakeSql implements QueryExecutor {
   readonly queries: Array<{ sql: string; parameters: unknown[] | undefined }> =

@@ -4,8 +4,7 @@ import {
   requireDiscordPublicKey,
 } from "./infrastructure/config.ts";
 import { getSql } from "./infrastructure/database.ts";
-import { ensureDeveloperDiscordBinding } from "./infrastructure/developer-binding.ts";
-import { createDiscordHttpServer } from "./infrastructure/discord-http-server.ts";
+import { createDiscordHttpServer } from "./infrastructure/http-server.ts";
 import {
   checkDatabaseConnection,
   formatStartupFailure,
@@ -23,21 +22,6 @@ async function main() {
     startupStep = "database";
     const sql = getSql();
     await checkDatabaseConnection(sql);
-
-    startupStep = "developer_binding";
-    const developerBinding = await ensureDeveloperDiscordBinding(sql, {
-      discordUserId: config.developerDiscordUserId,
-      developerUsername: config.developerUsername,
-      occurredAt: new Date(),
-    });
-
-    if (!developerBinding.ok) {
-      console.warn(
-        "[discord-bot]",
-        developerBinding.code,
-        developerBinding.message,
-      );
-    }
 
     startupStep = "http_server";
     const server = createDiscordHttpServer(

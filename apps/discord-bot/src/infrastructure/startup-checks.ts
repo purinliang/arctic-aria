@@ -1,4 +1,4 @@
-import type { QueryExecutor } from "./query-executor.ts";
+import type { QueryExecutor } from "./database.ts";
 
 export async function checkDatabaseConnection(sql: QueryExecutor) {
   await sql.query("SELECT 1 AS ok", []);

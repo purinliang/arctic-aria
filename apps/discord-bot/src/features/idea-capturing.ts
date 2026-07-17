@@ -1,4 +1,4 @@
-import type { QueryExecutor } from "../../infrastructure/query-executor.ts";
+import type { QueryExecutor } from "../infrastructure/database.ts";
 
 export const ideaTextMaxLength = 2000;
 

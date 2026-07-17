@@ -4,8 +4,8 @@ import {
   bindDiscordAccount,
   hashDiscordBindingCode,
   normalizeDiscordBindingCode,
-} from "../features/discord-bindings/bind.ts";
-import type { QueryExecutor } from "../infrastructure/query-executor.ts";
+} from "../features/account-binding.ts";
+import type { QueryExecutor } from "../infrastructure/database.ts";
 
 const now = new Date("2026-07-17T10:30:00.000Z");
 

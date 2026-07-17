@@ -5,8 +5,8 @@ import {
   InteractionResponseType,
   InteractionType,
 } from "discord-interactions";
-import { handleInboundDiscordInteraction } from "../commands/inbound-interaction-handler.ts";
-import type { QueryExecutor } from "../infrastructure/query-executor.ts";
+import { handleInboundDiscordInteraction } from "../interactions/interaction-handler.ts";
+import type { QueryExecutor } from "../infrastructure/database.ts";
 
 class FakeSql implements QueryExecutor {
   readonly queries: Array<{ sql: string; parameters: unknown[] | undefined }> =

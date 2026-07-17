@@ -1,17 +1,15 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
-  createDeferredInteractionResponse,
   browserInteractionHelpResponse,
-  browserOutboundMessageHelpResponse,
-  handleDeferredInboundInteraction,
-  readBearerToken,
-  shouldDeferInboundInteraction,
-} from "../infrastructure/discord-http-server.ts";
-import type { DiscordInteractionResponseEditor } from "../infrastructure/discord-api.ts";
-import type { QueryExecutor } from "../infrastructure/query-executor.ts";
+  createInProgressInteractionResponse,
+  handleInboundInteractionFollowup,
+  shouldRaceInboundInteraction,
+} from "../infrastructure/interaction-endpoint.ts";
+import type { DiscordInteractionResponseEditor } from "../infrastructure/api.ts";
+import type { QueryExecutor } from "../infrastructure/database.ts";
 
-describe("discord HTTP server route helpers", () => {
+describe("interaction endpoint helpers", () => {
   it("explains that browser GET requests are not Discord interactions", () => {
     assert.deepEqual(browserInteractionHelpResponse(), {
       error:
@@ -20,22 +18,7 @@ describe("discord HTTP server route helpers", () => {
     });
   });
 
-  it("explains that browser GET requests are not outbound message calls", () => {
-    assert.deepEqual(browserOutboundMessageHelpResponse(), {
-      error:
-        "Outbound Discord messages use POST requests with Authorization: Bearer <secret>.",
-      expectedMethod: "POST",
-    });
-  });
-
-  it("reads bearer tokens from authorization headers", () => {
-    assert.equal(readBearerToken("Bearer test-secret"), "test-secret");
-    assert.equal(readBearerToken("bearer   test-secret  "), "test-secret");
-    assert.equal(readBearerToken("Basic test-secret"), null);
-    assert.equal(readBearerToken(undefined), null);
-  });
-
-  it("defers bind interactions so Discord receives an immediate response", () => {
+  it("races idea and bind interactions before sending progress", () => {
     const payload = {
       type: 2,
       token: "interaction-token",
@@ -45,15 +28,36 @@ describe("discord HTTP server route helpers", () => {
       },
     };
 
-    assert.equal(shouldDeferInboundInteraction(payload), true);
-    assert.deepEqual(createDeferredInteractionResponse(payload), {
-      type: 5,
+    assert.equal(shouldRaceInboundInteraction(payload), true);
+    assert.equal(
+      shouldRaceInboundInteraction({
+        ...payload,
+        data: {
+          name: "idea",
+        },
+      }),
+      true,
+    );
+    assert.equal(
+      shouldRaceInboundInteraction({
+        ...payload,
+        data: {
+          name: "unknown",
+        },
+      }),
+      false,
+    );
+    assert.deepEqual(createInProgressInteractionResponse(payload), {
+      type: 4,
+      data: {
+        content: "Arctic Aria received this command. Finishing database work...",
+      },
     });
   });
 
-  it("keeps deferred guild bind interactions ephemeral", () => {
+  it("keeps slow guild interaction progress messages ephemeral", () => {
     assert.deepEqual(
-      createDeferredInteractionResponse({
+      createInProgressInteractionResponse({
         type: 2,
         token: "interaction-token",
         context: 0,
@@ -62,20 +66,21 @@ describe("discord HTTP server route helpers", () => {
         },
       }),
       {
-        type: 5,
+        type: 4,
         data: {
+          content: "Arctic Aria received this command. Finishing database work...",
           flags: 64,
         },
       },
     );
   });
 
-  it("edits the deferred bind response after the database binding finishes", async () => {
+  it("edits the slow bind response after the database binding finishes", async () => {
     const sql = new FakeSql([[{ user_id: "user-1" }]]);
     const editor = new FakeInteractionResponseEditor();
 
-    await handleDeferredInboundInteraction(
-      sql,
+    await handleInboundInteractionFollowup(
+      handleInboundBind(sql),
       {
         type: 2,
         token: "interaction-token",
@@ -106,6 +111,26 @@ describe("discord HTTP server route helpers", () => {
     ]);
   });
 });
+
+function handleInboundBind(sql: QueryExecutor) {
+  return import("../interactions/interaction-handler.ts").then(
+    ({ handleInboundDiscordInteraction }) =>
+      handleInboundDiscordInteraction(sql, {
+        type: 2,
+        token: "interaction-token",
+        context: 1,
+        data: {
+          name: "bind",
+          options: [{ name: "code", value: "ABCD-EFGH-JKLM" }],
+        },
+        user: {
+          id: "123456789",
+          username: "testdiscordusername",
+        },
+        channel_id: "channel-1",
+      }),
+  );
+}
 
 class FakeSql implements QueryExecutor {
   readonly queries: Array<{ sql: string; parameters: unknown[] | undefined }> =

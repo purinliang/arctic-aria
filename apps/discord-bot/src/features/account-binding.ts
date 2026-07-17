@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { QueryExecutor } from "../../infrastructure/query-executor.ts";
+import type { QueryExecutor } from "../infrastructure/database.ts";
 
 const discordSnowflakePattern = /^[0-9]{5,32}$/;
 

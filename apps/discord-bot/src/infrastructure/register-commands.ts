@@ -1,5 +1,5 @@
 import { REST, Routes } from "discord.js";
-import { discordCommandData } from "../commands/discord-commands.ts";
+import { discordCommandData } from "../interactions/commands.ts";
 import { loadDiscordBotConfig, requireDiscordBotToken } from "./config.ts";
 
 async function main() {

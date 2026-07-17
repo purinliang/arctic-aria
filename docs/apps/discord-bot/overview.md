@@ -72,8 +72,6 @@ Planned environment variables:
 - `DISCORD_BOT_TOKEN`
 - `DISCORD_APP_ID`
 - `DISCORD_PUBLIC_KEY`
-- `DISCORD_DEVELOPER_USER_ID`
-- `ARCTIC_ARIA_DEVELOPER_USERNAME`
 - `DISCORD_MESSAGE_PUSH_SECRET`
 - `NEON_POSTGRES_URL`
 - optional `PORT`, defaulting to `3001`
@@ -91,16 +89,17 @@ Local scripts read `apps/discord-bot/.env.local`. Use
 ## Code Locations
 
 - Runtime: `apps/discord-bot/src/index.ts`
-- Discord HTTP server: `apps/discord-bot/src/discord-http-server.ts`
-- Inbound interaction handler: `apps/discord-bot/src/inbound-interaction-handler.ts`
-- Command registration: `apps/discord-bot/src/register-commands.ts`
-- Slash command metadata: `apps/discord-bot/src/discord-commands.ts`
-- `/bind` account binding command: `apps/discord-bot/src/account-binding.ts`
-- `/idea` capture command: `apps/discord-bot/src/idea-capture.ts`
-- Outbound message command: `apps/discord-bot/src/outbound-message.ts`
-- Discord HTTP API sender: `apps/discord-bot/src/discord-api.ts`
-- Developer prototype binding: `apps/discord-bot/src/developer-binding.ts`
-- Database URL helper: `apps/discord-bot/src/database.ts`
+- HTTP server: `apps/discord-bot/src/infrastructure/http-server.ts`
+- Interaction endpoint: `apps/discord-bot/src/infrastructure/interaction-endpoint.ts`
+- Message push endpoint: `apps/discord-bot/src/infrastructure/message-push-endpoint.ts`
+- Discord interaction handler: `apps/discord-bot/src/interactions/interaction-handler.ts`
+- Slash command metadata: `apps/discord-bot/src/interactions/commands.ts`
+- Command registration: `apps/discord-bot/src/infrastructure/register-commands.ts`
+- `/bind` account binding behavior: `apps/discord-bot/src/features/account-binding.ts`
+- `/idea` capture behavior: `apps/discord-bot/src/features/idea-capturing.ts`
+- Message push behavior: `apps/discord-bot/src/features/message-push.ts`
+- Discord HTTP API sender: `apps/discord-bot/src/infrastructure/api.ts`
+- Database URL helper: `apps/discord-bot/src/infrastructure/database.ts`
 - Outbound message endpoint: `POST /internal/discord/messages`
 
 ## Account Binding
@@ -117,10 +116,6 @@ The first binding model should enforce:
 - one Arctic Aria user per Discord user
 - at most one Discord user per Arctic Aria user
 - a clear link to `users.id`
-
-The first developer prototype uses environment settings to bind the
-developer's Discord account to one existing Arctic Aria user. This is a local
-prototype path only.
 
 The implemented user-facing binding flow uses one-time codes:
 
@@ -272,8 +267,6 @@ Arctic Aria service
    - `DISCORD_BOT_TOKEN`
    - `DISCORD_APP_ID`
    - `DISCORD_PUBLIC_KEY`
-   - `DISCORD_DEVELOPER_USER_ID`
-   - `ARCTIC_ARIA_DEVELOPER_USERNAME`
    - `DISCORD_MESSAGE_PUSH_SECRET`
    - `NEON_POSTGRES_URL`
 
@@ -353,24 +346,32 @@ Arctic Aria service
    - Install Link: use Discord Provided Link.
    - Open the install link and choose `Add to my apps`.
 
-9. Run `/idea text:<raw text>` in Discord.
+9. Bind the Discord account from the web Settings page.
+
+   - Open `http://localhost:3000`.
+   - Sign in to the Arctic Aria account.
+   - Open `Settings`.
+   - Create a Discord binding code.
+   - Run `/bind code:<code>` in Discord.
+
+10. Run `/idea text:<raw text>` in Discord.
 
    Prefer the Arctic Aria app DM if Discord exposes it. If the app DM is not
    available, run `/idea` from any server channel; because the command is
    registered as `USER_INSTALL`, this still uses the developer's personal app
    install and does not require installing Arctic Aria into that server.
 
-10. Confirm the bot server logs:
+11. Confirm the bot server logs:
 
     ```text
     [discord-bot] inbound_interaction_handled { command: '/idea', status: 200 }
     ```
 
-11. Check captured ideas in the web app:
+12. Check captured ideas in the web app:
 
     - Run `pnpm --dir apps/web dev` if needed.
     - Open `http://localhost:3000`.
-    - Sign in as `ARCTIC_ARIA_DEVELOPER_USERNAME`.
+    - Sign in to the same Arctic Aria account.
     - Click `Ideas` in the left sidebar.
 
 ## Troubleshooting
