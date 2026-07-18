@@ -190,7 +190,7 @@ export function AppShell({
           onLogout={onLogout}
         />
 
-        <div className="mx-auto flex min-h-[110vh] min-w-0 flex-1 flex-col gap-4 px-4 pb-12 pt-4 sm:px-6 sm:pb-16 lg:max-w-[1200px] lg:px-8 lg:pb-20">
+        <div className="mx-auto flex min-h-[100dvh] min-w-0 flex-1 flex-col gap-4 px-4 pb-12 pt-4 sm:px-6 sm:pb-16 lg:min-h-[110vh] lg:max-w-[1200px] lg:px-8 lg:pb-20">
           <header
             className={`grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3 border-b pb-4 sm:flex sm:items-center ${secondaryButtonBorderColorClass}`}
           >

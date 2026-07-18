@@ -92,8 +92,10 @@ they apply:
   split must not equalize panel heights; left and right panels keep independent
   content-driven heights.
 - Page-level minimum height and bottom breathing room belong in the app shell,
-  not feature pages. Keep the authenticated content column at least `110vh`
-  tall with shared bottom padding so all pages scroll consistently.
+  not feature pages. Keep app pages at least `100dvh` tall on mobile so the
+  browser chrome does not create excess blank height; keep the authenticated
+  desktop content column at least `110vh` tall with shared bottom padding so
+  desktop pages scroll consistently.
 - Full route/page bodies should usually be named as `*Page.tsx` components.
 
 ## UI Interaction Defaults

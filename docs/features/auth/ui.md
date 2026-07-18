@@ -26,9 +26,9 @@ and [data-model.md](data-model.md).
 ## Registration Tab
 
 - Keep the auth panel centered on the page.
-- The auth page may use a minimum height around `110vh` and extra bottom
-  padding so users can scroll the form and metadata closer to the visual center
-  on small screens.
+- The auth page should use visible viewport height on mobile and may use a
+  minimum height around `110vh` on desktop, with extra bottom padding so users
+  can scroll the form and metadata closer to the visual center.
 - Show a centered brand row above the tabs as the first component. It should
   include a Sparkles icon and the localized brand name.
 - Show a centered description below the brand row, such as `Your personal life

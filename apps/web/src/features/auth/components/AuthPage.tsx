@@ -31,9 +31,9 @@ export function AuthPage({
 }) {
   return (
     <main
-      className={`min-h-[110vh] transition-colors ${appShellClass(darkMode)}`}
+      className={`min-h-[100dvh] transition-colors lg:min-h-[110vh] ${appShellClass(darkMode)}`}
     >
-      <div className="mx-auto flex min-h-[110vh] w-full max-w-[560px] items-center px-4 pb-16 pt-6 sm:px-6 sm:pb-20">
+      <div className="mx-auto flex min-h-[100dvh] w-full max-w-[560px] items-center px-4 pb-16 pt-6 sm:px-6 sm:pb-20 lg:min-h-[110vh]">
         <div className="w-full">
           <div className="mb-3 flex justify-end">
             <Button
