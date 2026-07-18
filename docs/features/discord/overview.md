@@ -12,7 +12,7 @@ Implemented capabilities:
 
 - `/bind code:<code>` for user-facing Discord account binding
 - `/idea text:<raw text>` for quick idea capture
-- outbound Discord direct messages through the private message-push endpoint
+- outbound Discord direct messages through an internal server-side service
 - Settings -> Discord -> `Send Test` for manual direct-message verification
 
 Direction terms:
@@ -31,12 +31,8 @@ Runtime code lives in `apps/web`.
 Code locations:
 
 - Interaction route: `apps/web/src/app/api/discord/interactions/route.ts`
-- Message push route:
-  `apps/web/src/app/api/internal/discord/messages/route.ts`
 - Interaction endpoint:
   `apps/web/src/features/discord/server/interaction-endpoint.ts`
-- Message push endpoint:
-  `apps/web/src/features/discord/server/message-push-endpoint.ts`
 - Slash command metadata:
   `apps/web/src/features/discord/server/commands.ts`
 - Command registration:
@@ -67,28 +63,17 @@ Local development with ngrok:
 https://<ngrok-domain>/api/discord/interactions
 ```
 
-Private outbound message endpoint:
-
-```text
-POST /api/internal/discord/messages
-```
-
-The private endpoint requires:
-
-```text
-Authorization: Bearer <DISCORD_MESSAGE_PUSH_SECRET>
-```
-
 ## Environment
 
-All current Discord runtime variables belong in `apps/web/.env.local` locally
-and in the Vercel web project environment for deployment:
+All current Discord variables belong in `apps/web/.env.local` locally and in
+the Vercel web project environment for deployment:
 
 - `DISCORD_BOT_TOKEN`
 - `DISCORD_APP_ID`
 - `DISCORD_PUBLIC_KEY`
-- `DISCORD_MESSAGE_PUSH_SECRET`
-- `NEON_POSTGRES_URL`
+
+The web app also needs its normal shared variables, such as `NEON_POSTGRES_URL`
+and `AUTH_SESSION_SECRET`.
 
 ## Command Registration
 
@@ -165,6 +150,53 @@ Expected Discord DM:
 ```text
 Hello from Arctic Aria. Discord message push is working.
 ```
+
+## Outbound Direct Messages
+
+Outbound direct messages are implemented as an internal server-side service, not
+as a private HTTP endpoint. Settings -> Discord -> `Send Test` calls the
+delivery service directly. Future scheduler or reminder code should use the
+same direct service while it lives inside the web app.
+
+Do not reintroduce a private message-push HTTP endpoint or shared message-push
+secret unless a later feature moves message delivery into a separate runtime or
+external caller. If that happens, design the service authentication at that
+time.
+
+Delivery records use `discord_message_deliveries`. The table stores delivery
+state without raw message text.
+
+Implemented `discord_message_deliveries` fields:
+
+- `id uuid PRIMARY KEY`
+- `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
+- `discord_account_id uuid REFERENCES discord_accounts(id)`
+- `idempotency_key text NOT NULL`
+- `content_hash text NOT NULL`
+- `source text NOT NULL`
+- `metadata jsonb NOT NULL DEFAULT '{}'::jsonb`
+- `delivery_status text NOT NULL DEFAULT 'pending'`
+- `discord_message_id text`
+- `error_code text`
+- `created_at timestamptz NOT NULL DEFAULT now()`
+- `sent_at timestamptz`
+- `failed_at timestamptz`
+
+Implemented constraints:
+
+- `(user_id, idempotency_key)` is unique
+- `source` is `web`, `scheduler`, `manual`, or `agent`
+- `delivery_status` is `pending`, `sent`, `failed`, or `skipped`
+- sent rows must set `sent_at` and not `failed_at`
+- failed rows must set `failed_at` and not `sent_at`
+- pending and skipped rows must not set `sent_at` or `failed_at`
+
+Idempotency behavior:
+
+- same user id, same idempotency key, same content hash: return the existing
+  delivery result and do not send again
+- same user id, same idempotency key, different content hash: return a conflict
+- failed sends keep the idempotency row; a retry policy is future work
 
 ## Account Binding
 
@@ -270,9 +302,6 @@ idea" behavior without separate privacy, rate-limit, and intent rules.
 - `Discord configuration is missing` from Settings `Send Test` means the web
   environment is missing `DISCORD_BOT_TOKEN`. The user-facing notification stays
   generic; check the web server log for the missing environment variable.
-- `Discord message-push secret was rejected` means the caller and endpoint do
-  not use the same `DISCORD_MESSAGE_PUSH_SECRET`. This applies to direct HTTP
-  callers of `/api/internal/discord/messages`, not Settings `Send Test`.
 
 ## Deferred Workflows
 

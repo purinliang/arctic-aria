@@ -174,7 +174,6 @@ Current feature data-model docs:
 Integration docs:
 
 - [features/discord/overview.md](features/discord/overview.md)
-- [features/discord/outbound-messages.md](features/discord/outbound-messages.md)
 
 Shared web docs:
 
