@@ -16,6 +16,8 @@ type MigrationRunRow = {
   app_version: string;
   app_commit: string;
   checked_at: string;
+  status?: string;
+  failure_stage?: string | null;
 };
 
 export async function getDatabaseVersionStatus(
@@ -25,7 +27,7 @@ export async function getDatabaseVersionStatus(
 
   try {
     const [latestRun] = (await getSql().query(
-      `SELECT app_version, app_commit, checked_at
+      `SELECT app_version, app_commit, checked_at, status, failure_stage
        FROM schema_migration_runs
        ORDER BY checked_at DESC, id DESC
        LIMIT 1`,
@@ -34,12 +36,23 @@ export async function getDatabaseVersionStatus(
       `SELECT name, checksum FROM schema_migrations ORDER BY name`,
     )) as AppliedMigrationRow[];
 
-    if (!latestRun || appliedRows.length === 0) {
+    if (!latestRun) {
       return mismatchStatus(
         expectedVersionText,
         "Not recorded",
         metadata.expectedDatabase.schemaHash,
         expectedDatabaseMessage(metadata),
+      );
+    }
+
+    if (appliedRows.length === 0) {
+      return mismatchStatus(
+        expectedVersionText,
+        latestRun.status === "failed" ? "Unknown" : "Not recorded",
+        metadata.expectedDatabase.schemaHash,
+        latestRun.status === "failed"
+          ? latestMigrationFailureMessage(latestRun)
+          : expectedDatabaseMessage(metadata),
       );
     }
 
@@ -51,6 +64,15 @@ export async function getDatabaseVersionStatus(
         "Unknown",
         metadata.expectedDatabase.schemaHash,
         "database migration checksums are missing",
+      );
+    }
+
+    if (latestRun.status === "failed") {
+      return mismatchStatus(
+        expectedVersionText,
+        actualDatabaseMetadata.schemaHash,
+        metadata.expectedDatabase.schemaHash,
+        latestMigrationFailureMessage(latestRun),
       );
     }
 
@@ -130,4 +152,10 @@ function schemaMismatchMessage(
 
 function expectedDatabaseMessage(metadata: AppMetadata) {
   return `expected ${metadata.expectedDatabase.schemaHash}`;
+}
+
+function latestMigrationFailureMessage(run: MigrationRunRow) {
+  return run.failure_stage
+    ? `latest migration run failed during ${run.failure_stage}`
+    : "latest migration run failed";
 }
