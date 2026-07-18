@@ -14,7 +14,7 @@ import { Button } from "../button";
 import { buildCalendarMonthDays, shiftCalendarMonth } from "./date-calendar";
 import { formatDateKey } from "./date-format";
 import {
-  formControlClass,
+  formButtonControlClass,
   formControlPopupClass,
 } from "./form-control-style";
 import {
@@ -86,13 +86,15 @@ export function DatePickerField({
     [visibleMonth],
   );
   const formattedValue = formatDateValue(value, messages);
+  const showClear = allowClear && Boolean(value);
 
   return (
     <div ref={rootRef} className="relative min-w-0">
       <button
         className={cx(
-          formControlClass(darkMode, hasError),
-          "flex items-center justify-between gap-3 text-left hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
+          formButtonControlClass(darkMode, hasError),
+          "flex items-center gap-3 text-left",
+          showClear && "pr-12",
           className,
         )}
         type="button"
@@ -106,11 +108,22 @@ export function DatePickerField({
           setOpen((current) => !current);
         }}
       >
+        <Calendar className="h-4 w-4 shrink-0 text-current" />
         <span className="min-w-0 truncate">
           {formattedValue || placeholder}
         </span>
-        <Calendar className="h-4 w-4 shrink-0" />
       </button>
+      {showClear ? (
+        <Button
+          darkMode={darkMode}
+          tone="ghost"
+          size="icon-sm"
+          className="absolute right-1 top-1/2 -translate-y-1/2"
+          aria-label={messages.clearDate}
+          icon={<X className="h-3.5 w-3.5" />}
+          onClick={() => onChange("")}
+        />
+      ) : null}
 
       {open ? (
         <div
@@ -198,19 +211,6 @@ export function DatePickerField({
               ),
             )}
           </div>
-
-          {allowClear && value ? (
-            <Button
-              darkMode={darkMode}
-              tone="ghost"
-              size="xs"
-              className="mt-2 w-full"
-              icon={<X className="h-3.5 w-3.5" />}
-              onClick={() => onChange("")}
-            >
-              {messages.clearDate}
-            </Button>
-          ) : null}
         </div>
       ) : null}
     </div>

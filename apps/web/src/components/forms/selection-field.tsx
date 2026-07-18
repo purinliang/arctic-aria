@@ -17,7 +17,7 @@ import type {
 import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
 import {
-  formControlClass,
+  formButtonControlClass,
   formControlPopupClass,
 } from "./form-control-style";
 import { cx } from "../utils";
@@ -76,9 +76,10 @@ export function SelectInput({
       : maxMenuHeight;
     const rootRect = root.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
-    const availableWidth = Math.max(160, viewportWidth - viewportPadding * 2);
-    const menuWidth = Math.min(rootRect.width, availableWidth);
-    const minMenuWidth = Math.min(Math.max(menuWidth, 192), availableWidth);
+    const menuWidth = Math.min(
+      rootRect.width,
+      Math.max(0, viewportWidth - viewportPadding * 2),
+    );
     const spaceAbove = rootRect.top - viewportPadding;
     const spaceBelow = window.innerHeight - rootRect.bottom - viewportPadding;
     const opensAbove =
@@ -89,7 +90,7 @@ export function SelectInput({
     );
     const maxLeft = Math.max(
       viewportPadding,
-      viewportWidth - viewportPadding - minMenuWidth,
+      viewportWidth - viewportPadding - menuWidth,
     );
     const left = Math.min(
       Math.max(viewportPadding, rootRect.left),
@@ -99,7 +100,6 @@ export function SelectInput({
     setPopoverStyle({
       left,
       maxHeight: availableHeight,
-      minWidth: minMenuWidth,
       position: "fixed",
       width: menuWidth,
       ...(opensAbove
@@ -150,8 +150,8 @@ export function SelectInput({
     <div ref={rootRef} className="relative min-w-0">
       <button
         className={cx(
-          formControlClass(darkMode, hasError),
-          "flex items-center justify-between gap-3 text-left font-normal hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
+          formButtonControlClass(darkMode, hasError),
+          "flex items-center justify-between gap-3 text-left font-normal",
           className,
         )}
         type="button"
@@ -176,7 +176,7 @@ export function SelectInput({
               style={popoverStyle ?? undefined}
               className={formControlPopupClass(
                 darkMode,
-                "grid min-w-48 overflow-hidden overflow-y-auto p-1",
+                "grid overflow-hidden overflow-y-auto p-0",
               )}
               role="listbox"
             >

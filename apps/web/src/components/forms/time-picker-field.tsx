@@ -5,7 +5,7 @@ import { Clock, X } from "lucide-react";
 import { Button } from "../button";
 import { formatTimeDisplay } from "./time-display";
 import {
-  formControlClass,
+  formButtonControlClass,
   formControlPopupClass,
 } from "./form-control-style";
 import {
@@ -58,6 +58,11 @@ export function TimePickerField({
     messages,
     timeFormatPreference,
   );
+  const showClear = allowClear && Boolean(value);
+  const handlePartsChange = (parts: TimeParts) => {
+    setDraftParts(parts);
+    onChange(toTimeValue(parts));
+  };
 
   useEffect(() => {
     if (!open) {
@@ -83,8 +88,9 @@ export function TimePickerField({
     <div ref={rootRef} className="relative min-w-0">
       <button
         className={cx(
-          formControlClass(darkMode, hasError),
-          "flex items-center justify-between gap-3 text-left hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
+          formButtonControlClass(darkMode, hasError),
+          "flex items-center gap-3 text-left",
+          showClear && "pr-12",
           className,
         )}
         type="button"
@@ -95,11 +101,25 @@ export function TimePickerField({
           setOpen((current) => !current);
         }}
       >
+        <Clock className="h-4 w-4 shrink-0 text-current" />
         <span className="min-w-0 truncate">
           {formattedValue || placeholder}
         </span>
-        <Clock className="h-4 w-4 shrink-0" />
       </button>
+      {showClear ? (
+        <Button
+          darkMode={darkMode}
+          tone="ghost"
+          size="icon-sm"
+          className="absolute right-1 top-1/2 -translate-y-1/2"
+          aria-label={messages.clear}
+          icon={<X className="h-3.5 w-3.5" />}
+          onClick={() => {
+            onChange("");
+            setDraftParts(null);
+          }}
+        />
+      ) : null}
 
       {open ? (
         <div
@@ -112,76 +132,33 @@ export function TimePickerField({
             ),
           )}
         >
-          <div className="grid gap-3">
+          <div className="grid gap-2">
             <TimeTextInput
-              darkMode={darkMode}
               messages={messages}
               parts={selectedParts}
               timeFormatPreference={timeFormatPreference}
-              onChange={setDraftParts}
+              onChange={handlePartsChange}
+              onDismiss={() => {
+                setOpen(false);
+                setDraftParts(null);
+              }}
             />
             {timeFormatPreference === "12h" ? (
               <div className="grid grid-cols-2 gap-2">
                 {(["AM", "PM"] as const).map((period) => (
-                  <button
+                  <Button
                     key={period}
-                    className={cx(
-                      "h-9 rounded-md border px-3 text-xs font-semibold transition",
-                      selectedParts.period === period
-                        ? "border-[var(--aa-primary-button-hover-bg)] bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)]"
-                        : "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)]",
-                    )}
-                    type="button"
-                    onClick={() => setDraftParts({ ...selectedParts, period })}
+                    darkMode={darkMode}
+                    active={selectedParts.period === period}
+                    className="w-full"
+                    onClick={() =>
+                      handlePartsChange({ ...selectedParts, period })
+                    }
                   >
                     {messages.periodLabels[period]}
-                  </button>
+                  </Button>
                 ))}
               </div>
-            ) : null}
-            <p
-              className={cx(
-                "text-xs leading-5",
-                "text-[var(--aa-secondary-text)]",
-              )}
-            >
-              {formatTimeDisplay(
-                toTimeValue(selectedParts),
-                messages,
-                timeFormatPreference,
-              )}
-            </p>
-          </div>
-
-          <div className="mt-3 grid gap-2">
-            <Button
-              darkMode={darkMode}
-              tone="primary"
-              size="xs"
-              className="w-full"
-              onClick={() => {
-                onChange(toTimeValue(selectedParts));
-                setOpen(false);
-                setDraftParts(null);
-              }}
-            >
-              {messages.confirm}
-            </Button>
-            {allowClear && value ? (
-              <Button
-                darkMode={darkMode}
-                tone="ghost"
-                size="xs"
-                className="w-full"
-                icon={<X className="h-3.5 w-3.5" />}
-                onClick={() => {
-                  onChange("");
-                  setOpen(false);
-                  setDraftParts(null);
-                }}
-              >
-                {messages.clear}
-              </Button>
             ) : null}
           </div>
         </div>
@@ -191,20 +168,18 @@ export function TimePickerField({
 }
 
 function TimeTextInput({
-  darkMode,
   messages,
   parts,
   timeFormatPreference,
   onChange,
+  onDismiss,
 }: {
-  darkMode: boolean;
   messages: TimePickerMessages;
   parts: TimeParts;
   timeFormatPreference: TimeFormatPreference;
   onChange: (parts: TimeParts) => void;
+  onDismiss: () => void;
 }) {
-  void darkMode;
-
   const [draft, setDraft] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const value = draft ?? formatTimeInputValue(parts, timeFormatPreference);
@@ -215,20 +190,29 @@ function TimeTextInput({
   }, []);
 
   return (
-    <label className="grid min-w-0">
-      <span className="sr-only">{messages.time}</span>
+    <div className="relative grid min-w-0">
       <input
         ref={inputRef}
         className={cx(
-          "h-12 w-full min-w-0 rounded-md border px-2 text-center text-xl font-semibold tabular-nums outline-none transition",
+          "h-11 w-full min-w-0 rounded-md border px-2 text-center text-lg font-semibold tabular-nums outline-none transition",
           "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-primary-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] focus:border-[var(--aa-secondary-button-hover-border)] focus:bg-[var(--aa-secondary-button-hover-bg)]",
         )}
         type="text"
         inputMode="text"
         value={value}
+        aria-label={messages.time}
         placeholder={messages.timePlaceholder}
         onFocus={(event) => event.currentTarget.select()}
         onBlur={() => setDraft(null)}
+        onKeyDown={(event) => {
+          if (event.key !== "Enter") {
+            return;
+          }
+
+          event.preventDefault();
+          event.stopPropagation();
+          onDismiss();
+        }}
         onChange={(event) => {
           const nextDraft = event.currentTarget.value;
           const nextParts = parseTypedTimeInput(nextDraft, parts.period);
@@ -240,6 +224,6 @@ function TimeTextInput({
           }
         }}
       />
-    </label>
+    </div>
   );
 }

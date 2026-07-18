@@ -34,7 +34,7 @@ export const englishFormMessages = {
     previousMonth: "Previous month",
     nextMonth: "Next month",
     nextYear: "Next year",
-    clearDate: "Clear date",
+    clearDate: "Clear",
     monthYear: (monthName: string, year: number) => `${monthName} ${year}`,
     dateValue: (
       shortMonthName: string,
@@ -63,7 +63,7 @@ export const englishFormMessages = {
       AM: "AM",
       PM: "PM",
     },
-    clear: "Clear Time",
+    clear: "Clear",
     value: (hour12: number, minute: number, period: string) =>
       `${hour12}:${String(minute).padStart(2, "0")} ${period}`,
   },
@@ -117,7 +117,7 @@ export const simplifiedChineseFormMessages: FormMessages = {
     previousMonth: "上个月",
     nextMonth: "下个月",
     nextYear: "下一年",
-    clearDate: "清除日期",
+    clearDate: "清除",
     monthYear: (monthName, year) => `${year}年${monthName}`,
     dateValue: (shortMonthName, day, year, weekdayName) =>
       weekdayName
@@ -141,7 +141,7 @@ export const simplifiedChineseFormMessages: FormMessages = {
       AM: "上午",
       PM: "下午",
     },
-    clear: "清除时间",
+    clear: "清除",
     value: (hour12, minute, period) =>
       `${period} ${hour12}:${String(minute).padStart(2, "0")}`,
   },

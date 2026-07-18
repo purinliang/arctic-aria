@@ -24,3 +24,22 @@ export function formControlPopupClass(darkMode: boolean, className?: string) {
     className,
   );
 }
+
+export function formButtonControlClass(
+  darkMode: boolean,
+  hasError = false,
+  className?: string,
+) {
+  return cx(
+    "h-11 w-full rounded-md border px-3 text-sm shadow-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-100 disabled:shadow-none",
+    hasError
+      ? cx(
+          darkMode ? "border-red-400" : "border-red-500",
+          "bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] focus:border-[var(--aa-secondary-button-hover-border)] focus:bg-[var(--aa-secondary-button-hover-bg)]",
+        )
+      : "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] focus:border-[var(--aa-secondary-button-hover-border)]",
+    "hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] focus:bg-[var(--aa-secondary-button-hover-bg)]",
+    "disabled:border-[var(--aa-secondary-button-disabled-border)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:border-[var(--aa-secondary-button-disabled-border)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
+    className,
+  );
+}
