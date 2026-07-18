@@ -39,13 +39,15 @@ Current triage statuses:
 
 ## Backend Rules
 
-Capture commands should:
+Capture and edit commands should:
 
 - require an authenticated or bound user
 - trim raw text before validation
 - reject empty or blank-only text
 - reject text longer than 2,000 characters
 - store `source = 'discord'` for Discord `/idea` captures
+- store `source = 'web'` for web-created ideas
+- scope every update or archive query by both `user_id` and `id`
 - store safe source metadata, such as Discord user id, interaction id, and
   timestamp
 
@@ -66,9 +68,9 @@ Ideas are user-owned data. Queries must always scope ideas by `user_id`.
 
 ## Deletion
 
-The first user-visible delete behavior should archive an idea by setting
-`triage_status = 'archived'` and `archived_at`. This UI command is not
-implemented yet.
+The user-visible delete behavior archives an idea by setting
+`triage_status = 'archived'` and `archived_at`. Normal Ideas page queries hide
+archived rows.
 
 Hard delete may be reserved for account deletion, where the owning `users` row
 can cascade cleanup if the migration chooses `ON DELETE CASCADE`.

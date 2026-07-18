@@ -173,6 +173,7 @@ export function CrudEditorDialog({
             {onDelete && deleteText ? (
               <Button
                 darkMode={darkMode}
+                size="md"
                 disabled={pending}
                 className="w-full"
                 icon={<Trash2 size={14} aria-hidden="true" />}

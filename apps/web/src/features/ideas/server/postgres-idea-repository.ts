@@ -1,11 +1,13 @@
 import type { NeonQueryFunction } from "@neondatabase/serverless";
 import { getSql } from "../../../server/database/neon.ts";
 import type {
+  ArchiveIdeaInput,
   CaptureIdeaInput,
   IdeaRecord,
   IdeaRepository,
   IdeaSource,
   IdeaTriageStatus,
+  UpdateIdeaInput,
 } from "./idea-repository.ts";
 
 type Sql = NeonQueryFunction<false, false>;
@@ -97,6 +99,46 @@ export class PostgresIdeaRepository implements IdeaRepository {
     )) as IdeaRow[];
 
     return rows.map(mapIdea);
+  }
+
+  async update(input: UpdateIdeaInput) {
+    const rows = (await this.getSql().query(
+      `UPDATE ideas
+       SET raw_text = $3,
+           updated_at = $4
+       WHERE user_id = $1
+         AND id = $2
+         AND archived_at IS NULL
+       RETURNING
+         id,
+         user_id,
+         raw_text,
+         source,
+         triage_status,
+         source_metadata,
+         created_at,
+         updated_at,
+         archived_at`,
+      [input.userId, input.ideaId, input.rawText, input.occurredAt],
+    )) as IdeaRow[];
+
+    return rows[0] ? mapIdea(rows[0]) : null;
+  }
+
+  async archive(input: ArchiveIdeaInput) {
+    const rows = (await this.getSql().query(
+      `UPDATE ideas
+       SET triage_status = 'archived',
+           archived_at = $3,
+           updated_at = $3
+       WHERE user_id = $1
+         AND id = $2
+         AND archived_at IS NULL
+       RETURNING id`,
+      [input.userId, input.ideaId, input.occurredAt],
+    )) as Array<{ id: string }>;
+
+    return rows.length > 0;
   }
 
   private getSql() {

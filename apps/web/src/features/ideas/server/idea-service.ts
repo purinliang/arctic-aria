@@ -21,6 +21,33 @@ export type CaptureIdeaResult =
       message: string;
     };
 
+export type SaveIdeaResult =
+  | {
+      ok: true;
+      code: "idea_saved";
+      idea: IdeaRecord;
+    }
+  | {
+      ok: false;
+      code:
+        | "idea_text_required"
+        | "idea_text_too_long"
+        | "idea_not_found"
+        | "idea_save_failed";
+      message: string;
+    };
+
+export type ArchiveIdeaResult =
+  | {
+      ok: true;
+      code: "idea_archived";
+    }
+  | {
+      ok: false;
+      code: "idea_not_found" | "idea_archive_failed";
+      message: string;
+    };
+
 export type IdeaServiceOptions = {
   ideas?: IdeaRepository;
   now?: () => Date;
@@ -63,10 +90,7 @@ export function createIdeaService(options: IdeaServiceOptions = {}) {
         console.error("[ideas]", "capture_failed", {
           userId: input.userId,
           source: input.source,
-          errorCode:
-            error && typeof error === "object" && "code" in error
-              ? String(error.code)
-              : "unknown",
+          errorCode: errorCode(error),
         });
 
         return {
@@ -76,7 +100,105 @@ export function createIdeaService(options: IdeaServiceOptions = {}) {
         };
       }
     },
+
+    async saveWebIdea(input: {
+      userId: string;
+      ideaId?: string;
+      rawText: string;
+    }): Promise<SaveIdeaResult> {
+      const validation = validateIdeaRawText(input.rawText);
+
+      if (!validation.ok) {
+        return validation;
+      }
+
+      try {
+        const idea = input.ideaId
+          ? await ideas.update({
+              userId: input.userId,
+              ideaId: input.ideaId,
+              rawText: validation.rawText,
+              occurredAt: now(),
+            })
+          : await ideas.capture({
+              userId: input.userId,
+              rawText: validation.rawText,
+              source: "web",
+              occurredAt: now(),
+            });
+
+        if (!idea) {
+          return {
+            ok: false,
+            code: "idea_not_found",
+            message: "Idea was not found.",
+          };
+        }
+
+        return {
+          ok: true,
+          code: "idea_saved",
+          idea,
+        };
+      } catch (error) {
+        console.error("[ideas]", "save_failed", {
+          userId: input.userId,
+          ideaId: input.ideaId ?? null,
+          errorCode: errorCode(error),
+        });
+
+        return {
+          ok: false,
+          code: "idea_save_failed",
+          message: "Idea could not be saved.",
+        };
+      }
+    },
+
+    async archiveIdea(input: {
+      userId: string;
+      ideaId: string;
+    }): Promise<ArchiveIdeaResult> {
+      try {
+        const archived = await ideas.archive({
+          userId: input.userId,
+          ideaId: input.ideaId,
+          occurredAt: now(),
+        });
+
+        if (!archived) {
+          return {
+            ok: false,
+            code: "idea_not_found",
+            message: "Idea was not found.",
+          };
+        }
+
+        return {
+          ok: true,
+          code: "idea_archived",
+        };
+      } catch (error) {
+        console.error("[ideas]", "archive_failed", {
+          userId: input.userId,
+          ideaId: input.ideaId,
+          errorCode: errorCode(error),
+        });
+
+        return {
+          ok: false,
+          code: "idea_archive_failed",
+          message: "Idea could not be deleted.",
+        };
+      }
+    },
   };
 }
 
 export const ideaService = createIdeaService();
+
+function errorCode(error: unknown) {
+  return error && typeof error === "object" && "code" in error
+    ? String(error.code)
+    : "unknown";
+}

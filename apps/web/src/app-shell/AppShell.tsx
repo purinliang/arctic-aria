@@ -2,7 +2,7 @@
 
 // App Shell.
 import { Menu } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/button";
 import { secondaryButtonBorderColorClass } from "@/components/color";
 import {
@@ -21,8 +21,8 @@ import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardPro
 import { useDashboardRoutines } from "@/features/dashboard/hooks/useDashboardRoutines";
 import type { DashboardView } from "@/features/dashboard/types";
 import type { AuthUser } from "@/features/auth/server/auth-service";
-import { getIdeaPageData, type IdeaPageItem } from "@/features/ideas/actions";
 import { IdeasPage } from "@/features/ideas/components/IdeasPage";
+import { useIdeasPageData } from "@/features/ideas/hooks/useIdeasPageData";
 import { MemoriesPage } from "@/features/memories/components/MemoriesPage";
 import type { ProjectInput } from "@/features/projects/actions";
 import { ProjectPageTitle } from "@/features/projects/components/ProjectPageTitle";
@@ -73,8 +73,6 @@ export function AppShell({
     null,
   );
   const [projectDraft, setProjectDraft] = useState<ProjectInput | null>(null);
-  const [ideas, setIdeas] = useState<IdeaPageItem[]>([]);
-  const [ideasLoading, setIdeasLoading] = useState(true);
   const projectState = useDashboardProjects(
     currentUser.id,
     showErrorNotification,
@@ -96,19 +94,8 @@ export function AppShell({
   const { refreshProjectData } = projectState;
   const { refreshMemoryData } = memoryState;
   const { refreshRoutineData } = routineState;
-  const refreshIdeaData = useCallback(async () => {
-    setIdeasLoading(true);
-
-    const result = await getIdeaPageData();
-
-    if (result.ok) {
-      setIdeas(result.data);
-    } else {
-      showErrorNotification(result.message);
-    }
-
-    setIdeasLoading(false);
-  }, [showErrorNotification]);
+  const ideaState = useIdeasPageData(messages.ideas, showErrorNotification);
+  const { refreshIdeaData } = ideaState;
   const pinnedProjects = useMemo(
     () =>
       projectState.projects
@@ -270,10 +257,13 @@ export function AppShell({
           ) : activeView === "ideas" ? (
             <IdeasPage
               darkMode={darkMode}
-              ideas={ideas}
-              loading={ideasLoading}
+              ideas={ideaState.ideas}
+              loading={ideaState.ideasLoading}
+              pending={ideaState.ideaActionPending}
               messages={messages.ideas}
               dateMessages={messages.forms.datePicker}
+              onIdeaSave={ideaState.saveIdeaFromPage}
+              onIdeaDelete={ideaState.deleteIdeaFromPage}
             />
           ) : activeView === "memories" ? (
             <MemoriesPage

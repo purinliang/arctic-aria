@@ -1,12 +1,3 @@
-type IdeaMessageSource = "web" | "discord" | "mobile" | "agent";
-
-type IdeaPrototypeItem = {
-  id: string;
-  rawText: string;
-  source: IdeaMessageSource;
-  createdDate: string;
-};
-
 type IdeaMessagesDefinition = {
   page: {
     title: string;
@@ -19,9 +10,33 @@ type IdeaMessagesDefinition = {
     sourceMobile: string;
     sourceWeb: string;
     statusUntriaged: string;
-    prototypeLabel: string;
-    prototypeItems: IdeaPrototypeItem[];
+    new: string;
+    edit: string;
   };
+  editor: {
+    add: string;
+    edit: string;
+    close: string;
+    idea: string;
+    placeholder: string;
+    save: string;
+    saving: string;
+    delete: string;
+  };
+  confirm: {
+    title: string;
+    description: (idea: string) => string;
+    fallbackIdea: string;
+    cancel: string;
+    confirm: string;
+    deleting: string;
+    close: string;
+  };
+  notifications: {
+    saveFailed: string;
+    deleteFailed: string;
+  };
+  results: Record<string, string>;
 };
 
 export const englishIdeaMessages: IdeaMessagesDefinition = {
@@ -37,22 +52,40 @@ export const englishIdeaMessages: IdeaMessagesDefinition = {
     sourceMobile: "Mobile",
     sourceWeb: "Web",
     statusUntriaged: "Untriaged",
-    prototypeLabel: "Prototype",
-    prototypeItems: [
-      {
-        id: "idea-prototype-1",
-        rawText: "Check visa document checklist before the next appointment.",
-        source: "discord",
-        createdDate: "2026-07-17",
-      },
-      {
-        id: "idea-prototype-2",
-        rawText:
-          "Turn the final exam preparation notes into a reusable study project.",
-        source: "web",
-        createdDate: "2026-07-17",
-      },
-    ],
+    new: "New",
+    edit: "Edit",
+  },
+  editor: {
+    add: "Add Idea",
+    edit: "Edit Idea",
+    close: "Close idea editor",
+    idea: "Idea",
+    placeholder: "Capture the thought before deciding what it becomes.",
+    save: "Save",
+    saving: "Saving",
+    delete: "Delete",
+  },
+  confirm: {
+    title: "Delete Idea",
+    description: (idea) => `Delete "${idea}"?`,
+    fallbackIdea: "this idea",
+    cancel: "Cancel",
+    confirm: "Delete",
+    deleting: "Deleting...",
+    close: "Close delete confirmation",
+  },
+  notifications: {
+    saveFailed: "Idea save failed",
+    deleteFailed: "Idea delete failed",
+  },
+  results: {
+    auth_required: "Please sign in again.",
+    idea_text_required: "Idea can't be empty.",
+    idea_text_too_long: "Idea must be 2000 characters or fewer.",
+    idea_not_found: "Idea was not found.",
+    idea_save_failed: "Idea could not be saved.",
+    idea_archive_failed: "Idea could not be deleted.",
+    ideas_unavailable: "Ideas are unavailable.",
   },
 };
 
@@ -70,20 +103,39 @@ export const simplifiedChineseIdeaMessages: IdeaMessages = {
     sourceMobile: "手机",
     sourceWeb: "网页",
     statusUntriaged: "未整理",
-    prototypeLabel: "原型",
-    prototypeItems: [
-      {
-        id: "idea-prototype-1",
-        rawText: "下次预约前检查签证材料清单。",
-        source: "discord",
-        createdDate: "2026-07-17",
-      },
-      {
-        id: "idea-prototype-2",
-        rawText: "把期末考试复习笔记整理成可复用的学习项目。",
-        source: "web",
-        createdDate: "2026-07-17",
-      },
-    ],
+    new: "新建",
+    edit: "编辑",
+  },
+  editor: {
+    add: "新建想法",
+    edit: "编辑想法",
+    close: "关闭想法编辑器",
+    idea: "想法",
+    placeholder: "先记录下来，之后再决定它应该变成什么。",
+    save: "保存",
+    saving: "正在保存",
+    delete: "删除",
+  },
+  confirm: {
+    title: "删除想法",
+    description: (idea) => `删除“${idea}”？`,
+    fallbackIdea: "这个想法",
+    cancel: "取消",
+    confirm: "删除",
+    deleting: "正在删除...",
+    close: "关闭删除确认",
+  },
+  notifications: {
+    saveFailed: "想法保存失败",
+    deleteFailed: "想法删除失败",
+  },
+  results: {
+    auth_required: "请重新登录。",
+    idea_text_required: "想法不能为空。",
+    idea_text_too_long: "想法不能超过 2000 个字符。",
+    idea_not_found: "没有找到这个想法。",
+    idea_save_failed: "无法保存想法。",
+    idea_archive_failed: "无法删除想法。",
+    ideas_unavailable: "无法加载想法。",
   },
 };

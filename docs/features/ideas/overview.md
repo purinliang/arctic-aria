@@ -4,10 +4,10 @@ Ideas are quick captured thoughts before they become projects, tasks, routines,
 memories, or review notes. The goal is low-friction capture:
 the user should be able to save a thought before deciding what it means.
 
-Ideas persistence and the backend capture service foundation are implemented.
-The web app currently has a read-only Ideas page. Discord `/idea` can create
-untriaged ideas for a bound Arctic Aria user. User-facing web add/edit/triage
-controls are not implemented yet.
+Ideas persistence, Discord capture, and basic web management are implemented.
+Discord `/idea` can create untriaged ideas for a bound Arctic Aria user. The
+web Ideas page can create, edit, list, and delete ideas. User-facing triage and
+conversion controls are not implemented yet.
 
 UI behavior is documented in [ui.md](ui.md). Persistence direction is documented
 in [data-model.md](data-model.md).
@@ -19,6 +19,7 @@ The first Ideas feature should support:
 - raw-text capture
 - source tracking, such as web, Discord, mobile, or agent
 - an `untriaged` state for newly captured thoughts
+- web add, edit, and delete management for raw ideas
 - later review and conversion into another product entity
 
 The first Ideas feature should not include:
@@ -29,14 +30,15 @@ The first Ideas feature should not include:
 - free-form Discord chat behavior
 - reminder or scheduler ownership
 
-## Capture Rules
+## Capture And Edit Rules
 
-The first capture command stores one raw text value. The user should not need to
-choose a title, tags, destination feature, deadline, or priority during capture.
+The first capture and edit commands store one raw text value. The user should
+not need to choose a title, tags, destination feature, deadline, or priority
+during capture.
 
-Backend validation should trim the captured text, reject empty text, and reject
-text longer than 2,000 characters. This keeps the first Discord command and
-database storage predictable.
+Backend validation should trim the text, reject empty text, and reject text
+longer than 2,000 characters. This keeps Discord capture, web create, web edit,
+and database storage predictable.
 
 ## Triage
 

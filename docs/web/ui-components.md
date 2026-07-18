@@ -366,14 +366,16 @@ dialogs may use the `sm` size. Dialog overlays must provide enough top and
 bottom viewport padding and must allow vertical scrolling when form content is
 taller than the viewport. Dialogs must not close when the user clicks the
 semi-transparent overlay; close only through explicit close, cancel, save,
-delete, or confirmation controls. Feature dialogs should use the shared
-`DialogOverlay`, `DialogFrame`, and `DialogHeader` pieces instead of
-hand-rolling fixed overlay containers.
+delete, or confirmation controls. Feature dialogs should use shared dialog
+primitives instead of hand-rolling fixed overlay containers.
 
-Add/edit form dialogs should use `DialogActionRow` and `DialogPrimaryButton`
-for the save action. The primary save button should be full width with clear
-top spacing, matching the login submit button pattern. Secondary destructive
-actions may appear below it with secondary styling.
+Add/edit form dialogs that save an entity and optionally delete it should use
+`CrudEditorDialog`. Feature code supplies the fields, draft state, validation,
+and action handlers; the shared dialog owns overlay, frame, header, full-width
+save action, save pending text, and optional delete action. Lower-level
+`DialogOverlay`, `DialogFrame`, `DialogHeader`, `DialogActionRow`, and
+`DialogPrimaryButton` remain available for dialogs that do not fit the standard
+CRUD form shape.
 
 Save and delete dialog actions should use text-only pending labels, not loading
 icons. Full-width save buttons can use animated dots: `Saving.`, `Saving..`,
