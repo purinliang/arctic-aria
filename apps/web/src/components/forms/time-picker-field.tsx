@@ -195,7 +195,7 @@ function TimeTextInput({
         ref={inputRef}
         className={cx(
           "h-11 w-full min-w-0 rounded-md border px-2 text-center text-lg font-semibold tabular-nums outline-none transition",
-          "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-primary-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] focus:border-[var(--aa-secondary-button-hover-border)] focus:bg-[var(--aa-secondary-button-hover-bg)]",
+          "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-primary-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] focus:border-[var(--aa-secondary-button-hover-border)]",
         )}
         type="text"
         inputMode="text"

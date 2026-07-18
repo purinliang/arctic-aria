@@ -26,11 +26,9 @@ user-facing feature starts.
   single pinned-memory replacement from Today.
 - Review repeated edit actions in project and memory lists and choose a cleaner
   interaction pattern if the current UI feels noisy.
-- Fix form-control focus styling across text inputs, date/time pickers, and
-  selection inputs. Focus should keep the default control background instead of
-  switching to the secondary hover background, while using a clear focus border.
-  Pickers and selection inputs should match the single-line text input focus
-  pattern.
+- Fix picker popover dismissal so clicking unrelated empty space inside a date
+  or time picker popover does not close it. Popovers should close only through
+  explicit picker controls, outside clicks, or intended keyboard dismissal.
 
 ## Feature Review Discipline
 
