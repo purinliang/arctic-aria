@@ -106,6 +106,36 @@ The Projects feature requires `0005_create_projects.sql` and the cleanup
 `projects`, `project_milestones`, or `project_tasks` tables, treat the database
 as not migrated and run the web database migration before manual testing.
 
+## Environment Migration Flow
+
+Do not treat frontend/backend deployment and database migration as the same
+operation. Code can deploy automatically, but database changes should be tested
+against a non-production branch before production.
+
+Current branch split:
+
+- Local development: `apps/web/.env.local` should point to the Neon
+  `preview/develop` branch or another non-production branch.
+- Vercel Preview for `develop`: use the Neon `preview/develop` branch through
+  Preview-scoped `NEON_POSTGRES_URL`.
+- Vercel Production: use the Neon `main` branch through Production-scoped
+  `NEON_POSTGRES_URL`.
+
+Expected local/preview test flow:
+
+1. Point `NEON_POSTGRES_URL` at the preview database branch.
+2. Start the app or run a small database-backed action. If the branch has not
+   been migrated, missing-table or database-version errors are expected.
+3. Run `pnpm --dir apps/web db:migrate` against the preview branch.
+4. Run `pnpm --dir apps/web test`, `pnpm --dir apps/web lint`, and
+   `pnpm --dir apps/web build` when validating a release candidate.
+5. Manually test the web app against the preview branch.
+
+Production migration should be a separate, deliberate step from the release
+commit. Run it from the exact release commit and only with the Production
+`NEON_POSTGRES_URL`. A future CI/CD workflow should use a protected production
+environment and an explicit manual approval for this step.
+
 ## Data Lifecycle
 
 Every feature data-model doc must state what a user-visible delete action means.
