@@ -4,7 +4,6 @@ import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { Button } from "@/components/button";
 import {
   DialogActionRow,
-  DialogBackdrop,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
@@ -194,7 +193,6 @@ function DialogShell({
 }) {
   return (
     <DialogOverlay>
-      <DialogBackdrop label={closeLabel} onClick={onClose} />
       <form
         onSubmit={(event) => {
           event.preventDefault();

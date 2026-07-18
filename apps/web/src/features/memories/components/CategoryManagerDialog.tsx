@@ -5,7 +5,6 @@ import { Button } from "@/components/button";
 import { panelHeaderColorClass, secondaryButtonBorderColorClass } from "@/components/color";
 import {
   DialogActionRow,
-  DialogBackdrop,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
@@ -62,10 +61,6 @@ export function CategoryManagerDialog({
   return (
     <>
       <DialogOverlay>
-        <DialogBackdrop
-          label={messages.closeEditor}
-          onClick={onCloseEditor}
-        />
         <DialogFrame darkMode={darkMode} padding="none">
           <div
             className={cx(
@@ -178,7 +173,6 @@ function CategoryFormDialog({
 }) {
   return (
     <DialogOverlay zIndex="z-[60]">
-      <DialogBackdrop label={messages.closeForm} onClick={onClose} />
       <form
         onSubmit={(event) => {
           event.preventDefault();

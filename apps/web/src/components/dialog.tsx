@@ -23,23 +23,6 @@ export function DialogOverlay({
   );
 }
 
-export function DialogBackdrop({
-  label,
-  onClick,
-}: {
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      className="absolute inset-0 cursor-default"
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-    />
-  );
-}
-
 export function DialogFrame({
   darkMode,
   size = "md",
@@ -152,7 +135,6 @@ export function ConfirmDialog({
 }) {
   return (
     <DialogOverlay zIndex="z-[60]">
-      <DialogBackdrop label={closeLabel} onClick={onCancel} />
       <DialogFrame darkMode={darkMode} size="sm">
         <DialogHeader
           darkMode={darkMode}

@@ -247,7 +247,8 @@ Task row layout:
 Dialog shell:
 
 - parent overlay: `DialogOverlay`
-- backdrop: `DialogBackdrop`
+- backdrop: non-interactive `DialogOverlay`; clicking outside the dialog does
+  not close add/edit state
 - frame: `DialogFrame`
 - top row: `DialogHeader`
 - save and delete failures use `NotificationStack`; do not render page-local or

@@ -93,7 +93,6 @@ supportive hints use secondary text.
 | `Card` | Panel |
 | `CardHeader` | Panel header |
 | `DialogOverlay` | Modal backdrop exception |
-| `DialogBackdrop` | Inherits `DialogOverlay` |
 | `DialogFrame`, `dialogFrameClass` | Panel |
 | `DialogHeader`, `DialogActionRow` | Inherits `DialogFrame` |
 | `DialogPrimaryButton` | Primary button |

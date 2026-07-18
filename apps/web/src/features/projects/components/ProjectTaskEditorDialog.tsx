@@ -5,7 +5,6 @@ import type { Dispatch, SetStateAction } from "react";
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import {
   DialogActionRow,
-  DialogBackdrop,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
@@ -45,7 +44,6 @@ export function ProjectTaskEditorDialog({
 }) {
   return (
     <DialogOverlay>
-      <DialogBackdrop label={messages.task.close} onClick={onClose} />
       <form
         onSubmit={(event) => {
           event.preventDefault();
