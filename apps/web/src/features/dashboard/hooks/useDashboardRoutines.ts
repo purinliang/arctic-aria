@@ -1,4 +1,8 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  readDashboardBrowserCacheSection,
+  writeDashboardBrowserCacheSection,
+} from "@/app-shell/dashboard-browser-cache";
 import {
   completeRoutineInstance,
   deleteRoutine,
@@ -30,6 +34,7 @@ type RoutineDataAction = () => Promise<
 >;
 
 export function useDashboardRoutines(
+  userId: string,
   showErrorNotification: (message: string, title?: string) => void,
   messages?: DashboardMessages["notifications"],
   resultMessages?: RoutineMessages["results"],
@@ -39,6 +44,7 @@ export function useDashboardRoutines(
     RoutineDefinition[]
   >([]);
   const [routineLoading, setRoutineLoading] = useState(true);
+  const [routineCacheReady, setRoutineCacheReady] = useState(false);
   const [routineActionPending, setRoutineActionPending] = useState(false);
   const routineActionPendingCount = useRef(0);
   const routineStatusRequestChains = useRef(new Map<string, Promise<void>>());
@@ -47,7 +53,33 @@ export function useDashboardRoutines(
   const applyRoutineData = useCallback((data: RoutineDashboardData) => {
     setRoutines(data.routines);
     setRoutineDefinitions(data.routineDefinitions);
+    setRoutineLoading(false);
+    setRoutineCacheReady(true);
   }, []);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      const cachedData = readDashboardBrowserCacheSection(userId, "routines");
+
+      setRoutines(cachedData?.routines ?? []);
+      setRoutineDefinitions(cachedData?.routineDefinitions ?? []);
+      setRoutineLoading(cachedData === null);
+      setRoutineCacheReady(cachedData !== null);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [userId]);
+
+  useEffect(() => {
+    if (!routineCacheReady) {
+      return;
+    }
+
+    writeDashboardBrowserCacheSection(userId, "routines", {
+      routines,
+      routineDefinitions,
+    });
+  }, [routineCacheReady, routineDefinitions, routines, userId]);
 
   const refreshRoutineData = useCallback(async () => {
     const result = await getRoutineDashboardData();
@@ -57,14 +89,11 @@ export function useDashboardRoutines(
         localizedActionMessage(result, resultMessages),
         messages?.routinesUnavailable ?? "Routines unavailable",
       );
-      setRoutines([]);
-      setRoutineDefinitions([]);
       setRoutineLoading(false);
       return;
     }
 
     applyRoutineData(result.data);
-    setRoutineLoading(false);
   }, [applyRoutineData, messages, resultMessages, showErrorNotification]);
 
   function beginRoutineAction() {

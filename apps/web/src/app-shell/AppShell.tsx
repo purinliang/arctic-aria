@@ -76,16 +76,19 @@ export function AppShell({
   const [ideas, setIdeas] = useState<IdeaPageItem[]>([]);
   const [ideasLoading, setIdeasLoading] = useState(true);
   const projectState = useDashboardProjects(
+    currentUser.id,
     showErrorNotification,
     messages.dashboard.notifications,
     messages.projects.results,
   );
   const routineState = useDashboardRoutines(
+    currentUser.id,
     showErrorNotification,
     messages.dashboard.notifications,
     messages.routines.results,
   );
   const memoryState = useDashboardMemories(
+    currentUser.id,
     showErrorNotification,
     messages.dashboard.notifications,
     messages.memories.results,

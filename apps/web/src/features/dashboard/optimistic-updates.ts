@@ -8,11 +8,11 @@ import type {
   TaskStatus,
 } from "./types";
 
-export function applyOptimisticTaskStatus(
-  tasks: Task[],
+export function applyOptimisticTaskStatus<TaskItem extends Task>(
+  tasks: TaskItem[],
   taskId: string,
   status: TaskStatus,
-): Task[] {
+): TaskItem[] {
   return tasks.map((task) =>
     task.id === taskId
       ? {
@@ -23,11 +23,11 @@ export function applyOptimisticTaskStatus(
   );
 }
 
-export function applyDashboardTaskStatus(
-  tasks: Task[],
+export function applyDashboardTaskStatus<TaskItem extends Task>(
+  tasks: TaskItem[],
   taskId: string,
   status: TaskStatus,
-): Task[] {
+): TaskItem[] {
   return applyOptimisticTaskStatus(tasks, taskId, status);
 }
 
@@ -37,11 +37,11 @@ export function dashboardTaskStatusForChecked(
   return checked ? "done" : "todo";
 }
 
-export function restoreTaskSnapshot(
-  tasks: Task[],
-  snapshot: Task[],
+export function restoreTaskSnapshot<TaskItem extends Task>(
+  tasks: TaskItem[],
+  snapshot: TaskItem[],
   taskId: string,
-): Task[] {
+): TaskItem[] {
   const previousTask = snapshot.find((task) => task.id === taskId);
 
   if (!previousTask) {

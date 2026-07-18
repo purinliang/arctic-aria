@@ -125,6 +125,12 @@ they apply:
 - Username/password login and registration are excluded from optimistic UI.
   Auth flows should wait for strong backend confirmation before showing success
   or opening the dashboard.
+- Dashboard-visible data that is expensive or visually prominent may use a
+  browser cache with stale-while-refresh behavior. Show the cached snapshot
+  immediately for the signed-in user, refresh from the backend in the
+  background, keep cached content visible on refresh failure, and surface the
+  failure through the shared notification stack. Keep the cache keyed by Arctic
+  Aria user id so different accounts do not share dashboard/sidebar snapshots.
 
 ## Localization
 
