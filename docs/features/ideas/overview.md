@@ -1,7 +1,7 @@
 # Ideas
 
 Ideas are quick captured thoughts before they become projects, tasks, routines,
-memories, plugin requests, or review notes. The goal is low-friction capture:
+memories, or review notes. The goal is low-friction capture:
 the user should be able to save a thought before deciding what it means.
 
 Ideas persistence and the backend capture service foundation are implemented.
@@ -45,19 +45,18 @@ New ideas start as `untriaged`.
 Future triage can:
 
 - keep the idea as a note
-- convert it into a project, task, routine, memory, or plugin request
+- convert it into a project, task, routine, memory, or review note
 - archive it when it is no longer useful
 
 Conversion rules belong to the target feature. Ideas should record the
 conversion target, but they should not duplicate project, routine, memory, or
-plugin rules.
+review rules.
 
 ## Discord Relationship
 
-The first Discord workflow uses `/idea text:<raw text>`. The Discord app surface
+The first Discord workflow uses `/idea text:<raw text>`. The Discord integration
 is only an app surface for capture. It should call an Ideas command or service
 and should not write project, routine, memory, or review tables directly.
 
 The first Discord workflow should use command chat only. Normal direct messages
-to the bot are not captured until a later design explicitly defines free-text DM
-behavior.
+are not captured until a later design explicitly defines free-text DM behavior.

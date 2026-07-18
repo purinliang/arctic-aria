@@ -1,11 +1,12 @@
-# Discord App Surface
+# Discord Integration
 
-Discord is an Arctic Aria app surface for quick interaction away from the web
-UI. It does not own product planning, routine, idea, scheduler, or review
-rules.
+Discord is an Arctic Aria integration for quick interaction away from the web
+UI. It is implemented inside the Next.js web app and does not own product
+planning, routine, idea, scheduler, or review rules.
 
-Discord now runs through the Next.js web app, not a separate `apps/discord-bot`
-process.
+There is no separate Discord runtime app. Discord HTTP Interactions, command
+registration, outbound direct-message delivery, and Settings binding support
+all live under `apps/web`.
 
 Implemented capabilities:
 
@@ -244,11 +245,12 @@ Discord slash command
   -> web route sends private acknowledgement
 ```
 
-The command name is `/idea`, not `/capture`, so the app surface matches the
-product entity.
+The command name is `/idea`, not `/capture`, so the Discord interaction matches
+the product entity.
 
-The first bot supports command chat only. It should reply conversationally to
-slash commands, but normal direct messages are not captured.
+The first Discord workflow supports command chat only. It should reply
+conversationally to slash commands, but normal direct messages are not
+captured.
 
 Do not add open AI conversation, message-content ingestion, or "every DM is an
 idea" behavior without separate privacy, rate-limit, and intent rules.
@@ -265,8 +267,9 @@ idea" behavior without separate privacy, rate-limit, and intent rules.
   from the interaction endpoint in time. Check that the web deployment is
   reachable, the endpoint URL ends with `/api/discord/interactions`, and
   `DISCORD_PUBLIC_KEY` is configured in the web environment.
-- `Discord message push is not configured` from Settings `Send Test` means the
-  web environment is missing `DISCORD_BOT_TOKEN`.
+- `Discord configuration is missing` from Settings `Send Test` means the web
+  environment is missing `DISCORD_BOT_TOKEN`. The user-facing notification stays
+  generic; check the web server log for the missing environment variable.
 - `Discord message-push secret was rejected` means the caller and endpoint do
   not use the same `DISCORD_MESSAGE_PUSH_SECRET`. This applies to direct HTTP
   callers of `/api/internal/discord/messages`, not Settings `Send Test`.
@@ -290,10 +293,10 @@ concrete delivery, retry, idempotency, or rate-limit need appears.
 
 ## Verification
 
-Run from `apps/web`:
+Run from the repository root:
 
 ```bash
-pnpm test
-pnpm lint
-pnpm build
+pnpm --dir apps/web test
+pnpm --dir apps/web lint
+pnpm --dir apps/web build
 ```

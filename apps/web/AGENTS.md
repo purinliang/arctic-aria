@@ -8,7 +8,7 @@ this file adds web-specific source, UI, TypeScript, and verification rules.
 For web UI changes, read the relevant feature UI doc and these shared docs when
 they apply:
 
-- `docs/ui.md`
+- `docs/web/ui.md`
 - `docs/web/ui-components.md`
 - `docs/web/theme.md`
 - `docs/web/sidebar.md`
@@ -102,7 +102,15 @@ they apply:
   normally resolve the active surface immediately. Dashboard rows should stay
   lightweight and avoid edit/detail management actions unless a feature spec
   explicitly allows them.
-- Checkbox-style commands are important examples of optimistic updates.
+- Optimistic lightweight actions should update the active row immediately,
+  submit the backend command, leave unrelated rows and buttons interactive, and
+  show a shared notification only if the backend or database fails. Checkbox
+  actions such as done/undone are the default example.
+- Loading lightweight actions may wait for backend data when there is no local
+  rollback or cached result, such as refresh, regenerate, check-again, or
+  replacement without a cached candidate. Show loading on the active control and
+  disable only the active control when repeated clicks should be prevented; do
+  not block the whole panel list.
 - Modal-based CRUD save/delete flows are different: close dialogs only after a
   successful backend response, and keep the dialog open when validation or
   database updates fail.

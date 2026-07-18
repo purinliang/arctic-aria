@@ -27,7 +27,7 @@ Current variables:
 | --- | --- | --- | --- |
 | `NEON_POSTGRES_URL` | Yes | Local and Vercel | PostgreSQL connection URL used by the web app and migration runner. |
 | `AUTH_SESSION_SECRET` | Yes | Local and Vercel | Secret used to sign the 30-day auth session cookie. |
-| `DISCORD_BOT_TOKEN` | Yes for Discord interactions and outbound messages | Local and Vercel | Secret bot token from the Discord Developer Portal. |
+| `DISCORD_BOT_TOKEN` | Yes for command registration and outbound direct messages | Local and Vercel | Secret bot token from the Discord Developer Portal. |
 | `DISCORD_APP_ID` | Yes for command registration | Local and Vercel | App ID from the Discord Developer Portal. |
 | `DISCORD_PUBLIC_KEY` | Yes for Discord interactions | Local and Vercel | Public Key used to verify requests from Discord. |
 | `DISCORD_MESSAGE_PUSH_SECRET` | Yes for private message endpoint callers | Local and Vercel | Shared secret used by callers of the private Discord message endpoint. Settings `Send Test` does not use this secret. |
@@ -82,19 +82,19 @@ explicitly requires an unpooled connection.
 `NEON_AUTH_BASE_URL` is not used because Arctic Aria currently implements its
 own username/password auth instead of Neon Auth.
 
-## Discord App Surface
+## Discord Integration
 
-The Discord app surface is implemented inside the web app. Configure these
+The Discord integration is implemented inside the web app. Configure these
 variables in `apps/web/.env.local` and in the Vercel web project.
 
 Current variables:
 
 | Variable | Required now | Purpose |
 | --- | --- | --- |
-| `DISCORD_BOT_TOKEN` | Yes to register slash commands and send outbound Discord messages | Secret bot token from the Discord Developer Portal. |
+| `DISCORD_BOT_TOKEN` | Yes to register slash commands and send outbound Discord direct messages | Secret bot token from the Discord Developer Portal. |
 | `DISCORD_APP_ID` | Yes to register slash commands | App ID from the Discord Developer Portal. |
 | `DISCORD_PUBLIC_KEY` | Yes to run the HTTP interaction endpoint | Public Key used to verify requests from Discord. |
-| `DISCORD_MESSAGE_PUSH_SECRET` | Yes for outbound Discord messages | Shared secret used by Arctic Aria services when calling the Discord message-send endpoint. |
+| `DISCORD_MESSAGE_PUSH_SECRET` | Yes for private message endpoint callers | Shared secret used by Arctic Aria services when calling the Discord message-send endpoint. |
 | `NEON_POSTGRES_URL` | Yes | Same Neon PostgreSQL database used by the web app. |
 
 Use `DISCORD_APP_ID` consistently for the Discord app id. Discord OAuth2 calls

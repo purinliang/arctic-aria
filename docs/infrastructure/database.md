@@ -15,7 +15,7 @@ Use PostgreSQL as the main database.
 Reasons:
 
 - It can store relational product data cleanly.
-- It supports `jsonb` for flexible plugin metadata and agent outputs.
+- It supports `jsonb` for flexible metadata when a feature genuinely needs it.
 - It can later support vector search through an extension if retrieval becomes
   important.
 - It avoids moving from a temporary database to a production database too early
@@ -283,8 +283,8 @@ Current feature data-model docs:
 - Ideas: [ideas/data-model.md](../features/ideas/data-model.md)
 
 Planned feature data-model docs should be added under their owning feature
-folder before implementation starts, for example Scheduler, Reviews, Discord
-account binding, and future plugins.
+folder before implementation starts, for example Scheduler, Reviews, and
+Discord account binding.
 
 ## Future Persistence Areas
 
@@ -294,12 +294,10 @@ dashboard-backed feature data.
 Future persistence areas may include:
 
 - user settings, such as timezone and day boundary
-- Discord account bindings, documented by the Discord app surface until a
+- Discord account bindings, documented by the Discord integration until a
   broader account-linking feature exists
 - daily plans and daily reviews
 - reminder jobs and delivery attempts
-- plugin registrations and plugin run records
-- internal plugin context and retrieval data
 
 Each future area should get an owning feature or app data-model doc before its
 tables are added.

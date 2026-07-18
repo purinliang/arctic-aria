@@ -87,7 +87,7 @@ Progress: partially implemented
 
 Discord binding belongs in Settings because it is account-scoped configuration
 for one Arctic Aria user. The binding connects an Arctic Aria user to one
-Discord account so the Discord app surface can accept `/idea` and later send direct
+Discord account so the Discord integration can accept `/idea` and later send direct
 messages to that user.
 
 Settings shows Discord controls inside a separate `Discord Binding` card.
@@ -135,7 +135,7 @@ Expected notifications:
   fails
 - show specific error notifications for test-message failures: missing bot
   token, no active binding, or Discord delivery failure
-- do not show raw code hashes, internal secrets, Discord bot tokens, or raw
+- do not show raw code hashes, internal secrets, Discord tokens, or raw
   backend errors
 
 Current implementation:
@@ -146,7 +146,7 @@ Current implementation:
 - Settings can unbind the active Discord account after confirmation.
 - Settings can send a test Discord DM to the active bound account through the
   same server-side delivery logic used by outbound Discord messages.
-- The Discord app surface implements `/bind code:<code>` and consumes those
+- The Discord integration implements `/bind code:<code>` and consumes those
   codes.
 - The UI does not yet poll automatically after the user completes `/bind` in
   Discord; users can sign out and sign in again if they need to force a status

@@ -69,7 +69,7 @@ management pages.
 The first Routines page does not need:
 
 - Discord delivery controls
-- AI coaching
+- automatic schedule suggestions
 - analytics charts
 
 Page interaction behavior:

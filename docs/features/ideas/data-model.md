@@ -49,7 +49,7 @@ Capture commands should:
 - store safe source metadata, such as Discord user id, interaction id, and
   timestamp
 
-Source metadata must not store Discord bot tokens, auth cookies, database URLs,
+Source metadata must not store Discord tokens, auth cookies, database URLs,
 or other secrets.
 
 ## Database Constraints

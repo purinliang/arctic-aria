@@ -22,7 +22,7 @@ The web UI does not expose add, edit, delete, triage, or conversion controls
 yet.
 
 Discord `/idea` uses the same Ideas table after Discord account binding is
-validated by the Discord app surface.
+validated by the Discord integration.
 
 ## Verification
 

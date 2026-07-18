@@ -38,7 +38,7 @@ Before making code changes, read:
    - Understand the product goal and current project status.
 
 2. `docs/architecture.md`
-   - Understand feature, plugin, app, and infrastructure ownership.
+   - Understand feature, app, and infrastructure ownership.
 
 3. `docs/implementation.md`
    - Understand the project structure and technology stack guidelines.
@@ -52,11 +52,11 @@ Before making code changes, read:
 For task-specific work, also read the relevant docs only:
 
 - Feature work: `docs/features/<feature>/*` if present
-- Web app work: `apps/web/AGENTS.md`, `docs/ui.md`, and relevant
+- Web app work: `apps/web/AGENTS.md`, `docs/web/ui.md`, and relevant
   `docs/features/<feature>/ui.md`
 - Shared web UI work: `docs/web/*` if present
 - Infrastructure work: `docs/infrastructure/*` if present
-- App-specific work: `docs/apps/*` if present
+- Discord integration work: `docs/features/discord/*`
 
 Do not read unrelated docs unless they are needed for the task.
 
@@ -140,7 +140,7 @@ developer.
 - If a refactor area has no direct automated coverage, say so in the commit or
   final report and use `lint` plus `build` as the minimum safety check.
 
-## Backend And Data Integrity
+## Backend Behavior
 
 - Backend validation should normalize form-shaped input before it reaches
   persistence code. Empty optional relation ids must become `null`, not empty
@@ -162,6 +162,9 @@ developer.
   debugging. Do not log secrets, passwords, auth cookies, full database URLs,
   or raw user-authored product content such as project titles, task
   descriptions, routine text, memory text, or idea text.
+
+## Data Integrity
+
 - When adding or changing persistence behavior, inspect the relevant migration
   history and repository tests for nearby constraints, nullable fields, foreign
   keys, and delete/archive behavior.
@@ -199,25 +202,22 @@ developer.
 
 Web-specific source organization, TypeScript style, UI component rules,
 interaction defaults, generated-file rules, and web verification commands live
-in `apps/web/AGENTS.md`. Human-facing UI guidance starts at `docs/ui.md`, with
+in `apps/web/AGENTS.md`. Human-facing UI guidance starts at `docs/web/ui.md`, with
 detailed shared component rules in `docs/web/ui-components.md`.
 
-## Discord Work
+## Web Discord Integration Work
 
-- Discord interaction routes currently live in the web app.
+- Discord integration work is web app work unless a separate runtime is
+  explicitly reintroduced. Discord interaction routes currently live in the web
+  app.
 - When slash-command metadata changes, update
   `apps/web/src/features/discord/server/commands.ts`, run
   `pnpm --dir apps/web discord:register-commands`, and remind the developer to
   reinstall or re-authorize the user-installed Discord app if new or changed
   commands do not appear.
-- Keep the runbook in `docs/apps/discord-bot/overview.md` aligned with the
+- Keep the runbook in `docs/features/discord/overview.md` aligned with the
   current web route runtime, command registration, interaction endpoint, ngrok,
-  Vercel, and install steps when that doc exists.
-
-## Generated And Local Files
-
-- Do not inspect, edit, restore, or report contents from `.vercel/`. It stores
-  local Vercel project-link metadata and is intentionally ignored by Git.
+  Vercel, and install steps.
 
 ## Security And Logging
 
@@ -234,7 +234,7 @@ detailed shared component rules in `docs/web/ui-components.md`.
 
 ### Branches
 
-New Git rules from 2026-07-18:
+Current Git rules:
 
 - Use branch names without the old `agent/` prefix.
 - Use commit titles without the old `(agent)` scope.
@@ -273,6 +273,11 @@ New Git rules from 2026-07-18:
 - When auditing unmerged or stale local branches, do not count `main` or
   `develop` as unmerged work branches. They are trunk branches, not disposable
   work branches.
+
+### Ignored Local Files
+
+- Do not inspect, edit, restore, or report contents from `.vercel/`. It stores
+  local Vercel project-link metadata and is intentionally ignored by Git.
 
 ### Commits
 
@@ -334,9 +339,9 @@ amend directly when the developer explicitly asks for an amend.
   a short heading such as `## Release Text`, then paste the release text as
   normal paragraphs. Do not paste the release doc's fenced code block or the
   whole release doc into the PR body.
-- From `v0.7.0` onward, keep release PR text short. Use one release title and
-  one release text block from the release doc instead of separate duplicated
-  Summary, Changes, Verification, and Notes sections.
+- Keep release PR text short. Use one release title and one release text block
+  from the release doc instead of separate duplicated Summary, Changes,
+  Verification, and Notes sections.
 - Do not include long routine `Verification` or `Notes` sections in release PR
   text unless the developer explicitly asks or a release-blocking caveat must
   be visible in GitHub.
@@ -344,6 +349,20 @@ amend directly when the developer explicitly asks for an amend.
   future release messages stay consistent.
 - Release commit bodies should be useful in `git log`, but shorter than older
   large release records when the release is a patch or UI polish release.
+
+## Roadmap Tracking
+
+- Treat `docs/roadmap.md` as the asynchronous ticket system between the
+  developer and agents.
+- When the developer asks for future work during another task, record the
+  follow-up in the roadmap first when it is useful, then continue the current
+  work unless the developer explicitly asks to switch immediately.
+- After finishing a branch, inspect the roadmap for relevant new instructions,
+  update any touched roadmap item with its current state, and remove or revise
+  stale items that are clearly completed or no longer planned.
+- For roadmap items that span multiple branches, include concise tracking
+  details when useful: created date, last updated date, related commit hash, and
+  whether the item is open, in progress, or closed.
 
 ## Validation Workflow
 
@@ -393,8 +412,13 @@ Also run `pnpm --dir apps/web db:migrate` when migrations, database metadata,
 or the migration runner changed, or when the developer asks for migration
 verification.
 
-### Validation Reports
+## Work Reports
 
 - Report the focused checks and full checks separately.
 - Say clearly when a check was skipped, unavailable, or blocked.
 - Include a concise summary of changed files and validation results.
+- State the current branch. When relevant, also state whether there are
+  unmerged branches or stashed changes.
+- Inspect the roadmap for new instructions before finalizing work, update the
+  roadmap when the task creates or closes follow-up work, and suggest the next
+  useful step based on the roadmap.

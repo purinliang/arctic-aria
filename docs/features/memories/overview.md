@@ -11,6 +11,8 @@ that the user may want to enjoy again.
 
 The goal is to help the user rediscover good experiences from their own life,
 especially when they do not know what they want to do today.
+Leisure planning and entertainment recommendation ideas belong here as future
+Memories suggestion behavior, not as a separate roadmap.
 
 Memories are soft candidates for enjoyment, revisiting, and casual planning.
 They are not commitments. Not doing a memory today should not create overdue
