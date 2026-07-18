@@ -51,10 +51,19 @@ database schema is shared infrastructure, not part of the web UI surface.
 `schema_migrations` records each newly applied migration, a SHA-256 checksum of
 that migration file, and the app metadata that was active when it ran: app
 version, commit hash, and source state.
-`schema_migration_runs` records every successful migration-run check, including
-runs where all migrations were already applied. It also records the expected
+`schema_migration_runs` records migration-run checks, including successful
+runs, failed runs, and runs where all migrations were already applied. A run is
+inserted with `status = 'running'` after the metadata tables are ready, then
+updated to `success` or `failed`. Successful and failed rows record the expected
 migration count, latest migration id, expected schema hash, actual migration
-count, actual latest migration id, and actual schema hash.
+count, actual latest migration id, actual schema hash, applied count, and
+skipped count. Failed rows also record a safe failure stage, a shortened failure
+message, and the migration file name when a specific migration was active.
+
+If the database URL is missing, the database connection fails, or the metadata
+tables cannot be created, the runner may be unable to write a failed run row
+because there is no reliable table to write to yet. These failures still return
+a non-zero process exit code.
 
 Use these audit rows before production releases so the deployed
 frontend/backend version can be compared with the database migration state. The
@@ -82,9 +91,9 @@ is a compact schema-history hash derived from the ordered sequence of
 `filename + file checksum` values. That whole-history hash changes when a
 migration is added, removed, reordered, or edited.
 
-Before applying missing migrations or recording a successful run, the migration
-runner reads `schema_migrations` and verifies that the database history is a
-valid prefix of the current source tree:
+Before applying missing migrations or recording a successful final status, the
+migration runner reads `schema_migrations` and verifies that the database
+history is a valid prefix of the current source tree:
 
 - If the database contains an applied migration that this source tree does not
   know about, the runner refuses to continue because the database is ahead.
@@ -149,8 +158,10 @@ later Vercel deployment step can still fail before the deployment is promoted.
 Because of that, production migrations must remain backward-compatible.
 
 The current command `pnpm db:migrate && pnpm build` still exits non-zero when
-migration fails, so Vercel will stop the deployment on migration errors.
-However, it can migrate the database before a build failure is discovered.
+migration fails, so Vercel will stop the deployment on migration errors. When
+the metadata tables are available, the failed run is recorded with
+`status = 'failed'`. However, this command can migrate the database before a
+build failure is discovered.
 
 If accidental production migration is a concern, do not use an unguarded
 production build command that starts with `pnpm db:migrate`. Use one of these
@@ -196,7 +207,8 @@ not point at the production database.
 To test the migration step without adding a fake schema change, inspect
 `schema_migration_runs` after a Vercel deployment. The migration runner records
 a run row even when all migrations were already applied and `applied_count` is
-zero.
+zero. Failed runs should appear with `status = 'failed'` unless the failure
+happened before the metadata table was usable.
 
 A future GitHub Actions workflow can replace the Vercel-only deployment path if
 the project needs manual approval, richer release gates, or stricter

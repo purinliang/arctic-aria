@@ -4,8 +4,14 @@ import path from "node:path";
 import { neon } from "@neondatabase/serverless";
 import { resolveAppMetadata } from "./app-metadata.mjs";
 import {
+  appliedRowsMetadata,
+  ensureMigrationAuditTables,
+  finishMigrationRun,
+  safeMigrationFailureMessage,
+  startMigrationRun,
+} from "./migration-run-audit.mjs";
+import {
   readMigrationFiles,
-  schemaHashForMigrations,
   validateAppliedMigrationHistory,
 } from "./migration-metadata.mjs";
 
@@ -68,146 +74,148 @@ const sql = neon(getMigrationDatabaseUrl());
 const appMetadata = resolveAppMetadata(appRoot);
 const migrations = readMigrationFiles(appRoot);
 
-console.log(
-  `Migration app metadata: version=${appMetadata.version}, commit=${appMetadata.commit}, source=${appMetadata.sourceState}`,
-);
-console.log(
-  `Expected database metadata: migrations=${appMetadata.expectedDatabase.migrationCount}, schema=${appMetadata.expectedDatabase.schemaHash}`,
-);
-
-if (appMetadata.sourceState === "dirty") {
-  console.warn(
-    "Warning: database migrations are running from a dirty working tree.",
-  );
-}
-
-await sql.query(`
-  CREATE TABLE IF NOT EXISTS schema_migrations (
-    name text PRIMARY KEY,
-    applied_at timestamptz NOT NULL DEFAULT now()
-  )
-`);
-
-await sql.query(`
-  ALTER TABLE schema_migrations
-    ADD COLUMN IF NOT EXISTS checksum text,
-    ADD COLUMN IF NOT EXISTS app_version text,
-    ADD COLUMN IF NOT EXISTS app_commit text,
-    ADD COLUMN IF NOT EXISTS app_source_state text
-`);
-
-await sql.query(`
-  CREATE TABLE IF NOT EXISTS schema_migration_runs (
-    id bigserial PRIMARY KEY,
-    checked_at timestamptz NOT NULL DEFAULT now(),
-    app_version text NOT NULL,
-    app_commit text NOT NULL,
-    app_source_state text NOT NULL,
-    applied_count integer NOT NULL DEFAULT 0,
-    skipped_count integer NOT NULL DEFAULT 0
-  )
-`);
-
-await sql.query(`
-  ALTER TABLE schema_migration_runs
-    ADD COLUMN IF NOT EXISTS expected_migration_count integer,
-    ADD COLUMN IF NOT EXISTS expected_latest_migration text,
-    ADD COLUMN IF NOT EXISTS expected_schema_hash text,
-    ADD COLUMN IF NOT EXISTS actual_migration_count integer,
-    ADD COLUMN IF NOT EXISTS actual_latest_migration text,
-    ADD COLUMN IF NOT EXISTS actual_schema_hash text
-`);
-
-const appliedRows = await sql.query(
-  "SELECT name, checksum FROM schema_migrations ORDER BY name",
-);
-const historyCheck = validateAppliedMigrationHistory(
-  appliedRows,
-  appMetadata.expectedDatabase.migrations,
-);
-
-if (!historyCheck.ok) {
-  console.error(`Refusing to run migrations: ${historyCheck.message}`);
-  process.exit(1);
-}
-
-for (const backfill of historyCheck.checksumBackfills) {
-  await sql.query(
-    "UPDATE schema_migrations SET checksum = $2 WHERE name = $1",
-    [backfill.name, backfill.checksum],
-  );
-  console.log(`Recorded checksum for ${backfill.name}`);
-}
-
-const appliedNames = new Set(appliedRows.map((row) => row.name));
+let migrationRunId;
+let failureStage = "startup";
+let activeMigrationName = null;
+let appliedRows = [];
 let appliedCount = 0;
 let skippedCount = 0;
 
-for (const migration of migrations) {
-  if (appliedNames.has(migration.name)) {
-    skippedCount += 1;
-    console.log(`Skipping ${migration.name}`);
-    continue;
-  }
-
-  const sqlText = await readFile(migration.filePath, "utf8");
-
-  for (const statement of splitStatements(sqlText)) {
-    await sql.query(statement);
-  }
-
-  await sql.query(
-    `INSERT INTO schema_migrations (
-       name, checksum, app_version, app_commit, app_source_state
-     )
-     VALUES ($1, $2, $3, $4, $5)`,
-    [
-      migration.name,
-      migration.checksum,
-      appMetadata.version,
-      appMetadata.commit,
-      appMetadata.sourceState,
-    ],
+try {
+  console.log(
+    `Migration app metadata: version=${appMetadata.version}, commit=${appMetadata.commit}, source=${appMetadata.sourceState}`,
   );
-  appliedNames.add(migration.name);
-  appliedCount += 1;
-  console.log(`Applied ${migration.name}`);
-}
+  console.log(
+    `Expected database metadata: migrations=${appMetadata.expectedDatabase.migrationCount}, schema=${appMetadata.expectedDatabase.schemaHash}`,
+  );
 
-const actualMigrations = migrations.slice(0, appliedNames.size);
-const actualLatestMigration = actualMigrations.at(-1)?.name ?? "none";
-const actualSchemaHash = schemaHashForMigrations(actualMigrations);
+  if (appMetadata.sourceState === "dirty") {
+    console.warn(
+      "Warning: database migrations are running from a dirty working tree.",
+    );
+  }
 
-await sql.query(
-  `INSERT INTO schema_migration_runs (
-     app_version,
-     app_commit,
-     app_source_state,
-     expected_migration_count,
-     expected_latest_migration,
-     expected_schema_hash,
-     actual_migration_count,
-     actual_latest_migration,
-     actual_schema_hash,
-     applied_count,
-     skipped_count
-   )
-   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-  [
-    appMetadata.version,
-    appMetadata.commit,
-    appMetadata.sourceState,
-    appMetadata.expectedDatabase.migrationCount,
-    appMetadata.expectedDatabase.latestMigrationName,
-    appMetadata.expectedDatabase.schemaHash,
-    actualMigrations.length,
-    actualLatestMigration,
-    actualSchemaHash,
+  failureStage = "ensure_metadata_tables";
+  await ensureMigrationAuditTables(sql);
+
+  failureStage = "start_run";
+  migrationRunId = await startMigrationRun(sql, appMetadata);
+
+  failureStage = "read_applied_history";
+  appliedRows = await sql.query(
+    "SELECT name, checksum FROM schema_migrations ORDER BY name",
+  );
+
+  failureStage = "validate_history";
+  const historyCheck = validateAppliedMigrationHistory(
+    appliedRows,
+    appMetadata.expectedDatabase.migrations,
+  );
+
+  if (!historyCheck.ok) {
+    throw new Error(historyCheck.message);
+  }
+
+  failureStage = "backfill_checksums";
+  for (const backfill of historyCheck.checksumBackfills) {
+    await sql.query(
+      "UPDATE schema_migrations SET checksum = $2 WHERE name = $1",
+      [backfill.name, backfill.checksum],
+    );
+    const row = appliedRows.find((applied) => applied.name === backfill.name);
+
+    if (row) {
+      row.checksum = backfill.checksum;
+    }
+
+    console.log(`Recorded checksum for ${backfill.name}`);
+  }
+
+  const appliedNames = new Set(appliedRows.map((row) => row.name));
+
+  for (const migration of migrations) {
+    activeMigrationName = migration.name;
+
+    if (appliedNames.has(migration.name)) {
+      skippedCount += 1;
+      console.log(`Skipping ${migration.name}`);
+      continue;
+    }
+
+    failureStage = "read_migration_file";
+    const sqlText = await readFile(migration.filePath, "utf8");
+
+    failureStage = "apply_migration";
+    for (const statement of splitStatements(sqlText)) {
+      await sql.query(statement);
+    }
+
+    failureStage = "record_migration";
+    await sql.query(
+      `INSERT INTO schema_migrations (
+         name, checksum, app_version, app_commit, app_source_state
+       )
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        migration.name,
+        migration.checksum,
+        appMetadata.version,
+        appMetadata.commit,
+        appMetadata.sourceState,
+      ],
+    );
+    appliedRows.push({
+      name: migration.name,
+      checksum: migration.checksum,
+    });
+    appliedNames.add(migration.name);
+    appliedCount += 1;
+    console.log(`Applied ${migration.name}`);
+  }
+
+  activeMigrationName = null;
+  failureStage = "finish_success";
+  await finishMigrationRun(sql, {
+    runId: migrationRunId,
+    status: "success",
+    appMetadata,
+    actualMetadata: appliedRowsMetadata(appliedRows),
     appliedCount,
     skippedCount,
-  ],
-);
+  });
 
-console.log(
-  `Recorded migration run metadata: applied=${appliedCount}, skipped=${skippedCount}`,
-);
+  console.log(
+    `Recorded migration run metadata: status=success, applied=${appliedCount}, skipped=${skippedCount}`,
+  );
+} catch (error) {
+  const failureMessage = safeMigrationFailureMessage(error);
+
+  console.error(
+    `Migration failed: stage=${failureStage}, migration=${activeMigrationName ?? "none"}, message=${failureMessage}`,
+  );
+
+  if (migrationRunId) {
+    try {
+      await finishMigrationRun(sql, {
+        runId: migrationRunId,
+        status: "failed",
+        appMetadata,
+        actualMetadata: appliedRowsMetadata(appliedRows),
+        appliedCount,
+        skippedCount,
+        failure: {
+          stage: failureStage,
+          message: failureMessage,
+          migrationName: activeMigrationName,
+        },
+      });
+      console.error("Recorded migration run metadata: status=failed");
+    } catch (recordError) {
+      console.error(
+        `Failed to record migration failure metadata: ${safeMigrationFailureMessage(recordError)}`,
+      );
+    }
+  }
+
+  process.exit(1);
+}
