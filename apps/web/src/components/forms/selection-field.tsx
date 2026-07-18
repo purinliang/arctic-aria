@@ -17,7 +17,7 @@ import type {
 import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
 import {
-  formControlClass,
+  formButtonControlClass,
   formControlPopupClass,
 } from "./form-control-style";
 import { cx } from "../utils";
@@ -150,8 +150,8 @@ export function SelectInput({
     <div ref={rootRef} className="relative min-w-0">
       <button
         className={cx(
-          formControlClass(darkMode, hasError),
-          "flex items-center justify-between gap-3 text-left font-normal hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
+          formButtonControlClass(darkMode, hasError),
+          "flex items-center justify-between gap-3 text-left font-normal",
           className,
         )}
         type="button"

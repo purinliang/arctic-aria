@@ -152,24 +152,29 @@ local draft until the user clicks `Confirm`. Do not show an extra visible
 When the popover opens, autofocus the typed time field and select its current
 value so keyboard entry can start immediately. The typed field placeholder
 should show example formats, such as `9:30PM or 21:30`.
-Before confirmation, show a preview with the normalized time and a capitalized
-day period, such as `12:30 AM Midnight`, `09:30 PM Night`, or `21:30 Night`.
+Before confirmation, show a preview with the normalized time. In 12-hour mode,
+append a day-period hint only for 12-hour boundary times, such as
+`12:30 AM Midnight` or `12:30 PM Noon`; do not append generic hints such as
+`Morning`, `Evening`, or `Night`. In 24-hour mode, day-period hints such as
+`21:30 Night` may remain visible.
 When no value exists, the picker defaults to the current time plus 15 minutes,
 rounded up to the next 15-minute boundary. Do not use native browser
 `type=time` controls for primary UI and do not use a long scroll list or
 quick-minute button strip for routine time selection.
-The action buttons should be vertical and full width: `Confirm` first, then
-`X Clear Time` when a clear action is available.
+The AM/PM buttons and action buttons should use the shared `Button` component
+with input-field height. The action buttons should be vertical and full width:
+`Confirm` first, then `X Clear Time` when a clear action is available.
 
 Date and time pickers are still controlled form components. Feature code owns
 the current value, validation rules, and validation timing. Picker popovers
 should render as absolute overlays inside the field wrapper with stable widths
 so opening them does not change the parent card, dialog, list item, or field
-layout. The closed picker trigger should keep the same text and icon color
-whether it is empty or selected; color changes are reserved for hover, focus,
-disabled, and error states. Do not render picker popovers through a viewport
-portal unless there is a specific clipping bug that cannot be solved in the
-dialog/layout component.
+layout. The closed picker trigger should use the bordered secondary button
+role, not normal input text styling. It should keep the same text and icon
+color whether it is empty, placeholder text, defaulted, or selected; color
+changes are reserved for hover, focus, disabled, and error states. Do not
+render picker popovers through a viewport portal unless there is a specific
+clipping bug that cannot be solved in the dialog/layout component.
 
 Visible time strings outside the picker must use the same shared time formatter
 and the user's time-format preference. Do not render raw stored `HH:mm` strings
@@ -194,10 +199,10 @@ when the field sits inside a clipped list or panel. The portal should preserve
 the same rounded popover surface, font size, option spacing, and dark-mode
 colors while avoiding parent `overflow-hidden` clipping.
 
-The closed select trigger should keep the same text and icon color whether it
-is empty or selected. Empty placeholder wording can differ from selected text,
-but the trigger should not visually change weight or color only because the
-user selected a value.
+The closed select trigger should use the bordered secondary button role. It
+should keep the same text and icon color whether it is empty or selected.
+Empty placeholder wording can differ from selected text, but the trigger should
+not visually change weight or color only because the user selected a value.
 
 `forms/choice-group.tsx` owns visible button-group choices for single and
 multiple selection. Use it when the user should clearly see a compact set of

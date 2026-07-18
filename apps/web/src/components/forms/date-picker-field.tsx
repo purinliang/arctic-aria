@@ -14,7 +14,7 @@ import { Button } from "../button";
 import { buildCalendarMonthDays, shiftCalendarMonth } from "./date-calendar";
 import { formatDateKey } from "./date-format";
 import {
-  formControlClass,
+  formButtonControlClass,
   formControlPopupClass,
 } from "./form-control-style";
 import {
@@ -91,8 +91,8 @@ export function DatePickerField({
     <div ref={rootRef} className="relative min-w-0">
       <button
         className={cx(
-          formControlClass(darkMode, hasError),
-          "flex items-center justify-between gap-3 text-left hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
+          formButtonControlClass(darkMode, hasError),
+          "flex items-center justify-between gap-3 text-left",
           className,
         )}
         type="button"

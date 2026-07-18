@@ -27,11 +27,27 @@ export function formatTimeDisplay(
           parts.minute,
           messages.periodLabels[parts.period],
         );
-  const dayPeriod = capitalizeLabel(messages.dayPeriods[dayPeriodForTime(parts)]);
+  const dayPeriod =
+    preference === "24h"
+      ? messages.dayPeriods[dayPeriodForTime(parts)]
+      : twelveHourBoundaryPeriod(parts, messages);
 
-  return messages.preview(time, dayPeriod);
+  return messages.preview(time, capitalizeLabel(dayPeriod)).trim();
 }
 
 function capitalizeLabel(label: string) {
   return label ? `${label[0]?.toLocaleUpperCase()}${label.slice(1)}` : label;
+}
+
+function twelveHourBoundaryPeriod(
+  parts: NonNullable<ReturnType<typeof parseTimeValue>>,
+  messages: TimePickerMessages,
+) {
+  if (parts.hour12 !== 12) {
+    return "";
+  }
+
+  return parts.period === "AM"
+    ? messages.dayPeriods.midnight
+    : messages.dayPeriods.noon;
 }

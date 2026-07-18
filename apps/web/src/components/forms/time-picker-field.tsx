@@ -5,7 +5,7 @@ import { Clock, X } from "lucide-react";
 import { Button } from "../button";
 import { formatTimeDisplay } from "./time-display";
 import {
-  formControlClass,
+  formButtonControlClass,
   formControlPopupClass,
 } from "./form-control-style";
 import {
@@ -83,8 +83,8 @@ export function TimePickerField({
     <div ref={rootRef} className="relative min-w-0">
       <button
         className={cx(
-          formControlClass(darkMode, hasError),
-          "flex items-center justify-between gap-3 text-left hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
+          formButtonControlClass(darkMode, hasError),
+          "flex items-center justify-between gap-3 text-left",
           className,
         )}
         type="button"
@@ -123,19 +123,16 @@ export function TimePickerField({
             {timeFormatPreference === "12h" ? (
               <div className="grid grid-cols-2 gap-2">
                 {(["AM", "PM"] as const).map((period) => (
-                  <button
+                  <Button
                     key={period}
-                    className={cx(
-                      "h-9 rounded-md border px-3 text-xs font-semibold transition",
-                      selectedParts.period === period
-                        ? "border-[var(--aa-primary-button-hover-bg)] bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)]"
-                        : "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)]",
-                    )}
-                    type="button"
+                    darkMode={darkMode}
+                    size="field"
+                    active={selectedParts.period === period}
+                    className="w-full"
                     onClick={() => setDraftParts({ ...selectedParts, period })}
                   >
                     {messages.periodLabels[period]}
-                  </button>
+                  </Button>
                 ))}
               </div>
             ) : null}
@@ -157,7 +154,7 @@ export function TimePickerField({
             <Button
               darkMode={darkMode}
               tone="primary"
-              size="xs"
+              size="field"
               className="w-full"
               onClick={() => {
                 onChange(toTimeValue(selectedParts));
@@ -171,7 +168,7 @@ export function TimePickerField({
               <Button
                 darkMode={darkMode}
                 tone="ghost"
-                size="xs"
+                size="field"
                 className="w-full"
                 icon={<X className="h-3.5 w-3.5" />}
                 onClick={() => {
