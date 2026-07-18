@@ -364,12 +364,12 @@ input:focus-visible {
   animation: aa-notification-fade 220ms ease-in both;
 }
 
-.sidebar-scrollbar {
+.aa-scrollbar-hidden-native {
   -ms-overflow-style: none;
   scrollbar-width: none !important;
 }
 
-.sidebar-scrollbar::-webkit-scrollbar {
+.aa-scrollbar-hidden-native::-webkit-scrollbar {
   display: none !important;
   height: 0 !important;
   width: 0 !important;

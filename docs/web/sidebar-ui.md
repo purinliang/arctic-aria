@@ -20,8 +20,9 @@ padding so feature pages do not add page-end spacing individually.
 The sidebar should scroll internally when the viewport height is too small for
 all sidebar content.
 
-The sidebar scrollbar should be visually hidden by default. When the user
-scrolls the sidebar, reveal a subtle scrollbar thumb and hide it again after
+The sidebar uses the shared `ScrollArea` with `scrollbar="auto-hide"`. The
+native scrollbar should be visually hidden by default. When the user scrolls
+the sidebar, reveal a subtle shared scrollbar thumb and hide it again after
 scrolling stops. Keep the track transparent and avoid a permanent native
 scrollbar unless the browser forces one.
 

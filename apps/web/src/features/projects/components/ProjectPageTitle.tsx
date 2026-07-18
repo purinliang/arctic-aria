@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/button";
 import { secondaryTextColorClass, panelColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
+import { ScrollArea } from "@/components/scroll-area";
 import { cx } from "@/components/utils";
 import type { ProjectView } from "@/features/projects/actions";
 import type { ProjectDurationRange } from "@/features/projects/project-duration";
@@ -204,11 +205,13 @@ function ProjectSwitcher({
             aria-label={messages.closeSwitcher}
             onClick={() => onOpenChange(false)}
           />
-          <div
+          <ScrollArea
             className={cx(
-              "absolute left-0 z-30 mt-2 max-h-[min(360px,60vh)] w-[min(520px,calc(100vw-2rem))] overflow-y-auto overflow-x-hidden rounded-md border p-1 text-sm shadow-xl",
+              "absolute left-0 z-30 mt-2 w-[min(520px,calc(100vw-2rem))] overflow-hidden rounded-md border p-1 text-sm shadow-xl",
               panelColorClass,
             )}
+            viewportClassName="max-h-[min(360px,60vh)] overflow-x-hidden"
+            contentClassName="grid"
           >
             {projects.map((project) => {
               const active = project.id === selectedProject.id;
@@ -252,7 +255,7 @@ function ProjectSwitcher({
                 </button>
               );
             })}
-          </div>
+          </ScrollArea>
         </>
       ) : null}
     </span>
