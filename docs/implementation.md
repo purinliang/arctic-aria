@@ -208,6 +208,7 @@ Shared web docs:
 - [web/theme.md](web/theme.md)
 - [web/color.md](web/color.md)
 - [web/localization.md](web/localization.md)
+- [web/performance.md](web/performance.md)
 
 Infrastructure docs:
 

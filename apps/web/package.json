@@ -8,25 +8,28 @@
     "discord:register-commands": "node --env-file-if-exists=.env.local src/features/discord/server/register-commands.ts",
     "db:migrate": "node scripts/migrate.mjs",
     "lint": "eslint",
+    "route:measure": "node scripts/measure-routes.mjs",
+    "switch:measure": "node scripts/measure-switches.mjs",
     "test": "node --test \"src/**/*.test.ts\""
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.1.0",
-    "bcryptjs": "^3.0.3",
-    "lucide-react": "latest",
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest"
+    "@neondatabase/serverless": "1.1.0",
+    "bcryptjs": "3.0.3",
+    "lucide-react": "1.22.0",
+    "next": "16.2.9",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "latest",
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "eslint": "^9.39.4",
-    "eslint-config-next": "latest",
-    "tailwindcss": "latest",
-    "typescript": "latest"
+    "@tailwindcss/postcss": "4.3.1",
+    "@types/node": "26.0.1",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.2.9",
+    "playwright": "1.61.1",
+    "tailwindcss": "4.3.1",
+    "typescript": "6.0.3"
   },
   "packageManager": "pnpm@11.7.0"
 }
