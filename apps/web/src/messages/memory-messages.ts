@@ -37,7 +37,7 @@ export const englishMemoryMessages = {
     manage: "Manage",
     description: "Description",
     save: "Save",
-    saving: "Saving...",
+    saving: "Saving",
     delete: "Delete",
   },
   categories: {
@@ -93,7 +93,7 @@ export const englishMemoryMessages = {
       },
     },
     save: "Save",
-    saving: "Saving...",
+    saving: "Saving",
     delete: "Delete",
   },
   confirm: {
@@ -103,7 +103,7 @@ export const englishMemoryMessages = {
     description: (title: string) => `Delete "${title}"? This cannot be undone.`,
     cancel: "Cancel",
     confirm: "Delete",
-    deleting: "Deleting...",
+    deleting: "Deleting",
     close: "Close confirmation",
   },
   results: {
@@ -169,7 +169,7 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     manage: "管理",
     description: "描述",
     save: "保存",
-    saving: "正在保存...",
+    saving: "正在保存",
     delete: "删除",
   },
   categories: {
@@ -223,7 +223,7 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
       },
     },
     save: "保存",
-    saving: "正在保存...",
+    saving: "正在保存",
     delete: "删除",
   },
   confirm: {
@@ -233,7 +233,7 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     description: (title) => `删除“${title}”？此操作无法撤销。`,
     cancel: "取消",
     confirm: "删除",
-    deleting: "正在删除...",
+    deleting: "正在删除",
     close: "关闭确认对话框",
   },
   results: {

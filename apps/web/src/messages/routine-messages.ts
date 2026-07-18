@@ -31,7 +31,7 @@ export const englishRoutineMessages = {
     previewUnavailable: "Choose a first start date to preview repeats.",
     andSoOn: "and so on...",
     save: "Save",
-    saving: "Saving...",
+    saving: "Saving",
     delete: "Delete",
   },
   recurrenceOptions: {
@@ -82,7 +82,7 @@ export const englishRoutineMessages = {
       `Delete "${title}"? It will be removed from normal views.`,
     cancel: "Cancel",
     confirm: "Delete",
-    deleting: "Deleting...",
+    deleting: "Deleting",
     close: "Close confirmation",
   },
   results: {
@@ -133,7 +133,7 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     previewUnavailable: "选择首次开始日期后可预览重复日期。",
     andSoOn: "以此类推...",
     save: "保存",
-    saving: "正在保存...",
+    saving: "正在保存",
     delete: "删除",
   },
   recurrenceOptions: {
@@ -181,7 +181,7 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     description: (title) => `删除“${title}”？它会从常规视图中移除。`,
     cancel: "取消",
     confirm: "删除",
-    deleting: "正在删除...",
+    deleting: "正在删除",
     close: "关闭确认对话框",
   },
   results: {

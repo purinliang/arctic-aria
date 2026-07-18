@@ -10,6 +10,7 @@ import {
   DialogPrimaryButton,
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
+import { PendingText } from "@/components/loading";
 import { TextArea } from "@/components/forms/text-area-field";
 import type {
   MilestoneInput,
@@ -222,7 +223,11 @@ function DialogShell({
               disabled={pending}
               icon={<Save size={14} aria-hidden="true" />}
             >
-              {saving ? messages.saving : messages.save}
+              <PendingText
+                active={saving}
+                idleText={messages.save}
+                pendingText={messages.saving}
+              />
             </DialogPrimaryButton>
             {onDelete ? (
               <Button

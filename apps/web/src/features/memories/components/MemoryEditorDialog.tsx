@@ -19,6 +19,7 @@ import {
 } from "@/components/forms/choice-group";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
+import { PendingText } from "@/components/loading";
 import { LabelText } from "@/components/text";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryInput } from "@/features/memories/actions";
@@ -144,7 +145,11 @@ export function MemoryEditorDialog({
               disabled={pending}
               icon={<Save size={14} aria-hidden="true" />}
             >
-              {saving ? messages.saving : messages.save}
+              <PendingText
+                active={saving}
+                idleText={messages.save}
+                pendingText={messages.saving}
+              />
             </DialogPrimaryButton>
             {editingMemory ? (
               <Button

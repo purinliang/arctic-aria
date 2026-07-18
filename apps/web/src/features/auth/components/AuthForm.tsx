@@ -9,6 +9,7 @@ import {
   secondaryTextColorClass,
   secondaryButtonBorderColorClass,
 } from "@/components/color";
+import { PendingText } from "@/components/loading";
 import type { AuthMode } from "./AuthGate";
 import {
   authFieldOrder,
@@ -90,11 +91,10 @@ export function AuthForm({
 
   const title =
     mode === "register" ? messages.form.createAccount : messages.form.welcomeBack;
-  const buttonText = pending
-    ? messages.form.checking
-    : mode === "register"
-      ? messages.form.signUp
-      : messages.form.signIn;
+  const buttonText =
+    mode === "register" ? messages.form.signUp : messages.form.signIn;
+  const pendingButtonText =
+    mode === "register" ? messages.form.signingUp : messages.form.signingIn;
   const switchPrompt =
     mode === "register"
       ? messages.form.alreadyHaveAccount
@@ -254,7 +254,11 @@ export function AuthForm({
             disabled={disabled}
             icon={<ArrowRight size={17} aria-hidden="true" />}
           >
-            {buttonText}
+            <PendingText
+              active={pending}
+              idleText={buttonText}
+              pendingText={pendingButtonText}
+            />
           </Button>
         </span>
 
