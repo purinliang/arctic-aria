@@ -160,7 +160,7 @@
   --aa-primary-button-text: var(--blue-contrast);
   --aa-primary-button-hover-bg: var(--blue-10);
   --aa-primary-button-hover-text: var(--blue-contrast);
-  --aa-primary-button-disabled-bg: var(--blue-6);
+  --aa-primary-button-disabled-bg: var(--blue-8);
   --aa-primary-button-disabled-text: var(--aa-gray-11-50);
   --aa-secondary-button-bg: var(--gray-2);
   --aa-secondary-button-text: var(--aa-gray-11-50);
