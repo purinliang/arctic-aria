@@ -2,6 +2,7 @@
 
 // Auth Gate.
 import { LoaderCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { AppShell } from "@/app-shell/AppShell";
 import { useAppPreferences } from "@/app-shell/app-preferences";
@@ -56,6 +57,7 @@ const englishAuthMessages = getAppMessages("en").auth;
 const simplifiedChineseAuthMessages = getAppMessages("zh-CN").auth;
 
 export function AuthGate() {
+  const router = useRouter();
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
   const [mode, setMode] = useState<AuthMode>("login");
@@ -310,6 +312,7 @@ export function AuthGate() {
       setRegisterInput(emptyRegister);
       setCurrentUser(null);
       resetSubmitState(true);
+      router.replace("/");
     } catch {
       showErrorNotification(messages.notifications.actionFailed);
     } finally {
