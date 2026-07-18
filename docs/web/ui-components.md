@@ -165,8 +165,11 @@ Date and time pickers are still controlled form components. Feature code owns
 the current value, validation rules, and validation timing. Picker popovers
 should render as absolute overlays inside the field wrapper with stable widths
 so opening them does not change the parent card, dialog, list item, or field
-layout. Do not render picker popovers through a viewport portal unless there is
-a specific clipping bug that cannot be solved in the dialog/layout component.
+layout. The closed picker trigger should keep the same text and icon color
+whether it is empty or selected; color changes are reserved for hover, focus,
+disabled, and error states. Do not render picker popovers through a viewport
+portal unless there is a specific clipping bug that cannot be solved in the
+dialog/layout component.
 
 Visible time strings outside the picker must use the same shared time formatter
 and the user's time-format preference. Do not render raw stored `HH:mm` strings
@@ -305,8 +308,10 @@ dialogs should use the default dialog width so input fields, date pickers, and
 other long controls do not collapse into a narrow column. Small confirmation
 dialogs may use the `sm` size. Dialog overlays must provide enough top and
 bottom viewport padding and must allow vertical scrolling when form content is
-taller than the viewport. Feature dialogs should use the shared `DialogOverlay`,
-`DialogBackdrop`, `DialogFrame`, and `DialogHeader` pieces instead of
+taller than the viewport. Dialogs must not close when the user clicks the
+semi-transparent overlay; close only through explicit close, cancel, save,
+delete, or confirmation controls. Feature dialogs should use the shared
+`DialogOverlay`, `DialogFrame`, and `DialogHeader` pieces instead of
 hand-rolling fixed overlay containers.
 
 Add/edit form dialogs should use `DialogActionRow` and `DialogPrimaryButton`

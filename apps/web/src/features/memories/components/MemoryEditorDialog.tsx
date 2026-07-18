@@ -9,7 +9,6 @@ import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
 import {
   DialogActionRow,
-  DialogBackdrop,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
@@ -57,7 +56,6 @@ export function MemoryEditorDialog({
 }) {
   return (
     <DialogOverlay>
-      <DialogBackdrop label={messages.close} onClick={onClose} />
       <form
         onSubmit={(event) => {
           event.preventDefault();

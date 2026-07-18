@@ -5,7 +5,6 @@ import { Button } from "@/components/button";
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import {
   DialogActionRow,
-  DialogBackdrop,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
@@ -45,7 +44,6 @@ export function RoutineEditorDialog({
 }) {
   return (
     <DialogOverlay>
-      <DialogBackdrop label={messages.editor.close} onClick={onClose} />
       <form
         onSubmit={(event) => {
           event.preventDefault();
