@@ -146,24 +146,33 @@ styled consistently.
 app-styled picker with one typed time field and AM/PM controls when the active
 time-format preference is 12-hour, then return normalized `HH:mm` values. The
 typed field should accept compact values such as `910` for `9:10` and 24-hour
-values such as `19:30` for `7:30 PM`. While the popover is open, edits stay in a
-local draft until the user clicks `Confirm`. Do not show an extra visible
-`Time` title inside the popover; the surrounding form field owns the label.
+values such as `19:30` for `7:30 PM`. Valid typed values and AM/PM toggles
+should update the owning form immediately; do not require a separate confirm
+button. Invalid in-progress text may stay local until it becomes a valid time.
+Do not show an extra visible `Time` title inside the popover; the surrounding
+form field owns the label.
 When the popover opens, autofocus the typed time field and select its current
 value so keyboard entry can start immediately. The typed field placeholder
 should show example formats, such as `9:30PM or 21:30`.
-Before confirmation, show a preview with the normalized time. In 12-hour mode,
-append a day-period hint only for 12-hour boundary times, such as
-`12:30 AM Midnight` or `12:30 PM Noon`; do not append generic hints such as
-`Morning`, `Evening`, or `Night`. In 24-hour mode, day-period hints such as
-`21:30 Night` may remain visible.
 When no value exists, the picker defaults to the current time plus 15 minutes,
 rounded up to the next 15-minute boundary. Do not use native browser
 `type=time` controls for primary UI and do not use a long scroll list or
 quick-minute button strip for routine time selection.
-The AM/PM buttons and action buttons should use the shared `Button` component
-with input-field height. The action buttons should be vertical and full width:
-`Confirm` first, then `X Clear Time` when a clear action is available.
+The visible time trigger should place the clock icon on the left and, when a
+saved value is present, a borderless clear icon button on the right. The time
+picker popover should show the typed time field on the first row without a
+duplicated icon or clear button. In 12-hour mode, the second row should contain
+`AM` and `PM` buttons using normal button height, not input-field height. Do
+not show a `Confirm` action and do not show a preview/description row for noon,
+midnight, morning, evening, or night. Do not render a separate clear row.
+Pressing Enter or the mobile keyboard confirm key inside the typed time field
+should close only the picker popover and must not submit the surrounding
+add/edit dialog.
+
+Date picker trigger controls should place the calendar icon on the left. The
+date picker clear action is an inline borderless icon button inside the date
+trigger value area on the right, and only appears when a saved value is present.
+Do not render a separate clear row below the calendar grid.
 
 Date and time pickers are still controlled form components. Feature code owns
 the current value, validation rules, and validation timing. Picker popovers
