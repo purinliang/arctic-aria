@@ -1,17 +1,8 @@
 // Projects Page - Project Task Editor Dialog.
-import { Save, Trash2 } from "lucide-react";
-import { Button } from "@/components/button";
 import type { Dispatch, SetStateAction } from "react";
+import { CrudEditorDialog } from "@/components/dialog";
 import { DatePickerField } from "@/components/forms/date-picker-field";
-import {
-  DialogActionRow,
-  DialogFrame,
-  DialogHeader,
-  DialogOverlay,
-  DialogPrimaryButton,
-} from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
-import { PendingText } from "@/components/loading";
 import { SelectInput } from "@/components/forms/selection-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import type {
@@ -46,66 +37,36 @@ export function ProjectTaskEditorDialog({
   onDelete?: () => void;
 }) {
   return (
-    <DialogOverlay>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          onSubmit();
-        }}
-      >
-        <DialogFrame darkMode={darkMode}>
-          <DialogHeader
-            darkMode={darkMode}
-            title={draft.id ? messages.task.edit : messages.task.add}
-            closeLabel={messages.task.close}
-            onClose={onClose}
-          />
-          <div className="grid gap-3">
-            <TaskBasics
-              darkMode={darkMode}
-              pending={pending}
-              draft={draft}
-              messages={messages}
-              setDraft={setDraft}
-            />
-            <TaskMeta
-              darkMode={darkMode}
-              pending={pending}
-              draft={draft}
-              milestones={milestones}
-              messages={messages}
-              formMessages={formMessages}
-              setDraft={setDraft}
-            />
-          </div>
-          <DialogActionRow>
-            <DialogPrimaryButton
-              darkMode={darkMode}
-              type="submit"
-              disabled={pending}
-              icon={<Save size={14} aria-hidden="true" />}
-            >
-              <PendingText
-                active={saving}
-                idleText={messages.common.save}
-                pendingText={messages.common.saving}
-              />
-            </DialogPrimaryButton>
-            {onDelete ? (
-              <Button
-                darkMode={darkMode}
-                disabled={pending}
-                className="w-full"
-                icon={<Trash2 size={14} aria-hidden="true" />}
-                onClick={onDelete}
-              >
-                {messages.common.delete}
-              </Button>
-            ) : null}
-          </DialogActionRow>
-        </DialogFrame>
-      </form>
-    </DialogOverlay>
+    <CrudEditorDialog
+      darkMode={darkMode}
+      pending={pending}
+      saving={saving}
+      title={draft.id ? messages.task.edit : messages.task.add}
+      closeLabel={messages.task.close}
+      saveText={messages.common.save}
+      savingText={messages.common.saving}
+      deleteText={onDelete ? messages.common.delete : undefined}
+      onClose={onClose}
+      onSubmit={onSubmit}
+      onDelete={onDelete}
+    >
+      <TaskBasics
+        darkMode={darkMode}
+        pending={pending}
+        draft={draft}
+        messages={messages}
+        setDraft={setDraft}
+      />
+      <TaskMeta
+        darkMode={darkMode}
+        pending={pending}
+        draft={draft}
+        milestones={milestones}
+        messages={messages}
+        formMessages={formMessages}
+        setDraft={setDraft}
+      />
+    </CrudEditorDialog>
   );
 }
 

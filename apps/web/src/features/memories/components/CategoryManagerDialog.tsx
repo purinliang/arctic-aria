@@ -1,19 +1,17 @@
 // Memories Page - Category Manager Dialog.
-import { Edit3, Plus, Save, Trash2 } from "lucide-react";
+import { Edit3, Plus } from "lucide-react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { Button } from "@/components/button";
 import { secondaryButtonBorderColorClass } from "@/components/color";
 import {
-  DialogActionRow,
+  CrudEditorDialog,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
-  DialogPrimaryButton,
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { List, ListItem } from "@/components/list";
-import { PendingText } from "@/components/loading";
 import { DescriptionText, SectionTitle } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
@@ -278,80 +276,51 @@ function CategoryFormDialog({
   onDelete?: () => void;
 }) {
   return (
-    <DialogOverlay zIndex="z-[60]">
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          onSubmit();
-        }}
-      >
-        <DialogFrame darkMode={darkMode}>
-          <DialogHeader
-            darkMode={darkMode}
-            title={categoryDraft.id ? messages.editTitle : messages.add}
-            closeLabel={messages.closeForm}
-            onClose={onClose}
-          />
-          <div className="grid gap-3">
-            <FieldLabel darkMode={darkMode} label={messages.name}>
-              <TextInput
-                darkMode={darkMode}
-                value={categoryDraft.name}
-                maxLength={40}
-                placeholder={messages.namePlaceholder}
-                disabled={pending}
-                onChange={(event) =>
-                  setCategoryDraft((current) => ({
-                    ...current,
-                    name: event.target.value,
-                  }))
-                }
-              />
-            </FieldLabel>
-            <FieldLabel darkMode={darkMode} label={messages.description} optional>
-              <TextArea
-                darkMode={darkMode}
-                className="min-h-20"
-                value={categoryDraft.description}
-                maxLength={500}
-                disabled={pending}
-                placeholder={messages.descriptionPlaceholder}
-                onChange={(event) =>
-                  setCategoryDraft((current) => ({
-                    ...current,
-                    description: event.target.value,
-                  }))
-                }
-              />
-            </FieldLabel>
-          </div>
-          <DialogActionRow>
-            <DialogPrimaryButton
-              darkMode={darkMode}
-              type="submit"
-              disabled={pending}
-              icon={<Save size={14} aria-hidden="true" />}
-            >
-              <PendingText
-                active={saving}
-                idleText={messages.save}
-                pendingText={messages.saving}
-              />
-            </DialogPrimaryButton>
-            {onDelete ? (
-              <Button
-                darkMode={darkMode}
-                disabled={pending}
-                className="w-full"
-                icon={<Trash2 size={14} aria-hidden="true" />}
-                onClick={onDelete}
-              >
-                {messages.delete}
-              </Button>
-            ) : null}
-          </DialogActionRow>
-        </DialogFrame>
-      </form>
-    </DialogOverlay>
+    <CrudEditorDialog
+      darkMode={darkMode}
+      pending={pending}
+      saving={saving}
+      title={categoryDraft.id ? messages.editTitle : messages.add}
+      closeLabel={messages.closeForm}
+      saveText={messages.save}
+      savingText={messages.saving}
+      deleteText={onDelete ? messages.delete : undefined}
+      zIndex="z-[60]"
+      onClose={onClose}
+      onSubmit={onSubmit}
+      onDelete={onDelete}
+    >
+      <FieldLabel darkMode={darkMode} label={messages.name}>
+        <TextInput
+          darkMode={darkMode}
+          value={categoryDraft.name}
+          maxLength={40}
+          placeholder={messages.namePlaceholder}
+          disabled={pending}
+          onChange={(event) =>
+            setCategoryDraft((current) => ({
+              ...current,
+              name: event.target.value,
+            }))
+          }
+        />
+      </FieldLabel>
+      <FieldLabel darkMode={darkMode} label={messages.description} optional>
+        <TextArea
+          darkMode={darkMode}
+          className="min-h-20"
+          value={categoryDraft.description}
+          maxLength={500}
+          disabled={pending}
+          placeholder={messages.descriptionPlaceholder}
+          onChange={(event) =>
+            setCategoryDraft((current) => ({
+              ...current,
+              description: event.target.value,
+            }))
+          }
+        />
+      </FieldLabel>
+    </CrudEditorDialog>
   );
 }

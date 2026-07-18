@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
-import { X } from "lucide-react";
+import { Save, Trash2, X } from "lucide-react";
 import { Button } from "./button";
 import { panelColorClass } from "./color";
+import { PendingText } from "./loading";
 import { ScrollArea } from "./scroll-area";
 import { cx } from "./utils";
 
@@ -108,6 +109,82 @@ export function DialogPrimaryButton({
       size="md"
       className={cx("w-full", className)}
     />
+  );
+}
+
+export function CrudEditorDialog({
+  darkMode,
+  pending,
+  saving,
+  title,
+  closeLabel,
+  saveText,
+  savingText,
+  deleteText,
+  zIndex,
+  children,
+  onClose,
+  onSubmit,
+  onDelete,
+}: {
+  darkMode: boolean;
+  pending: boolean;
+  saving: boolean;
+  title: string;
+  closeLabel: string;
+  saveText: string;
+  savingText: string;
+  deleteText?: string;
+  zIndex?: "z-50" | "z-[60]";
+  children: ReactNode;
+  onClose: () => void;
+  onSubmit: () => void;
+  onDelete?: () => void;
+}) {
+  return (
+    <DialogOverlay zIndex={zIndex}>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSubmit();
+        }}
+      >
+        <DialogFrame darkMode={darkMode}>
+          <DialogHeader
+            darkMode={darkMode}
+            title={title}
+            closeLabel={closeLabel}
+            onClose={onClose}
+          />
+          <div className="grid gap-3">{children}</div>
+          <DialogActionRow>
+            <DialogPrimaryButton
+              darkMode={darkMode}
+              type="submit"
+              disabled={pending}
+              icon={<Save size={14} aria-hidden="true" />}
+            >
+              <PendingText
+                active={saving}
+                idleText={saveText}
+                pendingText={savingText}
+              />
+            </DialogPrimaryButton>
+            {onDelete && deleteText ? (
+              <Button
+                darkMode={darkMode}
+                disabled={pending}
+                className="w-full"
+                icon={<Trash2 size={14} aria-hidden="true" />}
+                onClick={onDelete}
+              >
+                {deleteText}
+              </Button>
+            ) : null}
+          </DialogActionRow>
+        </DialogFrame>
+      </form>
+    </DialogOverlay>
   );
 }
 

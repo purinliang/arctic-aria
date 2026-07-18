@@ -1,16 +1,7 @@
 // Projects Page - Project Editor Dialog.
-import { Save, Trash2 } from "lucide-react";
-import type { Dispatch, ReactNode, SetStateAction } from "react";
-import { Button } from "@/components/button";
-import {
-  DialogActionRow,
-  DialogFrame,
-  DialogHeader,
-  DialogOverlay,
-  DialogPrimaryButton,
-} from "@/components/dialog";
+import type { Dispatch, SetStateAction } from "react";
+import { CrudEditorDialog } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
-import { PendingText } from "@/components/loading";
 import { TextArea } from "@/components/forms/text-area-field";
 import type {
   MilestoneInput,
@@ -48,13 +39,15 @@ export function ProjectEditorDialog({
   onDelete?: () => void;
 }) {
   return (
-    <DialogShell
+    <CrudEditorDialog
       darkMode={darkMode}
       pending={pending}
       saving={saving}
       title={draft.id ? messages.project.edit : messages.project.add}
       closeLabel={messages.project.close}
-      messages={messages.common}
+      saveText={messages.common.save}
+      savingText={messages.common.saving}
+      deleteText={onDelete ? messages.common.delete : undefined}
       onClose={onClose}
       onSubmit={onSubmit}
       onDelete={onDelete}
@@ -96,7 +89,7 @@ export function ProjectEditorDialog({
         durationMessages={durationMessages}
         formMessages={formMessages}
       />
-    </DialogShell>
+    </CrudEditorDialog>
   );
 }
 
@@ -126,13 +119,15 @@ export function MilestoneEditorDialog({
   onDelete?: () => void;
 }) {
   return (
-    <DialogShell
+    <CrudEditorDialog
       darkMode={darkMode}
       pending={pending}
       saving={saving}
       title={draft.id ? messages.milestone.edit : messages.milestone.add}
       closeLabel={messages.milestone.close}
-      messages={messages.common}
+      saveText={messages.common.save}
+      savingText={messages.common.saving}
+      deleteText={onDelete ? messages.common.delete : undefined}
       onClose={onClose}
       onSubmit={onSubmit}
       onDelete={onDelete}
@@ -173,76 +168,6 @@ export function MilestoneEditorDialog({
         durationMessages={durationMessages}
         formMessages={formMessages}
       />
-    </DialogShell>
-  );
-}
-
-function DialogShell({
-  darkMode,
-  pending,
-  saving,
-  title,
-  closeLabel,
-  messages,
-  children,
-  onClose,
-  onSubmit,
-  onDelete,
-}: {
-  darkMode: boolean;
-  pending: boolean;
-  saving: boolean;
-  title: string;
-  closeLabel: string;
-  messages: ProjectMessages["editor"]["common"];
-  children: ReactNode;
-  onClose: () => void;
-  onSubmit: () => void;
-  onDelete?: () => void;
-}) {
-  return (
-    <DialogOverlay>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          onSubmit();
-        }}
-      >
-        <DialogFrame darkMode={darkMode}>
-          <DialogHeader
-            darkMode={darkMode}
-            title={title}
-            closeLabel={closeLabel}
-            onClose={onClose}
-          />
-          <div className="grid gap-3">{children}</div>
-          <DialogActionRow>
-            <DialogPrimaryButton
-              darkMode={darkMode}
-              type="submit"
-              disabled={pending}
-              icon={<Save size={14} aria-hidden="true" />}
-            >
-              <PendingText
-                active={saving}
-                idleText={messages.save}
-                pendingText={messages.saving}
-              />
-            </DialogPrimaryButton>
-            {onDelete ? (
-              <Button
-                darkMode={darkMode}
-                disabled={pending}
-                className="w-full"
-                icon={<Trash2 size={14} aria-hidden="true" />}
-                onClick={onDelete}
-              >
-                {messages.delete}
-              </Button>
-            ) : null}
-          </DialogActionRow>
-        </DialogFrame>
-      </form>
-    </DialogOverlay>
+    </CrudEditorDialog>
   );
 }
