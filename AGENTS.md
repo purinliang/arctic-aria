@@ -90,7 +90,7 @@ developer.
   not a hard limit. When a file approaches the limit, split by responsibility
   before adding more behavior.
 - Focus on the task implied by the branch name. For example, do not implement
-  application code during documentation-only work on an `agent/docs-*` branch.
+  application code during documentation-only work on a `docs/*` branch.
 - Do not hide unrelated bug fixes inside a broad commit. A branch may group
   several small bugs only when the commits inside the branch remain separately
   reviewable.
@@ -234,25 +234,32 @@ detailed shared component rules in `docs/web/ui-components.md`.
 
 ### Branches
 
+New Git rules from 2026-07-18:
+
+- Use branch names without the old `agent/` prefix.
+- Use commit titles without the old `(agent)` scope.
+- Existing local branches and commits that already use the old style may remain
+  unchanged unless the developer explicitly asks to rewrite them.
+
 - `main` is the release and stable branch.
 - `develop` is the integration and next-version development branch.
-- `agent/feat-*` branches are for new features created from `develop`.
-- `agent/fix-*` branches are for normal bug fixes created from `develop`.
-- `agent/hotfix-*` branches are for production or release fixes created from
+- `feature/*` branches are for new features created from `develop`.
+- `fix/*` branches are for normal bug fixes created from `develop`.
+- `hotfix/*` branches are for production or release fixes created from
   `main`; later, the fix should be cherry-picked or merged back to `develop`.
-- `agent/docs-*` branches are for documentation work.
-- `agent/refactor-*` branches are for refactoring work.
-- `agent/chore-*` branches are for maintenance work that is not a product
-  feature, bug fix, docs-only change, or pure refactor.
+- `docs/*` branches are for documentation work.
+- `refactor/*` branches are for refactoring work.
+- `chore/*` branches are for maintenance work that is not a product feature,
+  bug fix, docs-only change, or pure refactor.
 - Before implementation, inspect the current branch and working tree state.
 - If the developer asks for an unrelated bug fix or chore while another branch
   has active work in progress, do not mix it into the current branch. Stash the
-  current work, switch back to `develop`, create a focused `agent/fix-*` or
-  `agent/chore-*` branch, fix and commit there, merge that branch back into
+  current work, switch back to `develop`, create a focused `fix/*` or
+  `chore/*` branch, fix and commit there, merge that branch back into
   `develop` when the developer has requested that workflow, then return to the
   previous branch and restore the stash. Sync `develop` back into the previous
   branch only when the change is worth carrying forward immediately.
-- Agents may commit on `agent/*` branches when they believe their work is in a
+- Agents may commit on work branches when they believe their work is in a
   stable stage.
 - Do not commit directly to `main` in any situation. It is protected by GitHub
   branch rules.
@@ -269,7 +276,7 @@ detailed shared component rules in `docs/web/ui-components.md`.
 Use a Git-flow-friendly Conventional Commits style:
 
 ```text
-type(agent): short summary
+type: short summary
 
 - subtask 1
 - subtask 2
@@ -278,13 +285,13 @@ type(agent): short summary
 
 Common commit types:
 
-- `feat(agent): ...` for feature work.
-- `fix(agent): ...` for bug fixes.
-- `hotfix(agent): ...` for production or release fixes.
-- `docs(agent): ...` for documentation changes.
-- `refactor(agent): ...` for refactoring without behavior changes.
-- `test(agent): ...` for test-only changes.
-- `chore(agent): ...` for maintenance work.
+- `feat: ...` for feature work.
+- `fix: ...` for bug fixes.
+- `hotfix: ...` for production or release fixes.
+- `docs: ...` for documentation changes.
+- `refactor: ...` for refactoring without behavior changes.
+- `test: ...` for test-only changes.
+- `chore: ...` for maintenance work.
 
 The title should be a short summary of the subtasks. Keep each commit focused
 on one to five related subtasks. If a change needs more subtasks than that,
@@ -304,15 +311,14 @@ amend directly when the developer explicitly asks for an amend.
   integration manually through GitHub pull requests.
 - Agents may prepare merge instructions, but should not perform integration
   work unless the developer confirms the exact source and target branches.
-- Normal feature integration should merge from an `agent/*` branch into
+- Normal feature integration should merge from a work branch into
   `develop`.
 - For hotfixes that branch from `main`, agents may later cherry-pick the hotfix
   commit into `develop` after checking that it also works for the next version.
 - Merge commit messages should follow the existing Conventional Commit style,
-  such as `feat(agent): merge project management` or
-  `docs(agent): merge web documentation`. Prefer
-  `type(agent): merge <feature name>` over generic messages such as
-  `merge: <branch name>`.
+  such as `feat: merge project management` or
+  `docs: merge web documentation`. Prefer `type: merge <feature name>` over
+  generic messages such as `merge: <branch name>`.
 
 ### Release PRs
 
