@@ -168,13 +168,14 @@ with input-field height. The action buttons should be vertical and full width:
 Date and time pickers are still controlled form components. Feature code owns
 the current value, validation rules, and validation timing. Picker popovers
 should render as absolute overlays inside the field wrapper with stable widths
-so opening them does not change the parent card, dialog, list item, or field
-layout. The closed picker trigger should use the bordered secondary button
-role, not normal input text styling. It should keep the same text and icon
-color whether it is empty, placeholder text, defaulted, or selected; color
-changes are reserved for hover, focus, disabled, and error states. Do not
-render picker popovers through a viewport portal unless there is a specific
-clipping bug that cannot be solved in the dialog/layout component.
+and normal, even padding on all four edges so opening them does not change the
+parent card, dialog, list item, or field layout. The closed picker trigger
+should use the bordered secondary button role, not normal input text styling.
+It should keep the same text and icon color whether it is empty, placeholder
+text, defaulted, or selected; color changes are reserved for hover, focus,
+disabled, and error states. Do not render picker popovers through a viewport
+portal unless there is a specific clipping bug that cannot be solved in the
+dialog/layout component.
 
 Visible time strings outside the picker must use the same shared time formatter
 and the user's time-format preference. Do not render raw stored `HH:mm` strings
@@ -197,7 +198,9 @@ browser or operating-system colors, corners, and spacing.
 Single-select dropdowns may render their opened menu through a viewport portal
 when the field sits inside a clipped list or panel. The portal should preserve
 the same rounded popover surface, font size, option spacing, and dark-mode
-colors while avoiding parent `overflow-hidden` clipping.
+colors while avoiding parent `overflow-hidden` clipping. The opened menu should
+have no outer padding and should match the trigger width; option rows own their
+own internal padding.
 
 The closed select trigger should use the bordered secondary button role. It
 should keep the same text and icon color whether it is empty or selected.
