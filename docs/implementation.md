@@ -208,7 +208,7 @@ Shared web docs:
 - [web/theme.md](web/theme.md)
 - [web/color.md](web/color.md)
 - [web/localization.md](web/localization.md)
-- [web/performance.md](web/performance.md)
+- [web/tab-switch-loading-benchmark.md](web/tab-switch-loading-benchmark.md)
 
 Infrastructure docs:
 
