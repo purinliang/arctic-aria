@@ -20,6 +20,7 @@ import { MemoriesPanel } from "./MemoriesPanel";
 import { SuggestionsPanel } from "./SuggestionsPanel";
 import {
   emptyCategoryDraft,
+  getCategoryFormStateAfterSuccessfulDelete,
   getMemoryCategoryName,
   getVisibleMemoryFilterCategories,
   sortMemoryCategories,
@@ -224,7 +225,10 @@ export function MemoriesPage({
     const deleted = await onCategoryDelete(confirmationTarget.id);
 
     if (deleted) {
-      setCategoryDraft(emptyCategoryDraft);
+      const nextCategoryFormState = getCategoryFormStateAfterSuccessfulDelete();
+
+      setCategoryDraft(nextCategoryFormState.categoryDraft);
+      setCategoryFormOpen(nextCategoryFormState.categoryFormOpen);
     }
     setConfirmationTarget(null);
   }
