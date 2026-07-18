@@ -6,10 +6,10 @@ export function readMigrationFiles(appRoot = process.cwd()) {
   const migrationsDir = resolveMigrationsDir(appRoot);
 
   if (!existsSync(migrationsDir)) {
-    return [];
+    throw new Error(missingMigrationsDirMessage(migrationsDir));
   }
 
-  return readdirSync(migrationsDir)
+  const migrations = readdirSync(migrationsDir)
     .filter((file) => file.endsWith(".sql"))
     .sort()
     .map((name) => {
@@ -22,6 +22,12 @@ export function readMigrationFiles(appRoot = process.cwd()) {
         filePath,
       };
     });
+
+  if (migrations.length === 0) {
+    throw new Error(`Migration directory has no SQL files: ${migrationsDir}.`);
+  }
+
+  return migrations;
 }
 
 export function resolveMigrationsDir(appRoot = process.cwd()) {
@@ -100,4 +106,12 @@ export function validateAppliedMigrationHistory(appliedRows, expectedMigrations)
 
 function sha256(content) {
   return createHash("sha256").update(content).digest("hex");
+}
+
+function missingMigrationsDirMessage(migrationsDir) {
+  return [
+    `Migration directory not found: ${migrationsDir}.`,
+    "If Vercel Root Directory is apps/web, enable the Vercel setting to include source files outside the Root Directory in the Build Step.",
+    "Alternatively, set the Vercel project root to the repository root and run web commands from apps/web.",
+  ].join(" ");
 }

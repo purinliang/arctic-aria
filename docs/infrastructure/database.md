@@ -126,6 +126,11 @@ Current deployment setup:
 - Hosting and CD provider: Vercel.
 - Database provider: Neon PostgreSQL.
 - Vercel project root: `apps/web`.
+- Vercel Root Directory setting: enable source files outside the root directory
+  for the Build Step. Migration files live in `apps/infrastructure`, so
+  `apps/web` cannot read them during Vercel builds unless this setting is
+  enabled. If this setting is disabled, the build will fail before migration
+  with a missing migration directory error.
 - Current Vercel build command:
 
   ```bash
@@ -201,7 +206,8 @@ Expected local/preview test flow:
 Production migration is now part of the Vercel deploy command for `main`.
 Before relying on that path, confirm the Vercel Production environment contains
 the production `NEON_POSTGRES_URL` and that Preview/Development environments do
-not point at the production database.
+not point at the production database. Also confirm Vercel can read
+`apps/infrastructure/database/migrations` from the `apps/web` project root.
 
 To test the migration step without adding a fake schema change, inspect
 `schema_migration_runs` after a Vercel deployment. The migration runner records
