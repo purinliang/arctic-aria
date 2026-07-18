@@ -129,7 +129,7 @@ Current deployment setup:
 - Current Vercel build command:
 
   ```bash
-  pnpm db:migrate && pnpm build
+  pnpm build && pnpm db:migrate
   ```
 
 - Production branch: `main`.
@@ -157,11 +157,10 @@ the app cannot build. The remaining risk is that a migration can succeed and a
 later Vercel deployment step can still fail before the deployment is promoted.
 Because of that, production migrations must remain backward-compatible.
 
-The current command `pnpm db:migrate && pnpm build` still exits non-zero when
-migration fails, so Vercel will stop the deployment on migration errors. When
-the metadata tables are available, the failed run is recorded with
-`status = 'failed'`. However, this command can migrate the database before a
-build failure is discovered.
+The current command `pnpm build && pnpm db:migrate` runs the Next.js build
+before touching the database, then exits non-zero if migration fails, so Vercel
+will stop the deployment on migration errors. When the metadata tables are
+available, the failed run is recorded with `status = 'failed'`.
 
 If accidental production migration is a concern, do not use an unguarded
 production build command that starts with `pnpm db:migrate`. Use one of these
