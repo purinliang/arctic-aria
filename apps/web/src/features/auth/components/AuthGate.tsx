@@ -2,7 +2,6 @@
 
 // Auth Gate.
 import { LoaderCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { AppShell } from "@/app-shell/AppShell";
 import { useAppPreferences } from "@/app-shell/app-preferences";
@@ -57,7 +56,6 @@ const englishAuthMessages = getAppMessages("en").auth;
 const simplifiedChineseAuthMessages = getAppMessages("zh-CN").auth;
 
 export function AuthGate() {
-  const router = useRouter();
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
   const [mode, setMode] = useState<AuthMode>("login");
@@ -310,7 +308,7 @@ export function AuthGate() {
       setLoginInput(emptyLogin);
       setRegisterInput(emptyRegister);
       resetSubmitState(true);
-      router.replace("/");
+      replaceBrowserPath("/");
       setCurrentUser(null);
     } catch {
       showErrorNotification(messages.notifications.actionFailed);
@@ -407,4 +405,12 @@ export function AuthGate() {
       />
     </>
   );
+}
+
+function replaceBrowserPath(path: string) {
+  if (typeof window === "undefined" || window.location.pathname === path) {
+    return;
+  }
+
+  window.history.replaceState({ arcticAriaPath: path }, "", path);
 }

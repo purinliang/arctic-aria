@@ -118,6 +118,12 @@ unless a route needs distinct server-rendered content. Empty per-page route
 files make local `next dev` lazily compile each path separately and can make
 first navigation feel slower during development.
 
+Inside the authenticated workspace, navigation uses the browser History API
+instead of `next/navigation` router pushes. This preserves `/today`,
+`/projects`, `/projects/<project-id>`, and other refresh-safe paths without
+fetching a new Next route payload for normal sidebar/page clicks. Browser back
+and forward should update the app shell from `popstate`.
+
 `apps/web/src/app-shell` owns the authenticated web shell:
 
 - sidebar navigation

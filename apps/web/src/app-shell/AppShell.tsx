@@ -2,7 +2,7 @@
 
 // App Shell.
 import { Menu } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/button";
 import { secondaryButtonBorderColorClass } from "@/components/color";
@@ -73,9 +73,11 @@ export function AppShell({
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
 }) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const pathnameRoute = appRouteFromPathname(pathname);
+  const initialPathname = usePathname();
+  const [currentPathname, setCurrentPathname] = useState(
+    () => browserPathname() ?? initialPathname,
+  );
+  const pathnameRoute = appRouteFromPathname(currentPathname);
   const activeView = pathnameRoute.view;
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const selectedProjectId = pathnameRoute.projectId;
@@ -115,6 +117,18 @@ export function AppShell({
   );
 
   useEffect(() => {
+    function syncBrowserPathname() {
+      setCurrentPathname(browserPathname() ?? initialPathname);
+    }
+
+    window.addEventListener("popstate", syncBrowserPathname);
+
+    return () => {
+      window.removeEventListener("popstate", syncBrowserPathname);
+    };
+  }, [initialPathname]);
+
+  useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       void refreshProjectData();
       void refreshMemoryData();
@@ -134,8 +148,10 @@ export function AppShell({
   function navigateToRoute(path: string) {
     setSidebarOpen(false);
 
-    if (pathname !== path) {
-      router.push(path);
+    if (currentPathname !== path) {
+      window.history.pushState({ arcticAriaPath: path }, "", path);
+      window.scrollTo({ left: 0, top: 0 });
+      setCurrentPathname(path);
     }
   }
 
@@ -356,4 +372,12 @@ export function AppShell({
       />
     </main>
   );
+}
+
+function browserPathname() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.location.pathname;
 }
