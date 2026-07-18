@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import {
+  readMigrationFiles,
   resolveMigrationsDir,
   schemaHashForMigrations,
   validateAppliedMigrationHistory,
@@ -113,6 +114,46 @@ test("migration directory resolves to shared infrastructure from web app root", 
 
   try {
     assert.equal(resolveMigrationsDir(webRoot), migrationsDir);
+  } finally {
+    rmSync(repoRoot, { recursive: true, force: true });
+  }
+});
+
+test("migration reader rejects a missing migration directory", () => {
+  const repoRoot = mkdtempSync(path.join(tmpdir(), "arctic-aria-"));
+  const webRoot = path.join(repoRoot, "apps", "web");
+
+  mkdirSync(webRoot, { recursive: true });
+
+  try {
+    assert.throws(
+      () => readMigrationFiles(webRoot),
+      /Migration directory not found/,
+    );
+  } finally {
+    rmSync(repoRoot, { recursive: true, force: true });
+  }
+});
+
+test("migration reader rejects an empty migration directory", () => {
+  const repoRoot = mkdtempSync(path.join(tmpdir(), "arctic-aria-"));
+  const webRoot = path.join(repoRoot, "apps", "web");
+  const migrationsDir = path.join(
+    repoRoot,
+    "apps",
+    "infrastructure",
+    "database",
+    "migrations",
+  );
+
+  mkdirSync(webRoot, { recursive: true });
+  mkdirSync(migrationsDir, { recursive: true });
+
+  try {
+    assert.throws(
+      () => readMigrationFiles(webRoot),
+      /Migration directory has no SQL files/,
+    );
   } finally {
     rmSync(repoRoot, { recursive: true, force: true });
   }
