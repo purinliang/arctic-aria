@@ -24,6 +24,10 @@ user-facing feature starts.
 - Keep the existing web prototype stable while doing hardening work.
 - Improve memory pin/unpin management inside Memories instead of managing
   single pinned-memory replacement from Today.
+- Refine memory category management: separate built-in default categories from
+  user-created custom categories, keep the dialog padding consistent with other
+  add/edit dialogs, and place the `New` category action inside the custom
+  categories section.
 - Review repeated edit actions in project and memory lists and choose a cleaner
   interaction pattern if the current UI feels noisy.
 

@@ -348,11 +348,21 @@ the current UI.
 
 Manage Categories dialog layout:
 
-- top row: `Manage Categories` title on the left
-- top row right side: `New` button with `Plus`, then close icon button
+- use the same shared dialog shell and surrounding content padding as add/edit
+  dialogs
+- top row: `Manage Categories` title on the left and close icon button on the
+  right
+- show built-in categories in a separate `Default Categories` section
+- show user-created categories in a separate `Custom Categories` section
+- place the `New` button with `Plus` in the `Custom Categories` section header,
+  not in the dialog title row
+- section headers should use existing shared title/action components where
+  possible instead of local alignment classes
 - category list rows use the shared `ListItem`
 - each category row shows title and `DescriptionText`
-- each category row has an `Edit` button with `Edit3` and text `Edit`
+- built-in category rows show icon, localized name, and localized description
+  only; do not show an edit action
+- custom category rows have an `Edit` button with `Edit3` and text `Edit`
 - category rows do not show a delete button
 
 ### Add a New Category
