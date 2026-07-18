@@ -112,17 +112,16 @@ to Today:
 Do not add `/project?id=<id>` routing. Project detail routing should use the
 path segment form above.
 
-The workspace routes are implemented through one optional catch-all page under
-`apps/web/src/app/(workspace)/[[...workspacePath]]/page.tsx`. Keep it this way
-unless a route needs distinct server-rendered content. Empty per-page route
-files make local `next dev` lazily compile each path separately and can make
-first navigation feel slower during development.
+Workspace path refresh support is implemented with rewrites in
+`apps/web/next.config.ts`. `/today`, `/projects`, `/projects/<project-id>`,
+`/routines`, `/memories`, `/ideas`, and `/settings` rewrite to the static `/`
+app page. This avoids separate route files and avoids making the workspace a
+dynamic catch-all route.
 
 Inside the authenticated workspace, navigation uses the browser History API
-instead of `next/navigation` router pushes. This preserves `/today`,
-`/projects`, `/projects/<project-id>`, and other refresh-safe paths without
-fetching a new Next route payload for normal sidebar/page clicks. Browser back
-and forward should update the app shell from `popstate`.
+instead of `next/navigation` router pushes. This preserves refresh-safe paths
+without fetching a new Next route payload for normal sidebar/page clicks.
+Browser back and forward should update the app shell from `popstate`.
 
 `apps/web/src/app-shell` owns the authenticated web shell:
 
