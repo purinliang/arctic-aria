@@ -158,8 +158,12 @@ they apply:
 
 ## Verification
 
-- For web code changes, run the relevant focused tests when they exist.
-- Use `pnpm --dir apps/web test`, `pnpm --dir apps/web lint`, and
-  `pnpm --dir apps/web build` for broad web verification when the change touches
-  shared components, app shell, server actions, or feature behavior.
+- Follow the root `AGENTS.md` Validation Workflow.
+- During normal feature/fix/refactor branch work, run the relevant focused
+  tests for the touched feature or shared area when they exist.
+- Before merging back into `develop`, or when the developer asks for full
+  validation, run `git diff --check`, `pnpm --dir apps/web test`,
+  `pnpm --dir apps/web lint`, and `pnpm --dir apps/web build`.
+- Also run the full web checks earlier when focused tests do not cover the risk
+  of a shared component, app shell, server action, metadata, or runtime change.
 - For docs-only changes under the web app, run at least `git diff --check`.
