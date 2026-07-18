@@ -71,6 +71,11 @@ migration runner reads `APP_VERSION`, `APP_COMMIT`, and `APP_SOURCE_STATE` when
 present, falls back to Vercel commit metadata when available, and finally falls
 back to local Git metadata during development.
 
+When Vercel commit metadata is present, source state is treated as `clean`
+unless `APP_SOURCE_STATE` explicitly overrides it. This prevents the migration
+step from warning about a dirty tree only because it runs after `pnpm build` and
+the build created local artifacts in Vercel's deployment workspace.
+
 The user-facing app version is controlled automatically:
 
 - release builds should use Git release tags, such as `v0.5.0`
