@@ -147,7 +147,7 @@ function SidebarFrame({
       } relative flex-col border-r border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-header-bg)] text-[var(--aa-primary-text)]`}
     >
       <ScrollArea
-        className="flex-1"
+        className="relative flex-1"
         refreshKey={`${open}-${pinnedProjects.length}-${messages.workspace}`}
         scrollbar="auto-hide"
         viewportClassName="h-full overscroll-contain p-4"

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { LoaderCircle, X } from "lucide-react";
 import { Button } from "./button";
 import { panelColorClass } from "./color";
+import { ScrollArea } from "./scroll-area";
 import { cx } from "./utils";
 
 export function DialogOverlay({
@@ -12,14 +13,16 @@ export function DialogOverlay({
   children: ReactNode;
 }) {
   return (
-    <div
+    <ScrollArea
       className={cx(
-        "fixed inset-0 overflow-y-auto bg-black/65 px-4 py-8 sm:py-10",
+        "fixed inset-0 bg-black/65",
         zIndex,
       )}
+      viewportClassName="h-full px-4 py-8 sm:py-10"
+      contentClassName="grid min-h-full place-items-center"
     >
-      <div className="grid min-h-full place-items-center">{children}</div>
-    </div>
+      {children}
+    </ScrollArea>
   );
 }
 

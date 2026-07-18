@@ -4,7 +4,7 @@ import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 import { cx } from "./utils";
 
-type ScrollbarMode = "native" | "auto-hide";
+type ScrollbarMode = "visible" | "auto-hide";
 
 type ScrollbarState = {
   canScroll: boolean;
@@ -41,7 +41,7 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
       className,
       contentClassName,
       refreshKey,
-      scrollbar = "native",
+      scrollbar = "visible",
       thumbClassName,
       viewportClassName,
       viewportStyle,
@@ -58,11 +58,6 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
 
     const updateScrollbarState = useCallback(
       (visible: boolean) => {
-        if (scrollbar !== "auto-hide") {
-          setScrollbarState(hiddenScrollbarState);
-          return;
-        }
-
         const viewport = viewportRef.current;
 
         if (!viewport || viewport.clientHeight <= 0) {
@@ -103,18 +98,14 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           thumbTop,
         });
       },
-      [scrollbar],
+      [],
     );
 
     useEffect(() => {
       updateScrollbarState(false);
 
-      if (scrollbar !== "auto-hide") {
-        return;
-      }
-
       function handleResize() {
-        updateScrollbarState(false);
+        updateScrollbarState(scrollbar === "visible");
       }
 
       window.addEventListener("resize", handleResize);
@@ -122,7 +113,9 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
       const resizeObserver =
         typeof ResizeObserver === "undefined"
           ? null
-          : new ResizeObserver(() => updateScrollbarState(false));
+          : new ResizeObserver(() =>
+              updateScrollbarState(scrollbar === "visible"),
+            );
 
       if (resizeObserver) {
         if (viewportRef.current) {
@@ -145,11 +138,11 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
     }, [refreshKey, scrollbar, updateScrollbarState]);
 
     function handleScroll() {
-      if (scrollbar !== "auto-hide") {
+      updateScrollbarState(true);
+
+      if (scrollbar === "visible") {
         return;
       }
-
-      updateScrollbarState(true);
 
       if (hideTimer.current !== null) {
         window.clearTimeout(hideTimer.current);
@@ -161,12 +154,12 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
     }
 
     return (
-      <div ref={ref} className={cx("relative min-h-0", className)} {...props}>
+      <div ref={ref} className={cx("min-h-0", className)} {...props}>
         <div
           ref={viewportRef}
           className={cx(
             "overflow-y-auto",
-            scrollbar === "auto-hide" ? "aa-scrollbar-hidden-native" : "",
+            "aa-scrollbar-hidden-native",
             viewportClassName,
           )}
           style={viewportStyle}
@@ -177,11 +170,13 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           </div>
         </div>
 
-        {scrollbar === "auto-hide" && scrollbarState.canScroll ? (
+        {scrollbarState.canScroll ? (
           <span
             className={cx(
               "pointer-events-none absolute right-1 top-0 block w-0.5 rounded-full bg-[var(--aa-secondary-button-hover-bg)] transition-opacity duration-200",
-              scrollbarState.visible ? "opacity-100" : "opacity-0",
+              scrollbar === "visible" || scrollbarState.visible
+                ? "opacity-100"
+                : "opacity-0",
               thumbClassName,
             )}
             style={{

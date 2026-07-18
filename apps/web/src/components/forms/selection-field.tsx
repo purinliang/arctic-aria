@@ -62,6 +62,15 @@ export function SelectInput({
     () => options.find((option) => option.value === value) ?? null,
     [options, value],
   );
+  const popoverRootStyle = popoverStyle
+    ? ({
+        bottom: popoverStyle.bottom,
+        left: popoverStyle.left,
+        position: popoverStyle.position,
+        top: popoverStyle.top,
+        width: popoverStyle.width,
+      } satisfies CSSProperties)
+    : undefined;
   const updatePopoverStyle = useCallback(() => {
     const root = rootRef.current;
 
@@ -174,7 +183,7 @@ export function SelectInput({
         ? createPortal(
             <ScrollArea
               ref={popoverRef}
-              style={popoverStyle ?? undefined}
+              style={popoverRootStyle}
               className={formControlPopupClass(
                 darkMode,
                 "overflow-hidden p-0",

@@ -82,10 +82,11 @@ they apply:
 - Card and panel title actions must be placed by the shared `CardHeader`.
   Feature code should pass an action component and must not hand-align header
   button top/right padding locally.
-- Custom scroll behavior must use the shared `ScrollArea`. Use auto-hidden
-  scrollbar behavior only when the scrollbar itself is visual noise, such as
-  the sidebar. Dropdowns, dialogs, lists, and page overflow may keep native
-  visible scrollbars when that makes overflow easier to discover.
+- Custom scroll behavior must use the shared `ScrollArea`. Hide native
+  scrollbars and use the shared custom thumb. Use auto-hidden scrollbar
+  behavior only when the scrollbar itself is visual noise, such as the sidebar.
+  Dropdowns, dialogs, lists, and page overflow may keep the custom thumb visible
+  when that makes overflow easier to discover.
 - Visible page sections should usually be named as `*Panel.tsx` components
   when they own one complete panel.
 - For desktop left-right page layouts, use the shared split pattern: flexible

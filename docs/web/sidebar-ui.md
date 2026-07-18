@@ -21,10 +21,10 @@ The sidebar should scroll internally when the viewport height is too small for
 all sidebar content.
 
 The sidebar uses the shared `ScrollArea` with `scrollbar="auto-hide"`. The
-native scrollbar should be visually hidden by default. When the user scrolls
-the sidebar, reveal a subtle shared scrollbar thumb and hide it again after
-scrolling stops. Keep the track transparent and avoid a permanent native
-scrollbar unless the browser forces one.
+native scrollbar should be visually hidden. When the user scrolls the sidebar,
+reveal a subtle shared scrollbar thumb and hide it again after scrolling stops.
+Keep the track transparent and avoid a permanent native scrollbar unless the
+browser forces one.
 
 ## Mobile
 

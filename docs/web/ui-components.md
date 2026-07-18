@@ -117,10 +117,9 @@ from the surface, such as the sidebar. Auto-hide mode hides the browser's native
 scrollbar, shows a subtle shared thumb while the user scrolls, and hides the
 thumb again after scrolling stops.
 
-Use native visible scrolling for dropdowns, dialogs, lists, and page content
-when the scrollbar helps the user discover overflow. These surfaces should
-adopt `ScrollArea` only when they need shared measurement or consistent
-overflow behavior; do not hide their scrollbar by default.
+Use the default visible custom scrollbar for dropdowns, dialogs, lists, and page
+content when the scrollbar helps the user discover overflow. Do not expose the
+browser's native scrollbar in app-styled surfaces.
 
 ## Input Field
 
