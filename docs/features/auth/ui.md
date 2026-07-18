@@ -33,8 +33,9 @@ and [data-model.md](data-model.md).
   include a Sparkles icon and the localized brand name.
 - Show a centered description below the brand row, such as `Your personal life
   assistant under the aurora.`
-- Show a small light/dark theme button above the auth panel. It changes the
-  same local theme preference used by the authenticated app shell.
+- Do not show a separate light/dark theme button on the auth page. The signed
+  out page should use the cached local theme preference first, then the system
+  preference. Signed-in users can change theme from Settings or the sidebar.
 - Auth labels, placeholder action text, notification titles, and the version
   metadata footer should use the active app message catalog.
 - Show a small deployment metadata footer below the auth panel when app

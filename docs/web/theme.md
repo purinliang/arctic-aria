@@ -77,9 +77,10 @@ preference resolution.
 
 ## Auth Page Theme Action
 
-The signed-out auth page should support light and dark rendering. Its theme
-button changes the same local theme preference used by the authenticated app
-shell.
+The signed-out auth page should support light and dark rendering without a
+separate visible theme button. Resolve theme from the cached local preference
+first, then the system preference. Signed-in theme changes belong to Settings
+and the sidebar.
 
 ## Sidebar Theme Action
 

@@ -75,7 +75,6 @@ export function AuthGate() {
     applyUserPreferences,
     languagePreference,
     resolvedLanguage,
-    setThemePreference,
     themePreference,
     timeFormatPreference,
   } = useAppPreferences();
@@ -397,15 +396,6 @@ export function AuthGate() {
         onSubmit={handleSubmit}
         onGoogleLogin={showGooglePlaceholder}
         onPasswordReset={showPasswordResetPlaceholder}
-        onThemeToggle={() => {
-          const nextPreference = darkMode ? "light" : "dark";
-
-          setThemePreference(nextPreference);
-
-          if (currentUser) {
-            updateUserPreferences({ themePreference: nextPreference });
-          }
-        }}
         versionMessages={messages.versionStatus}
         versionStatus={versionStatus}
       />

@@ -1,10 +1,8 @@
 "use client";
 
 // Auth Page.
-import { Moon, Sun } from "lucide-react";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
-import { Button } from "@/components/button";
 import { secondaryTextColorClass } from "@/components/color";
 import { Panel } from "@/components/panel";
 import { appShellClass } from "@/components/theme";
@@ -19,13 +17,11 @@ import type { AuthFormProps } from "./AuthForm";
 export function AuthPage({
   darkMode,
   messages,
-  onThemeToggle,
   versionMessages,
   versionStatus,
   ...props
 }: AuthFormProps & {
   messages: AuthMessages;
-  onThemeToggle: () => void;
   versionMessages: VersionStatusMessages;
   versionStatus: DatabaseVersionStatus;
 }) {
@@ -35,23 +31,6 @@ export function AuthPage({
     >
       <div className="mx-auto flex min-h-[100dvh] w-full max-w-[560px] items-center px-4 pb-16 pt-6 sm:px-6 sm:pb-20 lg:min-h-[110vh]">
         <div className="w-full">
-          <div className="mb-3 flex justify-end">
-            <Button
-              darkMode={darkMode}
-              tone="ghost"
-              size="sm"
-              icon={
-                darkMode ? (
-                  <Sun size={15} aria-hidden="true" />
-                ) : (
-                  <Moon size={15} aria-hidden="true" />
-                )
-              }
-              onClick={onThemeToggle}
-            >
-              {darkMode ? messages.themeToggle.light : messages.themeToggle.dark}
-            </Button>
-          </div>
           <Panel darkMode={darkMode} className="w-full p-5 shadow-sm sm:p-8">
             <ArcticAriaLogo brandText={messages.brandName} />
             <p
