@@ -65,11 +65,12 @@ and [data-model.md](data-model.md).
   - Apply the same field layout rules to every field.
 - The main button should say `Sign up` and include a right arrow icon to imply
   forward navigation.
-- Empty required fields should not disable the main button before the first
-  submit attempt. The first submit attempt should reveal the empty-field
-  bubbles.
-- When the main button is disabled by a non-empty typing error, hovering over it
-  should show the first remaining validation error by rule priority.
+- The main `Sign up` button should stay enabled regardless of typing or empty
+  field errors, except while registration is submitting. Clicking it runs
+  validation and shows the relevant error messages. This avoids disabled-button
+  flashes while the user is still composing input.
+- When the main button is disabled by a pending request, keep its loading text
+  stable.
 - Show small text `Already have an account?` and link-style text `Sign in`.
   Clicking the link is equivalent to switching tabs.
 - Do not show unrelated actions or information, such as `Open dashboard without
@@ -84,6 +85,9 @@ Use the same UI rules as registration, with these differences:
 - The title below the tabs should say `Welcome back`.
 - Show subtext `New here?` and link-style text `Sign up`.
 - The main button should say `Sign in`.
+- The `Sign in` button should stay enabled regardless of what the user has
+  typed, except while the login request is pending. Login validation should run
+  after click and show errors without relying on a disabled button.
 - Do not show Google sign-in, password reset, or other placeholder actions until
   they are implemented end to end.
 

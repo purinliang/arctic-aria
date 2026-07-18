@@ -387,7 +387,7 @@ export function AuthGate() {
         registerInput={registerInput}
         loginInput={loginInput}
         errors={activeErrors}
-        disabled={isPending || hasAuthErrors(activeErrors)}
+        disabled={isPending}
         pending={isPending}
         submitAttempted={submitAttempted}
         onModeChange={switchMode}
