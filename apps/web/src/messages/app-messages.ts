@@ -56,7 +56,7 @@ const englishMessages = {
       darkMode: "Dark mode",
       lightMode: "Light mode",
       signOut: "Sign out",
-      signingOut: "Signing out...",
+      signingOut: "Signing out",
     },
   },
   auth: {
@@ -253,7 +253,7 @@ const simplifiedChineseMessages: AppMessages = {
       darkMode: "深色模式",
       lightMode: "浅色模式",
       signOut: "退出登录",
-      signingOut: "正在退出...",
+      signingOut: "正在退出登录",
     },
   },
   auth: {
