@@ -72,7 +72,10 @@ export function TimePickerField({
     function handlePointerDown(event: PointerEvent) {
       const target = event.target as Node;
 
-      if (!rootRef.current?.contains(target)) {
+      if (
+        !rootRef.current?.contains(target) &&
+        !popoverRef.current?.contains(target)
+      ) {
         setOpen(false);
       }
     }
@@ -82,7 +85,7 @@ export function TimePickerField({
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
     };
-  }, [open, rootRef]);
+  }, [open, popoverRef, rootRef]);
 
   return (
     <div ref={rootRef} className="relative min-w-0">
@@ -124,6 +127,7 @@ export function TimePickerField({
       {open ? (
         <div
           ref={popoverRef}
+          onPointerDown={(event) => event.stopPropagation()}
           className={formControlPopupClass(
             darkMode,
             cx(
