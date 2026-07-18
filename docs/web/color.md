@@ -44,6 +44,7 @@ roles:
 | Panel header | `--aa-panel-header-bg` | use text roles | use secondary button border | n/a | n/a | n/a | n/a | n/a | n/a |
 | Primary button | `--aa-primary-button-bg` | `--aa-primary-button-text` | `--aa-primary-button-hover-bg` | `--aa-primary-button-hover-bg` | `--aa-primary-button-hover-text` | `--aa-primary-button-hover-bg` | `--aa-primary-button-disabled-bg` | `--aa-primary-button-disabled-text` | `--aa-primary-button-disabled-bg` |
 | Secondary button | `--aa-secondary-button-bg` | `--aa-secondary-button-text` | `--aa-secondary-button-border` | `--aa-secondary-button-hover-bg` | `--aa-secondary-button-hover-text` | `--aa-secondary-button-hover-border` | `--aa-secondary-button-disabled-bg` | `--aa-secondary-button-disabled-text` | `--aa-secondary-button-disabled-border` |
+| Text input | `--aa-text-input-bg` | `--aa-text-input-text` | `--aa-text-input-border` | `--aa-text-input-hover-bg` | `--aa-text-input-hover-text` | `--aa-text-input-hover-border` | `--aa-text-input-disabled-bg` | `--aa-text-input-disabled-text` | `--aa-text-input-disabled-border` |
 
 Text is independent from page and panel backgrounds:
 
@@ -68,11 +69,16 @@ Secondary buttons have two presentations:
 Do not create a separate color family for secondary button and secondary button
 (borderless).
 
-Input-like controls use secondary button tokens for background, border, hover,
-focus, and disabled chrome. Their hover and focus fill must not reuse the same
-token as their border; otherwise bordered controls appear borderless while
-hovered or focused. Entered values use primary text, and empty placeholders or
-supportive hints use secondary text.
+Typed text controls use text-input tokens for background, border, hover, focus,
+placeholder, and disabled chrome. Their hover and focus backgrounds default to
+the normal text-input background so typed fields do not look like hovered
+buttons. Their focus state changes the existing border to
+`--aa-text-input-focus-border` and may add inward border weight; do not add a
+separate outside focus ring.
+
+Button-like form controls, such as select triggers and picker triggers, use
+secondary button tokens because they open a menu or picker instead of accepting
+direct text entry.
 
 ## Component Mapping
 
@@ -81,7 +87,8 @@ supportive hints use secondary text.
 | `panelColorClass` | Panel |
 | `panelHeaderColorClass` | Panel header |
 | `panelHoverContainerColorClass` | Panel hover container |
-| `secondaryInputControlColorClass`, `formControlClass` | Secondary input control |
+| `textInputControlColorClass`, `formControlClass` | Text input |
+| `formButtonControlClass` | Secondary button-like input control |
 | `toneClass`, `statusMessageClass` | Status tone exception |
 | `secondaryTextColorClass` | Secondary text |
 | `secondaryButtonDividerColorClass`, `secondaryButtonBorderColorClass` | Secondary button border |
@@ -111,21 +118,21 @@ supportive hints use secondary text.
 | Selected `ListItem` or expanded `ExpandableListItem` | Primary button |
 | `SingleChoiceGroup`, `MultipleChoiceGroup`, `ChoiceActionButton` option | Secondary button |
 | Selected `SingleChoiceGroup`, `MultipleChoiceGroup` option | Primary button |
-| `SelectInput` trigger | Secondary input control |
+| `SelectInput` trigger | Secondary button-like input control |
 | `SelectInput` option | Secondary button |
 | Selected `SelectInput` option | Primary button |
 | `CheckboxGroup` | Inherits parent |
-| `DatePickerField` trigger | Secondary input control |
+| `DatePickerField` trigger | Secondary button-like input control |
 | `DatePickerField` popup | Panel |
 | `DatePickerField` day button | Secondary button |
 | Selected `DatePickerField` day button | Primary button |
-| `TimePickerField` trigger | Secondary input control |
+| `TimePickerField` trigger | Secondary button-like input control |
 | `TimePickerField` popup | Panel |
-| `TimePickerField` text input | Secondary input control |
+| `TimePickerField` text input | Text input |
 | `TimePickerField` period choice | Secondary button |
 | Selected `TimePickerField` period choice | Primary button |
 | `FieldLabel` | Inherits parent |
-| `TextInput`, `PasswordInput`, `TextArea`, `NumberInput` | Secondary input control |
+| `TextInput`, `PasswordInput`, `TextArea`, `NumberInput` | Text input |
 | `FieldError` | Status tone exception |
 | `CheckboxField`, `CheckboxControl` unchecked | Secondary button |
 | `CheckboxField`, `CheckboxControl` checked | Primary button |
@@ -172,12 +179,22 @@ supportive hints use secondary text.
   secondary button roles unless a future design explicitly adds a separate
   selected-state role.
 - Unselected interactive controls should reuse secondary button roles.
-- Text inputs, password inputs, textareas, number inputs, select triggers, date
-  picker triggers, and time picker triggers should use the secondary input
-  control treatment while hovering, focusing, or typing.
+- Text inputs, password inputs, textareas, number inputs, and time picker typed
+  fields should use text-input tokens while hovering, focusing, or typing.
+- Text-input hover and focus backgrounds should not reuse button hover
+  background tokens. Adjust `--aa-text-input-hover-bg` or
+  `--aa-text-input-focus-bg` when a distinct text-entry effect is needed.
+- Text-input focus should change the existing border color to the primary focus
+  token, make the existing edge visibly stronger, and should not draw a
+  separate outside blue ring.
+- Select triggers, date picker triggers, and time picker triggers should use
+  the secondary button-like input treatment.
+- Shared app-styled form controls should opt out of the global outside focus
+  outline. Normal command buttons may keep the global focus outline for keyboard
+  accessibility.
 - Input validation error borders should appear while the field is idle or
   blurred. While the app user is focused in the field, the control should use
-  the normal secondary input control focus treatment so editing does not feel
-  blocked by the error state.
+  the normal text-input focus treatment so editing does not feel blocked by the
+  error state.
 - Panels and cards should not invent local background or text colors.
 - Feature pages must not use raw palette classes for normal UI chrome.

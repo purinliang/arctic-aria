@@ -138,10 +138,16 @@ Input field components must stay presentational. They should accept the current
 visual state, bubble text, and bubble visibility from the caller, but they should
 not decide validation rules or validation timing.
 
-Focused form controls should keep the default control background and use a
-clear focus border. Do not switch text inputs, text areas, number fields,
-date/time picker triggers, time picker typed fields, or selection inputs to the
-secondary hover background merely because they are focused.
+Text inputs, password inputs, text areas, number fields, and time picker typed
+fields should keep the text-input background while hovered or focused. Their
+focus state should change the existing border color instead of drawing an
+outside ring. The focused border may become visually heavier inward, but it
+must not add a second outline outside the control.
+
+Selection inputs and date/time picker triggers are button-like form controls
+because they open another surface. They may use button-like hover treatment, but
+their focus state should still be expressed through the existing border, not an
+outside ring.
 
 Required-empty messages, such as `Username can't be empty.`, are submit/form
 logic. They should appear only after the user clicks the relevant confirm,
