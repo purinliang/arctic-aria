@@ -1,4 +1,8 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  readDashboardBrowserCacheSection,
+  writeDashboardBrowserCacheSection,
+} from "@/app-shell/dashboard-browser-cache";
 import {
   archiveMilestone,
   archiveProject,
@@ -34,13 +38,15 @@ type ProjectDataAction = () => Promise<
 >;
 
 export function useDashboardProjects(
+  userId: string,
   showErrorNotification: (message: string, title?: string) => void,
   messages?: DashboardMessages["notifications"],
   resultMessages?: ProjectMessages["results"],
 ) {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<ProjectDashboardData["tasks"]>([]);
   const [projects, setProjects] = useState<ProjectView[]>([]);
   const [projectLoading, setProjectLoading] = useState(true);
+  const [projectCacheReady, setProjectCacheReady] = useState(false);
   const [projectActionPending, setProjectActionPending] = useState(false);
   const [pendingProjectPinIds, setPendingProjectPinIds] = useState<string[]>(
     [],
@@ -51,7 +57,33 @@ export function useDashboardProjects(
   const applyProjectData = useCallback((data: ProjectDashboardData) => {
     setTasks(data.tasks);
     setProjects(data.projects);
+    setProjectLoading(false);
+    setProjectCacheReady(true);
   }, []);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      const cachedData = readDashboardBrowserCacheSection(userId, "projects");
+
+      setTasks(cachedData?.tasks ?? []);
+      setProjects(cachedData?.projects ?? []);
+      setProjectLoading(cachedData === null);
+      setProjectCacheReady(cachedData !== null);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [userId]);
+
+  useEffect(() => {
+    if (!projectCacheReady) {
+      return;
+    }
+
+    writeDashboardBrowserCacheSection(userId, "projects", {
+      tasks,
+      projects,
+    });
+  }, [projectCacheReady, projects, tasks, userId]);
 
   const refreshProjectData = useCallback(async () => {
     const result = await getProjectDashboardData();
@@ -61,14 +93,11 @@ export function useDashboardProjects(
         localizedActionMessage(result, resultMessages),
         messages?.projectsUnavailable ?? "Projects unavailable",
       );
-      setTasks([]);
-      setProjects([]);
       setProjectLoading(false);
       return;
     }
 
     applyProjectData(result.data);
-    setProjectLoading(false);
   }, [applyProjectData, messages, resultMessages, showErrorNotification]);
 
   async function runProjectManagementAction(
@@ -142,7 +171,7 @@ export function useDashboardProjects(
     status: Exclude<TaskStatus, "archived">,
     options: { removeDoneDashboardTask: boolean },
   ) {
-    let previousTasks: Task[] = [];
+    let previousTasks: ProjectDashboardData["tasks"] = [];
     let previousProjects: ProjectView[] = [];
     const requestVersion =
       (taskStatusRequestVersions.current.get(taskId) ?? 0) + 1;
