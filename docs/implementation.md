@@ -97,12 +97,36 @@ arctic-aria/
 ## Web Code Organization
 
 `apps/web/src/app` owns Next.js route entry points, global CSS, layout, and the
-404 page.
+404 page. The authenticated workspace uses route-backed pages so browser
+refresh and direct entry keep the selected surface instead of always returning
+to Today:
+
+- `/` and `/today` show Today
+- `/projects` shows the Projects list
+- `/projects/<project-id>` shows one Project detail page
+- `/routines` shows Routines
+- `/memories` shows Memories
+- `/ideas` shows Ideas
+- `/settings` shows Settings
+
+Do not add `/project?id=<id>` routing. Project detail routing should use the
+path segment form above.
+
+Workspace path refresh support is implemented with rewrites in
+`apps/web/next.config.ts`. `/today`, `/projects`, `/projects/<project-id>`,
+`/routines`, `/memories`, `/ideas`, and `/settings` rewrite to the static `/`
+app page. This avoids separate route files and avoids making the workspace a
+dynamic catch-all route.
+
+Inside the authenticated workspace, navigation uses the browser History API
+instead of `next/navigation` router pushes. This preserves refresh-safe paths
+without fetching a new Next route payload for normal sidebar/page clicks.
+Browser back and forward should update the app shell from `popstate`.
 
 `apps/web/src/app-shell` owns the authenticated web shell:
 
 - sidebar navigation
-- active page switching
+- route-synced active page switching
 - page title bar
 - theme mode and document background syncing
 - app-level notification stack
@@ -203,6 +227,7 @@ App shell entry points:
 
 - `apps/web/src/app-shell/AppShell.tsx`
 - `apps/web/src/app-shell/Sidebar.tsx`
+- `apps/web/src/app-shell/app-routes.ts`
 
 Feature page and panel entry points:
 

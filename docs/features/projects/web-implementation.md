@@ -36,8 +36,9 @@ The current implementation does not include:
 
 The user opens the Projects page from the sidebar.
 
-The main sidebar `Projects` item opens the Projects list. Pinned project
-shortcuts, when present, appear below it and open their detail page directly.
+The main sidebar `Projects` item opens the Projects list at `/projects`.
+Pinned project shortcuts, when present, appear below it and open their detail
+page directly at `/projects/<project-id>`.
 
 ## Component Naming
 
@@ -113,24 +114,27 @@ editable numeric progress, or colored tag chips.
 
 ## Current UI Structure
 
-The app shell owns navigation and page switching:
+The app shell owns route-backed navigation and page switching:
 
 ```text
 AppShell
   Sidebar
+  app-routes
   page title bar
   Dashboard or ProjectsPage
   NotificationStack
 ```
 
-When `activeView` is `projects`, `AppShell` renders `ProjectsPage` as the page
-body under the shared page title bar.
+When the current route maps to `projects`, `AppShell` renders `ProjectsPage` as
+the page body under the shared page title bar. `/projects` opens the list page.
+`/projects/<project-id>` opens the detail page for that selected project. Do
+not add or depend on `/project?id=<id>`.
 
 ### Projects Page Component Tree
 
 `ProjectsPage` owns project-management state for the selected project and open
-editor dialogs. It switches between the list page and the detail page inside the
-existing dashboard view.
+editor dialogs. It switches between the list page and the detail page based on
+the selected route-backed project id.
 
 ```text
 ProjectsPage
@@ -335,6 +339,7 @@ apps/web/src/features/projects/components/ProjectsList.tsx
 apps/web/src/features/projects/components/ProjectTasksPanel.tsx
 apps/web/src/features/dashboard/components/Dashboard.tsx
 apps/web/src/app-shell/AppShell.tsx
+apps/web/src/app-shell/app-routes.ts
 ```
 
 Project server actions:

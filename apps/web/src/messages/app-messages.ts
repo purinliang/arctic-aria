@@ -112,10 +112,6 @@ const englishMessages = {
       auth_request_failed: "Authentication request failed.",
       auth_request_invalid: "Authentication request was invalid.",
     },
-    themeToggle: {
-      dark: "Dark",
-      light: "Light",
-    },
   },
   settings: {
     description: "Theme, language, and app information.",
@@ -309,10 +305,6 @@ const simplifiedChineseMessages: AppMessages = {
       auth_invalid_credentials: "用户名或密码无效。",
       auth_request_failed: "认证请求失败。",
       auth_request_invalid: "认证请求无效。",
-    },
-    themeToggle: {
-      dark: "深色",
-      light: "浅色",
     },
   },
   settings: {

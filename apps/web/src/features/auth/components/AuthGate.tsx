@@ -73,7 +73,6 @@ export function AuthGate() {
     applyUserPreferences,
     languagePreference,
     resolvedLanguage,
-    setThemePreference,
     themePreference,
     timeFormatPreference,
   } = useAppPreferences();
@@ -308,8 +307,9 @@ export function AuthGate() {
       setMode("login");
       setLoginInput(emptyLogin);
       setRegisterInput(emptyRegister);
-      setCurrentUser(null);
       resetSubmitState(true);
+      replaceBrowserPath("/");
+      setCurrentUser(null);
     } catch {
       showErrorNotification(messages.notifications.actionFailed);
     } finally {
@@ -385,7 +385,7 @@ export function AuthGate() {
         registerInput={registerInput}
         loginInput={loginInput}
         errors={activeErrors}
-        disabled={isPending || hasAuthErrors(activeErrors)}
+        disabled={isPending}
         pending={isPending}
         submitAttempted={submitAttempted}
         onModeChange={switchMode}
@@ -394,15 +394,6 @@ export function AuthGate() {
         onSubmit={handleSubmit}
         onGoogleLogin={showGooglePlaceholder}
         onPasswordReset={showPasswordResetPlaceholder}
-        onThemeToggle={() => {
-          const nextPreference = darkMode ? "light" : "dark";
-
-          setThemePreference(nextPreference);
-
-          if (currentUser) {
-            updateUserPreferences({ themePreference: nextPreference });
-          }
-        }}
         versionMessages={messages.versionStatus}
         versionStatus={versionStatus}
       />
@@ -414,4 +405,12 @@ export function AuthGate() {
       />
     </>
   );
+}
+
+function replaceBrowserPath(path: string) {
+  if (typeof window === "undefined" || window.location.pathname === path) {
+    return;
+  }
+
+  window.history.replaceState({ arcticAriaPath: path }, "", path);
 }
