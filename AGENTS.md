@@ -270,6 +270,9 @@ New Git rules from 2026-07-18:
   an explicit developer request.
 - Do not delete branches after integration unless the developer asks for branch
   deletion and confirms it.
+- When auditing unmerged or stale local branches, do not count `main` or
+  `develop` as unmerged work branches. They are trunk branches, not disposable
+  work branches.
 
 ### Commits
 
