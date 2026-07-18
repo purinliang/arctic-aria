@@ -43,6 +43,8 @@ export const englishMemoryMessages = {
     manageTitle: "Manage Categories",
     closeEditor: "Close category editor",
     closeForm: "Close category form",
+    customSection: "Custom Categories",
+    defaultSection: "Default Categories",
     new: "New",
     edit: "Edit",
     add: "Add category",
@@ -52,6 +54,7 @@ export const englishMemoryMessages = {
     description: "Description",
     descriptionPlaceholder: "What belongs in this category?",
     noDescription: "No description.",
+    noCustomCategories: "No custom categories yet.",
     builtIns: {
       cuisine: {
         name: "Cuisine",
@@ -169,6 +172,8 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     manageTitle: "管理分类",
     closeEditor: "关闭分类编辑器",
     closeForm: "关闭分类表单",
+    customSection: "自定义分类",
+    defaultSection: "默认分类",
     new: "新建",
     edit: "编辑",
     add: "添加分类",
@@ -178,6 +183,7 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     description: "描述",
     descriptionPlaceholder: "这个分类包含哪些回忆？",
     noDescription: "暂无描述。",
+    noCustomCategories: "暂无自定义分类。",
     builtIns: {
       cuisine: {
         name: "美食",

@@ -1,8 +1,8 @@
 // Memories Page - Category Manager Dialog.
-import { Edit3, LoaderCircle, Plus, Save, Trash2, X } from "lucide-react";
-import type { Dispatch, SetStateAction } from "react";
+import { Edit3, LoaderCircle, Plus, Save, Trash2 } from "lucide-react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { Button } from "@/components/button";
-import { panelHeaderColorClass, secondaryButtonBorderColorClass } from "@/components/color";
+import { secondaryButtonBorderColorClass } from "@/components/color";
 import {
   DialogActionRow,
   DialogFrame,
@@ -13,7 +13,7 @@ import {
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { List, ListItem } from "@/components/list";
-import { DescriptionText } from "@/components/text";
+import { DescriptionText, SectionTitle } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryCategoryInput } from "@/features/memories/actions";
@@ -58,71 +58,59 @@ export function CategoryManagerDialog({
   onSubmit: () => void;
   onDelete: (category: CategoryDeleteTarget) => void;
 }) {
+  const customCategories = categories.filter((category) => !category.builtInKey);
+  const defaultCategories = categories.filter((category) => category.builtInKey);
+
   return (
     <>
       <DialogOverlay>
-        <DialogFrame darkMode={darkMode} padding="none">
-          <div
-            className={cx(
-              "flex items-center justify-between gap-3 rounded-t-md border-b px-4 py-3",
-              panelHeaderColorClass,
-            )}
-          >
-            <h3 className="text-base font-semibold">{messages.manageTitle}</h3>
-            <div className="flex shrink-0 items-center gap-2">
-              <Button
-                darkMode={darkMode}
-                disabled={pending}
-                icon={<Plus size={14} aria-hidden="true" />}
-                onClick={onOpenNew}
-              >
-                {messages.new}
-              </Button>
-              <Button
-                darkMode={darkMode}
-                tone="ghost"
-                size="icon-sm"
-                aria-label={messages.closeEditor}
-                icon={<X size={16} aria-hidden="true" />}
-                onClick={onCloseEditor}
-              />
-            </div>
-          </div>
-          <List
+        <DialogFrame darkMode={darkMode}>
+          <DialogHeader
             darkMode={darkMode}
-            className={cx("border-b", secondaryButtonBorderColorClass)}
-          >
-            {categories.map((category) => (
-              <ListItem
-                key={category.id}
+            title={messages.manageTitle}
+            closeLabel={messages.closeEditor}
+            onClose={onCloseEditor}
+          />
+          <div className="grid gap-5">
+            <CategorySection
+              title={messages.customSection}
+              action={
+                <Button
+                  darkMode={darkMode}
+                  disabled={pending}
+                  icon={<Plus size={14} aria-hidden="true" />}
+                  onClick={onOpenNew}
+                >
+                  {messages.new}
+                </Button>
+              }
+            >
+              {customCategories.length > 0 ? (
+                <CategoryList
+                  darkMode={darkMode}
+                  categories={customCategories}
+                  editDisabled={pending}
+                  messages={messages}
+                  onOpenEdit={onOpenEdit}
+                />
+              ) : (
+                <EmptyCategoryList
+                  darkMode={darkMode}
+                  message={messages.noCustomCategories}
+                />
+              )}
+            </CategorySection>
+
+            <CategorySection title={messages.defaultSection}>
+              <CategoryList
                 darkMode={darkMode}
-                className="items-start"
-              >
-                <span className="mt-1 shrink-0">
-                  <MemoryCategoryIcon iconName={category.iconName} size={16} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">
-                    {getMemoryCategoryName(category, messages.builtIns)}
-                  </p>
-                  <DescriptionText darkMode={darkMode} className="mt-1">
-                    {getMemoryCategoryDescription(category, messages.builtIns) ||
-                      messages.noDescription}
-                  </DescriptionText>
-                </div>
-                {category.builtInKey ? null : (
-                  <Button
-                    darkMode={darkMode}
-                    disabled={pending}
-                    icon={<Edit3 size={15} aria-hidden="true" />}
-                    onClick={() => onOpenEdit(category)}
-                  >
-                    {messages.edit}
-                  </Button>
-                )}
-              </ListItem>
-            ))}
-          </List>
+                categories={defaultCategories}
+                editDisabled={pending}
+                messages={messages}
+                onOpenEdit={onOpenEdit}
+              />
+            </CategorySection>
+          </div>
         </DialogFrame>
       </DialogOverlay>
 
@@ -149,6 +137,118 @@ export function CategoryManagerDialog({
         />
       ) : null}
     </>
+  );
+}
+
+function CategorySection({
+  title,
+  action,
+  children,
+}: {
+  title: string;
+  action?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <section className="grid gap-2">
+      <div className="flex items-center justify-between gap-3">
+        <SectionTitle>{title}</SectionTitle>
+        {action ? <div className="shrink-0">{action}</div> : null}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function CategoryList({
+  darkMode,
+  categories,
+  editDisabled,
+  messages,
+  onOpenEdit,
+}: {
+  darkMode: boolean;
+  categories: MemoryCategoryOption[];
+  editDisabled: boolean;
+  messages: MemoryMessages["categories"];
+  onOpenEdit: (category: MemoryCategoryOption) => void;
+}) {
+  return (
+    <List
+      darkMode={darkMode}
+      className={cx("rounded-md border", secondaryButtonBorderColorClass)}
+    >
+      {categories.map((category) => (
+        <CategoryRow
+          key={category.id}
+          darkMode={darkMode}
+          category={category}
+          editDisabled={editDisabled}
+          messages={messages}
+          onOpenEdit={onOpenEdit}
+        />
+      ))}
+    </List>
+  );
+}
+
+function EmptyCategoryList({
+  darkMode,
+  message,
+}: {
+  darkMode: boolean;
+  message: string;
+}) {
+  return (
+    <List
+      darkMode={darkMode}
+      className={cx("rounded-md border", secondaryButtonBorderColorClass)}
+    >
+      <ListItem darkMode={darkMode}>
+        <DescriptionText darkMode={darkMode}>{message}</DescriptionText>
+      </ListItem>
+    </List>
+  );
+}
+
+function CategoryRow({
+  darkMode,
+  category,
+  editDisabled,
+  messages,
+  onOpenEdit,
+}: {
+  darkMode: boolean;
+  category: MemoryCategoryOption;
+  editDisabled: boolean;
+  messages: MemoryMessages["categories"];
+  onOpenEdit: (category: MemoryCategoryOption) => void;
+}) {
+  return (
+    <ListItem darkMode={darkMode} className="items-start">
+      <span className="mt-1 shrink-0">
+        <MemoryCategoryIcon iconName={category.iconName} size={16} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold">
+          {getMemoryCategoryName(category, messages.builtIns)}
+        </p>
+        <DescriptionText darkMode={darkMode} className="mt-1">
+          {getMemoryCategoryDescription(category, messages.builtIns) ||
+            messages.noDescription}
+        </DescriptionText>
+      </div>
+      {category.builtInKey ? null : (
+        <Button
+          darkMode={darkMode}
+          disabled={editDisabled}
+          icon={<Edit3 size={15} aria-hidden="true" />}
+          onClick={() => onOpenEdit(category)}
+        >
+          {messages.edit}
+        </Button>
+      )}
+    </ListItem>
   );
 }
 

@@ -269,8 +269,8 @@ Modal behavior:
 - Opening `Manage` should show a category-management dialog.
 - The page behind the dialog should be covered by a semi-transparent black
   overlay.
-- Clicking outside the dialog or pressing a visible close button should dismiss
-  the dialog without saving.
+- Clicking outside the dialog should not dismiss the dialog. Only explicit
+  controls, such as the close icon or form buttons, should close it.
 - The dialog should not be nested inside a page panel or list item.
 - The dialog should fit on mobile and scroll internally when content is taller
   than the viewport.
@@ -352,8 +352,8 @@ Manage Categories dialog layout:
   dialogs
 - top row: `Manage Categories` title on the left and close icon button on the
   right
-- show built-in categories in a separate `Default Categories` section
-- show user-created categories in a separate `Custom Categories` section
+- show user-created categories first in a separate `Custom Categories` section
+- show built-in categories below in a separate `Default Categories` section
 - place the `New` button with `Plus` in the `Custom Categories` section header,
   not in the dialog title row
 - section headers should use existing shared title/action components where
