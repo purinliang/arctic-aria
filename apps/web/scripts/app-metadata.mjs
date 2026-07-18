@@ -42,11 +42,7 @@ export function resolveAppMetadata(appRoot = process.cwd()) {
       deriveAppVersion({ branch, commit, releaseVersion, baseVersion }),
     ),
     commit,
-    sourceState: firstDefined(
-      process.env.APP_SOURCE_STATE,
-      process.env.NEXT_PUBLIC_APP_SOURCE_STATE,
-      readGitSourceState(repoRoot),
-    ),
+    sourceState: resolveSourceState(repoRoot),
     branch,
     expectedDatabase,
   };
@@ -113,6 +109,23 @@ function readGitSourceState(repoRoot) {
   }
 
   return status.length > 0 ? "dirty" : "clean";
+}
+
+export function resolveSourceState(repoRoot) {
+  return firstDefined(
+    process.env.APP_SOURCE_STATE,
+    process.env.NEXT_PUBLIC_APP_SOURCE_STATE,
+    readVercelSourceState(),
+    readGitSourceState(repoRoot),
+  );
+}
+
+function readVercelSourceState() {
+  if (process.env.VERCEL_GIT_COMMIT_SHA?.trim() || process.env.VERCEL === "1") {
+    return "clean";
+  }
+
+  return "unknown";
 }
 
 function readGit(args, repoRoot) {

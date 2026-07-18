@@ -138,6 +138,11 @@ The web app can read optional metadata override variables such as `APP_VERSION`,
 does not need these variables because the app derives metadata from Git when
 possible.
 
+In Vercel Git deployments, Arctic Aria treats source state as `clean` when
+Vercel commit metadata is available. This avoids false dirty-source warnings
+when `pnpm db:migrate` runs after `pnpm build` and build-generated files exist
+in the deployment workspace.
+
 Do not set generated `NEXT_PUBLIC_*` metadata variables manually unless
 debugging the build system. `apps/web/next.config.ts` generates them from Git,
 Vercel metadata, and migration files.
