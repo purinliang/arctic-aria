@@ -70,8 +70,8 @@ export function secondaryInputControlColorClass(
 ) {
   if (hasError) {
     return darkMode
-      ? "border-red-400 bg-[var(--aa-secondary-button-bg)] text-[var(--aa-primary-text)] focus:border-[var(--aa-secondary-button-hover-border)] focus:bg-[var(--aa-secondary-button-hover-bg)]"
-      : "border-red-500 bg-[var(--aa-secondary-button-bg)] text-[var(--aa-primary-text)] focus:border-[var(--aa-secondary-button-hover-border)] focus:bg-[var(--aa-secondary-button-hover-bg)]";
+      ? "border-red-400 bg-[var(--aa-secondary-button-bg)] text-[var(--aa-primary-text)] focus:border-[var(--aa-secondary-button-hover-border)]"
+      : "border-red-500 bg-[var(--aa-secondary-button-bg)] text-[var(--aa-primary-text)] focus:border-[var(--aa-secondary-button-hover-border)]";
   }
 
   return "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-primary-text)] focus:border-[var(--aa-secondary-button-hover-border)]";

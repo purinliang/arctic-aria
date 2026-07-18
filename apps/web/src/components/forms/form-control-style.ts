@@ -11,7 +11,7 @@ export function formControlClass(
     secondaryInputControlColorClass(darkMode, hasError),
     hasError
       ? "hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] placeholder:text-[var(--aa-secondary-text)]"
-      : "hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] focus:border-[var(--aa-secondary-button-hover-border)] focus:bg-[var(--aa-secondary-button-hover-bg)] placeholder:text-[var(--aa-secondary-text)]",
+      : "hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] focus:border-[var(--aa-secondary-button-hover-border)] placeholder:text-[var(--aa-secondary-text)]",
     "disabled:border-[var(--aa-secondary-button-disabled-border)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:placeholder:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:border-[var(--aa-secondary-button-disabled-border)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)]",
     className,
   );
@@ -35,10 +35,10 @@ export function formButtonControlClass(
     hasError
       ? cx(
           darkMode ? "border-red-400" : "border-red-500",
-          "bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] focus:border-[var(--aa-secondary-button-hover-border)] focus:bg-[var(--aa-secondary-button-hover-bg)]",
+          "bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] focus:border-[var(--aa-secondary-button-hover-border)]",
         )
       : "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] focus:border-[var(--aa-secondary-button-hover-border)]",
-    "hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] focus:bg-[var(--aa-secondary-button-hover-bg)]",
+    "hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)]",
     "disabled:border-[var(--aa-secondary-button-disabled-border)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:border-[var(--aa-secondary-button-disabled-border)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
     className,
   );

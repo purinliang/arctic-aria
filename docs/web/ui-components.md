@@ -138,6 +138,11 @@ Input field components must stay presentational. They should accept the current
 visual state, bubble text, and bubble visibility from the caller, but they should
 not decide validation rules or validation timing.
 
+Focused form controls should keep the default control background and use a
+clear focus border. Do not switch text inputs, text areas, number fields,
+date/time picker triggers, time picker typed fields, or selection inputs to the
+secondary hover background merely because they are focused.
+
 Required-empty messages, such as `Username can't be empty.`, are submit/form
 logic. They should appear only after the user clicks the relevant confirm,
 login, or save button. Other field rules, such as length, allowed characters, or
@@ -195,10 +200,10 @@ and normal, even padding on all four edges so opening them does not change the
 parent card, dialog, list item, or field layout. The closed picker trigger
 should use the bordered secondary button role, not normal input text styling.
 It should keep the same text and icon color whether it is empty, placeholder
-text, defaulted, or selected; color changes are reserved for hover, focus,
-disabled, and error states. Do not render picker popovers through a viewport
-portal unless there is a specific clipping bug that cannot be solved in the
-dialog/layout component.
+text, defaulted, or selected; text and icon color changes are reserved for
+hover, disabled, and error states. Focus should change the border only. Do not
+render picker popovers through a viewport portal unless there is a specific
+clipping bug that cannot be solved in the dialog/layout component.
 
 Visible time strings outside the picker must use the same shared time formatter
 and the user's time-format preference. Do not render raw stored `HH:mm` strings
