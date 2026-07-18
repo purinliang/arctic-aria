@@ -162,10 +162,12 @@ control components instead of being treated as generic input fields.
 `forms/date-picker-field.tsx` owns date selection. It must render an app-styled
 calendar popup with month and year navigation. The day grid must reserve six
 weeks so months with five and six visual rows do not change the picker height.
-Month names and weekday labels must come from the active localization messages.
-Do not use native browser `type=date` controls for primary UI, because the
-popup can follow the user's browser or operating-system locale and cannot be
-styled consistently.
+The calendar header should use short month names, and weekday labels must come
+from the active localization messages. Longer formatted date strings outside
+the picker may use the shared long date formatter when the surface needs the
+weekday. Do not use native browser `type=date` controls for primary UI, because
+the popup can follow the user's browser or operating-system locale and cannot
+be styled consistently.
 
 `forms/time-picker-field.tsx` owns time selection. It must render a compact
 app-styled picker with one typed time field and AM/PM controls when the active
@@ -199,9 +201,12 @@ date picker clear action is an inline borderless icon button inside the date
 trigger value area on the right, and only appears when a saved value is present.
 Do not render a separate clear row below the calendar grid.
 
-Clicking unrelated empty space inside a date or time picker popover should not
-dismiss the popover. Picker popovers close through explicit picker controls,
-outside clicks, or intended keyboard dismissal.
+Clicking or double-clicking unrelated empty space inside a date or time picker
+popover, including blank calendar cells and grid gaps, should not dismiss the
+popover or blur/reset the time picker draft. Picker popovers close through
+explicit picker controls, outside clicks, or intended keyboard dismissal.
+Re-clicking or double-clicking the time picker trigger while its popover is
+already open should keep it open.
 
 Date and time pickers are still controlled form components. Feature code owns
 the current value, validation rules, and validation timing. Picker popovers

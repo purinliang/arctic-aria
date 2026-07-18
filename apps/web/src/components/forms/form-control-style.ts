@@ -17,7 +17,17 @@ export function formControlClass(
 
 export function formControlPopupClass(darkMode: boolean, className?: string) {
   return cx(
-    "absolute z-[70] rounded-md border p-2 shadow-xl",
+    "absolute z-[70]",
+    formControlPopupPanelClass(darkMode, className),
+  );
+}
+
+export function formControlPopupPanelClass(
+  darkMode: boolean,
+  className?: string,
+) {
+  return cx(
+    "rounded-md border p-2 shadow-xl",
     "border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-bg)] text-[var(--aa-primary-text)]",
     className,
   );

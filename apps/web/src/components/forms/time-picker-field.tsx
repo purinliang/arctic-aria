@@ -7,10 +7,16 @@ import { formatTimeDisplay } from "./time-display";
 import {
   formButtonControlClass,
   formControlClass,
-  formControlPopupClass,
+  formControlPopupPanelClass,
 } from "./form-control-style";
 import {
-  popoverPlacementClass,
+  keepPopoverOpenOnBlankClick,
+  keepPopoverOpenOnBlankDoubleClick,
+  keepPopoverOpenOnBlankMouseDown,
+  keepPopoverOpenOnBlankPointerDown,
+} from "./popover-interactions";
+import {
+  popoverHitAreaPlacementClass,
   usePopoverPlacement,
 } from "./use-popover-placement";
 import {
@@ -101,8 +107,12 @@ export function TimePickerField({
         disabled={disabled}
         aria-expanded={open}
         onClick={() => {
+          if (open) {
+            return;
+          }
+
           setDraftParts(savedParts ?? defaultTimePartsFromNow());
-          setOpen((current) => !current);
+          setOpen(true);
         }}
       >
         <Clock className="h-4 w-4 shrink-0 text-current" />
@@ -128,44 +138,51 @@ export function TimePickerField({
       {open ? (
         <div
           ref={popoverRef}
-          onPointerDown={(event) => event.stopPropagation()}
-          className={formControlPopupClass(
-            darkMode,
-            cx(
-              "w-[min(16rem,calc(100vw-2rem))]",
-              popoverPlacementClass(placement),
-            ),
+          onClick={keepPopoverOpenOnBlankClick}
+          onPointerDown={keepPopoverOpenOnBlankPointerDown}
+          onMouseDown={keepPopoverOpenOnBlankMouseDown}
+          onDoubleClick={keepPopoverOpenOnBlankDoubleClick}
+          className={cx(
+            "absolute z-[70]",
+            popoverHitAreaPlacementClass(placement),
           )}
         >
-          <div className="grid gap-2">
-            <TimeTextInput
-              darkMode={darkMode}
-              messages={messages}
-              parts={selectedParts}
-              timeFormatPreference={timeFormatPreference}
-              onChange={handlePartsChange}
-              onDismiss={() => {
-                setOpen(false);
-                setDraftParts(null);
-              }}
-            />
-            {timeFormatPreference === "12h" ? (
-              <div className="grid grid-cols-2 gap-2">
-                {(["AM", "PM"] as const).map((period) => (
-                  <Button
-                    key={period}
-                    darkMode={darkMode}
-                    active={selectedParts.period === period}
-                    className="w-full"
-                    onClick={() =>
-                      handlePartsChange({ ...selectedParts, period })
-                    }
-                  >
-                    {messages.periodLabels[period]}
-                  </Button>
-                ))}
-              </div>
-            ) : null}
+          <div
+            className={formControlPopupPanelClass(
+              darkMode,
+              "w-[min(16rem,calc(100vw-2rem))]",
+            )}
+          >
+            <div className="grid gap-2">
+              <TimeTextInput
+                darkMode={darkMode}
+                messages={messages}
+                parts={selectedParts}
+                timeFormatPreference={timeFormatPreference}
+                onChange={handlePartsChange}
+                onDismiss={() => {
+                  setOpen(false);
+                  setDraftParts(null);
+                }}
+              />
+              {timeFormatPreference === "12h" ? (
+                <div className="grid grid-cols-2 gap-2">
+                  {(["AM", "PM"] as const).map((period) => (
+                    <Button
+                      key={period}
+                      darkMode={darkMode}
+                      active={selectedParts.period === period}
+                      className="w-full"
+                      onClick={() =>
+                        handlePartsChange({ ...selectedParts, period })
+                      }
+                    >
+                      {messages.periodLabels[period]}
+                    </Button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       ) : null}
