@@ -6,7 +6,10 @@ export default function WorkspaceLayout({
 }: {
   children: ReactNode;
 }) {
-  void children;
-
-  return <AppPage />;
+  return (
+    <>
+      {children}
+      <AppPage />
+    </>
+  );
 }

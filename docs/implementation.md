@@ -112,6 +112,12 @@ to Today:
 Do not add `/project?id=<id>` routing. Project detail routing should use the
 path segment form above.
 
+The workspace routes are implemented through one optional catch-all page under
+`apps/web/src/app/(workspace)/[[...workspacePath]]/page.tsx`. Keep it this way
+unless a route needs distinct server-rendered content. Empty per-page route
+files make local `next dev` lazily compile each path separately and can make
+first navigation feel slower during development.
+
 `apps/web/src/app-shell` owns the authenticated web shell:
 
 - sidebar navigation

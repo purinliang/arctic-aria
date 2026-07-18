@@ -41,6 +41,26 @@ export function appRouteFromPathname(pathname: string): AppRouteState {
   return { view: "dashboard", projectId: null };
 }
 
+export function isSupportedAppPathname(pathname: string) {
+  const normalizedPath = normalizePathname(pathname);
+
+  if (normalizedPath === "/" || normalizedPath === "/today") {
+    return true;
+  }
+
+  if (normalizedPath === "/projects") {
+    return true;
+  }
+
+  if (normalizedPath.startsWith("/projects/")) {
+    const routeSegment = normalizedPath.slice("/projects/".length);
+
+    return Boolean(routeSegment) && !routeSegment.includes("/");
+  }
+
+  return Object.values(viewPaths).some((path) => normalizedPath === path);
+}
+
 export function appPathForView(view: DashboardView) {
   if (view === "dashboard") {
     return "/today";
