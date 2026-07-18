@@ -26,9 +26,6 @@ user-facing feature starts.
   single pinned-memory replacement from Today.
 - Review repeated edit actions in project and memory lists and choose a cleaner
   interaction pattern if the current UI feels noisy.
-- Fix picker popover dismissal so clicking unrelated empty space inside a date
-  or time picker popover does not close it. Popovers should close only through
-  explicit picker controls, outside clicks, or intended keyboard dismissal.
 
 ## Feature Review Discipline
 

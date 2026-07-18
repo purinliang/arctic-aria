@@ -193,6 +193,10 @@ date picker clear action is an inline borderless icon button inside the date
 trigger value area on the right, and only appears when a saved value is present.
 Do not render a separate clear row below the calendar grid.
 
+Clicking unrelated empty space inside a date or time picker popover should not
+dismiss the popover. Picker popovers close through explicit picker controls,
+outside clicks, or intended keyboard dismissal.
+
 Date and time pickers are still controlled form components. Feature code owns
 the current value, validation rules, and validation timing. Picker popovers
 should render as absolute overlays inside the field wrapper with stable widths

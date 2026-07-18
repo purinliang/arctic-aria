@@ -69,7 +69,10 @@ export function DatePickerField({
     function handlePointerDown(event: PointerEvent) {
       const target = event.target as Node;
 
-      if (!rootRef.current?.contains(target)) {
+      if (
+        !rootRef.current?.contains(target) &&
+        !popoverRef.current?.contains(target)
+      ) {
         setOpen(false);
       }
     }
@@ -79,7 +82,7 @@ export function DatePickerField({
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
     };
-  }, [open, rootRef]);
+  }, [open, popoverRef, rootRef]);
 
   const days = useMemo(
     () => buildCalendarMonthDays(visibleMonth),
@@ -128,6 +131,7 @@ export function DatePickerField({
       {open ? (
         <div
           ref={popoverRef}
+          onPointerDown={(event) => event.stopPropagation()}
           className={formControlPopupClass(
             darkMode,
             cx(
