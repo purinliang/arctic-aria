@@ -13,6 +13,7 @@ import {
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { List, ListItem } from "@/components/list";
+import { PendingText } from "@/components/loading";
 import { DescriptionText, SectionTitle } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
@@ -331,7 +332,11 @@ function CategoryFormDialog({
               disabled={pending}
               icon={<Save size={14} aria-hidden="true" />}
             >
-              {saving ? messages.saving : messages.save}
+              <PendingText
+                active={saving}
+                idleText={messages.save}
+                pendingText={messages.saving}
+              />
             </DialogPrimaryButton>
             {onDelete ? (
               <Button

@@ -11,6 +11,7 @@ import {
   DialogPrimaryButton,
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
+import { PendingText } from "@/components/loading";
 import { SelectInput } from "@/components/forms/selection-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import type {
@@ -84,7 +85,11 @@ export function ProjectTaskEditorDialog({
               disabled={pending}
               icon={<Save size={14} aria-hidden="true" />}
             >
-              {saving ? messages.common.saving : messages.common.save}
+              <PendingText
+                active={saving}
+                idleText={messages.common.save}
+                pendingText={messages.common.saving}
+              />
             </DialogPrimaryButton>
             {onDelete ? (
               <Button

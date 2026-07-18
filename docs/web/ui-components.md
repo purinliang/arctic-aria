@@ -371,9 +371,16 @@ top spacing, matching the login submit button pattern. Secondary destructive
 actions may appear below it with secondary styling.
 
 Save and delete dialog actions should use text-only pending labels, not loading
-icons. While saving, the save button text becomes `Saving...`. While a delete
-confirmation is pending, the confirmation button text becomes `Deleting...`.
-Do not show spinner icons in add/edit/delete dialog action rows.
+icons. Full-width save buttons can use animated dots: `Saving.`, `Saving..`,
+and `Saving...`. Auto-width delete confirmation buttons should use a static
+pending label such as `Deleting...`; do not animate dots there because it can
+make compact buttons feel jumpy. The visible icon and current text should keep
+their natural width and stay centered together as one group. Do not show spinner
+icons in add/edit/delete dialog action rows.
+
+Use the shared `PendingText` primitive for action labels that animate dot
+suffixes, such as signing in, signing up, saving, and signing out. Avoid it for
+compact auto-width buttons.
 
 ## Notification
 

@@ -11,9 +11,10 @@ import {
   Sun,
   X,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
 import { Button } from "@/components/button";
+import { PendingText } from "@/components/loading";
 import { ScrollArea } from "@/components/scroll-area";
 import type { DashboardView } from "@/features/dashboard/types";
 import type { AppShellMessages } from "@/messages/app-messages";
@@ -136,8 +137,6 @@ function SidebarFrame({
   onThemeChange: (darkMode: boolean) => void;
   onLogout: () => void;
 }) {
-  const logoutDots = useProgressDots(logoutPending);
-
   return (
     <aside
       className={`${
@@ -251,7 +250,13 @@ function SidebarFrame({
             icon={<LogOut size={18} aria-hidden="true" />}
             label={
               logoutPending
-                ? `${messages.sidebar.signingOut}${logoutDots}`
+                ? (
+                    <PendingText
+                      active
+                      idleText={messages.sidebar.signOut}
+                      pendingText={messages.sidebar.signingOut}
+                    />
+                  )
                 : messages.sidebar.signOut
             }
             darkMode={darkMode}
@@ -264,24 +269,6 @@ function SidebarFrame({
   );
 }
 
-function useProgressDots(active: boolean) {
-  const [dotCount, setDotCount] = useState(1);
-
-  useEffect(() => {
-    if (!active) {
-      return;
-    }
-
-    const intervalId = window.setInterval(() => {
-      setDotCount((current) => (current === 3 ? 1 : current + 1));
-    }, 450);
-
-    return () => window.clearInterval(intervalId);
-  }, [active]);
-
-  return ".".repeat(dotCount);
-}
-
 function SidebarItem({
   icon,
   label,
@@ -292,7 +279,7 @@ function SidebarItem({
   onClick,
 }: {
   icon: ReactNode;
-  label: string;
+  label: ReactNode;
   active?: boolean;
   darkMode: boolean;
   disabled?: boolean;
@@ -318,7 +305,7 @@ function SidebarItem({
     >
       <span
         className={`min-w-0 flex-1 truncate text-left ${child ? "pl-4" : ""}`}
-        title={label}
+        title={typeof label === "string" ? label : undefined}
       >
         {label}
       </span>

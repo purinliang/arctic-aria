@@ -11,6 +11,7 @@ import {
   DialogPrimaryButton,
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
+import { PendingText } from "@/components/loading";
 import { TextArea } from "@/components/forms/text-area-field";
 import { TimePickerField } from "@/components/forms/time-picker-field";
 import type { RoutineInput } from "@/features/routines/actions";
@@ -92,7 +93,11 @@ export function RoutineEditorDialog({
               disabled={pending}
               icon={<Save size={14} aria-hidden="true" />}
             >
-              {saving ? messages.editor.saving : messages.editor.save}
+              <PendingText
+                active={saving}
+                idleText={messages.editor.save}
+                pendingText={messages.editor.saving}
+              />
             </DialogPrimaryButton>
             {draft.id ? (
               <Button

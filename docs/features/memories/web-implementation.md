@@ -118,9 +118,10 @@ The visible behavior should be deterministic:
   the shared notification stack.
 - After success, the memory list and category filters refresh from the database.
 - Buttons are disabled while the action is pending.
-- Save buttons use text `Saving...` while saving. Delete confirmations use text
-  `Deleting...` while deleting. Do not show loading icons in memory/category
-  dialog action rows.
+- Full-width save buttons cycle through `Saving.`, `Saving..`, and `Saving...`
+  while saving. Compact delete confirmation buttons use static `Deleting...`
+  while deleting. Keep the visible icon and current text naturally centered
+  together, and do not show loading icons in memory/category dialog action rows.
 - Memory and category editor dialogs use the shared dialog shell, shared field
   labels, shared text inputs/text areas, and the shared list primitive for
   category rows.

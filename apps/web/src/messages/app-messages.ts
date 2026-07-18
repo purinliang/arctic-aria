@@ -80,7 +80,9 @@ const englishMessages = {
       resetPassword: "Reset password",
       showPassword: "Show password",
       signIn: "Sign in",
+      signingIn: "Signing in",
       signUp: "Sign up",
+      signingUp: "Signing up",
       welcomeBack: "Welcome back",
     },
     loading: {
@@ -277,7 +279,9 @@ const simplifiedChineseMessages: AppMessages = {
       resetPassword: "重置密码",
       showPassword: "显示密码",
       signIn: "登录",
+      signingIn: "正在登录",
       signUp: "注册",
+      signingUp: "正在注册",
       welcomeBack: "欢迎回来",
     },
     loading: {

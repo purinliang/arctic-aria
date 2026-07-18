@@ -64,7 +64,7 @@ export const englishProjectMessages = {
       durationOption: "Duration",
       selectStartDate: "Select start date",
       selectDeadline: "Select deadline",
-      saving: "Saving...",
+      saving: "Saving",
     },
     project: {
       add: "Add project",
@@ -99,7 +99,7 @@ export const englishProjectMessages = {
     description: (title: string) => `Delete "${title}"? This cannot be undone.`,
     cancel: "Cancel",
     confirm: "Delete",
-    deleting: "Deleting...",
+    deleting: "Deleting",
     close: "Close confirmation",
   },
   results: {
@@ -196,7 +196,7 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
       durationOption: "持续时间",
       selectStartDate: "选择开始日期",
       selectDeadline: "选择截止日期",
-      saving: "正在保存...",
+      saving: "正在保存",
     },
     project: {
       add: "添加项目",
@@ -231,7 +231,7 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
     description: (title) => `删除“${title}”？此操作无法撤销。`,
     cancel: "取消",
     confirm: "删除",
-    deleting: "正在删除...",
+    deleting: "正在删除",
     close: "关闭确认对话框",
   },
   results: {

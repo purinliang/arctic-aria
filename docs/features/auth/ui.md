@@ -110,8 +110,9 @@ Submit behavior:
 
 - Clicking `Sign in` or `Sign up` is a blocking auth action.
 - Auth submit is not optimistic.
-- While submitting, show a loading state on the main button and prevent
-  duplicate submit.
+- While submitting, prevent duplicate submit. The main button text should cycle
+  through `Signing in.`, `Signing in..`, and `Signing in...` for login, or
+  `Signing up.`, `Signing up..`, and `Signing up...` for registration.
 - Keep the auth form visible until the backend confirms success.
 - On success, show a shared success notification and open the authenticated
   app.
@@ -124,6 +125,9 @@ Sign-out behavior:
 - While sign out is pending, only the sidebar sign-out row should show
   `Signing out.`, `Signing out..`, and `Signing out...` as a periodic text
   animation. Login or registration pending state must not trigger this label.
+- Pending sign-in and sign-up buttons are full-width, so they should not flash
+  width while dots change. The visible icon and current text should keep their
+  natural width and stay centered together.
 - After successful sign out, return to the signed-out auth page with the
   `Sign in` tab selected, even if the user last used the registration tab.
 

@@ -255,12 +255,13 @@ Dialog shell:
 - field area: vertical grid
 - footer: `DialogActionRow` with one full-width primary `Save` button
 - save icon: `Save`
-- save pending label: `Saving...`; do not show a loading icon
+- save pending label: animated `Saving.`, `Saving..`, and `Saving...`; keep the
+  full-width button stable and do not show a loading icon
 - existing project, milestone, and task edit dialogs also show a full-width
   secondary `Delete` button below `Save`
 - `Delete` opens shared `ConfirmDialog`; confirmation uses the standard primary
-  button style, changes to `Deleting...` while pending, and deletes only after
-  backend success
+  button style, changes to static `Deleting...` while pending, avoids animated
+  dots in the compact auto-width button, and deletes only after backend success
 
 Project field order:
 
