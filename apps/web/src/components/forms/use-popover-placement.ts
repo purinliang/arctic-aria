@@ -73,3 +73,10 @@ export function popoverPlacementClass(placement: PopoverPlacement) {
     placement.horizontal === "right" ? "right-0" : "left-0",
   ].join(" ");
 }
+
+export function popoverHitAreaPlacementClass(placement: PopoverPlacement) {
+  return [
+    placement.vertical === "top" ? "bottom-full pb-2" : "top-full pt-2",
+    placement.horizontal === "right" ? "right-0" : "left-0",
+  ].join(" ");
+}

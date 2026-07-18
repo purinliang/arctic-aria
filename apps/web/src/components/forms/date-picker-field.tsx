@@ -15,10 +15,16 @@ import { buildCalendarMonthDays, shiftCalendarMonth } from "./date-calendar";
 import { formatDateKey } from "./date-format";
 import {
   formButtonControlClass,
-  formControlPopupClass,
+  formControlPopupPanelClass,
 } from "./form-control-style";
 import {
-  popoverPlacementClass,
+  keepPopoverOpenOnBlankClick,
+  keepPopoverOpenOnBlankDoubleClick,
+  keepPopoverOpenOnBlankMouseDown,
+  keepPopoverOpenOnBlankPointerDown,
+} from "./popover-interactions";
+import {
+  popoverHitAreaPlacementClass,
   usePopoverPlacement,
 } from "./use-popover-placement";
 import { englishFormMessages } from "@/messages/form-messages";
@@ -131,89 +137,109 @@ export function DatePickerField({
       {open ? (
         <div
           ref={popoverRef}
-          onPointerDown={(event) => event.stopPropagation()}
-          className={formControlPopupClass(
-            darkMode,
-            cx(
-              "w-[min(18rem,calc(100vw-2rem))]",
-              popoverPlacementClass(placement),
-            ),
+          onClick={keepPopoverOpenOnBlankClick}
+          onPointerDown={keepPopoverOpenOnBlankPointerDown}
+          onMouseDown={keepPopoverOpenOnBlankMouseDown}
+          onDoubleClick={keepPopoverOpenOnBlankDoubleClick}
+          className={cx(
+            "absolute z-[70]",
+            popoverHitAreaPlacementClass(placement),
           )}
         >
-          <div className="mb-2 grid grid-cols-[auto_auto_minmax(0,1fr)_auto_auto] items-center gap-1">
-            <PickerIconButton
-              darkMode={darkMode}
-              aria-label={messages.previousYear}
-              onClick={() =>
-                setVisibleMonth(shiftCalendarMonth(visibleMonth, -12))
-              }
+          <div
+            className={formControlPopupPanelClass(
+              darkMode,
+              "w-[min(18rem,calc(100vw-2rem))]",
+            )}
+          >
+            <div className="mb-2 grid grid-cols-[auto_auto_minmax(0,1fr)_auto_auto] items-center gap-1">
+              <PickerIconButton
+                darkMode={darkMode}
+                aria-label={messages.previousYear}
+                onClick={() =>
+                  setVisibleMonth(shiftCalendarMonth(visibleMonth, -12))
+                }
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </PickerIconButton>
+              <PickerIconButton
+                darkMode={darkMode}
+                aria-label={messages.previousMonth}
+                onClick={() =>
+                  setVisibleMonth(shiftCalendarMonth(visibleMonth, -1))
+                }
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </PickerIconButton>
+              <div className="truncate px-1 text-center text-sm font-semibold">
+                {messages.monthYear(
+                  messages.shortMonthNames[visibleMonth.monthIndex],
+                  visibleMonth.year,
+                )}
+              </div>
+              <PickerIconButton
+                darkMode={darkMode}
+                aria-label={messages.nextMonth}
+                onClick={() =>
+                  setVisibleMonth(shiftCalendarMonth(visibleMonth, 1))
+                }
+              >
+                <ChevronRight className="h-4 w-4" />
+              </PickerIconButton>
+              <PickerIconButton
+                darkMode={darkMode}
+                aria-label={messages.nextYear}
+                onClick={() =>
+                  setVisibleMonth(shiftCalendarMonth(visibleMonth, 12))
+                }
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </PickerIconButton>
+            </div>
+
+            <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase tracking-normal">
+              {messages.weekdayNames.map((weekday) => (
+                <div
+                  key={weekday}
+                  className="text-[var(--aa-secondary-text)]"
+                >
+                  {weekday}
+                </div>
+              ))}
+            </div>
+
+            <div
+              className="mt-1 grid grid-cols-7 gap-1"
+              onClick={keepPopoverOpenOnBlankClick}
+              onPointerDown={keepPopoverOpenOnBlankPointerDown}
+              onMouseDown={keepPopoverOpenOnBlankMouseDown}
+              onDoubleClick={keepPopoverOpenOnBlankDoubleClick}
             >
-              <ChevronsLeft className="h-4 w-4" />
-            </PickerIconButton>
-            <PickerIconButton
-              darkMode={darkMode}
-              aria-label={messages.previousMonth}
-              onClick={() =>
-                setVisibleMonth(shiftCalendarMonth(visibleMonth, -1))
-              }
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </PickerIconButton>
-            <div className="truncate px-1 text-center text-sm font-semibold">
-              {messages.monthYear(
-                messages.monthNames[visibleMonth.monthIndex],
-                visibleMonth.year,
+              {days.map((day, index) =>
+                day ? (
+                  <DayButton
+                    key={day.value}
+                    darkMode={darkMode}
+                    day={day.day}
+                    selected={day.value === value}
+                    disabled={isDateOutsideBounds(day.value, min, max)}
+                    onClick={() => {
+                      onChange(day.value);
+                      setOpen(false);
+                    }}
+                  />
+                ) : (
+                  <div
+                    key={`blank-${index}`}
+                    className="h-8"
+                    onClick={keepPopoverOpenOnBlankClick}
+                    onPointerDown={keepPopoverOpenOnBlankPointerDown}
+                    onMouseDown={keepPopoverOpenOnBlankMouseDown}
+                    onDoubleClick={keepPopoverOpenOnBlankDoubleClick}
+                  />
+                ),
               )}
             </div>
-            <PickerIconButton
-              darkMode={darkMode}
-              aria-label={messages.nextMonth}
-              onClick={() =>
-                setVisibleMonth(shiftCalendarMonth(visibleMonth, 1))
-              }
-            >
-              <ChevronRight className="h-4 w-4" />
-            </PickerIconButton>
-            <PickerIconButton
-              darkMode={darkMode}
-              aria-label={messages.nextYear}
-              onClick={() =>
-                setVisibleMonth(shiftCalendarMonth(visibleMonth, 12))
-              }
-            >
-              <ChevronsRight className="h-4 w-4" />
-            </PickerIconButton>
-          </div>
-
-          <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase tracking-normal">
-            {messages.weekdayNames.map((weekday) => (
-              <div
-                key={weekday}
-                className="text-[var(--aa-secondary-text)]"
-              >
-                {weekday}
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-1 grid grid-cols-7 gap-1">
-            {days.map((day, index) =>
-              day ? (
-                <DayButton
-                  key={day.value}
-                  darkMode={darkMode}
-                  day={day.day}
-                  selected={day.value === value}
-                  disabled={isDateOutsideBounds(day.value, min, max)}
-                  onClick={() => {
-                    onChange(day.value);
-                    setOpen(false);
-                  }}
-                />
-              ) : (
-                <div key={`blank-${index}`} className="h-8" />
-              ),
-            )}
           </div>
         </div>
       ) : null}
