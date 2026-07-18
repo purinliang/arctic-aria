@@ -5,9 +5,9 @@ backend validation, and database constraints are documented in
 [data-model.md](data-model.md).
 
 Routines are repeatable daily-life work such as medication, walking, evening
-shutdown, English practice, exercise, or review. A routine is not a project, and
-it should not use the project hierarchy. Projects and tasks describe work to
-complete; routines describe recurring behavior to check.
+shutdown, household upkeep, exercise, or review. A routine is not a project,
+and it should not use the project hierarchy. Projects and tasks describe work
+to complete; routines describe recurring behavior to check.
 
 ## Boundary
 
@@ -40,7 +40,7 @@ The first routines feature should not include:
 - pause and resume
 - archive-only user flows
 - health-device integration
-- AI-generated routine coaching
+- automatic schedule suggestions
 - task child checklists inside routines
 
 ## Routine Definition

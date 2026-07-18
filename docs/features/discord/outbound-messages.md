@@ -1,12 +1,13 @@
 # Discord Outbound Messages
 
 This document describes the internal API for sending Arctic Aria messages to a
-user's Discord DM through the Discord app surface.
+user's Discord DM through the Discord integration implemented in the web app.
 
 ## Purpose
 
-Outbound messages let Arctic Aria services ask the Discord app surface to deliver a
-plain DM to a Discord account already bound to an Arctic Aria user.
+Outbound messages let Arctic Aria services ask the web-hosted Discord
+integration to deliver a plain DM to a Discord account already bound to an
+Arctic Aria user.
 
 The first version supports plain text DM delivery only. Buttons, channel
 messages, reminder workflows, retries, queues, and scheduling remain future
@@ -91,8 +92,8 @@ Arctic Aria service
   -> web route returns delivery result
 ```
 
-The Discord app surface may call Discord HTTP directly. It should not require a
-Gateway connection for outbound messages.
+The web-hosted Discord integration may call Discord HTTP directly. It should
+not require a Gateway connection for outbound messages.
 
 Settings -> Discord -> Send Test skips the HTTP endpoint and calls the delivery
 logic directly inside the web server. It therefore does not use

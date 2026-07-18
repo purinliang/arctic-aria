@@ -14,7 +14,7 @@ The Dashboard is the daily operating surface. It should show what the user can
 act on today without turning into a management page.
 
 The Dashboard may display project tasks, routine instances, pinned memories,
-reviews, and future rewards, but it must not redefine their product rules.
+and future reviews, but it must not redefine their product rules.
 
 Current Dashboard scope:
 
@@ -25,7 +25,6 @@ Current Dashboard scope:
 Deferred Dashboard scope:
 
 - review summary UI
-- reward preview UI
 - timeline UI
 - full project, routine, or memory management
 
@@ -139,23 +138,15 @@ back the visible state and show the shared notification.
 Clicking the row's outlineless right-arrow button opens the Memories page. The
 whole row is not clickable. Clicking the checkbox must not navigate.
 
-## Review And Rewards
+## Review
 
-Review and reward UI are not active Dashboard features yet. Do not keep review
-dialog code or reward preview code inside the Dashboard feature until those
-features have current docs.
+Review UI is not an active Dashboard feature yet. Do not keep review dialog
+code inside the Dashboard feature until Reviews has current docs.
 
 Future review UI may show:
 
 - completed project tasks and routines
 - unfinished tasks and skipped routines
-- expected rewards so far
-
-Future reward display may include:
-
-- gold as a numeric reward
-- a treasure chest preview
-- rarity-colored reward contents
 
 ## Empty States
 

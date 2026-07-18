@@ -28,7 +28,6 @@ The current implementation does not include:
 - Discord task reminders
 - dependency graph editing
 - AI-generated task breakdown
-- reward calculations
 - review-card finalization
 - milestone reorder UI
 - project pause, resume, complete, and archive UI

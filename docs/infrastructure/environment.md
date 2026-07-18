@@ -84,7 +84,7 @@ own username/password auth instead of Neon Auth.
 
 ## Discord App Surface
 
-The Discord app surface is implemented inside the web app. Configure these
+The Discord integration is implemented inside the web app. Configure these
 variables in `apps/web/.env.local` and in the Vercel web project.
 
 Current variables:

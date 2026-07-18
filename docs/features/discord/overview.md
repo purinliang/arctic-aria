@@ -1,11 +1,12 @@
-# Discord App Surface
+# Discord Integration
 
-Discord is an Arctic Aria app surface for quick interaction away from the web
-UI. It does not own product planning, routine, idea, scheduler, or review
-rules.
+Discord is an Arctic Aria integration for quick interaction away from the web
+UI. It is implemented inside the Next.js web app and does not own product
+planning, routine, idea, scheduler, or review rules.
 
-Discord now runs through the Next.js web app, not a separate `apps/discord-bot`
-process.
+There is no separate Discord runtime app. Discord HTTP Interactions, command
+registration, outbound direct-message delivery, and Settings binding support
+all live under `apps/web`.
 
 Implemented capabilities:
 
@@ -290,10 +291,10 @@ concrete delivery, retry, idempotency, or rate-limit need appears.
 
 ## Verification
 
-Run from `apps/web`:
+Run from the repository root:
 
 ```bash
-pnpm test
-pnpm lint
-pnpm build
+pnpm --dir apps/web test
+pnpm --dir apps/web lint
+pnpm --dir apps/web build
 ```

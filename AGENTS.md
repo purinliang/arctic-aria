@@ -38,7 +38,7 @@ Before making code changes, read:
    - Understand the product goal and current project status.
 
 2. `docs/architecture.md`
-   - Understand feature, plugin, app, and infrastructure ownership.
+   - Understand feature, app, and infrastructure ownership.
 
 3. `docs/implementation.md`
    - Understand the project structure and technology stack guidelines.
@@ -52,11 +52,11 @@ Before making code changes, read:
 For task-specific work, also read the relevant docs only:
 
 - Feature work: `docs/features/<feature>/*` if present
-- Web app work: `apps/web/AGENTS.md`, `docs/ui.md`, and relevant
+- Web app work: `apps/web/AGENTS.md`, `docs/web/ui.md`, and relevant
   `docs/features/<feature>/ui.md`
 - Shared web UI work: `docs/web/*` if present
 - Infrastructure work: `docs/infrastructure/*` if present
-- App-specific work: `docs/apps/*` if present
+- Discord integration work: `docs/features/discord/*`
 
 Do not read unrelated docs unless they are needed for the task.
 
@@ -199,7 +199,7 @@ developer.
 
 Web-specific source organization, TypeScript style, UI component rules,
 interaction defaults, generated-file rules, and web verification commands live
-in `apps/web/AGENTS.md`. Human-facing UI guidance starts at `docs/ui.md`, with
+in `apps/web/AGENTS.md`. Human-facing UI guidance starts at `docs/web/ui.md`, with
 detailed shared component rules in `docs/web/ui-components.md`.
 
 ## Discord Work
@@ -210,9 +210,9 @@ detailed shared component rules in `docs/web/ui-components.md`.
   `pnpm --dir apps/web discord:register-commands`, and remind the developer to
   reinstall or re-authorize the user-installed Discord app if new or changed
   commands do not appear.
-- Keep the runbook in `docs/apps/discord-bot/overview.md` aligned with the
+- Keep the runbook in `docs/features/discord/overview.md` aligned with the
   current web route runtime, command registration, interaction endpoint, ngrok,
-  Vercel, and install steps when that doc exists.
+  Vercel, and install steps.
 
 ## Generated And Local Files
 

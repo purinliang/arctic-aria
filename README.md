@@ -2,7 +2,7 @@
 
 Arctic Aria is a personal life assistant for turning messy daily life into a
 clear plan. It focuses on planning, tasks, routines, reminders, ideas, daily
-review, memories, and positive feedback.
+review, and memories.
 
 The project is important because the hard part is often not doing one task. The
 hard part is deciding what to do next, breaking a large project into daily work,
@@ -21,9 +21,7 @@ not a medical, therapy, or mental health treatment product.
 - Capture ideas, possible tasks, and possible routines before they are lost.
 - Revisit saved personal experiences such as cuisine, sightseeing, books, or
   shows.
-- Review the day and show completed work, partial progress, and unfinished work.
-- Give positive feedback through rewards, progress summaries, and shareable
-  review cards.
+- Review the day and keep enough progress context to see what changed.
 
 ## How It Works
 
@@ -31,40 +29,23 @@ Arctic Aria is organized around features and supporting services:
 
 - Features: auth, settings, projects, routines, memories, dashboard, ideas,
   and future reviews.
-- Plugins: optional helpers such as rewards, English coach, research coach,
-  cuisine and sightseeing planner, movie or anime recommender, and future
-  specialized assistants.
-- Apps: web dashboard for full control and Discord bot for quick idea capture,
-  account binding, test direct messages, and future reminders or review prompts.
+- Apps: web dashboard for full control, plus a Discord integration hosted by
+  the web app for quick idea capture, account binding, test direct messages,
+  and future reminders or review prompts.
 - Infrastructure: Neon PostgreSQL now, with future cache, background job,
   dataflow, and external service adapters added only when needed.
 
-The web dashboard is the main workspace. The Discord bot is important because it
-can reach the user when they forget to open the app.
-
-## Future Plugins
-
-Plugins make the system more useful and more fun without making the core planner
-too complicated.
-
-- English coach: help choose what to learn today, especially when the subject is
-  very open-ended.
-- Reward system: give gold, items, boxes, and collection progress for persistent
-  effort.
-- Weekend planner: suggest new cuisine, sightseeing, or other outside
-  activities beyond saved memories.
-- Home entertainment recommender: suggest new movies or anime when staying home.
-- Research coach: help collect sources, summarize material, and turn it into
-  ideas or tasks.
+The web dashboard is the main workspace. The Discord integration is important
+because it can reach the user when they forget to open the app.
 
 ## Project Documents
 
 Start here:
 
-- [docs/user-story.md](docs/user-story.md): user problems and workflows.
-- [docs/roadmap.md](docs/roadmap.md): current version focus, future work, and
-  removed roadmap items.
-- [docs/architecture.md](docs/architecture.md): feature, plugin, app, and
+- [docs/user-story.md](docs/user-story.md): user-facing product story,
+  implemented workflows, and in-progress workflows.
+- [docs/roadmap.md](docs/roadmap.md): current version focus and future work.
+- [docs/architecture.md](docs/architecture.md): feature, app, and
   infrastructure responsibilities.
 - [docs/implementation.md](docs/implementation.md): technology, storage, and
   current repository structure.
@@ -142,7 +123,7 @@ Ideas:
 
 Shared Web UI:
 
-- [docs/ui.md](docs/ui.md): shared UI terminology and links to web component
+- [docs/web/ui.md](docs/web/ui.md): shared UI terminology and links to web component
   rules.
 - [docs/web/ui-components.md](docs/web/ui-components.md): shared web component
   rules for buttons, inputs, dialogs, notifications, cards, lists, and layout.
@@ -156,10 +137,12 @@ Shared Web UI:
 - [docs/web/localization.md](docs/web/localization.md): language preference
   detection and future message catalog direction.
 
-Apps And Infrastructure:
+Integrations And Infrastructure:
 
-- [docs/apps/discord-bot/overview.md](docs/apps/discord-bot/overview.md):
-  Discord bot `/bind`, `/idea`, message push, and app-surface direction.
+- [docs/features/discord/overview.md](docs/features/discord/overview.md):
+  Discord `/bind`, `/idea`, message push, and integration direction.
+- [docs/features/discord/outbound-messages.md](docs/features/discord/outbound-messages.md):
+  internal outbound Discord DM API and idempotency behavior.
 - [docs/infrastructure/database.md](docs/infrastructure/database.md): database
   direction, data lifecycle, credential/data protection, and current Neon
   PostgreSQL notes.

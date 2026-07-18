@@ -23,8 +23,7 @@ The first feature model should support:
 
 The first feature model should not include:
 
-- internal plugin or agent context, such as learning history or retrieval
-  context
+- internal assistant context, such as retrieval context
 - infrastructure event/dataflow design
 - Discord-specific message details
 
@@ -44,6 +43,8 @@ Detailed feature docs:
 - Ideas persistence: [ideas/data-model.md](ideas/data-model.md)
 - Ideas UI: [ideas/ui.md](ideas/ui.md)
 - Ideas implementation: [ideas/web-implementation.md](ideas/web-implementation.md)
+- Discord integration: [discord/overview.md](discord/overview.md)
+- Discord outbound messages: [discord/outbound-messages.md](discord/outbound-messages.md)
 
 ## User
 
@@ -278,7 +279,7 @@ Daily plan item fields:
 ## Ideas
 
 Ideas are quick captured thoughts that may later become projects, tasks,
-routines, memories, or plugin requests.
+routines, memories, or review notes.
 
 `ideas` should store:
 
@@ -294,7 +295,7 @@ Idea triage statuses:
 
 - `untriaged`: captured but not reviewed.
 - `kept`: saved as a note or idea.
-- `converted`: turned into a project, task, routine, or plugin request.
+- `converted`: turned into a project, task, routine, memory, or review note.
 - `archived`: hidden from normal views.
 
 Detailed idea behavior is documented in [ideas/overview.md](ideas/overview.md).
