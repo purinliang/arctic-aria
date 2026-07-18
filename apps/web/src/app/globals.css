@@ -69,6 +69,7 @@
   --aa-gray-2-75: color-mix(in srgb, var(--gray-2) 25%, var(--gray-3) 75%);
   --aa-gray-3-25: color-mix(in srgb, var(--gray-3) 75%, var(--gray-4) 25%);
   --aa-gray-3-50: color-mix(in srgb, var(--gray-3) 50%, var(--gray-4) 50%);
+  --aa-gray-11-50: color-mix(in srgb, var(--gray-11) 50%, var(--gray-12) 50%);
 }
 
 :root[data-aa-theme="dark"],
@@ -139,6 +140,7 @@
   --aa-gray-2-75: color-mix(in srgb, var(--gray-2) 25%, var(--gray-3) 75%);
   --aa-gray-3-25: color-mix(in srgb, var(--gray-3) 75%, var(--gray-4) 25%);
   --aa-gray-3-50: color-mix(in srgb, var(--gray-3) 50%, var(--gray-4) 50%);
+  --aa-gray-11-50: color-mix(in srgb, var(--gray-11) 50%, var(--gray-12) 50%);
 }
 
 :root,
@@ -158,17 +160,17 @@
   --aa-primary-button-text: var(--blue-contrast);
   --aa-primary-button-hover-bg: var(--blue-10);
   --aa-primary-button-hover-text: var(--blue-contrast);
-  --aa-primary-button-disabled-bg: var(--blue-3);
-  --aa-primary-button-disabled-text: var(--gray-11);
+  --aa-primary-button-disabled-bg: var(--blue-6);
+  --aa-primary-button-disabled-text: var(--aa-gray-11-50);
   --aa-secondary-button-bg: var(--gray-2);
-  --aa-secondary-button-text: var(--gray-11);
+  --aa-secondary-button-text: var(--aa-gray-11-50);
   --aa-secondary-button-border: var(--gray-7);
   --aa-secondary-button-hover-bg: var(--gray-4);
   --aa-secondary-button-hover-border: var(--gray-8);
   --aa-secondary-button-hover-text: var(--gray-12);
   --aa-secondary-button-disabled-border: var(--gray-6);
   --aa-secondary-button-disabled-bg: var(--gray-2);
-  --aa-secondary-button-disabled-text: var(--gray-11);
+  --aa-secondary-button-disabled-text: var(--aa-gray-11-50);
   --aa-text-input-bg: var(--gray-2);
   --aa-text-input-text: var(--gray-12);
   --aa-text-input-placeholder-text: var(--gray-11);
@@ -181,7 +183,7 @@
   --aa-text-input-focus-border: var(--aa-primary-button-bg);
   --aa-text-input-disabled-border: var(--gray-6);
   --aa-text-input-disabled-bg: var(--gray-2);
-  --aa-text-input-disabled-text: var(--gray-11);
+  --aa-text-input-disabled-text: var(--aa-gray-11-50);
 }
 
 @supports (color: color(display-p3 1 1 1)) {
