@@ -183,7 +183,7 @@
   --aa-text-input-focus-border: var(--aa-primary-button-bg);
   --aa-text-input-disabled-border: var(--gray-6);
   --aa-text-input-disabled-bg: var(--gray-2);
-  --aa-text-input-disabled-text: var(--gray-11);
+  --aa-text-input-disabled-text: var(--aa-gray-11-50);
 }
 
 @supports (color: color(display-p3 1 1 1)) {
