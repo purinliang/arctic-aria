@@ -48,112 +48,16 @@ Start here:
 - [docs/architecture.md](docs/architecture.md): feature, app, and
   infrastructure responsibilities.
 - [docs/implementation.md](docs/implementation.md): technology, storage, and
-  current repository structure.
+  current repository structure. Its Implementation References section contains
+  the detailed file-level documentation map.
 
-Feature map:
+Documentation directories:
 
-- [docs/features/overview.md](docs/features/overview.md): feature-level index
-  for settings, auth, projects, routines, memories, dashboard, ideas, and
-  reviews.
-- [docs/features/settings/overview.md](docs/features/settings/overview.md):
-  user-facing settings and preference rules.
-- [docs/features/settings/data-model.md](docs/features/settings/data-model.md):
-  settings persistence and constraints.
-
-Auth:
-
-- [docs/features/auth/overview.md](docs/features/auth/overview.md): auth
-  product rules for registration, login, sessions, and future OAuth.
-- [docs/features/auth/data-model.md](docs/features/auth/data-model.md): auth
-  persistence, validation, and database constraints.
-- [docs/features/auth/ui.md](docs/features/auth/ui.md): auth page UI behavior.
-- [docs/features/auth/web-implementation.md](docs/features/auth/web-implementation.md):
-  current web auth implementation notes.
-
-Projects:
-
-- [docs/features/projects/overview.md](docs/features/projects/overview.md):
-  project, milestone, and task product rules.
-- [docs/features/projects/data-model.md](docs/features/projects/data-model.md):
-  project feature data model and database direction.
-- [docs/features/projects/ui.md](docs/features/projects/ui.md): project and
-  task UI behavior.
-- [docs/features/projects/web-implementation.md](docs/features/projects/web-implementation.md):
-  current web project implementation notes.
-
-Routines:
-
-- [docs/features/routines/overview.md](docs/features/routines/overview.md):
-  routine product rules and data behavior.
-- [docs/features/routines/data-model.md](docs/features/routines/data-model.md):
-  routine persistence, validation, and database constraints.
-- [docs/features/routines/ui.md](docs/features/routines/ui.md): routine page
-  and dashboard UI behavior.
-- [docs/features/routines/web-implementation.md](docs/features/routines/web-implementation.md):
-  current web routine implementation notes.
-
-Memories:
-
-- [docs/features/memories/overview.md](docs/features/memories/overview.md):
-  memory product rules and suggestion behavior.
-- [docs/features/memories/data-model.md](docs/features/memories/data-model.md):
-  memory persistence, validation, and database constraints.
-- [docs/features/memories/ui.md](docs/features/memories/ui.md): memory page
-  and pinned memory UI behavior.
-- [docs/features/memories/web-implementation.md](docs/features/memories/web-implementation.md):
-  current web memory implementation notes.
-
-Dashboard:
-
-- [docs/features/dashboard/ui.md](docs/features/dashboard/ui.md): dashboard
-  panels, interactions, and visual behavior.
-- [docs/features/dashboard/web-implementation.md](docs/features/dashboard/web-implementation.md):
-  current web dashboard implementation notes.
-
-Ideas:
-
-- [docs/features/ideas/overview.md](docs/features/ideas/overview.md): idea
-  capture product rules.
-- [docs/features/ideas/data-model.md](docs/features/ideas/data-model.md):
-  idea persistence and constraints.
-- [docs/features/ideas/ui.md](docs/features/ideas/ui.md): Ideas page UI
-  behavior.
-- [docs/features/ideas/web-implementation.md](docs/features/ideas/web-implementation.md):
-  current Ideas web implementation notes.
-
-Shared Web UI:
-
-- [docs/web/ui.md](docs/web/ui.md): shared UI terminology and links to web component
-  rules.
-- [docs/web/ui-components.md](docs/web/ui-components.md): shared web component
-  rules for buttons, inputs, dialogs, notifications, cards, lists, and layout.
-- [docs/web/sidebar.md](docs/web/sidebar.md): sidebar product behavior.
-- [docs/web/sidebar-ui.md](docs/web/sidebar-ui.md): sidebar visual and
-  interaction rules.
-- [docs/web/theme.md](docs/web/theme.md): theme preference and app-shell theme
-  behavior.
-- [docs/web/color.md](docs/web/color.md): color tokens, component color
-  mappings, and current color inconsistencies.
-- [docs/web/localization.md](docs/web/localization.md): language preference
-  detection and future message catalog direction.
-
-Integrations And Infrastructure:
-
-- [docs/features/discord/overview.md](docs/features/discord/overview.md):
-  Discord `/bind`, `/idea`, message push, and integration direction.
-- [docs/features/discord/outbound-messages.md](docs/features/discord/outbound-messages.md):
-  internal outbound Discord DM API and idempotency behavior.
-- [docs/infrastructure/database.md](docs/infrastructure/database.md): database
-  direction, data lifecycle, credential/data protection, and current Neon
-  PostgreSQL notes.
-- [docs/infrastructure/environment.md](docs/infrastructure/environment.md):
-  environment variable purpose, local setup files, and Vercel Neon variable
-  mapping.
-- [docs/infrastructure/redis.md](docs/infrastructure/redis.md): planned Redis
-  direction for latency, cache, rate limiting, idempotency, and short-lived
-  coordination.
-
-Release Records:
-
-- [docs/releases/README.md](docs/releases/README.md): release-note format and
-  links to previous release records.
+- [docs/features/](docs/features/): feature behavior, data model, UI, and web
+  implementation notes.
+- [docs/web/](docs/web/): shared web UI, color, theme, localization, and
+  sidebar rules.
+- [docs/infrastructure/](docs/infrastructure/): database, environment, Redis,
+  and future infrastructure direction.
+- [docs/releases/](docs/releases/): release-note records and PR/merge-message
+  source text.
