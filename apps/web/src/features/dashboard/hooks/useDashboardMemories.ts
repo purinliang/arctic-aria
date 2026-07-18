@@ -1,4 +1,8 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  readDashboardBrowserCacheSection,
+  writeDashboardBrowserCacheSection,
+} from "@/app-shell/dashboard-browser-cache";
 import {
   cancelPinnedMemoryDone,
   cancelPinnedMemorySuggestion,
@@ -39,6 +43,7 @@ type MemoryDataAction = () => Promise<
 >;
 
 export function useDashboardMemories(
+  userId: string,
   showErrorNotification: (message: string, title?: string) => void,
   messages?: DashboardMessages["notifications"],
   resultMessages?: MemoryMessages["results"],
@@ -52,6 +57,7 @@ export function useDashboardMemories(
     [],
   );
   const [memoryLoading, setMemoryLoading] = useState(true);
+  const [memoryCacheReady, setMemoryCacheReady] = useState(false);
   const [memoryActionPending, setMemoryActionPending] = useState(false);
   const [suggestionLoading, setSuggestionLoading] = useState(false);
   const [pinnedSuggestionIds, setPinnedSuggestionIds] = useState<string[]>([]);
@@ -65,7 +71,35 @@ export function useDashboardMemories(
     setPinnedMemories(data.pinnedMemories);
     setMemoryCategories(data.categories);
     setMemoryRecords(data.memoryRecords);
+    setMemoryLoading(false);
+    setMemoryCacheReady(true);
   }, []);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      const cachedData = readDashboardBrowserCacheSection(userId, "memories");
+
+      setPinnedMemories(cachedData?.pinnedMemories ?? []);
+      setMemoryCategories(cachedData?.categories ?? []);
+      setMemoryRecords(cachedData?.memoryRecords ?? []);
+      setMemoryLoading(cachedData === null);
+      setMemoryCacheReady(cachedData !== null);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [userId]);
+
+  useEffect(() => {
+    if (!memoryCacheReady) {
+      return;
+    }
+
+    writeDashboardBrowserCacheSection(userId, "memories", {
+      categories: memoryCategories,
+      pinnedMemories,
+      memoryRecords,
+    });
+  }, [memoryCacheReady, memoryCategories, memoryRecords, pinnedMemories, userId]);
 
   const refreshMemoryData = useCallback(async () => {
     const result = await getMemoryDashboardData();
@@ -75,15 +109,11 @@ export function useDashboardMemories(
         localizedActionMessage(result, resultMessages),
         messages?.memoriesUnavailable ?? "Memories unavailable",
       );
-      setPinnedMemories([]);
-      setMemoryCategories([]);
-      setMemoryRecords([]);
       setMemoryLoading(false);
       return;
     }
 
     applyMemoryData(result.data);
-    setMemoryLoading(false);
   }, [applyMemoryData, messages, resultMessages, showErrorNotification]);
 
   function beginMemoryAction() {

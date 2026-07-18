@@ -64,17 +64,17 @@ export function toneClass(darkMode: boolean, tone: Tone = "neutral") {
   return toneClasses[tone] ?? neutralToneClass;
 }
 
-export function secondaryInputControlColorClass(
+export function textInputControlColorClass(
   darkMode: boolean,
   hasError = false,
 ) {
   if (hasError) {
     return darkMode
-      ? "border-red-400 bg-[var(--aa-secondary-button-bg)] text-[var(--aa-primary-text)] focus:border-[var(--aa-secondary-button-hover-border)] focus:bg-[var(--aa-secondary-button-hover-bg)]"
-      : "border-red-500 bg-[var(--aa-secondary-button-bg)] text-[var(--aa-primary-text)] focus:border-[var(--aa-secondary-button-hover-border)] focus:bg-[var(--aa-secondary-button-hover-bg)]";
+      ? "border-red-400 bg-[var(--aa-text-input-bg)] text-[var(--aa-text-input-text)] focus:border-[var(--aa-text-input-focus-border)] focus:bg-[var(--aa-text-input-focus-bg)] focus:text-[var(--aa-text-input-focus-text)]"
+      : "border-red-500 bg-[var(--aa-text-input-bg)] text-[var(--aa-text-input-text)] focus:border-[var(--aa-text-input-focus-border)] focus:bg-[var(--aa-text-input-focus-bg)] focus:text-[var(--aa-text-input-focus-text)]";
   }
 
-  return "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-primary-text)] focus:border-[var(--aa-secondary-button-hover-border)]";
+  return "border-[var(--aa-text-input-border)] bg-[var(--aa-text-input-bg)] text-[var(--aa-text-input-text)] focus:border-[var(--aa-text-input-focus-border)] focus:bg-[var(--aa-text-input-focus-bg)] focus:text-[var(--aa-text-input-focus-text)]";
 }
 
 export function statusMessageClass(

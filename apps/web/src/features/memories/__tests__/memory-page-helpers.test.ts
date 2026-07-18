@@ -5,6 +5,8 @@ import type {
   MemoryRecord,
 } from "@/features/dashboard/types";
 import {
+  emptyCategoryDraft,
+  getCategoryFormStateAfterSuccessfulDelete,
   getMemoryCategoryDescription,
   getMemoryCategoryLabel,
   getMemoryCategoryName,
@@ -120,6 +122,13 @@ test("memory category display helpers localize built-ins only", () => {
     "旅行 description",
   );
   assert.equal(getMemoryCategoryLabel("旅行", null, messages), "旅行");
+});
+
+test("successful category delete closes the category form", () => {
+  assert.deepEqual(getCategoryFormStateAfterSuccessfulDelete(), {
+    categoryFormOpen: false,
+    categoryDraft: emptyCategoryDraft,
+  });
 });
 
 function categoryOption(

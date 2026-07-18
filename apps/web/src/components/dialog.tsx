@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
-import { LoaderCircle, X } from "lucide-react";
+import { Save, Trash2, X } from "lucide-react";
 import { Button } from "./button";
 import { panelColorClass } from "./color";
+import { PendingText } from "./loading";
+import { ScrollArea } from "./scroll-area";
 import { cx } from "./utils";
 
 export function DialogOverlay({
@@ -12,31 +14,16 @@ export function DialogOverlay({
   children: ReactNode;
 }) {
   return (
-    <div
+    <ScrollArea
       className={cx(
-        "fixed inset-0 overflow-y-auto bg-black/65 px-4 py-8 sm:py-10",
+        "fixed inset-0 bg-black/65",
         zIndex,
       )}
+      viewportClassName="h-full px-4 py-8 sm:py-10"
+      contentClassName="grid min-h-full place-items-center"
     >
-      <div className="grid min-h-full place-items-center">{children}</div>
-    </div>
-  );
-}
-
-export function DialogBackdrop({
-  label,
-  onClick,
-}: {
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      className="absolute inset-0 cursor-default"
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-    />
+      {children}
+    </ScrollArea>
   );
 }
 
@@ -125,16 +112,93 @@ export function DialogPrimaryButton({
   );
 }
 
+export function CrudEditorDialog({
+  darkMode,
+  pending,
+  saving,
+  title,
+  closeLabel,
+  saveText,
+  savingText,
+  deleteText,
+  zIndex,
+  children,
+  onClose,
+  onSubmit,
+  onDelete,
+}: {
+  darkMode: boolean;
+  pending: boolean;
+  saving: boolean;
+  title: string;
+  closeLabel: string;
+  saveText: string;
+  savingText: string;
+  deleteText?: string;
+  zIndex?: "z-50" | "z-[60]";
+  children: ReactNode;
+  onClose: () => void;
+  onSubmit: () => void;
+  onDelete?: () => void;
+}) {
+  return (
+    <DialogOverlay zIndex={zIndex}>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSubmit();
+        }}
+      >
+        <DialogFrame darkMode={darkMode}>
+          <DialogHeader
+            darkMode={darkMode}
+            title={title}
+            closeLabel={closeLabel}
+            onClose={onClose}
+          />
+          <div className="grid gap-3">{children}</div>
+          <DialogActionRow>
+            <DialogPrimaryButton
+              darkMode={darkMode}
+              type="submit"
+              disabled={pending}
+              icon={<Save size={14} aria-hidden="true" />}
+            >
+              <PendingText
+                active={saving}
+                idleText={saveText}
+                pendingText={savingText}
+              />
+            </DialogPrimaryButton>
+            {onDelete && deleteText ? (
+              <Button
+                darkMode={darkMode}
+                size="md"
+                disabled={pending}
+                className="w-full"
+                icon={<Trash2 size={14} aria-hidden="true" />}
+                onClick={onDelete}
+              >
+                {deleteText}
+              </Button>
+            ) : null}
+          </DialogActionRow>
+        </DialogFrame>
+      </form>
+    </DialogOverlay>
+  );
+}
+
 export function ConfirmDialog({
   darkMode,
   pending,
   title,
   description,
   confirmText = "Delete",
+  pendingConfirmText,
   cancelText = "Cancel",
   closeLabel = "Close confirmation",
   confirmIcon,
-  loadingIcon,
   onCancel,
   onConfirm,
 }: {
@@ -143,16 +207,15 @@ export function ConfirmDialog({
   title: string;
   description: string;
   confirmText?: string;
+  pendingConfirmText?: string;
   cancelText?: string;
   closeLabel?: string;
   confirmIcon?: ReactNode;
-  loadingIcon?: ReactNode;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
   return (
     <DialogOverlay zIndex="z-[60]">
-      <DialogBackdrop label={closeLabel} onClick={onCancel} />
       <DialogFrame darkMode={darkMode} size="sm">
         <DialogHeader
           darkMode={darkMode}
@@ -174,20 +237,11 @@ export function ConfirmDialog({
           <Button
             darkMode={darkMode}
             tone="primary"
-            loading={pending}
+            disabled={pending}
             icon={confirmIcon}
-            loadingIcon={
-              loadingIcon ?? (
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              )
-            }
             onClick={onConfirm}
           >
-            {confirmText}
+            {pending ? pendingConfirmText ?? confirmText : confirmText}
           </Button>
         </div>
       </DialogFrame>

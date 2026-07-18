@@ -1,56 +1,23 @@
 # Implementation
 
-This document is the implementation overview for Arctic Aria. It records what is
-implemented, where the code lives, which docs own the detailed rules, and which
-technical directions are still planned.
+This document is the implementation overview for Arctic Aria. It records where
+the code lives and which docs own the detailed rules.
 
 Product responsibilities are documented in [architecture.md](architecture.md).
 Feature behavior is documented under [features/](features/). Persistence,
 credential, and data-protection policy are documented in
 [infrastructure/database.md](infrastructure/database.md).
 
-## Current Status
+## Current Scope
 
-Implemented apps:
+The only implemented runtime app is the Next.js web app in `apps/web`.
+Discord is implemented as HTTP routes inside the web app, not as a separate
+process. Database migrations live under `apps/infrastructure/database` and are
+run by the web app migration script.
 
-- Next.js web app in `apps/web`
-- Discord HTTP Interactions routes inside `apps/web`
-
-Implemented:
-
-- username/password auth with signed 30-day session cookies
-- authenticated app shell with sidebar, theme, page title bar, and shared
-  notification stack
-- Dashboard panels for project tasks, routines, and pinned memories
-- Projects, Milestones, and Tasks
-- Routines and routine instances
-- Memories, categories, suggestions, and pinned memories
-- Settings page with local theme/language preference controls and version
-  metadata
-- read-only Ideas page and backend capture foundation
-- Discord account binding with `/bind code:<code>`
-- Discord `/idea` capture into untriaged Ideas
-- Discord outbound message push and Settings `Send Test` verification
-- shared web UI primitives and form controls
-- SQL migrations and direct SQL repositories
-- focused Node test coverage for validation, services, repositories, database
-  helpers, and selected action helpers
-
-Not implemented yet:
-
-- Discord reminders and reminder response buttons
-- Redis/cache
-- event bus or dataflow service
-- background worker service
-- reviews feature
-- reward plugin
-- English coach or other plugin workers
-- OAuth, password reset, account deletion, or server-side session revocation
-
-Planned-but-not-implemented requirements should stay in their owning docs, such
-as [user-story.md](user-story.md), [roadmap.md](roadmap.md), and feature
-overview files. Do not delete future requirements only because the current web
-slice has not implemented them yet.
+Use this file as a code map. Current product status and future requirements
+belong in [README.md](../README.md), [roadmap.md](roadmap.md), and feature
+overview docs.
 
 ## Technology Snapshot
 
@@ -113,14 +80,14 @@ arctic-aria/
 |       `-- pnpm-workspace.yaml
 |
 |-- docs/
-|   |-- apps/
 |   |-- features/
+|   |   `-- discord/
 |   |-- infrastructure/
+|   |-- releases/
 |   |-- web/
 |   |-- architecture.md
 |   |-- implementation.md
 |   |-- roadmap.md
-|   |-- ui.md
 |   `-- user-story.md
 |
 |-- README.md
@@ -204,13 +171,13 @@ Current feature data-model docs:
 - [features/routines/data-model.md](features/routines/data-model.md)
 - [features/ideas/data-model.md](features/ideas/data-model.md)
 
-App-surface docs:
+Integration docs:
 
-- [docs/apps/discord-bot/overview.md](apps/discord-bot/overview.md)
+- [features/discord/overview.md](features/discord/overview.md)
 
 Shared web docs:
 
-- [ui.md](ui.md)
+- [web/ui.md](web/ui.md)
 - [web/ui-components.md](web/ui-components.md)
 - [web/sidebar.md](web/sidebar.md)
 - [web/sidebar-ui.md](web/sidebar-ui.md)
@@ -255,14 +222,14 @@ Persistence entry points:
 - `apps/web/scripts/migrate.mjs`
 - `apps/web/src/features/<feature>/server`
 
-## Future Direction
+## Future Extraction Direction
 
 Keep the current single web app structure until another implemented surface
 needs shared code.
 
 Add shared packages only when they remove real duplication:
 
-- `packages/contracts` when the Discord app surface or plugins need shared
+- `packages/contracts` when the Discord integration needs shared
   command and payload types
 - `packages/core` when product services must be shared outside Next.js server
   actions
@@ -270,21 +237,9 @@ Add shared packages only when they remove real duplication:
   workers
 - `packages/ui` only if another web surface needs the same component library
 
-Planned infrastructure:
-
-- Redis for cache, rate limiting, idempotency keys, or short-lived coordination
-  after a measured need appears
-- background jobs for reminders, plugin work, and notification delivery
-- event/dataflow support after reminder, review, and plugin flows become clear
-- deployment environment management
-
-The Discord app surface is implemented as Next.js route handlers under
-`apps/web`. It uses Discord HTTP Interactions for `/bind` and `/idea`, and a
-private HTTP endpoint for outbound direct-message push. The web app also owns
-the command-registration script. Do not add a long-running Gateway listener
-unless a later feature genuinely needs Gateway events. Python remains a good
-fit for future plugin workers that need agent workflows, retrieval, document
-processing, speech practice, or ML/data tooling.
+Detailed future product and infrastructure direction belongs in
+[roadmap.md](roadmap.md), [architecture.md](architecture.md), and the relevant
+feature or infrastructure docs.
 
 ## Verification Commands
 
@@ -312,9 +267,5 @@ git diff --check
   sessions table.
 - Which deployment target should own the web backend, environment variables,
   and future background jobs.
-- Which Redis provider to use if measured latency, rate limiting, or reminder
-  coordination requires Redis.
-- Whether future sensitive user content needs application-level field
-  encryption.
-- When to extract shared packages for the Discord app surface, plugins, or
-  background workers.
+- When to extract shared packages for the Discord integration or background
+  workers.

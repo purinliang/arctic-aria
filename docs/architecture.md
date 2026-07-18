@@ -19,15 +19,9 @@ Arctic Aria
 |   |-- Scheduler
 |   `-- Reviews
 |
-|-- Plugin workers
-|   |-- Reward system
-|   |-- English coach
-|   |-- Future research coach
-|   `-- Future life planners
-|
 |-- App surfaces
 |   |-- Web app
-|   `-- Discord bot
+|   `-- Discord integration hosted by the web app
 |
 `-- Infrastructure services
     |-- Database
@@ -36,27 +30,28 @@ Arctic Aria
     `-- Future background jobs
 ```
 
-Product features own user-visible rules and state transitions. Plugin workers
-add optional specialized workflows. App surfaces let the user operate the same
-system through web or Discord. Infrastructure services provide storage now and
-can later provide cache, dataflow, scheduling, and external adapters.
+Product features own user-visible rules and state transitions. App surfaces let
+the user operate the same system through web or Discord. Infrastructure
+services provide storage now and can later provide cache, dataflow, scheduling,
+and external adapters.
 
 Currently implemented product features are Auth, Settings, Projects, Routines,
-Memories, Dashboard, and the first Ideas capture foundation. The Discord bot
-has a first local prototype for account binding, `/idea` capture, and outbound
-test messages. Scheduler, Reviews, plugin workers, Redis/cache, dataflow, and
-background jobs are planned directions.
+Memories, Dashboard, and the first Ideas capture foundation. The Discord
+integration is hosted by the Next.js web app and supports account binding,
+`/idea` capture, and outbound test messages. Scheduler, Reviews, Redis/cache,
+dataflow, and background jobs are planned directions.
 
 Documentation follows the same shape:
 
 - `docs/features/<feature>/`: feature overview, data model, UI behavior, and
   implementation notes.
 - `docs/web/`: shared web UI component rules.
-- `docs/ui.md`: shared UI terminology and UI documentation index.
+- `docs/web/ui.md`: shared UI terminology and UI documentation index.
 - `docs/infrastructure/`: database, migrations, Redis planning, and technical
   service direction. Current infrastructure is Neon PostgreSQL; Redis/cache and
   event dataflow are future directions.
-- `docs/apps/`: app-specific notes such as Discord bot behavior.
+- `docs/features/discord/`: Discord integration behavior implemented by the
+  web app.
 
 ## Product Features
 
@@ -99,10 +94,10 @@ The first model uses three conceptual levels:
 - Milestone: phase boundary inside a project.
 - Task: executable schedulable work item.
 
-Future AI-assisted project breakdown belongs to the Projects feature, Scheduler,
-or a future planner assistant. It is not infrastructure by itself. Infrastructure
-may later run the background job that performs the analysis, but Projects owns
-the resulting project, milestone, and task rules.
+Future assisted project breakdown belongs to the Projects feature or Scheduler.
+It is not infrastructure by itself. Infrastructure may later run the background
+job that performs the analysis, but Projects owns the resulting project,
+milestone, and task rules.
 
 Detailed docs:
 
@@ -114,8 +109,8 @@ Detailed docs:
 ### Routines
 
 Routines represent repeated daily-life work such as exercise, sleep
-preparation, English practice, review, or recurring chores. A routine is not a
-project and does not use the project hierarchy.
+preparation, review, or recurring chores. A routine is not a project and does
+not use the project hierarchy.
 
 Detailed docs:
 
@@ -141,8 +136,8 @@ Detailed docs:
 ### Dashboard
 
 The dashboard is the daily operating surface. It combines selected data from
-Projects, Routines, Memories, Reviews, and future reward features, but it should
-not redefine those feature rules.
+Projects, Routines, Memories, and future Reviews, but it should not redefine
+those feature rules.
 
 Detailed docs:
 
@@ -151,15 +146,15 @@ Detailed docs:
 
 ### Ideas
 
-Ideas store quick thoughts before they become projects, tasks, routines, or
-plugin inputs.
+Ideas store quick thoughts before they become projects, tasks, routines,
+memories, or review notes.
 
 The Ideas feature owns:
 
 - quick capture records
 - source information, such as web, Discord, or mobile
 - triage state
-- conversion into a project, task, routine, idea record, or plugin request
+- conversion into a project, task, routine, memory, or review note
 
 Ideas persistence, read-only web listing, and Discord `/idea` capture are
 implemented. Web add/edit/triage and conversion controls are planned but not
@@ -199,56 +194,8 @@ The Reviews feature owns:
 - completion history
 - progress summaries
 - adjustment suggestions
-- hooks that allow the reward plugin to grant rewards
 
 Reviews is planned but not implemented yet.
-
-## Plugin Workers
-
-Plugin workers add specialized behavior without owning normal product state
-directly. They should read product context through approved APIs and submit
-proposed actions back through validated commands.
-
-Plugin workers are a long-term direction. They are not expected during the
-current refactor, schema, documentation, and bug-fix phase.
-
-### Reward System
-
-The reward system is a plugin because it is optional positive feedback, not
-required for the planner model.
-
-It owns:
-
-- money, boxes, gems, flowers, and inventory items
-- reward rules based on completion and review results
-- box opening logic
-- optional game-like progress
-
-The reward plugin should listen to review or completion events rather than
-being embedded in project or routine logic.
-
-### English Coach
-
-The English coach is a plugin because it has specialized agent behavior,
-conversation, correction, speaking practice, and learning memory.
-
-It owns:
-
-- daily topic suggestions
-- chat-style practice
-- mistake correction
-- daily learning review
-- learning memory and retrieval context
-
-It may create tasks or routines, but those actions must go through product
-commands.
-
-### Future Planners
-
-Future planners can include cooking, shopping, sightseeing, anime
-recommendation, research support, or other specialized workflows. Saved personal
-experiences belong to Memories; new external recommendations belong in plugins
-until the feature shape is proven.
 
 ## App Surfaces
 
@@ -269,7 +216,6 @@ It owns:
 - routine management UI
 - memory management UI
 - review UI
-- reward and plugin screens
 
 Detailed docs:
 
@@ -277,14 +223,14 @@ Detailed docs:
 - [web/sidebar.md](web/sidebar.md)
 - [web/sidebar-ui.md](web/sidebar-ui.md)
 
-### Discord Bot
+### Discord Integration
 
-The Discord bot is for notification and quick interaction. It is important
-because the user may forget to open the web app.
+The Discord integration is for notification and quick interaction. It is
+important because the user may forget to open the web app.
 
 Implemented Discord workflows are account binding with `/bind`, quick idea
-capture with `/idea`, and outbound direct-message delivery through a private
-message-push endpoint. The Discord app surface should call product commands
+capture with `/idea`, and outbound direct-message delivery through an internal
+server-side service. The Discord integration should call product commands
 instead of owning product rules directly.
 
 It may eventually own:
@@ -295,17 +241,17 @@ It may eventually own:
 - review prompts
 - concise status updates
 
-The Discord app surface should call product commands. It should not implement
+The Discord integration should call product commands. It should not implement
 its own planning or routine rules.
 
 Detailed docs:
 
-- [docs/apps/discord-bot/overview.md](apps/discord-bot/overview.md)
+- [features/discord/overview.md](features/discord/overview.md)
 
 ## Infrastructure Services
 
-Infrastructure services support product features, plugin workers, and app
-surfaces. They own technical mechanisms, not product decisions.
+Infrastructure services support product features and app surfaces. They own
+technical mechanisms, not product decisions.
 
 Infrastructure owns:
 
@@ -313,13 +259,13 @@ Infrastructure owns:
 - future cache support, likely Redis, when repeated read paths or ephemeral
   coordination need it
 - future event publishing, subscribing, retries, and delivery tracking
-- future background execution for reminders, scheduled review work, plugin
-  runs, and notification delivery
+- future background execution for reminders, scheduled review work, and
+  notification delivery
 - external service adapters
 
 Product features define entities, commands, validations, and domain events.
 Infrastructure stores those entities now. Future infrastructure may move events
-between modules when reminder, review, plugin, or cache flows need it.
+between modules when reminder, review, or cache flows need it.
 
 For the first version, only Neon PostgreSQL is implemented. Redis/cache,
 event/dataflow, queues, and background workers are future infrastructure
@@ -331,43 +277,3 @@ Detailed docs:
 
 - [infrastructure/database.md](infrastructure/database.md)
 - [infrastructure/redis.md](infrastructure/redis.md)
-
-## Data Flow
-
-Typical daily flow:
-
-```text
-User input
-  -> app surface
-  -> product command
-  -> validated state change
-  -> infrastructure persistence
-  -> scheduler or review update
-  -> future plugin or dataflow hook
-  -> app notification or dashboard update
-```
-
-Example reminder flow:
-
-```text
-Scheduler
-  -> reminder job
-  -> Discord delivery
-  -> user button response
-  -> product routine/task command
-  -> infrastructure persistence
-  -> completion event recorded
-  -> review update
-  -> optional future reward flow
-```
-
-Example English coach flow:
-
-```text
-Web app
-  -> English coach plugin session
-  -> plugin context lookup
-  -> learning response and correction
-  -> learning memory saved
-  -> optional task/routine suggestion through product command
-```

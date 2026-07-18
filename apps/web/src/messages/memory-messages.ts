@@ -37,12 +37,15 @@ export const englishMemoryMessages = {
     manage: "Manage",
     description: "Description",
     save: "Save",
+    saving: "Saving",
     delete: "Delete",
   },
   categories: {
     manageTitle: "Manage Categories",
     closeEditor: "Close category editor",
     closeForm: "Close category form",
+    customSection: "Custom Categories",
+    defaultSection: "Default Categories",
     new: "New",
     edit: "Edit",
     add: "Add category",
@@ -52,6 +55,7 @@ export const englishMemoryMessages = {
     description: "Description",
     descriptionPlaceholder: "What belongs in this category?",
     noDescription: "No description.",
+    noCustomCategories: "No custom categories yet.",
     builtIns: {
       cuisine: {
         name: "Cuisine",
@@ -89,6 +93,7 @@ export const englishMemoryMessages = {
       },
     },
     save: "Save",
+    saving: "Saving",
     delete: "Delete",
   },
   confirm: {
@@ -98,6 +103,7 @@ export const englishMemoryMessages = {
     description: (title: string) => `Delete "${title}"? This cannot be undone.`,
     cancel: "Cancel",
     confirm: "Delete",
+    deleting: "Deleting",
     close: "Close confirmation",
   },
   results: {
@@ -163,12 +169,15 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     manage: "管理",
     description: "描述",
     save: "保存",
+    saving: "正在保存",
     delete: "删除",
   },
   categories: {
     manageTitle: "管理分类",
     closeEditor: "关闭分类编辑器",
     closeForm: "关闭分类表单",
+    customSection: "自定义分类",
+    defaultSection: "默认分类",
     new: "新建",
     edit: "编辑",
     add: "添加分类",
@@ -178,6 +187,7 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     description: "描述",
     descriptionPlaceholder: "这个分类包含哪些回忆？",
     noDescription: "暂无描述。",
+    noCustomCategories: "暂无自定义分类。",
     builtIns: {
       cuisine: {
         name: "美食",
@@ -213,6 +223,7 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
       },
     },
     save: "保存",
+    saving: "正在保存",
     delete: "删除",
   },
   confirm: {
@@ -222,6 +233,7 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     description: (title) => `删除“${title}”？此操作无法撤销。`,
     cancel: "取消",
     confirm: "删除",
+    deleting: "正在删除",
     close: "关闭确认对话框",
   },
   results: {

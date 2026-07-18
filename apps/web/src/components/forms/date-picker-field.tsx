@@ -14,11 +14,17 @@ import { Button } from "../button";
 import { buildCalendarMonthDays, shiftCalendarMonth } from "./date-calendar";
 import { formatDateKey } from "./date-format";
 import {
-  formControlClass,
-  formControlPopupClass,
+  formButtonControlClass,
+  formControlPopupPanelClass,
 } from "./form-control-style";
 import {
-  popoverPlacementClass,
+  keepPopoverOpenOnBlankClick,
+  keepPopoverOpenOnBlankDoubleClick,
+  keepPopoverOpenOnBlankMouseDown,
+  keepPopoverOpenOnBlankPointerDown,
+} from "./popover-interactions";
+import {
+  popoverHitAreaPlacementClass,
   usePopoverPlacement,
 } from "./use-popover-placement";
 import { englishFormMessages } from "@/messages/form-messages";
@@ -69,7 +75,10 @@ export function DatePickerField({
     function handlePointerDown(event: PointerEvent) {
       const target = event.target as Node;
 
-      if (!rootRef.current?.contains(target)) {
+      if (
+        !rootRef.current?.contains(target) &&
+        !popoverRef.current?.contains(target)
+      ) {
         setOpen(false);
       }
     }
@@ -79,21 +88,22 @@ export function DatePickerField({
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
     };
-  }, [open, rootRef]);
+  }, [open, popoverRef, rootRef]);
 
   const days = useMemo(
     () => buildCalendarMonthDays(visibleMonth),
     [visibleMonth],
   );
   const formattedValue = formatDateValue(value, messages);
+  const showClear = allowClear && Boolean(value);
 
   return (
     <div ref={rootRef} className="relative min-w-0">
       <button
         className={cx(
-          formControlClass(darkMode, hasError),
-          "flex items-center justify-between gap-3 text-left hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
-          !formattedValue && "text-[var(--aa-secondary-text)]",
+          formButtonControlClass(darkMode, hasError),
+          "flex items-center gap-3 text-left",
+          showClear && "pr-12",
           className,
         )}
         type="button"
@@ -107,111 +117,130 @@ export function DatePickerField({
           setOpen((current) => !current);
         }}
       >
+        <Calendar className="h-4 w-4 shrink-0 text-current" />
         <span className="min-w-0 truncate">
           {formattedValue || placeholder}
         </span>
-        <Calendar className="h-4 w-4 shrink-0" />
       </button>
+      {showClear ? (
+        <Button
+          darkMode={darkMode}
+          tone="ghost"
+          size="icon-sm"
+          className="absolute right-1 top-1/2 -translate-y-1/2"
+          aria-label={messages.clearDate}
+          icon={<X className="h-3.5 w-3.5" />}
+          onClick={() => onChange("")}
+        />
+      ) : null}
 
       {open ? (
         <div
           ref={popoverRef}
-          className={formControlPopupClass(
-            darkMode,
-            cx(
-              "w-[min(18rem,calc(100vw-2rem))]",
-              popoverPlacementClass(placement),
-            ),
+          onClick={keepPopoverOpenOnBlankClick}
+          onPointerDown={keepPopoverOpenOnBlankPointerDown}
+          onMouseDown={keepPopoverOpenOnBlankMouseDown}
+          onDoubleClick={keepPopoverOpenOnBlankDoubleClick}
+          className={cx(
+            "absolute z-[70]",
+            popoverHitAreaPlacementClass(placement),
           )}
         >
-          <div className="mb-2 grid grid-cols-[auto_auto_minmax(0,1fr)_auto_auto] items-center gap-1">
-            <PickerIconButton
-              darkMode={darkMode}
-              aria-label={messages.previousYear}
-              onClick={() =>
-                setVisibleMonth(shiftCalendarMonth(visibleMonth, -12))
-              }
+          <div
+            className={formControlPopupPanelClass(
+              darkMode,
+              "w-[min(18rem,calc(100vw-2rem))]",
+            )}
+          >
+            <div className="mb-2 grid grid-cols-[auto_auto_minmax(0,1fr)_auto_auto] items-center gap-1">
+              <PickerIconButton
+                darkMode={darkMode}
+                aria-label={messages.previousYear}
+                onClick={() =>
+                  setVisibleMonth(shiftCalendarMonth(visibleMonth, -12))
+                }
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </PickerIconButton>
+              <PickerIconButton
+                darkMode={darkMode}
+                aria-label={messages.previousMonth}
+                onClick={() =>
+                  setVisibleMonth(shiftCalendarMonth(visibleMonth, -1))
+                }
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </PickerIconButton>
+              <div className="truncate px-1 text-center text-sm font-semibold">
+                {messages.monthYear(
+                  messages.shortMonthNames[visibleMonth.monthIndex],
+                  visibleMonth.year,
+                )}
+              </div>
+              <PickerIconButton
+                darkMode={darkMode}
+                aria-label={messages.nextMonth}
+                onClick={() =>
+                  setVisibleMonth(shiftCalendarMonth(visibleMonth, 1))
+                }
+              >
+                <ChevronRight className="h-4 w-4" />
+              </PickerIconButton>
+              <PickerIconButton
+                darkMode={darkMode}
+                aria-label={messages.nextYear}
+                onClick={() =>
+                  setVisibleMonth(shiftCalendarMonth(visibleMonth, 12))
+                }
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </PickerIconButton>
+            </div>
+
+            <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase tracking-normal">
+              {messages.weekdayNames.map((weekday) => (
+                <div
+                  key={weekday}
+                  className="text-[var(--aa-secondary-text)]"
+                >
+                  {weekday}
+                </div>
+              ))}
+            </div>
+
+            <div
+              className="mt-1 grid grid-cols-7 gap-1"
+              onClick={keepPopoverOpenOnBlankClick}
+              onPointerDown={keepPopoverOpenOnBlankPointerDown}
+              onMouseDown={keepPopoverOpenOnBlankMouseDown}
+              onDoubleClick={keepPopoverOpenOnBlankDoubleClick}
             >
-              <ChevronsLeft className="h-4 w-4" />
-            </PickerIconButton>
-            <PickerIconButton
-              darkMode={darkMode}
-              aria-label={messages.previousMonth}
-              onClick={() =>
-                setVisibleMonth(shiftCalendarMonth(visibleMonth, -1))
-              }
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </PickerIconButton>
-            <div className="truncate px-1 text-center text-sm font-semibold">
-              {messages.monthYear(
-                messages.monthNames[visibleMonth.monthIndex],
-                visibleMonth.year,
+              {days.map((day, index) =>
+                day ? (
+                  <DayButton
+                    key={day.value}
+                    darkMode={darkMode}
+                    day={day.day}
+                    selected={day.value === value}
+                    disabled={isDateOutsideBounds(day.value, min, max)}
+                    onClick={() => {
+                      onChange(day.value);
+                      setOpen(false);
+                    }}
+                  />
+                ) : (
+                  <div
+                    key={`blank-${index}`}
+                    className="h-8"
+                    onClick={keepPopoverOpenOnBlankClick}
+                    onPointerDown={keepPopoverOpenOnBlankPointerDown}
+                    onMouseDown={keepPopoverOpenOnBlankMouseDown}
+                    onDoubleClick={keepPopoverOpenOnBlankDoubleClick}
+                  />
+                ),
               )}
             </div>
-            <PickerIconButton
-              darkMode={darkMode}
-              aria-label={messages.nextMonth}
-              onClick={() =>
-                setVisibleMonth(shiftCalendarMonth(visibleMonth, 1))
-              }
-            >
-              <ChevronRight className="h-4 w-4" />
-            </PickerIconButton>
-            <PickerIconButton
-              darkMode={darkMode}
-              aria-label={messages.nextYear}
-              onClick={() =>
-                setVisibleMonth(shiftCalendarMonth(visibleMonth, 12))
-              }
-            >
-              <ChevronsRight className="h-4 w-4" />
-            </PickerIconButton>
           </div>
-
-          <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase tracking-normal">
-            {messages.weekdayNames.map((weekday) => (
-              <div
-                key={weekday}
-                className="text-[var(--aa-secondary-text)]"
-              >
-                {weekday}
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-1 grid grid-cols-7 gap-1">
-            {days.map((day, index) =>
-              day ? (
-                <DayButton
-                  key={day.value}
-                  darkMode={darkMode}
-                  day={day.day}
-                  selected={day.value === value}
-                  disabled={isDateOutsideBounds(day.value, min, max)}
-                  onClick={() => {
-                    onChange(day.value);
-                    setOpen(false);
-                  }}
-                />
-              ) : (
-                <div key={`blank-${index}`} className="h-8" />
-              ),
-            )}
-          </div>
-
-          {allowClear && value ? (
-            <Button
-              darkMode={darkMode}
-              tone="ghost"
-              size="xs"
-              className="mt-2 w-full"
-              icon={<X className="h-3.5 w-3.5" />}
-              onClick={() => onChange("")}
-            >
-              {messages.clearDate}
-            </Button>
-          ) : null}
         </div>
       ) : null}
     </div>

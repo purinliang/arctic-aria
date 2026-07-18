@@ -26,9 +26,9 @@ and [data-model.md](data-model.md).
 ## Registration Tab
 
 - Keep the auth panel centered on the page.
-- The auth page may use a minimum height around `110vh` and extra bottom
-  padding so users can scroll the form and metadata closer to the visual center
-  on small screens.
+- The auth page should use visible viewport height on mobile and may use a
+  minimum height around `110vh` on desktop, with extra bottom padding so users
+  can scroll the form and metadata closer to the visual center.
 - Show a centered brand row above the tabs as the first component. It should
   include a Sparkles icon and the localized brand name.
 - Show a centered description below the brand row, such as `Your personal life
@@ -110,13 +110,26 @@ Submit behavior:
 
 - Clicking `Sign in` or `Sign up` is a blocking auth action.
 - Auth submit is not optimistic.
-- While submitting, show a loading state on the main button and prevent
-  duplicate submit.
+- While submitting, prevent duplicate submit. The main button text should cycle
+  through `Signing in.`, `Signing in..`, and `Signing in...` for login, or
+  `Signing up.`, `Signing up..`, and `Signing up...` for registration.
 - Keep the auth form visible until the backend confirms success.
 - On success, show a shared success notification and open the authenticated
   app.
 - On backend validation or persistence failure, keep the user on the auth page
   and show the backend message through the shared notification stack.
+
+Sign-out behavior:
+
+- Sign out is a blocking auth action and is not optimistic.
+- While sign out is pending, only the sidebar sign-out row should show
+  `Signing out.`, `Signing out..`, and `Signing out...` as a periodic text
+  animation. Login or registration pending state must not trigger this label.
+- Pending sign-in and sign-up buttons are full-width, so they should not flash
+  width while dots change. The visible icon and current text should keep their
+  natural width and stay centered together.
+- After successful sign out, return to the signed-out auth page with the
+  `Sign in` tab selected, even if the user last used the registration tab.
 
 Future action behavior:
 

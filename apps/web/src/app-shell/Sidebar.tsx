@@ -1,5 +1,4 @@
 // App Shell - Sidebar.
-import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Album,
   Bell,
@@ -15,22 +14,10 @@ import {
 import type { ReactNode } from "react";
 import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
 import { Button } from "@/components/button";
+import { PendingText } from "@/components/loading";
+import { ScrollArea } from "@/components/scroll-area";
 import type { DashboardView } from "@/features/dashboard/types";
 import type { AppShellMessages } from "@/messages/app-messages";
-
-type SidebarScrollbarState = {
-  canScroll: boolean;
-  visible: boolean;
-  thumbHeight: number;
-  thumbTop: number;
-};
-
-const hiddenScrollbarState: SidebarScrollbarState = {
-  canScroll: false,
-  visible: false,
-  thumbHeight: 0,
-  thumbTop: 0,
-};
 
 export type SidebarPinnedProject = {
   id: string;
@@ -150,77 +137,6 @@ function SidebarFrame({
   onThemeChange: (darkMode: boolean) => void;
   onLogout: () => void;
 }) {
-  const sidebarRef = useRef<HTMLDivElement | null>(null);
-  const scrollHideTimer = useRef<number | null>(null);
-  const [scrollbarState, setScrollbarState] = useState<SidebarScrollbarState>(
-    hiddenScrollbarState,
-  );
-
-  const updateScrollbarState = useCallback((visible: boolean) => {
-    const sidebar = sidebarRef.current;
-
-    if (!sidebar || sidebar.clientHeight <= 0) {
-      setScrollbarState(hiddenScrollbarState);
-      return;
-    }
-
-    const canScroll = sidebar.scrollHeight > sidebar.clientHeight + 1;
-
-    if (!canScroll) {
-      setScrollbarState(hiddenScrollbarState);
-      return;
-    }
-
-    const trackPadding = 8;
-    const trackHeight = Math.max(0, sidebar.clientHeight - trackPadding * 2);
-    const thumbHeight = Math.max(
-      32,
-      Math.round((sidebar.clientHeight / sidebar.scrollHeight) * trackHeight),
-    );
-    const maxScrollTop = sidebar.scrollHeight - sidebar.clientHeight;
-    const maxThumbTop = Math.max(0, trackHeight - thumbHeight);
-    const thumbTop =
-      trackPadding +
-      (maxScrollTop > 0 ? (sidebar.scrollTop / maxScrollTop) * maxThumbTop : 0);
-
-    setScrollbarState({
-      canScroll: true,
-      visible,
-      thumbHeight,
-      thumbTop,
-    });
-  }, []);
-
-  useEffect(() => {
-    updateScrollbarState(false);
-
-    function handleResize() {
-      updateScrollbarState(false);
-    }
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      if (scrollHideTimer.current !== null) {
-        window.clearTimeout(scrollHideTimer.current);
-      }
-
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [open, pinnedProjects.length, updateScrollbarState]);
-
-  function handleScroll() {
-    updateScrollbarState(true);
-
-    if (scrollHideTimer.current !== null) {
-      window.clearTimeout(scrollHideTimer.current);
-    }
-
-    scrollHideTimer.current = window.setTimeout(() => {
-      updateScrollbarState(false);
-    }, 900);
-  }
-
   return (
     <aside
       className={`${
@@ -231,10 +147,11 @@ function SidebarFrame({
           : "hidden h-screen w-[300px] shrink-0 lg:sticky lg:top-0 lg:flex"
       } relative flex-col border-r border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-header-bg)] text-[var(--aa-primary-text)]`}
     >
-      <div
-        ref={sidebarRef}
-        className="sidebar-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain p-4"
-        onScroll={handleScroll}
+      <ScrollArea
+        className="relative flex-1"
+        refreshKey={`${open}-${pinnedProjects.length}-${messages.workspace}`}
+        scrollbar="auto-hide"
+        viewportClassName="h-full overscroll-contain p-4"
       >
         <div className="flex items-start justify-between gap-3 px-4">
           <ArcticAriaLogo
@@ -333,7 +250,13 @@ function SidebarFrame({
             icon={<LogOut size={18} aria-hidden="true" />}
             label={
               logoutPending
-                ? messages.sidebar.signingOut
+                ? (
+                    <PendingText
+                      active
+                      idleText={messages.sidebar.signOut}
+                      pendingText={messages.sidebar.signingOut}
+                    />
+                  )
                 : messages.sidebar.signOut
             }
             darkMode={darkMode}
@@ -341,20 +264,7 @@ function SidebarFrame({
             onClick={onLogout}
           />
         </nav>
-      </div>
-
-      {scrollbarState.canScroll ? (
-        <span
-          className={`pointer-events-none absolute right-1 top-0 block w-0.5 rounded-full transition-opacity duration-200 ${
-            scrollbarState.visible ? "opacity-100" : "opacity-0"
-          } bg-[var(--aa-secondary-button-hover-bg)]`}
-          style={{
-            height: scrollbarState.thumbHeight,
-            transform: `translateY(${scrollbarState.thumbTop}px)`,
-          }}
-          aria-hidden="true"
-        />
-      ) : null}
+      </ScrollArea>
     </aside>
   );
 }
@@ -369,7 +279,7 @@ function SidebarItem({
   onClick,
 }: {
   icon: ReactNode;
-  label: string;
+  label: ReactNode;
   active?: boolean;
   darkMode: boolean;
   disabled?: boolean;
@@ -395,7 +305,7 @@ function SidebarItem({
     >
       <span
         className={`min-w-0 flex-1 truncate text-left ${child ? "pl-4" : ""}`}
-        title={label}
+        title={typeof label === "string" ? label : undefined}
       >
         {label}
       </span>

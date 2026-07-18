@@ -107,6 +107,20 @@ memories.
 Use official brand artwork instead of Lucide for brand identities, such as the
 Google sign-in placeholder icon.
 
+## Scroll Area
+
+`scroll-area.tsx` owns custom scroll behavior. Use it instead of feature-local
+scrollbar state or feature-local hidden-scrollbar CSS.
+
+Use `scrollbar="auto-hide"` only where a persistent scrollbar would distract
+from the surface, such as the sidebar. Auto-hide mode hides the browser's native
+scrollbar, shows a subtle shared thumb while the user scrolls, and hides the
+thumb again after scrolling stops.
+
+Use the default visible custom scrollbar for dropdowns, dialogs, lists, and page
+content when the scrollbar helps the user discover overflow. Do not expose the
+browser's native scrollbar in app-styled surfaces.
+
 ## Input Field
 
 `forms/input-field.tsx` owns the appearance of single-line text inputs and
@@ -124,6 +138,17 @@ Input field components must stay presentational. They should accept the current
 visual state, bubble text, and bubble visibility from the caller, but they should
 not decide validation rules or validation timing.
 
+Text inputs, password inputs, text areas, number fields, and time picker typed
+fields should keep the text-input background while hovered or focused. Their
+focus state should change the existing border color instead of drawing an
+outside ring. The focused border may become visually heavier inward, but it
+must not add a second outline outside the control.
+
+Selection inputs and date/time picker triggers are button-like form controls
+because they open another surface. They may use button-like hover treatment, but
+their focus state should still be expressed through the existing border, not an
+outside ring.
+
 Required-empty messages, such as `Username can't be empty.`, are submit/form
 logic. They should appear only after the user clicks the relevant confirm,
 login, or save button. Other field rules, such as length, allowed characters, or
@@ -137,36 +162,63 @@ control components instead of being treated as generic input fields.
 `forms/date-picker-field.tsx` owns date selection. It must render an app-styled
 calendar popup with month and year navigation. The day grid must reserve six
 weeks so months with five and six visual rows do not change the picker height.
-Month names and weekday labels must come from the active localization messages.
-Do not use native browser `type=date` controls for primary UI, because the
-popup can follow the user's browser or operating-system locale and cannot be
-styled consistently.
+The calendar header should use short month names, and weekday labels must come
+from the active localization messages. Longer formatted date strings outside
+the picker may use the shared long date formatter when the surface needs the
+weekday. Do not use native browser `type=date` controls for primary UI, because
+the popup can follow the user's browser or operating-system locale and cannot
+be styled consistently.
 
 `forms/time-picker-field.tsx` owns time selection. It must render a compact
 app-styled picker with one typed time field and AM/PM controls when the active
 time-format preference is 12-hour, then return normalized `HH:mm` values. The
 typed field should accept compact values such as `910` for `9:10` and 24-hour
-values such as `19:30` for `7:30 PM`. While the popover is open, edits stay in a
-local draft until the user clicks `Confirm`. Do not show an extra visible
-`Time` title inside the popover; the surrounding form field owns the label.
+values such as `19:30` for `7:30 PM`. Valid typed values and AM/PM toggles
+should update the owning form immediately; do not require a separate confirm
+button. Invalid in-progress text may stay local until it becomes a valid time.
+Do not show an extra visible `Time` title inside the popover; the surrounding
+form field owns the label.
 When the popover opens, autofocus the typed time field and select its current
 value so keyboard entry can start immediately. The typed field placeholder
 should show example formats, such as `9:30PM or 21:30`.
-Before confirmation, show a preview with the normalized time and a capitalized
-day period, such as `12:30 AM Midnight`, `09:30 PM Night`, or `21:30 Night`.
 When no value exists, the picker defaults to the current time plus 15 minutes,
 rounded up to the next 15-minute boundary. Do not use native browser
 `type=time` controls for primary UI and do not use a long scroll list or
 quick-minute button strip for routine time selection.
-The action buttons should be vertical and full width: `Confirm` first, then
-`X Clear Time` when a clear action is available.
+The visible time trigger should place the clock icon on the left and, when a
+saved value is present, a borderless clear icon button on the right. The time
+picker popover should show the typed time field on the first row without a
+duplicated icon or clear button. In 12-hour mode, the second row should contain
+`AM` and `PM` buttons using normal button height, not input-field height. Do
+not show a `Confirm` action and do not show a preview/description row for noon,
+midnight, morning, evening, or night. Do not render a separate clear row.
+Pressing Enter or the mobile keyboard confirm key inside the typed time field
+should close only the picker popover and must not submit the surrounding
+add/edit dialog.
+
+Date picker trigger controls should place the calendar icon on the left. The
+date picker clear action is an inline borderless icon button inside the date
+trigger value area on the right, and only appears when a saved value is present.
+Do not render a separate clear row below the calendar grid.
+
+Clicking or double-clicking unrelated empty space inside a date or time picker
+popover, including blank calendar cells and grid gaps, should not dismiss the
+popover or blur/reset the time picker draft. Picker popovers close through
+explicit picker controls, outside clicks, or intended keyboard dismissal.
+Re-clicking or double-clicking the time picker trigger while its popover is
+already open should keep it open.
 
 Date and time pickers are still controlled form components. Feature code owns
 the current value, validation rules, and validation timing. Picker popovers
 should render as absolute overlays inside the field wrapper with stable widths
-so opening them does not change the parent card, dialog, list item, or field
-layout. Do not render picker popovers through a viewport portal unless there is
-a specific clipping bug that cannot be solved in the dialog/layout component.
+and normal, even padding on all four edges so opening them does not change the
+parent card, dialog, list item, or field layout. The closed picker trigger
+should use the bordered secondary button role, not normal input text styling.
+It should keep the same text and icon color whether it is empty, placeholder
+text, defaulted, or selected; text and icon color changes are reserved for
+hover, disabled, and error states. Focus should change the border only. Do not
+render picker popovers through a viewport portal unless there is a specific
+clipping bug that cannot be solved in the dialog/layout component.
 
 Visible time strings outside the picker must use the same shared time formatter
 and the user's time-format preference. Do not render raw stored `HH:mm` strings
@@ -189,7 +241,14 @@ browser or operating-system colors, corners, and spacing.
 Single-select dropdowns may render their opened menu through a viewport portal
 when the field sits inside a clipped list or panel. The portal should preserve
 the same rounded popover surface, font size, option spacing, and dark-mode
-colors while avoiding parent `overflow-hidden` clipping.
+colors while avoiding parent `overflow-hidden` clipping. The opened menu should
+have no outer padding and should match the trigger width; option rows own their
+own internal padding.
+
+The closed select trigger should use the bordered secondary button role. It
+should keep the same text and icon color whether it is empty or selected.
+Empty placeholder wording can differ from selected text, but the trigger should
+not visually change weight or color only because the user selected a value.
 
 `forms/choice-group.tsx` owns visible button-group choices for single and
 multiple selection. Use it when the user should clearly see a compact set of
@@ -305,14 +364,30 @@ dialogs should use the default dialog width so input fields, date pickers, and
 other long controls do not collapse into a narrow column. Small confirmation
 dialogs may use the `sm` size. Dialog overlays must provide enough top and
 bottom viewport padding and must allow vertical scrolling when form content is
-taller than the viewport. Feature dialogs should use the shared `DialogOverlay`,
-`DialogBackdrop`, `DialogFrame`, and `DialogHeader` pieces instead of
-hand-rolling fixed overlay containers.
+taller than the viewport. Dialogs must not close when the user clicks the
+semi-transparent overlay; close only through explicit close, cancel, save,
+delete, or confirmation controls. Feature dialogs should use shared dialog
+primitives instead of hand-rolling fixed overlay containers.
 
-Add/edit form dialogs should use `DialogActionRow` and `DialogPrimaryButton`
-for the save action. The primary save button should be full width with clear
-top spacing, matching the login submit button pattern. Secondary destructive
-actions may appear below it with secondary styling.
+Add/edit form dialogs that save an entity and optionally delete it should use
+`CrudEditorDialog`. Feature code supplies the fields, draft state, validation,
+and action handlers; the shared dialog owns overlay, frame, header, full-width
+save action, save pending text, and optional delete action. Lower-level
+`DialogOverlay`, `DialogFrame`, `DialogHeader`, `DialogActionRow`, and
+`DialogPrimaryButton` remain available for dialogs that do not fit the standard
+CRUD form shape.
+
+Save and delete dialog actions should use text-only pending labels, not loading
+icons. Full-width save buttons can use animated dots: `Saving.`, `Saving..`,
+and `Saving...`. Auto-width delete confirmation buttons should use a static
+pending label such as `Deleting...`; do not animate dots there because it can
+make compact buttons feel jumpy. The visible icon and current text should keep
+their natural width and stay centered together as one group. Do not show spinner
+icons in add/edit/delete dialog action rows.
+
+Use the shared `PendingText` primitive for action labels that animate dot
+suffixes, such as signing in, signing up, saving, and signing out. Avoid it for
+compact auto-width buttons.
 
 ## Notification
 

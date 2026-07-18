@@ -1,16 +1,7 @@
 // Routines Page - Routine Editor Dialog.
-import { LoaderCircle, Save, Trash2 } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
-import { Button } from "@/components/button";
+import { CrudEditorDialog } from "@/components/dialog";
 import { DatePickerField } from "@/components/forms/date-picker-field";
-import {
-  DialogActionRow,
-  DialogBackdrop,
-  DialogFrame,
-  DialogHeader,
-  DialogOverlay,
-  DialogPrimaryButton,
-} from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { TimePickerField } from "@/components/forms/time-picker-field";
@@ -23,6 +14,7 @@ import { RoutineRecurrenceFields } from "./RoutineRecurrenceFields";
 export function RoutineEditorDialog({
   darkMode,
   pending,
+  saving,
   draft,
   messages,
   formMessages,
@@ -34,6 +26,7 @@ export function RoutineEditorDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
+  saving: boolean;
   draft: RoutineInput;
   messages: RoutineMessages;
   formMessages: FormMessages;
@@ -44,77 +37,44 @@ export function RoutineEditorDialog({
   onDelete: () => void;
 }) {
   return (
-    <DialogOverlay>
-      <DialogBackdrop label={messages.editor.close} onClick={onClose} />
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          onSubmit();
-        }}
-      >
-        <DialogFrame darkMode={darkMode}>
-          <DialogHeader
-            darkMode={darkMode}
-            title={draft.id ? messages.editor.edit : messages.editor.add}
-            closeLabel={messages.editor.close}
-            onClose={onClose}
-          />
-          <div className="grid gap-3">
-            <RoutineTextFields
-              darkMode={darkMode}
-              pending={pending}
-              draft={draft}
-              messages={messages.editor}
-              setDraft={setDraft}
-            />
-            <RecurrenceFields
-              darkMode={darkMode}
-              pending={pending}
-              draft={draft}
-              messages={messages}
-              formMessages={formMessages}
-              setDraft={setDraft}
-            />
-            <RoutineScheduleFields
-              darkMode={darkMode}
-              pending={pending}
-              draft={draft}
-              messages={messages.editor}
-              formMessages={formMessages}
-              timeFormatPreference={timeFormatPreference}
-              setDraft={setDraft}
-            />
-          </div>
-          <DialogActionRow>
-            <DialogPrimaryButton
-              darkMode={darkMode}
-              type="submit"
-              loading={pending}
-              icon={<Save size={14} aria-hidden="true" />}
-              loadingIcon={
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              }
-            >
-              {messages.editor.save}
-            </DialogPrimaryButton>
-            {draft.id ? (
-              <Button
-                darkMode={darkMode}
-                disabled={pending}
-                icon={<Trash2 size={14} aria-hidden="true" />}
-                onClick={onDelete}
-              >
-                {messages.editor.delete}
-              </Button>
-            ) : null}
-          </DialogActionRow>
-        </DialogFrame>
-      </form>
-    </DialogOverlay>
+    <CrudEditorDialog
+      darkMode={darkMode}
+      pending={pending}
+      saving={saving}
+      title={draft.id ? messages.editor.edit : messages.editor.add}
+      closeLabel={messages.editor.close}
+      saveText={messages.editor.save}
+      savingText={messages.editor.saving}
+      deleteText={draft.id ? messages.editor.delete : undefined}
+      onClose={onClose}
+      onSubmit={onSubmit}
+      onDelete={draft.id ? onDelete : undefined}
+    >
+      <RoutineTextFields
+        darkMode={darkMode}
+        pending={pending}
+        draft={draft}
+        messages={messages.editor}
+        setDraft={setDraft}
+      />
+      <RecurrenceFields
+        darkMode={darkMode}
+        pending={pending}
+        draft={draft}
+        messages={messages}
+        formMessages={formMessages}
+        setDraft={setDraft}
+      />
+      <RoutineScheduleFields
+        darkMode={darkMode}
+        pending={pending}
+        draft={draft}
+        messages={messages.editor}
+        formMessages={formMessages}
+        timeFormatPreference={timeFormatPreference}
+        setDraft={setDraft}
+      />
+    </CrudEditorDialog>
   );
 }
 

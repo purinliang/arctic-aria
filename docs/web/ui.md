@@ -1,7 +1,7 @@
 # UI Rules
 
 This document is the human-facing entry point for Arctic Aria UI rules. Detailed
-web component rules live in [web/ui-components.md](web/ui-components.md).
+web component rules live in [ui-components.md](ui-components.md).
 Feature-specific UI behavior stays under `docs/features/<feature>/ui.md`.
 
 ## Structure
@@ -26,11 +26,11 @@ the app needs a reusable pattern.
 
 Important shared docs:
 
-- [web/ui-components.md](web/ui-components.md)
-- [web/theme.md](web/theme.md)
-- [web/localization.md](web/localization.md)
-- [web/sidebar.md](web/sidebar.md)
-- [web/sidebar-ui.md](web/sidebar-ui.md)
+- [ui-components.md](ui-components.md)
+- [theme.md](theme.md)
+- [localization.md](localization.md)
+- [sidebar.md](sidebar.md)
+- [sidebar-ui.md](sidebar-ui.md)
 
 ## UI Documentation Contract
 
@@ -72,8 +72,8 @@ For interactions, document:
 
 ## Current Feature UI Docs
 
-- [features/auth/ui.md](features/auth/ui.md)
-- [features/dashboard/ui.md](features/dashboard/ui.md)
-- [features/projects/ui.md](features/projects/ui.md)
-- [features/routines/ui.md](features/routines/ui.md)
-- [features/memories/ui.md](features/memories/ui.md)
+- [../features/auth/ui.md](../features/auth/ui.md)
+- [../features/dashboard/ui.md](../features/dashboard/ui.md)
+- [../features/projects/ui.md](../features/projects/ui.md)
+- [../features/routines/ui.md](../features/routines/ui.md)
+- [../features/memories/ui.md](../features/memories/ui.md)

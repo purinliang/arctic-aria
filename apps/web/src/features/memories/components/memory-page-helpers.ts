@@ -93,3 +93,10 @@ export const emptyCategoryDraft: MemoryCategoryInput = {
   name: "",
   description: "",
 };
+
+export function getCategoryFormStateAfterSuccessfulDelete() {
+  return {
+    categoryFormOpen: false,
+    categoryDraft: emptyCategoryDraft,
+  };
+}

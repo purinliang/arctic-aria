@@ -11,18 +11,20 @@ from page panels and should not share the right page's height.
 The page area starts to the right of the sidebar and keeps its own max width.
 The sidebar should not look like another page panel.
 
-The right page content should have a minimum height of `110vh`. This keeps the
-page scroll behavior visible and separate from the sidebar. The app shell also
-owns shared bottom padding so feature pages do not add page-end spacing
-individually.
+The right page content should have a minimum height of `110vh` on desktop.
+This keeps the page scroll behavior visible and separate from the sidebar. On
+mobile, use the visible viewport height instead of `110vh` so browser chrome
+does not create excess blank height. The app shell also owns shared bottom
+padding so feature pages do not add page-end spacing individually.
 
 The sidebar should scroll internally when the viewport height is too small for
 all sidebar content.
 
-The sidebar scrollbar should be visually hidden by default. When the user
-scrolls the sidebar, reveal a subtle scrollbar thumb and hide it again after
-scrolling stops. Keep the track transparent and avoid a permanent native
-scrollbar unless the browser forces one.
+The sidebar uses the shared `ScrollArea` with `scrollbar="auto-hide"`. The
+native scrollbar should be visually hidden. When the user scrolls the sidebar,
+reveal a subtle shared scrollbar thumb and hide it again after scrolling stops.
+Keep the track transparent and avoid a permanent native scrollbar unless the
+browser forces one.
 
 ## Mobile
 

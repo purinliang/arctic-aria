@@ -28,7 +28,6 @@ The current implementation does not include:
 - Discord task reminders
 - dependency graph editing
 - AI-generated task breakdown
-- reward calculations
 - review-card finalization
 - milestone reorder UI
 - project pause, resume, complete, and archive UI
@@ -247,7 +246,8 @@ Task row layout:
 Dialog shell:
 
 - parent overlay: `DialogOverlay`
-- backdrop: `DialogBackdrop`
+- backdrop: non-interactive `DialogOverlay`; clicking outside the dialog does
+  not close add/edit state
 - frame: `DialogFrame`
 - top row: `DialogHeader`
 - save and delete failures use `NotificationStack`; do not render page-local or
@@ -255,11 +255,13 @@ Dialog shell:
 - field area: vertical grid
 - footer: `DialogActionRow` with one full-width primary `Save` button
 - save icon: `Save`
-- loading icon: animated `LoaderCircle`
+- save pending label: animated `Saving.`, `Saving..`, and `Saving...`; keep the
+  full-width button stable and do not show a loading icon
 - existing project, milestone, and task edit dialogs also show a full-width
   secondary `Delete` button below `Save`
 - `Delete` opens shared `ConfirmDialog`; confirmation uses the standard primary
-  button style and deletes only after backend success
+  button style, changes to static `Deleting...` while pending, avoids animated
+  dots in the compact auto-width button, and deletes only after backend success
 
 Project field order:
 

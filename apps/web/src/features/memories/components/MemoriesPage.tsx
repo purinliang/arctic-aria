@@ -20,6 +20,7 @@ import { MemoriesPanel } from "./MemoriesPanel";
 import { SuggestionsPanel } from "./SuggestionsPanel";
 import {
   emptyCategoryDraft,
+  getCategoryFormStateAfterSuccessfulDelete,
   getMemoryCategoryName,
   getVisibleMemoryFilterCategories,
   sortMemoryCategories,
@@ -40,6 +41,7 @@ type ConfirmationTarget =
       id: string;
       title: string;
     };
+type DialogAction = "save" | "delete" | null;
 
 export function MemoriesPage({
   darkMode,
@@ -89,6 +91,10 @@ export function MemoriesPage({
   const [categoryFormOpen, setCategoryFormOpen] = useState(false);
   const [confirmationTarget, setConfirmationTarget] =
     useState<ConfirmationTarget | null>(null);
+  const [memoryDialogAction, setMemoryDialogAction] =
+    useState<DialogAction>(null);
+  const [categoryDialogAction, setCategoryDialogAction] =
+    useState<DialogAction>(null);
   const [memoryDraft, setMemoryDraft] = useState<MemoryInput>({
     categoryId: sortedCategories[0]?.id ?? "",
     categoryName: sortedCategories[0]?.name,
@@ -107,13 +113,13 @@ export function MemoriesPage({
   const editingMemory = Boolean(memoryDraft.id);
 
   function closeMemoryEditor() {
-    if (!pending) {
+    if (!pending && memoryDialogAction === null) {
       setMemoryEditorOpen(false);
     }
   }
 
   function closeCategoryEditor() {
-    if (!pending) {
+    if (!pending && categoryDialogAction === null) {
       setCategoryEditorOpen(false);
       setCategoryFormOpen(false);
       setCategoryDraft(emptyCategoryDraft);
@@ -121,7 +127,7 @@ export function MemoriesPage({
   }
 
   function closeCategoryForm() {
-    if (!pending) {
+    if (!pending && categoryDialogAction === null) {
       setCategoryFormOpen(false);
       setCategoryDraft(emptyCategoryDraft);
     }
@@ -171,39 +177,51 @@ export function MemoriesPage({
   }
 
   async function submitMemory() {
-    const saved = await onMemorySave(memoryDraft);
+    setMemoryDialogAction("save");
 
-    if (saved) {
-      setMemoryEditorOpen(false);
+    try {
+      const saved = await onMemorySave(memoryDraft);
+
+      if (saved) {
+        setMemoryEditorOpen(false);
+      }
+    } finally {
+      setMemoryDialogAction(null);
     }
   }
 
   async function submitCategory() {
     const draft = categoryDraft;
-    const saved = await onCategorySave(draft);
+    setCategoryDialogAction("save");
 
-    if (!saved) {
-      return;
+    try {
+      const saved = await onCategorySave(draft);
+
+      if (!saved) {
+        return;
+      }
+
+      const savedCategory = draft.id
+        ? saved.categories.find((category) => category.id === draft.id)
+        : saved.categories.find(
+            (category) =>
+              category.name.toLocaleLowerCase() ===
+              draft.name.trim().toLocaleLowerCase(),
+          );
+
+      if (savedCategory) {
+        setMemoryDraft((current) => ({
+          ...current,
+          categoryId: savedCategory.id,
+          categoryName: savedCategory.name,
+        }));
+      }
+
+      setCategoryDraft(emptyCategoryDraft);
+      setCategoryFormOpen(false);
+    } finally {
+      setCategoryDialogAction(null);
     }
-
-    const savedCategory = draft.id
-      ? saved.categories.find((category) => category.id === draft.id)
-      : saved.categories.find(
-          (category) =>
-            category.name.toLocaleLowerCase() ===
-            draft.name.trim().toLocaleLowerCase(),
-        );
-
-    if (savedCategory) {
-      setMemoryDraft((current) => ({
-        ...current,
-        categoryId: savedCategory.id,
-        categoryName: savedCategory.name,
-      }));
-    }
-
-    setCategoryDraft(emptyCategoryDraft);
-    setCategoryFormOpen(false);
   }
 
   async function confirmDelete() {
@@ -212,21 +230,36 @@ export function MemoriesPage({
     }
 
     if (confirmationTarget.type === "memory") {
-      const deleted = await onMemoryDelete(confirmationTarget.id);
+      setMemoryDialogAction("delete");
 
-      if (deleted) {
-        setMemoryEditorOpen(false);
+      try {
+        const deleted = await onMemoryDelete(confirmationTarget.id);
+
+        if (deleted) {
+          setMemoryEditorOpen(false);
+        }
+        setConfirmationTarget(null);
+      } finally {
+        setMemoryDialogAction(null);
       }
-      setConfirmationTarget(null);
       return;
     }
 
-    const deleted = await onCategoryDelete(confirmationTarget.id);
+    setCategoryDialogAction("delete");
 
-    if (deleted) {
-      setCategoryDraft(emptyCategoryDraft);
+    try {
+      const deleted = await onCategoryDelete(confirmationTarget.id);
+
+      if (deleted) {
+        const nextCategoryFormState = getCategoryFormStateAfterSuccessfulDelete();
+
+        setCategoryDraft(nextCategoryFormState.categoryDraft);
+        setCategoryFormOpen(nextCategoryFormState.categoryFormOpen);
+      }
+      setConfirmationTarget(null);
+    } finally {
+      setCategoryDialogAction(null);
     }
-    setConfirmationTarget(null);
   }
 
   return (
@@ -269,7 +302,8 @@ export function MemoriesPage({
       {memoryEditorOpen ? (
         <MemoryEditorDialog
           darkMode={darkMode}
-          pending={pending}
+          pending={pending || memoryDialogAction !== null}
+          saving={memoryDialogAction === "save"}
           editingMemory={editingMemory}
           memoryDraft={memoryDraft}
           categories={sortedCategories}
@@ -294,7 +328,8 @@ export function MemoriesPage({
       {categoryEditorOpen ? (
         <CategoryManagerDialog
           darkMode={darkMode}
-          pending={pending}
+          pending={pending || categoryDialogAction !== null}
+          saving={categoryDialogAction === "save"}
           categories={sortedCategories}
           categoryDraft={categoryDraft}
           categoryFormOpen={categoryFormOpen}
@@ -321,7 +356,11 @@ export function MemoriesPage({
       {confirmationTarget ? (
         <ConfirmDialog
           darkMode={darkMode}
-          pending={pending}
+          pending={
+            pending ||
+            memoryDialogAction === "delete" ||
+            categoryDialogAction === "delete"
+          }
           title={
             confirmationTarget.type === "memory"
               ? messages.confirm.memoryTitle
@@ -330,10 +369,15 @@ export function MemoriesPage({
           description={messages.confirm.description(confirmationTarget.title)}
           cancelText={messages.confirm.cancel}
           confirmText={messages.confirm.confirm}
+          pendingConfirmText={messages.confirm.deleting}
           closeLabel={messages.confirm.close}
           confirmIcon={<Trash2 size={14} aria-hidden="true" />}
           onCancel={() => {
-            if (!pending) {
+            if (
+              !pending &&
+              memoryDialogAction === null &&
+              categoryDialogAction === null
+            ) {
               setConfirmationTarget(null);
             }
           }}

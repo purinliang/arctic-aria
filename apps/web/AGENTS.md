@@ -8,7 +8,7 @@ this file adds web-specific source, UI, TypeScript, and verification rules.
 For web UI changes, read the relevant feature UI doc and these shared docs when
 they apply:
 
-- `docs/ui.md`
+- `docs/web/ui.md`
 - `docs/web/ui-components.md`
 - `docs/web/theme.md`
 - `docs/web/sidebar.md`
@@ -82,6 +82,11 @@ they apply:
 - Card and panel title actions must be placed by the shared `CardHeader`.
   Feature code should pass an action component and must not hand-align header
   button top/right padding locally.
+- Custom scroll behavior must use the shared `ScrollArea`. Hide native
+  scrollbars and use the shared custom thumb. Use auto-hidden scrollbar
+  behavior only when the scrollbar itself is visual noise, such as the sidebar.
+  Dropdowns, dialogs, lists, and page overflow may keep the custom thumb visible
+  when that makes overflow easier to discover.
 - Visible page sections should usually be named as `*Panel.tsx` components
   when they own one complete panel.
 - For desktop left-right page layouts, use the shared split pattern: flexible
@@ -92,8 +97,10 @@ they apply:
   split must not equalize panel heights; left and right panels keep independent
   content-driven heights.
 - Page-level minimum height and bottom breathing room belong in the app shell,
-  not feature pages. Keep the authenticated content column at least `110vh`
-  tall with shared bottom padding so all pages scroll consistently.
+  not feature pages. Keep app pages at least `100dvh` tall on mobile so the
+  browser chrome does not create excess blank height; keep the authenticated
+  desktop content column at least `110vh` tall with shared bottom padding so
+  desktop pages scroll consistently.
 - Full route/page bodies should usually be named as `*Page.tsx` components.
 
 ## UI Interaction Defaults
@@ -102,7 +109,15 @@ they apply:
   normally resolve the active surface immediately. Dashboard rows should stay
   lightweight and avoid edit/detail management actions unless a feature spec
   explicitly allows them.
-- Checkbox-style commands are important examples of optimistic updates.
+- Optimistic lightweight actions should update the active row immediately,
+  submit the backend command, leave unrelated rows and buttons interactive, and
+  show a shared notification only if the backend or database fails. Checkbox
+  actions such as done/undone are the default example.
+- Loading lightweight actions may wait for backend data when there is no local
+  rollback or cached result, such as refresh, regenerate, check-again, or
+  replacement without a cached candidate. Show loading on the active control and
+  disable only the active control when repeated clicks should be prevented; do
+  not block the whole panel list.
 - Modal-based CRUD save/delete flows are different: close dialogs only after a
   successful backend response, and keep the dialog open when validation or
   database updates fail.
@@ -125,6 +140,12 @@ they apply:
 - Username/password login and registration are excluded from optimistic UI.
   Auth flows should wait for strong backend confirmation before showing success
   or opening the dashboard.
+- Dashboard-visible data that is expensive or visually prominent may use a
+  browser cache with stale-while-refresh behavior. Show the cached snapshot
+  immediately for the signed-in user, refresh from the backend in the
+  background, keep cached content visible on refresh failure, and surface the
+  failure through the shared notification stack. Keep the cache keyed by Arctic
+  Aria user id so different accounts do not share dashboard/sidebar snapshots.
 
 ## Localization
 
@@ -158,8 +179,12 @@ they apply:
 
 ## Verification
 
-- For web code changes, run the relevant focused tests when they exist.
-- Use `pnpm --dir apps/web test`, `pnpm --dir apps/web lint`, and
-  `pnpm --dir apps/web build` for broad web verification when the change touches
-  shared components, app shell, server actions, or feature behavior.
+- Follow the root `AGENTS.md` Validation Workflow.
+- During normal feature/fix/refactor branch work, run the relevant focused
+  tests for the touched feature or shared area when they exist.
+- Before merging back into `develop`, or when the developer asks for full
+  validation, run `git diff --check`, `pnpm --dir apps/web test`,
+  `pnpm --dir apps/web lint`, and `pnpm --dir apps/web build`.
+- Also run the full web checks earlier when focused tests do not cover the risk
+  of a shared component, app shell, server action, metadata, or runtime change.
 - For docs-only changes under the web app, run at least `git diff --check`.

@@ -41,6 +41,23 @@ Feature ownership:
 - `features/dashboard` owns Dashboard composition, Dashboard hooks, shared
   dashboard optimistic helpers, and Dashboard-level tests
 
+The Dashboard hooks may use browser `localStorage` as a stale-while-refresh
+cache for signed-in users. After client hydration, cached project, routine, and
+memory data can populate the Dashboard and pinned-project sidebar shortcuts
+before the backend responds. Live backend data remains authoritative and
+replaces the cached snapshot after refresh. If the backend refresh fails, the
+cached content should stay visible and the failure should appear through the
+shared notification stack.
+
+Dashboard browser cache rules:
+
+- key cached sections by Arctic Aria user id and section name
+- keep separate sections for projects, routines, and memories
+- validate a small schema envelope before reading cached data
+- remove malformed cached data instead of rendering it
+- never use browser cache as the source of truth for saves, deletes, or
+  optimistic rollback decisions
+
 ## Dashboard Commands
 
 Dashboard actions are lightweight commands. They should usually be optimistic
@@ -81,8 +98,8 @@ apps/web/src/features/routines/components/RoutinesPanel.tsx
 apps/web/src/features/memories/components/PinnedMemoriesPanel.tsx
 ```
 
-The historical `apps/web/src/features/dashboard/dummy-data.ts` file is not the
-source of active Dashboard data. Do not add new Dashboard behavior there.
+Do not add new dummy-data-backed Dashboard behavior. The active Dashboard loads
+database-backed feature data through the hooks above.
 
 ## Related Feature Docs
 

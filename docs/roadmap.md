@@ -1,217 +1,51 @@
 # Roadmap
 
-This roadmap records what should happen next and what should remain future
-work. It is no longer organized as numbered phases.
+This roadmap records future work. It should not repeat released implementation
+details; released behavior belongs in `docs/releases/` and stable rules belong
+in the owning feature, web, or infrastructure docs.
 
-## Current Baseline
+Current released version: `v0.7.1`.
 
-Current released version: `v0.6.1`.
-Current development target: `v0.7.0`.
+## Next Work
 
-The web dashboard baseline in the latest release is mostly complete for the
-current prototype:
+The next work should harden the current prototype before another large
+user-facing feature starts.
 
-- auth, sessions, and sign out
-- dashboard app shell and sidebar
-- project list and project detail pages
-- project tasks on the dashboard
-- routines page and dashboard routine panel
-- memories page, categories, suggestions, and pinned memories
-- shared web UI components and consistent list/card/dialog/form patterns
-- Neon PostgreSQL migrations and migration checksum tracking
-- app/database version metadata
-
-Current Discord work includes the first Discord prototype:
-
-- Discord HTTP Interactions routes under `apps/web`
-- user-facing Discord binding from Settings through `/bind code:<code>`
-- Discord `/idea text:<raw text>` capture into untriaged Ideas
-- internal outbound Discord message API
-- Settings -> Discord -> `Send Test` for manual message-push verification
-
-The latest released web baseline also includes web and data-model polish:
-
-- built-in memory categories for Cuisine, Sightseeing, Movie, Anime, Book,
-  Music, Game, and Shopping, with fixed icons, localized built-in display text,
-  and backfill for existing accounts
-- shared localized brand logo text: `Arctic Aria` in English and `北极阿莉雅` in
-  Simplified Chinese
-- hidden future auth actions for Google sign-in and forgot-password/reset, kept
-  behind a disabled flag until the real flows exist
-- collapsed database-version metadata in login and Settings/About, still
-  inspectable through browser developer tools
-- Settings `About` card for visible app-version information
-
-## Next: v0.7.0
-
-Goal: harden the current prototype and prepare the next feature cycle without
-turning one release into a broad schema audit.
-
-For the remaining `v0.7.0` work, do not start another large user-facing feature
-until hardening and documentation catch up. Bug fixes, documentation, tests,
-Redis/cache design, Discord app-surface hardening, and small UI consistency
-work are in scope.
-
-Remaining v0.7.0 work:
-
-- Design Redis usage without implementing it prematurely. Redis should support
+- Review Redis usage without implementing it prematurely. Redis should support
   latency reduction, short-lived coordination, rate limiting, idempotency, or
   queue-like behavior only when the database remains the source of truth.
-- Review the implemented Discord app surface, including account binding,
-  `/idea` quick capture, outbound message push, local ngrok runbook, command
-  registration and reinstall steps, secrets, failure messages, and deployment
-  direction.
-- Design future Discord reminder behavior without implementing it yet,
-  including reminder messages, button interactions, message update strategy,
-  daily review prompts, retry behavior, and quiet/noise rules.
-- Update architecture, database, Redis, Discord app surface, and feature data-model
-  docs to reflect the review decisions.
-- Add or improve automated tests around existing backend behavior where the
+- Review Discord reminder behavior before implementation, including reminder
+  messages, button interactions, message update strategy, daily review prompts,
+  retry behavior, and quiet/noise rules.
+- Review Discord deployment and operations now that Discord interactions are
+  hosted by the web app.
+- Add or improve automated tests around existing backend behavior where
   hardening work finds risk.
-- Keep the existing web prototype stable while doing this hardening work.
-- Fix deferred UI consistency bugs that are intentionally excluded from the
-  `v0.5.1` hotfix, including Memories-page pinned/unpinned management and
-  removing the dashboard pinned-memory single-item replace/refresh action.
-- Review category UI affordances and choose distinct icons where useful instead
-  of relying only on text labels.
-- Review repeated edit actions in project and memory lists. There may be too
-  many visible `Edit` buttons, so v0.6.0 should consider a cleaner interaction
-  pattern.
+- Keep the existing web prototype stable while doing hardening work.
+- Improve memory pin/unpin management inside Memories instead of managing
+  single pinned-memory replacement from Today.
+- Refine memory category management: separate built-in default categories from
+  user-created custom categories, keep the dialog padding consistent with other
+  add/edit dialogs, and place the `New` category action inside the custom
+  categories section.
+- Review repeated edit actions in project and memory lists and choose a cleaner
+  interaction pattern if the current UI feels noisy.
+- Extract the custom sidebar scrollbar behavior into a shared configurable web
+  scrollbar utility or component. Sidebar usage should auto-hide the scrollbar;
+  dropdown/list/dialog/page usage can keep the scrollbar visible when that is
+  clearer. Naming is open and should be chosen after inspecting the current UI
+  code.
+- Review whether pages and dialogs should use the shared scrollbar behavior
+  where overflow is visible to the user.
+- Review the global `110vh` minimum-height behavior on mobile. Mobile browsers
+  do not reserve desktop scrollbar width in the same way, so mobile pages may
+  not need the forced extra height.
 
-### Memory Category Direction
+## Feature Review Discipline
 
-Status: mostly implemented on `develop`.
-
-The current built-in set is Cuisine, Sightseeing, Movie, Anime, Book, Music,
-Game, and Shopping.
-
-Implemented direction:
-
-- Keep real per-user `memory_categories` rows. This is the simplest model
-  because every memory still needs a concrete `category_id`.
-- Use stable built-in category metadata, including a built-in key and icon
-  name. The existing `shown_on_dashboard` column can remain as legacy metadata
-  until a later schema cleanup, but dashboard pinned memories should not be
-  filtered by it.
-- Backfill built-in category rows for existing users through migrations.
-  Backfill should apply to all existing users, not a hard-coded developer
-  account.
-- Treat Cuisine, Sightseeing, Movie, Anime, Book, Music, Game, and Shopping as
-  built-in categories. Their built-in identity, default name, description, icon,
-  and default translations should not be editable or deletable by the user.
-- Stop filtering dashboard pinned memories by hard-coded display names,
-  built-in keys, dashboard metadata, or per-category count limits.
-
-Current built-in category/template state:
-
-- Current built-in templates include Movie (`film`), Anime (`wand-sparkles`),
-  Book (`book-open-text`), Music (`music`), Game (`gamepad-2`), and Shopping
-  (`shopping-cart`).
-- Built-in templates have default icons and default translations in every
-  supported language.
-- Built-in templates are normal per-user category rows with stable built-in
-  metadata.
-- Existing accounts receive built-in category rows through migrations, and
-  the default-category initialization path remains a safety net for future users
-  and partially initialized accounts.
-- User-created categories should allow names in any language and a selected
-  icon from a small memory icon set, roughly 12 choices.
-- User-created category names should display exactly as written. Do not
-  auto-translate user-created category names unless a later feature explicitly
-  designs per-category translations.
-
-Remaining category UI cleanup:
-
-- The memory category `All` filter should have its own neutral icon.
-- Single-choice and multi-choice groups can use normal button height when they
-  behave like filter/action buttons. Use input height only when they replace a
-  form input.
-- Choice groups should not show a check icon; selected color and border are
-  enough.
-- The Memories page can load cached suggestion pages when opened, but a normal
-  view should not insert suggestion-history rows or record ignore events.
-- Suggestion ignore events should be recorded only when the user explicitly
-  refreshes or passes a suggestion.
-- The dashboard `Pinned Memories` panel should not expose a single-row refresh
-  action. Detailed pin/unpin management belongs on the Memories page.
-
-### Version Metadata UI
-
-Status: implemented on `develop`; future admin/debug display remains undecided.
-
-The login page and Settings page should keep database-version metadata available
-for debugging without showing it in normal use. For normal signed-out and
-normal signed-in users, the database-version line should be visually gone or
-collapsed, not removed from the rendered page entirely. It should remain
-inspectable through browser developer tools when the developer needs to debug
-deployment or migration state.
-
-Do not add developer-account-specific display rules for version metadata.
-Production behavior should be role- or environment-based only after a real
-admin/user-role design exists.
-
-The version-metadata check should also explain ahead/behind states clearly. If
-production says the database is `ahead`, inspect whether the deployed app,
-expected schema hash, migration history, or database metadata is older/newer
-than expected before changing the display text.
-
-## Sidebar Refinement
-
-Status: partially implemented on `develop`; current sidebar work uses one list,
-but remaining sidebar bugs should still be handled as focused UI fix branches.
-
-Implemented sidebar direction:
-
-- The sidebar uses a compact brand block: first row Sparkles icon plus small
-  localized brand text, then a larger page/workspace label such as `Workspace`
-  in the normal app font. In English the brand text is `Arctic Aria`; in
-  Simplified Chinese it is `北极阿莉雅`.
-- The workspace label should remain visually larger than the brand text, and
-  short translations such as `工作区` can render larger than the English label.
-- Sidebar order should be: Today, Projects, pinned projects, Routines,
-  Memories, Ideas, Settings, separator, theme mode, sign out.
-- Theme mode and sign out should use the same sidebar list pattern as the page
-  navigation rows. Do not place them in a separate bottom list or visual
-  container.
-- The mobile sidebar close button should be borderless.
-- Pinned project sidebar rows should use invisible icon spacers to align their
-  text with normal menu items while preserving the indented hierarchy. The
-  spacer icons should use the same size and gap as visible menu icons. Pinned
-  project names should stay on one line and truncate automatically.
-
-Remaining sidebar cleanup:
-
-- Sidebar list items should handle rounded corners consistently, especially at
-  the start and end of adjacent item groups.
-- Adjacent sidebar menu items should not show unwanted gaps between rows,
-  including hover and active states.
-- Separator lines should be reviewed and removed where they make item groups
-  feel visually broken.
-- Sidebar menu-item spacing, active state, and hover details should be refined
-  as a separate sidebar polish task.
-
-## Auth UI Cleanup
-
-Status: implemented on `develop`; real Google OAuth and password reset remain
-future auth features.
-
-Placeholder auth actions should stay hidden until they work end to end. Hide the
-Google OAuth action, its `or` separator, and the forgot-password/reset action
-until those flows are implemented.
-
-The code may keep hidden future-action UI behind an explicit disabled flag so
-the existing Google/reset placeholder work can be reused later without showing
-non-working controls to users.
-
-Auth page spacing is now documented in [auth/ui.md](features/auth/ui.md). Keep
-the registration panel inside the auth page's `110vh` minimum height, with
-enough top and bottom space for scrolling.
-
-## Ongoing Feature Review
-
-Database and concurrency review should happen during later feature development,
-not as one large standalone version. More detail from real feature work should
-make the data model decisions clearer.
+Database and concurrency review should happen during feature development, not
+as one large standalone audit. More detail from real feature work should make
+data model decisions clearer.
 
 For each feature branch that adds or changes persisted behavior, review:
 
@@ -226,17 +60,7 @@ For each feature branch that adds or changes persisted behavior, review:
 - where idempotency keys, request deduplication, or stronger transaction
   boundaries are needed
 
-The remaining v0.6.0 work should not include:
-
-- web add/edit/triage controls for Ideas
-- daily review implementation
-- automatic project scheduling
-- AI-generated task recommendations
-- memory suggestion logic beyond the current manual refresh prototype
-- Discord reminder implementation
-- sharing cards
-
-## Future Work
+## Future Product Work
 
 Future work should be chosen after using the current prototype and writing more
 concrete feature details.
@@ -250,7 +74,7 @@ Likely future items:
 - Improve project task planning after enough manual project/task usage exists.
 - Improve dashboard selection rules only after the user workflow feels stable.
 - Add stronger settings, including default theme and personal day-boundary time.
-- Improve memory suggestion logic after the memory data model and dashboard
+- Improve Memories suggestions after the memory data model and dashboard
   behavior are stable.
 - Add Discord reminders after routine and daily review behavior are stable.
 - Add optional sharing and deployment hardening when the core private workflow
@@ -259,14 +83,8 @@ Likely future items:
   stable.
 - Improve multilingual support later, especially Chinese coverage and copy
   quality, after the core private workflow and settings model are stable.
-
-## Removed From Active Roadmap
-
-The old reward-plugin and English-coach roadmap phases are removed from the
-active plan. Do not restore them as numbered phases.
-
-If either idea becomes useful later, write a new feature or plugin proposal from
-the current product shape instead of reusing the old phase plan.
+- Add OAuth login, password reset, account deletion, and server-side session
+  revocation after the private MVP workflow is stable.
 
 ## Future Infrastructure
 

@@ -1,4 +1,7 @@
+"use client";
+
 import { LoaderCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { secondaryTextColorClass } from "./color";
 import { cx } from "./utils";
 
@@ -22,4 +25,42 @@ export function LoadingLine({
       <span>{text}</span>
     </div>
   );
+}
+
+export function PendingText({
+  active,
+  idleText,
+  pendingText,
+  className,
+}: {
+  active: boolean;
+  idleText: string;
+  pendingText: string;
+  className?: string;
+}) {
+  const dots = useProgressDots(active);
+  const normalizedPendingText = pendingText.replace(/\.+$/, "");
+  const visibleText = active
+    ? `${normalizedPendingText}${dots}`
+    : idleText;
+
+  return <span className={className}>{visibleText}</span>;
+}
+
+export function useProgressDots(active: boolean) {
+  const [dotCount, setDotCount] = useState(1);
+
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setDotCount((current) => (current === 3 ? 1 : current + 1));
+    }, 450);
+
+    return () => window.clearInterval(intervalId);
+  }, [active]);
+
+  return ".".repeat(dotCount);
 }

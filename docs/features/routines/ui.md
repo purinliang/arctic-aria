@@ -69,7 +69,7 @@ management pages.
 The first Routines page does not need:
 
 - Discord delivery controls
-- AI coaching
+- automatic schedule suggestions
 - analytics charts
 
 Page interaction behavior:
@@ -128,8 +128,10 @@ dates that exist.
 Save behavior:
 
 - Clicking `Save` validates the current draft and sends it to the backend.
-- While saving, show loading state on the save button and prevent duplicate
-  submit.
+- While saving, prevent duplicate submit. The save button text should cycle
+  through `Saving.`, `Saving..`, and `Saving...` and avoid loading icons in
+  the dialog action row. The full-width save button should not flash width
+  while dots change.
 - On success, close the dialog and refresh visible routine data from the
   backend response.
 - On validation or persistence failure, keep the dialog open and show the
@@ -155,7 +157,9 @@ Delete behavior:
 
 - Clicking `Delete` should show a confirmation dialog.
 - Canceling the confirmation returns to the edit dialog without changing data.
-- Confirming delete is blocking.
+- Confirming delete is blocking. The confirmation button text should cycle
+  to static `Deleting...` and avoid loading icons. Do not animate dots in
+  compact auto-width confirmation buttons.
 - Successful delete closes the confirmation and edit dialogs and removes the
   routine from normal views.
 - Failed delete keeps the edit dialog open and shows the backend message

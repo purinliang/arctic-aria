@@ -220,15 +220,14 @@ Refresh behavior:
 - If refresh fails, keep the page open and show the backend message through the
   shared notification stack.
 
-## Deferred Memory Pinning Follow-Up
+## Memory Pinning Follow-Up
 
-This follow-up is planned after the `v0.5.1` hotfix and should not be fixed in
-that hotfix.
+This is a future Memories-page interaction cleanup, not release-specific
+roadmap text.
 
 - The Memories page should manage pinned and unpinned memories in one panel so
   pin state is visible and editable from the main memory-management surface.
-- This should support unpinning from the Memories page. The current UI cannot
-  unpin memories from that page, which is a known bug deferred to `v0.6.0`.
+- The Memories page should support unpinning from that page.
 - Pin and unpin actions in that panel should use the same icon-only outline
   button style as memory suggestions and project pin actions.
 - The dashboard should remain a lightweight daily surface; detailed pin/unpin
@@ -270,8 +269,8 @@ Modal behavior:
 - Opening `Manage` should show a category-management dialog.
 - The page behind the dialog should be covered by a semi-transparent black
   overlay.
-- Clicking outside the dialog or pressing a visible close button should dismiss
-  the dialog without saving.
+- Clicking outside the dialog should not dismiss the dialog. Only explicit
+  controls, such as the close icon or form buttons, should close it.
 - The dialog should not be nested inside a page panel or list item.
 - The dialog should fit on mobile and scroll internally when content is taller
   than the viewport.
@@ -349,11 +348,21 @@ the current UI.
 
 Manage Categories dialog layout:
 
-- top row: `Manage Categories` title on the left
-- top row right side: `New` button with `Plus`, then close icon button
+- use the same shared dialog shell and surrounding content padding as add/edit
+  dialogs
+- top row: `Manage Categories` title on the left and close icon button on the
+  right
+- show user-created categories first in a separate `Custom Categories` section
+- show built-in categories below in a separate `Default Categories` section
+- place the `New` button with `Plus` in the `Custom Categories` section header,
+  not in the dialog title row
+- section headers should use existing shared title/action components where
+  possible instead of local alignment classes
 - category list rows use the shared `ListItem`
 - each category row shows title and `DescriptionText`
-- each category row has an `Edit` button with `Edit3` and text `Edit`
+- built-in category rows show icon, localized name, and localized description
+  only; do not show an edit action
+- custom category rows have an `Edit` button with `Edit3` and text `Edit`
 - category rows do not show a delete button
 
 ### Add a New Category

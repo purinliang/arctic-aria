@@ -16,7 +16,9 @@ export function ArcticAriaLogo({
 }) {
   if (variant === "sidebar") {
     const workspaceTextClass =
-      workspaceLabel && workspaceLabel.length <= 4 ? "text-3xl" : "text-2xl";
+      workspaceLabel && workspaceLabel.length <= 4
+        ? "text-[2.05rem]"
+        : "text-[1.50rem]";
 
     return (
       <div className={cx("min-w-0", className)}>
@@ -29,7 +31,7 @@ export function ArcticAriaLogo({
         {workspaceLabel ? (
           <p
             className={cx(
-              "mt-1 truncate font-semibold leading-tight tracking-normal",
+              "mt-0 truncate font-semibold leading-tight tracking-normal",
               workspaceTextClass,
             )}
           >

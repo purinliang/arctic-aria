@@ -56,7 +56,7 @@ const englishMessages = {
       darkMode: "Dark mode",
       lightMode: "Light mode",
       signOut: "Sign out",
-      signingOut: "Signing out...",
+      signingOut: "Signing out",
     },
   },
   auth: {
@@ -80,7 +80,9 @@ const englishMessages = {
       resetPassword: "Reset password",
       showPassword: "Show password",
       signIn: "Sign in",
+      signingIn: "Signing in",
       signUp: "Sign up",
+      signingUp: "Signing up",
       welcomeBack: "Welcome back",
     },
     loading: {
@@ -253,7 +255,7 @@ const simplifiedChineseMessages: AppMessages = {
       darkMode: "深色模式",
       lightMode: "浅色模式",
       signOut: "退出登录",
-      signingOut: "正在退出...",
+      signingOut: "正在退出登录",
     },
   },
   auth: {
@@ -277,7 +279,9 @@ const simplifiedChineseMessages: AppMessages = {
       resetPassword: "重置密码",
       showPassword: "显示密码",
       signIn: "登录",
+      signingIn: "正在登录",
       signUp: "注册",
+      signingUp: "正在注册",
       welcomeBack: "欢迎回来",
     },
     loading: {

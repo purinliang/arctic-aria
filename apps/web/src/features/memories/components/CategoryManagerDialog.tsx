@@ -1,20 +1,18 @@
 // Memories Page - Category Manager Dialog.
-import { Edit3, LoaderCircle, Plus, Save, Trash2, X } from "lucide-react";
-import type { Dispatch, SetStateAction } from "react";
+import { Edit3, Plus } from "lucide-react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { Button } from "@/components/button";
-import { panelHeaderColorClass, secondaryButtonBorderColorClass } from "@/components/color";
+import { secondaryButtonBorderColorClass } from "@/components/color";
 import {
-  DialogActionRow,
-  DialogBackdrop,
+  CrudEditorDialog,
   DialogFrame,
   DialogHeader,
   DialogOverlay,
-  DialogPrimaryButton,
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { List, ListItem } from "@/components/list";
-import { DescriptionText } from "@/components/text";
+import { DescriptionText, SectionTitle } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryCategoryInput } from "@/features/memories/actions";
@@ -33,6 +31,7 @@ type CategoryDeleteTarget = Pick<
 export function CategoryManagerDialog({
   darkMode,
   pending,
+  saving,
   categories,
   categoryDraft,
   categoryFormOpen,
@@ -47,6 +46,7 @@ export function CategoryManagerDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
+  saving: boolean;
   categories: MemoryCategoryOption[];
   categoryDraft: MemoryCategoryInput;
   categoryFormOpen: boolean;
@@ -59,75 +59,59 @@ export function CategoryManagerDialog({
   onSubmit: () => void;
   onDelete: (category: CategoryDeleteTarget) => void;
 }) {
+  const customCategories = categories.filter((category) => !category.builtInKey);
+  const defaultCategories = categories.filter((category) => category.builtInKey);
+
   return (
     <>
       <DialogOverlay>
-        <DialogBackdrop
-          label={messages.closeEditor}
-          onClick={onCloseEditor}
-        />
-        <DialogFrame darkMode={darkMode} padding="none">
-          <div
-            className={cx(
-              "flex items-center justify-between gap-3 rounded-t-md border-b px-4 py-3",
-              panelHeaderColorClass,
-            )}
-          >
-            <h3 className="text-base font-semibold">{messages.manageTitle}</h3>
-            <div className="flex shrink-0 items-center gap-2">
-              <Button
-                darkMode={darkMode}
-                disabled={pending}
-                icon={<Plus size={14} aria-hidden="true" />}
-                onClick={onOpenNew}
-              >
-                {messages.new}
-              </Button>
-              <Button
-                darkMode={darkMode}
-                tone="ghost"
-                size="icon-sm"
-                aria-label={messages.closeEditor}
-                icon={<X size={16} aria-hidden="true" />}
-                onClick={onCloseEditor}
-              />
-            </div>
-          </div>
-          <List
+        <DialogFrame darkMode={darkMode}>
+          <DialogHeader
             darkMode={darkMode}
-            className={cx("border-b", secondaryButtonBorderColorClass)}
-          >
-            {categories.map((category) => (
-              <ListItem
-                key={category.id}
+            title={messages.manageTitle}
+            closeLabel={messages.closeEditor}
+            onClose={onCloseEditor}
+          />
+          <div className="grid gap-5">
+            <CategorySection
+              title={messages.customSection}
+              action={
+                <Button
+                  darkMode={darkMode}
+                  disabled={pending}
+                  icon={<Plus size={14} aria-hidden="true" />}
+                  onClick={onOpenNew}
+                >
+                  {messages.new}
+                </Button>
+              }
+            >
+              {customCategories.length > 0 ? (
+                <CategoryList
+                  darkMode={darkMode}
+                  categories={customCategories}
+                  editDisabled={pending}
+                  messages={messages}
+                  onOpenEdit={onOpenEdit}
+                />
+              ) : (
+                <EmptyCategoryList
+                  darkMode={darkMode}
+                  message={messages.noCustomCategories}
+                />
+              )}
+            </CategorySection>
+
+            <CategorySection title={messages.defaultSection}>
+              <CategoryList
                 darkMode={darkMode}
-                className="items-start"
-              >
-                <span className="mt-1 shrink-0">
-                  <MemoryCategoryIcon iconName={category.iconName} size={16} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">
-                    {getMemoryCategoryName(category, messages.builtIns)}
-                  </p>
-                  <DescriptionText darkMode={darkMode} className="mt-1">
-                    {getMemoryCategoryDescription(category, messages.builtIns) ||
-                      messages.noDescription}
-                  </DescriptionText>
-                </div>
-                {category.builtInKey ? null : (
-                  <Button
-                    darkMode={darkMode}
-                    disabled={pending}
-                    icon={<Edit3 size={15} aria-hidden="true" />}
-                    onClick={() => onOpenEdit(category)}
-                  >
-                    {messages.edit}
-                  </Button>
-                )}
-              </ListItem>
-            ))}
-          </List>
+                categories={defaultCategories}
+                editDisabled={pending}
+                messages={messages}
+                onOpenEdit={onOpenEdit}
+              />
+            </CategorySection>
+          </div>
         </DialogFrame>
       </DialogOverlay>
 
@@ -135,6 +119,7 @@ export function CategoryManagerDialog({
         <CategoryFormDialog
           darkMode={darkMode}
           pending={pending}
+          saving={saving}
           categoryDraft={categoryDraft}
           messages={messages}
           setCategoryDraft={setCategoryDraft}
@@ -157,9 +142,122 @@ export function CategoryManagerDialog({
   );
 }
 
+function CategorySection({
+  title,
+  action,
+  children,
+}: {
+  title: string;
+  action?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <section className="grid gap-2">
+      <div className="flex items-center justify-between gap-3">
+        <SectionTitle>{title}</SectionTitle>
+        {action ? <div className="shrink-0">{action}</div> : null}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function CategoryList({
+  darkMode,
+  categories,
+  editDisabled,
+  messages,
+  onOpenEdit,
+}: {
+  darkMode: boolean;
+  categories: MemoryCategoryOption[];
+  editDisabled: boolean;
+  messages: MemoryMessages["categories"];
+  onOpenEdit: (category: MemoryCategoryOption) => void;
+}) {
+  return (
+    <List
+      darkMode={darkMode}
+      className={cx("rounded-md border", secondaryButtonBorderColorClass)}
+    >
+      {categories.map((category) => (
+        <CategoryRow
+          key={category.id}
+          darkMode={darkMode}
+          category={category}
+          editDisabled={editDisabled}
+          messages={messages}
+          onOpenEdit={onOpenEdit}
+        />
+      ))}
+    </List>
+  );
+}
+
+function EmptyCategoryList({
+  darkMode,
+  message,
+}: {
+  darkMode: boolean;
+  message: string;
+}) {
+  return (
+    <List
+      darkMode={darkMode}
+      className={cx("rounded-md border", secondaryButtonBorderColorClass)}
+    >
+      <ListItem darkMode={darkMode}>
+        <DescriptionText darkMode={darkMode}>{message}</DescriptionText>
+      </ListItem>
+    </List>
+  );
+}
+
+function CategoryRow({
+  darkMode,
+  category,
+  editDisabled,
+  messages,
+  onOpenEdit,
+}: {
+  darkMode: boolean;
+  category: MemoryCategoryOption;
+  editDisabled: boolean;
+  messages: MemoryMessages["categories"];
+  onOpenEdit: (category: MemoryCategoryOption) => void;
+}) {
+  return (
+    <ListItem darkMode={darkMode} className="items-start">
+      <span className="mt-1 shrink-0">
+        <MemoryCategoryIcon iconName={category.iconName} size={16} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold">
+          {getMemoryCategoryName(category, messages.builtIns)}
+        </p>
+        <DescriptionText darkMode={darkMode} className="mt-1">
+          {getMemoryCategoryDescription(category, messages.builtIns) ||
+            messages.noDescription}
+        </DescriptionText>
+      </div>
+      {category.builtInKey ? null : (
+        <Button
+          darkMode={darkMode}
+          disabled={editDisabled}
+          icon={<Edit3 size={15} aria-hidden="true" />}
+          onClick={() => onOpenEdit(category)}
+        >
+          {messages.edit}
+        </Button>
+      )}
+    </ListItem>
+  );
+}
+
 function CategoryFormDialog({
   darkMode,
   pending,
+  saving,
   categoryDraft,
   messages,
   setCategoryDraft,
@@ -169,6 +267,7 @@ function CategoryFormDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
+  saving: boolean;
   categoryDraft: MemoryCategoryInput;
   messages: MemoryMessages["categories"];
   setCategoryDraft: Dispatch<SetStateAction<MemoryCategoryInput>>;
@@ -177,84 +276,51 @@ function CategoryFormDialog({
   onDelete?: () => void;
 }) {
   return (
-    <DialogOverlay zIndex="z-[60]">
-      <DialogBackdrop label={messages.closeForm} onClick={onClose} />
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          onSubmit();
-        }}
-      >
-        <DialogFrame darkMode={darkMode}>
-          <DialogHeader
-            darkMode={darkMode}
-            title={categoryDraft.id ? messages.editTitle : messages.add}
-            closeLabel={messages.closeForm}
-            onClose={onClose}
-          />
-          <div className="grid gap-3">
-            <FieldLabel darkMode={darkMode} label={messages.name}>
-              <TextInput
-                darkMode={darkMode}
-                value={categoryDraft.name}
-                maxLength={40}
-                placeholder={messages.namePlaceholder}
-                disabled={pending}
-                onChange={(event) =>
-                  setCategoryDraft((current) => ({
-                    ...current,
-                    name: event.target.value,
-                  }))
-                }
-              />
-            </FieldLabel>
-            <FieldLabel darkMode={darkMode} label={messages.description} optional>
-              <TextArea
-                darkMode={darkMode}
-                className="min-h-20"
-                value={categoryDraft.description}
-                maxLength={500}
-                disabled={pending}
-                placeholder={messages.descriptionPlaceholder}
-                onChange={(event) =>
-                  setCategoryDraft((current) => ({
-                    ...current,
-                    description: event.target.value,
-                  }))
-                }
-              />
-            </FieldLabel>
-          </div>
-          <DialogActionRow>
-            <DialogPrimaryButton
-              darkMode={darkMode}
-              type="submit"
-              loading={pending}
-              icon={<Save size={14} aria-hidden="true" />}
-              loadingIcon={
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              }
-            >
-              {messages.save}
-            </DialogPrimaryButton>
-            {onDelete ? (
-              <Button
-                darkMode={darkMode}
-                disabled={pending}
-                className="w-full"
-                icon={<Trash2 size={14} aria-hidden="true" />}
-                onClick={onDelete}
-              >
-                {messages.delete}
-              </Button>
-            ) : null}
-          </DialogActionRow>
-        </DialogFrame>
-      </form>
-    </DialogOverlay>
+    <CrudEditorDialog
+      darkMode={darkMode}
+      pending={pending}
+      saving={saving}
+      title={categoryDraft.id ? messages.editTitle : messages.add}
+      closeLabel={messages.closeForm}
+      saveText={messages.save}
+      savingText={messages.saving}
+      deleteText={onDelete ? messages.delete : undefined}
+      zIndex="z-[60]"
+      onClose={onClose}
+      onSubmit={onSubmit}
+      onDelete={onDelete}
+    >
+      <FieldLabel darkMode={darkMode} label={messages.name}>
+        <TextInput
+          darkMode={darkMode}
+          value={categoryDraft.name}
+          maxLength={40}
+          placeholder={messages.namePlaceholder}
+          disabled={pending}
+          onChange={(event) =>
+            setCategoryDraft((current) => ({
+              ...current,
+              name: event.target.value,
+            }))
+          }
+        />
+      </FieldLabel>
+      <FieldLabel darkMode={darkMode} label={messages.description} optional>
+        <TextArea
+          darkMode={darkMode}
+          className="min-h-20"
+          value={categoryDraft.description}
+          maxLength={500}
+          disabled={pending}
+          placeholder={messages.descriptionPlaceholder}
+          onChange={(event) =>
+            setCategoryDraft((current) => ({
+              ...current,
+              description: event.target.value,
+            }))
+          }
+        />
+      </FieldLabel>
+    </CrudEditorDialog>
   );
 }

@@ -12,6 +12,11 @@ export type IdeaPageItem = {
   createdDate: string;
 };
 
+export type IdeaInput = {
+  id?: string;
+  rawText: string;
+};
+
 export type IdeaActionResult<T> =
   | {
       ok: true;
@@ -102,5 +107,62 @@ export async function captureWebIdea(
   return {
     ok: true,
     data: toIdeaPageItem(result.idea),
+  };
+}
+
+export async function saveIdea(
+  input: IdeaInput,
+): Promise<IdeaActionResult<IdeaPageItem>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  const result = await ideaService.saveWebIdea({
+    userId: user.id,
+    ideaId: input.id,
+    rawText: input.rawText,
+  });
+
+  if (!result.ok) {
+    return {
+      ok: false,
+      message: result.message,
+      code: result.code,
+    };
+  }
+
+  return {
+    ok: true,
+    data: toIdeaPageItem(result.idea),
+  };
+}
+
+export async function deleteIdea(
+  ideaId: string,
+): Promise<IdeaActionResult<{ id: string }>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  const result = await ideaService.archiveIdea({
+    userId: user.id,
+    ideaId,
+  });
+
+  if (!result.ok) {
+    return {
+      ok: false,
+      message: result.message,
+      code: result.code,
+    };
+  }
+
+  return {
+    ok: true,
+    data: { id: ideaId },
   };
 }

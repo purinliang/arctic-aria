@@ -21,9 +21,24 @@ export type CaptureIdeaInput = {
   occurredAt: Date;
 };
 
+export type UpdateIdeaInput = {
+  userId: string;
+  ideaId: string;
+  rawText: string;
+  occurredAt: Date;
+};
+
+export type ArchiveIdeaInput = {
+  userId: string;
+  ideaId: string;
+  occurredAt: Date;
+};
+
 export type IdeaRepository = {
   capture(input: CaptureIdeaInput): Promise<IdeaRecord>;
   listUnarchived(userId: string): Promise<IdeaRecord[]>;
+  update(input: UpdateIdeaInput): Promise<IdeaRecord | null>;
+  archive(input: ArchiveIdeaInput): Promise<boolean>;
 };
 
 export class InMemoryIdeaRepository implements IdeaRepository {
@@ -51,5 +66,42 @@ export class InMemoryIdeaRepository implements IdeaRepository {
     return this.ideas
       .filter((idea) => idea.userId === userId && idea.archivedAt === null)
       .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
+  }
+
+  async update(input: UpdateIdeaInput) {
+    const idea = this.ideas.find(
+      (item) =>
+        item.userId === input.userId &&
+        item.id === input.ideaId &&
+        item.archivedAt === null,
+    );
+
+    if (!idea) {
+      return null;
+    }
+
+    idea.rawText = input.rawText;
+    idea.updatedAt = input.occurredAt;
+
+    return idea;
+  }
+
+  async archive(input: ArchiveIdeaInput) {
+    const idea = this.ideas.find(
+      (item) =>
+        item.userId === input.userId &&
+        item.id === input.ideaId &&
+        item.archivedAt === null,
+    );
+
+    if (!idea) {
+      return false;
+    }
+
+    idea.triageStatus = "archived";
+    idea.archivedAt = input.occurredAt;
+    idea.updatedAt = input.occurredAt;
+
+    return true;
   }
 }
