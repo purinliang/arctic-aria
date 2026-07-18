@@ -173,7 +173,7 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
         {scrollbarState.canScroll ? (
           <span
             className={cx(
-              "pointer-events-none absolute right-1 top-0 block w-0.5 rounded-full bg-[var(--aa-secondary-button-hover-bg)] transition-opacity duration-200",
+              "pointer-events-none absolute right-1 top-0 block w-[3px] rounded-full bg-[var(--aa-secondary-button-hover-bg)] transition-opacity duration-200",
               scrollbar === "visible" || scrollbarState.visible
                 ? "opacity-100"
                 : "opacity-0",
