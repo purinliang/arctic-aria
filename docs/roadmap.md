@@ -30,6 +30,16 @@ user-facing feature starts.
   categories section.
 - Review repeated edit actions in project and memory lists and choose a cleaner
   interaction pattern if the current UI feels noisy.
+- Extract the custom sidebar scrollbar behavior into a shared configurable web
+  scrollbar utility or component. Sidebar usage should auto-hide the scrollbar;
+  dropdown/list/dialog/page usage can keep the scrollbar visible when that is
+  clearer. Naming is open and should be chosen after inspecting the current UI
+  code.
+- Review whether pages and dialogs should use the shared scrollbar behavior
+  where overflow is visible to the user.
+- Review the global `110vh` minimum-height behavior on mobile. Mobile browsers
+  do not reserve desktop scrollbar width in the same way, so mobile pages may
+  not need the forced extra height.
 
 ## Feature Review Discipline
 

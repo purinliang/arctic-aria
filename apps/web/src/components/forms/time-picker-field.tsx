@@ -6,6 +6,7 @@ import { Button } from "../button";
 import { formatTimeDisplay } from "./time-display";
 import {
   formButtonControlClass,
+  formControlClass,
   formControlPopupClass,
 } from "./form-control-style";
 import {
@@ -138,6 +139,7 @@ export function TimePickerField({
         >
           <div className="grid gap-2">
             <TimeTextInput
+              darkMode={darkMode}
               messages={messages}
               parts={selectedParts}
               timeFormatPreference={timeFormatPreference}
@@ -172,12 +174,14 @@ export function TimePickerField({
 }
 
 function TimeTextInput({
+  darkMode,
   messages,
   parts,
   timeFormatPreference,
   onChange,
   onDismiss,
 }: {
+  darkMode: boolean;
   messages: TimePickerMessages;
   parts: TimeParts;
   timeFormatPreference: TimeFormatPreference;
@@ -197,9 +201,10 @@ function TimeTextInput({
     <div className="relative grid min-w-0">
       <input
         ref={inputRef}
-        className={cx(
-          "h-11 w-full min-w-0 rounded-md border px-2 text-center text-lg font-semibold tabular-nums outline-none transition",
-          "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-primary-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] focus:border-[var(--aa-secondary-button-hover-border)]",
+        className={formControlClass(
+          darkMode,
+          false,
+          "min-w-0 px-2 text-center text-lg font-semibold tabular-nums",
         )}
         type="text"
         inputMode="text"

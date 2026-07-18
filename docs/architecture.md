@@ -229,8 +229,8 @@ The Discord integration is for notification and quick interaction. It is
 important because the user may forget to open the web app.
 
 Implemented Discord workflows are account binding with `/bind`, quick idea
-capture with `/idea`, and outbound direct-message delivery through a private
-message-push endpoint. The Discord integration should call product commands
+capture with `/idea`, and outbound direct-message delivery through an internal
+server-side service. The Discord integration should call product commands
 instead of owning product rules directly.
 
 It may eventually own:
@@ -247,7 +247,6 @@ its own planning or routine rules.
 Detailed docs:
 
 - [features/discord/overview.md](features/discord/overview.md)
-- [features/discord/outbound-messages.md](features/discord/outbound-messages.md)
 
 ## Infrastructure Services
 

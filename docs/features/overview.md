@@ -44,7 +44,6 @@ Detailed feature docs:
 - Ideas UI: [ideas/ui.md](ideas/ui.md)
 - Ideas implementation: [ideas/web-implementation.md](ideas/web-implementation.md)
 - Discord integration: [discord/overview.md](discord/overview.md)
-- Discord outbound messages: [discord/outbound-messages.md](discord/outbound-messages.md)
 
 ## User
 
