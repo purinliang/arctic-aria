@@ -31,6 +31,16 @@ Current variables:
 | `DISCORD_APP_ID` | Yes for command registration | Local and Vercel | App ID from the Discord Developer Portal. |
 | `DISCORD_PUBLIC_KEY` | Yes for Discord interactions | Local and Vercel | Public Key used to verify requests from Discord. |
 
+Current credential state as of 2026-07-19:
+
+- `AUTH_SESSION_SECRET` has been rotated. Keep independent values for local,
+  preview, and production.
+- `NEON_POSTGRES_URL` has been rotated. Local development should point at the
+  Neon `preview/develop` branch unless a task explicitly needs another
+  non-production branch.
+- Do not copy the production Neon `main` branch URL into local
+  `apps/web/.env.local`.
+
 The web code reads `NEON_POSTGRES_URL` only. If the Vercel Neon integration
 creates `NEON_DATABASE_URL`, copy that pooled URL into a new Vercel variable
 named `NEON_POSTGRES_URL`.
@@ -56,6 +66,21 @@ openssl rand -base64 48
 The Settings page can send a Discord test message to the signed-in user's bound
 Discord account. That web action calls the same server-side delivery logic as
 outbound messages, so it needs `DISCORD_BOT_TOKEN`.
+
+## Environment Database Split
+
+Use separate Neon branches for separate runtime environments:
+
+| Runtime | Expected database branch | Where to configure |
+| --- | --- | --- |
+| Local development | `preview/develop` or another non-production branch | `apps/web/.env.local` |
+| Vercel Preview for `develop` | `preview/develop` | Vercel Preview environment variables, branch-scoped to `develop` when possible |
+| Vercel Production | `main` | Vercel Production environment variables only |
+
+The local `apps/web/.env.local` file has been checked only for key presence and
+shape, not printed or committed. It currently contains non-empty
+`NEON_POSTGRES_URL` and `AUTH_SESSION_SECRET` values, and does not contain the
+old fallback names `NEON_DATABASE_URL` or `DATABASE_URL`.
 
 ## Vercel Neon Variables
 
@@ -112,6 +137,11 @@ The web app can read optional metadata override variables such as `APP_VERSION`,
 `APP_COMMIT`, `APP_BRANCH`, and `APP_SOURCE_STATE`. Normal local development
 does not need these variables because the app derives metadata from Git when
 possible.
+
+In Vercel Git deployments, Arctic Aria treats source state as `clean` when
+Vercel commit metadata is available. This avoids false dirty-source warnings
+when `pnpm db:migrate` runs after `pnpm build` and build-generated files exist
+in the deployment workspace.
 
 Do not set generated `NEXT_PUBLIC_*` metadata variables manually unless
 debugging the build system. `apps/web/next.config.ts` generates them from Git,

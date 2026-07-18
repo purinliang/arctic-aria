@@ -345,6 +345,20 @@ amend directly when the developer explicitly asks for an amend.
 - Do not include long routine `Verification` or `Notes` sections in release PR
   text unless the developer explicitly asks or a release-blocking caveat must
   be visible in GitHub.
+- When the developer asks an agent to open the GitHub release PR, first push
+  `develop`, then create the PR with GitHub CLI from `develop` into `main`.
+  Use the release title from the release doc as `--title`. Use only the plain
+  paragraphs inside the release doc's `## Release Text` fenced block as the PR
+  body. Do not include the `## Release Text` heading, fenced code markers,
+  release-file instructions, verification boilerplate, or the whole release
+  record file. Prefer `--body` for short release text.
+  Example:
+
+  ```bash
+  git push origin develop
+  gh pr create --base main --head develop --title "Release vX.Y.Z: concise release outcome" --body "Plain release text paragraphs only."
+  ```
+
 - Keep the main release merge commit title and body in the release record so
   future release messages stay consistent.
 - Release commit bodies should be useful in `git log`, but shorter than older

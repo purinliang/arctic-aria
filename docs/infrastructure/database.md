@@ -51,16 +51,30 @@ database schema is shared infrastructure, not part of the web UI surface.
 `schema_migrations` records each newly applied migration, a SHA-256 checksum of
 that migration file, and the app metadata that was active when it ran: app
 version, commit hash, and source state.
-`schema_migration_runs` records every successful migration-run check, including
-runs where all migrations were already applied. It also records the expected
+`schema_migration_runs` records migration-run checks, including successful
+runs, failed runs, and runs where all migrations were already applied. A run is
+inserted with `status = 'running'` after the metadata tables are ready, then
+updated to `success` or `failed`. Successful and failed rows record the expected
 migration count, latest migration id, expected schema hash, actual migration
-count, actual latest migration id, and actual schema hash.
+count, actual latest migration id, actual schema hash, applied count, and
+skipped count. Failed rows also record a safe failure stage, a shortened failure
+message, and the migration file name when a specific migration was active.
+
+If the database URL is missing, the database connection fails, or the metadata
+tables cannot be created, the runner may be unable to write a failed run row
+because there is no reliable table to write to yet. These failures still return
+a non-zero process exit code.
 
 Use these audit rows before production releases so the deployed
 frontend/backend version can be compared with the database migration state. The
 migration runner reads `APP_VERSION`, `APP_COMMIT`, and `APP_SOURCE_STATE` when
 present, falls back to Vercel commit metadata when available, and finally falls
 back to local Git metadata during development.
+
+When Vercel commit metadata is present, source state is treated as `clean`
+unless `APP_SOURCE_STATE` explicitly overrides it. This prevents the migration
+step from warning about a dirty tree only because it runs after `pnpm build` and
+the build created local artifacts in Vercel's deployment workspace.
 
 The user-facing app version is controlled automatically:
 
@@ -82,9 +96,9 @@ is a compact schema-history hash derived from the ordered sequence of
 `filename + file checksum` values. That whole-history hash changes when a
 migration is added, removed, reordered, or edited.
 
-Before applying missing migrations or recording a successful run, the migration
-runner reads `schema_migrations` and verifies that the database history is a
-valid prefix of the current source tree:
+Before applying missing migrations or recording a successful final status, the
+migration runner reads `schema_migrations` and verifies that the database
+history is a valid prefix of the current source tree:
 
 - If the database contains an applied migration that this source tree does not
   know about, the runner refuses to continue because the database is ahead.
@@ -105,6 +119,110 @@ The Projects feature requires `0005_create_projects.sql` and the cleanup
 `0006_drop_project_subtasks.sql`. If project server actions report missing
 `projects`, `project_milestones`, or `project_tasks` tables, treat the database
 as not migrated and run the web database migration before manual testing.
+
+## Vercel CD And Migration Flow
+
+Do not treat frontend/backend deployment and database migration as the same
+operation. Code can deploy automatically, but database changes should be tested
+against a non-production branch before production.
+
+Current deployment setup:
+
+- Hosting and CD provider: Vercel.
+- Database provider: Neon PostgreSQL.
+- Vercel project root: `apps/web`.
+- Vercel Root Directory setting: enable source files outside the root directory
+  for the Build Step. Migration files live in `apps/infrastructure`, so
+  `apps/web` cannot read them during Vercel builds unless this setting is
+  enabled. If this setting is disabled, the build will fail before migration
+  with a missing migration directory error.
+- Current Vercel build command:
+
+  ```bash
+  pnpm build && pnpm db:migrate
+  ```
+
+- Production branch: `main`.
+- Production deploys from `main` use the Vercel Production
+  `NEON_POSTGRES_URL`, which points at the Neon `main` database branch.
+- Preview deploys from other Git branches, including `develop`, use the Vercel
+  Preview `NEON_POSTGRES_URL`, which points at the Neon `preview/develop`
+  database branch unless a branch-specific preview database is configured.
+- Local development uses `apps/web/.env.local` and should point at
+  `preview/develop` or another non-production Neon branch.
+
+This is currently Vercel-managed CD. It is not a separate GitHub Actions
+pipeline. If the Vercel build command runs tests and lint before migration, it
+also provides a basic deployment validation gate.
+
+Recommended Vercel build command:
+
+```bash
+pnpm test && pnpm lint && pnpm build && pnpm db:migrate
+```
+
+This order keeps the production database unchanged when tests, lint, or the
+Next.js build fail. It is safer than migrating first and then discovering that
+the app cannot build. The remaining risk is that a migration can succeed and a
+later Vercel deployment step can still fail before the deployment is promoted.
+Because of that, production migrations must remain backward-compatible.
+
+The current command `pnpm build && pnpm db:migrate` runs the Next.js build
+before touching the database, then exits non-zero if migration fails, so Vercel
+will stop the deployment on migration errors. When the metadata tables are
+available, the failed run is recorded with `status = 'failed'`.
+
+If accidental production migration is a concern, do not use an unguarded
+production build command that starts with `pnpm db:migrate`. Use one of these
+safer modes:
+
+- Preferred Vercel-only mode: run `pnpm test`, `pnpm lint`, and `pnpm build`
+  before `pnpm db:migrate`. This prevents app validation failures from touching
+  the production database.
+- Stricter production mode: keep Preview migrations automatic, but run
+  Production migrations manually from the exact release commit before or during
+  the release checklist.
+- Future protected mode: move Production migration into a protected GitHub
+  Actions environment or a dedicated deployment step with manual approval.
+
+The project should not add fake no-op schema migrations just to test the Vercel
+pipeline. Use `schema_migration_runs` to confirm whether Vercel ran the
+migration command.
+
+Current branch split:
+
+- Local development: `apps/web/.env.local` should point to the Neon
+  `preview/develop` branch or another non-production branch.
+- Vercel Preview for `develop`: use the Neon `preview/develop` branch through
+  Preview-scoped `NEON_POSTGRES_URL`.
+- Vercel Production: use the Neon `main` branch through Production-scoped
+  `NEON_POSTGRES_URL`.
+
+Expected local/preview test flow:
+
+1. Point `NEON_POSTGRES_URL` at the preview database branch.
+2. Start the app or run a small database-backed action. If the branch has not
+   been migrated, missing-table or database-version errors are expected.
+3. Run `pnpm --dir apps/web db:migrate` against the preview branch.
+4. Run `pnpm --dir apps/web test`, `pnpm --dir apps/web lint`, and
+   `pnpm --dir apps/web build` when validating a release candidate.
+5. Manually test the web app against the preview branch.
+
+Production migration is now part of the Vercel deploy command for `main`.
+Before relying on that path, confirm the Vercel Production environment contains
+the production `NEON_POSTGRES_URL` and that Preview/Development environments do
+not point at the production database. Also confirm Vercel can read
+`apps/infrastructure/database/migrations` from the `apps/web` project root.
+
+To test the migration step without adding a fake schema change, inspect
+`schema_migration_runs` after a Vercel deployment. The migration runner records
+a run row even when all migrations were already applied and `applied_count` is
+zero. Failed runs should appear with `status = 'failed'` unless the failure
+happened before the metadata table was usable.
+
+A future GitHub Actions workflow can replace the Vercel-only deployment path if
+the project needs manual approval, richer release gates, or stricter
+test-build-migrate-deploy ordering.
 
 ## Data Lifecycle
 
