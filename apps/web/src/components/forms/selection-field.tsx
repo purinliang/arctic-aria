@@ -20,6 +20,7 @@ import {
   formButtonControlClass,
   formControlPopupClass,
 } from "./form-control-style";
+import { ScrollArea } from "../scroll-area";
 import { cx } from "../utils";
 
 export type SelectOption = {
@@ -171,13 +172,17 @@ export function SelectInput({
 
       {open
         ? createPortal(
-            <div
+            <ScrollArea
               ref={popoverRef}
               style={popoverStyle ?? undefined}
               className={formControlPopupClass(
                 darkMode,
-                "grid overflow-hidden overflow-y-auto p-0",
+                "overflow-hidden p-0",
               )}
+              viewportStyle={{
+                maxHeight: popoverStyle?.maxHeight,
+              }}
+              contentClassName="grid"
               role="listbox"
             >
               {options.map((option) => {
@@ -224,7 +229,7 @@ export function SelectInput({
                   </button>
                 );
               })}
-            </div>,
+            </ScrollArea>,
           document.body,
         )
         : null}

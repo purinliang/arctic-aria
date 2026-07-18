@@ -17,8 +17,8 @@ export function ArcticAriaLogo({
   if (variant === "sidebar") {
     const workspaceTextClass =
       workspaceLabel && workspaceLabel.length <= 4
-        ? "text-[1.95rem]"
-        : "text-[1.65rem]";
+        ? "text-[2.05rem]"
+        : "text-[1.50rem]";
 
     return (
       <div className={cx("min-w-0", className)}>
