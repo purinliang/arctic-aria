@@ -106,11 +106,68 @@ The Projects feature requires `0005_create_projects.sql` and the cleanup
 `projects`, `project_milestones`, or `project_tasks` tables, treat the database
 as not migrated and run the web database migration before manual testing.
 
-## Environment Migration Flow
+## Vercel CD And Migration Flow
 
 Do not treat frontend/backend deployment and database migration as the same
 operation. Code can deploy automatically, but database changes should be tested
 against a non-production branch before production.
+
+Current deployment setup:
+
+- Hosting and CD provider: Vercel.
+- Database provider: Neon PostgreSQL.
+- Vercel project root: `apps/web`.
+- Current Vercel build command:
+
+  ```bash
+  pnpm db:migrate && pnpm build
+  ```
+
+- Production branch: `main`.
+- Production deploys from `main` use the Vercel Production
+  `NEON_POSTGRES_URL`, which points at the Neon `main` database branch.
+- Preview deploys from other Git branches, including `develop`, use the Vercel
+  Preview `NEON_POSTGRES_URL`, which points at the Neon `preview/develop`
+  database branch unless a branch-specific preview database is configured.
+- Local development uses `apps/web/.env.local` and should point at
+  `preview/develop` or another non-production Neon branch.
+
+This is currently Vercel-managed CD. It is not a separate GitHub Actions
+pipeline. If the Vercel build command runs tests and lint before migration, it
+also provides a basic deployment validation gate.
+
+Recommended Vercel build command:
+
+```bash
+pnpm test && pnpm lint && pnpm build && pnpm db:migrate
+```
+
+This order keeps the production database unchanged when tests, lint, or the
+Next.js build fail. It is safer than migrating first and then discovering that
+the app cannot build. The remaining risk is that a migration can succeed and a
+later Vercel deployment step can still fail before the deployment is promoted.
+Because of that, production migrations must remain backward-compatible.
+
+The current command `pnpm db:migrate && pnpm build` still exits non-zero when
+migration fails, so Vercel will stop the deployment on migration errors.
+However, it can migrate the database before a build failure is discovered.
+
+If accidental production migration is a concern, do not use an unguarded
+production build command that starts with `pnpm db:migrate`. Use one of these
+safer modes:
+
+- Preferred Vercel-only mode: run `pnpm test`, `pnpm lint`, and `pnpm build`
+  before `pnpm db:migrate`. This prevents app validation failures from touching
+  the production database.
+- Stricter production mode: keep Preview migrations automatic, but run
+  Production migrations manually from the exact release commit before or during
+  the release checklist.
+- Future protected mode: move Production migration into a protected GitHub
+  Actions environment or a dedicated deployment step with manual approval.
+
+The project should not add fake no-op schema migrations just to test the Vercel
+pipeline. Use `schema_migration_runs` to confirm whether Vercel ran the
+migration command.
 
 Current branch split:
 
@@ -131,10 +188,19 @@ Expected local/preview test flow:
    `pnpm --dir apps/web build` when validating a release candidate.
 5. Manually test the web app against the preview branch.
 
-Production migration should be a separate, deliberate step from the release
-commit. Run it from the exact release commit and only with the Production
-`NEON_POSTGRES_URL`. A future CI/CD workflow should use a protected production
-environment and an explicit manual approval for this step.
+Production migration is now part of the Vercel deploy command for `main`.
+Before relying on that path, confirm the Vercel Production environment contains
+the production `NEON_POSTGRES_URL` and that Preview/Development environments do
+not point at the production database.
+
+To test the migration step without adding a fake schema change, inspect
+`schema_migration_runs` after a Vercel deployment. The migration runner records
+a run row even when all migrations were already applied and `applied_count` is
+zero.
+
+A future GitHub Actions workflow can replace the Vercel-only deployment path if
+the project needs manual approval, richer release gates, or stricter
+test-build-migrate-deploy ordering.
 
 ## Data Lifecycle
 
