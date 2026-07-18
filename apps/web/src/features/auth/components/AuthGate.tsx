@@ -309,9 +309,9 @@ export function AuthGate() {
       setMode("login");
       setLoginInput(emptyLogin);
       setRegisterInput(emptyRegister);
-      setCurrentUser(null);
       resetSubmitState(true);
       router.replace("/");
+      setCurrentUser(null);
     } catch {
       showErrorNotification(messages.notifications.actionFailed);
     } finally {
