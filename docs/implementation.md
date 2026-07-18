@@ -97,12 +97,25 @@ arctic-aria/
 ## Web Code Organization
 
 `apps/web/src/app` owns Next.js route entry points, global CSS, layout, and the
-404 page.
+404 page. The authenticated workspace uses route-backed pages so browser
+refresh and direct entry keep the selected surface instead of always returning
+to Today:
+
+- `/` and `/today` show Today
+- `/projects` shows the Projects list
+- `/projects/<project-id>` shows one Project detail page
+- `/routines` shows Routines
+- `/memories` shows Memories
+- `/ideas` shows Ideas
+- `/settings` shows Settings
+
+Do not add `/project?id=<id>` routing. Project detail routing should use the
+path segment form above.
 
 `apps/web/src/app-shell` owns the authenticated web shell:
 
 - sidebar navigation
-- active page switching
+- route-synced active page switching
 - page title bar
 - theme mode and document background syncing
 - app-level notification stack
@@ -203,6 +216,7 @@ App shell entry points:
 
 - `apps/web/src/app-shell/AppShell.tsx`
 - `apps/web/src/app-shell/Sidebar.tsx`
+- `apps/web/src/app-shell/app-routes.ts`
 
 Feature page and panel entry points:
 

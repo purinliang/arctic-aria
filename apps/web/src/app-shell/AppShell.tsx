@@ -2,6 +2,7 @@
 
 // App Shell.
 import { Menu } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/button";
 import { secondaryButtonBorderColorClass } from "@/components/color";
@@ -30,6 +31,11 @@ import { ProjectsPage } from "@/features/projects/components/ProjectsPage";
 import { projectToDraft } from "@/features/projects/components/project-page-helpers";
 import { RoutinesPage } from "@/features/routines/components/RoutinesPage";
 import { SettingsPage } from "@/features/settings/components/SettingsPage";
+import {
+  appPathForProject,
+  appPathForView,
+  appRouteFromPathname,
+} from "./app-routes";
 import { Sidebar } from "./Sidebar";
 
 export function AppShell({
@@ -67,11 +73,12 @@ export function AppShell({
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
 }) {
-  const [activeView, setActiveView] = useState<DashboardView>("dashboard");
+  const pathname = usePathname();
+  const router = useRouter();
+  const pathnameRoute = appRouteFromPathname(pathname);
+  const activeView = pathnameRoute.view;
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
-    null,
-  );
+  const selectedProjectId = pathnameRoute.projectId;
   const [projectDraft, setProjectDraft] = useState<ProjectInput | null>(null);
   const projectState = useDashboardProjects(
     currentUser.id,
@@ -124,16 +131,20 @@ export function AppShell({
     refreshRoutineData,
   ]);
 
-  function showProjectsList() {
-    setSelectedProjectId(null);
-    setActiveView("projects");
+  function navigateToRoute(path: string) {
     setSidebarOpen(false);
+
+    if (pathname !== path) {
+      router.push(path);
+    }
+  }
+
+  function showProjectsList() {
+    navigateToRoute(appPathForView("projects"));
   }
 
   function showProjectDetail(projectId: string) {
-    setSelectedProjectId(projectId);
-    setActiveView("projects");
-    setSidebarOpen(false);
+    navigateToRoute(appPathForProject(projectId));
   }
 
   function handleViewChange(view: DashboardView) {
@@ -142,8 +153,7 @@ export function AppShell({
       return;
     }
 
-    setActiveView(view);
-    setSidebarOpen(false);
+    navigateToRoute(appPathForView(view));
   }
 
   const pageTitle =
@@ -200,8 +210,8 @@ export function AppShell({
                     ? projectState.pendingProjectPinIds.includes(selectedProjectId)
                     : false
                 }
-                onBackToList={() => setSelectedProjectId(null)}
-                onProjectSelect={setSelectedProjectId}
+                onBackToList={showProjectsList}
+                onProjectSelect={showProjectDetail}
                 onEditProject={(project) => {
                   setProjectDraft(projectToDraft(project));
                 }}
@@ -238,7 +248,14 @@ export function AppShell({
               onTaskSave={projectState.saveTaskFromPage}
               onTaskDelete={projectState.archiveTaskFromPage}
               onTaskStatus={projectState.statusTaskFromPage}
-              onProjectSelect={setSelectedProjectId}
+              onProjectSelect={(projectId) => {
+                if (projectId) {
+                  showProjectDetail(projectId);
+                  return;
+                }
+
+                showProjectsList();
+              }}
               messages={messages.projects}
               formMessages={messages.forms}
             />
@@ -321,12 +338,10 @@ export function AppShell({
               formMessages={messages.forms}
               timeFormatPreference={timeFormatPreference}
               onRoutineOpen={() => {
-                setActiveView("routines");
-                setSidebarOpen(false);
+                handleViewChange("routines");
               }}
               onMemoryOpen={() => {
-                setActiveView("memories");
-                setSidebarOpen(false);
+                handleViewChange("memories");
               }}
             />
           )}
