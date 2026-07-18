@@ -185,8 +185,8 @@ Project dialog layout:
 - timeline selector direction: horizontal with wrapping
 - timeline options: `Deadline`, `Duration`
 - date fields direction: two columns on desktop, stacked on mobile
-- footer action row: full-width primary `Save` button with `Save`; loading state uses
-  `LoaderCircle`
+- footer action row: full-width primary `Save` button with `Save`; while
+  saving, use text `Saving...` and no loading icon
 
 ## Project Detail Page
 
@@ -362,6 +362,7 @@ Delete behavior:
 - clicking `Delete` opens a confirmation dialog before changing data
 - the confirm button uses standard primary button styling and is labeled
   `Delete`
+- while delete is pending, the confirmation button text becomes `Deleting...`
 - canceling the confirmation returns to the edit dialog without changing data
 
 ## Progress UI

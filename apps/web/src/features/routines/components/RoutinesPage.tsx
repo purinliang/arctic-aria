@@ -18,6 +18,7 @@ type ConfirmationTarget = {
   id: string;
   title: string;
 };
+type DialogAction = "save" | "delete" | null;
 
 export function RoutinesPage({
   darkMode,
@@ -44,9 +45,10 @@ export function RoutinesPage({
   const [draft, setDraft] = useState<RoutineInput>(emptyDraft);
   const [confirmationTarget, setConfirmationTarget] =
     useState<ConfirmationTarget | null>(null);
+  const [dialogAction, setDialogAction] = useState<DialogAction>(null);
 
   function closeEditor() {
-    if (!pending) {
+    if (!pending && dialogAction === null) {
       setEditorOpen(false);
       setDraft(emptyDraft());
     }
@@ -63,11 +65,17 @@ export function RoutinesPage({
   }
 
   async function submitRoutine() {
-    const saved = await onRoutineSave(draft);
+    setDialogAction("save");
 
-    if (saved) {
-      setEditorOpen(false);
-      setDraft(emptyDraft());
+    try {
+      const saved = await onRoutineSave(draft);
+
+      if (saved) {
+        setEditorOpen(false);
+        setDraft(emptyDraft());
+      }
+    } finally {
+      setDialogAction(null);
     }
   }
 
@@ -76,12 +84,18 @@ export function RoutinesPage({
       return;
     }
 
-    const deleted = await onRoutineDelete(confirmationTarget.id);
+    setDialogAction("delete");
 
-    if (deleted) {
-      setConfirmationTarget(null);
-      setEditorOpen(false);
-      setDraft(emptyDraft());
+    try {
+      const deleted = await onRoutineDelete(confirmationTarget.id);
+
+      if (deleted) {
+        setConfirmationTarget(null);
+        setEditorOpen(false);
+        setDraft(emptyDraft());
+      }
+    } finally {
+      setDialogAction(null);
     }
   }
 
@@ -110,7 +124,8 @@ export function RoutinesPage({
       {editorOpen ? (
         <RoutineEditorDialog
           darkMode={darkMode}
-          pending={pending}
+          pending={pending || dialogAction !== null}
+          saving={dialogAction === "save"}
           draft={draft}
           setDraft={setDraft}
           messages={messages}
@@ -132,15 +147,16 @@ export function RoutinesPage({
       {confirmationTarget ? (
         <ConfirmDialog
           darkMode={darkMode}
-          pending={pending}
+          pending={pending || dialogAction === "delete"}
           title={messages.confirm.title}
           description={messages.confirm.description(confirmationTarget.title)}
           cancelText={messages.confirm.cancel}
           confirmText={messages.confirm.confirm}
+          pendingConfirmText={messages.confirm.deleting}
           closeLabel={messages.confirm.close}
           confirmIcon={<Trash2 size={14} aria-hidden="true" />}
           onCancel={() => {
-            if (!pending) {
+            if (!pending && dialogAction === null) {
               setConfirmationTarget(null);
             }
           }}

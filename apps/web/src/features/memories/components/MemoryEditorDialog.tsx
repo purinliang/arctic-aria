@@ -1,6 +1,5 @@
 // Memories Page - Memory Editor Dialog.
 import {
-  LoaderCircle,
   Save,
   Settings2,
   Trash2,
@@ -30,6 +29,7 @@ import { getMemoryCategoryName } from "./memory-page-helpers";
 export function MemoryEditorDialog({
   darkMode,
   pending,
+  saving,
   editingMemory,
   memoryDraft,
   categories,
@@ -43,6 +43,7 @@ export function MemoryEditorDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
+  saving: boolean;
   editingMemory: boolean;
   memoryDraft: MemoryInput;
   categories: MemoryCategoryOption[];
@@ -140,17 +141,10 @@ export function MemoryEditorDialog({
             <DialogPrimaryButton
               darkMode={darkMode}
               type="submit"
-              loading={pending}
+              disabled={pending}
               icon={<Save size={14} aria-hidden="true" />}
-              loadingIcon={
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              }
             >
-              {messages.save}
+              {saving ? messages.saving : messages.save}
             </DialogPrimaryButton>
             {editingMemory ? (
               <Button

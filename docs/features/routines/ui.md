@@ -128,8 +128,8 @@ dates that exist.
 Save behavior:
 
 - Clicking `Save` validates the current draft and sends it to the backend.
-- While saving, show loading state on the save button and prevent duplicate
-  submit.
+- While saving, change the save button text to `Saving...` and prevent
+  duplicate submit. Do not show a loading icon in the dialog action row.
 - On success, close the dialog and refresh visible routine data from the
   backend response.
 - On validation or persistence failure, keep the dialog open and show the
@@ -155,7 +155,8 @@ Delete behavior:
 
 - Clicking `Delete` should show a confirmation dialog.
 - Canceling the confirmation returns to the edit dialog without changing data.
-- Confirming delete is blocking.
+- Confirming delete is blocking and changes the confirmation button text to
+  `Deleting...`.
 - Successful delete closes the confirmation and edit dialogs and removes the
   routine from normal views.
 - Failed delete keeps the edit dialog open and shows the backend message

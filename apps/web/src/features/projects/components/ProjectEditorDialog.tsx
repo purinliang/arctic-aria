@@ -1,5 +1,5 @@
 // Projects Page - Project Editor Dialog.
-import { LoaderCircle, Save, Trash2 } from "lucide-react";
+import { Save, Trash2 } from "lucide-react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { Button } from "@/components/button";
 import {
@@ -24,6 +24,7 @@ import {
 export function ProjectEditorDialog({
   darkMode,
   pending,
+  saving,
   draft,
   setDraft,
   messages,
@@ -35,6 +36,7 @@ export function ProjectEditorDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
+  saving: boolean;
   draft: ProjectInput;
   setDraft: Dispatch<SetStateAction<ProjectInput>>;
   messages: ProjectMessages["editor"];
@@ -48,6 +50,7 @@ export function ProjectEditorDialog({
     <DialogShell
       darkMode={darkMode}
       pending={pending}
+      saving={saving}
       title={draft.id ? messages.project.edit : messages.project.add}
       closeLabel={messages.project.close}
       messages={messages.common}
@@ -99,6 +102,7 @@ export function ProjectEditorDialog({
 export function MilestoneEditorDialog({
   darkMode,
   pending,
+  saving,
   draft,
   setDraft,
   messages,
@@ -110,6 +114,7 @@ export function MilestoneEditorDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
+  saving: boolean;
   draft: MilestoneInput;
   setDraft: Dispatch<SetStateAction<MilestoneInput>>;
   messages: ProjectMessages["editor"];
@@ -123,6 +128,7 @@ export function MilestoneEditorDialog({
     <DialogShell
       darkMode={darkMode}
       pending={pending}
+      saving={saving}
       title={draft.id ? messages.milestone.edit : messages.milestone.add}
       closeLabel={messages.milestone.close}
       messages={messages.common}
@@ -173,6 +179,7 @@ export function MilestoneEditorDialog({
 function DialogShell({
   darkMode,
   pending,
+  saving,
   title,
   closeLabel,
   messages,
@@ -183,6 +190,7 @@ function DialogShell({
 }: {
   darkMode: boolean;
   pending: boolean;
+  saving: boolean;
   title: string;
   closeLabel: string;
   messages: ProjectMessages["editor"]["common"];
@@ -211,17 +219,10 @@ function DialogShell({
             <DialogPrimaryButton
               darkMode={darkMode}
               type="submit"
-              loading={pending}
+              disabled={pending}
               icon={<Save size={14} aria-hidden="true" />}
-              loadingIcon={
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              }
             >
-              {messages.save}
+              {saving ? messages.saving : messages.save}
             </DialogPrimaryButton>
             {onDelete ? (
               <Button

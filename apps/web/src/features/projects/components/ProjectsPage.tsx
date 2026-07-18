@@ -33,6 +33,11 @@ type ConfirmationTarget = {
   id: string;
   title: string;
 };
+type DialogEntityType = ConfirmationTarget["type"];
+type DialogAction = {
+  type: DialogEntityType;
+  action: "save" | "delete";
+} | null;
 
 export function ProjectsPage({
   darkMode,
@@ -86,6 +91,7 @@ export function ProjectsPage({
   const [taskDraft, setTaskDraft] = useState<ProjectTaskInput | null>(null);
   const [confirmationTarget, setConfirmationTarget] =
     useState<ConfirmationTarget | null>(null);
+  const [dialogAction, setDialogAction] = useState<DialogAction>(null);
   const selectedProject = useMemo(
     () =>
       selectedProjectId
@@ -101,7 +107,7 @@ export function ProjectsPage({
   }, [loading, onProjectSelect, selectedProject, selectedProjectId]);
 
   function closeDialogs() {
-    if (!pending) {
+    if (!pending && dialogAction === null) {
       setProjectDraft(null);
       setMilestoneDraft(null);
       setTaskDraft(null);
@@ -138,10 +144,16 @@ export function ProjectsPage({
       return;
     }
 
-    const saved = await onProjectSave(projectDraft);
+    setDialogAction({ type: "project", action: "save" });
 
-    if (saved) {
-      setProjectDraft(null);
+    try {
+      const saved = await onProjectSave(projectDraft);
+
+      if (saved) {
+        setProjectDraft(null);
+      }
+    } finally {
+      setDialogAction(null);
     }
   }
 
@@ -150,10 +162,16 @@ export function ProjectsPage({
       return;
     }
 
-    const saved = await onMilestoneSave(milestoneDraft);
+    setDialogAction({ type: "milestone", action: "save" });
 
-    if (saved) {
-      setMilestoneDraft(null);
+    try {
+      const saved = await onMilestoneSave(milestoneDraft);
+
+      if (saved) {
+        setMilestoneDraft(null);
+      }
+    } finally {
+      setDialogAction(null);
     }
   }
 
@@ -162,10 +180,16 @@ export function ProjectsPage({
       return;
     }
 
-    const saved = await onTaskSave(taskDraft);
+    setDialogAction({ type: "task", action: "save" });
 
-    if (saved) {
-      setTaskDraft(null);
+    try {
+      const saved = await onTaskSave(taskDraft);
+
+      if (saved) {
+        setTaskDraft(null);
+      }
+    } finally {
+      setDialogAction(null);
     }
   }
 
@@ -174,31 +198,45 @@ export function ProjectsPage({
       return;
     }
 
-    const deleted =
-      confirmationTarget.type === "project"
-        ? await onProjectDelete(confirmationTarget.id)
-        : confirmationTarget.type === "milestone"
-          ? await onMilestoneDelete(confirmationTarget.id)
-          : await onTaskDelete(confirmationTarget.id);
+    setDialogAction({ type: confirmationTarget.type, action: "delete" });
 
-    if (!deleted) {
-      return;
+    try {
+      const deleted =
+        confirmationTarget.type === "project"
+          ? await onProjectDelete(confirmationTarget.id)
+          : confirmationTarget.type === "milestone"
+            ? await onMilestoneDelete(confirmationTarget.id)
+            : await onTaskDelete(confirmationTarget.id);
+
+      if (!deleted) {
+        return;
+      }
+
+      if (confirmationTarget.type === "project") {
+        onProjectSelect(null);
+        setProjectDraft(null);
+      }
+
+      if (confirmationTarget.type === "milestone") {
+        setMilestoneDraft(null);
+      }
+
+      if (confirmationTarget.type === "task") {
+        setTaskDraft(null);
+      }
+
+      setConfirmationTarget(null);
+    } finally {
+      setDialogAction(null);
     }
+  }
 
-    if (confirmationTarget.type === "project") {
-      onProjectSelect(null);
-      setProjectDraft(null);
-    }
+  function hasDialogAction(type: DialogEntityType) {
+    return dialogAction?.type === type;
+  }
 
-    if (confirmationTarget.type === "milestone") {
-      setMilestoneDraft(null);
-    }
-
-    if (confirmationTarget.type === "task") {
-      setTaskDraft(null);
-    }
-
-    setConfirmationTarget(null);
+  function isSaving(type: DialogEntityType) {
+    return dialogAction?.type === type && dialogAction.action === "save";
   }
 
   return (
@@ -251,7 +289,8 @@ export function ProjectsPage({
       {projectDraft ? (
         <ProjectEditorDialog
           darkMode={darkMode}
-          pending={pending}
+          pending={pending || hasDialogAction("project")}
+          saving={isSaving("project")}
           draft={projectDraft}
           setDraft={updateProjectDraft}
           onClose={closeDialogs}
@@ -275,7 +314,8 @@ export function ProjectsPage({
       {milestoneDraft ? (
         <MilestoneEditorDialog
           darkMode={darkMode}
-          pending={pending}
+          pending={pending || hasDialogAction("milestone")}
+          saving={isSaving("milestone")}
           draft={milestoneDraft}
           setDraft={updateMilestoneDraft}
           onClose={closeDialogs}
@@ -300,7 +340,8 @@ export function ProjectsPage({
       {taskDraft ? (
         <ProjectTaskEditorDialog
           darkMode={darkMode}
-          pending={pending}
+          pending={pending || hasDialogAction("task")}
+          saving={isSaving("task")}
           draft={taskDraft}
           milestones={selectedProject?.milestones ?? []}
           setDraft={updateTaskDraft}
@@ -324,15 +365,16 @@ export function ProjectsPage({
       {confirmationTarget ? (
         <ConfirmDialog
           darkMode={darkMode}
-          pending={pending}
+          pending={pending || dialogAction?.action === "delete"}
           title={confirmTitle(confirmationTarget.type, messages)}
           description={messages.confirm.description(confirmationTarget.title)}
           cancelText={messages.confirm.cancel}
           confirmText={messages.confirm.confirm}
+          pendingConfirmText={messages.confirm.deleting}
           closeLabel={messages.confirm.close}
           confirmIcon={<Trash2 size={14} aria-hidden="true" />}
           onCancel={() => {
-            if (!pending) {
+            if (!pending && dialogAction === null) {
               setConfirmationTarget(null);
             }
           }}
