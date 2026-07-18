@@ -81,7 +81,7 @@ Backend rules:
 Settings does not own Discord delivery records, but the `Send Test` action uses
 the Discord outbound-message delivery logic directly. Delivery rows and
 idempotency rules are documented in
-[Discord outbound messages](../discord/outbound-messages.md).
+[Discord integration](../discord/overview.md#outbound-direct-messages).
 
 Deletion and lifecycle:
 

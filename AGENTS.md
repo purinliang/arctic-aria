@@ -355,8 +355,9 @@ amend directly when the developer explicitly asks for an amend.
 - Treat `docs/roadmap.md` as the asynchronous ticket system between the
   developer and agents.
 - When the developer asks for future work during another task, record the
-  follow-up in the roadmap first when it is useful, then continue the current
-  work unless the developer explicitly asks to switch immediately.
+  follow-up in the roadmap when it is useful, even if that roadmap edit is not
+  committed immediately. Then continue the current task unless the developer
+  explicitly asks to switch immediately.
 - After finishing a branch, inspect the roadmap for relevant new instructions,
   update any touched roadmap item with its current state, and remove or revise
   stale items that are clearly completed or no longer planned.

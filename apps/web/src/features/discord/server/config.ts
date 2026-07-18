@@ -1,7 +1,6 @@
 export type DiscordWebConfig = {
   discordAppId: string | null;
   discordBotToken: string | null;
-  discordMessagePushSecret: string | null;
   discordPublicKey: string | null;
 };
 
@@ -11,10 +10,6 @@ export function readDiscordWebConfig(
   return {
     discordAppId: readOptionalEnv(env, "DISCORD_APP_ID"),
     discordBotToken: readOptionalEnv(env, "DISCORD_BOT_TOKEN"),
-    discordMessagePushSecret: readOptionalEnv(
-      env,
-      "DISCORD_MESSAGE_PUSH_SECRET",
-    ),
     discordPublicKey: readOptionalEnv(env, "DISCORD_PUBLIC_KEY"),
   };
 }
