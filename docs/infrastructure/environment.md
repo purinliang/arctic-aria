@@ -82,7 +82,7 @@ explicitly requires an unpooled connection.
 `NEON_AUTH_BASE_URL` is not used because Arctic Aria currently implements its
 own username/password auth instead of Neon Auth.
 
-## Discord App Surface
+## Discord Integration
 
 The Discord integration is implemented inside the web app. Configure these
 variables in `apps/web/.env.local` and in the Vercel web project.

@@ -245,11 +245,12 @@ Discord slash command
   -> web route sends private acknowledgement
 ```
 
-The command name is `/idea`, not `/capture`, so the app surface matches the
-product entity.
+The command name is `/idea`, not `/capture`, so the Discord interaction matches
+the product entity.
 
-The first bot supports command chat only. It should reply conversationally to
-slash commands, but normal direct messages are not captured.
+The first Discord workflow supports command chat only. It should reply
+conversationally to slash commands, but normal direct messages are not
+captured.
 
 Do not add open AI conversation, message-content ingestion, or "every DM is an
 idea" behavior without separate privacy, rate-limit, and intent rules.

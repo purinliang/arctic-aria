@@ -59,5 +59,4 @@ is only an app surface for capture. It should call an Ideas command or service
 and should not write project, routine, memory, or review tables directly.
 
 The first Discord workflow should use command chat only. Normal direct messages
-to the bot are not captured until a later design explicitly defines free-text DM
-behavior.
+are not captured until a later design explicitly defines free-text DM behavior.
