@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { LoaderCircle, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "./button";
 import { panelColorClass } from "./color";
 import { ScrollArea } from "./scroll-area";
@@ -117,10 +117,10 @@ export function ConfirmDialog({
   title,
   description,
   confirmText = "Delete",
+  pendingConfirmText,
   cancelText = "Cancel",
   closeLabel = "Close confirmation",
   confirmIcon,
-  loadingIcon,
   onCancel,
   onConfirm,
 }: {
@@ -129,10 +129,10 @@ export function ConfirmDialog({
   title: string;
   description: string;
   confirmText?: string;
+  pendingConfirmText?: string;
   cancelText?: string;
   closeLabel?: string;
   confirmIcon?: ReactNode;
-  loadingIcon?: ReactNode;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
@@ -159,20 +159,11 @@ export function ConfirmDialog({
           <Button
             darkMode={darkMode}
             tone="primary"
-            loading={pending}
+            disabled={pending}
             icon={confirmIcon}
-            loadingIcon={
-              loadingIcon ?? (
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              )
-            }
             onClick={onConfirm}
           >
-            {confirmText}
+            {pending ? pendingConfirmText ?? confirmText : confirmText}
           </Button>
         </div>
       </DialogFrame>

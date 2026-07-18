@@ -1,5 +1,5 @@
 // Routines Page - Routine Editor Dialog.
-import { LoaderCircle, Save, Trash2 } from "lucide-react";
+import { Save, Trash2 } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
 import { DatePickerField } from "@/components/forms/date-picker-field";
@@ -22,6 +22,7 @@ import { RoutineRecurrenceFields } from "./RoutineRecurrenceFields";
 export function RoutineEditorDialog({
   darkMode,
   pending,
+  saving,
   draft,
   messages,
   formMessages,
@@ -33,6 +34,7 @@ export function RoutineEditorDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
+  saving: boolean;
   draft: RoutineInput;
   messages: RoutineMessages;
   formMessages: FormMessages;
@@ -87,17 +89,10 @@ export function RoutineEditorDialog({
             <DialogPrimaryButton
               darkMode={darkMode}
               type="submit"
-              loading={pending}
+              disabled={pending}
               icon={<Save size={14} aria-hidden="true" />}
-              loadingIcon={
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              }
             >
-              {messages.editor.save}
+              {saving ? messages.editor.saving : messages.editor.save}
             </DialogPrimaryButton>
             {draft.id ? (
               <Button

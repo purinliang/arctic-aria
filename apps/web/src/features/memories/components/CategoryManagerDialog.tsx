@@ -1,5 +1,5 @@
 // Memories Page - Category Manager Dialog.
-import { Edit3, LoaderCircle, Plus, Save, Trash2 } from "lucide-react";
+import { Edit3, Plus, Save, Trash2 } from "lucide-react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { Button } from "@/components/button";
 import { secondaryButtonBorderColorClass } from "@/components/color";
@@ -32,6 +32,7 @@ type CategoryDeleteTarget = Pick<
 export function CategoryManagerDialog({
   darkMode,
   pending,
+  saving,
   categories,
   categoryDraft,
   categoryFormOpen,
@@ -46,6 +47,7 @@ export function CategoryManagerDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
+  saving: boolean;
   categories: MemoryCategoryOption[];
   categoryDraft: MemoryCategoryInput;
   categoryFormOpen: boolean;
@@ -118,6 +120,7 @@ export function CategoryManagerDialog({
         <CategoryFormDialog
           darkMode={darkMode}
           pending={pending}
+          saving={saving}
           categoryDraft={categoryDraft}
           messages={messages}
           setCategoryDraft={setCategoryDraft}
@@ -255,6 +258,7 @@ function CategoryRow({
 function CategoryFormDialog({
   darkMode,
   pending,
+  saving,
   categoryDraft,
   messages,
   setCategoryDraft,
@@ -264,6 +268,7 @@ function CategoryFormDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
+  saving: boolean;
   categoryDraft: MemoryCategoryInput;
   messages: MemoryMessages["categories"];
   setCategoryDraft: Dispatch<SetStateAction<MemoryCategoryInput>>;
@@ -323,17 +328,10 @@ function CategoryFormDialog({
             <DialogPrimaryButton
               darkMode={darkMode}
               type="submit"
-              loading={pending}
+              disabled={pending}
               icon={<Save size={14} aria-hidden="true" />}
-              loadingIcon={
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              }
             >
-              {messages.save}
+              {saving ? messages.saving : messages.save}
             </DialogPrimaryButton>
             {onDelete ? (
               <Button

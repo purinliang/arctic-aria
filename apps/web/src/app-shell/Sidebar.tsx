@@ -11,7 +11,7 @@ import {
   Sun,
   X,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
 import { Button } from "@/components/button";
 import { ScrollArea } from "@/components/scroll-area";
@@ -136,6 +136,8 @@ function SidebarFrame({
   onThemeChange: (darkMode: boolean) => void;
   onLogout: () => void;
 }) {
+  const logoutDots = useProgressDots(logoutPending);
+
   return (
     <aside
       className={`${
@@ -249,7 +251,7 @@ function SidebarFrame({
             icon={<LogOut size={18} aria-hidden="true" />}
             label={
               logoutPending
-                ? messages.sidebar.signingOut
+                ? `${messages.sidebar.signingOut}${logoutDots}`
                 : messages.sidebar.signOut
             }
             darkMode={darkMode}
@@ -260,6 +262,24 @@ function SidebarFrame({
       </ScrollArea>
     </aside>
   );
+}
+
+function useProgressDots(active: boolean) {
+  const [dotCount, setDotCount] = useState(1);
+
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setDotCount((current) => (current === 3 ? 1 : current + 1));
+    }, 450);
+
+    return () => window.clearInterval(intervalId);
+  }, [active]);
+
+  return ".".repeat(dotCount);
 }
 
 function SidebarItem({

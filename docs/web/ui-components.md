@@ -370,6 +370,11 @@ for the save action. The primary save button should be full width with clear
 top spacing, matching the login submit button pattern. Secondary destructive
 actions may appear below it with secondary styling.
 
+Save and delete dialog actions should use text-only pending labels, not loading
+icons. While saving, the save button text becomes `Saving...`. While a delete
+confirmation is pending, the confirmation button text becomes `Deleting...`.
+Do not show spinner icons in add/edit/delete dialog action rows.
+
 ## Notification
 
 `notification.tsx` owns non-blocking notifications.

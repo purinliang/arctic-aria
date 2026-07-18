@@ -118,6 +118,15 @@ Submit behavior:
 - On backend validation or persistence failure, keep the user on the auth page
   and show the backend message through the shared notification stack.
 
+Sign-out behavior:
+
+- Sign out is a blocking auth action and is not optimistic.
+- While sign out is pending, only the sidebar sign-out row should show
+  `Signing out.`, `Signing out..`, and `Signing out...` as a periodic text
+  animation. Login or registration pending state must not trigger this label.
+- After successful sign out, return to the signed-out auth page with the
+  `Sign in` tab selected, even if the user last used the registration tab.
+
 Future action behavior:
 
 - Google sign-in and password reset UI remain hidden while the future-action

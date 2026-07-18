@@ -1,5 +1,5 @@
 // Projects Page - Project Task Editor Dialog.
-import { LoaderCircle, Save, Trash2 } from "lucide-react";
+import { Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/button";
 import type { Dispatch, SetStateAction } from "react";
 import { DatePickerField } from "@/components/forms/date-picker-field";
@@ -22,6 +22,7 @@ import type { FormMessages, ProjectMessages } from "@/messages/app-messages";
 export function ProjectTaskEditorDialog({
   darkMode,
   pending,
+  saving,
   draft,
   milestones,
   messages,
@@ -33,6 +34,7 @@ export function ProjectTaskEditorDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
+  saving: boolean;
   draft: ProjectTaskInput;
   milestones: ProjectView["milestones"];
   messages: ProjectMessages["editor"];
@@ -79,17 +81,10 @@ export function ProjectTaskEditorDialog({
             <DialogPrimaryButton
               darkMode={darkMode}
               type="submit"
-              loading={pending}
+              disabled={pending}
               icon={<Save size={14} aria-hidden="true" />}
-              loadingIcon={
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              }
             >
-              {messages.common.save}
+              {saving ? messages.common.saving : messages.common.save}
             </DialogPrimaryButton>
             {onDelete ? (
               <Button

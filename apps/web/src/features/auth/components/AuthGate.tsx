@@ -63,6 +63,7 @@ export function AuthGate() {
   const [loginInput, setLoginInput] = useState<LoginInput>(emptyLogin);
   const [serverErrors, setServerErrors] = useState<AuthFieldErrors>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [logoutPending, setLogoutPending] = useState(false);
   const [versionStatus, setVersionStatus] = useState(
     defaultDatabaseVersionStatus(),
   );
@@ -204,7 +205,7 @@ export function AuthGate() {
         messages={messages}
         themePreference={themePreference}
         versionStatus={versionStatus}
-        logoutPending={isPending}
+        logoutPending={logoutPending}
         notifications={notifications}
         onLanguagePreferenceChange={(nextPreference) =>
           updateUserPreferences({ languagePreference: nextPreference })
@@ -216,17 +217,7 @@ export function AuthGate() {
           updateUserPreferences({ timeFormatPreference: nextPreference })
         }
         timeFormatPreference={timeFormatPreference}
-        onLogout={() => {
-          startTransition(async () => {
-            await logoutUser();
-            showSuccessNotification(
-              messages.auth.notifications.signedOutMessage,
-              messages.auth.notifications.signedOutTitle,
-            );
-            setCurrentUser(null);
-            resetSubmitState(true);
-          });
-        }}
+        onLogout={() => void handleLogout()}
         onNotificationDismiss={dismissNotification}
         showErrorNotification={showErrorNotification}
         showSuccessNotification={showSuccessNotification}
@@ -299,6 +290,31 @@ export function AuthGate() {
           messages.settings.notifications.preferencesSaveFailed,
         );
       });
+  }
+
+  async function handleLogout() {
+    if (logoutPending) {
+      return;
+    }
+
+    setLogoutPending(true);
+
+    try {
+      await logoutUser();
+      showSuccessNotification(
+        messages.auth.notifications.signedOutMessage,
+        messages.auth.notifications.signedOutTitle,
+      );
+      setMode("login");
+      setLoginInput(emptyLogin);
+      setRegisterInput(emptyRegister);
+      setCurrentUser(null);
+      resetSubmitState(true);
+    } catch {
+      showErrorNotification(messages.notifications.actionFailed);
+    } finally {
+      setLogoutPending(false);
+    }
   }
 
   function handleSubmit() {
