@@ -81,8 +81,8 @@ apps/web/src/features/routines/components/RoutinesPanel.tsx
 apps/web/src/features/memories/components/PinnedMemoriesPanel.tsx
 ```
 
-The historical `apps/web/src/features/dashboard/dummy-data.ts` file is not the
-source of active Dashboard data. Do not add new Dashboard behavior there.
+Do not add new dummy-data-backed Dashboard behavior. The active Dashboard loads
+database-backed feature data through the hooks above.
 
 ## Related Feature Docs
 
