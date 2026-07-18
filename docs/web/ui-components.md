@@ -194,6 +194,11 @@ when the field sits inside a clipped list or panel. The portal should preserve
 the same rounded popover surface, font size, option spacing, and dark-mode
 colors while avoiding parent `overflow-hidden` clipping.
 
+The closed select trigger should keep the same text and icon color whether it
+is empty or selected. Empty placeholder wording can differ from selected text,
+but the trigger should not visually change weight or color only because the
+user selected a value.
+
 `forms/choice-group.tsx` owns visible button-group choices for single and
 multiple selection. Use it when the user should clearly see a compact set of
 choices. Do not use passive label chips as selectable buttons. Selected choices
