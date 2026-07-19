@@ -254,6 +254,11 @@ colors while avoiding parent `overflow-hidden` clipping. The opened menu should
 have no outer padding and should match the trigger width; option rows own their
 own internal padding.
 
+When a single-select dropdown opens below the trigger, render options in their
+normal order. When it opens above the trigger because there is not enough space
+below, render options in reverse visual order so the first logical option stays
+closest to the trigger and mouse position.
+
 The closed select trigger should use the bordered secondary button role. It
 should keep the same text and icon color whether it is empty or selected.
 Empty placeholder wording can differ from selected text, but the trigger should

@@ -20,6 +20,7 @@ import {
   formButtonControlClass,
   formControlPopupClass,
 } from "./form-control-style";
+import { orderOptionsForSelectPopover } from "./selection-field-utils";
 import { ScrollArea } from "../scroll-area";
 import { cx } from "../utils";
 
@@ -55,12 +56,17 @@ export function SelectInput({
   onChange: (value: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [opensAbove, setOpensAbove] = useState(false);
   const [popoverStyle, setPopoverStyle] = useState<CSSProperties | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const selectedOption = useMemo(
     () => options.find((option) => option.value === value) ?? null,
     [options, value],
+  );
+  const visibleOptions = useMemo(
+    () => orderOptionsForSelectPopover(options, opensAbove),
+    [opensAbove, options],
   );
   const popoverRootStyle = popoverStyle
     ? ({
@@ -107,6 +113,7 @@ export function SelectInput({
       maxLeft,
     );
 
+    setOpensAbove(opensAbove);
     setPopoverStyle({
       left,
       maxHeight: availableHeight,
@@ -194,7 +201,7 @@ export function SelectInput({
               contentClassName="grid"
               role="listbox"
             >
-              {options.map((option) => {
+              {visibleOptions.map((option) => {
                 const selected = option.value === value;
 
                 return (
