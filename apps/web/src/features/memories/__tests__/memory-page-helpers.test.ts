@@ -8,12 +8,14 @@ import {
   emptyCategoryDraft,
   getCategoryFormStateAfterSuccessfulDelete,
   getMemoryCategoryDescription,
+  getMemoryCategoryDisplayDescription,
   getMemoryCategoryLabel,
   getMemoryCategoryName,
   getMemoryFilterNames,
   getVisibleMemoryFilterCategories,
   sortMemoryCategories,
 } from "../components/memory-page-helpers.ts";
+import { defaultDescriptionForTitle } from "../../../components/default-description.ts";
 import { simplifiedChineseMemoryMessages } from "../../../messages/memory-messages.ts";
 
 test("memory filters include categories even when they have no memories", () => {
@@ -122,6 +124,20 @@ test("memory category display helpers localize built-ins only", () => {
     "旅行 description",
   );
   assert.equal(getMemoryCategoryLabel("旅行", null, messages), "旅行");
+});
+
+test("memory category display description uses fallback for empty custom categories", () => {
+  const messages = simplifiedChineseMemoryMessages.categories.builtIns;
+  const defaults = simplifiedChineseMemoryMessages.defaultDescriptions.category;
+  const custom = {
+    ...categoryOption("category-custom", "旅行", null),
+    description: "",
+  };
+
+  assert.equal(
+    getMemoryCategoryDisplayDescription(custom, messages, defaults),
+    defaultDescriptionForTitle(custom.name, defaults),
+  );
 });
 
 test("successful category delete closes the category form", () => {

@@ -1,12 +1,12 @@
-import { durationDaysForRange } from "./project-duration";
+import { durationDaysForRange } from "./project-duration.ts";
 import {
   isValidProjectDate,
   validateRequiredProjectDate,
-} from "./project-date-validation";
+} from "./project-date-validation.ts";
 import type {
   ProjectDurationRange,
   ProjectTimelineType,
-} from "./project-duration";
+} from "./project-duration.ts";
 import type { ProjectPriority, ProjectTaskStatus } from "./server/project-repository";
 
 export type ProjectInput = {
@@ -77,10 +77,10 @@ export function validateProjectInput(input: ProjectInput) {
     };
   }
 
-  if (description.length < 1 || description.length > 1000) {
+  if (description.length > 1000) {
     return {
       ok: false as const,
-      message: "Project description must be 1-1000 characters.",
+      message: "Project objective must be 1000 characters or fewer.",
       code: "project_description_invalid",
     };
   }

@@ -13,6 +13,13 @@ export const englishDashboardMessages = {
     deadline: (value: string) => `Deadline ${value}`,
     markDone: (title: string) => `Mark ${title} done`,
     openProject: (title: string) => `Open project for ${title}`,
+    defaultDescriptions: [
+      "A concrete step toward the project.",
+      "A task ready for focused work.",
+      "One useful move for this larger goal.",
+      "A small piece that makes progress visible.",
+      "A next action to keep the project moving.",
+    ],
   },
   routines: {
     title: "Routines",
@@ -25,6 +32,13 @@ export const englishDashboardMessages = {
     open: "Open routines",
     markDone: (title: string) => `Mark ${title} done`,
     reopen: (title: string) => `Reopen ${title}`,
+    defaultDescriptions: [
+      "A repeatable check to keep life moving.",
+      "A routine to return to when it is due.",
+      "A recurring item worth checking off.",
+      "A small repeated action to stay on track.",
+      "A regular reminder for everyday maintenance.",
+    ],
   },
   pinnedMemories: {
     title: "Pinned Memories",
@@ -33,6 +47,13 @@ export const englishDashboardMessages = {
     open: "Open memories",
     replace: (title: string) => `Replace ${title}`,
     experience: englishMemoryExperienceMessages,
+    defaultDescriptions: [
+      "A saved experience to revisit later.",
+      "A memory worth keeping close.",
+      "Something to return to when you need a good option.",
+      "A personal note for a future revisit.",
+      "An experience saved for another day.",
+    ],
     builtInCategories: {
       cuisine: "Cuisine",
       sightseeing: "Sightseeing",
@@ -73,6 +94,13 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
     deadline: (value) => `截止日期 ${value}`,
     markDone: (title) => `将 ${title} 标记为完成`,
     openProject: (title) => `打开 ${title} 所属项目`,
+    defaultDescriptions: [
+      "推动项目向前的一步。",
+      "一个适合专注完成的任务。",
+      "这个大目标中的一个有效行动。",
+      "一个让进展更清楚的小部分。",
+      "让项目继续前进的下一步。",
+    ],
   },
   routines: {
     title: "日常",
@@ -85,6 +113,13 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
     open: "打开日常",
     markDone: (title) => `将 ${title} 标记为完成`,
     reopen: (title) => `重新打开 ${title}`,
+    defaultDescriptions: [
+      "一个帮助生活继续运转的重复检查。",
+      "一个到时间就回来看看的日常。",
+      "一个值得定期完成的事项。",
+      "一个让节奏保持稳定的小动作。",
+      "一个适合日常维护的定期提醒。",
+    ],
   },
   pinnedMemories: {
     title: "置顶回忆",
@@ -93,6 +128,13 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
     open: "打开回忆",
     replace: (title) => `替换 ${title}`,
     experience: simplifiedChineseMemoryExperienceMessages,
+    defaultDescriptions: [
+      "一个以后可以再回看的经历。",
+      "一个值得留在身边的回忆。",
+      "需要好选择时可以回到这里。",
+      "为未来再次体验留下的个人记录。",
+      "一个为另一天保存的经历。",
+    ],
     builtInCategories: {
       cuisine: "美食",
       sightseeing: "观光",

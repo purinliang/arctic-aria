@@ -12,7 +12,7 @@ Routines uses the shared database integrity rules from
 Backend validation should check:
 
 - routine title is required and 1-120 characters
-- routine description is 2000 characters or fewer
+- routine description is optional and 2000 characters or fewer
 - first start date is a valid date
 - optional end date is blank or not before first start date
 - recurrence rule type is supported
@@ -61,6 +61,13 @@ Current fields:
 - `end_date`
 - `created_at`
 - `updated_at`
+
+Field rules:
+
+- `title` is required.
+- `description` is optional and stored as empty text when omitted.
+- Generated default description copy is render-only and must not be stored in
+  the database.
 
 Current statuses:
 

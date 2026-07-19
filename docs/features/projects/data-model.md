@@ -25,8 +25,8 @@ Projects uses the shared database integrity rules from
 
 Backend validation should check single-row user input before persistence:
 
-- required title and description fields
-- title and description length
+- required title fields
+- optional objective/description length
 - valid status values exposed by the current command
 - valid date strings
 - deadline not before start date
@@ -86,7 +86,8 @@ Recommended fields:
 - `id`
 - `user_id`
 - `title`
-- `description`
+- `objective`
+- `importance_reason`
 - `status`
 - `priority`
 - `start_date`
@@ -101,8 +102,10 @@ Recommended fields:
 Field rules:
 
 - `title` is required.
-- `description` is required. It combines what the project is trying to
-  accomplish and why it matters to the user.
+- `objective` is optional. It describes what the project is trying to accomplish
+  and why it matters to the user.
+- Empty objectives are stored as empty text. Generated default objective copy is
+  render-only and must not be stored in the database.
 - `start_date` is required.
 - `deadline_date` is optional.
 - `duration_range` is optional.
@@ -161,6 +164,8 @@ Field rules:
 - Milestones are optional phase boundaries.
 - A project can have zero milestones.
 - Project creation must not create a default milestone.
+- `objective` is optional. Empty milestone objectives should render localized
+  default copy without storing generated text.
 - Tasks can exist without a milestone.
 - Milestones can be renamed, reordered, archived, and completed.
 - Milestones should stay lightweight. They are phase boundaries, not full
@@ -202,6 +207,8 @@ Recommended fields:
 Field rules:
 
 - A task belongs to exactly one project.
+- `description` is optional. Empty task descriptions should render localized
+  default copy without storing generated text.
 - A task can optionally point to one milestone in the same project.
 - If `milestone_id` is null, UI metadata should omit the milestone segment.
 - A task is schedulable.
@@ -297,7 +304,7 @@ Current compatibility note:
 
 - `0005_create_projects.sql` still has `objective`, `importance_reason`, and
   `expected_duration_days` columns.
-- The web UI treats project description as one user-facing field and maps it
+- The web UI treats project objective as one user-facing field and maps it
   into the current columns until a later cleanup migration renames the storage
   columns.
 - The web UI treats duration as a dropdown range and maps the selected range to

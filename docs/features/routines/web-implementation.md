@@ -67,7 +67,7 @@ The routine editor uses a modal dialog over the Routines page.
 Fields:
 
 - title
-- description
+- optional description
 - recurrence rule
 - recurrence preview
 - fixed day interval only when the fixed-days option is selected
@@ -80,6 +80,11 @@ The save flow is blocking:
 - keep the dialog open while saving
 - close only after the backend confirms success
 - keep the dialog open when validation or persistence fails
+
+Description placeholders are chosen from localized default routine copy when the
+dialog opens and should not change while the user types. Empty saved
+descriptions render localized fallback copy in routine rows without storing that
+fallback in the database.
 
 Delete is also blocking and requires confirmation before the backend command is
 sent.

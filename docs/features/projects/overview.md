@@ -37,7 +37,7 @@ The user should create the project first. At project creation time, collect only
 the stable top-level information:
 
 - title
-- description
+- optional objective
 - start date
 - hard deadline or expected duration range
 
@@ -45,10 +45,11 @@ The project should not require detailed implementation tasks at creation time.
 The user often does not know the exact details yet, and those details will
 change after the user starts.
 
-Project description replaces the previous separate objective and importance
-reason fields. It should prompt the user to describe what the project is trying
-to accomplish and why it matters in real life. UI copy should use natural
-product text, not literal prompt-template fragments.
+Project objective replaces the previous separate objective and importance reason
+fields in the user-facing UI. It should prompt the user to describe what the
+project is trying to accomplish and why it matters in real life. The objective
+is optional; empty objectives render localized default copy instead of storing
+generated text.
 
 ### Milestone
 

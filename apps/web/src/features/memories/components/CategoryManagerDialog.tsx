@@ -3,6 +3,7 @@ import { Edit3, Plus } from "lucide-react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { Button } from "@/components/button";
 import { secondaryButtonBorderColorClass } from "@/components/color";
+import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import {
   CrudEditorDialog,
   DialogFrame,
@@ -19,7 +20,7 @@ import type { MemoryCategoryInput } from "@/features/memories/actions";
 import type { MemoryMessages } from "@/messages/app-messages";
 import { MemoryCategoryIcon } from "./MemoryCategoryIcon";
 import {
-  getMemoryCategoryDescription,
+  getMemoryCategoryDisplayDescription,
   getMemoryCategoryName,
 } from "./memory-page-helpers";
 
@@ -36,6 +37,7 @@ export function CategoryManagerDialog({
   categoryDraft,
   categoryFormOpen,
   messages,
+  defaultDescriptions,
   setCategoryDraft,
   onCloseEditor,
   onCloseForm,
@@ -51,6 +53,7 @@ export function CategoryManagerDialog({
   categoryDraft: MemoryCategoryInput;
   categoryFormOpen: boolean;
   messages: MemoryMessages["categories"];
+  defaultDescriptions: MemoryMessages["defaultDescriptions"];
   setCategoryDraft: Dispatch<SetStateAction<MemoryCategoryInput>>;
   onCloseEditor: () => void;
   onCloseForm: () => void;
@@ -61,6 +64,9 @@ export function CategoryManagerDialog({
 }) {
   const customCategories = categories.filter((category) => !category.builtInKey);
   const defaultCategories = categories.filter((category) => category.builtInKey);
+  const descriptionPlaceholder = useDefaultDescriptionPlaceholder(
+    defaultDescriptions.category,
+  );
 
   return (
     <>
@@ -92,6 +98,7 @@ export function CategoryManagerDialog({
                   categories={customCategories}
                   editDisabled={pending}
                   messages={messages}
+                  defaultDescriptions={defaultDescriptions}
                   onOpenEdit={onOpenEdit}
                 />
               ) : (
@@ -108,6 +115,7 @@ export function CategoryManagerDialog({
                 categories={defaultCategories}
                 editDisabled={pending}
                 messages={messages}
+                defaultDescriptions={defaultDescriptions}
                 onOpenEdit={onOpenEdit}
               />
             </CategorySection>
@@ -122,6 +130,7 @@ export function CategoryManagerDialog({
           saving={saving}
           categoryDraft={categoryDraft}
           messages={messages}
+          descriptionPlaceholder={descriptionPlaceholder}
           setCategoryDraft={setCategoryDraft}
           onClose={onCloseForm}
           onSubmit={onSubmit}
@@ -167,12 +176,14 @@ function CategoryList({
   categories,
   editDisabled,
   messages,
+  defaultDescriptions,
   onOpenEdit,
 }: {
   darkMode: boolean;
   categories: MemoryCategoryOption[];
   editDisabled: boolean;
   messages: MemoryMessages["categories"];
+  defaultDescriptions: MemoryMessages["defaultDescriptions"];
   onOpenEdit: (category: MemoryCategoryOption) => void;
 }) {
   return (
@@ -187,6 +198,7 @@ function CategoryList({
           category={category}
           editDisabled={editDisabled}
           messages={messages}
+          defaultDescriptions={defaultDescriptions}
           onOpenEdit={onOpenEdit}
         />
       ))}
@@ -218,12 +230,14 @@ function CategoryRow({
   category,
   editDisabled,
   messages,
+  defaultDescriptions,
   onOpenEdit,
 }: {
   darkMode: boolean;
   category: MemoryCategoryOption;
   editDisabled: boolean;
   messages: MemoryMessages["categories"];
+  defaultDescriptions: MemoryMessages["defaultDescriptions"];
   onOpenEdit: (category: MemoryCategoryOption) => void;
 }) {
   return (
@@ -239,8 +253,11 @@ function CategoryRow({
         }
         main={
           <DescriptionText darkMode={darkMode}>
-            {getMemoryCategoryDescription(category, messages.builtIns) ||
-              messages.noDescription}
+            {getMemoryCategoryDisplayDescription(
+              category,
+              messages.builtIns,
+              defaultDescriptions.category,
+            )}
           </DescriptionText>
         }
       />
@@ -264,6 +281,7 @@ function CategoryFormDialog({
   saving,
   categoryDraft,
   messages,
+  descriptionPlaceholder,
   setCategoryDraft,
   onClose,
   onSubmit,
@@ -274,6 +292,7 @@ function CategoryFormDialog({
   saving: boolean;
   categoryDraft: MemoryCategoryInput;
   messages: MemoryMessages["categories"];
+  descriptionPlaceholder: string;
   setCategoryDraft: Dispatch<SetStateAction<MemoryCategoryInput>>;
   onClose: () => void;
   onSubmit: () => void;
@@ -316,7 +335,7 @@ function CategoryFormDialog({
           value={categoryDraft.description}
           maxLength={500}
           disabled={pending}
-          placeholder={messages.descriptionPlaceholder}
+          placeholder={descriptionPlaceholder}
           onChange={(event) =>
             setCategoryDraft((current) => ({
               ...current,

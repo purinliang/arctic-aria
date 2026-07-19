@@ -75,6 +75,13 @@ export const englishRoutineMessages = {
         : `Every ${interval} months on day ${day}`,
     dayInterval: (interval: number) => `Every ${interval} days`,
   },
+  defaultDescriptions: [
+    "A repeatable check to keep life moving.",
+    "A routine to return to when it is due.",
+    "A recurring item worth checking off.",
+    "A small repeated action to stay on track.",
+    "A regular reminder for everyday maintenance.",
+  ],
   confirm: {
     title: "Delete routine",
     fallback: "this routine",
@@ -175,6 +182,13 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
       interval === 1 ? `每月第 ${day} 天` : `每 ${interval} 个月的第 ${day} 天`,
     dayInterval: (interval) => `每 ${interval} 天`,
   },
+  defaultDescriptions: [
+    "一个帮助生活继续运转的重复检查。",
+    "一个到时间就回来看看的日常。",
+    "一个值得定期完成的事项。",
+    "一个让节奏保持稳定的小动作。",
+    "一个适合日常维护的定期提醒。",
+  ],
   confirm: {
     title: "删除日常",
     fallback: "这个日常",

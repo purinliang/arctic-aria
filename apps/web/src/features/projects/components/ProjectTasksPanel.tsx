@@ -3,6 +3,7 @@ import { ChevronRight, ListChecks } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
+import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { List, ListItem, ListItemContent } from "@/components/list";
@@ -105,7 +106,11 @@ function ProjectTaskRow({
           title={<h3 className="min-w-0 text-base font-semibold">{task.title}</h3>}
           main={
             <DescriptionText darkMode={darkMode}>
-              {task.description || messages.noDescription}
+              {displayDescription(
+                task.description,
+                task.title,
+                messages.defaultDescriptions,
+              )}
             </DescriptionText>
           }
           support={<SupportingText darkMode={darkMode}>{metadata}</SupportingText>}

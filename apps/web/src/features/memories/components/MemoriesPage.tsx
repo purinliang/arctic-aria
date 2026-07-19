@@ -275,6 +275,7 @@ export function MemoriesPage({
             memories={visibleMemories}
             messages={messages.panel}
             categoryMessages={messages.categories.builtIns}
+            defaultDescriptions={messages.defaultDescriptions}
             dateMessages={formMessages.datePicker}
             onAdd={openNewMemoryEditor}
             onFilterChange={setFilter}
@@ -289,9 +290,10 @@ export function MemoriesPage({
             suggestionsRequested={suggestionsRequested}
             pinnedSuggestionIds={pinnedSuggestionIds}
             pendingSuggestionIds={pendingSuggestionIds}
-          messages={messages.suggestions}
-          categoryMessages={messages.categories.builtIns}
-          dateMessages={formMessages.datePicker}
+            messages={messages.suggestions}
+            categoryMessages={messages.categories.builtIns}
+            defaultDescriptions={messages.defaultDescriptions}
+            dateMessages={formMessages.datePicker}
             onSuggestionsRefresh={onSuggestionsRefresh}
             onSuggestionPin={onSuggestionPin}
             onSuggestionCancel={onSuggestionCancel}
@@ -310,6 +312,7 @@ export function MemoriesPage({
           setMemoryDraft={setMemoryDraft}
           messages={messages.editor}
           categoryMessages={messages.categories.builtIns}
+          defaultDescriptions={messages.defaultDescriptions}
           onClose={closeMemoryEditor}
           onSubmit={() => void submitMemory()}
           onManageCategories={openManageCategories}
@@ -334,6 +337,7 @@ export function MemoriesPage({
           categoryDraft={categoryDraft}
           categoryFormOpen={categoryFormOpen}
           messages={messages.categories}
+          defaultDescriptions={messages.defaultDescriptions}
           setCategoryDraft={setCategoryDraft}
           onCloseEditor={closeCategoryEditor}
           onCloseForm={closeCategoryForm}
