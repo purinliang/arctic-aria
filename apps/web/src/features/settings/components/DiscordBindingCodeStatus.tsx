@@ -4,7 +4,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import {
-  panelHoverContainerColorClass,
   secondaryTextColorClass,
   secondaryButtonBorderColorClass,
 } from "@/components/color";
@@ -47,19 +46,20 @@ export function DiscordBindingCodeStatus({
   }, []);
 
   return (
-    <div
-      className={`mt-3 rounded-md border px-3 py-3 ${panelHoverContainerColorClass}`}
-    >
-      <p className="text-sm font-semibold tracking-[0.08em]">{code}</p>
-      <p className={`mt-2 text-xs leading-5 ${secondaryTextColorClass}`}>
-        {messages.discord.bindInstruction}
+    <div className="mt-2">
+      <p className={`text-sm leading-6 ${secondaryTextColorClass}`}>
+        {messages.discord.bindInstructionPrefix}
+        <code className="rounded border border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-header-bg)] px-1.5 py-0.5 font-mono text-xs font-semibold text-[var(--aa-primary-text)]">
+          /bind code:{code}
+        </code>
+        {messages.discord.bindInstructionSuffix}
       </p>
       {expired ? (
-        <p className={`text-xs leading-5 ${versionMismatchClass(darkMode)}`}>
+        <p className={`mt-1 text-xs leading-5 ${versionMismatchClass(darkMode)}`}>
           {messages.discord.expired}
         </p>
       ) : remainingText ? (
-        <p className={`text-xs leading-5 ${secondaryTextColorClass}`}>
+        <p className={`mt-1 text-xs leading-5 ${secondaryTextColorClass}`}>
           {remainingText}
         </p>
       ) : null}

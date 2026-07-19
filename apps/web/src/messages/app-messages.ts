@@ -119,7 +119,8 @@ const englishMessages = {
     appInformationTitle: "About",
     discord: {
       bind: "Bind",
-      bindInstruction: "Run /bind code:<code> in Discord.",
+      bindInstructionPrefix: "Run ",
+      bindInstructionSuffix: " in Discord.",
       bound: "Bound account.",
       boundAccountId: (accountId: string) => `Bound Account ID: ${accountId}`,
       boundAccountIdLabel: "Bound Account ID",
@@ -313,7 +314,8 @@ const simplifiedChineseMessages: AppMessages = {
     appInformationTitle: "关于",
     discord: {
       bind: "绑定",
-      bindInstruction: "在 Discord 中运行 /bind code:<code>。",
+      bindInstructionPrefix: "在 Discord 中运行 ",
+      bindInstructionSuffix: "。",
       bound: "已绑定账户。",
       boundAccountId: (accountId: string) => `已绑定账户 ID：${accountId}`,
       boundAccountIdLabel: "已绑定账户 ID",

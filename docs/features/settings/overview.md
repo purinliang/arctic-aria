@@ -100,15 +100,17 @@ Unbound state:
 - show `Checking binding status...` while the initial status load is pending
 - show `Binding status unavailable.` and a `Check Again` action if the status
   check fails
-- show `No bound account.` after loading when no active binding exists
+- show `No bound account.` after loading when no active binding exists and no
+  binding code is pending
 - show a secondary `Bind` button
 
 Pending code state:
 
-- show the one-time code
+- show the one-time code as part of the exact Discord slash command
 - show relative expiry text such as `Expires in 15 minutes.`
 - show `Expired` in red when the code expires
-- show instructions: run `/bind code:<code>` in Discord
+- show the exact Discord slash command in monospace inline command style, such
+  as `/bind code:R8A3-Y6LL-KV3Q`
 - show `Check Again` and `Cancel` actions below the account binding setting
 
 Bound state:
