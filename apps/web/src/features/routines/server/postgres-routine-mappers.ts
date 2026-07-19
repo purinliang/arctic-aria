@@ -11,11 +11,11 @@ export type RoutineRow = {
   user_id: string;
   title: string;
   description: string | null;
-  status: "active" | "deleted";
   first_start_date: Date | string;
   end_date: Date | string | null;
   created_at: Date | string;
   updated_at: Date | string;
+  deleted_at: Date | string | null;
   rule_id: string;
   rule_type: RoutineRuleType;
   interval_value: number | null;
@@ -48,11 +48,11 @@ export const routineSelect = `
     routines.user_id,
     routines.title,
     routines.description,
-    routines.status,
     routines.first_start_date,
     routines.end_date,
     routines.created_at,
     routines.updated_at,
+    routines.deleted_at,
     routine_rules.id AS rule_id,
     routine_rules.rule_type,
     routine_rules.interval_value,
@@ -103,11 +103,11 @@ export function mapRoutine(row: RoutineRow): RoutineRecord {
     userId: row.user_id,
     title: row.title,
     description: row.description,
-    status: row.status,
     firstStartDate: toDateString(row.first_start_date),
     endDate: row.end_date ? toDateString(row.end_date) : null,
     createdAt: toDate(row.created_at),
     updatedAt: toDate(row.updated_at),
+    deletedAt: toNullableDate(row.deleted_at),
     rule,
   };
 }
@@ -155,11 +155,11 @@ export function routineSelectFromCtes(routineCte: string, ruleCte: string) {
       ${routineCte}.user_id,
       ${routineCte}.title,
       ${routineCte}.description,
-      ${routineCte}.status,
       ${routineCte}.first_start_date,
       ${routineCte}.end_date,
       ${routineCte}.created_at,
       ${routineCte}.updated_at,
+      ${routineCte}.deleted_at,
       ${ruleCte}.id AS rule_id,
       ${ruleCte}.rule_type,
       ${ruleCte}.interval_value,

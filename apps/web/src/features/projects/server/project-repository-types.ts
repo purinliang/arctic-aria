@@ -1,12 +1,4 @@
-export type ProjectStatus = "active" | "paused" | "completed" | "archived";
-export type ProjectPriority = "high" | "medium" | "low";
-export type ProjectTaskStatus =
-  | "todo"
-  | "doing"
-  | "blocked"
-  | "skipped"
-  | "done"
-  | "archived";
+export type ProjectTaskStatus = "todo" | "done";
 
 export type ProjectPinResult = "pinned" | "limit_reached" | "not_found";
 
@@ -20,17 +12,13 @@ export type ProjectTaskRecord = {
   title: string;
   description: string | null;
   status: ProjectTaskStatus;
-  priority: ProjectPriority;
-  scheduledDate: string | null;
   startDate: string | null;
   deadlineDate: string | null;
   sortOrder: number;
   createdAt: Date;
   updatedAt: Date;
   completedAt: Date | null;
-  skippedAt: Date | null;
-  blockedAt: Date | null;
-  archivedAt: Date | null;
+  deletedAt: Date | null;
 };
 
 export type ProjectMilestoneRecord = {
@@ -39,7 +27,6 @@ export type ProjectMilestoneRecord = {
   projectId: string;
   title: string;
   objective: string | null;
-  status: ProjectStatus;
   sortOrder: number;
   startDate: string | null;
   deadlineDate: string | null;
@@ -47,7 +34,7 @@ export type ProjectMilestoneRecord = {
   createdAt: Date;
   updatedAt: Date;
   completedAt: Date | null;
-  archivedAt: Date | null;
+  deletedAt: Date | null;
   tasks: ProjectTaskRecord[];
 };
 
@@ -56,8 +43,6 @@ export type ProjectRecord = {
   userId: string;
   title: string;
   objective: string | null;
-  status: ProjectStatus;
-  priority: ProjectPriority;
   startDate: string;
   deadlineDate: string | null;
   expectedDurationDays: number | null;
@@ -65,7 +50,7 @@ export type ProjectRecord = {
   createdAt: Date;
   updatedAt: Date;
   completedAt: Date | null;
-  archivedAt: Date | null;
+  deletedAt: Date | null;
   tasks: ProjectTaskRecord[];
   milestones: ProjectMilestoneRecord[];
 };
@@ -75,7 +60,6 @@ export type SaveProjectInput = {
   projectId?: string;
   title: string;
   objective: string | null;
-  priority: ProjectPriority;
   startDate: string;
   deadlineDate: string | null;
   expectedDurationDays: number | null;
@@ -101,9 +85,6 @@ export type SaveProjectTaskInput = {
   milestoneId: string | null;
   title: string;
   description: string | null;
-  priority: ProjectPriority;
-  status: ProjectTaskStatus;
-  scheduledDate: string | null;
   startDate: string | null;
   deadlineDate: string | null;
   occurredAt: Date;
@@ -143,7 +124,7 @@ export type ProjectRepository = {
   updateTaskStatus(input: {
     userId: string;
     taskId: string;
-    status: Exclude<ProjectTaskStatus, "archived">;
+    status: ProjectTaskStatus;
     occurredAt: Date;
   }): Promise<boolean>;
 };

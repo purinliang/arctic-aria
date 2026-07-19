@@ -47,7 +47,7 @@ export function ProjectDetailPage({
   onEditTask: (task: ProjectTaskView) => void;
   onTaskStatus: (
     taskId: string,
-    status: Exclude<TaskStatus, "archived">,
+    status: TaskStatus,
   ) => void;
 }) {
   if (!project) {
@@ -251,7 +251,7 @@ function ProjectTaskRow({
   onEdit: () => void;
   onTaskStatus: (
     taskId: string,
-    status: Exclude<TaskStatus, "archived">,
+    status: TaskStatus,
   ) => void;
 }) {
   const metadata = [task.milestoneLabel, deadlineText(task, messages, dateMessages)]

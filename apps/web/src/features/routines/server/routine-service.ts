@@ -58,7 +58,7 @@ function matchesMonthlyByDate(routine: RoutineRecord, date: string) {
 }
 
 function shouldGenerateInstance(routine: RoutineRecord, date: string) {
-  if (routine.status !== "active") {
+  if (routine.deletedAt !== null) {
     return false;
   }
 

@@ -113,7 +113,6 @@ test("project validation accepts an empty optional description", () => {
   const validation = validateProjectInput({
     title: "Find a job",
     description: "   ",
-    priority: "medium",
     startDate: "2026-07-19",
     timelineType: "duration",
     deadlineDate: "",
@@ -131,7 +130,6 @@ test("project validation still rejects over-length descriptions", () => {
   const validation = validateProjectInput({
     title: "Find a job",
     description: "x".repeat(1001),
-    priority: "medium",
     startDate: "2026-07-19",
     timelineType: "duration",
     deadlineDate: "",
@@ -169,9 +167,6 @@ test("task validation stores blank optional descriptions as null", () => {
     milestoneId: "",
     title: "Prepare resume",
     description: "   ",
-    priority: "medium",
-    status: "todo",
-    scheduledDate: "",
     startDate: "2026-07-19",
     deadlineDate: "",
   });

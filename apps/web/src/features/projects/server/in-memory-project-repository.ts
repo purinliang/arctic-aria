@@ -25,13 +25,13 @@ export class InMemoryProjectRepository implements ProjectRepository {
 
   async listProjects(userId: string) {
     return this.projects
-      .filter((project) => project.userId === userId && project.status !== "archived")
+      .filter((project) => project.userId === userId && project.deletedAt === null)
       .map(cloneProject);
   }
 
   async listDashboardTasks(userId: string) {
     return this.projects
-      .filter((project) => project.userId === userId && project.status === "active")
+      .filter((project) => project.userId === userId && project.deletedAt === null)
       .flatMap((project) =>
         project.tasks.filter((task) => {
           if (!task.milestoneId) {
@@ -41,11 +41,11 @@ export class InMemoryProjectRepository implements ProjectRepository {
           return project.milestones.some(
             (milestone) =>
               milestone.id === task.milestoneId &&
-              milestone.status === "active",
+              milestone.deletedAt === null,
           );
         }),
       )
-      .filter((task) => task.status !== "archived" && task.status !== "done")
+      .filter((task) => task.deletedAt === null && task.status !== "done")
       .sort(compareDashboardTasks)
       .slice(0, 8)
       .map(cloneTask);
@@ -67,7 +67,6 @@ export class InMemoryProjectRepository implements ProjectRepository {
       Object.assign(existing, {
         title: input.title,
         objective: input.objective,
-        priority: input.priority,
         startDate: input.startDate,
         deadlineDate: input.deadlineDate,
         expectedDurationDays: input.expectedDurationDays,
@@ -82,8 +81,6 @@ export class InMemoryProjectRepository implements ProjectRepository {
       userId: input.userId,
       title: input.title,
       objective: input.objective,
-      status: "active",
-      priority: input.priority,
       startDate: input.startDate,
       deadlineDate: input.deadlineDate,
       expectedDurationDays: input.expectedDurationDays,
@@ -91,7 +88,7 @@ export class InMemoryProjectRepository implements ProjectRepository {
       createdAt: input.occurredAt,
       updatedAt: input.occurredAt,
       completedAt: null,
-      archivedAt: null,
+      deletedAt: null,
       tasks: [],
       milestones: [],
     });
@@ -139,7 +136,6 @@ export class InMemoryProjectRepository implements ProjectRepository {
       projectId: project.id,
       title: input.title,
       objective: input.objective,
-      status: "active",
       sortOrder: project.milestones.length,
       startDate: input.startDate,
       deadlineDate: input.deadlineDate,
@@ -147,7 +143,7 @@ export class InMemoryProjectRepository implements ProjectRepository {
       createdAt: input.occurredAt,
       updatedAt: input.occurredAt,
       completedAt: null,
-      archivedAt: null,
+      deletedAt: null,
       tasks: [],
     });
 
@@ -183,16 +179,12 @@ export class InMemoryProjectRepository implements ProjectRepository {
       milestoneTitle: target.milestone?.title ?? "",
       title: input.title,
       description: input.description,
-      status: input.status,
-      priority: input.priority,
-      scheduledDate: input.scheduledDate,
+      status: existing?.status ?? "todo",
       startDate: input.startDate,
       deadlineDate: input.deadlineDate,
       updatedAt: input.occurredAt,
-      completedAt: input.status === "done" ? input.occurredAt : null,
-      skippedAt: input.status === "skipped" ? input.occurredAt : null,
-      blockedAt: input.status === "blocked" ? input.occurredAt : null,
-      archivedAt: input.status === "archived" ? input.occurredAt : null,
+      completedAt: existing?.completedAt ?? null,
+      deletedAt: existing?.deletedAt ?? null,
     };
 
     target.project.tasks = [
@@ -214,9 +206,8 @@ export class InMemoryProjectRepository implements ProjectRepository {
       return false;
     }
 
-    project.status = "archived";
     project.sidebarPinOrder = null;
-    project.archivedAt = input.occurredAt;
+    project.deletedAt = input.occurredAt;
     project.updatedAt = input.occurredAt;
     return true;
   }
@@ -228,7 +219,7 @@ export class InMemoryProjectRepository implements ProjectRepository {
   }): Promise<ProjectPinResult> {
     const project = this.findProject(input.userId, input.projectId);
 
-    if (!project || project.status !== "active") {
+    if (!project || project.deletedAt !== null) {
       return "not_found";
     }
 
@@ -241,7 +232,7 @@ export class InMemoryProjectRepository implements ProjectRepository {
         .filter(
           (current) =>
             current.userId === input.userId &&
-            current.status !== "archived" &&
+            current.deletedAt === null &&
             current.sidebarPinOrder !== null,
         )
         .map((current) => current.sidebarPinOrder),
@@ -264,7 +255,7 @@ export class InMemoryProjectRepository implements ProjectRepository {
   }) {
     const project = this.findProject(input.userId, input.projectId);
 
-    if (!project || project.status === "archived") {
+    if (!project || project.deletedAt !== null) {
       return false;
     }
 
@@ -282,22 +273,25 @@ export class InMemoryProjectRepository implements ProjectRepository {
     occurredAt: Date;
   }) {
     const project = this.projects
-      .filter((current) => current.userId === input.userId)
+      .filter(
+        (current) => current.userId === input.userId && current.deletedAt === null,
+      )
       .find((current) =>
         current.milestones.some(
-          (milestone) => milestone.id === input.milestoneId,
+          (milestone) =>
+            milestone.id === input.milestoneId && milestone.deletedAt === null,
         ),
       );
     const milestone = project?.milestones.find(
-      (current) => current.id === input.milestoneId,
+      (current) =>
+        current.id === input.milestoneId && current.deletedAt === null,
     );
 
     if (!project || !milestone) {
       return false;
     }
 
-    milestone.status = "archived";
-    milestone.archivedAt = input.occurredAt;
+    milestone.deletedAt = input.occurredAt;
     milestone.updatedAt = input.occurredAt;
     project.tasks = project.tasks.map((task) =>
       task.milestoneId === milestone.id
@@ -319,8 +313,7 @@ export class InMemoryProjectRepository implements ProjectRepository {
       return false;
     }
 
-    task.status = "archived";
-    task.archivedAt = input.occurredAt;
+    task.deletedAt = input.occurredAt;
     task.updatedAt = input.occurredAt;
     this.projects
       .filter((project) => project.userId === input.userId)
@@ -331,7 +324,7 @@ export class InMemoryProjectRepository implements ProjectRepository {
   async updateTaskStatus(input: {
     userId: string;
     taskId: string;
-    status: Exclude<ProjectTaskStatus, "archived">;
+    status: ProjectTaskStatus;
     occurredAt: Date;
   }) {
     const task = this.findTask(input.userId, input.taskId);
@@ -342,8 +335,6 @@ export class InMemoryProjectRepository implements ProjectRepository {
 
     task.status = input.status;
     task.completedAt = input.status === "done" ? input.occurredAt : null;
-    task.skippedAt = input.status === "skipped" ? input.occurredAt : null;
-    task.blockedAt = input.status === "blocked" ? input.occurredAt : null;
     task.updatedAt = input.occurredAt;
     this.projects
       .filter((project) => project.userId === input.userId)
@@ -353,7 +344,10 @@ export class InMemoryProjectRepository implements ProjectRepository {
 
   private findProject(userId: string, projectId: string) {
     return this.projects.find(
-      (project) => project.userId === userId && project.id === projectId,
+      (project) =>
+        project.userId === userId &&
+        project.id === projectId &&
+        project.deletedAt === null,
     );
   }
 
@@ -372,7 +366,8 @@ export class InMemoryProjectRepository implements ProjectRepository {
     }
 
     const milestone = project?.milestones.find(
-      (current) => current.id === input.milestoneId,
+      (current) =>
+        current.id === input.milestoneId && current.deletedAt === null,
     );
 
     return milestone ? { project, milestone } : null;
@@ -380,8 +375,8 @@ export class InMemoryProjectRepository implements ProjectRepository {
 
   private findTask(userId: string, taskId: string) {
     return this.projects
-      .filter((project) => project.userId === userId)
+      .filter((project) => project.userId === userId && project.deletedAt === null)
       .flatMap((project) => project.tasks)
-      .find((task) => task.id === taskId);
+      .find((task) => task.id === taskId && task.deletedAt === null);
   }
 }

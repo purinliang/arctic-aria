@@ -12,13 +12,13 @@ selected.
 
 Pinned projects:
 
-- users can pin up to three active projects as sidebar shortcuts
+- users can pin up to three non-deleted projects as sidebar shortcuts
 - pinned shortcuts appear directly below the main `Projects` item
 - clicking a pinned shortcut opens that project detail page directly
 - the main `Projects` item remains visible and always returns to the Projects
   list page
 - pinned shortcut labels truncate when long
-- archived projects must disappear from the pinned shortcut list
+- deleted projects must disappear from the pinned shortcut list
 
 ## Dashboard
 
@@ -91,7 +91,7 @@ Top section:
 Main content:
 
 - active project list
-- archived or completed projects hidden by default
+- deleted projects hidden by default
 - project list items without milestone or task details
 
 Each project list item should show:
@@ -213,9 +213,7 @@ Project actions:
 
 - edit project
 - pin or unpin project
-- pause or resume project
-- complete project
-- archive project
+- delete project
 
 Use a page, not a dialog, because project detail needs space for the milestone
 tree and progress context.
@@ -339,8 +337,7 @@ Actions:
 
 - add milestone
 - edit milestone
-- complete milestone
-- archive milestone
+- delete milestone
 
 Projects do not create a default milestone. The milestone list can be empty.
 
@@ -371,7 +368,6 @@ Task actions:
 
 - done / not done
 - edit
-- archive
 - delete
 
 Delete behavior:

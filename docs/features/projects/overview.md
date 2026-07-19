@@ -90,8 +90,8 @@ can decide whether it is the right thing to work on today.
 - The user creates tasks under a project, optionally assigning a milestone.
 - Implementation details under a milestone should be easy to change.
 - Today's dashboard should focus on today's tasks to move projects forward.
-- The user can pin up to three active projects as sidebar shortcuts for quick
-  access to important current work.
+- The user can pin up to three non-deleted projects as sidebar shortcuts for
+  quick access to important current work.
 - Editable numeric progress fields should not appear in the UI.
 - Dashboard task rows should avoid standalone progress visuals.
 - Child checklist rows are intentionally removed from the current design. Add

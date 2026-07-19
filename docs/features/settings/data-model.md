@@ -16,6 +16,8 @@ Columns:
 - `theme_preference text NOT NULL DEFAULT 'system'`
 - `language_preference text NOT NULL DEFAULT 'en'`
 - `time_format_preference text NOT NULL DEFAULT '12h'`
+- `timezone_preference text NOT NULL DEFAULT 'system'`
+- `multiple_timezones_enabled boolean NOT NULL DEFAULT false`
 - `created_at timestamptz NOT NULL DEFAULT now()`
 - `updated_at timestamptz NOT NULL DEFAULT now()`
 
@@ -24,6 +26,11 @@ Constraints:
 - `theme_preference` must be `system`, `light`, or `dark`
 - `language_preference` must be `system`, `en`, or `zh-CN`
 - `time_format_preference` must be `12h` or `24h`
+- `timezone_preference` must be `system` or a trimmed timezone identifier no
+  longer than 64 characters
+
+Timezone columns are reserved for the pending timezone-preference UI. Do not
+depend on them in user-facing code until that feature branch is merged.
 
 ### `discord_accounts`
 

@@ -48,11 +48,12 @@ export class PostgresProjectRepository implements ProjectRepository {
     const taskRows = (await this.getSql().query(
       `${projectTaskSelect}
        WHERE project_tasks.user_id = $1
-         AND project_tasks.status NOT IN ('archived', 'done')
-         AND projects.status = 'active'
+         AND project_tasks.deleted_at IS NULL
+         AND project_tasks.completed_at IS NULL
+         AND projects.deleted_at IS NULL
          AND (
            project_tasks.milestone_id IS NULL
-           OR project_milestones.status = 'active'
+           OR project_milestones.deleted_at IS NULL
          )
        ORDER BY
          project_tasks.deadline_date NULLS LAST,
@@ -83,13 +84,12 @@ export class PostgresProjectRepository implements ProjectRepository {
   }) {
     const rows = (await this.getSql()`
       UPDATE projects
-      SET status = 'archived',
-          sidebar_pin_order = NULL,
-          archived_at = ${input.occurredAt},
+      SET sidebar_pin_order = NULL,
+          deleted_at = ${input.occurredAt},
           updated_at = ${input.occurredAt}
       WHERE user_id = ${input.userId}
         AND id = ${input.projectId}
-        AND status != 'archived'
+        AND deleted_at IS NULL
       RETURNING id
     `) as Array<{ id: string }>;
 
@@ -107,7 +107,7 @@ export class PostgresProjectRepository implements ProjectRepository {
          FROM projects
          WHERE user_id = $1
            AND id = $2
-           AND status = 'active'
+           AND deleted_at IS NULL
        ),
        available_slot AS (
          SELECT slot
@@ -130,7 +130,7 @@ export class PostgresProjectRepository implements ProjectRepository {
              updated_at = $3::timestamptz
          WHERE user_id = $1
            AND id = $2
-           AND status = 'active'
+           AND deleted_at IS NULL
            AND (
              sidebar_pin_order IS NOT NULL
              OR EXISTS (SELECT 1 FROM available_slot)
@@ -165,7 +165,7 @@ export class PostgresProjectRepository implements ProjectRepository {
            END
        WHERE user_id = $1
          AND id = $2
-         AND status != 'archived'
+         AND deleted_at IS NULL
        RETURNING id`,
       [input.userId, input.projectId, input.occurredAt],
     )) as Array<{ id: string }>;
@@ -179,14 +179,13 @@ export class PostgresProjectRepository implements ProjectRepository {
     occurredAt: Date;
   }) {
     const rows = (await this.getSql().query(
-      `WITH archived_milestone AS (
+      `WITH deleted_milestone AS (
          UPDATE project_milestones
-         SET status = 'archived',
-             archived_at = $3::timestamptz,
+         SET deleted_at = $3::timestamptz,
              updated_at = $3::timestamptz
          WHERE user_id = $1
            AND id = $2
-           AND status != 'archived'
+           AND deleted_at IS NULL
          RETURNING id
        ),
        detached_tasks AS (
@@ -194,10 +193,10 @@ export class PostgresProjectRepository implements ProjectRepository {
          SET milestone_id = NULL,
              updated_at = $3::timestamptz
          WHERE user_id = $1
-           AND milestone_id IN (SELECT id FROM archived_milestone)
+           AND milestone_id IN (SELECT id FROM deleted_milestone)
          RETURNING id
        )
-       SELECT id FROM archived_milestone`,
+       SELECT id FROM deleted_milestone`,
       [input.userId, input.milestoneId, input.occurredAt],
     )) as Array<{ id: string }>;
 
@@ -211,12 +210,11 @@ export class PostgresProjectRepository implements ProjectRepository {
   }) {
     const rows = (await this.getSql().query(
       `UPDATE project_tasks
-       SET status = 'archived',
-           archived_at = $3::timestamptz,
+       SET deleted_at = $3::timestamptz,
            updated_at = $3::timestamptz
        WHERE user_id = $1
          AND id = $2
-         AND status != 'archived'
+         AND deleted_at IS NULL
        RETURNING id`,
       [input.userId, input.taskId, input.occurredAt],
     )) as Array<{ id: string }>;
@@ -227,18 +225,18 @@ export class PostgresProjectRepository implements ProjectRepository {
   async updateTaskStatus(input: {
     userId: string;
     taskId: string;
-    status: Exclude<ProjectTaskStatus, "archived">;
+    status: ProjectTaskStatus;
     occurredAt: Date;
   }) {
     const rows = (await this.getSql().query(
       `WITH updated_task AS (
          UPDATE project_tasks
-         SET status = $3::text,
-           completed_at = CASE WHEN $3::text = 'done' THEN $4::timestamptz ELSE NULL END,
-           skipped_at = CASE WHEN $3::text = 'skipped' THEN $4::timestamptz ELSE NULL END,
-           blocked_at = CASE WHEN $3::text = 'blocked' THEN $4::timestamptz ELSE NULL END,
+         SET completed_at = CASE
+             WHEN $3::text = 'done' THEN $4::timestamptz
+             ELSE NULL
+           END,
            updated_at = $4::timestamptz
-         WHERE user_id = $1 AND id = $2
+         WHERE user_id = $1 AND id = $2 AND deleted_at IS NULL
          RETURNING *
        ),
        event AS (
@@ -247,7 +245,7 @@ export class PostgresProjectRepository implements ProjectRepository {
          )
          SELECT user_id, 'task', id, $5, $4::timestamptz, 'web'
          FROM updated_task
-         WHERE $3::text IN ('done', 'skipped', 'blocked', 'todo', 'doing')
+         WHERE $3::text IN ('done', 'todo')
          RETURNING id
        )
        SELECT id FROM updated_task`,
@@ -268,7 +266,7 @@ export class PostgresProjectRepository implements ProjectRepository {
       SELECT *
       FROM projects
       WHERE user_id = ${userId}
-        AND status != 'archived'
+        AND deleted_at IS NULL
       ORDER BY start_date DESC, created_at DESC
     `) as ProjectRow[];
   }
@@ -279,8 +277,8 @@ export class PostgresProjectRepository implements ProjectRepository {
       FROM project_milestones
       INNER JOIN projects ON projects.id = project_milestones.project_id
       WHERE project_milestones.user_id = ${userId}
-        AND project_milestones.status != 'archived'
-        AND projects.status != 'archived'
+        AND project_milestones.deleted_at IS NULL
+        AND projects.deleted_at IS NULL
       ORDER BY project_milestones.sort_order, project_milestones.created_at
     `) as MilestoneRow[];
   }
@@ -289,11 +287,11 @@ export class PostgresProjectRepository implements ProjectRepository {
     return (await this.getSql().query(
       `${projectTaskSelect}
        WHERE project_tasks.user_id = $1
-         AND project_tasks.status != 'archived'
-         AND projects.status != 'archived'
+         AND project_tasks.deleted_at IS NULL
+         AND projects.deleted_at IS NULL
          AND (
            project_tasks.milestone_id IS NULL
-           OR project_milestones.status != 'archived'
+           OR project_milestones.deleted_at IS NULL
          )
        ORDER BY project_tasks.sort_order, project_tasks.created_at`,
       [userId],
@@ -330,21 +328,9 @@ function assembleProjects(
   return projects;
 }
 
-function eventTypeForStatus(status: Exclude<ProjectTaskStatus, "archived">) {
+function eventTypeForStatus(status: ProjectTaskStatus) {
   if (status === "done") {
     return "completed";
-  }
-
-  if (status === "skipped") {
-    return "skipped";
-  }
-
-  if (status === "blocked") {
-    return "blocked";
-  }
-
-  if (status === "doing") {
-    return "unblocked";
   }
 
   return "reopened";

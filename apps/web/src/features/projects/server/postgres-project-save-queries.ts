@@ -11,10 +11,10 @@ export async function saveProject(sql: Sql, input: SaveProjectInput) {
   if (input.projectId) {
     const updated = (await sql.query(
       `UPDATE projects
-       SET title = $3, objective = $4, priority = $5,
-         start_date = $6, deadline_date = $7, expected_duration_days = $8,
-         updated_at = $9
-       WHERE user_id = $1 AND id = $2 AND status != 'archived'
+       SET title = $3, objective = $4, start_date = $5,
+         deadline_date = $6, expected_duration_days = $7,
+         updated_at = $8
+       WHERE user_id = $1 AND id = $2 AND deleted_at IS NULL
        RETURNING id`,
       projectParams(input),
     )) as Array<{ id: string }>;
@@ -24,10 +24,10 @@ export async function saveProject(sql: Sql, input: SaveProjectInput) {
 
   const inserted = (await sql.query(
     `INSERT INTO projects (
-       user_id, title, objective, priority, start_date,
-       deadline_date, expected_duration_days, created_at, updated_at
+       user_id, title, objective, start_date, deadline_date,
+       expected_duration_days, created_at, updated_at
      )
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $7)
      RETURNING id`,
     createProjectParams(input),
   )) as Array<{ id: string }>;
@@ -47,7 +47,7 @@ export async function saveMilestone(sql: Sql, input: SaveMilestoneInput) {
        SET title = $4, objective = $5, start_date = $6, deadline_date = $7,
          expected_duration_days = $8, updated_at = $9
        WHERE user_id = $1 AND project_id = $2 AND id = $3
-         AND status != 'archived'
+         AND deleted_at IS NULL
        RETURNING id`,
       milestoneParams(input),
     )) as Array<{ id: string }>;
@@ -63,7 +63,7 @@ export async function saveMilestone(sql: Sql, input: SaveMilestoneInput) {
      SELECT $1, $2, $3, $4, $5, $6, $7,
        COALESCE(MAX(sort_order), -1) + 1, $8, $8
      FROM project_milestones
-     WHERE user_id = $1 AND project_id = $2
+     WHERE user_id = $1 AND project_id = $2 AND deleted_at IS NULL
      RETURNING id`,
     createMilestoneParams(input),
   )) as Array<{ id: string }>;
@@ -104,7 +104,6 @@ function projectParams(input: SaveProjectInput) {
     input.projectId ?? null,
     input.title,
     input.objective,
-    input.priority,
     input.startDate,
     input.deadlineDate,
     input.expectedDurationDays,
@@ -117,7 +116,6 @@ function createProjectParams(input: SaveProjectInput) {
     input.userId,
     input.title,
     input.objective,
-    input.priority,
     input.startDate,
     input.deadlineDate,
     input.expectedDurationDays,
@@ -159,9 +157,6 @@ function taskParams(input: SaveProjectTaskInput) {
     input.milestoneId,
     input.title,
     input.description,
-    input.status,
-    input.priority,
-    input.scheduledDate,
     input.startDate,
     input.deadlineDate,
     input.occurredAt,
@@ -176,9 +171,6 @@ function createTaskParams(input: SaveProjectTaskInput) {
     input.milestoneId,
     input.title,
     input.description,
-    input.status,
-    input.priority,
-    input.scheduledDate,
     input.startDate,
     input.deadlineDate,
     input.occurredAt,
@@ -194,7 +186,7 @@ async function milestoneExists(sql: Sql, input: SaveProjectTaskInput) {
     `SELECT id
      FROM project_milestones
      WHERE user_id = $1 AND project_id = $2 AND id = $3
-       AND status != 'archived'
+       AND deleted_at IS NULL
      LIMIT 1`,
     [input.userId, input.projectId, input.milestoneId],
   )) as Array<{ id: string }>;
@@ -205,16 +197,11 @@ async function milestoneExists(sql: Sql, input: SaveProjectTaskInput) {
 async function createTask(sql: Sql, input: SaveProjectTaskInput) {
   const rows = (await sql.query(
     `INSERT INTO project_tasks (
-       user_id, project_id, milestone_id, title, description, status, priority,
-       scheduled_date, start_date, deadline_date, completed_at, skipped_at,
-       blocked_at, created_at, updated_at
+       user_id, project_id, milestone_id, title, description,
+       start_date, deadline_date, created_at, updated_at
      )
      VALUES (
-       $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-       CASE WHEN $6 = 'done' THEN $11::timestamptz ELSE NULL END,
-       CASE WHEN $6 = 'skipped' THEN $11::timestamptz ELSE NULL END,
-       CASE WHEN $6 = 'blocked' THEN $11::timestamptz ELSE NULL END,
-       $11, $11
+       $1, $2, $3, $4, $5, $6, $7, $8, $8
      )
      RETURNING id`,
     createTaskParams(input),
@@ -227,13 +214,8 @@ async function updateTask(sql: Sql, input: SaveProjectTaskInput) {
   const rows = (await sql.query(
     `UPDATE project_tasks
      SET project_id = $2, milestone_id = $3, title = $4, description = $5,
-       status = $6, priority = $7, scheduled_date = $8, start_date = $9,
-       deadline_date = $10,
-       completed_at = CASE WHEN $6 = 'done' THEN $11::timestamptz ELSE NULL END,
-       skipped_at = CASE WHEN $6 = 'skipped' THEN $11::timestamptz ELSE NULL END,
-       blocked_at = CASE WHEN $6 = 'blocked' THEN $11::timestamptz ELSE NULL END,
-       updated_at = $11::timestamptz
-     WHERE user_id = $1 AND id = $12 AND status != 'archived'
+       start_date = $6, deadline_date = $7, updated_at = $8::timestamptz
+     WHERE user_id = $1 AND id = $9 AND deleted_at IS NULL
      RETURNING id`,
     taskParams(input),
   )) as Array<{ id: string }>;

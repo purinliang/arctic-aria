@@ -38,20 +38,15 @@ The first routines feature should not include:
 - Discord reminder delivery
 - advanced scheduler optimization
 - pause and resume
-- archive-only user flows
 - health-device integration
 - automatic schedule suggestions
 - task child checklists inside routines
 
 ## Routine Definition
 
-A routine definition stores the repeatable behavior.
-
-Routine statuses:
-
-- `active`: can generate future instances.
-- `deleted`: hidden from normal views and excluded from future instance
-  generation.
+A routine definition stores the repeatable behavior. Deleted routine definitions
+are marked with `deleted_at`, hidden from normal views, and excluded from future
+instance generation.
 
 The optional `end_date` is inclusive. If it is blank, the routine continues
 until the user deletes it.

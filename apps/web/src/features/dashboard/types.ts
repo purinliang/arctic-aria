@@ -1,10 +1,4 @@
-export type TaskStatus =
-  | "todo"
-  | "doing"
-  | "blocked"
-  | "skipped"
-  | "done"
-  | "archived";
+export type TaskStatus = "todo" | "done";
 
 export type DashboardView =
   | "dashboard"
@@ -14,8 +8,6 @@ export type DashboardView =
   | "memories"
   | "settings";
 
-export type Priority = "high" | "medium" | "low";
-
 export type Task = {
   id: string;
   projectId: string;
@@ -24,9 +16,7 @@ export type Task = {
   projectLabel: string;
   milestoneLabel: string;
   deadline: string;
-  priority: Priority;
   status: TaskStatus;
-  scheduledDate: string;
   startDate: string;
   deadlineDate: string;
 };
@@ -56,7 +46,6 @@ export type RoutineDefinition = {
   id: string;
   title: string;
   description: string | null;
-  status: "active" | "deleted";
   firstStartDate: string;
   endDate: string | null;
   ruleType: RoutineRuleType;

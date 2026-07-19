@@ -7,13 +7,11 @@ import type {
   ProjectDurationRange,
   ProjectTimelineType,
 } from "./project-duration.ts";
-import type { ProjectPriority, ProjectTaskStatus } from "./server/project-repository";
 
 export type ProjectInput = {
   id?: string;
   title: string;
   description: string;
-  priority: ProjectPriority;
   startDate: string;
   timelineType: ProjectTimelineType;
   deadlineDate: string;
@@ -37,9 +35,6 @@ export type ProjectTaskInput = {
   milestoneId: string;
   title: string;
   description: string;
-  priority: ProjectPriority;
-  status: ProjectTaskStatus;
-  scheduledDate: string;
   startDate: string;
   deadlineDate: string;
 };
@@ -223,7 +218,6 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
   const title = input.title.trim();
   const description = input.description.trim();
   const milestoneId = input.milestoneId.trim() || null;
-  const scheduledDate = input.scheduledDate.trim() || null;
   const startDate = input.startDate.trim() || null;
   const deadlineDate = input.deadlineDate.trim() || null;
 
@@ -243,7 +237,7 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
     };
   }
 
-  for (const value of [scheduledDate, startDate, deadlineDate]) {
+  for (const value of [startDate, deadlineDate]) {
     if (value && !validateDate(value)) {
       return {
         ok: false as const,
@@ -266,7 +260,6 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
     milestoneId,
     title,
     description: description || null,
-    scheduledDate,
     startDate,
     deadlineDate,
   };
