@@ -69,6 +69,7 @@ export function AuthGate() {
   );
   const [isPending, startTransition] = useTransition();
   const {
+    browserDefaults,
     darkMode,
     applyUserPreferences,
     languagePreference,
@@ -199,6 +200,7 @@ export function AuthGate() {
     return (
       <AppShell
         currentUser={currentUser}
+        browserTimeZone={browserDefaults.timeZone}
         darkMode={darkMode}
         languagePreference={languagePreference}
         resolvedLanguage={resolvedLanguage}
@@ -265,8 +267,10 @@ export function AuthGate() {
   function updateUserPreferences(input: Partial<UserPreferences>) {
     const nextPreferences = normalizeUserPreferences({
       languagePreference,
+      multipleTimezonesEnabled: false,
       themePreference,
       timeFormatPreference,
+      timeZonePreference: "system",
       ...input,
     });
 

@@ -73,6 +73,14 @@ export function appPathForProject(projectId: string) {
   return `/projects/${encodeURIComponent(projectId)}`;
 }
 
+export function browserPathname() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.location.pathname;
+}
+
 function normalizePathname(pathname: string) {
   if (!pathname || pathname === "/") {
     return "/";

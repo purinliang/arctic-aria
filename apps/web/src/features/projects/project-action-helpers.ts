@@ -1,19 +1,17 @@
-import { durationDaysForRange } from "./project-duration";
+import { durationDaysForRange } from "./project-duration.ts";
 import {
   isValidProjectDate,
   validateRequiredProjectDate,
-} from "./project-date-validation";
+} from "./project-date-validation.ts";
 import type {
   ProjectDurationRange,
   ProjectTimelineType,
-} from "./project-duration";
-import type { ProjectPriority, ProjectTaskStatus } from "./server/project-repository";
+} from "./project-duration.ts";
 
 export type ProjectInput = {
   id?: string;
   title: string;
   description: string;
-  priority: ProjectPriority;
   startDate: string;
   timelineType: ProjectTimelineType;
   deadlineDate: string;
@@ -37,9 +35,6 @@ export type ProjectTaskInput = {
   milestoneId: string;
   title: string;
   description: string;
-  priority: ProjectPriority;
-  status: ProjectTaskStatus;
-  scheduledDate: string;
   startDate: string;
   deadlineDate: string;
 };
@@ -77,10 +72,10 @@ export function validateProjectInput(input: ProjectInput) {
     };
   }
 
-  if (description.length < 1 || description.length > 1000) {
+  if (description.length > 1000) {
     return {
       ok: false as const,
-      message: "Project description must be 1-1000 characters.",
+      message: "Project objective must be 1000 characters or fewer.",
       code: "project_description_invalid",
     };
   }
@@ -134,8 +129,7 @@ export function validateProjectInput(input: ProjectInput) {
   return {
     ok: true as const,
     title,
-    objective: description.slice(0, 500),
-    importanceReason: description,
+    objective: description ? description.slice(0, 500) : null,
     startDate: startDate.value,
     deadlineDate,
     expectedDurationDays,
@@ -213,7 +207,7 @@ export function validateMilestoneInput(input: MilestoneInput) {
   return {
     ok: true as const,
     title,
-    objective,
+    objective: objective || null,
     startDate: startDate.value,
     deadlineDate,
     expectedDurationDays,
@@ -224,7 +218,6 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
   const title = input.title.trim();
   const description = input.description.trim();
   const milestoneId = input.milestoneId.trim() || null;
-  const scheduledDate = input.scheduledDate.trim() || null;
   const startDate = input.startDate.trim() || null;
   const deadlineDate = input.deadlineDate.trim() || null;
 
@@ -244,7 +237,7 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
     };
   }
 
-  for (const value of [scheduledDate, startDate, deadlineDate]) {
+  for (const value of [startDate, deadlineDate]) {
     if (value && !validateDate(value)) {
       return {
         ok: false as const,
@@ -266,8 +259,7 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
     ok: true as const,
     milestoneId,
     title,
-    description,
-    scheduledDate,
+    description: description || null,
     startDate,
     deadlineDate,
   };

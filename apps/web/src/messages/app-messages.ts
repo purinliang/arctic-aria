@@ -194,6 +194,8 @@ const englishMessages = {
       preferencesSaveFailed: "Settings not saved",
     },
     results: {
+      settings_timezone_preferences_disabled:
+        "Timezone preferences are not available yet.",
       settings_preferences_unavailable: "Settings are unavailable.",
       settings_preferences_save_failed: "Settings could not be saved.",
       settings_unauthorized: "Sign in before changing settings.",
@@ -211,6 +213,17 @@ const englishMessages = {
       twelveHour: "12-hour",
       twentyFourHour: "24-hour",
     },
+    timeZoneLabel: "Timezone",
+    timeZoneDescription: (timeZone: string, offset: string) =>
+      `${timeZone} · ${offset}`,
+    timeZoneSystemDescription: (timeZone: string, offset: string) =>
+      `Browser timezone: ${timeZone} · ${offset}`,
+    timeZoneOptions: {
+      system: "Use system setting",
+    },
+    multipleTimezonesLabel: "Use multiple timezones",
+    multipleTimezonesDescription:
+      "For overseas meetings or routines coordinated with people in another timezone.",
     title: "Settings",
   },
   notifications: {
@@ -386,6 +399,7 @@ const simplifiedChineseMessages: AppMessages = {
       preferencesSaveFailed: "设置未保存",
     },
     results: {
+      settings_timezone_preferences_disabled: "时区偏好暂不可用。",
       settings_preferences_unavailable: "设置暂不可用。",
       settings_preferences_save_failed: "设置无法保存。",
       settings_unauthorized: "请先登录再更改设置。",
@@ -403,6 +417,16 @@ const simplifiedChineseMessages: AppMessages = {
       twelveHour: "12 小时制",
       twentyFourHour: "24 小时制",
     },
+    timeZoneLabel: "时区",
+    timeZoneDescription: (timeZone, offset) => `${timeZone} · ${offset}`,
+    timeZoneSystemDescription: (timeZone, offset) =>
+      `浏览器时区：${timeZone} · ${offset}`,
+    timeZoneOptions: {
+      system: "使用系统设置",
+    },
+    multipleTimezonesLabel: "使用多个时区",
+    multipleTimezonesDescription:
+      "适合海外会议，或需要和不同时区的人一起安排的日常。",
     title: "设置",
   },
   notifications: {

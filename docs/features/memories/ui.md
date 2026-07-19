@@ -160,6 +160,8 @@ Each memory list item should show:
   English and Chinese instead of generic `experienced` wording
 - user-created categories and unknown categories fall back to
   `experienced` / `体验`
+- if the saved description is missing, show localized default memory copy derived
+  from the memory title; the fallback is render-only and is not persisted
 
 Memory item behavior:
 
@@ -199,6 +201,8 @@ Each suggestion item should show:
 - if a suggestion was never experienced, show `Never experienced` without a
   duplicate `Experienced 0 times` count
 - use the same category-specific experience wording as the Memories panel
+- if the saved description is missing, show the same localized default memory copy
+  used by the Memories panel
 - a circular outline button on the right side, with only the Lucide `Pin` icon
   and no text
 
@@ -312,7 +316,10 @@ Close button: cross icon button without an outline.
 List fields vertically.
 
 Use the shared field-label, text-input, and multiline text-area components for
-memory title and description.
+memory title and optional description. The title placeholder should stay simple,
+such as `Memory title`. The description placeholder should be chosen from
+localized default memory copy when the dialog opens and should not change while
+the user types.
 
 Category selection should not be a dropdown list. Use the shared single-choice
 component with the same visual language as app selection buttons. Nothing should
@@ -386,6 +393,9 @@ Use a clear label: `Category name`.
 
 Use the shared field-label and text-input components for the category name. Use
 the shared multiline text-area component for optional category description.
+The category name placeholder should stay simple, such as `Category name`.
+The category description placeholder should be chosen from localized default
+category copy when the dialog opens and should not change while the user types.
 
 Do not show a suggestion period, weekly/monthly selector, or category weight
 control.

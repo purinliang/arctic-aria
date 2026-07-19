@@ -3,6 +3,7 @@ import { Bell, ChevronRight } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
+import { displayDescription } from "@/components/default-description";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { List, ListItem, ListItemContent } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
@@ -105,7 +106,11 @@ function RoutineRow({
           }
           main={
             <DescriptionText darkMode={darkMode}>
-              {routine.description || messages.noDescription}
+              {displayDescription(
+                routine.description,
+                routine.title,
+                messages.defaultDescriptions,
+              )}
             </DescriptionText>
           }
           support={

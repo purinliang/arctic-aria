@@ -10,7 +10,7 @@ export type MemoryCategoryRow = {
   id: string;
   user_id: string;
   name: MemoryCategoryName;
-  description: string;
+  description: string | null;
   built_in_key: BuiltInMemoryCategoryKey | null;
   icon_name: string;
   shown_on_dashboard: boolean;
@@ -26,7 +26,7 @@ export type MemoryRow = {
   category_built_in_key: BuiltInMemoryCategoryKey | null;
   category_shown_on_dashboard: boolean;
   title: string;
-  description: string;
+  description: string | null;
   last_done_at: Date | string | null;
   done_count: number;
   last_pinned_at: Date | string | null;
@@ -44,7 +44,7 @@ export type PinnedMemoryRow = {
   category_built_in_key: BuiltInMemoryCategoryKey | null;
   category_shown_on_dashboard: boolean;
   title: string;
-  description: string;
+  description: string | null;
   position: number;
   pinned_at: Date | string;
   last_shown_at: Date | string;

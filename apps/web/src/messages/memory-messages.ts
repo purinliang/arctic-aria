@@ -54,7 +54,6 @@ export const englishMemoryMessages = {
     name: "Category name",
     namePlaceholder: "Category name",
     description: "Description",
-    descriptionPlaceholder: "What belongs in this category?",
     noDescription: "No description.",
     noCustomCategories: "No custom categories yet.",
     builtIns: {
@@ -96,6 +95,20 @@ export const englishMemoryMessages = {
     save: "Save",
     saving: "Saving",
     delete: "Delete",
+  },
+  defaultDescriptions: {
+    memory: [
+      "A saved experience to revisit later.",
+      "A memory worth keeping close.",
+      "Something to return to when you need a good option.",
+      "A personal note for a future revisit.",
+      "An experience saved for another day.",
+    ],
+    category: [
+      "A custom category for related memories.",
+      "A place to group memories that belong together.",
+      "A small shelf for experiences with the same feeling.",
+    ],
   },
   confirm: {
     memoryTitle: "Delete memory",
@@ -182,7 +195,6 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     name: "分类名称",
     namePlaceholder: "分类名称",
     description: "描述",
-    descriptionPlaceholder: "这个分类包含哪些回忆？",
     noDescription: "暂无描述。",
     noCustomCategories: "暂无自定义分类。",
     builtIns: {
@@ -222,6 +234,20 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     save: "保存",
     saving: "正在保存",
     delete: "删除",
+  },
+  defaultDescriptions: {
+    memory: [
+      "一个以后可以再回看的经历。",
+      "一个值得留在身边的回忆。",
+      "需要好选择时可以回到这里。",
+      "为未来再次体验留下的个人记录。",
+      "一个为另一天保存的经历。",
+    ],
+    category: [
+      "一组相关回忆的自定义分类。",
+      "一个放置相似回忆的位置。",
+      "一层用来收纳相同感觉经历的小架子。",
+    ],
   },
   confirm: {
     memoryTitle: "删除回忆",

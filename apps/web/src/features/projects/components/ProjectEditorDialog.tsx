@@ -1,5 +1,6 @@
 // Projects Page - Project Editor Dialog.
 import type { Dispatch, SetStateAction } from "react";
+import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import { CrudEditorDialog } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
@@ -21,6 +22,7 @@ export function ProjectEditorDialog({
   setDraft,
   messages,
   durationMessages,
+  defaultDescriptions,
   formMessages,
   onClose,
   onSubmit,
@@ -33,11 +35,17 @@ export function ProjectEditorDialog({
   setDraft: Dispatch<SetStateAction<ProjectInput>>;
   messages: ProjectMessages["editor"];
   durationMessages: ProjectMessages["duration"];
+  defaultDescriptions: ProjectMessages["defaultDescriptions"];
   formMessages: FormMessages;
   onClose: () => void;
   onSubmit: () => void;
   onDelete?: () => void;
 }) {
+  const objectivePlaceholder = useDefaultDescriptionPlaceholder(
+    defaultDescriptions.project,
+    draft.title,
+  );
+
   return (
     <CrudEditorDialog
       darkMode={darkMode}
@@ -64,14 +72,14 @@ export function ProjectEditorDialog({
           }
         />
       </FieldLabel>
-      <FieldLabel darkMode={darkMode} label={messages.common.description}>
+      <FieldLabel darkMode={darkMode} label={messages.project.objective} optional>
         <TextArea
           darkMode={darkMode}
           className="min-h-28"
           value={draft.description}
           maxLength={1000}
           disabled={pending}
-          placeholder={messages.project.descriptionPlaceholder}
+          placeholder={objectivePlaceholder}
           onChange={(event) =>
             setDraft((current) => ({
               ...current,
@@ -101,6 +109,7 @@ export function MilestoneEditorDialog({
   setDraft,
   messages,
   durationMessages,
+  defaultDescriptions,
   formMessages,
   onClose,
   onSubmit,
@@ -113,11 +122,17 @@ export function MilestoneEditorDialog({
   setDraft: Dispatch<SetStateAction<MilestoneInput>>;
   messages: ProjectMessages["editor"];
   durationMessages: ProjectMessages["duration"];
+  defaultDescriptions: ProjectMessages["defaultDescriptions"];
   formMessages: FormMessages;
   onClose: () => void;
   onSubmit: () => void;
   onDelete?: () => void;
 }) {
+  const objectivePlaceholder = useDefaultDescriptionPlaceholder(
+    defaultDescriptions.milestone,
+    draft.title,
+  );
+
   return (
     <CrudEditorDialog
       darkMode={darkMode}
@@ -151,6 +166,7 @@ export function MilestoneEditorDialog({
           value={draft.objective}
           maxLength={500}
           disabled={pending}
+          placeholder={objectivePlaceholder}
           onChange={(event) =>
             setDraft((current) => ({
               ...current,

@@ -105,7 +105,7 @@ export function createProjectService(options: ProjectServiceOptions = {}) {
     async updateTaskStatus(
       userId: string,
       taskId: string,
-      status: Exclude<ProjectTaskStatus, "archived">,
+      status: ProjectTaskStatus,
     ) {
       return projects.updateTaskStatus({
         userId,

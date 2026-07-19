@@ -1,10 +1,4 @@
-export type TaskStatus =
-  | "todo"
-  | "doing"
-  | "blocked"
-  | "skipped"
-  | "done"
-  | "archived";
+export type TaskStatus = "todo" | "done";
 
 export type DashboardView =
   | "dashboard"
@@ -14,19 +8,15 @@ export type DashboardView =
   | "memories"
   | "settings";
 
-export type Priority = "high" | "medium" | "low";
-
 export type Task = {
   id: string;
   projectId: string;
   title: string;
-  description: string;
+  description: string | null;
   projectLabel: string;
   milestoneLabel: string;
   deadline: string;
-  priority: Priority;
   status: TaskStatus;
-  scheduledDate: string;
   startDate: string;
   deadlineDate: string;
 };
@@ -38,7 +28,7 @@ export type Routine = {
   id: string;
   routineId: string;
   title: string;
-  description: string;
+  description: string | null;
   scheduledTime: string;
   status: RoutineStatus;
   reminderState: RoutineReminderState;
@@ -55,8 +45,7 @@ export type RoutineRuleType =
 export type RoutineDefinition = {
   id: string;
   title: string;
-  description: string;
-  status: "active" | "deleted";
+  description: string | null;
   firstStartDate: string;
   endDate: string | null;
   ruleType: RoutineRuleType;
@@ -86,7 +75,7 @@ export type PinnedMemory = {
   category: MemoryCategory;
   categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
   title: string;
-  description: string;
+  description: string | null;
   position: number;
   status: PinnedMemoryStatus;
 };
@@ -97,7 +86,7 @@ export type MemoryRecord = {
   category: MemoryCategory;
   categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
   title: string;
-  description: string;
+  description: string | null;
   lastDoneDate: string;
   lastDoneText: string;
   doneCount: number;
@@ -109,7 +98,7 @@ export type MemorySuggestion = {
   category: MemoryCategory;
   categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
   title: string;
-  description: string;
+  description: string | null;
   lastDoneDate: string;
   lastDoneText: string;
   doneCount: number;
@@ -118,7 +107,7 @@ export type MemorySuggestion = {
 export type MemoryCategoryOption = {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   builtInKey: BuiltInMemoryCategoryKey | null;
   iconName: string;
   shownOnDashboard: boolean;

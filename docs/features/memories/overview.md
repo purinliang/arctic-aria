@@ -110,7 +110,7 @@ users.
 User-created categories should allow:
 
 - a user-authored name in any language
-- a user-authored description
+- an optional user-authored description
 - one icon selected from a small memory icon set, roughly 12 choices
 
 User-created category names are not automatically translated in the current

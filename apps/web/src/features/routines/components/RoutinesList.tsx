@@ -2,6 +2,7 @@
 import { Edit3 } from "lucide-react";
 import { Button } from "@/components/button";
 import { secondaryTextColorClass } from "@/components/color";
+import { displayDescription } from "@/components/default-description";
 import { formatTimeDisplay } from "@/components/forms/time-display";
 import { List, ListItem, ListItemContent } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
@@ -54,7 +55,11 @@ export function RoutinesList({
             }
             main={
               <DescriptionText darkMode={darkMode}>
-                {routine.description || messages.noDescription}
+                {displayDescription(
+                  routine.description,
+                  routine.title,
+                  ruleMessages.defaultDescriptions,
+                )}
               </DescriptionText>
             }
             support={

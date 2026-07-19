@@ -3,6 +3,7 @@ import { ChevronRight, FolderKanban, Pin, PinOff, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
+import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
 import { List, ListItem, ListItemContent } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
@@ -22,6 +23,7 @@ export function ProjectsList({
   messages,
   timelineMessages,
   durationMessages,
+  defaultDescriptions,
   dateMessages,
   onViewProject,
   onPinProject,
@@ -36,6 +38,7 @@ export function ProjectsList({
   messages: ProjectMessages["list"];
   timelineMessages: ProjectMessages["timeline"];
   durationMessages: ProjectMessages["duration"];
+  defaultDescriptions: ProjectMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
   onViewProject: (projectId: string) => void;
   onPinProject: (projectId: string) => void;
@@ -79,6 +82,7 @@ export function ProjectsList({
             messages={messages}
             timelineMessages={timelineMessages}
             durationMessages={durationMessages}
+            defaultDescriptions={defaultDescriptions}
             dateMessages={dateMessages}
             onView={() => onViewProject(project.id)}
             onPin={() => onPinProject(project.id)}
@@ -97,6 +101,7 @@ function ProjectListItem({
   messages,
   timelineMessages,
   durationMessages,
+  defaultDescriptions,
   dateMessages,
   onView,
   onPin,
@@ -108,6 +113,7 @@ function ProjectListItem({
   messages: ProjectMessages["list"];
   timelineMessages: ProjectMessages["timeline"];
   durationMessages: ProjectMessages["duration"];
+  defaultDescriptions: ProjectMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
   onView: () => void;
   onPin: () => void;
@@ -125,7 +131,11 @@ function ProjectListItem({
         }
         main={
           <DescriptionText darkMode={darkMode} className="line-clamp-2">
-            {project.description}
+            {displayDescription(
+              project.description,
+              project.title,
+              defaultDescriptions.project,
+            )}
           </DescriptionText>
         }
         support={

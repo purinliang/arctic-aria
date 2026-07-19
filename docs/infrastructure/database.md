@@ -231,12 +231,12 @@ Do not assume that the word `Delete` always means a hard database delete.
 
 Current lifecycle policy:
 
-- Projects: deleting a project, milestone, or task archives it with
-  `status = 'archived'` and `archived_at`. Archived rows stay in the database
-  but are hidden from normal project, dashboard, and planning views.
-- Routines: deleting a routine marks it with `status = 'deleted'`. Deleted
-  routines are hidden from normal routine and dashboard views and excluded from
-  future instance generation.
+- Projects: deleting a project, milestone, or task sets `deleted_at`. Deleted
+  rows stay in the database but are hidden from normal project, dashboard, and
+  planning views.
+- Routines: deleting a routine sets `deleted_at`. Deleted routines are hidden
+  from normal routine and dashboard views and excluded from future instance
+  generation.
 - Memories: deleting a memory hard-deletes the memory row. Linked pinned rows
   and event rows are removed by foreign-key cleanup.
 - Memory categories: deleting a category hard-deletes it only when no memory
@@ -249,7 +249,7 @@ Current lifecycle policy:
 
 Default rules:
 
-- Prefer archive or soft delete for parent-child product data that represents
+- Prefer soft delete for parent-child product data that represents
   user work.
 - Refuse hard deletion of a non-empty parent unless the feature explicitly
   documents cascade cleanup.
@@ -371,7 +371,7 @@ or references. The backend may pre-check to produce a nicer message, but a
 database constraint must still protect concurrent inserts or updates when the
 data rule requires uniqueness.
 
-For user-visible parent-child data, prefer archive or soft-delete commands.
+For user-visible parent-child data, prefer soft-delete commands.
 When a feature supports hard delete, the default behavior should refuse deleting
 a non-empty parent. Use cascade delete only when the feature explicitly
 documents that cleanup behavior, such as account-level removal of all owned

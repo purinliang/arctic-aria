@@ -1,8 +1,6 @@
 import type {
   ProjectMilestoneRecord,
-  ProjectPriority,
   ProjectRecord,
-  ProjectStatus,
   ProjectTaskRecord,
   ProjectTaskStatus,
 } from "./project-repository.ts";
@@ -11,10 +9,7 @@ export type ProjectRow = {
   id: string;
   user_id: string;
   title: string;
-  objective: string;
-  importance_reason: string;
-  status: ProjectStatus;
-  priority: ProjectPriority;
+  objective: string | null;
   start_date: Date | string;
   deadline_date: Date | string | null;
   expected_duration_days: number | null;
@@ -22,7 +17,7 @@ export type ProjectRow = {
   created_at: Date | string;
   updated_at: Date | string;
   completed_at: Date | string | null;
-  archived_at: Date | string | null;
+  deleted_at: Date | string | null;
 };
 
 export type MilestoneRow = {
@@ -30,8 +25,7 @@ export type MilestoneRow = {
   user_id: string;
   project_id: string;
   title: string;
-  objective: string;
-  status: ProjectStatus;
+  objective: string | null;
   sort_order: number;
   start_date: Date | string | null;
   deadline_date: Date | string | null;
@@ -39,7 +33,7 @@ export type MilestoneRow = {
   created_at: Date | string;
   updated_at: Date | string;
   completed_at: Date | string | null;
-  archived_at: Date | string | null;
+  deleted_at: Date | string | null;
 };
 
 export type ProjectTaskRow = {
@@ -50,19 +44,15 @@ export type ProjectTaskRow = {
   milestone_id: string | null;
   milestone_title: string | null;
   title: string;
-  description: string;
+  description: string | null;
   status: ProjectTaskStatus;
-  priority: ProjectPriority;
-  scheduled_date: Date | string | null;
   start_date: Date | string | null;
   deadline_date: Date | string | null;
   sort_order: number;
   created_at: Date | string;
   updated_at: Date | string;
   completed_at: Date | string | null;
-  skipped_at: Date | string | null;
-  blocked_at: Date | string | null;
-  archived_at: Date | string | null;
+  deleted_at: Date | string | null;
 };
 
 export const projectTaskSelect = `
@@ -75,18 +65,17 @@ export const projectTaskSelect = `
     project_milestones.title AS milestone_title,
     project_tasks.title,
     project_tasks.description,
-    project_tasks.status,
-    project_tasks.priority,
-    project_tasks.scheduled_date,
+    CASE
+      WHEN project_tasks.completed_at IS NULL THEN 'todo'
+      ELSE 'done'
+    END AS status,
     project_tasks.start_date,
     project_tasks.deadline_date,
     project_tasks.sort_order,
     project_tasks.created_at,
     project_tasks.updated_at,
     project_tasks.completed_at,
-    project_tasks.skipped_at,
-    project_tasks.blocked_at,
-    project_tasks.archived_at
+    project_tasks.deleted_at
   FROM project_tasks
   INNER JOIN projects ON projects.id = project_tasks.project_id
   LEFT JOIN project_milestones ON project_milestones.id = project_tasks.milestone_id
@@ -98,9 +87,6 @@ export function mapProject(row: ProjectRow): ProjectRecord {
     userId: row.user_id,
     title: row.title,
     objective: row.objective,
-    importanceReason: row.importance_reason,
-    status: row.status,
-    priority: row.priority,
     startDate: toDateString(row.start_date) ?? "",
     deadlineDate: toDateString(row.deadline_date),
     expectedDurationDays: row.expected_duration_days,
@@ -108,7 +94,7 @@ export function mapProject(row: ProjectRow): ProjectRecord {
     createdAt: toDate(row.created_at),
     updatedAt: toDate(row.updated_at),
     completedAt: toNullableDate(row.completed_at),
-    archivedAt: toNullableDate(row.archived_at),
+    deletedAt: toNullableDate(row.deleted_at),
     tasks: [],
     milestones: [],
   };
@@ -121,7 +107,6 @@ export function mapMilestone(row: MilestoneRow): ProjectMilestoneRecord {
     projectId: row.project_id,
     title: row.title,
     objective: row.objective,
-    status: row.status,
     sortOrder: row.sort_order,
     startDate: toDateString(row.start_date),
     deadlineDate: toDateString(row.deadline_date),
@@ -129,7 +114,7 @@ export function mapMilestone(row: MilestoneRow): ProjectMilestoneRecord {
     createdAt: toDate(row.created_at),
     updatedAt: toDate(row.updated_at),
     completedAt: toNullableDate(row.completed_at),
-    archivedAt: toNullableDate(row.archived_at),
+    deletedAt: toNullableDate(row.deleted_at),
     tasks: [],
   };
 }
@@ -145,17 +130,13 @@ export function mapProjectTask(row: ProjectTaskRow): ProjectTaskRecord {
     title: row.title,
     description: row.description,
     status: row.status,
-    priority: row.priority,
-    scheduledDate: toDateString(row.scheduled_date),
     startDate: toDateString(row.start_date),
     deadlineDate: toDateString(row.deadline_date),
     sortOrder: row.sort_order,
     createdAt: toDate(row.created_at),
     updatedAt: toDate(row.updated_at),
     completedAt: toNullableDate(row.completed_at),
-    skippedAt: toNullableDate(row.skipped_at),
-    blockedAt: toNullableDate(row.blocked_at),
-    archivedAt: toNullableDate(row.archived_at),
+    deletedAt: toNullableDate(row.deleted_at),
   };
 }
 

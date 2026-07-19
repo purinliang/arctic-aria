@@ -14,10 +14,7 @@ import { appShellClass } from "@/components/theme";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { AppMessages } from "@/messages/app-messages";
-import type {
-  LanguagePreference,
-  SupportedLanguage,
-} from "@/messages/languages";
+import type { LanguagePreference, SupportedLanguage } from "@/messages/languages";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
@@ -34,15 +31,12 @@ import { ProjectsPage } from "@/features/projects/components/ProjectsPage";
 import { projectToDraft } from "@/features/projects/components/project-page-helpers";
 import { RoutinesPage } from "@/features/routines/components/RoutinesPage";
 import { SettingsPage } from "@/features/settings/components/SettingsPage";
-import {
-  appPathForProject,
-  appPathForView,
-  appRouteFromPathname,
-} from "./app-routes";
+import { appPathForProject, appPathForView, appRouteFromPathname, browserPathname } from "./app-routes";
 import { Sidebar } from "./Sidebar";
 
 export function AppShell({
   currentUser,
+  browserTimeZone,
   darkMode,
   languagePreference,
   messages,
@@ -61,6 +55,7 @@ export function AppShell({
   showSuccessNotification,
 }: {
   currentUser: AuthUser;
+  browserTimeZone: string;
   darkMode: boolean;
   languagePreference: LanguagePreference;
   messages: AppMessages;
@@ -291,6 +286,8 @@ export function AppShell({
               messages={messages.routines}
               formMessages={messages.forms}
               timeFormatPreference={timeFormatPreference}
+              multipleTimezonesEnabled={false}
+              resolvedTimeZone={browserTimeZone}
             />
           ) : activeView === "ideas" ? (
             <IdeasPage
@@ -330,6 +327,7 @@ export function AppShell({
               currentUserId={currentUser.id}
               darkMode={darkMode}
               languagePreference={languagePreference}
+              browserTimeZone={browserTimeZone}
               resolvedLanguage={resolvedLanguage}
               messages={messages.settings}
               themePreference={themePreference}
@@ -378,12 +376,4 @@ export function AppShell({
       />
     </main>
   );
-}
-
-function browserPathname() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  return window.location.pathname;
 }

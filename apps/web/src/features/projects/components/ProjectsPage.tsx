@@ -79,7 +79,7 @@ export function ProjectsPage({
   onTaskDelete: (taskId: string) => ProjectResult;
   onTaskStatus: (
     taskId: string,
-    status: Exclude<TaskStatus, "archived">,
+    status: TaskStatus,
   ) => void;
   onProjectSelect: (projectId: string | null) => void;
   messages: ProjectMessages;
@@ -250,6 +250,7 @@ export function ProjectsPage({
             messages={messages.detail}
             timelineMessages={messages.timeline}
             durationMessages={messages.duration}
+            defaultDescriptions={messages.defaultDescriptions}
             dateMessages={formMessages.datePicker}
             onAddMilestone={(projectId) => {
               setMilestoneDraft(emptyMilestoneDraft(projectId));
@@ -275,6 +276,7 @@ export function ProjectsPage({
             messages={messages.list}
             timelineMessages={messages.timeline}
             durationMessages={messages.duration}
+            defaultDescriptions={messages.defaultDescriptions}
             dateMessages={formMessages.datePicker}
             onViewProject={(projectId) => onProjectSelect(projectId)}
             onPinProject={onProjectPin}
@@ -297,6 +299,7 @@ export function ProjectsPage({
           onSubmit={() => void submitProject()}
           messages={messages.editor}
           durationMessages={messages.duration}
+          defaultDescriptions={messages.defaultDescriptions}
           formMessages={formMessages}
           onDelete={
             projectDraft.id
@@ -322,6 +325,7 @@ export function ProjectsPage({
           onSubmit={() => void submitMilestone()}
           messages={messages.editor}
           durationMessages={messages.duration}
+          defaultDescriptions={messages.defaultDescriptions}
           formMessages={formMessages}
           onDelete={
             milestoneDraft.id
@@ -348,6 +352,7 @@ export function ProjectsPage({
           onClose={closeDialogs}
           onSubmit={() => void submitTask()}
           messages={messages.editor}
+          defaultDescriptions={messages.defaultDescriptions}
           formMessages={formMessages}
           onDelete={
             taskDraft.id

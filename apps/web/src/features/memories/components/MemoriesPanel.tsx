@@ -6,6 +6,7 @@ import {
   secondaryTextColorClass,
   secondaryButtonBorderColorClass,
 } from "@/components/color";
+import { displayDescription } from "@/components/default-description";
 import {
   ChoiceActionButton,
   SingleChoiceGroup,
@@ -42,6 +43,7 @@ export function MemoriesPanel({
   memories,
   messages,
   categoryMessages,
+  defaultDescriptions,
   dateMessages,
   onAdd,
   onFilterChange,
@@ -56,6 +58,7 @@ export function MemoriesPanel({
   memories: MemoryRecord[];
   messages: MemoryMessages["panel"];
   categoryMessages: MemoryMessages["categories"]["builtIns"];
+  defaultDescriptions: MemoryMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
   onAdd: () => void;
   onFilterChange: (filter: MemoryFilter) => void;
@@ -147,6 +150,7 @@ export function MemoriesPanel({
             darkMode={darkMode}
             messages={messages}
             categoryMessages={categoryMessages}
+            defaultDescriptions={defaultDescriptions}
             dateMessages={dateMessages}
             onEdit={() => onEditMemory(memory)}
           />
@@ -162,6 +166,7 @@ function MemoryRow({
   darkMode,
   messages,
   categoryMessages,
+  defaultDescriptions,
   dateMessages,
   onEdit,
 }: {
@@ -169,6 +174,7 @@ function MemoryRow({
   darkMode: boolean;
   messages: MemoryMessages["panel"];
   categoryMessages: MemoryMessages["categories"]["builtIns"];
+  defaultDescriptions: MemoryMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
   onEdit: () => void;
 }) {
@@ -196,7 +202,11 @@ function MemoryRow({
         }
         main={
           <DescriptionText darkMode={darkMode}>
-            {memory.description}
+            {displayDescription(
+              memory.description,
+              memory.title,
+              defaultDescriptions.memory,
+            )}
           </DescriptionText>
         }
         support={<SupportingText darkMode={darkMode}>{metadata}</SupportingText>}

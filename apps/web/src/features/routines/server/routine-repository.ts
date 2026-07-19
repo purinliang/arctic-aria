@@ -1,4 +1,3 @@
-export type RoutineStatus = "active" | "deleted";
 export type RoutineRuleType =
   | "daily"
   | "weekly"
@@ -24,12 +23,12 @@ export type RoutineRecord = {
   id: string;
   userId: string;
   title: string;
-  description: string;
-  status: RoutineStatus;
+  description: string | null;
   firstStartDate: string;
   endDate: string | null;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date | null;
   rule: RoutineRuleRecord;
 };
 
@@ -38,7 +37,7 @@ export type RoutineInstanceRecord = {
   userId: string;
   routineId: string;
   title: string;
-  description: string;
+  description: string | null;
   scheduledDate: string;
   scheduledTime: string | null;
   status: RoutineInstanceStatus;
@@ -61,7 +60,7 @@ export type SaveRoutineInput = {
   userId: string;
   routineId?: string;
   title: string;
-  description: string;
+  description: string | null;
   firstStartDate: string;
   endDate: string | null;
   rule: RoutineRuleInput;
@@ -120,13 +119,13 @@ export class InMemoryRoutineRepository implements RoutineRepository {
 
   async listRoutines(userId: string) {
     return this.routines.filter(
-      (routine) => routine.userId === userId && routine.status !== "deleted",
+      (routine) => routine.userId === userId && routine.deletedAt === null,
     );
   }
 
   async listActiveRoutines(userId: string) {
     return this.routines.filter(
-      (routine) => routine.userId === userId && routine.status === "active",
+      (routine) => routine.userId === userId && routine.deletedAt === null,
     );
   }
 
@@ -136,11 +135,11 @@ export class InMemoryRoutineRepository implements RoutineRepository {
       userId: input.userId,
       title: input.title,
       description: input.description,
-      status: "active",
       firstStartDate: input.firstStartDate,
       endDate: input.endDate,
       createdAt: input.occurredAt,
       updatedAt: input.occurredAt,
+      deletedAt: null,
       rule: {
         id: crypto.randomUUID(),
         routineId: "",
@@ -162,7 +161,7 @@ export class InMemoryRoutineRepository implements RoutineRepository {
         current.userId === input.userId && current.id === input.routineId,
     );
 
-    if (!routine || routine.status === "deleted") {
+    if (!routine || routine.deletedAt !== null) {
       return null;
     }
 
@@ -190,11 +189,11 @@ export class InMemoryRoutineRepository implements RoutineRepository {
         current.userId === input.userId && current.id === input.routineId,
     );
 
-    if (!routine || routine.status === "deleted") {
+    if (!routine || routine.deletedAt !== null) {
       return false;
     }
 
-    routine.status = "deleted";
+    routine.deletedAt = input.occurredAt;
     routine.updatedAt = input.occurredAt;
 
     return true;
@@ -212,7 +211,7 @@ export class InMemoryRoutineRepository implements RoutineRepository {
         current.userId === input.userId && current.id === input.routineId,
     );
 
-    if (!routine || routine.status !== "active") {
+    if (!routine || routine.deletedAt !== null) {
       return null;
     }
 
@@ -248,9 +247,19 @@ export class InMemoryRoutineRepository implements RoutineRepository {
   }
 
   async listRoutineInstancesForDate(userId: string, scheduledDate: string) {
+    const activeRoutineIds = new Set(
+      this.routines
+        .filter(
+          (routine) => routine.userId === userId && routine.deletedAt === null,
+        )
+        .map((routine) => routine.id),
+    );
+
     return this.instances.filter(
       (instance) =>
-        instance.userId === userId && instance.scheduledDate === scheduledDate,
+        instance.userId === userId &&
+        instance.scheduledDate === scheduledDate &&
+        activeRoutineIds.has(instance.routineId),
     );
   }
 

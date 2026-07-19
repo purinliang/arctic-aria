@@ -12,7 +12,7 @@ export const weekdayOptions = [
   { value: 6, label: "Sat" },
 ];
 
-export function emptyDraft(): RoutineInput {
+export function emptyDraft(timezone = "UTC"): RoutineInput {
   return {
     title: "",
     description: "",
@@ -23,7 +23,7 @@ export function emptyDraft(): RoutineInput {
     weekdays: [new Date().getDay()],
     dayOfMonth: new Date().getDate(),
     preferredTime: "",
-    timezone: "UTC",
+    timezone,
   };
 }
 
@@ -31,7 +31,7 @@ export function toDraft(routine: RoutineDefinition): RoutineInput {
   return {
     id: routine.id,
     title: routine.title,
-    description: routine.description,
+    description: routine.description ?? "",
     firstStartDate: routine.firstStartDate,
     endDate: routine.endDate ?? "",
     ruleType: routine.ruleType,

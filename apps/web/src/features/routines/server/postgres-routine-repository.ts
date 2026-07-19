@@ -34,7 +34,7 @@ export class PostgresRoutineRepository implements RoutineRepository {
     const rows = (await this.getSql().query(
       `${routineSelect}
        WHERE routines.user_id = $1
-         AND routines.status != 'deleted'
+         AND routines.deleted_at IS NULL
        ORDER BY routines.created_at DESC`,
       [userId],
     )) as RoutineRow[];
@@ -46,7 +46,7 @@ export class PostgresRoutineRepository implements RoutineRepository {
     const rows = (await this.getSql().query(
       `${routineSelect}
        WHERE routines.user_id = $1
-         AND routines.status = 'active'
+         AND routines.deleted_at IS NULL
        ORDER BY routines.created_at DESC`,
       [userId],
     )) as RoutineRow[];
@@ -107,7 +107,7 @@ export class PostgresRoutineRepository implements RoutineRepository {
           updated_at = $12
         WHERE user_id = $1
           AND id = $13
-          AND status != 'deleted'
+          AND deleted_at IS NULL
         RETURNING *
       ),
       updated_rule AS (
@@ -139,11 +139,11 @@ export class PostgresRoutineRepository implements RoutineRepository {
   }) {
     const rows = (await this.getSql()`
       UPDATE routines
-      SET status = 'deleted',
+      SET deleted_at = ${input.occurredAt},
           updated_at = ${input.occurredAt}
       WHERE user_id = ${input.userId}
         AND id = ${input.routineId}
-        AND status != 'deleted'
+        AND deleted_at IS NULL
       RETURNING id
     `) as Array<{ id: string }>;
 
@@ -164,7 +164,7 @@ export class PostgresRoutineRepository implements RoutineRepository {
         FROM routines
         WHERE id = $2
           AND user_id = $1
-          AND status = 'active'
+          AND deleted_at IS NULL
         LIMIT 1
       ),
       inserted_instance AS (
@@ -210,7 +210,7 @@ export class PostgresRoutineRepository implements RoutineRepository {
       `${routineInstanceSelect}
        WHERE routine_instances.user_id = $1
          AND routine_instances.scheduled_date = $2
-         AND routines.status != 'deleted'
+         AND routines.deleted_at IS NULL
        ORDER BY routine_instances.scheduled_time NULLS LAST, routines.title`,
       [userId, scheduledDate],
     )) as RoutineInstanceRow[];

@@ -5,6 +5,11 @@ import {
   isValidProjectDate,
   validateRequiredProjectDate,
 } from "../project-date-validation.ts";
+import {
+  validateMilestoneInput,
+  validateProjectInput,
+  validateProjectTaskInput,
+} from "../project-action-helpers.ts";
 
 test("project database errors explain missing project migrations", () => {
   const message = projectDatabaseErrorMessage({
@@ -102,4 +107,73 @@ test("project database pin conflicts show a retry message", () => {
   });
 
   assert.equal(message, "Pinned projects changed. Refresh and try again.");
+});
+
+test("project validation accepts an empty optional description", () => {
+  const validation = validateProjectInput({
+    title: "Find a job",
+    description: "   ",
+    startDate: "2026-07-19",
+    timelineType: "duration",
+    deadlineDate: "",
+    durationRange: "3_6_months",
+  });
+
+  assert.equal(validation.ok, true);
+
+  if (validation.ok) {
+    assert.equal(validation.objective, null);
+  }
+});
+
+test("project validation still rejects over-length descriptions", () => {
+  const validation = validateProjectInput({
+    title: "Find a job",
+    description: "x".repeat(1001),
+    startDate: "2026-07-19",
+    timelineType: "duration",
+    deadlineDate: "",
+    durationRange: "3_6_months",
+  });
+
+  assert.deepEqual(validation, {
+    ok: false,
+    message: "Project objective must be 1000 characters or fewer.",
+    code: "project_description_invalid",
+  });
+});
+
+test("milestone validation stores blank optional objectives as null", () => {
+  const validation = validateMilestoneInput({
+    projectId: "project-1",
+    title: "Applications",
+    objective: "   ",
+    startDate: "2026-07-19",
+    timelineType: "duration",
+    deadlineDate: "",
+    durationRange: "1_3_months",
+  });
+
+  assert.equal(validation.ok, true);
+
+  if (validation.ok) {
+    assert.equal(validation.objective, null);
+  }
+});
+
+test("task validation stores blank optional descriptions as null", () => {
+  const validation = validateProjectTaskInput({
+    projectId: "project-1",
+    milestoneId: "",
+    title: "Prepare resume",
+    description: "   ",
+    startDate: "2026-07-19",
+    deadlineDate: "",
+  });
+
+  assert.equal(validation.ok, true);
+
+  if (validation.ok) {
+    assert.equal(validation.description, null);
+  }
 });

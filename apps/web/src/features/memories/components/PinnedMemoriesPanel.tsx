@@ -3,6 +3,7 @@ import { Album, ChevronRight } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
+import { displayDescription } from "@/components/default-description";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { List, ListItem, ListItemContent } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
@@ -103,7 +104,11 @@ function PinnedMemoryRow({
           title={<h3 className="min-w-0 text-sm font-semibold">{memory.title}</h3>}
           main={
             <DescriptionText darkMode={darkMode} className="line-clamp-2">
-              {memory.description}
+              {displayDescription(
+                memory.description,
+                memory.title,
+                messages.defaultDescriptions,
+              )}
             </DescriptionText>
           }
           support={

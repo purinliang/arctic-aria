@@ -12,13 +12,13 @@ selected.
 
 Pinned projects:
 
-- users can pin up to three active projects as sidebar shortcuts
+- users can pin up to three non-deleted projects as sidebar shortcuts
 - pinned shortcuts appear directly below the main `Projects` item
 - clicking a pinned shortcut opens that project detail page directly
 - the main `Projects` item remains visible and always returns to the Projects
   list page
 - pinned shortcut labels truncate when long
-- archived projects must disappear from the pinned shortcut list
+- deleted projects must disappear from the pinned shortcut list
 
 ## Dashboard
 
@@ -91,7 +91,7 @@ Top section:
 Main content:
 
 - active project list
-- archived or completed projects hidden by default
+- deleted projects hidden by default
 - project list items without milestone or task details
 
 Each project list item should show:
@@ -145,7 +145,7 @@ implementation if it stays simple.
 Fields:
 
 - title
-- description
+- objective
 - start date
 - timeline type: deadline or no fixed deadline
 - deadline date, when timeline type is deadline
@@ -159,12 +159,12 @@ Deadline and expected duration:
 - first duration options: `1-3 months`, `3-6 months`, `6-12 months`,
   `1-3 years`
 
-Description prompt:
+Objective prompt:
 
-- label: `Description`
-- placeholder should guide the user to write both the goal and life reason,
-  using concise product copy such as
-  `Describe the goal, context, and why it matters.`
+- label: `Objective`
+- optional marker: shown through the shared `FieldLabel`
+- placeholder: choose one localized default objective hint when the dialog
+  opens; do not change the placeholder as the user types
 
 Milestone hint:
 
@@ -181,7 +181,7 @@ Project dialog layout:
 - action failures use the shared notification stack, not an inline dialog
   message row
 - field direction: vertical
-- fields in order: title, description, start date, timeline type, then the
+- fields in order: title, objective, start date, timeline type, then the
   conditional end field
 - timeline selector direction: horizontal with wrapping
 - timeline options: `Deadline`, `No fixed deadline`
@@ -202,7 +202,7 @@ Clicking a project row's right-arrow button opens a detail page.
 The project detail page should show:
 
 - project title
-- description
+- objective
 - start date
 - deadline or expected duration
 - derived progress
@@ -213,9 +213,7 @@ Project actions:
 
 - edit project
 - pin or unpin project
-- pause or resume project
-- complete project
-- archive project
+- delete project
 
 Use a page, not a dialog, because project detail needs space for the milestone
 tree and progress context.
@@ -269,11 +267,13 @@ Detail page layout:
   aligned to the right of `Projects /`
 - right top card: `Overview`
 - right bottom card: `Milestones` with `New`
-- overview metadata group: description, start date, and the selected timeline
+- overview metadata group: objective, start date, and the selected timeline
   type
-- overview description row label: `Description`
+- overview objective row label: `Objective`
 - overview labels use shared `LabelText`
 - overview values use shared `DescriptionText`
+- if the saved objective is empty, show localized default objective copy derived
+  from the project title; this fallback is render-only and is not persisted
 - overview start date should display in English date format, not raw
   `YYYY-MM-DD`
 - if the project uses a deadline, show a `Deadline` row with only the formatted
@@ -286,13 +286,16 @@ Detail page layout:
   the page title
 - do not show current milestone or progress in the metadata card
 - milestone card list direction: vertical
-- milestone row left group: title, then objective or progress text
+- milestone row left group: title, then objective
 - milestone row right group: `Edit` with `Edit3`
 - milestone rows do not show task details
 - task rows appear as a flat list in the `Tasks` card
 - task create action appears in the `Tasks` card header as `New` with `Plus`
 - task row layout: `Done` checkbox on the left, then title, description,
   optional milestone/deadline metadata, then `Edit` on the right
+- if saved milestone objectives or task descriptions are empty, render localized
+  default copy derived from the milestone or task title; these fallbacks are not
+  persisted
 - project detail task rows do not show project name in metadata because the
   page title already identifies the project
 - if a task has no milestone, omit the milestone segment and separator from the
@@ -334,8 +337,7 @@ Actions:
 
 - add milestone
 - edit milestone
-- complete milestone
-- archive milestone
+- delete milestone
 
 Projects do not create a default milestone. The milestone list can be empty.
 
@@ -366,7 +368,6 @@ Task actions:
 
 - done / not done
 - edit
-- archive
 - delete
 
 Delete behavior:
@@ -407,4 +408,4 @@ Project detail page without tasks:
 
 Dashboard without tasks:
 
-`No tasks selected for today.`
+`A clear slate for today. Choose one project task when you are ready.`

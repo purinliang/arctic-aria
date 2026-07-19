@@ -22,8 +22,6 @@ const projectInput: SaveProjectInput = {
   userId: "user-1",
   title: "Find a job",
   objective: "Land a backend role.",
-  importanceReason: "It supports the next stage.",
-  priority: "high",
   startDate: "2026-07-14",
   deadlineDate: null,
   expectedDurationDays: null,
@@ -47,9 +45,6 @@ const taskInput: SaveProjectTaskInput = {
   milestoneId: "milestone-1",
   title: "Prepare resume",
   description: "",
-  priority: "high",
-  status: "todo",
-  scheduledDate: "2026-07-14",
   startDate: null,
   deadlineDate: null,
   occurredAt,
@@ -78,6 +73,24 @@ test("task creation queries use contiguous SQL parameters", async () => {
 
   assert.equal(await saveTask(sql, taskInput), true);
   assertQueriesUseContiguousParams(records);
+});
+
+test("task creation omits retired task schema columns", async () => {
+  const { records, sql } = createSqlStub();
+
+  assert.equal(await saveTask(sql, taskInput), true);
+
+  const insert = records.find((record) =>
+    record.text.includes("INSERT INTO project_tasks"),
+  );
+
+  assert.ok(insert);
+  assert.doesNotMatch(insert.text, /\bstatus\b/);
+  assert.doesNotMatch(insert.text, /\bpriority\b/);
+  assert.doesNotMatch(insert.text, /\bscheduled_date\b/);
+  assert.doesNotMatch(insert.text, /\bskipped_at\b/);
+  assert.doesNotMatch(insert.text, /\bblocked_at\b/);
+  assert.doesNotMatch(insert.text, /\barchived_at\b/);
 });
 
 test("task creation can omit milestone lookup", async () => {

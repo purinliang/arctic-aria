@@ -6,6 +6,7 @@ import type {
 } from "@/features/dashboard/types";
 import type { MemoryCategoryInput } from "@/features/memories/actions";
 import type { MemoryMessages } from "@/messages/app-messages";
+import { displayDescription } from "../../../components/default-description.ts";
 
 export type MemoryFilter = "All" | MemoryCategory;
 type BuiltInCategoryMessages = MemoryMessages["categories"]["builtIns"];
@@ -48,6 +49,15 @@ export function getMemoryCategoryDescription(
 ) {
   return getBuiltInCategoryMessage(category.builtInKey, messages)?.description ??
     category.description;
+}
+
+export function getMemoryCategoryDisplayDescription(
+  category: Pick<MemoryCategoryOption, "name" | "description" | "builtInKey">,
+  messages: BuiltInCategoryMessages,
+  defaults: readonly string[],
+) {
+  return getBuiltInCategoryMessage(category.builtInKey, messages)?.description ??
+    displayDescription(category.description, category.name, defaults);
 }
 
 export function getMemoryCategoryLabel(

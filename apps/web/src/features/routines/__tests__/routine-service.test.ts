@@ -16,11 +16,11 @@ function routine(input: Partial<RoutineRecord> & Pick<RoutineRecord, "id" | "tit
     userId,
     title: input.title,
     description: input.description ?? `${input.title} description`,
-    status: input.status ?? "active",
     firstStartDate: input.firstStartDate ?? "2026-07-01",
     endDate: input.endDate ?? null,
     createdAt: input.createdAt ?? new Date("2026-07-01T00:00:00.000Z"),
     updatedAt: input.updatedAt ?? new Date("2026-07-01T00:00:00.000Z"),
+    deletedAt: input.deletedAt ?? null,
     rule: input.rule ?? {
       id: `${input.id}-rule`,
       routineId: input.id,
@@ -97,7 +97,7 @@ test("deleted routines do not generate instances", async () => {
       routine({
         id: "routine-1",
         title: "Deleted routine",
-        status: "deleted",
+        deletedAt: now,
       }),
     ],
   });

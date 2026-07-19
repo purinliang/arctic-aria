@@ -23,6 +23,12 @@ Implemented user preferences:
 - `Theme`: `Use system setting`, `Light`, or `Dark`
 - `Language`: `Use system setting`, `English`, or `简体中文`
 - `Time format`: `12-hour` or `24-hour`
+- `Timezone`: disabled in the current UI and fixed to `Use system setting`
+
+Timezone preference columns exist in the database, but the user-facing timezone
+feature is intentionally hidden for the current release. The frontend treats
+timezone as system/browser timezone and keeps multiple-timezone mode off until
+the routine reminder design is ready.
 
 Logged-in users store these preferences in the database. The browser/device
 local preference remains as a fallback before login, while the app is loading,
@@ -42,6 +48,12 @@ Time format changes how visible times render across the app. Stored routine
 times remain normalized `HH:mm`; the rendering layer displays them as either
 `8:30 PM Evening` or `20:30 Evening`, using the current language's day-period
 label.
+
+Timezone uses IANA timezone names so daylight-saving changes are handled by the
+platform instead of fixed UTC offsets. For example, `Australia/Melbourne`
+resolves to UTC+10 or UTC+11 depending on the date. Routine dates remain plain
+dates for now; timezone affects preferred-time interpretation and future
+reminder delivery.
 
 Current Chinese translation covers global surfaces: auth loading, login,
 registration, placeholder auth actions, sidebar/page titles, Settings rows, and
@@ -180,10 +192,13 @@ Current attributes:
 - `theme_preference`: `system`, `light`, or `dark`
 - `language_preference`: `system`, `en`, or `zh-CN`
 - `time_format_preference`: `12h` or `24h`
+- `timezone_preference`: `system` or an IANA timezone; current frontend keeps
+  this disabled as `system`
+- `multiple_timezones_enabled`: reserved for future routine-specific timezone
+  editors; current frontend keeps this false and hidden
 
 Planned attributes:
 
-- timezone, to handle daylight-saving changes and personal-day calculations
 - day boundary time, default `04:00`
 - date format preference
 - future auto-translation preference

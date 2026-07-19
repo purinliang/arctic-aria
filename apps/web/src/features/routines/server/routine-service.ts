@@ -58,7 +58,7 @@ function matchesMonthlyByDate(routine: RoutineRecord, date: string) {
 }
 
 function shouldGenerateInstance(routine: RoutineRecord, date: string) {
-  if (routine.status !== "active") {
+  if (routine.deletedAt !== null) {
     return false;
   }
 
@@ -131,7 +131,7 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
       input: {
         id?: string;
         title: string;
-        description: string;
+        description: string | null;
         firstStartDate: string;
         endDate: string | null;
         rule: RoutineRuleInput;

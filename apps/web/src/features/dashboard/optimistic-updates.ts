@@ -33,7 +33,7 @@ export function applyDashboardTaskStatus<TaskItem extends Task>(
 
 export function dashboardTaskStatusForChecked(
   checked: boolean,
-): Exclude<TaskStatus, "archived"> {
+): TaskStatus {
   return checked ? "done" : "todo";
 }
 

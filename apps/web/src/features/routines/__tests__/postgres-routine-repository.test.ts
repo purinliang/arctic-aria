@@ -39,3 +39,31 @@ test("complete routine instance casts timestamp parameters in postgres query", a
   assert.match(capturedQuery, /\$4::timestamptz/);
   assert.match(capturedQuery, /\$3::text/);
 });
+
+test("routine delete writes deleted_at instead of lifecycle status", async () => {
+  let capturedQuery = "";
+  const occurredAt = new Date("2026-07-12T10:00:00.000Z");
+  const sql = ((strings: TemplateStringsArray) => {
+    capturedQuery = strings.join("?");
+
+    return Promise.resolve([{ id: "routine-1" }]);
+  }) as {
+    (strings: TemplateStringsArray, ...values: unknown[]): Promise<unknown[]>;
+    query: (query: string) => Promise<unknown[]>;
+  };
+
+  sql.query = async () => [];
+
+  const repository = new PostgresRoutineRepository(sql as never);
+
+  assert.equal(
+    await repository.deleteRoutine({
+      userId: "user-1",
+      routineId: "routine-1",
+      occurredAt,
+    }),
+    true,
+  );
+  assert.match(capturedQuery, /\bdeleted_at\b/);
+  assert.doesNotMatch(capturedQuery, /SET status/);
+});

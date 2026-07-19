@@ -37,7 +37,7 @@ The user should create the project first. At project creation time, collect only
 the stable top-level information:
 
 - title
-- description
+- optional objective
 - start date
 - hard deadline or expected duration range
 
@@ -45,10 +45,12 @@ The project should not require detailed implementation tasks at creation time.
 The user often does not know the exact details yet, and those details will
 change after the user starts.
 
-Project description replaces the previous separate objective and importance
-reason fields. It should prompt the user to describe what the project is trying
-to accomplish and why it matters in real life. UI copy should use natural
-product text, not literal prompt-template fragments.
+Project objective replaces the previous separate objective and importance reason
+fields in the user-facing UI. The current database keeps one nullable
+user-facing `objective` column. The field should prompt the user to describe
+what the project is trying to accomplish and why it matters in real life. The
+objective is optional; omitted objectives render localized default copy instead
+of storing generated text.
 
 ### Milestone
 
@@ -88,8 +90,8 @@ can decide whether it is the right thing to work on today.
 - The user creates tasks under a project, optionally assigning a milestone.
 - Implementation details under a milestone should be easy to change.
 - Today's dashboard should focus on today's tasks to move projects forward.
-- The user can pin up to three active projects as sidebar shortcuts for quick
-  access to important current work.
+- The user can pin up to three non-deleted projects as sidebar shortcuts for
+  quick access to important current work.
 - Editable numeric progress fields should not appear in the UI.
 - Dashboard task rows should avoid standalone progress visuals.
 - Child checklist rows are intentionally removed from the current design. Add

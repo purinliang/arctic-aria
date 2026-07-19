@@ -3,6 +3,7 @@ import { Edit3, Flag, Info, ListChecks, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { Card, CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
+import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import { List, ListItem, ListItemContent } from "@/components/list";
@@ -24,6 +25,7 @@ export function ProjectDetailPage({
   messages,
   timelineMessages,
   durationMessages,
+  defaultDescriptions,
   dateMessages,
   onAddMilestone,
   onEditMilestone,
@@ -37,6 +39,7 @@ export function ProjectDetailPage({
   messages: ProjectMessages["detail"];
   timelineMessages: ProjectMessages["timeline"];
   durationMessages: ProjectMessages["duration"];
+  defaultDescriptions: ProjectMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
   onAddMilestone: (projectId: string) => void;
   onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
@@ -44,7 +47,7 @@ export function ProjectDetailPage({
   onEditTask: (task: ProjectTaskView) => void;
   onTaskStatus: (
     taskId: string,
-    status: Exclude<TaskStatus, "archived">,
+    status: TaskStatus,
   ) => void;
 }) {
   if (!project) {
@@ -103,8 +106,9 @@ export function ProjectDetailPage({
                   darkMode={darkMode}
                   pending={pending}
                   task={task}
-                  messages={messages}
-                  dateMessages={dateMessages}
+            messages={messages}
+            defaultDescriptions={defaultDescriptions}
+            dateMessages={dateMessages}
                   onEdit={() => onEditTask(task)}
                   onTaskStatus={onTaskStatus}
                 />
@@ -124,7 +128,11 @@ export function ProjectDetailPage({
               <div className="grid min-w-0 gap-1">
                 <LabelText darkMode={darkMode}>{messages.description}</LabelText>
                 <DescriptionText darkMode={darkMode}>
-                  {project.description}
+                  {displayDescription(
+                    project.description,
+                    project.title,
+                    defaultDescriptions.project,
+                  )}
                 </DescriptionText>
               </div>
               <dl className="grid min-w-0 gap-3 text-sm">
@@ -178,11 +186,11 @@ export function ProjectDetailPage({
                       </span>
                     </div>
                     <p className={`mt-1 text-sm ${secondaryTextColorClass}`}>
-                      {milestone.objective ||
-                        timelineMessages.progress(
-                          doneTaskCount(milestone.tasks),
-                          milestone.tasks.length,
-                        )}
+                      {displayDescription(
+                        milestone.objective,
+                        milestone.title,
+                        defaultDescriptions.milestone,
+                      )}
                     </p>
                   </div>
                   <Button
@@ -229,6 +237,7 @@ function ProjectTaskRow({
   pending,
   task,
   messages,
+  defaultDescriptions,
   dateMessages,
   onEdit,
   onTaskStatus,
@@ -237,11 +246,12 @@ function ProjectTaskRow({
   pending: boolean;
   task: ProjectTaskView;
   messages: ProjectMessages["detail"];
+  defaultDescriptions: ProjectMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
   onEdit: () => void;
   onTaskStatus: (
     taskId: string,
-    status: Exclude<TaskStatus, "archived">,
+    status: TaskStatus,
   ) => void;
 }) {
   const metadata = [task.milestoneLabel, deadlineText(task, messages, dateMessages)]
@@ -269,7 +279,11 @@ function ProjectTaskRow({
           }
           main={
             <DescriptionText darkMode={darkMode}>
-              {task.description || messages.noDescription}
+              {displayDescription(
+                task.description,
+                task.title,
+                defaultDescriptions.task,
+              )}
             </DescriptionText>
           }
           support={
@@ -299,10 +313,6 @@ function deadlineText(
   return task.deadlineDate
     ? messages.deadline(formatDate(task.deadlineDate, dateMessages, task.deadline))
     : messages.noDeadline;
-}
-
-function doneTaskCount(tasks: ProjectTaskView[]) {
-  return tasks.filter((task) => task.status === "done").length;
 }
 
 function formatDate(

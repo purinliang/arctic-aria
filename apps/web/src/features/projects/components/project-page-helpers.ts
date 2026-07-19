@@ -14,7 +14,6 @@ export function emptyProjectDraft(): ProjectInput {
   return {
     title: "",
     description: "",
-    priority: "medium",
     startDate: new Date().toISOString().slice(0, 10),
     timelineType: "duration",
     deadlineDate: "",
@@ -30,8 +29,7 @@ export function projectToDraft(project: ProjectView): ProjectInput {
   return {
     id: project.id,
     title: project.title,
-    description: project.description,
-    priority: "medium",
+    description: project.description ?? "",
     startDate: project.startDate,
     timelineType: project.deadlineDate ? "deadline" : "duration",
     deadlineDate: project.deadlineDate,
@@ -58,7 +56,7 @@ export function milestoneToDraft(
     id: milestone.id,
     projectId: milestone.projectId,
     title: milestone.title,
-    objective: milestone.objective,
+    objective: milestone.objective ?? "",
     startDate: milestone.startDate || todayDate(),
     timelineType: milestone.deadlineDate ? "deadline" : "duration",
     deadlineDate: milestone.deadlineDate,
@@ -75,9 +73,6 @@ export function emptyTaskDraft(
     milestoneId,
     title: "",
     description: "",
-    priority: "medium",
-    status: "todo",
-    scheduledDate: "",
     startDate: todayDate(),
     deadlineDate: "",
   };
@@ -89,10 +84,7 @@ export function taskToDraft(task: ProjectTaskView): ProjectTaskInput {
     projectId: task.projectId,
     milestoneId: task.milestoneId,
     title: task.title,
-    description: task.description,
-    priority: "medium",
-    status: task.status === "done" ? "done" : "todo",
-    scheduledDate: task.scheduledDate,
+    description: task.description ?? "",
     startDate: task.startDate,
     deadlineDate: task.deadlineDate,
   };

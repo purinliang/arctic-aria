@@ -142,8 +142,6 @@ export async function saveProject(
       projectId: input.id,
       title: validation.title,
       objective: validation.objective,
-      importanceReason: validation.importanceReason,
-      priority: input.priority,
       startDate: validation.startDate,
       deadlineDate: validation.deadlineDate,
       expectedDurationDays: validation.expectedDurationDays,
@@ -239,9 +237,6 @@ export async function saveProjectTask(
       milestoneId: validation.milestoneId,
       title: validation.title,
       description: validation.description,
-      priority: input.priority,
-      status: input.status,
-      scheduledDate: validation.scheduledDate,
       startDate: validation.startDate,
       deadlineDate: validation.deadlineDate,
     });
@@ -357,13 +352,23 @@ export async function completeProjectTask(
 export async function skipProjectTask(
   taskId: string,
 ): Promise<ProjectCommandResult> {
-  return updateProjectTaskStatus(taskId, "skipped");
+  void taskId;
+  return {
+    ok: false,
+    message: "Task skip is not supported.",
+    code: "task_status_unsupported",
+  };
 }
 
 export async function blockProjectTask(
   taskId: string,
 ): Promise<ProjectCommandResult> {
-  return updateProjectTaskStatus(taskId, "blocked");
+  void taskId;
+  return {
+    ok: false,
+    message: "Task blocking is not supported.",
+    code: "task_status_unsupported",
+  };
 }
 
 export async function reopenProjectTask(
@@ -374,7 +379,7 @@ export async function reopenProjectTask(
 
 export async function updateProjectTaskStatus(
   taskId: string,
-  status: Exclude<ProjectTaskStatus, "archived">,
+  status: ProjectTaskStatus,
 ): Promise<ProjectCommandResult> {
   return withProjectCommand(
     (userId) => projectService.updateTaskStatus(userId, taskId, status),

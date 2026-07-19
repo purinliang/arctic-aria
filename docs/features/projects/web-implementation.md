@@ -10,27 +10,27 @@ Product rules are defined in
 The current web implementation supports the first database-backed Project model:
 
 - load Projects, Milestones, and Tasks from Neon
-- add and edit projects with a single description field
+- add and edit projects with a single optional objective field
 - add and edit milestones
-- add and edit tasks under milestones
+- add and edit tasks under projects, with optional milestone assignment
 - validate calendar dates before database writes
-- complete, skip, block, and reopen tasks through server actions
+- complete and reopen tasks through server actions
 - return project database failures through normal action results instead of a
   Next.js runtime overlay
-- record task completion, skip, block, unblock, and reopen events
+- record task completion and reopen events
 - show task command failure through shared notifications
 - show dashboard task rows for today's selected tasks
-- pin up to three active projects into the sidebar
+- pin up to three non-deleted projects into the sidebar
 
 The current implementation does not include:
 
 - automatic daily plan optimization
 - Discord task reminders
-- dependency graph editing
+- prerequisite/dependency design
 - AI-generated task breakdown
 - review-card finalization
 - milestone reorder UI
-- project pause, resume, complete, and archive UI
+- project pause, resume, and complete UI
 
 ## Current User Flow
 
@@ -65,11 +65,10 @@ The Project detail page should show:
 
 `New` should open project creation.
 
-Project creation and editing should use one `Description` textarea instead of
-separate objective and importance fields. The prompt should guide the user to
-write the objective and why the project matters. While the current database
-still has `objective` and `importance_reason`, the web layer treats them as one
-description field for user-facing behavior.
+Project creation and editing should use one optional `Objective` textarea instead
+of separate objective and importance fields. The current database keeps one
+nullable `objective` column. The web layer treats it as one user-facing
+objective field and renders localized fallback copy when it is missing.
 
 Project timeline input should use a mode selection:
 
@@ -203,7 +202,7 @@ Breadcrumb row:
 Project overview card:
 
 - card title: `Overview`
-- first row: labeled description block with label `Description`
+- first row: labeled objective block with label `Objective`
 - metadata rows: `Start date` and either `Deadline` or `Expected duration`
 - start date value uses English display format, not raw `YYYY-MM-DD`
 - deadline-mode projects show only the formatted deadline date
@@ -220,7 +219,7 @@ Milestone management card:
 - location: right panel, below `Overview`
 - milestone parent component: shared `ListItem`
 - milestone header layout: horizontal flex with wrapping
-- milestone left group: title, then objective or progress text
+- milestone left group: title, then objective
 - milestone right group: `Edit` with `Edit3`
 - do not render task rows inside milestone rows
 
@@ -277,21 +276,19 @@ Dialog shell:
 Project field order:
 
 - `Title` text input
-- `Description` textarea with neutral placeholder copy, such as
-  `Describe the goal, context, and why it matters.`
+- optional `Objective` textarea with a localized placeholder chosen once when
+  the dialog opens
 - `Start date` date picker
 - `Timeline` segmented buttons: `Deadline`, `No fixed deadline`
 - conditional end field below the timeline selector: `Deadline` date picker
   when deadline mode is selected, or `Expected duration` dropdown when no fixed
   deadline is selected
-Project and task priority are intentionally hidden in the first UI. Hidden
-priority values default to `medium`; do not render priority selectors.
-
 Milestone field order should mirror the project editor where the data model
 overlaps:
 
 - `Title` text input
-- `Objective` textarea
+- optional `Objective` textarea with a localized placeholder chosen once when
+  the dialog opens
 - `Start date` date picker
 - `Timeline` segmented buttons: `Deadline`, `No fixed deadline`
 - conditional end field below the timeline selector: `Deadline` date picker
@@ -301,7 +298,7 @@ overlaps:
 
 `ProjectTaskEditorDialog` uses its own vertical dialog layout:
 
-- basics group: title, description
+- basics group: title, optional description
 - meta group: milestone selector, start date, deadline
 - milestone selector defaults to `No milestone`; choosing a milestone is
   optional

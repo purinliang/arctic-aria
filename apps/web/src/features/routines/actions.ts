@@ -8,6 +8,7 @@ import type {
   RoutineStatus,
 } from "@/features/dashboard/types";
 import { routineService } from "./server/routine-service";
+import { readResolvedTimeZone } from "@/features/settings/time-zones";
 import type {
   RoutineInstanceRecord,
   RoutineRecord,
@@ -71,7 +72,6 @@ function toRoutineDefinition(routine: RoutineRecord): RoutineDefinition {
     id: routine.id,
     title: routine.title,
     description: routine.description,
-    status: routine.status,
     firstStartDate: routine.firstStartDate,
     endDate: routine.endDate,
     ruleType: routine.rule.ruleType,
@@ -107,15 +107,16 @@ function validateTime(value: string | null | undefined) {
 
 function normalizeRule(input: RoutineInput): RoutineRuleInput | null {
   const rule = normalizeRoutineRecurrence(input);
+  const timezone = readResolvedTimeZone(input.timezone) ?? null;
 
-  if (!rule) {
+  if (!rule || !timezone) {
     return null;
   }
 
   return {
     ...rule,
     preferredTime: input.preferredTime || null,
-    timezone: input.timezone || "UTC",
+    timezone,
   };
 }
 
@@ -165,6 +166,14 @@ function validateRoutineInput(input: RoutineInput) {
     };
   }
 
+  if (!readResolvedTimeZone(input.timezone)) {
+    return {
+      ok: false as const,
+      message: "Choose a valid timezone.",
+      code: "routine_timezone_invalid",
+    };
+  }
+
   if (!rule) {
     return {
       ok: false as const,
@@ -173,7 +182,13 @@ function validateRoutineInput(input: RoutineInput) {
     };
   }
 
-  return { ok: true as const, title, description, endDate, rule };
+  return {
+    ok: true as const,
+    title,
+    description: description || null,
+    endDate,
+    rule,
+  };
 }
 
 export async function getRoutineDashboardData(): Promise<

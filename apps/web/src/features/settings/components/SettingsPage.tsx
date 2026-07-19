@@ -12,6 +12,9 @@ import { Panel } from "@/components/panel";
 import { SupportingText } from "@/components/text";
 import { VersionStatusRows } from "@/components/version-status";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
+import {
+  formatTimeZoneOffset,
+} from "@/features/settings/time-zones";
 import type {
   SettingsMessages,
   VersionStatusMessages,
@@ -25,6 +28,7 @@ import { DiscordIcon } from "./DiscordIcon";
 
 export function SettingsPage({
   currentUserId,
+  browserTimeZone,
   darkMode,
   languagePreference,
   messages,
@@ -40,6 +44,7 @@ export function SettingsPage({
   versionStatus,
 }: {
   currentUserId: string;
+  browserTimeZone: string;
   darkMode: boolean;
   languagePreference: LanguagePreference;
   messages: SettingsMessages;
@@ -68,6 +73,10 @@ export function SettingsPage({
     { value: "12h", label: messages.timeFormatOptions.twelveHour },
     { value: "24h", label: messages.timeFormatOptions.twentyFourHour },
   ];
+  const timeZoneOptions = buildTimeZoneOptions({
+    browserTimeZone,
+    messages,
+  });
 
   return (
     <section className="grid gap-4">
@@ -126,6 +135,19 @@ export function SettingsPage({
               </FieldLabel>
             </div>
           </ListItem>
+          <ListItem darkMode={darkMode} className="items-start">
+            <div className="grid w-full gap-2 sm:max-w-sm">
+              <FieldLabel darkMode={darkMode} label={messages.timeZoneLabel}>
+                <SelectInput
+                  darkMode={darkMode}
+                  value="system"
+                  options={timeZoneOptions}
+                  disabled
+                  onChange={() => undefined}
+                />
+              </FieldLabel>
+            </div>
+          </ListItem>
         </List>
       </Panel>
       <Panel darkMode={darkMode} className="min-w-0">
@@ -166,4 +188,23 @@ export function SettingsPage({
       </Panel>
     </section>
   );
+}
+
+function buildTimeZoneOptions({
+  browserTimeZone,
+  messages,
+}: {
+  browserTimeZone: string;
+  messages: SettingsMessages;
+}) {
+  return [
+    {
+      value: "system",
+      label: messages.timeZoneOptions.system,
+      description: messages.timeZoneSystemDescription(
+        browserTimeZone,
+        formatTimeZoneOffset(browserTimeZone),
+      ),
+    },
+  ];
 }
