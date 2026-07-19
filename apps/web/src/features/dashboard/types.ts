@@ -87,8 +87,6 @@ export type PinnedMemory = {
   categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
   title: string;
   description: string;
-  meta: string;
-  visibleUntilDate: string;
   position: number;
   status: PinnedMemoryStatus;
 };

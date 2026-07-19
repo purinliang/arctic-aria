@@ -18,20 +18,23 @@ limit in the UI or backend selection logic.
 
 For each pinned memory, show:
 
-- done checkbox on the left
+- experienced checkbox on the left
 - title
 - short description
-- category and status metadata
+- category metadata
 - optional right-side navigation affordance if the row opens the Memories page
 
 Pinned memory dashboard rows should not expand or collapse. Do not show a
 dashboard `View` button. Do not show a single-row refresh or replace button on
 dashboard pinned memories.
+Do not show internal rotation state such as `visible_until`, cleanup timing, or
+visible-window status in the dashboard row metadata.
 
-If the user checks the done checkbox, optimistically show the completed state.
-If the user unchecks it before cleanup, cancel the completion. If the backend
-later rejects the command, restore the previous visible state and show the
-backend message in the shared notification component.
+If the user checks the experienced checkbox, optimistically show the experienced
+state.
+If the user unchecks it before cleanup, cancel the experience mark. If the
+backend later rejects the command, restore the previous visible state and show
+the backend message in the shared notification component.
 
 The checkbox must remain enabled while the backend request is pending so the
 user can immediately undo the optimistic state. Do not disable the clicked
@@ -50,7 +53,7 @@ On dashboard load or reload:
 - preserve the order of still-active pinned memories
 - fill empty slots by appending new pinned memories at the end of the category
   list when candidates exist
-- remove or replace completed pins whose cleanup time has passed
+- remove or replace experienced pins whose cleanup time has passed
 - remove or replace active pins whose visible window has expired
 
 ## Memories Page
@@ -150,7 +153,9 @@ Each memory list item should show:
 - title
 - description
 - supporting metadata as one line, such as
-  `category · pinned · last done time · done count`
+  `category · pinned · last experienced time · experienced count`
+- if a memory was never experienced, show `Never experienced` without a
+  duplicate `Experienced 0 times` count
 
 Memory item behavior:
 
@@ -186,7 +191,9 @@ Each suggestion item should show:
 - title
 - description
 - supporting metadata as one line, such as
-  `category · last done time · done count`
+  `category · last experienced time · experienced count`
+- if a suggestion was never experienced, show `Never experienced` without a
+  duplicate `Experienced 0 times` count
 - a circular outline button on the right side, with only the Lucide `Pin` icon
   and no text
 

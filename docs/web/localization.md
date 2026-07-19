@@ -56,6 +56,13 @@ Feature components should receive a stable message object for their feature.
 Shared UI components should stay mostly text-agnostic; callers pass labels,
 descriptions, aria labels, button text, and empty states into them.
 
+For complex formatted user-facing text, prefer one complete format string with
+named placeholders instead of composing the sentence from prefix and suffix
+fragments. This gives each language control over word order, punctuation, and
+spacing. For example, use a message such as
+`Send {command} to Arctic Aria in Discord in {status}.` rather than separate
+`prefix`, `command`, `suffix`, and status pieces.
+
 If the catalogs grow too large, split them by feature while keeping one central
 lookup layer:
 

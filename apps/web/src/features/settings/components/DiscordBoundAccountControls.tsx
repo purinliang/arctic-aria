@@ -6,7 +6,7 @@ import { Button } from "@/components/button";
 import { MaskedText } from "@/components/masked-text";
 import { DescriptionText } from "@/components/text";
 import type { SettingsMessages } from "@/messages/app-messages";
-import { discordBindingRowClass } from "./discord-binding-layout";
+import { DiscordBindingRow } from "./DiscordBindingRow";
 
 export function DiscordBoundAccountControls({
   accountId,
@@ -28,7 +28,7 @@ export function DiscordBoundAccountControls({
   onUnbind: () => void;
 }) {
   return (
-    <div className={discordBindingRowClass}>
+    <DiscordBindingRow>
       <DescriptionText darkMode={darkMode} className="shrink-0">
         {messages.discord.bound}
       </DescriptionText>
@@ -78,6 +78,6 @@ export function DiscordBoundAccountControls({
       >
         {messages.discord.unbind}
       </Button>
-    </div>
+    </DiscordBindingRow>
   );
 }

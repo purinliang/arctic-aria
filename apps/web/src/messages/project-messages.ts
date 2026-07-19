@@ -29,6 +29,8 @@ export const englishProjectMessages = {
     edit: "Edit",
     description: "Description",
     startDate: "Start date",
+    deadlineLabel: "Deadline",
+    duration: "Duration",
     timeline: "Timeline",
     noTasks: "No tasks yet. Add the next concrete task.",
     noMilestones: "No milestones yet. Add one when the project needs a phase boundary.",
@@ -42,7 +44,8 @@ export const englishProjectMessages = {
     due: (date: string) => `Due ${date}`,
     expected: (duration: string) => `${duration} expected`,
     openEnded: "Open-ended",
-    progress: (done: number, total: number) => `${done} of ${total} tasks done`,
+    progress: (done: number, total: number) =>
+      total === 0 ? "No tasks yet" : `${done} of ${total} tasks done`,
   },
   duration: {
     "1_3_months": "1-3 months",
@@ -161,6 +164,8 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
     edit: "编辑",
     description: "描述",
     startDate: "开始日期",
+    deadlineLabel: "截止日期",
+    duration: "持续时间",
     timeline: "时间线",
     noTasks: "还没有任务。添加下一个具体任务。",
     noMilestones: "还没有里程碑。项目需要阶段边界时再添加。",
@@ -173,8 +178,9 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
   timeline: {
     due: (date) => `截止 ${date}`,
     expected: (duration) => `预计 ${duration}`,
-    openEnded: "开放时间",
-    progress: (done, total) => `${done}/${total} 个任务已完成`,
+    openEnded: "无固定期限",
+    progress: (done, total) =>
+      total === 0 ? "暂无任务" : `${done}/${total} 个任务已完成`,
   },
   duration: {
     "1_3_months": "1-3 个月",

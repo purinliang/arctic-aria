@@ -119,9 +119,10 @@ const englishMessages = {
     appInformationTitle: "About",
     discord: {
       bind: "Bind",
-      bindInstructionExpiredSeparator: ".",
-      bindInstructionPrefix: "Send ",
-      bindInstructionSuffix: " to Arctic Aria in Discord",
+      bindInstructionActive:
+        "Send {command} to Arctic Aria in Discord in {status}.",
+      bindInstructionExpired:
+        "Send {command} to Arctic Aria in Discord. {status}",
       bound: "Bound account.",
       boundAccountId: (accountId: string) => `Bound Account ID: ${accountId}`,
       boundAccountIdLabel: "Bound Account ID",
@@ -135,8 +136,8 @@ const englishMessages = {
       confirmUnbindTitle: "Unbind Discord?",
       description:
         "Bind Discord so Arctic Aria can receive ideas from you and send messages to you.",
-      expiresIn: (minutes: number) =>
-        minutes === 1 ? "in 1 minute." : `in ${minutes} minutes.`,
+      bindCodeRemaining: (minutes: number) =>
+        minutes === 1 ? "1 minute" : `${minutes} minutes`,
       expired: "Expired",
       genericError: "Discord settings could not be updated.",
       hideAccountId: "Hide",
@@ -315,9 +316,10 @@ const simplifiedChineseMessages: AppMessages = {
     appInformationTitle: "关于",
     discord: {
       bind: "绑定",
-      bindInstructionExpiredSeparator: "。",
-      bindInstructionPrefix: "在 Discord 中向 Arctic Aria 发送 ",
-      bindInstructionSuffix: "",
+      bindInstructionActive:
+        "在 Discord 中向 Arctic Aria 发送 {command}，请在 {status}内完成。",
+      bindInstructionExpired:
+        "在 Discord 中向 Arctic Aria 发送 {command}。 {status}",
       bound: "已绑定账户。",
       boundAccountId: (accountId: string) => `已绑定账户 ID：${accountId}`,
       boundAccountIdLabel: "已绑定账户 ID",
@@ -331,7 +333,7 @@ const simplifiedChineseMessages: AppMessages = {
       confirmUnbindTitle: "解绑 Discord？",
       description:
         "绑定 Discord 后，Arctic Aria 可以接收你的想法并向你发送消息。",
-      expiresIn: (minutes: number) => `，请在 ${minutes} 分钟内完成。`,
+      bindCodeRemaining: (minutes: number) => `${minutes} 分钟`,
       expired: "已过期",
       genericError: "Discord 设置无法更新。",
       hideAccountId: "隐藏",

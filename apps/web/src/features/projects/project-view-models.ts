@@ -11,6 +11,7 @@ import type {
   ProjectTaskRecord,
   ProjectTaskStatus,
 } from "./server/project-repository";
+import { projectTaskProgressText } from "./project-progress";
 import { projectService } from "./server/project-service";
 
 export type ProjectView = {
@@ -97,7 +98,7 @@ function toProjectView(project: ProjectRecord): ProjectView {
         ? `${durationLabelForDays(project.expectedDurationDays)} expected`
         : "Open-ended",
     currentMilestone: activeMilestone?.title ?? "No active milestone",
-    progressText: `${doneCount} of ${tasks.length} tasks done`,
+    progressText: projectTaskProgressText(doneCount, tasks.length),
     tasks: tasks.map(toTaskView),
     milestones: project.milestones.map(toMilestoneView),
   };
@@ -115,7 +116,7 @@ function toMilestoneView(milestone: ProjectMilestoneRecord): MilestoneView {
     startDate: milestone.startDate ?? "",
     deadlineDate: milestone.deadlineDate ?? "",
     expectedDurationDays: milestone.expectedDurationDays?.toString() ?? "",
-    progressText: `${doneCount} of ${milestone.tasks.length} tasks done`,
+    progressText: projectTaskProgressText(doneCount, milestone.tasks.length),
     tasks: [...milestone.tasks].sort(compareProjectTasks).map(toTaskView),
   };
 }

@@ -156,6 +156,9 @@ they apply:
 - Do not hard-code user-facing feature text in components. Add or update the
   typed message catalogs under `apps/web/src/messages/`, then pass the active
   messages into feature components.
+- For complex localized sentences, use one complete format string with named
+  placeholders, such as `{command}` and `{status}`, instead of prefix/suffix
+  fragments. This keeps punctuation, spacing, and word order localizable.
 - Shared form controls, including date and time pickers, must receive their
   labels, empty text, aria labels, and value formatting from the active form
   message catalog. Do not rely on native browser date/time picker language for

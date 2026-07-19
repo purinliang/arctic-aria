@@ -6,7 +6,7 @@ import { Button } from "@/components/button";
 import { secondaryTextColorClass } from "@/components/color";
 import type { SettingsMessages } from "@/messages/app-messages";
 import { discordBindingCodeExpiryMinutes } from "../discord-binding-config";
-import { discordBindingRowClass } from "./discord-binding-layout";
+import { DiscordBindingRow } from "./DiscordBindingRow";
 
 export function DiscordBindingCodeStatus({
   action,
@@ -30,12 +30,9 @@ export function DiscordBindingCodeStatus({
     currentTime,
     messages,
   );
-  const attachStatusToCode = messages.discord.bindInstructionSuffix.length === 0;
-  const codeAttachedText = attachStatusToCode
-    ? expired
-      ? messages.discord.bindInstructionExpiredSeparator
-      : remainingText
-    : null;
+  const instructionTemplate = expired
+    ? messages.discord.bindInstructionExpired
+    : messages.discord.bindInstructionActive;
 
   useEffect(() => {
     const updateCurrentTime = () => setCurrentTime(Date.now());
@@ -49,30 +46,15 @@ export function DiscordBindingCodeStatus({
   }, []);
 
   return (
-    <div className={discordBindingRowClass}>
+    <DiscordBindingRow>
       <p className={`min-w-0 max-w-full text-sm leading-6 ${secondaryTextColorClass}`}>
-        <span className="inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1">
-          <span>{messages.discord.bindInstructionPrefix}</span>
-          <span className="inline-flex min-w-0 items-center">
-            <code className="whitespace-nowrap rounded border border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-header-bg)] px-1.5 py-0.5 font-mono text-xs font-semibold text-[var(--aa-primary-text)]">
-              /bind code:{code}
-            </code>
-            {codeAttachedText ? <span>{codeAttachedText}</span> : null}
-          </span>
-          {messages.discord.bindInstructionSuffix ? (
-            <span>
-              {messages.discord.bindInstructionSuffix}
-              {expired ? messages.discord.bindInstructionExpiredSeparator : ""}
-            </span>
-          ) : null}
-          {expired ? (
-            <span className={versionMismatchClass(darkMode)}>
-              {messages.discord.expired}
-            </span>
-          ) : remainingText && !attachStatusToCode ? (
-            <span>{remainingText}</span>
-          ) : null}
-        </span>
+        {renderBindInstruction({
+          command: `/bind code:${code}`,
+          darkMode,
+          statusText: expired ? messages.discord.expired : remainingText,
+          statusTone: expired ? "expired" : "normal",
+          template: instructionTemplate,
+        })}
       </p>
       <Button
         darkMode={darkMode}
@@ -82,8 +64,77 @@ export function DiscordBindingCodeStatus({
       >
         {messages.discord.cancel}
       </Button>
-    </div>
+    </DiscordBindingRow>
   );
+}
+
+function renderBindInstruction({
+  command,
+  darkMode,
+  statusText,
+  statusTone,
+  template,
+}: {
+  command: string;
+  darkMode: boolean;
+  statusText: string | null;
+  statusTone: "expired" | "normal";
+  template: string;
+}) {
+  return (
+    <span className="inline">
+      {template.split(/(\{command\}|\{status\})/).map((part, index) =>
+        renderInstructionPart({
+          command,
+          darkMode,
+          index,
+          part,
+          statusText,
+          statusTone,
+        }),
+      )}
+    </span>
+  );
+}
+
+function renderInstructionPart({
+  command,
+  darkMode,
+  index,
+  part,
+  statusText,
+  statusTone,
+}: {
+  command: string;
+  darkMode: boolean;
+  index: number;
+  part: string;
+  statusText: string | null;
+  statusTone: "expired" | "normal";
+}) {
+  if (part === "{command}") {
+    return (
+      <code
+        key={index}
+        className="whitespace-nowrap rounded border border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-header-bg)] px-1.5 py-0.5 font-mono text-xs font-semibold text-[var(--aa-primary-text)]"
+      >
+        {command}
+      </code>
+    );
+  }
+
+  if (part === "{status}") {
+    return (
+      <span
+        key={index}
+        className={statusTone === "expired" ? versionMismatchClass(darkMode) : ""}
+      >
+        {statusText}
+      </span>
+    );
+  }
+
+  return part ? <span key={index}>{part}</span> : null;
 }
 
 function formatBindingCodeRemaining(
@@ -92,7 +143,7 @@ function formatBindingCodeRemaining(
   messages: SettingsMessages,
 ) {
   if (currentTime === null) {
-    return null;
+    return messages.discord.bindCodeRemaining(discordBindingCodeExpiryMinutes);
   }
 
   const expiresAt = new Date(value).getTime();
@@ -103,7 +154,7 @@ function formatBindingCodeRemaining(
 
   const remainingMinutes = Math.ceil((expiresAt - currentTime) / 60_000);
 
-  return messages.discord.expiresIn(
+  return messages.discord.bindCodeRemaining(
     Math.min(
       discordBindingCodeExpiryMinutes,
       Math.max(1, remainingMinutes),

@@ -14,6 +14,7 @@ import {
 } from "../discord-binding-cache";
 import { DiscordBoundAccountControls } from "./DiscordBoundAccountControls";
 import { DiscordBindingCodeStatus } from "./DiscordBindingCodeStatus";
+import { DiscordBindingRow } from "./DiscordBindingRow";
 import {
   cancelDiscordBindingCode,
   createDiscordBindingCode,
@@ -21,7 +22,6 @@ import {
   sendDiscordTestMessage,
   unbindDiscordAccount,
 } from "../actions";
-import { discordBindingRowClass } from "./discord-binding-layout";
 
 type DiscordBindingView = {
   discordUserId: string;
@@ -300,7 +300,7 @@ export function DiscordBindingSettings({
             />
           ) : (
             !pendingBindingCode ? (
-              <div className={discordBindingRowClass}>
+              <DiscordBindingRow>
                 <DescriptionText darkMode={darkMode} className="shrink-0">
                   {discordStatusText}
                 </DescriptionText>
@@ -320,7 +320,7 @@ export function DiscordBindingSettings({
                     onClick={handleCreateCode}
                   />
                 )}
-              </div>
+              </DiscordBindingRow>
             ) : null
           )}
           {pendingBindingCode ? (

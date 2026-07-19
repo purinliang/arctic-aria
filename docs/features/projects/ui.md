@@ -263,12 +263,19 @@ Detail page layout:
   aligned to the right of `Projects /`
 - right top card: `Overview`
 - right bottom card: `Milestones` with `New`
-- overview metadata group: description, start date, and timeline
+- overview metadata group: description, start date, and the selected timeline
+  type
 - overview description row label: `Description`
 - overview labels use shared `LabelText`
 - overview values use shared `DescriptionText`
 - overview start date should display in English date format, not raw
   `YYYY-MM-DD`
+- if the project uses a deadline, show a `Deadline` row with only the formatted
+  deadline date
+- if the project uses a duration, show a `Duration` row with only the selected
+  duration range
+- do not label the row as `Timeline` when the project has a concrete deadline
+  or duration mode
 - do not repeat project title inside the Overview card; the title is already in
   the page title
 - do not show current milestone or progress in the metadata card
@@ -380,6 +387,7 @@ Progress should be displayed as simple text or compact bars only where useful:
 For first implementation, text is enough:
 
 - `2 of 5 tasks done`
+- `No tasks yet` when the project or milestone has no tasks
 
 ## Empty States
 

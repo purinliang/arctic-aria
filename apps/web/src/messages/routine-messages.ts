@@ -4,7 +4,7 @@ import type { RoutineRecurrenceOption } from "@/features/routines/routine-recurr
 export const englishRoutineMessages = {
   page: {
     title: "Routines",
-    description: "Repeatable checks for the current personal day.",
+    description: "Routines due today.",
     new: "New",
     loading: "Loading routines...",
     empty: "No routines yet.",
@@ -106,7 +106,7 @@ export type RoutineMessages = typeof englishRoutineMessages;
 export const simplifiedChineseRoutineMessages: RoutineMessages = {
   page: {
     title: "日常",
-    description: "今天要处理的日常事项。",
+    description: "今天需要处理的日常。",
     new: "新建",
     loading: "正在加载日常...",
     empty: "还没有日常。",

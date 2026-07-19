@@ -45,8 +45,6 @@ const pinnedMemories: PinnedMemory[] = [
     categoryBuiltInKey: "cuisine",
     title: "Ramen",
     description: "Small ramen place",
-    meta: "Visible until Jul 19",
-    visibleUntilDate: "2026-07-19",
     position: 1,
     status: "active",
   },
@@ -57,8 +55,6 @@ const pinnedMemories: PinnedMemory[] = [
     categoryBuiltInKey: "sightseeing",
     title: "Harbor walk",
     description: "Quiet route",
-    meta: "Visible until Jul 20",
-    visibleUntilDate: "2026-07-20",
     position: 2,
     status: "active",
   },
@@ -180,7 +176,6 @@ test("optimistically marks a pinned memory as completed", () => {
   );
 
   assert.equal(updated[0].status, "completed");
-  assert.equal(updated[0].meta, "Completed; cleanup is pending");
   assert.equal(updated[1], pinnedMemories[1]);
 });
 
@@ -239,7 +234,6 @@ test("optimistically restores a completed pinned memory", () => {
   );
 
   assert.equal(restored[0].status, "active");
-  assert.equal(restored[0].meta, "Visible window restored");
 });
 
 test("dashboard pinned memory checkbox can optimistically undo without reordering", () => {

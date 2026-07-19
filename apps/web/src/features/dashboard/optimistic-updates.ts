@@ -102,10 +102,6 @@ export function applyOptimisticPinnedMemoryStatus(
       ? {
           ...memory,
           status,
-          meta:
-            status === "completed"
-              ? "Completed; cleanup is pending"
-              : "Visible window restored",
         }
       : memory,
   );

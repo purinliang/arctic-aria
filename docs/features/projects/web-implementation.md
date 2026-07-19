@@ -200,8 +200,11 @@ Project overview card:
 
 - card title: `Overview`
 - first row: labeled description block with label `Description`
-- metadata rows: `Start date` and `Timeline`
+- metadata rows: `Start date` and either `Deadline` or `Duration`
 - start date value uses English display format, not raw `YYYY-MM-DD`
+- deadline-mode projects show only the formatted deadline date
+- duration-mode projects show only the selected duration range
+- reserve `Timeline` for legacy/open-ended fallback data only
 - do not repeat the project title inside this card because the page title
   already shows it
 - no card-level edit action; project edit belongs beside the page title

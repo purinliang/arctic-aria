@@ -9,9 +9,10 @@ export const englishMemoryMessages = {
     loading: "Loading memories...",
     empty: "No memories found for this filter.",
     pinned: "Pinned",
-    lastDone: (date: string) => `Last done ${date}`,
-    neverDone: "Never done",
-    doneTimes: (count: number) => `Done ${count} times`,
+    lastDone: (date: string) => `Last experienced ${date}`,
+    neverDone: "Never experienced",
+    doneTimes: (count: number) =>
+      count === 1 ? "Experienced 1 time" : `Experienced ${count} times`,
     edit: "Edit",
   },
   suggestions: {
@@ -23,9 +24,10 @@ export const englishMemoryMessages = {
     empty: "No suggestions available. Add more memories or unpin existing ones.",
     pin: "Pin suggestion",
     cancelPin: "Cancel pin",
-    lastDone: (date: string) => `Last done ${date}`,
-    neverDone: "Never done",
-    doneTimes: (count: number) => `Done ${count} times`,
+    lastDone: (date: string) => `Last experienced ${date}`,
+    neverDone: "Never experienced",
+    doneTimes: (count: number) =>
+      count === 1 ? "Experienced 1 time" : `Experienced ${count} times`,
   },
   editor: {
     add: "Add a new memory",
@@ -141,9 +143,9 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     loading: "正在加载回忆...",
     empty: "这个筛选条件下没有回忆。",
     pinned: "已置顶",
-    lastDone: (date) => `上次完成 ${date}`,
-    neverDone: "从未完成",
-    doneTimes: (count) => `完成 ${count} 次`,
+    lastDone: (date) => `上次体验 ${date}`,
+    neverDone: "从未体验",
+    doneTimes: (count) => `体验 ${count} 次`,
     edit: "编辑",
   },
   suggestions: {
@@ -155,9 +157,9 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     empty: "暂无建议。添加更多回忆，或取消置顶已有回忆。",
     pin: "置顶建议",
     cancelPin: "取消置顶",
-    lastDone: (date) => `上次完成 ${date}`,
-    neverDone: "从未完成",
-    doneTimes: (count) => `完成 ${count} 次`,
+    lastDone: (date) => `上次体验 ${date}`,
+    neverDone: "从未体验",
+    doneTimes: (count) => `体验 ${count} 次`,
   },
   editor: {
     add: "添加回忆",

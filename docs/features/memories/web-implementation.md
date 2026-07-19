@@ -14,8 +14,8 @@ The current web implementation supports database-backed memory testing:
 - add, edit, and delete memories
 - add, edit, and delete categories
 - show pinned memories on the dashboard from Neon
-- mark pinned memories done
-- cancel pinned memory done
+- mark pinned memories experienced
+- cancel pinned memory experience marks
 
 Projects and Routines are database-backed.
 
@@ -71,7 +71,7 @@ Suggestion list:
 - Each row shows:
   - title
   - short description
-  - supporting metadata as `category · last-done text · done count`
+  - supporting metadata as `category · last-experienced text · experienced count`
   - `Pin` button
 
 Button behavior:

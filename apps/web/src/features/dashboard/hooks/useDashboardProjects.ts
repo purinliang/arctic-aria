@@ -21,6 +21,7 @@ import {
   type ProjectTaskInput,
   type ProjectView,
 } from "@/features/projects/actions";
+import { projectTaskProgressText } from "@/features/projects/project-progress";
 import { localizedActionMessage } from "@/messages/action-result";
 import type {
   DashboardMessages,
@@ -320,5 +321,5 @@ function applyOptimisticProjectTaskStatus(
 function taskProgressText(tasks: Task[]) {
   const doneCount = tasks.filter((task) => task.status === "done").length;
 
-  return `${doneCount} of ${tasks.length} tasks done`;
+  return projectTaskProgressText(doneCount, tasks.length);
 }

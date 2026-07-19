@@ -13,7 +13,7 @@ import type {
   ProjectView,
 } from "@/features/projects/actions";
 import type { TaskStatus } from "@/features/dashboard/types";
-import type { ProjectDurationRange } from "@/features/projects/project-duration";
+import { projectOverviewTimelineMetadata } from "@/features/projects/project-overview-metadata";
 import type { ProjectMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
 
@@ -58,6 +58,18 @@ export function ProjectDetailPage({
       </Panel>
     );
   }
+
+  const timelineMetadata = projectOverviewTimelineMetadata(
+    project,
+    {
+      deadline: messages.deadlineLabel,
+      duration: messages.duration,
+      timeline: messages.timeline,
+      openEnded: timelineMessages.openEnded,
+    },
+    durationMessages,
+    (value) => formatDate(value, dateMessages, messages.notSet),
+  );
 
   return (
     <section className="aa-split-container">
@@ -108,14 +120,14 @@ export function ProjectDetailPage({
               icon={<Info size={18} aria-hidden="true" />}
               title={messages.overviewTitle}
             />
-            <div className="grid gap-4 px-4 py-4">
-              <div className="grid gap-1">
+            <div className="grid min-w-0 gap-4 px-4 py-4">
+              <div className="grid min-w-0 gap-1">
                 <LabelText darkMode={darkMode}>{messages.description}</LabelText>
                 <DescriptionText darkMode={darkMode}>
                   {project.description}
                 </DescriptionText>
               </div>
-              <dl className="grid gap-3 text-sm">
+              <dl className="grid min-w-0 gap-3 text-sm">
                 <ProjectMetadataRow
                   darkMode={darkMode}
                   label={messages.startDate}
@@ -123,13 +135,8 @@ export function ProjectDetailPage({
                 />
                 <ProjectMetadataRow
                   darkMode={darkMode}
-                  label={messages.timeline}
-                  value={projectTimelineText(
-                    project,
-                    timelineMessages,
-                    durationMessages,
-                    dateMessages,
-                  )}
+                  label={timelineMetadata.label}
+                  value={timelineMetadata.value}
                 />
               </dl>
             </div>
@@ -206,7 +213,7 @@ function ProjectMetadataRow({
   value: string;
 }) {
   return (
-    <div className="grid gap-1">
+    <div className="grid min-w-0 gap-1">
       <dt>
         <LabelText darkMode={darkMode}>{label}</LabelText>
       </dt>
@@ -292,25 +299,6 @@ function deadlineText(
   return task.deadlineDate
     ? messages.deadline(formatDate(task.deadlineDate, dateMessages, task.deadline))
     : messages.noDeadline;
-}
-
-function projectTimelineText(
-  project: ProjectView,
-  messages: ProjectMessages["timeline"],
-  durations: ProjectMessages["duration"],
-  dateMessages: DatePickerMessages,
-) {
-  if (project.deadlineDate) {
-    return messages.due(formatDate(project.deadlineDate, dateMessages, project.timelineText));
-  }
-
-  if (project.expectedDurationDays) {
-    return messages.expected(
-      durations[project.durationRange as ProjectDurationRange],
-    );
-  }
-
-  return messages.openEnded;
 }
 
 function doneTaskCount(tasks: ProjectTaskView[]) {

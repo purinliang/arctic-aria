@@ -11,6 +11,7 @@ import { DescriptionText, SupportingText } from "@/components/text";
 import type { MemorySuggestion } from "@/features/dashboard/types";
 import type { MemoryMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
+import { memoryDoneMetadataSegments } from "./memory-metadata";
 import { getMemoryCategoryLabel } from "./memory-page-helpers";
 
 type SuggestionResult = Promise<boolean>;
@@ -136,8 +137,9 @@ function SuggestionRow({
       suggestion.categoryBuiltInKey,
       categoryMessages,
     ),
-    lastDoneText(suggestion, messages, dateMessages),
-    messages.doneTimes(suggestion.doneCount),
+    ...memoryDoneMetadataSegments(suggestion, messages, (value, fallback) =>
+      formatDate(value, dateMessages, fallback),
+    ),
   ].join(" · ");
 
   return (
@@ -179,20 +181,6 @@ function SuggestionRow({
         />
       </div>
     </ListItem>
-  );
-}
-
-function lastDoneText(
-  suggestion: MemorySuggestion,
-  messages: MemoryMessages["suggestions"],
-  dateMessages: DatePickerMessages,
-) {
-  if (!suggestion.lastDoneDate) {
-    return messages.neverDone;
-  }
-
-  return messages.lastDone(
-    formatDate(suggestion.lastDoneDate, dateMessages, suggestion.lastDoneText),
   );
 }
 

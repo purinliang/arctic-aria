@@ -26,6 +26,7 @@ import type {
 import type { MemoryMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
 import { MemoryCategoryIcon } from "./MemoryCategoryIcon";
+import { memoryDoneMetadataSegments } from "./memory-metadata";
 import {
   getMemoryCategoryLabel,
   getMemoryFilterNames,
@@ -178,8 +179,9 @@ function MemoryRow({
       categoryMessages,
     ),
     memory.pinned ? messages.pinned : "",
-    lastDoneText(memory, messages, dateMessages),
-    messages.doneTimes(memory.doneCount),
+    ...memoryDoneMetadataSegments(memory, messages, (value, fallback) =>
+      formatDate(value, dateMessages, fallback),
+    ),
   ]
     .filter(Boolean)
     .join(" · ");
@@ -208,20 +210,6 @@ function MemoryRow({
         {messages.edit}
       </Button>
     </ListItem>
-  );
-}
-
-function lastDoneText(
-  memory: MemoryRecord,
-  messages: MemoryMessages["panel"],
-  dateMessages: DatePickerMessages,
-) {
-  if (!memory.lastDoneDate) {
-    return messages.neverDone;
-  }
-
-  return messages.lastDone(
-    formatDate(memory.lastDoneDate, dateMessages, memory.lastDoneText),
   );
 }
 
