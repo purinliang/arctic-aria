@@ -30,6 +30,12 @@ export function DiscordBindingCodeStatus({
     currentTime,
     messages,
   );
+  const attachStatusToCode = messages.discord.bindInstructionSuffix.length === 0;
+  const codeAttachedText = attachStatusToCode
+    ? expired
+      ? messages.discord.bindInstructionExpiredSeparator
+      : remainingText
+    : null;
 
   useEffect(() => {
     const updateCurrentTime = () => setCurrentTime(Date.now());
@@ -47,18 +53,23 @@ export function DiscordBindingCodeStatus({
       <p className={`min-w-0 max-w-full text-sm leading-6 ${secondaryTextColorClass}`}>
         <span className="inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1">
           <span>{messages.discord.bindInstructionPrefix}</span>
-          <code className="whitespace-nowrap rounded border border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-header-bg)] px-1.5 py-0.5 font-mono text-xs font-semibold text-[var(--aa-primary-text)]">
-            /bind code:{code}
-          </code>
-          <span>{messages.discord.bindInstructionSuffix}</span>
+          <span className="inline-flex min-w-0 items-center">
+            <code className="whitespace-nowrap rounded border border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-header-bg)] px-1.5 py-0.5 font-mono text-xs font-semibold text-[var(--aa-primary-text)]">
+              /bind code:{code}
+            </code>
+            {codeAttachedText ? <span>{codeAttachedText}</span> : null}
+          </span>
+          {messages.discord.bindInstructionSuffix ? (
+            <span>
+              {messages.discord.bindInstructionSuffix}
+              {expired ? messages.discord.bindInstructionExpiredSeparator : ""}
+            </span>
+          ) : null}
           {expired ? (
-            <>
-              <span>{messages.discord.bindInstructionExpiredSeparator}</span>
-              <span className={versionMismatchClass(darkMode)}>
-                {messages.discord.expired}
-              </span>
-            </>
-          ) : remainingText ? (
+            <span className={versionMismatchClass(darkMode)}>
+              {messages.discord.expired}
+            </span>
+          ) : remainingText && !attachStatusToCode ? (
             <span>{remainingText}</span>
           ) : null}
         </span>
