@@ -11,7 +11,7 @@ import {
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
-import { List, ListItem } from "@/components/list";
+import { List, ListItem, ListItemContent } from "@/components/list";
 import { DescriptionText, SectionTitle } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
@@ -231,15 +231,19 @@ function CategoryRow({
       <span className="mt-1 shrink-0">
         <MemoryCategoryIcon iconName={category.iconName} size={16} />
       </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold">
-          {getMemoryCategoryName(category, messages.builtIns)}
-        </p>
-        <DescriptionText darkMode={darkMode} className="mt-1">
-          {getMemoryCategoryDescription(category, messages.builtIns) ||
-            messages.noDescription}
-        </DescriptionText>
-      </div>
+      <ListItemContent
+        title={
+          <p className="truncate text-sm font-semibold">
+            {getMemoryCategoryName(category, messages.builtIns)}
+          </p>
+        }
+        main={
+          <DescriptionText darkMode={darkMode}>
+            {getMemoryCategoryDescription(category, messages.builtIns) ||
+              messages.noDescription}
+          </DescriptionText>
+        }
+      />
       {category.builtInKey ? null : (
         <Button
           darkMode={darkMode}

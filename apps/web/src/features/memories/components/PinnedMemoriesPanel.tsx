@@ -5,7 +5,7 @@ import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
 import { CheckboxControl } from "@/components/forms/selection-field";
-import { List, ListItem } from "@/components/list";
+import { List, ListItem, ListItemContent } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
@@ -99,22 +99,31 @@ function PinnedMemoryRow({
             event.target.checked ? onDone() : onCancelDone()
           }
         />
-        <div className="min-w-0">
-          <h3 className="min-w-0 text-sm font-semibold">{memory.title}</h3>
-          <DescriptionText darkMode={darkMode} className="mt-1 line-clamp-2">
-            {memory.description}
-          </DescriptionText>
-          <SupportingText darkMode={darkMode} className="mt-2 block">
-            {memory.categoryBuiltInKey
-              ? messages.builtInCategories[memory.categoryBuiltInKey]
-              : memory.category} ·{" "}
-            {completed
-              ? messages.completed
-              : messages.visibleUntil(
-                  formatDate(memory.visibleUntilDate, dateMessages, memory.meta),
-                )}
-          </SupportingText>
-        </div>
+        <ListItemContent
+          grow={false}
+          title={<h3 className="min-w-0 text-sm font-semibold">{memory.title}</h3>}
+          main={
+            <DescriptionText darkMode={darkMode} className="line-clamp-2">
+              {memory.description}
+            </DescriptionText>
+          }
+          support={
+            <SupportingText darkMode={darkMode}>
+              {memory.categoryBuiltInKey
+                ? messages.builtInCategories[memory.categoryBuiltInKey]
+                : memory.category} ·{" "}
+              {completed
+                ? messages.completed
+                : messages.visibleUntil(
+                    formatDate(
+                      memory.visibleUntilDate,
+                      dateMessages,
+                      memory.meta,
+                    ),
+                  )}
+            </SupportingText>
+          }
+        />
       </div>
       <div className="flex shrink-0 items-center gap-1">
         <Button

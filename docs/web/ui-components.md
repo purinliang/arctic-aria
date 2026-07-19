@@ -347,7 +347,18 @@ Use it for:
 - list dividers
 
 List items should keep horizontal padding, vertical rhythm, hover state, and
-selected state consistent.
+selected state consistent. The shared `ListItem` owns vertical padding: middle
+rows are compact, while the first row keeps the larger top padding and the last
+row keeps the larger bottom padding automatically. Feature rows should not
+hand-code first/last padding.
+
+For normal title, main-content, and supporting-metadata rows, use
+`ListItemContent` with its `title`, `main`, and `support` slots. The `main` slot
+is usually a `DescriptionText`, but it may receive richer injected content when
+a row needs it. `ListItemContent` owns the vertical relationship between these
+three slots. Do not add local `mt-*` spacing between title, description/main,
+and supporting metadata; the slots should have no extra external margin because
+the text components already carry their own line height.
 
 Use `ExpandableListItem` for rows that open details. The header row and expanded
 details must be rendered inside the same list item so the background, padding,

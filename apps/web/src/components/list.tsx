@@ -48,14 +48,46 @@ export function ListItem({
     <article
       className={cx(
         layout === "row"
-          ? "flex items-start justify-between gap-3 px-4 py-4"
-          : "px-4 py-4",
+          ? "flex items-start justify-between gap-3 px-4 py-3 first-of-type:pt-4 last-of-type:pb-4"
+          : "px-4 py-3 first-of-type:pt-4 last-of-type:pb-4",
         itemToneClass(darkMode, tone, active),
         className,
       )}
     >
       {children}
     </article>
+  );
+}
+
+export function ListItemContent({
+  children,
+  className,
+  grow = true,
+  main,
+  support,
+  title,
+}: {
+  children?: ReactNode;
+  className?: string;
+  grow?: boolean;
+  main?: ReactNode;
+  support?: ReactNode;
+  title?: ReactNode;
+}) {
+  const hasSlots = Boolean(title || main || support);
+
+  return (
+    <div className={cx("min-w-0", grow ? "flex-1" : undefined, className)}>
+      {hasSlots ? (
+        <>
+          {title ? <div className="min-w-0">{title}</div> : null}
+          {main ? <div className="min-w-0">{main}</div> : null}
+          {support ? <div className="min-w-0">{support}</div> : null}
+        </>
+      ) : (
+        children
+      )}
+    </div>
   );
 }
 

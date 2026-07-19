@@ -4,7 +4,7 @@ import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
-import { List, ListItem } from "@/components/list";
+import { List, ListItem, ListItemContent } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
@@ -142,17 +142,19 @@ function SuggestionRow({
 
   return (
     <ListItem darkMode={darkMode} className="gap-3">
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="text-sm font-semibold">{suggestion.title}</h3>
-        </div>
-        <DescriptionText darkMode={darkMode} className="mt-1">
-          {suggestion.description}
-        </DescriptionText>
-        <SupportingText darkMode={darkMode} className="mt-2 block">
-          {metadata}
-        </SupportingText>
-      </div>
+      <ListItemContent
+        title={
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-sm font-semibold">{suggestion.title}</h3>
+          </div>
+        }
+        main={
+          <DescriptionText darkMode={darkMode}>
+            {suggestion.description}
+          </DescriptionText>
+        }
+        support={<SupportingText darkMode={darkMode}>{metadata}</SupportingText>}
+      />
       <div className="shrink-0">
         <Button
           darkMode={darkMode}
