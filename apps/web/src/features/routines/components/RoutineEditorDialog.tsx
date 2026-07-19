@@ -1,5 +1,6 @@
 // Routines Page - Routine Editor Dialog.
 import type { Dispatch, SetStateAction } from "react";
+import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import { CrudEditorDialog } from "@/components/dialog";
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
@@ -36,6 +37,11 @@ export function RoutineEditorDialog({
   onSubmit: () => void;
   onDelete: () => void;
 }) {
+  const descriptionPlaceholder = useDefaultDescriptionPlaceholder(
+    messages.defaultDescriptions,
+    draft.title,
+  );
+
   return (
     <CrudEditorDialog
       darkMode={darkMode}
@@ -55,14 +61,7 @@ export function RoutineEditorDialog({
         pending={pending}
         draft={draft}
         messages={messages.editor}
-        setDraft={setDraft}
-      />
-      <RecurrenceFields
-        darkMode={darkMode}
-        pending={pending}
-        draft={draft}
-        messages={messages}
-        formMessages={formMessages}
+        descriptionPlaceholder={descriptionPlaceholder}
         setDraft={setDraft}
       />
       <RoutineScheduleFields
@@ -74,6 +73,14 @@ export function RoutineEditorDialog({
         timeFormatPreference={timeFormatPreference}
         setDraft={setDraft}
       />
+      <RecurrenceFields
+        darkMode={darkMode}
+        pending={pending}
+        draft={draft}
+        messages={messages}
+        formMessages={formMessages}
+        setDraft={setDraft}
+      />
     </CrudEditorDialog>
   );
 }
@@ -83,12 +90,14 @@ function RoutineTextFields({
   pending,
   draft,
   messages,
+  descriptionPlaceholder,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: RoutineInput;
   messages: RoutineMessages["editor"];
+  descriptionPlaceholder: string;
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
 }) {
   return (
@@ -105,13 +114,14 @@ function RoutineTextFields({
           }
         />
       </FieldLabel>
-      <FieldLabel darkMode={darkMode} label={messages.description}>
+      <FieldLabel darkMode={darkMode} label={messages.description} optional>
         <TextArea
           darkMode={darkMode}
           className="min-h-24"
           value={draft.description}
           maxLength={2000}
           disabled={pending}
+          placeholder={descriptionPlaceholder}
           onChange={(event) =>
             setDraft((current) => ({
               ...current,

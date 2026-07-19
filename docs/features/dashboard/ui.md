@@ -158,6 +158,6 @@ Future review UI may show:
 
 Use concise empty states:
 
-- tasks: `No tasks selected for today.`
-- routines: `No routines due today.`
+- tasks: `A clear slate for today. Choose one project task when you are ready.`
+- routines: `No routines are due today. Keep the day light.`
 - pinned memories: `No pinned memories yet.`

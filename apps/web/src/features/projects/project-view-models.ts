@@ -17,7 +17,7 @@ import { projectService } from "./server/project-service";
 export type ProjectView = {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   status: ProjectRecord["status"];
   priority: ProjectPriority;
   startDate: string;
@@ -36,7 +36,7 @@ export type MilestoneView = {
   id: string;
   projectId: string;
   title: string;
-  objective: string;
+  objective: string | null;
   status: ProjectMilestoneRecord["status"];
   startDate: string;
   deadlineDate: string;
@@ -84,7 +84,7 @@ function toProjectView(project: ProjectRecord): ProjectView {
   return {
     id: project.id,
     title: project.title,
-    description: project.importanceReason || project.objective,
+    description: project.objective,
     status: project.status,
     priority: project.priority,
     startDate: project.startDate,

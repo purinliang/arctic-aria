@@ -27,7 +27,7 @@ export const englishProjectMessages = {
     overviewTitle: "Overview",
     new: "New",
     edit: "Edit",
-    description: "Description",
+    description: "Objective",
     startDate: "Start date",
     deadlineLabel: "Deadline",
     expectedDuration: "Expected duration",
@@ -53,6 +53,27 @@ export const englishProjectMessages = {
     "6_12_months": "6-12 months",
     "1_3_years": "1-3 years",
   } satisfies Record<ProjectDurationRange, string>,
+  defaultDescriptions: {
+    project: [
+      "A larger goal ready to become steady progress.",
+      "A long-running effort that deserves clear next steps.",
+      "A project worth returning to with patient attention.",
+      "A bigger target waiting for concrete daily movement.",
+      "A meaningful direction to shape into visible progress.",
+    ],
+    milestone: [
+      "A phase boundary inside this project.",
+      "A checkpoint before the next stage.",
+      "A smaller stage that keeps the project easier to navigate.",
+    ],
+    task: [
+      "A concrete step toward the project.",
+      "A task ready for focused work.",
+      "One useful move for this larger goal.",
+      "A small piece that makes progress visible.",
+      "A next action to keep the project moving.",
+    ],
+  },
   editor: {
     common: {
       save: "Save",
@@ -74,7 +95,7 @@ export const englishProjectMessages = {
       edit: "Edit project",
       close: "Close project editor",
       titlePlaceholder: "Project title",
-      descriptionPlaceholder: "Describe the goal, context, and why it matters.",
+      objective: "Objective",
     },
     milestone: {
       add: "Add milestone",
@@ -108,7 +129,8 @@ export const englishProjectMessages = {
   results: {
     auth_required: "Please sign in again.",
     project_title_invalid: "Project title must be 1-120 characters.",
-    project_description_invalid: "Project description must be 1-1000 characters.",
+    project_description_invalid:
+      "Project objective must be 1000 characters or fewer.",
     project_start_date_missing: "Select a start date.",
     project_start_date_invalid: "Start date must be a real date in YYYY-MM-DD format.",
     project_deadline_missing: "Select a deadline date.",
@@ -162,7 +184,7 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
     overviewTitle: "概览",
     new: "新建",
     edit: "编辑",
-    description: "描述",
+    description: "目标",
     startDate: "开始日期",
     deadlineLabel: "截止日期",
     expectedDuration: "预计持续时间",
@@ -188,6 +210,27 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
     "6_12_months": "6-12 个月",
     "1_3_years": "1-3 年",
   },
+  defaultDescriptions: {
+    project: [
+      "一个值得慢慢推进的长期目标。",
+      "一个需要清晰下一步的大项目。",
+      "一个值得反复回到其中的项目。",
+      "一个等待被拆成日常行动的更大目标。",
+      "一个可以逐步看见进展的重要方向。",
+    ],
+    milestone: [
+      "这个项目中的一个阶段边界。",
+      "进入下一阶段前的一个检查点。",
+      "让项目更容易推进的小阶段。",
+    ],
+    task: [
+      "推动项目向前的一步。",
+      "一个适合专注完成的任务。",
+      "这个大目标中的一个有效行动。",
+      "一个让进展更清楚的小部分。",
+      "让项目继续前进的下一步。",
+    ],
+  },
   editor: {
     common: {
       save: "保存",
@@ -209,7 +252,7 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
       edit: "编辑项目",
       close: "关闭项目编辑器",
       titlePlaceholder: "项目标题",
-      descriptionPlaceholder: "描述目标、背景，以及它为什么重要。",
+      objective: "目标",
     },
     milestone: {
       add: "添加里程碑",
@@ -243,7 +286,7 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
   results: {
     auth_required: "请重新登录。",
     project_title_invalid: "项目标题必须为 1-120 个字符。",
-    project_description_invalid: "项目描述必须为 1-1000 个字符。",
+    project_description_invalid: "项目目标必须不超过 1000 个字符。",
     project_start_date_missing: "请选择开始日期。",
     project_start_date_invalid: "开始日期必须是真实日期，格式为 YYYY-MM-DD。",
     project_deadline_missing: "请选择截止日期。",

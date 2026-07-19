@@ -15,7 +15,6 @@ function project(input: Partial<ProjectRecord> & Pick<ProjectRecord, "id" | "tit
     userId,
     title: input.title,
     objective: input.objective ?? "Finish the target outcome.",
-    importanceReason: input.importanceReason ?? "It matters.",
     status: input.status ?? "active",
     priority: input.priority ?? "medium",
     startDate: input.startDate ?? "2026-07-01",
@@ -41,7 +40,6 @@ test("saving a project does not create a default milestone", async () => {
   const projectId = await service.saveProject(userId, {
     title: "Apply for a degree",
     objective: "Submit a strong master application.",
-    importanceReason: "It opens better research options.",
     priority: "high",
     startDate: "2026-07-14",
     deadlineDate: "2026-09-01",
@@ -64,7 +62,6 @@ test("saving a task can omit a milestone", async () => {
   const projectId = await service.saveProject(userId, {
     title: "Find a job",
     objective: "Land a backend engineering role.",
-    importanceReason: "It supports the next life stage.",
     priority: "high",
     startDate: "2026-07-14",
     deadlineDate: null,
@@ -99,7 +96,6 @@ test("saving a task can place it under an explicit milestone", async () => {
   const projectId = await service.saveProject(userId, {
     title: "Find a job",
     objective: "Land a backend engineering role.",
-    importanceReason: "It supports the next life stage.",
     priority: "high",
     startDate: "2026-07-14",
     deadlineDate: null,
@@ -142,7 +138,6 @@ test("archiving a milestone keeps its tasks without a milestone", async () => {
   const projectId = await service.saveProject(userId, {
     title: "Find a job",
     objective: "Land a backend engineering role.",
-    importanceReason: "It supports the next life stage.",
     priority: "high",
     startDate: "2026-07-14",
     deadlineDate: null,
@@ -187,7 +182,6 @@ test("archiving a task removes it from normal project views", async () => {
   const projectId = await service.saveProject(userId, {
     title: "Find a job",
     objective: "Land a backend engineering role.",
-    importanceReason: "It supports the next life stage.",
     priority: "high",
     startDate: "2026-07-14",
     deadlineDate: null,

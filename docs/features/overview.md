@@ -71,7 +71,8 @@ a degree, applying for a visa, or finishing a study/work objective.
 
 - user id
 - title
-- description, combining the objective and why it matters
+- optional objective, combining what the project should accomplish and why it
+  matters
 - status
 - priority
 - start date

@@ -89,12 +89,12 @@ Title: `Add routine`.
 Fields:
 
 - title
-- description
-- recurrence rule
-- recurrence preview
-- preferred time
+- optional description
 - first start date
 - end date
+- preferred time
+- repeat rule
+- recurrence preview
 
 The repeat rule control should use the shared dropdown/select component, not a
 button group. Each option should have a short title and a description so labels
@@ -118,7 +118,7 @@ The first start date and end date should be enough for most schedules. Keep the
 visible field labels short; do not append technical qualifiers such as
 `optional` or `inclusive` to routine field labels.
 
-After the recurrence control, show a short preview of the next generated dates
+After the repeat-rule control, show a short preview of the next generated dates
 when the first start date is valid. The preview should show the first three
 occurrences that fit before the inclusive end date, with weekday names, for
 example: `Jul 16, 2026 Thu`, `Jul 23, 2026 Thu`, `Jul 30, 2026 Thu`, `and so
@@ -136,6 +136,9 @@ Save behavior:
   backend response.
 - On validation or persistence failure, keep the dialog open and show the
   backend message through the shared notification stack.
+- If the saved description is missing, routine rows show localized default
+  description copy derived from the routine title. This fallback is render-only
+  and is not persisted.
 
 ## Edit Routine Dialog
 

@@ -3,6 +3,7 @@ import { Lightbulb, LoaderCircle, Pin, PinOff, RefreshCw } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
+import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
 import { List, ListItem, ListItemContent } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
@@ -25,6 +26,7 @@ export function SuggestionsPanel({
   pendingSuggestionIds,
   messages,
   categoryMessages,
+  defaultDescriptions,
   dateMessages,
   onSuggestionsRefresh,
   onSuggestionPin,
@@ -38,6 +40,7 @@ export function SuggestionsPanel({
   pendingSuggestionIds: string[];
   messages: MemoryMessages["suggestions"];
   categoryMessages: MemoryMessages["categories"]["builtIns"];
+  defaultDescriptions: MemoryMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
   onSuggestionsRefresh: () => Promise<void>;
   onSuggestionPin: (memoryId: string) => SuggestionResult;
@@ -99,6 +102,7 @@ export function SuggestionsPanel({
             pinned={pinnedSuggestionIds.includes(suggestion.id)}
             messages={messages}
             categoryMessages={categoryMessages}
+            defaultDescriptions={defaultDescriptions}
             dateMessages={dateMessages}
             onPin={() => void onSuggestionPin(suggestion.id)}
             onCancel={() => void onSuggestionCancel(suggestion.id)}
@@ -117,6 +121,7 @@ function SuggestionRow({
   pinned,
   messages,
   categoryMessages,
+  defaultDescriptions,
   dateMessages,
   onPin,
   onCancel,
@@ -127,6 +132,7 @@ function SuggestionRow({
   pinned: boolean;
   messages: MemoryMessages["suggestions"];
   categoryMessages: MemoryMessages["categories"]["builtIns"];
+  defaultDescriptions: MemoryMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
   onPin: () => void;
   onCancel: () => void;
@@ -152,7 +158,11 @@ function SuggestionRow({
         }
         main={
           <DescriptionText darkMode={darkMode}>
-            {suggestion.description}
+            {displayDescription(
+              suggestion.description,
+              suggestion.title,
+              defaultDescriptions.memory,
+            )}
           </DescriptionText>
         }
         support={<SupportingText darkMode={darkMode}>{metadata}</SupportingText>}

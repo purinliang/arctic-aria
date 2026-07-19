@@ -173,7 +173,13 @@ function validateRoutineInput(input: RoutineInput) {
     };
   }
 
-  return { ok: true as const, title, description, endDate, rule };
+  return {
+    ok: true as const,
+    title,
+    description: description || null,
+    endDate,
+    rule,
+  };
 }
 
 export async function getRoutineDashboardData(): Promise<

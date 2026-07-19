@@ -10,7 +10,7 @@ export type RoutineRow = {
   id: string;
   user_id: string;
   title: string;
-  description: string;
+  description: string | null;
   status: "active" | "deleted";
   first_start_date: Date | string;
   end_date: Date | string | null;
@@ -32,7 +32,7 @@ export type RoutineInstanceRow = {
   user_id: string;
   routine_id: string;
   title: string;
-  description: string;
+  description: string | null;
   scheduled_date: Date | string;
   scheduled_time: string | null;
   status: "pending" | "completed" | "skipped";

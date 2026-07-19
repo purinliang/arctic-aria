@@ -12,9 +12,9 @@ Memories uses the shared database integrity rules from
 Backend validation should check:
 
 - category name is required and 1-40 characters
-- category description is 500 characters or fewer
+- category description is optional and 500 characters or fewer
 - memory title is required and 1-120 characters
-- memory description is 2000 characters or fewer
+- memory description is optional and 2000 characters or fewer
 - memory category belongs to the current user
 - pinned memory category is supported by the dashboard when pinning into the
   dashboard shortlist
@@ -72,6 +72,9 @@ Current implementation note:
   users or partially initialized accounts.
 - User-created categories should keep user-authored names as-is and should not
   be auto-translated by the database or backend.
+- User-created category descriptions are optional. Empty custom category
+  descriptions are stored as `NULL` and render localized fallback copy derived
+  from the category name; the fallback is not stored.
 
 Current database protection:
 
@@ -118,7 +121,10 @@ Current database protection:
 - `category_id` references `memory_categories.id`.
 - category hard delete is restricted while memories reference it.
 - `title` is required and 1-120 characters.
-- `description` is 2000 characters or fewer.
+- `description` is optional, stored as `NULL` when omitted, and 2000 characters
+  or fewer when present.
+- Missing descriptions render localized fallback copy derived from the memory
+  title. The fallback is not stored in the database.
 - `done_count` is greater than or equal to `0`.
 
 `done_count`, `last_done_at`, `last_pinned_at`, and `last_ignored_at` are

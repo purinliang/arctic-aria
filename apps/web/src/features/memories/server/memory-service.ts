@@ -105,7 +105,7 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
     async createCategory(
       userId: string,
       name: string,
-      description: string,
+      description: string | null,
     ) {
       return memories.createCategory({
         userId,
@@ -119,7 +119,7 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
       userId: string,
       categoryId: string,
       name: string,
-      description: string,
+      description: string | null,
     ) {
       return memories.updateCategory({
         userId,
@@ -138,7 +138,7 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
       userId: string,
       categoryId: string,
       title: string,
-      description: string,
+      description: string | null,
     ) {
       return memories.createMemory({
         userId,
@@ -154,7 +154,7 @@ export function createMemoryService(options: MemoryServiceOptions = {}) {
       memoryId: string,
       categoryId: string,
       title: string,
-      description: string,
+      description: string | null,
     ) {
       return memories.updateMemory({
         userId,

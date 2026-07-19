@@ -87,7 +87,6 @@ async function createProject(
   const projectId = await service.saveProject(userId, {
     title,
     objective: `${title} objective.`,
-    importanceReason: `${title} matters.`,
     priority: "medium",
     startDate: "2026-07-14",
     deadlineDate: null,

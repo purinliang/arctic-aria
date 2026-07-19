@@ -24,7 +24,7 @@ Infrastructure or Interface concerns.
 The first routines feature should include:
 
 - creating routines
-- editing routine title and description
+- editing routine title and optional description
 - deleting routines
 - defining recurrence rules
 - generating routine instances

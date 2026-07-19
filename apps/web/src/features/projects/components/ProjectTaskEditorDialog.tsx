@@ -1,5 +1,6 @@
 // Projects Page - Project Task Editor Dialog.
 import type { Dispatch, SetStateAction } from "react";
+import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import { CrudEditorDialog } from "@/components/dialog";
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
@@ -18,6 +19,7 @@ export function ProjectTaskEditorDialog({
   draft,
   milestones,
   messages,
+  defaultDescriptions,
   formMessages,
   setDraft,
   onClose,
@@ -30,12 +32,18 @@ export function ProjectTaskEditorDialog({
   draft: ProjectTaskInput;
   milestones: ProjectView["milestones"];
   messages: ProjectMessages["editor"];
+  defaultDescriptions: ProjectMessages["defaultDescriptions"];
   formMessages: FormMessages;
   setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
   onClose: () => void;
   onSubmit: () => void;
   onDelete?: () => void;
 }) {
+  const descriptionPlaceholder = useDefaultDescriptionPlaceholder(
+    defaultDescriptions.task,
+    draft.title,
+  );
+
   return (
     <CrudEditorDialog
       darkMode={darkMode}
@@ -55,6 +63,7 @@ export function ProjectTaskEditorDialog({
         pending={pending}
         draft={draft}
         messages={messages}
+        descriptionPlaceholder={descriptionPlaceholder}
         setDraft={setDraft}
       />
       <TaskMeta
@@ -75,12 +84,14 @@ function TaskBasics({
   pending,
   draft,
   messages,
+  descriptionPlaceholder,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: ProjectTaskInput;
   messages: ProjectMessages["editor"];
+  descriptionPlaceholder: string;
   setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
 }) {
   return (
@@ -104,6 +115,7 @@ function TaskBasics({
           value={draft.description}
           maxLength={2000}
           disabled={pending}
+          placeholder={descriptionPlaceholder}
           onChange={(event) =>
             setDraft((current) => ({
               ...current,

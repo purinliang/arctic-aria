@@ -3,6 +3,7 @@ import {
   Settings2,
 } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
+import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import { CrudEditorDialog } from "@/components/dialog";
 import {
   ChoiceActionButton,
@@ -27,6 +28,7 @@ export function MemoryEditorDialog({
   setMemoryDraft,
   messages,
   categoryMessages,
+  defaultDescriptions,
   onClose,
   onSubmit,
   onDelete,
@@ -41,11 +43,17 @@ export function MemoryEditorDialog({
   setMemoryDraft: Dispatch<SetStateAction<MemoryInput>>;
   messages: MemoryMessages["editor"];
   categoryMessages: MemoryMessages["categories"]["builtIns"];
+  defaultDescriptions: MemoryMessages["defaultDescriptions"];
   onClose: () => void;
   onSubmit: () => void;
   onDelete: () => void;
   onManageCategories: () => void;
 }) {
+  const descriptionPlaceholder = useDefaultDescriptionPlaceholder(
+    defaultDescriptions.memory,
+    memoryDraft.title,
+  );
+
   return (
     <CrudEditorDialog
       darkMode={darkMode}
@@ -110,13 +118,14 @@ export function MemoryEditorDialog({
           />
         </SingleChoiceGroup>
       </div>
-      <FieldLabel darkMode={darkMode} label={messages.description}>
+      <FieldLabel darkMode={darkMode} label={messages.description} optional>
         <TextArea
           darkMode={darkMode}
           className="min-h-28"
           value={memoryDraft.description}
           maxLength={2000}
           disabled={pending}
+          placeholder={descriptionPlaceholder}
           onChange={(event) =>
             setMemoryDraft((current) => ({
               ...current,
