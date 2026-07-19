@@ -64,14 +64,6 @@ export function RoutineEditorDialog({
         descriptionPlaceholder={descriptionPlaceholder}
         setDraft={setDraft}
       />
-      <RecurrenceFields
-        darkMode={darkMode}
-        pending={pending}
-        draft={draft}
-        messages={messages}
-        formMessages={formMessages}
-        setDraft={setDraft}
-      />
       <RoutineScheduleFields
         darkMode={darkMode}
         pending={pending}
@@ -79,6 +71,14 @@ export function RoutineEditorDialog({
         messages={messages.editor}
         formMessages={formMessages}
         timeFormatPreference={timeFormatPreference}
+        setDraft={setDraft}
+      />
+      <RecurrenceFields
+        darkMode={darkMode}
+        pending={pending}
+        draft={draft}
+        messages={messages}
+        formMessages={formMessages}
         setDraft={setDraft}
       />
     </CrudEditorDialog>

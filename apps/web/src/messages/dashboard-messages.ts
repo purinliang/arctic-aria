@@ -88,7 +88,7 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
   projectTasks: {
     title: "任务",
     loading: "正在加载任务...",
-    empty: "今天暂时是空白日。准备好时，选一个项目任务开始。",
+    empty: "今天先留白。想推进项目时，再选一个任务就好。",
     noDescription: "暂无描述。",
     noDeadline: "无截止日期",
     deadline: (value) => `截止日期 ${value}`,
@@ -105,7 +105,7 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
   routines: {
     title: "日常",
     loading: "正在加载日常...",
-    empty: "今天没有到期的日常。让这一天轻一点。",
+    empty: "今天没有日常要处理，可以轻松一点。",
     noDescription: "暂无描述。",
     flexible: "灵活时间",
     dueToday: "今天到期",
@@ -114,11 +114,11 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
     markDone: (title) => `将 ${title} 标记为完成`,
     reopen: (title) => `重新打开 ${title}`,
     defaultDescriptions: [
-      "一个帮助生活继续运转的重复检查。",
-      "一个到时间就回来看看的日常。",
-      "一个值得定期完成的事项。",
-      "一个让节奏保持稳定的小动作。",
-      "一个适合日常维护的定期提醒。",
+      "帮助生活继续运转的重复检查。",
+      "到时间就回来看看的日常。",
+      "值得定期完成的事项。",
+      "让节奏保持稳定的小动作。",
+      "适合日常维护的定期提醒。",
     ],
   },
   pinnedMemories: {

@@ -68,12 +68,12 @@ Fields:
 
 - title
 - optional description
-- recurrence rule
-- recurrence preview
 - fixed day interval only when the fixed-days option is selected
-- preferred time
 - first start date
 - end date
+- preferred time
+- repeat rule
+- recurrence preview
 
 The save flow is blocking:
 

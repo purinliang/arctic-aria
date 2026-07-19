@@ -56,6 +56,12 @@ Feature components should receive a stable message object for their feature.
 Shared UI components should stay mostly text-agnostic; callers pass labels,
 descriptions, aria labels, button text, and empty states into them.
 
+Placeholder, default-description, and empty-state copy should read naturally in
+the target language. Do not force Simplified Chinese hint text to mirror English
+sentence structure when a more idiomatic Chinese phrase is clearer. Functional
+labels, validation errors, and result messages should still preserve the same
+meaning across languages.
+
 For complex formatted user-facing text, prefer one complete format string with
 named placeholders instead of composing the sentence from prefix and suffix
 fragments. This gives each language control over word order, punctuation, and
