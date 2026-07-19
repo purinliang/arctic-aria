@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import { secondaryTextColorClass } from "@/components/color";
 import type { SettingsMessages } from "@/messages/app-messages";
+import { discordBindingCodeExpiryMinutes } from "../discord-binding-config";
+import { discordBindingRowClass } from "./discord-binding-layout";
 
 export function DiscordBindingCodeStatus({
   action,
@@ -41,7 +43,7 @@ export function DiscordBindingCodeStatus({
   }, []);
 
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+    <div className={discordBindingRowClass}>
       <p className={`min-w-0 max-w-full text-sm leading-6 ${secondaryTextColorClass}`}>
         <span className="inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1">
           <span>{messages.discord.bindInstructionPrefix}</span>
@@ -50,9 +52,12 @@ export function DiscordBindingCodeStatus({
           </code>
           <span>{messages.discord.bindInstructionSuffix}</span>
           {expired ? (
-            <span className={versionMismatchClass(darkMode)}>
-              {messages.discord.expired}
-            </span>
+            <>
+              <span>{messages.discord.bindInstructionExpiredSeparator}</span>
+              <span className={versionMismatchClass(darkMode)}>
+                {messages.discord.expired}
+              </span>
+            </>
           ) : remainingText ? (
             <span>{remainingText}</span>
           ) : null}
@@ -85,8 +90,13 @@ function formatBindingCodeRemaining(
     return null;
   }
 
+  const remainingMinutes = Math.ceil((expiresAt - currentTime) / 60_000);
+
   return messages.discord.expiresIn(
-    Math.max(1, Math.ceil((expiresAt - currentTime) / 60_000)),
+    Math.min(
+      discordBindingCodeExpiryMinutes,
+      Math.max(1, remainingMinutes),
+    ),
   );
 }
 

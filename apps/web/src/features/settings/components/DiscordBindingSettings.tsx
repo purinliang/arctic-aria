@@ -21,6 +21,7 @@ import {
   sendDiscordTestMessage,
   unbindDiscordAccount,
 } from "../actions";
+import { discordBindingRowClass } from "./discord-binding-layout";
 
 type DiscordBindingView = {
   discordUserId: string;
@@ -299,7 +300,7 @@ export function DiscordBindingSettings({
             />
           ) : (
             !pendingBindingCode ? (
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className={discordBindingRowClass}>
                 <DescriptionText darkMode={darkMode} className="shrink-0">
                   {discordStatusText}
                 </DescriptionText>

@@ -3,8 +3,7 @@ import {
   createDiscordBindingCodeValue,
   hashDiscordBindingCode,
 } from "./discord-binding-code.ts";
-
-const codeExpiryMinutes = 15;
+import { discordBindingCodeExpiryMinutes } from "../discord-binding-config.ts";
 
 export type DiscordBindingView = {
   discordUserId: string;
@@ -73,7 +72,9 @@ export function createDiscordBindingService(
     ): Promise<DiscordBindingActionResult> {
       const codeValue = createDiscordBindingCodeValue();
       const now = new Date();
-      const expiresAt = new Date(now.getTime() + codeExpiryMinutes * 60 * 1000);
+      const expiresAt = new Date(
+        now.getTime() + discordBindingCodeExpiryMinutes * 60 * 1000,
+      );
 
       try {
         await repository.createBindingCode({

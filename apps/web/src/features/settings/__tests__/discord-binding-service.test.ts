@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createDiscordBindingService } from "../server/discord-binding-service.ts";
+import { discordBindingCodeExpiryMinutes } from "../discord-binding-config.ts";
 
 test("discord binding service creates binding codes that expire after 15 minutes", async () => {
   const repository = createRepositoryStub();
@@ -16,7 +17,7 @@ test("discord binding service creates binding codes that expire after 15 minutes
   assert.ok(createdCode.codeHash);
   assert.equal(
     createdCode.expiresAt.getTime() - createdCode.createdAt.getTime(),
-    15 * 60 * 1000,
+    discordBindingCodeExpiryMinutes * 60 * 1000,
   );
 });
 

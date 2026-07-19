@@ -119,6 +119,7 @@ const englishMessages = {
     appInformationTitle: "About",
     discord: {
       bind: "Bind",
+      bindInstructionExpiredSeparator: ".",
       bindInstructionPrefix: "Send ",
       bindInstructionSuffix: " to Arctic Aria in Discord",
       bound: "Bound account.",
@@ -314,6 +315,7 @@ const simplifiedChineseMessages: AppMessages = {
     appInformationTitle: "关于",
     discord: {
       bind: "绑定",
+      bindInstructionExpiredSeparator: "。",
       bindInstructionPrefix: "在 Discord 中向 Arctic Aria 发送 ",
       bindInstructionSuffix: "",
       bound: "已绑定账户。",
