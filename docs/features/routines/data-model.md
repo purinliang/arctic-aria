@@ -20,6 +20,7 @@ Backend validation should check:
 - monthly rules derive day of month from first start date
 - fixed day interval values are positive integers when used
 - preferred time uses `HH:mm` when provided
+- timezone is a valid IANA timezone when a routine is saved
 
 Database constraints should protect:
 
@@ -31,6 +32,7 @@ Database constraints should protect:
 - end date not before first start date
 - positive interval values when present
 - valid day-of-month range when present
+- timezone is present as a non-empty text value
 
 Do not rely on read-before-insert checks alone for routine instance generation.
 The unique schedule index must protect concurrent generation of the same
@@ -107,6 +109,9 @@ Current database protection:
 - `interval_value` is null or positive.
 - `day_of_month` is null or 1-31.
 - `routine_id` is unique so each routine has one rule.
+- `timezone` stores an IANA timezone such as `Australia/Melbourne`, not a fixed
+  UTC offset. This allows future reminder code to handle daylight-saving
+  changes. Dates remain plain date keys for now.
 
 ## `routine_instances`
 
