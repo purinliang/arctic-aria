@@ -93,7 +93,6 @@ Fields:
 - first start date
 - end date
 - preferred time
-- timezone, only when `Use multiple timezones` is enabled in Settings
 - repeat rule
 - recurrence preview
 
@@ -119,12 +118,13 @@ The first start date and end date should be enough for most schedules. Keep the
 visible field labels short; do not append technical qualifiers such as
 `optional` or `inclusive` to routine field labels.
 
-Most routines use the user's Settings timezone automatically. When the Settings
-`Use multiple timezones` option is enabled, the routine editor shows a timezone
-selector near the preferred-time field. This is for overseas meetings or
-routines coordinated with people in another timezone. The selector should use
-IANA timezone names from the platform instead of a hand-translated timezone
-catalog. Routine dates remain plain dates for now.
+Most routines use the browser/system timezone automatically. The
+routine-specific timezone selector is hidden in the current UI because the
+broader timezone workflow is not ready for release. When this feature is
+re-enabled, it should support overseas meetings or routines coordinated with
+people in another timezone and should use IANA timezone names from the platform
+instead of a hand-translated timezone catalog. Routine dates remain plain dates
+for now.
 
 After the repeat-rule control, show a short preview of the next generated dates
 when the first start date is valid. The preview should show the first three

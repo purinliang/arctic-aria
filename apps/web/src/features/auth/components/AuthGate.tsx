@@ -73,12 +73,9 @@ export function AuthGate() {
     darkMode,
     applyUserPreferences,
     languagePreference,
-    multipleTimezonesEnabled,
     resolvedLanguage,
-    resolvedTimeZone,
     themePreference,
     timeFormatPreference,
-    timeZonePreference,
   } = useAppPreferences();
   const messages = getAppMessages(resolvedLanguage);
   const {
@@ -206,29 +203,20 @@ export function AuthGate() {
         browserTimeZone={browserDefaults.timeZone}
         darkMode={darkMode}
         languagePreference={languagePreference}
-        multipleTimezonesEnabled={multipleTimezonesEnabled}
         resolvedLanguage={resolvedLanguage}
-        resolvedTimeZone={resolvedTimeZone}
         messages={messages}
         themePreference={themePreference}
-        timeZonePreference={timeZonePreference}
         versionStatus={versionStatus}
         logoutPending={logoutPending}
         notifications={notifications}
         onLanguagePreferenceChange={(nextPreference) =>
           updateUserPreferences({ languagePreference: nextPreference })
         }
-        onMultipleTimezonesEnabledChange={(nextEnabled) =>
-          updateUserPreferences({ multipleTimezonesEnabled: nextEnabled })
-        }
         onThemePreferenceChange={(nextPreference) =>
           updateUserPreferences({ themePreference: nextPreference })
         }
         onTimeFormatPreferenceChange={(nextPreference) =>
           updateUserPreferences({ timeFormatPreference: nextPreference })
-        }
-        onTimeZonePreferenceChange={(nextPreference) =>
-          updateUserPreferences({ timeZonePreference: nextPreference })
         }
         timeFormatPreference={timeFormatPreference}
         onLogout={() => void handleLogout()}
@@ -279,10 +267,10 @@ export function AuthGate() {
   function updateUserPreferences(input: Partial<UserPreferences>) {
     const nextPreferences = normalizeUserPreferences({
       languagePreference,
-      multipleTimezonesEnabled,
+      multipleTimezonesEnabled: false,
       themePreference,
       timeFormatPreference,
-      timeZonePreference,
+      timeZonePreference: "system",
       ...input,
     });
 

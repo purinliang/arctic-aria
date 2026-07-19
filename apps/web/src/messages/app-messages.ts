@@ -194,6 +194,8 @@ const englishMessages = {
       preferencesSaveFailed: "Settings not saved",
     },
     results: {
+      settings_timezone_preferences_disabled:
+        "Timezone preferences are not available yet.",
       settings_preferences_unavailable: "Settings are unavailable.",
       settings_preferences_save_failed: "Settings could not be saved.",
       settings_unauthorized: "Sign in before changing settings.",
@@ -397,6 +399,7 @@ const simplifiedChineseMessages: AppMessages = {
       preferencesSaveFailed: "设置未保存",
     },
     results: {
+      settings_timezone_preferences_disabled: "时区偏好暂不可用。",
       settings_preferences_unavailable: "设置暂不可用。",
       settings_preferences_save_failed: "设置无法保存。",
       settings_unauthorized: "请先登录再更改设置。",
