@@ -3,11 +3,7 @@
 // Settings Page - Discord Binding Code Status.
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
-import {
-  panelHoverContainerColorClass,
-  secondaryTextColorClass,
-  secondaryButtonBorderColorClass,
-} from "@/components/color";
+import { secondaryTextColorClass } from "@/components/color";
 import type { SettingsMessages } from "@/messages/app-messages";
 
 export function DiscordBindingCodeStatus({
@@ -17,7 +13,6 @@ export function DiscordBindingCodeStatus({
   expiresAt,
   messages,
   onCancel,
-  onCheckAgain,
 }: {
   action: "bind" | "cancel" | "load" | "unbind" | null;
   code: string;
@@ -25,7 +20,6 @@ export function DiscordBindingCodeStatus({
   expiresAt: string;
   messages: SettingsMessages;
   onCancel: () => void;
-  onCheckAgain: () => void;
 }) {
   const [currentTime, setCurrentTime] = useState<number | null>(null);
   const expired = isBindingCodeExpired(expiresAt, currentTime);
@@ -47,42 +41,31 @@ export function DiscordBindingCodeStatus({
   }, []);
 
   return (
-    <div
-      className={`mt-3 rounded-md border px-3 py-3 ${panelHoverContainerColorClass}`}
-    >
-      <p className="text-sm font-semibold tracking-[0.08em]">{code}</p>
-      <p className={`mt-2 text-xs leading-5 ${secondaryTextColorClass}`}>
-        {messages.discord.bindInstruction}
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+      <p className={`min-w-0 max-w-full text-sm leading-6 ${secondaryTextColorClass}`}>
+        <span className="inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1">
+          <span>{messages.discord.bindInstructionPrefix}</span>
+          <code className="whitespace-nowrap rounded border border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-header-bg)] px-1.5 py-0.5 font-mono text-xs font-semibold text-[var(--aa-primary-text)]">
+            /bind code:{code}
+          </code>
+          <span>{messages.discord.bindInstructionSuffix}</span>
+          {expired ? (
+            <span className={versionMismatchClass(darkMode)}>
+              {messages.discord.expired}
+            </span>
+          ) : remainingText ? (
+            <span>{remainingText}</span>
+          ) : null}
+        </span>
       </p>
-      {expired ? (
-        <p className={`text-xs leading-5 ${versionMismatchClass(darkMode)}`}>
-          {messages.discord.expired}
-        </p>
-      ) : remainingText ? (
-        <p className={`text-xs leading-5 ${secondaryTextColorClass}`}>
-          {remainingText}
-        </p>
-      ) : null}
-      <div
-        className={`mt-3 flex flex-wrap gap-2 border-t pt-3 ${secondaryButtonBorderColorClass}`}
+      <Button
+        darkMode={darkMode}
+        disabled={action !== null && action !== "cancel"}
+        loading={action === "cancel"}
+        onClick={onCancel}
       >
-        <Button
-          darkMode={darkMode}
-          disabled={action !== null && action !== "load"}
-          loading={action === "load"}
-          onClick={onCheckAgain}
-        >
-          {messages.discord.checkAgain}
-        </Button>
-        <Button
-          darkMode={darkMode}
-          disabled={action !== null && action !== "cancel"}
-          loading={action === "cancel"}
-          onClick={onCancel}
-        >
-          {messages.discord.cancel}
-        </Button>
-      </div>
+        {messages.discord.cancel}
+      </Button>
     </div>
   );
 }

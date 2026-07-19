@@ -298,27 +298,29 @@ export function DiscordBindingSettings({
               onUnbind={() => setConfirmUnbindOpen(true)}
             />
           ) : (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <DescriptionText darkMode={darkMode} className="shrink-0">
-                {discordStatusText}
-              </DescriptionText>
-              {discordLoading ? null : bindingStatusFailed && !pendingBindingCode ? (
-                <CheckAgainButton
-                  darkMode={darkMode}
-                  loading={discordAction === "load"}
-                  label={messages.discord.checkAgain}
-                  onClick={handleCheckAgain}
-                />
-              ) : !pendingBindingCode ? (
-                <BindButton
-                  darkMode={darkMode}
-                  disabled={discordLoading}
-                  loading={discordAction === "bind"}
-                  label={messages.discord.bind}
-                  onClick={handleCreateCode}
-                />
-              ) : null}
-            </div>
+            !pendingBindingCode ? (
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <DescriptionText darkMode={darkMode} className="shrink-0">
+                  {discordStatusText}
+                </DescriptionText>
+                {discordLoading ? null : bindingStatusFailed ? (
+                  <CheckAgainButton
+                    darkMode={darkMode}
+                    loading={discordAction === "load"}
+                    label={messages.discord.checkAgain}
+                    onClick={handleCheckAgain}
+                  />
+                ) : (
+                  <BindButton
+                    darkMode={darkMode}
+                    disabled={discordLoading}
+                    loading={discordAction === "bind"}
+                    label={messages.discord.bind}
+                    onClick={handleCreateCode}
+                  />
+                )}
+              </div>
+            ) : null
           )}
           {pendingBindingCode ? (
             <DiscordBindingCodeStatus
@@ -328,7 +330,6 @@ export function DiscordBindingSettings({
               expiresAt={pendingBindingCode.expiresAt}
               messages={messages}
               onCancel={handleCancelCode}
-              onCheckAgain={handleCheckAgain}
             />
           ) : null}
         </div>

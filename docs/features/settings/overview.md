@@ -100,24 +100,40 @@ Unbound state:
 - show `Checking binding status...` while the initial status load is pending
 - show `Binding status unavailable.` and a `Check Again` action if the status
   check fails
-- show `No bound account.` after loading when no active binding exists
+- show `No bound account.` after loading when no active binding exists and no
+  binding code is pending
 - show a secondary `Bind` button
+- use the same normal list-row and button rhythm as the checking and pending
+  code states
 
 Pending code state:
 
-- show the one-time code
-- show relative expiry text such as `Expires in 15 minutes.`
+- show the one-time code as part of the exact Discord slash command
+- show a single instruction sentence such as `Send /bind code:R8A3-Y6LL-KV3Q
+  to Arctic Aria in Discord in 15 minutes.`
 - show `Expired` in red when the code expires
-- show instructions: run `/bind code:<code>` in Discord
-- show `Check Again` and `Cancel` actions below the account binding setting
+- show the exact Discord slash command in monospace inline command style, such
+  as `/bind code:R8A3-Y6LL-KV3Q`
+- show only `Cancel` immediately after the instruction when width allows; do
+  not push it to the far right and do not show a normal `Check Again` action
+  for pending codes
+- use the same normal list-row and button rhythm as the checking and unbound
+  states
+- successful `/bind` completion should update the open web app through a future
+  server notification/event-bus channel and show a web notification; do not
+  depend on the user manually checking again as the normal success path
 
 Bound state:
 
-- show `Bound Account ID` as a disabled password-style input field
-- show an icon-only view/hide button inside the input field
+- show `Bound account.` as normal status text
+- show the bound Discord account id as read-only masked text, not a disabled
+  password input
+- show an icon-only view/hide button inside the masked text
 - show `Send Test` to send a simple Discord DM directly from the web server to
   the bound Discord account
-- show `Unbind` in the same horizontal row as the input when width allows
+- show `Unbind` in the same horizontal row when width allows
+- use the same normal list-row and button rhythm as checking, unbound, and
+  pending code states
 
 Unbind:
 
@@ -148,9 +164,9 @@ Current implementation:
   same server-side delivery logic used by outbound Discord messages.
 - The Discord integration implements `/bind code:<code>` and consumes those
   codes.
-- The UI does not yet poll automatically after the user completes `/bind` in
-  Discord; users can sign out and sign in again if they need to force a status
-  reload.
+- The UI does not yet receive server-pushed binding completion events after the
+  user completes `/bind` in Discord. The intended fix is a shared app event bus
+  or server notification channel, not a permanent manual `Check Again` button.
 
 ## Attributes
 
