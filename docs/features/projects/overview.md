@@ -46,10 +46,11 @@ The user often does not know the exact details yet, and those details will
 change after the user starts.
 
 Project objective replaces the previous separate objective and importance reason
-fields in the user-facing UI. It should prompt the user to describe what the
-project is trying to accomplish and why it matters in real life. The objective
-is optional; empty objectives render localized default copy instead of storing
-generated text.
+fields in the user-facing UI. The current database keeps one nullable
+user-facing `objective` column. The field should prompt the user to describe
+what the project is trying to accomplish and why it matters in real life. The
+objective is optional; omitted objectives render localized default copy instead
+of storing generated text.
 
 ### Milestone
 

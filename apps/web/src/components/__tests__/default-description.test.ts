@@ -27,6 +27,10 @@ test("display description uses a stable title-based fallback for empty text", ()
     displayDescription("   ", "Apply for a degree", defaults),
     defaultDescriptionForTitle("Apply for a degree", defaults),
   );
+  assert.equal(
+    displayDescription(null, "Apply for a degree", defaults),
+    defaultDescriptionForTitle("Apply for a degree", defaults),
+  );
 });
 
 test("default description returns an empty string when no defaults exist", () => {

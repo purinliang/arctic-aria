@@ -31,7 +31,7 @@ export function toDraft(routine: RoutineDefinition): RoutineInput {
   return {
     id: routine.id,
     title: routine.title,
-    description: routine.description,
+    description: routine.description ?? "",
     firstStartDate: routine.firstStartDate,
     endDate: routine.endDate ?? "",
     ruleType: routine.ruleType,

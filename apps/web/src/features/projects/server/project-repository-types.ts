@@ -18,7 +18,7 @@ export type ProjectTaskRecord = {
   milestoneId: string | null;
   milestoneTitle: string;
   title: string;
-  description: string;
+  description: string | null;
   status: ProjectTaskStatus;
   priority: ProjectPriority;
   scheduledDate: string | null;
@@ -38,7 +38,7 @@ export type ProjectMilestoneRecord = {
   userId: string;
   projectId: string;
   title: string;
-  objective: string;
+  objective: string | null;
   status: ProjectStatus;
   sortOrder: number;
   startDate: string | null;
@@ -55,8 +55,7 @@ export type ProjectRecord = {
   id: string;
   userId: string;
   title: string;
-  objective: string;
-  importanceReason: string;
+  objective: string | null;
   status: ProjectStatus;
   priority: ProjectPriority;
   startDate: string;
@@ -75,8 +74,7 @@ export type SaveProjectInput = {
   userId: string;
   projectId?: string;
   title: string;
-  objective: string;
-  importanceReason: string;
+  objective: string | null;
   priority: ProjectPriority;
   startDate: string;
   deadlineDate: string | null;
@@ -89,7 +87,7 @@ export type SaveMilestoneInput = {
   milestoneId?: string;
   projectId: string;
   title: string;
-  objective: string;
+  objective: string | null;
   startDate: string | null;
   deadlineDate: string | null;
   expectedDurationDays: number | null;
@@ -102,7 +100,7 @@ export type SaveProjectTaskInput = {
   projectId: string;
   milestoneId: string | null;
   title: string;
-  description: string;
+  description: string | null;
   priority: ProjectPriority;
   status: ProjectTaskStatus;
   scheduledDate: string | null;

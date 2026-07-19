@@ -136,7 +136,7 @@ Save behavior:
   backend response.
 - On validation or persistence failure, keep the dialog open and show the
   backend message through the shared notification stack.
-- If the saved description is empty, routine rows show localized default
+- If the saved description is missing, routine rows show localized default
   description copy derived from the routine title. This fallback is render-only
   and is not persisted.
 

@@ -134,8 +134,7 @@ export function validateProjectInput(input: ProjectInput) {
   return {
     ok: true as const,
     title,
-    objective: description.slice(0, 500),
-    importanceReason: description,
+    objective: description ? description.slice(0, 500) : null,
     startDate: startDate.value,
     deadlineDate,
     expectedDurationDays,
@@ -213,7 +212,7 @@ export function validateMilestoneInput(input: MilestoneInput) {
   return {
     ok: true as const,
     title,
-    objective,
+    objective: objective || null,
     startDate: startDate.value,
     deadlineDate,
     expectedDurationDays,
@@ -266,7 +265,7 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
     ok: true as const,
     milestoneId,
     title,
-    description,
+    description: description || null,
     scheduledDate,
     startDate,
     deadlineDate,

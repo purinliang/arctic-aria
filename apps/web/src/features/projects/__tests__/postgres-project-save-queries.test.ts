@@ -22,7 +22,6 @@ const projectInput: SaveProjectInput = {
   userId: "user-1",
   title: "Find a job",
   objective: "Land a backend role.",
-  importanceReason: "It supports the next stage.",
   priority: "high",
   startDate: "2026-07-14",
   deadlineDate: null,

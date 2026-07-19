@@ -87,7 +87,6 @@ Recommended fields:
 - `user_id`
 - `title`
 - `objective`
-- `importance_reason`
 - `status`
 - `priority`
 - `start_date`
@@ -104,7 +103,7 @@ Field rules:
 - `title` is required.
 - `objective` is optional. It describes what the project is trying to accomplish
   and why it matters to the user.
-- Empty objectives are stored as empty text. Generated default objective copy is
+- Empty objectives are stored as `NULL`. Generated default objective copy is
   render-only and must not be stored in the database.
 - `start_date` is required.
 - `deadline_date` is optional.
@@ -164,8 +163,9 @@ Field rules:
 - Milestones are optional phase boundaries.
 - A project can have zero milestones.
 - Project creation must not create a default milestone.
-- `objective` is optional. Empty milestone objectives should render localized
-  default copy without storing generated text.
+- `objective` is optional and stored as `NULL` when omitted. Empty milestone
+  objectives should render localized default copy without storing generated
+  text.
 - Tasks can exist without a milestone.
 - Milestones can be renamed, reordered, archived, and completed.
 - Milestones should stay lightweight. They are phase boundaries, not full
@@ -207,8 +207,9 @@ Recommended fields:
 Field rules:
 
 - A task belongs to exactly one project.
-- `description` is optional. Empty task descriptions should render localized
-  default copy without storing generated text.
+- `description` is optional and stored as `NULL` when omitted. Empty task
+  descriptions should render localized default copy without storing generated
+  text.
 - A task can optionally point to one milestone in the same project.
 - If `milestone_id` is null, UI metadata should omit the milestone segment.
 - A task is schedulable.
@@ -302,11 +303,10 @@ expose dependency editing.
 
 Current compatibility note:
 
-- `0005_create_projects.sql` still has `objective`, `importance_reason`, and
-  `expected_duration_days` columns.
-- The web UI treats project objective as one user-facing field and maps it
-  into the current columns until a later cleanup migration renames the storage
-  columns.
+- `0005_create_projects.sql` originally created separate `objective` and
+  `importance_reason` columns. `0019_make_description_fields_nullable.sql`
+  removes `importance_reason`; the current schema keeps one nullable
+  user-facing `objective` column.
 - The web UI treats duration as a dropdown range and maps the selected range to
   the current numeric `expected_duration_days` storage until the cleanup
   migration adds a native `duration_range` column.

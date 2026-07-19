@@ -376,9 +376,10 @@ Description/objective placeholders may use localized default description copy,
 but the selected placeholder must be stable for that dialog open. Do not derive
 the placeholder from the draft title while the user is typing.
 
-When a saved optional description/objective is empty, rows and overview panels
-may render localized fallback copy derived from a stable hash of the title. This
-fallback is display-only and must not be stored in the database.
+When a saved optional description/objective is missing, rows and overview panels
+may render localized fallback copy derived from a stable hash of the title. Blank
+submissions should be normalized to `NULL` before persistence. This fallback is
+display-only and must not be stored in the database.
 
 ## Dialog
 

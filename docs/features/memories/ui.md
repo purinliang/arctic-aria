@@ -160,7 +160,7 @@ Each memory list item should show:
   English and Chinese instead of generic `experienced` wording
 - user-created categories and unknown categories fall back to
   `experienced` / `体验`
-- if the saved description is empty, show localized default memory copy derived
+- if the saved description is missing, show localized default memory copy derived
   from the memory title; the fallback is render-only and is not persisted
 
 Memory item behavior:
@@ -201,7 +201,7 @@ Each suggestion item should show:
 - if a suggestion was never experienced, show `Never experienced` without a
   duplicate `Experienced 0 times` count
 - use the same category-specific experience wording as the Memories panel
-- if the saved description is empty, show the same localized default memory copy
+- if the saved description is missing, show the same localized default memory copy
   used by the Memories panel
 - a circular outline button on the right side, with only the Lucide `Pin` icon
   and no text

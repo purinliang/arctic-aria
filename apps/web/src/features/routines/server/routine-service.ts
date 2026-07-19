@@ -131,7 +131,7 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
       input: {
         id?: string;
         title: string;
-        description: string;
+        description: string | null;
         firstStartDate: string;
         endDate: string | null;
         rule: RoutineRuleInput;

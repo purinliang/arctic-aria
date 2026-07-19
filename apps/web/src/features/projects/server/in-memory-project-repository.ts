@@ -67,7 +67,6 @@ export class InMemoryProjectRepository implements ProjectRepository {
       Object.assign(existing, {
         title: input.title,
         objective: input.objective,
-        importanceReason: input.importanceReason,
         priority: input.priority,
         startDate: input.startDate,
         deadlineDate: input.deadlineDate,
@@ -83,7 +82,6 @@ export class InMemoryProjectRepository implements ProjectRepository {
       userId: input.userId,
       title: input.title,
       objective: input.objective,
-      importanceReason: input.importanceReason,
       status: "active",
       priority: input.priority,
       startDate: input.startDate,

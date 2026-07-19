@@ -82,7 +82,7 @@ The save flow is blocking:
 - keep the dialog open when validation or persistence fails
 
 Description placeholders are chosen from localized default routine copy when the
-dialog opens and should not change while the user types. Empty saved
+dialog opens and should not change while the user types. Missing saved
 descriptions render localized fallback copy in routine rows without storing that
 fallback in the database.
 

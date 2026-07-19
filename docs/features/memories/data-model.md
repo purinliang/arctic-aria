@@ -73,8 +73,8 @@ Current implementation note:
 - User-created categories should keep user-authored names as-is and should not
   be auto-translated by the database or backend.
 - User-created category descriptions are optional. Empty custom category
-  descriptions render localized fallback copy derived from the category name;
-  the fallback is not stored.
+  descriptions are stored as `NULL` and render localized fallback copy derived
+  from the category name; the fallback is not stored.
 
 Current database protection:
 
@@ -121,8 +121,9 @@ Current database protection:
 - `category_id` references `memory_categories.id`.
 - category hard delete is restricted while memories reference it.
 - `title` is required and 1-120 characters.
-- `description` is 2000 characters or fewer.
-- Empty descriptions render localized fallback copy derived from the memory
+- `description` is optional, stored as `NULL` when omitted, and 2000 characters
+  or fewer when present.
+- Missing descriptions render localized fallback copy derived from the memory
   title. The fallback is not stored in the database.
 - `done_count` is greater than or equal to `0`.
 

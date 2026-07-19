@@ -66,9 +66,9 @@ The Project detail page should show:
 `New` should open project creation.
 
 Project creation and editing should use one optional `Objective` textarea instead
-of separate objective and importance fields. While the current database still has
-`objective` and `importance_reason`, the web layer treats them as one
-user-facing objective field and renders localized fallback copy when it is empty.
+of separate objective and importance fields. The current database keeps one
+nullable `objective` column. The web layer treats it as one user-facing
+objective field and renders localized fallback copy when it is missing.
 
 Project timeline input should use a mode selection:
 

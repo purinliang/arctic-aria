@@ -11,9 +11,9 @@ export async function saveProject(sql: Sql, input: SaveProjectInput) {
   if (input.projectId) {
     const updated = (await sql.query(
       `UPDATE projects
-       SET title = $3, objective = $4, importance_reason = $5, priority = $6,
-         start_date = $7, deadline_date = $8, expected_duration_days = $9,
-         updated_at = $10
+       SET title = $3, objective = $4, priority = $5,
+         start_date = $6, deadline_date = $7, expected_duration_days = $8,
+         updated_at = $9
        WHERE user_id = $1 AND id = $2 AND status != 'archived'
        RETURNING id`,
       projectParams(input),
@@ -24,10 +24,10 @@ export async function saveProject(sql: Sql, input: SaveProjectInput) {
 
   const inserted = (await sql.query(
     `INSERT INTO projects (
-       user_id, title, objective, importance_reason, priority, start_date,
+       user_id, title, objective, priority, start_date,
        deadline_date, expected_duration_days, created_at, updated_at
      )
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)
      RETURNING id`,
     createProjectParams(input),
   )) as Array<{ id: string }>;
@@ -104,7 +104,6 @@ function projectParams(input: SaveProjectInput) {
     input.projectId ?? null,
     input.title,
     input.objective,
-    input.importanceReason,
     input.priority,
     input.startDate,
     input.deadlineDate,
@@ -118,7 +117,6 @@ function createProjectParams(input: SaveProjectInput) {
     input.userId,
     input.title,
     input.objective,
-    input.importanceReason,
     input.priority,
     input.startDate,
     input.deadlineDate,

@@ -11,8 +11,7 @@ export type ProjectRow = {
   id: string;
   user_id: string;
   title: string;
-  objective: string;
-  importance_reason: string;
+  objective: string | null;
   status: ProjectStatus;
   priority: ProjectPriority;
   start_date: Date | string;
@@ -30,7 +29,7 @@ export type MilestoneRow = {
   user_id: string;
   project_id: string;
   title: string;
-  objective: string;
+  objective: string | null;
   status: ProjectStatus;
   sort_order: number;
   start_date: Date | string | null;
@@ -50,7 +49,7 @@ export type ProjectTaskRow = {
   milestone_id: string | null;
   milestone_title: string | null;
   title: string;
-  description: string;
+  description: string | null;
   status: ProjectTaskStatus;
   priority: ProjectPriority;
   scheduled_date: Date | string | null;
@@ -98,7 +97,6 @@ export function mapProject(row: ProjectRow): ProjectRecord {
     userId: row.user_id,
     title: row.title,
     objective: row.objective,
-    importanceReason: row.importance_reason,
     status: row.status,
     priority: row.priority,
     startDate: toDateString(row.start_date) ?? "",

@@ -24,7 +24,7 @@ export type RoutineRecord = {
   id: string;
   userId: string;
   title: string;
-  description: string;
+  description: string | null;
   status: RoutineStatus;
   firstStartDate: string;
   endDate: string | null;
@@ -38,7 +38,7 @@ export type RoutineInstanceRecord = {
   userId: string;
   routineId: string;
   title: string;
-  description: string;
+  description: string | null;
   scheduledDate: string;
   scheduledTime: string | null;
   status: RoutineInstanceStatus;
@@ -61,7 +61,7 @@ export type SaveRoutineInput = {
   userId: string;
   routineId?: string;
   title: string;
-  description: string;
+  description: string | null;
   firstStartDate: string;
   endDate: string | null;
   rule: RoutineRuleInput;

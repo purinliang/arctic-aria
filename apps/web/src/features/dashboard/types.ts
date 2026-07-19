@@ -20,7 +20,7 @@ export type Task = {
   id: string;
   projectId: string;
   title: string;
-  description: string;
+  description: string | null;
   projectLabel: string;
   milestoneLabel: string;
   deadline: string;
@@ -38,7 +38,7 @@ export type Routine = {
   id: string;
   routineId: string;
   title: string;
-  description: string;
+  description: string | null;
   scheduledTime: string;
   status: RoutineStatus;
   reminderState: RoutineReminderState;
@@ -55,7 +55,7 @@ export type RoutineRuleType =
 export type RoutineDefinition = {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   status: "active" | "deleted";
   firstStartDate: string;
   endDate: string | null;
@@ -86,7 +86,7 @@ export type PinnedMemory = {
   category: MemoryCategory;
   categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
   title: string;
-  description: string;
+  description: string | null;
   position: number;
   status: PinnedMemoryStatus;
 };
@@ -97,7 +97,7 @@ export type MemoryRecord = {
   category: MemoryCategory;
   categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
   title: string;
-  description: string;
+  description: string | null;
   lastDoneDate: string;
   lastDoneText: string;
   doneCount: number;
@@ -109,7 +109,7 @@ export type MemorySuggestion = {
   category: MemoryCategory;
   categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
   title: string;
-  description: string;
+  description: string | null;
   lastDoneDate: string;
   lastDoneText: string;
   doneCount: number;
@@ -118,7 +118,7 @@ export type MemorySuggestion = {
 export type MemoryCategoryOption = {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   builtInKey: BuiltInMemoryCategoryKey | null;
   iconName: string;
   shownOnDashboard: boolean;

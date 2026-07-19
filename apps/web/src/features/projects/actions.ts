@@ -142,7 +142,6 @@ export async function saveProject(
       projectId: input.id,
       title: validation.title,
       objective: validation.objective,
-      importanceReason: validation.importanceReason,
       priority: input.priority,
       startDate: validation.startDate,
       deadlineDate: validation.deadlineDate,

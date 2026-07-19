@@ -1,9 +1,9 @@
 export function displayDescription(
-  description: string,
+  description: string | null | undefined,
   title: string,
   defaults: readonly string[],
 ) {
-  const savedDescription = description.trim();
+  const savedDescription = description?.trim() ?? "";
 
   if (savedDescription) {
     return savedDescription;

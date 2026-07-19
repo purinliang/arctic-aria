@@ -7,8 +7,8 @@ import type {
 import {
   hasMemoryCategorySelection,
   resolveMemoryCategoryId,
-} from "./memory-input";
-import { memoryService } from "./server/memory-service";
+} from "./memory-input.ts";
+import { memoryService } from "./server/memory-service.ts";
 import type {
   DashboardPinnedMemory,
   MemorySuggestionRecord,
@@ -116,7 +116,7 @@ export function validateCategoryInput(input: MemoryCategoryInput) {
     };
   }
 
-  return { ok: true as const, name, description };
+  return { ok: true as const, name, description: description || null };
 }
 
 export function validateMemoryInput(input: MemoryInput) {
@@ -147,7 +147,7 @@ export function validateMemoryInput(input: MemoryInput) {
     };
   }
 
-  return { ok: true as const, title, description };
+  return { ok: true as const, title, description: description || null };
 }
 
 export function resolveMemoryInputCategory(

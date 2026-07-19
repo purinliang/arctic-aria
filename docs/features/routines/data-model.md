@@ -65,7 +65,7 @@ Current fields:
 Field rules:
 
 - `title` is required.
-- `description` is optional and stored as empty text when omitted.
+- `description` is optional and stored as `NULL` when omitted.
 - Generated default description copy is render-only and must not be stored in
   the database.
 

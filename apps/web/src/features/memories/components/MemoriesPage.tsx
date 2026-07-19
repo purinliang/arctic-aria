@@ -149,7 +149,7 @@ export function MemoriesPage({
       categoryId: memory.categoryId,
       categoryName: memory.category,
       title: memory.title,
-      description: memory.description,
+      description: memory.description ?? "",
     });
     setMemoryEditorOpen(true);
   }
@@ -171,7 +171,7 @@ export function MemoriesPage({
     setCategoryDraft({
       id: category.id,
       name: category.name,
-      description: category.description,
+      description: category.description ?? "",
     });
     setCategoryFormOpen(true);
   }

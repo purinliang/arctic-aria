@@ -22,7 +22,7 @@ export type MemoryCategoryRecord = {
   id: string;
   userId: string;
   name: MemoryCategoryName;
-  description: string;
+  description: string | null;
   builtInKey: BuiltInMemoryCategoryKey | null;
   iconName: string;
   shownOnDashboard: boolean;
@@ -38,7 +38,7 @@ export type MemoryRecord = {
   categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
   categoryShownOnDashboard: boolean;
   title: string;
-  description: string;
+  description: string | null;
   lastDoneAt: Date | null;
   doneCount: number;
   lastPinnedAt: Date | null;
@@ -56,7 +56,7 @@ export type PinnedMemoryRecord = {
   categoryBuiltInKey: BuiltInMemoryCategoryKey | null;
   categoryShownOnDashboard: boolean;
   title: string;
-  description: string;
+  description: string | null;
   position: number;
   pinnedAt: Date;
   lastShownAt: Date;
@@ -92,7 +92,7 @@ export type ReplacePinnedMemoryInput = {
 export type CreateMemoryCategoryInput = {
   userId: string;
   name: string;
-  description: string;
+  description: string | null;
   occurredAt: Date;
 };
 
@@ -109,7 +109,7 @@ export type CreateMemoryInput = {
   userId: string;
   categoryId: string;
   title: string;
-  description: string;
+  description: string | null;
   occurredAt: Date;
 };
 
