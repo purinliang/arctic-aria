@@ -1,9 +1,15 @@
 import { useState } from "react";
 import { defaultDescriptionForSeed } from "./default-description";
 
-export function useDefaultDescriptionPlaceholder(defaults: readonly string[]) {
+export function useDefaultDescriptionPlaceholder(
+  defaults: readonly string[],
+  seed?: string,
+) {
   const [placeholder] = useState(() =>
-    defaultDescriptionForSeed(`${Date.now()}-${Math.random()}`, defaults),
+    defaultDescriptionForSeed(
+      seed?.trim() || `${Date.now()}-${Math.random()}`,
+      defaults,
+    ),
   );
 
   return placeholder;

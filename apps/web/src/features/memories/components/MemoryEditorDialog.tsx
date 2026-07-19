@@ -51,6 +51,7 @@ export function MemoryEditorDialog({
 }) {
   const descriptionPlaceholder = useDefaultDescriptionPlaceholder(
     defaultDescriptions.memory,
+    memoryDraft.title,
   );
 
   return (

@@ -43,6 +43,7 @@ export function ProjectEditorDialog({
 }) {
   const objectivePlaceholder = useDefaultDescriptionPlaceholder(
     defaultDescriptions.project,
+    draft.title,
   );
 
   return (
@@ -129,6 +130,7 @@ export function MilestoneEditorDialog({
 }) {
   const objectivePlaceholder = useDefaultDescriptionPlaceholder(
     defaultDescriptions.milestone,
+    draft.title,
   );
 
   return (

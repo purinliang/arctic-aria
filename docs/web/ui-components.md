@@ -376,6 +376,12 @@ Description/objective placeholders may use localized default description copy,
 but the selected placeholder must be stable for that dialog open. Do not derive
 the placeholder from the draft title while the user is typing.
 
+When an edit dialog opens with an existing title and a missing saved
+description/objective, use that title as the fixed placeholder seed so the
+dialog placeholder matches the fallback copy shown in rows and overview panels.
+For new dialogs without a title, choose a stable random seed when the dialog
+opens.
+
 When a saved optional description/objective is missing, rows and overview panels
 may render localized fallback copy derived from a stable hash of the title. Blank
 submissions should be normalized to `NULL` before persistence. This fallback is

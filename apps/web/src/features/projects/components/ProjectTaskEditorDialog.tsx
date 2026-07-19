@@ -41,6 +41,7 @@ export function ProjectTaskEditorDialog({
 }) {
   const descriptionPlaceholder = useDefaultDescriptionPlaceholder(
     defaultDescriptions.task,
+    draft.title,
   );
 
   return (

@@ -39,6 +39,7 @@ export function RoutineEditorDialog({
 }) {
   const descriptionPlaceholder = useDefaultDescriptionPlaceholder(
     messages.defaultDescriptions,
+    draft.title,
   );
 
   return (

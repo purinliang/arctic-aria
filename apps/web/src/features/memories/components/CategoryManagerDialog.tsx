@@ -64,9 +64,6 @@ export function CategoryManagerDialog({
 }) {
   const customCategories = categories.filter((category) => !category.builtInKey);
   const defaultCategories = categories.filter((category) => category.builtInKey);
-  const descriptionPlaceholder = useDefaultDescriptionPlaceholder(
-    defaultDescriptions.category,
-  );
 
   return (
     <>
@@ -130,7 +127,7 @@ export function CategoryManagerDialog({
           saving={saving}
           categoryDraft={categoryDraft}
           messages={messages}
-          descriptionPlaceholder={descriptionPlaceholder}
+          defaultDescriptions={defaultDescriptions}
           setCategoryDraft={setCategoryDraft}
           onClose={onCloseForm}
           onSubmit={onSubmit}
@@ -281,7 +278,7 @@ function CategoryFormDialog({
   saving,
   categoryDraft,
   messages,
-  descriptionPlaceholder,
+  defaultDescriptions,
   setCategoryDraft,
   onClose,
   onSubmit,
@@ -292,12 +289,17 @@ function CategoryFormDialog({
   saving: boolean;
   categoryDraft: MemoryCategoryInput;
   messages: MemoryMessages["categories"];
-  descriptionPlaceholder: string;
+  defaultDescriptions: MemoryMessages["defaultDescriptions"];
   setCategoryDraft: Dispatch<SetStateAction<MemoryCategoryInput>>;
   onClose: () => void;
   onSubmit: () => void;
   onDelete?: () => void;
 }) {
+  const descriptionPlaceholder = useDefaultDescriptionPlaceholder(
+    defaultDescriptions.category,
+    categoryDraft.name,
+  );
+
   return (
     <CrudEditorDialog
       darkMode={darkMode}
