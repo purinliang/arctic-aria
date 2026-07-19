@@ -28,6 +28,8 @@ export function RoutinesPage({
   messages,
   formMessages,
   timeFormatPreference,
+  multipleTimezonesEnabled,
+  resolvedTimeZone,
   onRoutineSave,
   onRoutineDelete,
 }: {
@@ -38,11 +40,15 @@ export function RoutinesPage({
   messages: RoutineMessages;
   formMessages: FormMessages;
   timeFormatPreference: TimeFormatPreference;
+  multipleTimezonesEnabled: boolean;
+  resolvedTimeZone: string;
   onRoutineSave: (input: RoutineInput) => RoutineResult;
   onRoutineDelete: (routineId: string) => RoutineResult;
 }) {
   const [editorOpen, setEditorOpen] = useState(false);
-  const [draft, setDraft] = useState<RoutineInput>(emptyDraft);
+  const [draft, setDraft] = useState<RoutineInput>(() =>
+    emptyDraft(resolvedTimeZone),
+  );
   const [confirmationTarget, setConfirmationTarget] =
     useState<ConfirmationTarget | null>(null);
   const [dialogAction, setDialogAction] = useState<DialogAction>(null);
@@ -50,12 +56,12 @@ export function RoutinesPage({
   function closeEditor() {
     if (!pending && dialogAction === null) {
       setEditorOpen(false);
-      setDraft(emptyDraft());
+      setDraft(emptyDraft(resolvedTimeZone));
     }
   }
 
   function openNewEditor() {
-    setDraft(emptyDraft());
+    setDraft(emptyDraft(resolvedTimeZone));
     setEditorOpen(true);
   }
 
@@ -72,7 +78,7 @@ export function RoutinesPage({
 
       if (saved) {
         setEditorOpen(false);
-        setDraft(emptyDraft());
+        setDraft(emptyDraft(resolvedTimeZone));
       }
     } finally {
       setDialogAction(null);
@@ -92,7 +98,7 @@ export function RoutinesPage({
       if (deleted) {
         setConfirmationTarget(null);
         setEditorOpen(false);
-        setDraft(emptyDraft());
+        setDraft(emptyDraft(resolvedTimeZone));
       }
     } finally {
       setDialogAction(null);
@@ -131,6 +137,8 @@ export function RoutinesPage({
           messages={messages}
           formMessages={formMessages}
           timeFormatPreference={timeFormatPreference}
+          multipleTimezonesEnabled={multipleTimezonesEnabled}
+          resolvedTimeZone={resolvedTimeZone}
           onClose={closeEditor}
           onSubmit={() => void submitRoutine()}
           onDelete={() =>

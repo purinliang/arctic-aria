@@ -6,6 +6,7 @@ import {
   readThemePreference,
   resolveThemeMode,
 } from "../app-preferences.ts";
+import { resolveTimeZonePreference } from "../../features/settings/time-zones.ts";
 import {
   readLanguagePreference,
   resolveLanguage,
@@ -54,4 +55,13 @@ test("browser defaults use safe server fallback", () => {
     themeMode: "light",
     timeZone: "UTC",
   });
+});
+
+test("timezone preference resolves against browser timezone", () => {
+  assert.equal(
+    resolveTimeZonePreference("system", "Australia/Melbourne"),
+    "Australia/Melbourne",
+  );
+  assert.equal(resolveTimeZonePreference("Asia/Shanghai", "UTC"), "Asia/Shanghai");
+  assert.equal(resolveTimeZonePreference("system", "not-a-timezone"), "UTC");
 });

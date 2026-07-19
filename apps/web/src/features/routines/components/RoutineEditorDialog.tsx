@@ -6,10 +6,16 @@ import { DatePickerField } from "@/components/forms/date-picker-field";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { TimePickerField } from "@/components/forms/time-picker-field";
+import { SelectInput } from "@/components/forms/selection-field";
 import type { RoutineInput } from "@/features/routines/actions";
 import { normalizeRoutineRecurrenceDraft } from "@/features/routines/routine-recurrence";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
+import {
+  formatTimeZoneOffset,
+  selectableTimeZones,
+} from "@/features/settings/time-zones";
 import type { FormMessages, RoutineMessages } from "@/messages/app-messages";
+import { SupportingText } from "@/components/text";
 import { RoutineRecurrenceFields } from "./RoutineRecurrenceFields";
 
 export function RoutineEditorDialog({
@@ -20,6 +26,8 @@ export function RoutineEditorDialog({
   messages,
   formMessages,
   timeFormatPreference,
+  multipleTimezonesEnabled,
+  resolvedTimeZone,
   setDraft,
   onClose,
   onSubmit,
@@ -32,6 +40,8 @@ export function RoutineEditorDialog({
   messages: RoutineMessages;
   formMessages: FormMessages;
   timeFormatPreference: TimeFormatPreference;
+  multipleTimezonesEnabled: boolean;
+  resolvedTimeZone: string;
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
   onClose: () => void;
   onSubmit: () => void;
@@ -71,6 +81,8 @@ export function RoutineEditorDialog({
         messages={messages.editor}
         formMessages={formMessages}
         timeFormatPreference={timeFormatPreference}
+        multipleTimezonesEnabled={multipleTimezonesEnabled}
+        resolvedTimeZone={resolvedTimeZone}
         setDraft={setDraft}
       />
       <RecurrenceFields
@@ -168,6 +180,8 @@ function RoutineScheduleFields({
   messages,
   formMessages,
   timeFormatPreference,
+  multipleTimezonesEnabled,
+  resolvedTimeZone,
   setDraft,
 }: {
   darkMode: boolean;
@@ -176,55 +190,89 @@ function RoutineScheduleFields({
   messages: RoutineMessages["editor"];
   formMessages: FormMessages;
   timeFormatPreference: TimeFormatPreference;
+  multipleTimezonesEnabled: boolean;
+  resolvedTimeZone: string;
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
 }) {
+  const timezoneOptions = selectableTimeZones([
+    resolvedTimeZone,
+    draft.timezone ?? "",
+  ]).map((timezone) => ({
+    value: timezone,
+    label: timezone,
+    description: formatTimeZoneOffset(timezone),
+  }));
+
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
-      <FieldLabel darkMode={darkMode} label={messages.firstStartDate}>
-        <DatePickerField
-          darkMode={darkMode}
-          placeholder={messages.selectFirstDate}
-          messages={formMessages.datePicker}
-          value={draft.firstStartDate}
-          disabled={pending}
-          onChange={(firstStartDate) =>
-            setDraft((current) =>
-              normalizeRoutineRecurrenceDraft({
+    <div className="grid gap-3">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <FieldLabel darkMode={darkMode} label={messages.firstStartDate}>
+          <DatePickerField
+            darkMode={darkMode}
+            placeholder={messages.selectFirstDate}
+            messages={formMessages.datePicker}
+            value={draft.firstStartDate}
+            disabled={pending}
+            onChange={(firstStartDate) =>
+              setDraft((current) =>
+                normalizeRoutineRecurrenceDraft({
+                  ...current,
+                  firstStartDate,
+                }),
+              )
+            }
+          />
+        </FieldLabel>
+        <FieldLabel darkMode={darkMode} label={messages.endDate}>
+          <DatePickerField
+            darkMode={darkMode}
+            placeholder={messages.selectEndDate}
+            messages={formMessages.datePicker}
+            value={draft.endDate ?? ""}
+            disabled={pending}
+            onChange={(endDate) =>
+              setDraft((current) => ({ ...current, endDate }))
+            }
+          />
+        </FieldLabel>
+        <FieldLabel darkMode={darkMode} label={messages.preferredTime}>
+          <TimePickerField
+            darkMode={darkMode}
+            placeholder={messages.selectTime}
+            messages={formMessages.timePicker}
+            timeFormatPreference={timeFormatPreference}
+            value={draft.preferredTime ?? ""}
+            disabled={pending}
+            onChange={(preferredTime) =>
+              setDraft((current) => ({
                 ...current,
-                firstStartDate,
-              }),
-            )
-          }
-        />
-      </FieldLabel>
-      <FieldLabel darkMode={darkMode} label={messages.endDate}>
-        <DatePickerField
-          darkMode={darkMode}
-          placeholder={messages.selectEndDate}
-          messages={formMessages.datePicker}
-          value={draft.endDate ?? ""}
-          disabled={pending}
-          onChange={(endDate) =>
-            setDraft((current) => ({ ...current, endDate }))
-          }
-        />
-      </FieldLabel>
-      <FieldLabel darkMode={darkMode} label={messages.preferredTime}>
-        <TimePickerField
-          darkMode={darkMode}
-          placeholder={messages.selectTime}
-          messages={formMessages.timePicker}
-          timeFormatPreference={timeFormatPreference}
-          value={draft.preferredTime ?? ""}
-          disabled={pending}
-          onChange={(preferredTime) =>
-            setDraft((current) => ({
-              ...current,
-              preferredTime,
-            }))
-          }
-        />
-      </FieldLabel>
+                preferredTime,
+              }))
+            }
+          />
+        </FieldLabel>
+      </div>
+      {multipleTimezonesEnabled ? (
+        <div className="grid gap-2">
+          <FieldLabel darkMode={darkMode} label={messages.timezone}>
+            <SelectInput
+              darkMode={darkMode}
+              value={draft.timezone || resolvedTimeZone}
+              options={timezoneOptions}
+              disabled={pending}
+              onChange={(timezone) =>
+                setDraft((current) => ({
+                  ...current,
+                  timezone,
+                }))
+              }
+            />
+          </FieldLabel>
+          <SupportingText darkMode={darkMode}>
+            {messages.timezoneHint}
+          </SupportingText>
+        </div>
+      ) : null}
     </div>
   );
 }

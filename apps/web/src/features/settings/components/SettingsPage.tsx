@@ -5,13 +5,21 @@ import { Info, Settings } from "lucide-react";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import { CardHeader } from "@/components/card";
-import { SelectInput } from "@/components/forms/selection-field";
+import {
+  CheckboxField,
+  SelectInput,
+} from "@/components/forms/selection-field";
 import { FieldLabel } from "@/components/forms/input-field";
 import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { SupportingText } from "@/components/text";
 import { VersionStatusRows } from "@/components/version-status";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
+import {
+  formatTimeZoneOffset,
+  selectableTimeZones,
+  type TimeZonePreference,
+} from "@/features/settings/time-zones";
 import type {
   SettingsMessages,
   VersionStatusMessages,
@@ -25,32 +33,42 @@ import { DiscordIcon } from "./DiscordIcon";
 
 export function SettingsPage({
   currentUserId,
+  browserTimeZone,
   darkMode,
   languagePreference,
+  multipleTimezonesEnabled,
   messages,
   onLanguagePreferenceChange,
+  onMultipleTimezonesEnabledChange,
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
+  onTimeZonePreferenceChange,
   resolvedLanguage,
   showErrorNotification,
   showSuccessNotification,
   themePreference,
   timeFormatPreference,
+  timeZonePreference,
   versionMessages,
   versionStatus,
 }: {
   currentUserId: string;
+  browserTimeZone: string;
   darkMode: boolean;
   languagePreference: LanguagePreference;
+  multipleTimezonesEnabled: boolean;
   messages: SettingsMessages;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
+  onMultipleTimezonesEnabledChange: (enabled: boolean) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
+  onTimeZonePreferenceChange: (preference: TimeZonePreference) => void;
   resolvedLanguage: SupportedLanguage;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
   themePreference: ThemePreference;
   timeFormatPreference: TimeFormatPreference;
+  timeZonePreference: TimeZonePreference;
   versionMessages: VersionStatusMessages;
   versionStatus: DatabaseVersionStatus;
 }) {
@@ -68,6 +86,11 @@ export function SettingsPage({
     { value: "12h", label: messages.timeFormatOptions.twelveHour },
     { value: "24h", label: messages.timeFormatOptions.twentyFourHour },
   ];
+  const timeZoneOptions = buildTimeZoneOptions({
+    browserTimeZone,
+    messages,
+    timeZonePreference,
+  });
 
   return (
     <section className="grid gap-4">
@@ -126,6 +149,33 @@ export function SettingsPage({
               </FieldLabel>
             </div>
           </ListItem>
+          <ListItem darkMode={darkMode} className="items-start">
+            <div className="grid w-full gap-2 sm:max-w-sm">
+              <FieldLabel darkMode={darkMode} label={messages.timeZoneLabel}>
+                <SelectInput
+                  darkMode={darkMode}
+                  value={timeZonePreference}
+                  options={timeZoneOptions}
+                  onChange={(value) =>
+                    onTimeZonePreferenceChange(value as TimeZonePreference)
+                  }
+                />
+              </FieldLabel>
+            </div>
+          </ListItem>
+          <ListItem darkMode={darkMode} className="items-start">
+            <div className="w-full sm:max-w-sm">
+              <CheckboxField
+                darkMode={darkMode}
+                checked={multipleTimezonesEnabled}
+                label={messages.multipleTimezonesLabel}
+                description={messages.multipleTimezonesDescription}
+                onChange={(event) =>
+                  onMultipleTimezonesEnabledChange(event.target.checked)
+                }
+              />
+            </div>
+          </ListItem>
         </List>
       </Panel>
       <Panel darkMode={darkMode} className="min-w-0">
@@ -166,4 +216,51 @@ export function SettingsPage({
       </Panel>
     </section>
   );
+}
+
+function buildTimeZoneOptions({
+  browserTimeZone,
+  messages,
+  timeZonePreference,
+}: {
+  browserTimeZone: string;
+  messages: SettingsMessages;
+  timeZonePreference: TimeZonePreference;
+}) {
+  const options = [
+    {
+      value: "system",
+      label: messages.timeZoneOptions.system,
+      description: messages.timeZoneSystemDescription(
+        browserTimeZone,
+        formatTimeZoneOffset(browserTimeZone),
+      ),
+    },
+    ...selectableTimeZones([browserTimeZone, timeZonePreference]).map(
+      (timeZone) => ({
+        value: timeZone,
+        label: timeZone,
+        description: messages.timeZoneDescription(
+          timeZone,
+          formatTimeZoneOffset(timeZone),
+        ),
+      }),
+    ),
+  ];
+
+  if (
+    timeZonePreference !== "system" &&
+    !options.some((option) => option.value === timeZonePreference)
+  ) {
+    options.push({
+      value: timeZonePreference,
+      label: timeZonePreference,
+      description: messages.timeZoneDescription(
+        timeZonePreference,
+        formatTimeZoneOffset(timeZonePreference),
+      ),
+    });
+  }
+
+  return options;
 }

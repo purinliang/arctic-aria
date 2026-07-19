@@ -16,6 +16,8 @@ Columns:
 - `theme_preference text NOT NULL DEFAULT 'system'`
 - `language_preference text NOT NULL DEFAULT 'en'`
 - `time_format_preference text NOT NULL DEFAULT '12h'`
+- `timezone_preference text NOT NULL DEFAULT 'system'`
+- `multiple_timezones_enabled boolean NOT NULL DEFAULT false`
 - `created_at timestamptz NOT NULL DEFAULT now()`
 - `updated_at timestamptz NOT NULL DEFAULT now()`
 
@@ -24,6 +26,10 @@ Constraints:
 - `theme_preference` must be `system`, `light`, or `dark`
 - `language_preference` must be `system`, `en`, or `zh-CN`
 - `time_format_preference` must be `12h` or `24h`
+- `timezone_preference` must be `system` or a non-empty trimmed string no
+  longer than 64 characters. Backend normalization accepts only IANA timezone
+  names.
+- `multiple_timezones_enabled` must be boolean
 
 ### `discord_accounts`
 
@@ -100,8 +106,10 @@ actions.
 ## Backend Rules
 
 The backend accepts only known enum values and normalizes missing or unsupported
-values to defaults before writing. Database check constraints provide the final
-protection against unsupported values and concurrent bad writes.
+values to defaults before writing. Timezone preferences are validated with
+`Intl.DateTimeFormat` so IANA names such as `Australia/Melbourne` can handle
+daylight-saving changes. Database check constraints provide the final
+protection against malformed settings rows and concurrent bad writes.
 
 Settings reads return defaults if the row is missing, then insert the default
 row for that user. Settings writes upsert the full preference object.

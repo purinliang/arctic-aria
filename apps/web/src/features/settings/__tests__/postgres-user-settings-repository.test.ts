@@ -15,12 +15,21 @@ test("settings repository creates defaults when no row exists", async () => {
 
   assert.deepEqual(preferences, {
     languagePreference: "en",
+    multipleTimezonesEnabled: false,
     themePreference: "system",
     timeFormatPreference: "12h",
+    timeZonePreference: "system",
   });
   assert.match(records[0]?.text ?? "", /FROM user_settings/);
   assert.match(records[1]?.text ?? "", /INSERT INTO user_settings/);
-  assert.deepEqual(records[1]?.params, ["user-1", "system", "en", "12h"]);
+  assert.deepEqual(records[1]?.params, [
+    "user-1",
+    "system",
+    "en",
+    "12h",
+    "system",
+    false,
+  ]);
 });
 
 test("settings repository normalizes unsupported values before upsert", async () => {
@@ -29,11 +38,20 @@ test("settings repository normalizes unsupported values before upsert", async ()
 
   await repository.upsert("user-1", {
     languagePreference: "unsupported" as never,
+    multipleTimezonesEnabled: true,
     themePreference: "unknown" as never,
     timeFormatPreference: "unsupported" as never,
+    timeZonePreference: "not-a-timezone",
   });
 
-  assert.deepEqual(records[0]?.params, ["user-1", "system", "en", "12h"]);
+  assert.deepEqual(records[0]?.params, [
+    "user-1",
+    "system",
+    "en",
+    "12h",
+    "system",
+    true,
+  ]);
 });
 
 function createSqlStub(findRows: unknown[]) {
@@ -52,6 +70,8 @@ function createSqlStub(findRows: unknown[]) {
             theme_preference: params[1],
             language_preference: params[2],
             time_format_preference: params[3],
+            timezone_preference: params[4],
+            multiple_timezones_enabled: params[5],
           },
         ];
       }

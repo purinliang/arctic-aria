@@ -12,7 +12,7 @@ export const weekdayOptions = [
   { value: 6, label: "Sat" },
 ];
 
-export function emptyDraft(): RoutineInput {
+export function emptyDraft(timezone = "UTC"): RoutineInput {
   return {
     title: "",
     description: "",
@@ -23,7 +23,7 @@ export function emptyDraft(): RoutineInput {
     weekdays: [new Date().getDay()],
     dayOfMonth: new Date().getDate(),
     preferredTime: "",
-    timezone: "UTC",
+    timezone,
   };
 }
 

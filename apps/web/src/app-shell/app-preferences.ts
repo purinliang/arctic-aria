@@ -21,9 +21,14 @@ import type {
   TimeFormatPreference,
   UserPreferences,
 } from "../features/settings/preferences.ts";
+import {
+  readTimeZonePreference,
+  resolveTimeZonePreference,
+  type TimeZonePreference,
+} from "../features/settings/time-zones.ts";
 
 export type AppLanguage = SupportedLanguage;
-export type { ThemeMode, ThemePreference };
+export type { ThemeMode, ThemePreference, TimeZonePreference };
 export { readThemePreference };
 
 export type BrowserDefaults = {
@@ -41,6 +46,9 @@ const defaultBrowserDefaults: BrowserDefaults = {
 const themePreferenceStorageKey = "arctic-aria.theme-preference";
 const languagePreferenceStorageKey = "arctic-aria.language-preference";
 const timeFormatPreferenceStorageKey = "arctic-aria.time-format-preference";
+const timeZonePreferenceStorageKey = "arctic-aria.timezone-preference";
+const multipleTimezonesEnabledStorageKey =
+  "arctic-aria.multiple-timezones-enabled";
 const systemDarkModeQuery = "(prefers-color-scheme: dark)";
 
 export function detectBrowserLanguage(
@@ -96,6 +104,12 @@ export function useAppPreferences() {
     useState<TimeFormatPreference>(() =>
       readTimeFormatPreference(readStoredTimeFormatPreference()),
     );
+  const [timeZonePreference, setTimeZonePreferenceState] =
+    useState<TimeZonePreference>(() =>
+      readTimeZonePreference(readStoredTimeZonePreference()),
+    );
+  const [multipleTimezonesEnabled, setMultipleTimezonesEnabledState] =
+    useState<boolean>(() => readStoredMultipleTimezonesEnabled());
 
   useEffect(() => {
     const mediaQuery = window.matchMedia?.(systemDarkModeQuery);
@@ -137,15 +151,32 @@ export function useAppPreferences() {
     },
     [],
   );
+  const setTimeZonePreference = useCallback(
+    (preference: TimeZonePreference) => {
+      const normalized = readTimeZonePreference(preference);
+
+      setTimeZonePreferenceState(normalized);
+      writeStoredTimeZonePreference(normalized);
+    },
+    [],
+  );
+  const setMultipleTimezonesEnabled = useCallback((enabled: boolean) => {
+    setMultipleTimezonesEnabledState(enabled);
+    writeStoredMultipleTimezonesEnabled(enabled);
+  }, []);
   const applyUserPreferences = useCallback((preferences: UserPreferences) => {
     const normalized = normalizeUserPreferences(preferences);
 
     setThemePreferenceState(normalized.themePreference);
     setLanguagePreference(normalized.languagePreference);
     setTimeFormatPreferenceState(normalized.timeFormatPreference);
+    setTimeZonePreferenceState(normalized.timeZonePreference);
+    setMultipleTimezonesEnabledState(normalized.multipleTimezonesEnabled);
     writeStoredThemePreference(normalized.themePreference);
     writeStoredLanguagePreference(normalized.languagePreference);
     writeStoredTimeFormatPreference(normalized.timeFormatPreference);
+    writeStoredTimeZonePreference(normalized.timeZonePreference);
+    writeStoredMultipleTimezonesEnabled(normalized.multipleTimezonesEnabled);
   }, []);
 
   const resolvedThemeMode = resolveThemeMode(
@@ -156,19 +187,28 @@ export function useAppPreferences() {
     languagePreference,
     browserDefaults.language,
   );
+  const resolvedTimeZone = resolveTimeZonePreference(
+    timeZonePreference,
+    browserDefaults.timeZone,
+  );
 
   return {
     browserDefaults,
     darkMode: resolvedThemeMode === "dark",
     applyUserPreferences,
     languagePreference,
+    multipleTimezonesEnabled,
     resolvedLanguage,
     resolvedThemeMode,
+    resolvedTimeZone,
     setLanguagePreference: setLanguagePreferenceValue,
+    setMultipleTimezonesEnabled,
     setThemePreference,
     setTimeFormatPreference,
+    setTimeZonePreference,
     themePreference,
     timeFormatPreference,
+    timeZonePreference,
   };
 }
 
@@ -217,5 +257,41 @@ function writeStoredTimeFormatPreference(preference: TimeFormatPreference) {
     window.localStorage.setItem(timeFormatPreferenceStorageKey, preference);
   } catch {
     // Time display selection still works if storage is blocked.
+  }
+}
+
+function readStoredTimeZonePreference() {
+  try {
+    return window.localStorage.getItem(timeZonePreferenceStorageKey);
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredTimeZonePreference(preference: TimeZonePreference) {
+  try {
+    window.localStorage.setItem(timeZonePreferenceStorageKey, preference);
+  } catch {
+    // Timezone selection still works for the current session if storage is blocked.
+  }
+}
+
+function readStoredMultipleTimezonesEnabled() {
+  try {
+    return window.localStorage.getItem(multipleTimezonesEnabledStorageKey) ===
+      "true";
+  } catch {
+    return false;
+  }
+}
+
+function writeStoredMultipleTimezonesEnabled(enabled: boolean) {
+  try {
+    window.localStorage.setItem(
+      multipleTimezonesEnabledStorageKey,
+      enabled ? "true" : "false",
+    );
+  } catch {
+    // Multiple-timezone mode still works for the current session if storage is blocked.
   }
 }

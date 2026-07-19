@@ -8,6 +8,7 @@ import type {
   RoutineStatus,
 } from "@/features/dashboard/types";
 import { routineService } from "./server/routine-service";
+import { readResolvedTimeZone } from "@/features/settings/time-zones";
 import type {
   RoutineInstanceRecord,
   RoutineRecord,
@@ -107,15 +108,16 @@ function validateTime(value: string | null | undefined) {
 
 function normalizeRule(input: RoutineInput): RoutineRuleInput | null {
   const rule = normalizeRoutineRecurrence(input);
+  const timezone = readResolvedTimeZone(input.timezone) ?? null;
 
-  if (!rule) {
+  if (!rule || !timezone) {
     return null;
   }
 
   return {
     ...rule,
     preferredTime: input.preferredTime || null,
-    timezone: input.timezone || "UTC",
+    timezone,
   };
 }
 
@@ -162,6 +164,14 @@ function validateRoutineInput(input: RoutineInput) {
       ok: false as const,
       message: "Preferred time must use HH:MM.",
       code: "routine_preferred_time_invalid",
+    };
+  }
+
+  if (!readResolvedTimeZone(input.timezone)) {
+    return {
+      ok: false as const,
+      message: "Choose a valid timezone.",
+      code: "routine_timezone_invalid",
     };
   }
 

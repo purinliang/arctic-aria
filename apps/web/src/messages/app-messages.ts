@@ -211,6 +211,17 @@ const englishMessages = {
       twelveHour: "12-hour",
       twentyFourHour: "24-hour",
     },
+    timeZoneLabel: "Timezone",
+    timeZoneDescription: (timeZone: string, offset: string) =>
+      `${timeZone} · ${offset}`,
+    timeZoneSystemDescription: (timeZone: string, offset: string) =>
+      `Browser timezone: ${timeZone} · ${offset}`,
+    timeZoneOptions: {
+      system: "Use system setting",
+    },
+    multipleTimezonesLabel: "Use multiple timezones",
+    multipleTimezonesDescription:
+      "For overseas meetings or routines coordinated with people in another timezone.",
     title: "Settings",
   },
   notifications: {
@@ -403,6 +414,16 @@ const simplifiedChineseMessages: AppMessages = {
       twelveHour: "12 小时制",
       twentyFourHour: "24 小时制",
     },
+    timeZoneLabel: "时区",
+    timeZoneDescription: (timeZone, offset) => `${timeZone} · ${offset}`,
+    timeZoneSystemDescription: (timeZone, offset) =>
+      `浏览器时区：${timeZone} · ${offset}`,
+    timeZoneOptions: {
+      system: "使用系统设置",
+    },
+    multipleTimezonesLabel: "使用多个时区",
+    multipleTimezonesDescription:
+      "适合海外会议，或需要和不同时区的人一起安排的日常。",
     title: "设置",
   },
   notifications: {
