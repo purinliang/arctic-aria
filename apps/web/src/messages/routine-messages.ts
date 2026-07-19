@@ -138,7 +138,7 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     selectTime: "选择时间",
     preview: "下次",
     previewUnavailable: "选择首次开始日期后可预览重复日期。",
-    andSoOn: "之后按这个节奏继续",
+    andSoOn: "以此类推",
     save: "保存",
     saving: "正在保存",
     delete: "删除",
