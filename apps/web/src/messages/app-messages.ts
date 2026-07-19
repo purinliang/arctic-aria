@@ -331,7 +331,7 @@ const simplifiedChineseMessages: AppMessages = {
       confirmUnbindTitle: "解绑 Discord？",
       description:
         "绑定 Discord 后，Arctic Aria 可以接收你的想法并向你发送消息。",
-      expiresIn: (minutes: number) => `，${minutes} 分钟内。`,
+      expiresIn: (minutes: number) => `，请在 ${minutes} 分钟内完成。`,
       expired: "已过期",
       genericError: "Discord 设置无法更新。",
       hideAccountId: "隐藏",
