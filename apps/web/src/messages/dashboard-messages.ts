@@ -7,7 +7,7 @@ export const englishDashboardMessages = {
   projectTasks: {
     title: "Tasks",
     loading: "Loading tasks...",
-    empty: "No tasks selected for today.",
+    empty: "A clear slate for today. Choose one project task when you are ready.",
     noDescription: "No description.",
     noDeadline: "No deadline",
     deadline: (value: string) => `Deadline ${value}`,
@@ -24,7 +24,7 @@ export const englishDashboardMessages = {
   routines: {
     title: "Routines",
     loading: "Loading routines...",
-    empty: "No routines due today.",
+    empty: "No routines are due today. Keep the day light.",
     noDescription: "No description.",
     flexible: "Flexible",
     dueToday: "Due today",
@@ -88,7 +88,7 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
   projectTasks: {
     title: "任务",
     loading: "正在加载任务...",
-    empty: "今天还没有选择任务。",
+    empty: "今天暂时是空白日。准备好时，选一个项目任务开始。",
     noDescription: "暂无描述。",
     noDeadline: "无截止日期",
     deadline: (value) => `截止日期 ${value}`,
@@ -105,7 +105,7 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
   routines: {
     title: "日常",
     loading: "正在加载日常...",
-    empty: "今天没有到期的日常。",
+    empty: "今天没有到期的日常。让这一天轻一点。",
     noDescription: "暂无描述。",
     flexible: "灵活时间",
     dueToday: "今天到期",

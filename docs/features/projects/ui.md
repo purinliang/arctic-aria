@@ -412,4 +412,4 @@ Project detail page without tasks:
 
 Dashboard without tasks:
 
-`No tasks selected for today.`
+`A clear slate for today. Choose one project task when you are ready.`
