@@ -5,7 +5,7 @@ import { Card, CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
 import { CheckboxControl } from "@/components/forms/selection-field";
-import { List, ListItem } from "@/components/list";
+import { List, ListItem, ListItemContent } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { DescriptionText, LabelText, SupportingText } from "@/components/text";
 import type {
@@ -253,19 +253,24 @@ function ProjectTaskRow({
             onTaskStatus(task.id, event.target.checked ? "done" : "todo")
           }
         />
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-semibold">{task.title}</span>
-          </div>
-          <DescriptionText darkMode={darkMode} className="mt-1">
-            {task.description || messages.noDescription}
-          </DescriptionText>
-          {metadata ? (
-            <SupportingText darkMode={darkMode} className="mt-2 block">
-              {metadata}
-            </SupportingText>
-          ) : null}
-        </div>
+        <ListItemContent
+          grow={false}
+          title={
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-semibold">{task.title}</span>
+            </div>
+          }
+          main={
+            <DescriptionText darkMode={darkMode}>
+              {task.description || messages.noDescription}
+            </DescriptionText>
+          }
+          support={
+            metadata ? (
+              <SupportingText darkMode={darkMode}>{metadata}</SupportingText>
+            ) : null
+          }
+        />
         <Button
           darkMode={darkMode}
           disabled={pending}
