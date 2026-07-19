@@ -11,7 +11,7 @@ import { DescriptionText, SupportingText } from "@/components/text";
 import type { MemorySuggestion } from "@/features/dashboard/types";
 import type { MemoryMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
-import { memoryDoneMetadataSegments } from "./memory-metadata";
+import { memoryExperienceMetadataSegments } from "./memory-metadata";
 import { getMemoryCategoryLabel } from "./memory-page-helpers";
 
 type SuggestionResult = Promise<boolean>;
@@ -137,7 +137,7 @@ function SuggestionRow({
       suggestion.categoryBuiltInKey,
       categoryMessages,
     ),
-    ...memoryDoneMetadataSegments(suggestion, messages, (value, fallback) =>
+    ...memoryExperienceMetadataSegments(suggestion, messages.experience, (value, fallback) =>
       formatDate(value, dateMessages, fallback),
     ),
   ].join(" · ");

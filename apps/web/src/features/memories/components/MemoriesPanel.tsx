@@ -26,7 +26,7 @@ import type {
 import type { MemoryMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
 import { MemoryCategoryIcon } from "./MemoryCategoryIcon";
-import { memoryDoneMetadataSegments } from "./memory-metadata";
+import { memoryExperienceMetadataSegments } from "./memory-metadata";
 import {
   getMemoryCategoryLabel,
   getMemoryFilterNames,
@@ -179,7 +179,7 @@ function MemoryRow({
       categoryMessages,
     ),
     memory.pinned ? messages.pinned : "",
-    ...memoryDoneMetadataSegments(memory, messages, (value, fallback) =>
+    ...memoryExperienceMetadataSegments(memory, messages.experience, (value, fallback) =>
       formatDate(value, dateMessages, fallback),
     ),
   ]

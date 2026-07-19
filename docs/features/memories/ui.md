@@ -156,6 +156,10 @@ Each memory list item should show:
   `category · pinned · last experienced time · experienced count`
 - if a memory was never experienced, show `Never experienced` without a
   duplicate `Experienced 0 times` count
+- some built-in categories may use category-specific experience verbs in both
+  English and Chinese instead of generic `experienced` wording
+- user-created categories and unknown categories fall back to
+  `experienced` / `体验`
 
 Memory item behavior:
 
@@ -194,6 +198,7 @@ Each suggestion item should show:
   `category · last experienced time · experienced count`
 - if a suggestion was never experienced, show `Never experienced` without a
   duplicate `Experienced 0 times` count
+- use the same category-specific experience wording as the Memories panel
 - a circular outline button on the right side, with only the Lucide `Pin` icon
   and no text
 

@@ -1,3 +1,8 @@
+import {
+  englishMemoryExperienceMessages,
+  simplifiedChineseMemoryExperienceMessages,
+} from "./memory-experience-messages.ts";
+
 export const englishDashboardMessages = {
   projectTasks: {
     title: "Tasks",
@@ -27,8 +32,7 @@ export const englishDashboardMessages = {
     empty: "No pinned memories yet.",
     open: "Open memories",
     replace: (title: string) => `Replace ${title}`,
-    markDone: (title: string) => `Mark ${title} as experienced`,
-    cancelDone: (title: string) => `Cancel experience for ${title}`,
+    experience: englishMemoryExperienceMessages,
     builtInCategories: {
       cuisine: "Cuisine",
       sightseeing: "Sightseeing",
@@ -88,8 +92,7 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
     empty: "还没有置顶回忆。",
     open: "打开回忆",
     replace: (title) => `替换 ${title}`,
-    markDone: (title) => `将 ${title} 标记为已体验`,
-    cancelDone: (title) => `取消 ${title} 的体验状态`,
+    experience: simplifiedChineseMemoryExperienceMessages,
     builtInCategories: {
       cuisine: "美食",
       sightseeing: "观光",

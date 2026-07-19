@@ -10,6 +10,7 @@ import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { PinnedMemory } from "@/features/dashboard/types";
 import type { DashboardMessages } from "@/messages/app-messages";
+import { memoryExperienceActionLabels } from "./memory-metadata";
 
 export function PinnedMemoriesPanel({
   darkMode,
@@ -75,6 +76,11 @@ function PinnedMemoryRow({
   onOpen: () => void;
 }) {
   const completed = memory.status === "completed";
+  const actionLabels = memoryExperienceActionLabels(
+    memory.categoryBuiltInKey,
+    messages.experience,
+    memory.title,
+  );
 
   return (
     <ListItem darkMode={darkMode} className="items-start">
@@ -85,8 +91,8 @@ function PinnedMemoryRow({
           checked={completed}
           aria-label={
             completed
-              ? messages.cancelDone(memory.title)
-              : messages.markDone(memory.title)
+              ? actionLabels.cancelDone
+              : actionLabels.markDone
           }
           onChange={(event) =>
             event.target.checked ? onDone() : onCancelDone()

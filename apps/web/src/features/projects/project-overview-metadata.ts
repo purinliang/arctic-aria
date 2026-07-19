@@ -8,7 +8,7 @@ export type ProjectOverviewTimelineInput = {
 
 export type ProjectOverviewTimelineMessages = {
   deadline: string;
-  duration: string;
+  expectedDuration: string;
   timeline: string;
   openEnded: string;
 };
@@ -28,7 +28,7 @@ export function projectOverviewTimelineMetadata(
 
   if (project.expectedDurationDays) {
     return {
-      label: messages.duration,
+      label: messages.expectedDuration,
       value: durations[project.durationRange],
     };
   }

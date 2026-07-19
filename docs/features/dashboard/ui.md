@@ -137,6 +137,10 @@ not use a green background or strikethrough text. If the user cancels before
 cleanup, restore the active state. If the backend rejects either command, roll
 back the visible state and show the shared notification.
 
+Pinned-memory checkbox labels can use category-specific experience verbs in
+both English and Chinese when the row has a built-in category key. Custom
+categories fall back to `experienced` / `体验`.
+
 Clicking the row's outlineless right-arrow button opens the Memories page. The
 whole row is not clickable. Clicking the checkbox must not navigate.
 

@@ -63,7 +63,7 @@ export function ProjectDetailPage({
     project,
     {
       deadline: messages.deadlineLabel,
-      duration: messages.duration,
+      expectedDuration: messages.expectedDuration,
       timeline: messages.timeline,
       openEnded: timelineMessages.openEnded,
     },

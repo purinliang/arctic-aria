@@ -30,7 +30,7 @@ Backend validation should check single-row user input before persistence:
 - valid status values exposed by the current command
 - valid date strings
 - deadline not before start date
-- exactly one project timeline mode: deadline or duration
+- exactly one project timeline mode: deadline or no fixed deadline
 - milestone and task ownership before user-visible edits
 
 Database constraints should protect durable consistency:
@@ -106,8 +106,8 @@ Field rules:
 - `start_date` is required.
 - `deadline_date` is optional.
 - `duration_range` is optional.
-- A project must use exactly one timeline mode: either `deadline_date` or
-  `duration_range`.
+- A project must use exactly one timeline mode: either `deadline_date` or a no
+  fixed deadline mode represented by `duration_range`.
 - The first duration ranges are `1-3 months`, `3-6 months`, `6-12 months`, and
   `1-3 years`.
 - Do not expose free numeric duration input in the first UI.

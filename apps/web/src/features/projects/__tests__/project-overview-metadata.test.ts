@@ -5,7 +5,7 @@ import type { ProjectDurationRange } from "../project-duration.ts";
 
 const messages = {
   deadline: "Deadline",
-  duration: "Duration",
+  expectedDuration: "Expected duration",
   timeline: "Timeline",
   openEnded: "Open-ended",
 };
@@ -36,7 +36,7 @@ test("project overview timeline metadata shows deadline as the exact row type", 
   );
 });
 
-test("project overview timeline metadata shows duration without expected wording", () => {
+test("project overview timeline metadata shows expected duration as the row type", () => {
   assert.deepEqual(
     projectOverviewTimelineMetadata(
       {
@@ -49,7 +49,7 @@ test("project overview timeline metadata shows duration without expected wording
       (value) => `formatted ${value}`,
     ),
     {
-      label: "Duration",
+      label: "Expected duration",
       value: "3-6 months",
     },
   );

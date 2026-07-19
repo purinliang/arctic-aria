@@ -95,7 +95,7 @@ function toProjectView(project: ProjectRecord): ProjectView {
     timelineText: project.deadlineDate
       ? `Due ${formatDate(project.deadlineDate)}`
       : project.expectedDurationDays
-        ? `${durationLabelForDays(project.expectedDurationDays)} expected`
+        ? `Expected duration ${durationLabelForDays(project.expectedDurationDays)}`
         : "Open-ended",
     currentMilestone: activeMilestone?.title ?? "No active milestone",
     progressText: projectTaskProgressText(doneCount, tasks.length),

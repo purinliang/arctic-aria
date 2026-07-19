@@ -74,7 +74,11 @@ description field for user-facing behavior.
 Project timeline input should use a mode selection:
 
 - `Deadline`: enables a deadline date input and clears duration.
-- `Duration`: enables a duration dropdown and clears deadline.
+- `No fixed deadline`: enables an `Expected duration` dropdown and clears the
+  deadline.
+- `Start date` is independent from the timeline mode. Render it before the
+  timeline selector, then render only the end field controlled by the selected
+  mode.
 
 The first duration options are `1-3 months`, `3-6 months`, `6-12 months`, and
 `1-3 years`. The web layer maps these ranges to the current numeric
@@ -200,10 +204,10 @@ Project overview card:
 
 - card title: `Overview`
 - first row: labeled description block with label `Description`
-- metadata rows: `Start date` and either `Deadline` or `Duration`
+- metadata rows: `Start date` and either `Deadline` or `Expected duration`
 - start date value uses English display format, not raw `YYYY-MM-DD`
 - deadline-mode projects show only the formatted deadline date
-- duration-mode projects show only the selected duration range
+- no-fixed-deadline projects show only the selected expected-duration range
 - reserve `Timeline` for legacy/open-ended fallback data only
 - do not repeat the project title inside this card because the page title
   already shows it
@@ -275,8 +279,11 @@ Project field order:
 - `Title` text input
 - `Description` textarea with neutral placeholder copy, such as
   `Describe the goal, context, and why it matters.`
-- `Timeline` segmented buttons: `Deadline`, `Duration`
-- date/duration fields: two columns on desktop, stacked on mobile
+- `Start date` date picker
+- `Timeline` segmented buttons: `Deadline`, `No fixed deadline`
+- conditional end field below the timeline selector: `Deadline` date picker
+  when deadline mode is selected, or `Expected duration` dropdown when no fixed
+  deadline is selected
 Project and task priority are intentionally hidden in the first UI. Hidden
 priority values default to `medium`; do not render priority selectors.
 
@@ -285,8 +292,11 @@ overlaps:
 
 - `Title` text input
 - `Objective` textarea
-- `Timeline` segmented buttons: `Deadline`, `Duration`
-- date/duration fields: two columns on desktop, stacked on mobile
+- `Start date` date picker
+- `Timeline` segmented buttons: `Deadline`, `No fixed deadline`
+- conditional end field below the timeline selector: `Deadline` date picker
+  when deadline mode is selected, or `Expected duration` dropdown when no fixed
+  deadline is selected
 - do not use a typed `Duration days` number field in the milestone dialog
 
 `ProjectTaskEditorDialog` uses its own vertical dialog layout:
