@@ -70,6 +70,15 @@ size smaller. Supporting metadata should usually be a single `A · B · C` line.
 Feature rows should not hand-code label, description, or metadata font size,
 line height, or muted color.
 
+## Masked Text
+
+`masked-text.tsx` owns read-only masked text display for values that should not
+look editable, such as an external account id. Use it instead of a disabled
+password input when the user can view or hide a value but cannot edit it.
+
+Masked text should follow normal list-row height and button rhythm. It should
+not introduce form-field label spacing unless it is used inside a real form.
+
 ## Button
 
 `button.tsx` owns shared button styling.

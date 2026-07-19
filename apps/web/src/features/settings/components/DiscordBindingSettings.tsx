@@ -330,7 +330,6 @@ export function DiscordBindingSettings({
               expiresAt={pendingBindingCode.expiresAt}
               messages={messages}
               onCancel={handleCancelCode}
-              onCheckAgain={handleCheckAgain}
             />
           ) : null}
         </div>
