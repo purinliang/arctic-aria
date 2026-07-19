@@ -4,14 +4,12 @@ export const defaultTimeZonePreference: TimeZonePreference = "system";
 export const defaultResolvedTimeZone = "UTC";
 
 const fallbackTimeZones = [
-  "UTC",
-  "Australia/Melbourne",
   "Australia/Sydney",
+  "Australia/Melbourne",
+  "Australia/Brisbane",
+  "Australia/Perth",
+  "Australia/Adelaide",
   "Asia/Shanghai",
-  "Asia/Tokyo",
-  "Europe/London",
-  "America/New_York",
-  "America/Los_Angeles",
 ];
 
 type IntlWithSupportedValues = typeof Intl & {
