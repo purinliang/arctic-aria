@@ -31,7 +31,7 @@ export function ProjectTasksPanel({
   dateMessages: DatePickerMessages;
   onTaskStatus: (
     taskId: string,
-    status: Exclude<TaskStatus, "archived">,
+    status: TaskStatus,
   ) => void;
   onTaskOpen: (projectId: string) => void;
 }) {
@@ -78,7 +78,7 @@ function ProjectTaskRow({
   darkMode: boolean;
   messages: DashboardMessages["projectTasks"];
   dateMessages: DatePickerMessages;
-  onTaskStatus: (status: Exclude<TaskStatus, "archived">) => void;
+  onTaskStatus: (status: TaskStatus) => void;
   onOpen: () => void;
 }) {
   const metadata = [

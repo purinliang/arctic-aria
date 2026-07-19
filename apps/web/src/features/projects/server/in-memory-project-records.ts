@@ -5,13 +5,13 @@ import type {
 
 export function cloneProject(project: ProjectRecord): ProjectRecord {
   const milestones = project.milestones.filter(
-    (milestone) => milestone.status !== "archived",
+    (milestone) => milestone.deletedAt === null,
   );
   const visibleMilestoneIds = new Set(
     milestones.map((milestone) => milestone.id),
   );
   const tasks = project.tasks
-    .filter((task) => task.status !== "archived")
+    .filter((task) => task.deletedAt === null)
     .map((task) =>
       task.milestoneId && !visibleMilestoneIds.has(task.milestoneId)
         ? { ...task, milestoneId: null, milestoneTitle: "" }

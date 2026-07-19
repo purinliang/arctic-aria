@@ -72,7 +72,6 @@ function toRoutineDefinition(routine: RoutineRecord): RoutineDefinition {
     id: routine.id,
     title: routine.title,
     description: routine.description,
-    status: routine.status,
     firstStartDate: routine.firstStartDate,
     endDate: routine.endDate,
     ruleType: routine.rule.ruleType,

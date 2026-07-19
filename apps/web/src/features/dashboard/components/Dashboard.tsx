@@ -41,7 +41,7 @@ export function Dashboard({
   memoryLoading: boolean;
   onTaskStatus: (
     taskId: string,
-    status: Exclude<TaskStatus, "archived">,
+    status: TaskStatus,
   ) => void;
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
   onMemoryDone: (pinnedMemoryId: string) => void;

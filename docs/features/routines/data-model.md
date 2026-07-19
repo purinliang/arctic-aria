@@ -27,7 +27,6 @@ Database constraints should protect:
 - routine ownership through `user_id`
 - one rule per routine
 - one routine instance per routine/date/time combination
-- allowed routine statuses
 - allowed routine instance statuses
 - end date not before first start date
 - positive interval values when present
@@ -38,15 +37,23 @@ Do not rely on read-before-insert checks alone for routine instance generation.
 The unique schedule index must protect concurrent generation of the same
 routine occurrence.
 
-Deletion behavior:
+## Deletion Behavior
 
-- Current user-visible delete marks a routine as `deleted`.
-- Deleted routines are hidden from normal routine lists and dashboard rows.
-- Deleted routines are excluded from future instance generation.
-- Existing historical routine instances remain available for review/history
-  unless a future cleanup command explicitly removes them.
-- Hard delete should only be used as explicit cleanup and should remove related
-  rule and instance data intentionally.
+Routine delete actions are soft deletes.
+
+Current rules:
+
+- `routines.deleted_at` marks a routine deleted
+- normal routine lists and dashboard rows show only routines where
+  `deleted_at IS NULL`
+- deleted routines are excluded from future instance generation
+- existing historical routine instances remain available for review/history
+  unless a future cleanup command explicitly removes them
+- hard delete should only be used as explicit cleanup and should remove related
+  rule and instance data intentionally
+
+Do not add a lifecycle `status` column to `routines`. Routine instance status is
+separate and remains on `routine_instances`.
 
 ## `routines`
 
@@ -58,11 +65,11 @@ Current fields:
 - `user_id`
 - `title`
 - `description`
-- `status`
 - `first_start_date`
 - `end_date`
 - `created_at`
 - `updated_at`
+- `deleted_at`
 
 Field rules:
 
@@ -71,10 +78,9 @@ Field rules:
 - Generated default description copy is render-only and must not be stored in
   the database.
 
-Current statuses:
+Removed routine fields:
 
-- `active`
-- `deleted`
+- `status`
 
 ## `routine_rules`
 
@@ -156,3 +162,20 @@ Current routine event target:
 
 The latest state remains on `routine_instances`. Event history records what
 happened.
+
+## Migration Direction
+
+Historical migrations still show the old routine lifecycle shape:
+
+- `0003_create_routines.sql` created `routines.status`.
+- `0019_make_description_fields_nullable.sql` made routine descriptions
+  nullable.
+- `0020_add_timezone_preferences.sql` reserves user settings columns for the
+  pending timezone-preference UI.
+- `0021_database_deletion_governance.sql` adds `routines.deleted_at`, backfills
+  deleted rows from the old `status = 'deleted'` value, drops the old lifecycle
+  status column, and replaces the active-routine index.
+
+Because migration history is immutable, do not edit old migration files to
+match the current model. Add a follow-up migration when schema governance
+changes again.

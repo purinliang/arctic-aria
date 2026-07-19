@@ -6,7 +6,6 @@ import {
 import type { ProjectDurationRange } from "./project-duration";
 import type {
   ProjectMilestoneRecord,
-  ProjectPriority,
   ProjectRecord,
   ProjectTaskRecord,
   ProjectTaskStatus,
@@ -18,8 +17,6 @@ export type ProjectView = {
   id: string;
   title: string;
   description: string | null;
-  status: ProjectRecord["status"];
-  priority: ProjectPriority;
   startDate: string;
   deadlineDate: string;
   expectedDurationDays: string;
@@ -37,7 +34,6 @@ export type MilestoneView = {
   projectId: string;
   title: string;
   objective: string | null;
-  status: ProjectMilestoneRecord["status"];
   startDate: string;
   deadlineDate: string;
   expectedDurationDays: string;
@@ -77,16 +73,12 @@ export async function loadProjectDashboardData(
 function toProjectView(project: ProjectRecord): ProjectView {
   const tasks = [...project.tasks].sort(compareProjectTasks);
   const doneCount = tasks.filter((task) => task.status === "done").length;
-  const activeMilestone = project.milestones.find(
-    (milestone) => milestone.status === "active",
-  );
+  const firstMilestone = project.milestones[0];
 
   return {
     id: project.id,
     title: project.title,
     description: project.objective,
-    status: project.status,
-    priority: project.priority,
     startDate: project.startDate,
     deadlineDate: project.deadlineDate ?? "",
     expectedDurationDays: project.expectedDurationDays?.toString() ?? "",
@@ -97,7 +89,7 @@ function toProjectView(project: ProjectRecord): ProjectView {
       : project.expectedDurationDays
         ? `Expected duration ${durationLabelForDays(project.expectedDurationDays)}`
         : "Open-ended",
-    currentMilestone: activeMilestone?.title ?? "No active milestone",
+    currentMilestone: firstMilestone?.title ?? "No milestone",
     progressText: projectTaskProgressText(doneCount, tasks.length),
     tasks: tasks.map(toTaskView),
     milestones: project.milestones.map(toMilestoneView),
@@ -112,7 +104,6 @@ function toMilestoneView(milestone: ProjectMilestoneRecord): MilestoneView {
     projectId: milestone.projectId,
     title: milestone.title,
     objective: milestone.objective,
-    status: milestone.status,
     startDate: milestone.startDate ?? "",
     deadlineDate: milestone.deadlineDate ?? "",
     expectedDurationDays: milestone.expectedDurationDays?.toString() ?? "",
@@ -131,9 +122,7 @@ function toTaskView(task: ProjectTaskRecord): ProjectTaskView {
     projectLabel: task.projectTitle,
     milestoneLabel: task.milestoneTitle,
     deadline: task.deadlineDate ? formatDate(task.deadlineDate) : "No deadline",
-    priority: task.priority,
     status: task.status,
-    scheduledDate: task.scheduledDate ?? "",
     startDate: task.startDate ?? "",
     deadlineDate: task.deadlineDate ?? "",
   };

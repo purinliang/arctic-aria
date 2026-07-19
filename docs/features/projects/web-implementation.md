@@ -14,23 +14,23 @@ The current web implementation supports the first database-backed Project model:
 - add and edit milestones
 - add and edit tasks under projects, with optional milestone assignment
 - validate calendar dates before database writes
-- complete, skip, block, and reopen tasks through server actions
+- complete and reopen tasks through server actions
 - return project database failures through normal action results instead of a
   Next.js runtime overlay
-- record task completion, skip, block, unblock, and reopen events
+- record task completion and reopen events
 - show task command failure through shared notifications
 - show dashboard task rows for today's selected tasks
-- pin up to three active projects into the sidebar
+- pin up to three non-deleted projects into the sidebar
 
 The current implementation does not include:
 
 - automatic daily plan optimization
 - Discord task reminders
-- dependency graph editing
+- prerequisite/dependency design
 - AI-generated task breakdown
 - review-card finalization
 - milestone reorder UI
-- project pause, resume, complete, and archive UI
+- project pause, resume, and complete UI
 
 ## Current User Flow
 
@@ -283,9 +283,6 @@ Project field order:
 - conditional end field below the timeline selector: `Deadline` date picker
   when deadline mode is selected, or `Expected duration` dropdown when no fixed
   deadline is selected
-Project and task priority are intentionally hidden in the first UI. Hidden
-priority values default to `medium`; do not render priority selectors.
-
 Milestone field order should mirror the project editor where the data model
 overlaps:
 

@@ -92,9 +92,7 @@ const projectTasks: Task[] = [
     projectLabel: "Find a job",
     milestoneLabel: "Applications",
     deadline: "Jul 20",
-    priority: "high",
     status: "todo",
-    scheduledDate: "2026-07-14",
     startDate: "2026-07-14",
     deadlineDate: "2026-07-20",
   },
@@ -106,9 +104,7 @@ const projectTasks: Task[] = [
     projectLabel: "Find a job",
     milestoneLabel: "Applications",
     deadline: "Jul 22",
-    priority: "medium",
     status: "todo",
-    scheduledDate: "2026-07-15",
     startDate: "2026-07-15",
     deadlineDate: "2026-07-22",
   },
@@ -184,12 +180,12 @@ test("restores one failed project task without rolling back other tasks", () => 
     task.id === "task-1" ? { ...task, status: "done" as const } : task,
   );
   const unrelatedChange = updated.map((task) =>
-    task.id === "task-2" ? { ...task, status: "blocked" as const } : task,
+    task.id === "task-2" ? { ...task, status: "done" as const } : task,
   );
   const restored = restoreTaskSnapshot(unrelatedChange, projectTasks, "task-1");
 
   assert.equal(restored[0].status, "todo");
-  assert.equal(restored[1].status, "blocked");
+  assert.equal(restored[1].status, "done");
 });
 
 test("dashboard task checkbox keeps the row in its current position", () => {

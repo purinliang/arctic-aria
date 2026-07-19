@@ -151,7 +151,7 @@ export function useDashboardProjects(
 
   function updateTaskFromDashboard(
     taskId: string,
-    status: Exclude<TaskStatus, "archived">,
+    status: TaskStatus,
   ) {
     updateTaskStatusOptimistically(taskId, status, {
       removeDoneDashboardTask: false,
@@ -160,7 +160,7 @@ export function useDashboardProjects(
 
   function updateTaskFromPage(
     taskId: string,
-    status: Exclude<TaskStatus, "archived">,
+    status: TaskStatus,
   ) {
     updateTaskStatusOptimistically(taskId, status, {
       removeDoneDashboardTask: true,
@@ -169,7 +169,7 @@ export function useDashboardProjects(
 
   function updateTaskStatusOptimistically(
     taskId: string,
-    status: Exclude<TaskStatus, "archived">,
+    status: TaskStatus,
     options: { removeDoneDashboardTask: boolean },
   ) {
     let previousTasks: ProjectDashboardData["tasks"] = [];
@@ -289,7 +289,7 @@ function removePendingId(ids: string[], id: string) {
 function applyOptimisticProjectTaskStatus(
   projects: ProjectView[],
   taskId: string,
-  status: Exclude<TaskStatus, "archived">,
+  status: TaskStatus,
 ) {
   return projects.map((project) => {
     const projectTasks = project.tasks.map((task) =>

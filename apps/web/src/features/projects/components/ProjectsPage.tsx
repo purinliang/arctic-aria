@@ -79,7 +79,7 @@ export function ProjectsPage({
   onTaskDelete: (taskId: string) => ProjectResult;
   onTaskStatus: (
     taskId: string,
-    status: Exclude<TaskStatus, "archived">,
+    status: TaskStatus,
   ) => void;
   onProjectSelect: (projectId: string | null) => void;
   messages: ProjectMessages;
