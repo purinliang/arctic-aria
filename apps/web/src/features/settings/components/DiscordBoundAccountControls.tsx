@@ -32,12 +32,12 @@ export function DiscordBoundAccountControls({
       <DescriptionText darkMode={darkMode} className="shrink-0">
         {messages.discord.bound}
       </DescriptionText>
-      <span className="min-w-0 flex-1 sm:max-w-64">
+      <span className="w-full min-w-0 sm:w-96 sm:max-w-full sm:flex-none">
         <TextInput
           darkMode={darkMode}
           aria-label={messages.discord.boundAccountIdLabel}
           className="font-mono tracking-[0.04em]"
-          readOnly
+          disabled
           type={accountIdVisible ? "text" : "password"}
           value={accountId}
           trailing={
@@ -62,28 +62,32 @@ export function DiscordBoundAccountControls({
           }
         />
       </span>
-      <Button
-        darkMode={darkMode}
-        disabled={action !== null}
-        icon={action === "test" ? undefined : <Send size={14} aria-hidden="true" />}
-        loading={action === "test"}
-        loadingIcon={
-          <LoaderCircle className="animate-spin" size={14} aria-hidden="true" />
-        }
-        size="field"
-        onClick={onSendTestMessage}
-      >
-        {messages.discord.sendTest}
-      </Button>
-      <Button
-        darkMode={darkMode}
-        disabled={action !== null}
-        icon={<Unlink size={14} aria-hidden="true" />}
-        size="field"
-        onClick={onUnbind}
-      >
-        {messages.discord.unbind}
-      </Button>
+      <span className="flex shrink-0 items-center gap-2">
+        <Button
+          darkMode={darkMode}
+          disabled={action !== null}
+          icon={
+            action === "test" ? undefined : <Send size={14} aria-hidden="true" />
+          }
+          loading={action === "test"}
+          loadingIcon={
+            <LoaderCircle className="animate-spin" size={14} aria-hidden="true" />
+          }
+          size="field"
+          onClick={onSendTestMessage}
+        >
+          {messages.discord.sendTest}
+        </Button>
+        <Button
+          darkMode={darkMode}
+          disabled={action !== null}
+          icon={<Unlink size={14} aria-hidden="true" />}
+          size="field"
+          onClick={onUnbind}
+        >
+          {messages.discord.unbind}
+        </Button>
+      </span>
     </DiscordBindingRow>
   );
 }
