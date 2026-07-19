@@ -5,7 +5,7 @@ import type { SetStateAction } from "react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { ConfirmDialog } from "@/components/dialog";
-import { List, ListItem } from "@/components/list";
+import { List, ListItem, ListItemContent } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import { formatDateKey } from "@/components/forms/date-format";
@@ -218,12 +218,14 @@ function IdeaRow({
 
   return (
     <ListItem darkMode={darkMode}>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold">{idea.rawText}</p>
-        <SupportingText darkMode={darkMode} className="mt-2 block">
-          {metadata.join(" · ")}
-        </SupportingText>
-      </div>
+      <ListItemContent
+        title={<p className="text-sm font-semibold">{idea.rawText}</p>}
+        support={
+          <SupportingText darkMode={darkMode}>
+            {metadata.join(" · ")}
+          </SupportingText>
+        }
+      />
       <Button
         darkMode={darkMode}
         icon={<PenLine size={14} aria-hidden="true" />}

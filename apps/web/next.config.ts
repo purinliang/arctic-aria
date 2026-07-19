@@ -4,6 +4,17 @@ import { resolveAppMetadata } from "./scripts/app-metadata.mjs";
 const appMetadata = resolveAppMetadata(process.cwd());
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return [
+      { source: "/today", destination: "/" },
+      { source: "/projects", destination: "/" },
+      { source: "/projects/:projectId", destination: "/" },
+      { source: "/routines", destination: "/" },
+      { source: "/memories", destination: "/" },
+      { source: "/ideas", destination: "/" },
+      { source: "/settings", destination: "/" },
+    ];
+  },
   env: {
     NEXT_PUBLIC_APP_VERSION: appMetadata.version,
     NEXT_PUBLIC_APP_COMMIT: appMetadata.commit,

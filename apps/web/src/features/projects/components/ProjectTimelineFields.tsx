@@ -30,6 +30,16 @@ export function ProjectTimelineFields({
 }) {
   return (
     <>
+      <StartDateField
+        darkMode={darkMode}
+        pending={pending}
+        startDate={draft.startDate}
+        messages={messages}
+        formMessages={formMessages}
+        onStartDate={(startDate) =>
+          setDraft((current) => ({ ...current, startDate }))
+        }
+      />
       <TimelineTypeField
         darkMode={darkMode}
         pending={pending}
@@ -43,31 +53,25 @@ export function ProjectTimelineFields({
           }))
         }
       />
-      <div className="grid gap-3 sm:grid-cols-2">
-        <DateFields
-          darkMode={darkMode}
-          pending={pending}
-          timelineType={draft.timelineType}
-          startDate={draft.startDate}
-          deadlineDate={draft.deadlineDate}
-          durationRange={draft.durationRange}
-          messages={messages}
-          durationMessages={durationMessages}
-          formMessages={formMessages}
-          onStartDate={(startDate) =>
-            setDraft((current) => ({ ...current, startDate }))
-          }
-          onDeadlineDate={(deadlineDate) =>
-            setDraft((current) => ({ ...current, deadlineDate }))
-          }
-          onDurationRange={(durationRange) =>
-            setDraft((current) => ({
-              ...current,
-              durationRange: durationRange as ProjectInput["durationRange"],
-            }))
-          }
-        />
-      </div>
+      <TimelineEndField
+        darkMode={darkMode}
+        pending={pending}
+        timelineType={draft.timelineType}
+        deadlineDate={draft.deadlineDate}
+        durationRange={draft.durationRange}
+        messages={messages}
+        durationMessages={durationMessages}
+        formMessages={formMessages}
+        onDeadlineDate={(deadlineDate) =>
+          setDraft((current) => ({ ...current, deadlineDate }))
+        }
+        onDurationRange={(durationRange) =>
+          setDraft((current) => ({
+            ...current,
+            durationRange: durationRange as ProjectInput["durationRange"],
+          }))
+        }
+      />
     </>
   );
 }
@@ -91,6 +95,16 @@ export function MilestoneTimelineFields({
 }) {
   return (
     <>
+      <StartDateField
+        darkMode={darkMode}
+        pending={pending}
+        startDate={draft.startDate}
+        messages={messages}
+        formMessages={formMessages}
+        onStartDate={(startDate) =>
+          setDraft((current) => ({ ...current, startDate }))
+        }
+      />
       <TimelineTypeField
         darkMode={darkMode}
         pending={pending}
@@ -104,31 +118,25 @@ export function MilestoneTimelineFields({
           }))
         }
       />
-      <div className="grid gap-3 sm:grid-cols-2">
-        <DateFields
-          darkMode={darkMode}
-          pending={pending}
-          timelineType={draft.timelineType}
-          startDate={draft.startDate}
-          deadlineDate={draft.deadlineDate}
-          durationRange={draft.durationRange}
-          messages={messages}
-          durationMessages={durationMessages}
-          formMessages={formMessages}
-          onStartDate={(startDate) =>
-            setDraft((current) => ({ ...current, startDate }))
-          }
-          onDeadlineDate={(deadlineDate) =>
-            setDraft((current) => ({ ...current, deadlineDate }))
-          }
-          onDurationRange={(durationRange) =>
-            setDraft((current) => ({
-              ...current,
-              durationRange: durationRange as MilestoneInput["durationRange"],
-            }))
-          }
-        />
-      </div>
+      <TimelineEndField
+        darkMode={darkMode}
+        pending={pending}
+        timelineType={draft.timelineType}
+        deadlineDate={draft.deadlineDate}
+        durationRange={draft.durationRange}
+        messages={messages}
+        durationMessages={durationMessages}
+        formMessages={formMessages}
+        onDeadlineDate={(deadlineDate) =>
+          setDraft((current) => ({ ...current, deadlineDate }))
+        }
+        onDurationRange={(durationRange) =>
+          setDraft((current) => ({
+            ...current,
+            durationRange: durationRange as MilestoneInput["durationRange"],
+          }))
+        }
+      />
     </>
   );
 }
@@ -155,7 +163,7 @@ function TimelineTypeField({
         value={value}
         options={[
           { value: "deadline", label: messages.common.deadlineOption },
-          { value: "duration", label: messages.common.durationOption },
+          { value: "duration", label: messages.common.noFixedDeadlineOption },
         ]}
         onChange={onChange}
       />
@@ -163,45 +171,60 @@ function TimelineTypeField({
   );
 }
 
-function DateFields({
+function StartDateField({
+  darkMode,
+  pending,
+  startDate,
+  messages,
+  formMessages,
+  onStartDate,
+}: {
+  darkMode: boolean;
+  pending: boolean;
+  startDate: string;
+  messages: ProjectMessages["editor"];
+  formMessages: FormMessages;
+  onStartDate: (value: string) => void;
+}) {
+  return (
+    <FieldLabel darkMode={darkMode} label={messages.common.startDate}>
+      <DatePickerField
+        darkMode={darkMode}
+        value={startDate}
+        placeholder={messages.common.selectStartDate}
+        messages={formMessages.datePicker}
+        disabled={pending}
+        onChange={onStartDate}
+      />
+    </FieldLabel>
+  );
+}
+
+function TimelineEndField({
   darkMode,
   pending,
   timelineType,
-  startDate,
   deadlineDate,
   durationRange,
   messages,
   durationMessages,
   formMessages,
-  onStartDate,
   onDeadlineDate,
   onDurationRange,
 }: {
   darkMode: boolean;
   pending: boolean;
   timelineType: string;
-  startDate: string;
   deadlineDate: string;
   durationRange: string;
   messages: ProjectMessages["editor"];
   durationMessages: ProjectMessages["duration"];
   formMessages: FormMessages;
-  onStartDate: (value: string) => void;
   onDeadlineDate: (value: string) => void;
   onDurationRange: (value: string) => void;
 }) {
   return (
     <>
-      <FieldLabel darkMode={darkMode} label={messages.common.startDate}>
-        <DatePickerField
-          darkMode={darkMode}
-          value={startDate}
-          placeholder={messages.common.selectStartDate}
-          messages={formMessages.datePicker}
-          disabled={pending}
-          onChange={onStartDate}
-        />
-      </FieldLabel>
       {timelineType === "deadline" ? (
         <FieldLabel darkMode={darkMode} label={messages.common.deadline}>
           <DatePickerField
@@ -214,7 +237,7 @@ function DateFields({
           />
         </FieldLabel>
       ) : (
-        <FieldLabel darkMode={darkMode} label={messages.common.duration}>
+        <FieldLabel darkMode={darkMode} label={messages.common.expectedDuration}>
           <SelectInput
             darkMode={darkMode}
             value={durationRange}

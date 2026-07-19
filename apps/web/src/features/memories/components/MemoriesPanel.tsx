@@ -11,7 +11,7 @@ import {
   SingleChoiceGroup,
 } from "@/components/forms/choice-group";
 import { formatDateKey } from "@/components/forms/date-format";
-import { List, ListItem } from "@/components/list";
+import { List, ListItem, ListItemContent } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import {
@@ -26,6 +26,7 @@ import type {
 import type { MemoryMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
 import { MemoryCategoryIcon } from "./MemoryCategoryIcon";
+import { memoryExperienceMetadataSegments } from "./memory-metadata";
 import {
   getMemoryCategoryLabel,
   getMemoryFilterNames,
@@ -178,25 +179,28 @@ function MemoryRow({
       categoryMessages,
     ),
     memory.pinned ? messages.pinned : "",
-    lastDoneText(memory, messages, dateMessages),
-    messages.doneTimes(memory.doneCount),
+    ...memoryExperienceMetadataSegments(memory, messages.experience, (value, fallback) =>
+      formatDate(value, dateMessages, fallback),
+    ),
   ]
     .filter(Boolean)
     .join(" · ");
 
   return (
     <ListItem darkMode={darkMode} className="items-start gap-3">
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="text-sm font-semibold">{memory.title}</h3>
-        </div>
-        <DescriptionText darkMode={darkMode} className="mt-1">
-          {memory.description}
-        </DescriptionText>
-        <SupportingText darkMode={darkMode} className="mt-2 block">
-          {metadata}
-        </SupportingText>
-      </div>
+      <ListItemContent
+        title={
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-sm font-semibold">{memory.title}</h3>
+          </div>
+        }
+        main={
+          <DescriptionText darkMode={darkMode}>
+            {memory.description}
+          </DescriptionText>
+        }
+        support={<SupportingText darkMode={darkMode}>{metadata}</SupportingText>}
+      />
       <Button
         darkMode={darkMode}
         size="sm"
@@ -206,20 +210,6 @@ function MemoryRow({
         {messages.edit}
       </Button>
     </ListItem>
-  );
-}
-
-function lastDoneText(
-  memory: MemoryRecord,
-  messages: MemoryMessages["panel"],
-  dateMessages: DatePickerMessages,
-) {
-  if (!memory.lastDoneDate) {
-    return messages.neverDone;
-  }
-
-  return messages.lastDone(
-    formatDate(memory.lastDoneDate, dateMessages, memory.lastDoneText),
   );
 }
 

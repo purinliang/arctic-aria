@@ -4,13 +4,14 @@ import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
-import { List, ListItem } from "@/components/list";
+import { List, ListItem, ListItemContent } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { MemorySuggestion } from "@/features/dashboard/types";
 import type { MemoryMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
+import { memoryExperienceMetadataSegments } from "./memory-metadata";
 import { getMemoryCategoryLabel } from "./memory-page-helpers";
 
 type SuggestionResult = Promise<boolean>;
@@ -136,23 +137,26 @@ function SuggestionRow({
       suggestion.categoryBuiltInKey,
       categoryMessages,
     ),
-    lastDoneText(suggestion, messages, dateMessages),
-    messages.doneTimes(suggestion.doneCount),
+    ...memoryExperienceMetadataSegments(suggestion, messages.experience, (value, fallback) =>
+      formatDate(value, dateMessages, fallback),
+    ),
   ].join(" · ");
 
   return (
     <ListItem darkMode={darkMode} className="gap-3">
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="text-sm font-semibold">{suggestion.title}</h3>
-        </div>
-        <DescriptionText darkMode={darkMode} className="mt-1">
-          {suggestion.description}
-        </DescriptionText>
-        <SupportingText darkMode={darkMode} className="mt-2 block">
-          {metadata}
-        </SupportingText>
-      </div>
+      <ListItemContent
+        title={
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-sm font-semibold">{suggestion.title}</h3>
+          </div>
+        }
+        main={
+          <DescriptionText darkMode={darkMode}>
+            {suggestion.description}
+          </DescriptionText>
+        }
+        support={<SupportingText darkMode={darkMode}>{metadata}</SupportingText>}
+      />
       <div className="shrink-0">
         <Button
           darkMode={darkMode}
@@ -177,20 +181,6 @@ function SuggestionRow({
         />
       </div>
     </ListItem>
-  );
-}
-
-function lastDoneText(
-  suggestion: MemorySuggestion,
-  messages: MemoryMessages["suggestions"],
-  dateMessages: DatePickerMessages,
-) {
-  if (!suggestion.lastDoneDate) {
-    return messages.neverDone;
-  }
-
-  return messages.lastDone(
-    formatDate(suggestion.lastDoneDate, dateMessages, suggestion.lastDoneText),
   );
 }
 

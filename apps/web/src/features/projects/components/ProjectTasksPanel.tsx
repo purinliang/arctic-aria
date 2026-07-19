@@ -5,7 +5,7 @@ import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
 import { CheckboxControl } from "@/components/forms/selection-field";
-import { List, ListItem } from "@/components/list";
+import { List, ListItem, ListItemContent } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
@@ -100,15 +100,16 @@ function ProjectTaskRow({
             onTaskStatus(dashboardTaskStatusForChecked(event.target.checked))
           }
         />
-        <div className="min-w-0">
-          <h3 className="min-w-0 text-base font-semibold">{task.title}</h3>
-          <DescriptionText darkMode={darkMode} className="mt-1">
-            {task.description || messages.noDescription}
-          </DescriptionText>
-          <SupportingText darkMode={darkMode} className="mt-2 block">
-            {metadata}
-          </SupportingText>
-        </div>
+        <ListItemContent
+          grow={false}
+          title={<h3 className="min-w-0 text-base font-semibold">{task.title}</h3>}
+          main={
+            <DescriptionText darkMode={darkMode}>
+              {task.description || messages.noDescription}
+            </DescriptionText>
+          }
+          support={<SupportingText darkMode={darkMode}>{metadata}</SupportingText>}
+        />
       </div>
       <Button
         darkMode={darkMode}

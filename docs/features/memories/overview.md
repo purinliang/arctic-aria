@@ -38,8 +38,8 @@ The Memories feature should include:
 - pinning suggested memories into `Pinned Memories`
 - recording ignored suggestion signals when the user refreshes suggestions
 - unpinning pinned memories
-- marking pinned memories as done
-- canceling a mistaken done action before cleanup
+- marking pinned memories as experienced
+- canceling a mistaken experience action before cleanup
 - showing pinned cuisine and sightseeing memories on the home dashboard
 - opening a memory detail page from suggested memories, pinned memories, the
   Memories page, or any other place a memory appears
@@ -66,13 +66,13 @@ Examples:
 - a park
 - an anime worth continuing or rewatching
 
-A memory can be completed multiple times. Completion history should be stored as
-events, not as an array on the memory row.
+A memory can be experienced multiple times. Experience history should be stored
+as events, not as an array on the memory row.
 
 A memory should eventually support a detail page with an edit action. The detail
-page can show title, description, category, current pin state, done count, and
-last done time. Event history should be stored in the database, but the first UI
-does not need to show an event-history view.
+page can show title, description, category, current pin state, experienced
+count, and last experienced time. Event history should be stored in the
+database, but the first UI does not need to show an event-history view.
 
 ### Memory Category
 
@@ -163,8 +163,8 @@ metadata, or per-category count.
 
 The user can:
 
-- mark a pinned memory as done
-- cancel done if it was a misclick
+- mark a pinned memory as experienced
+- cancel an experience mark if it was a misclick
 - unpin a memory
 
 Pinned memory dashboard rows do not expand or collapse in the current UI.
@@ -188,23 +188,23 @@ The first implementation should use a simple weighted random model.
 
 The score should prefer memories that:
 
-- have not been done for a long time
-- have never been done after creation
-- have been done or pinned multiple times historically
+- have not been experienced for a long time
+- have never been experienced after creation
+- have been experienced or pinned multiple times historically
 
-The score should not be too aggressive. A frequently done memory should be more
-likely to appear, but it should not dominate every refresh forever.
+The score should not be too aggressive. A frequently experienced memory should
+be more likely to appear, but it should not dominate every refresh forever.
 
 Suggested first scoring model:
 
 ```text
-days_score = log(1 + days_since_last_done)
-count_score = 1 + log(1 + done_count)
+days_score = log(1 + days_since_last_experienced)
+count_score = 1 + log(1 + experience_count)
 
 score = days_score * count_score
 ```
 
-For a new memory that has never been done:
+For a new memory that has never been experienced:
 
 ```text
 days_score = log(1 + days_since_created)
@@ -246,11 +246,11 @@ Dashboard behavior:
 - The dashboard should not apply a per-category count limit.
 - The first dashboard should not support adding or editing memory categories.
 - Pinned memory order should remain stable across refreshes and dashboard loads.
-- Marking a pinned memory as done records a `completed` event, updates memory
-  summary fields, sets `completed_at`, and sets `completed_cleanup_at` to about
-  2 hours later.
-- If done was a misclick, the user can cancel done before cleanup.
-- On dashboard load, completed pinned records whose cleanup time has passed
+- Marking a pinned memory as experienced records an internal `completed` event,
+  updates memory summary fields, sets `completed_at`, and sets
+  `completed_cleanup_at` to about 2 hours later.
+- If the experience mark was a misclick, the user can cancel it before cleanup.
+- On dashboard load, experienced pinned records whose cleanup time has passed
   should be deleted and replaced with another memory if one is available.
 - On dashboard load, active pinned records whose `visible_until` time has passed
   should also be deleted and replaced with another memory from the same category
@@ -266,8 +266,8 @@ Visibility timing:
 - When a pinned memory appears, set `visible_until` to a random duration after
   `last_shown_at`.
 - Allowed durations are 24, 30, 36, 42, and 48 hours.
-- Completing a pinned memory should set `completed_cleanup_at`.
-- Visibility timing is separate from the 2-hour completed cleanup timing.
+- Marking a pinned memory as experienced should set `completed_cleanup_at`.
+- Visibility timing is separate from the 2-hour experience cleanup timing.
 
 ## UI
 

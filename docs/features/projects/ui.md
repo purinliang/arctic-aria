@@ -147,15 +147,15 @@ Fields:
 - title
 - description
 - start date
-- timeline type: deadline or duration
+- timeline type: deadline or no fixed deadline
 - deadline date, when timeline type is deadline
-- duration range, when timeline type is duration
+- expected duration range, when timeline type is no fixed deadline
 
 Deadline and expected duration:
 
 - allow either a hard deadline or an expected duration range, not both
 - show a single selection for the timeline type
-- use a duration dropdown instead of free numeric duration input
+- use an expected-duration dropdown instead of free numeric duration input
 - first duration options: `1-3 months`, `3-6 months`, `6-12 months`,
   `1-3 years`
 
@@ -181,10 +181,16 @@ Project dialog layout:
 - action failures use the shared notification stack, not an inline dialog
   message row
 - field direction: vertical
-- fields in order: title, description, timeline, dates or duration
+- fields in order: title, description, start date, timeline type, then the
+  conditional end field
 - timeline selector direction: horizontal with wrapping
-- timeline options: `Deadline`, `Duration`
-- date fields direction: two columns on desktop, stacked on mobile
+- timeline options: `Deadline`, `No fixed deadline`
+- start date is independent from the timeline type and always appears before
+  the timeline selector
+- if `Deadline` is selected, show the deadline date picker below the timeline
+  selector
+- if `No fixed deadline` is selected, show the expected-duration dropdown below
+  the timeline selector
 - footer action row: full-width primary `Save` button with `Save`; while
   saving, cycle through `Saving.`, `Saving..`, and `Saving...`, keep the
   full-width button stable, and use no loading icon
@@ -263,12 +269,19 @@ Detail page layout:
   aligned to the right of `Projects /`
 - right top card: `Overview`
 - right bottom card: `Milestones` with `New`
-- overview metadata group: description, start date, and timeline
+- overview metadata group: description, start date, and the selected timeline
+  type
 - overview description row label: `Description`
 - overview labels use shared `LabelText`
 - overview values use shared `DescriptionText`
 - overview start date should display in English date format, not raw
   `YYYY-MM-DD`
+- if the project uses a deadline, show a `Deadline` row with only the formatted
+  deadline date
+- if the project uses no fixed deadline, show an `Expected duration` row with
+  only the selected duration range
+- do not label the row as `Timeline` when the project has a concrete deadline
+  or no-fixed-deadline mode
 - do not repeat project title inside the Overview card; the title is already in
   the page title
 - do not show current milestone or progress in the metadata card
@@ -380,6 +393,7 @@ Progress should be displayed as simple text or compact bars only where useful:
 For first implementation, text is enough:
 
 - `2 of 5 tasks done`
+- `No tasks yet` when the project or milestone has no tasks
 
 ## Empty States
 

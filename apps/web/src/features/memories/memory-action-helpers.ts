@@ -214,8 +214,8 @@ function formatDate(date: Date) {
 
 function formatLastDone(memory: Pick<ServerMemoryRecord, "lastDoneAt">) {
   return memory.lastDoneAt
-    ? `Last done ${formatDate(memory.lastDoneAt)}`
-    : "Never done";
+    ? `Last experienced ${formatDate(memory.lastDoneAt)}`
+    : "Never experienced";
 }
 
 function toPinnedMemory(memory: DashboardPinnedMemory): PinnedMemory {
@@ -226,10 +226,6 @@ function toPinnedMemory(memory: DashboardPinnedMemory): PinnedMemory {
     categoryBuiltInKey: memory.categoryBuiltInKey,
     title: memory.title,
     description: memory.description,
-    meta: memory.completedAt
-      ? "Completed; cleanup is pending"
-      : `Visible until ${formatDate(memory.visibleUntil)}`,
-    visibleUntilDate: dateKey(memory.visibleUntil),
     position: memory.position,
     status: memory.status,
   };

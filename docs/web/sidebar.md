@@ -35,7 +35,7 @@ The mobile sidebar should use the same content order as desktop.
 
 The main navigation area should contain:
 
-- Dashboard
+- Today
 - Projects
   - up to three pinned project shortcuts, shown as indented children when set
 - Routines
@@ -53,6 +53,10 @@ nothing.
 The main `Projects` item always opens the Projects list page. Pinned project
 shortcuts below it open that specific Project detail page directly. Pinned
 project shortcuts are optional and should not replace the main Projects item.
+Navigation should update the browser path so refresh and direct entry preserve
+the current surface. Use `/today`, `/projects`, `/projects/<project-id>`,
+`/routines`, `/memories`, `/ideas`, and `/settings`. Do not use
+`/project?id=<id>`.
 
 Review is hidden from the sidebar until the review feature has a stable
 navigation design.

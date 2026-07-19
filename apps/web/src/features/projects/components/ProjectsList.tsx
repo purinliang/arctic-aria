@@ -4,7 +4,7 @@ import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
-import { List, ListItem } from "@/components/list";
+import { List, ListItem, ListItemContent } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
@@ -117,23 +117,33 @@ function ProjectListItem({
 
   return (
     <ListItem darkMode={darkMode} className="items-start">
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-semibold">{project.title}</span>
-        </div>
-        <DescriptionText darkMode={darkMode} className="mt-1 line-clamp-2">
-          {project.description}
-        </DescriptionText>
-        <SupportingText darkMode={darkMode} className="mt-2 block">
-          {projectTimelineText(
-            project,
-            timelineMessages,
-            durationMessages,
-            dateMessages,
-          )}{" "}
-          · {timelineMessages.progress(doneTaskCount(project), project.tasks.length)}
-        </SupportingText>
-      </div>
+      <ListItemContent
+        title={
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-semibold">{project.title}</span>
+          </div>
+        }
+        main={
+          <DescriptionText darkMode={darkMode} className="line-clamp-2">
+            {project.description}
+          </DescriptionText>
+        }
+        support={
+          <SupportingText darkMode={darkMode}>
+            {projectTimelineText(
+              project,
+              timelineMessages,
+              durationMessages,
+              dateMessages,
+            )}{" "}
+            ·{" "}
+            {timelineMessages.progress(
+              doneTaskCount(project),
+              project.tasks.length,
+            )}
+          </SupportingText>
+        }
+      />
       <div className="flex shrink-0 items-center gap-2">
         <Button
           darkMode={darkMode}

@@ -1,5 +1,5 @@
-import { AuthGate } from "@/features/auth/components/AuthGate";
+import { AppPage } from "./app-page";
 
 export default function Home() {
-  return <AuthGate />;
+  return <AppPage />;
 }

@@ -1,3 +1,8 @@
+import {
+  englishMemoryExperienceMessages,
+  simplifiedChineseMemoryExperienceMessages,
+} from "./memory-experience-messages.ts";
+
 export const englishDashboardMessages = {
   projectTasks: {
     title: "Tasks",
@@ -25,12 +30,9 @@ export const englishDashboardMessages = {
     title: "Pinned Memories",
     loading: "Loading pinned memories...",
     empty: "No pinned memories yet.",
-    completed: "Completed in this prototype",
-    visibleUntil: (date: string) => `Visible until ${date}`,
     open: "Open memories",
     replace: (title: string) => `Replace ${title}`,
-    markDone: (title: string) => `Mark ${title} done`,
-    cancelDone: (title: string) => `Cancel completion for ${title}`,
+    experience: englishMemoryExperienceMessages,
     builtInCategories: {
       cuisine: "Cuisine",
       sightseeing: "Sightseeing",
@@ -88,12 +90,9 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
     title: "置顶回忆",
     loading: "正在加载置顶回忆...",
     empty: "还没有置顶回忆。",
-    completed: "已在此原型中完成",
-    visibleUntil: (date) => `可见至 ${date}`,
     open: "打开回忆",
     replace: (title) => `替换 ${title}`,
-    markDone: (title) => `将 ${title} 标记为完成`,
-    cancelDone: (title) => `取消 ${title} 的完成状态`,
+    experience: simplifiedChineseMemoryExperienceMessages,
     builtInCategories: {
       cuisine: "美食",
       sightseeing: "观光",

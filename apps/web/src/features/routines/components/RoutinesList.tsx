@@ -3,7 +3,7 @@ import { Edit3 } from "lucide-react";
 import { Button } from "@/components/button";
 import { secondaryTextColorClass } from "@/components/color";
 import { formatTimeDisplay } from "@/components/forms/time-display";
-import { List, ListItem } from "@/components/list";
+import { List, ListItem, ListItemContent } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { RoutineDefinition } from "@/features/dashboard/types";
@@ -45,23 +45,30 @@ export function RoutinesList({
       ) : null}
       {routines.map((routine) => (
         <ListItem key={routine.id} darkMode={darkMode}>
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-sm font-semibold">{routine.title}</h3>
-            </div>
-            <DescriptionText darkMode={darkMode} className="mt-1">
-              {routine.description || messages.noDescription}
-            </DescriptionText>
-            <SupportingText darkMode={darkMode} className="mt-2 block">
-              {routineTimeText(
-                routine.preferredTime,
-                messages.flexible,
-                timeMessages,
-                timeFormatPreference,
-              )} ·{" "}
-              {ruleSummary(routine, ruleMessages)}
-            </SupportingText>
-          </div>
+          <ListItemContent
+            grow={false}
+            title={
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-sm font-semibold">{routine.title}</h3>
+              </div>
+            }
+            main={
+              <DescriptionText darkMode={darkMode}>
+                {routine.description || messages.noDescription}
+              </DescriptionText>
+            }
+            support={
+              <SupportingText darkMode={darkMode}>
+                {routineTimeText(
+                  routine.preferredTime,
+                  messages.flexible,
+                  timeMessages,
+                  timeFormatPreference,
+                )} ·{" "}
+                {ruleSummary(routine, ruleMessages)}
+              </SupportingText>
+            }
+          />
           <Button
             darkMode={darkMode}
             disabled={pending}

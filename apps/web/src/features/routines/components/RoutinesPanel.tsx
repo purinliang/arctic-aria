@@ -4,7 +4,7 @@ import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { CheckboxControl } from "@/components/forms/selection-field";
-import { List, ListItem } from "@/components/list";
+import { List, ListItem, ListItemContent } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
@@ -98,18 +98,30 @@ function RoutineRow({
             onStatusChange(event.target.checked ? "completed" : "pending")
           }
         />
-        <div className="min-w-0">
-          <h3 className="min-w-0 text-sm font-semibold">{routine.title}</h3>
-          <DescriptionText darkMode={darkMode} className="mt-1">
-            {routine.description || messages.noDescription}
-          </DescriptionText>
-          <SupportingText darkMode={darkMode} className="mt-2 block">
-            {routineTimeText(routine, messages, timeMessages, timeFormatPreference)} ·{" "}
-            {routine.status === "pending"
-              ? messages.dueToday
-              : messages.answeredToday}
-          </SupportingText>
-        </div>
+        <ListItemContent
+          grow={false}
+          title={
+            <h3 className="min-w-0 text-sm font-semibold">{routine.title}</h3>
+          }
+          main={
+            <DescriptionText darkMode={darkMode}>
+              {routine.description || messages.noDescription}
+            </DescriptionText>
+          }
+          support={
+            <SupportingText darkMode={darkMode}>
+              {routineTimeText(
+                routine,
+                messages,
+                timeMessages,
+                timeFormatPreference,
+              )} ·{" "}
+              {routine.status === "pending"
+                ? messages.dueToday
+                : messages.answeredToday}
+            </SupportingText>
+          }
+        />
       </div>
       <Button
         darkMode={darkMode}

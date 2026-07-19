@@ -121,19 +121,25 @@ memory suggestions.
 Pinned memory row layout:
 
 - parent surface: shared list item
-- left: done checkbox
+- left: experienced checkbox
 - middle: title, description, and supporting metadata
 - right: optional outlineless right-arrow button to open the Memories page
 - description is always visible
-- supporting metadata uses category and status text
+- supporting metadata uses category only
 
 Pinned memory rows should not expand or collapse. Do not show a Dashboard
 `View` button. Do not show a single-row refresh or replace button.
+Do not expose internal memory rotation state such as `visible_until`, cleanup
+timing, or visible-window status in the row metadata.
 
-Checking a pinned memory marks it completed. Completed pinned memories should
+Checking a pinned memory marks it experienced. Experienced pinned memories should
 not use a green background or strikethrough text. If the user cancels before
 cleanup, restore the active state. If the backend rejects either command, roll
 back the visible state and show the shared notification.
+
+Pinned-memory checkbox labels can use category-specific experience verbs in
+both English and Chinese when the row has a built-in category key. Custom
+categories fall back to `experienced` / `体验`.
 
 Clicking the row's outlineless right-arrow button opens the Memories page. The
 whole row is not clickable. Clicking the checkbox must not navigate.

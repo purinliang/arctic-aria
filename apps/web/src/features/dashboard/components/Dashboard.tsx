@@ -83,7 +83,6 @@ export function Dashboard({
             pinnedMemories={pinnedMemories}
             loading={memoryLoading}
             messages={messages.pinnedMemories}
-            dateMessages={formMessages.datePicker}
             onDone={onMemoryDone}
             onCancelDone={onMemoryCancelDone}
             onMemoryOpen={onMemoryOpen}
