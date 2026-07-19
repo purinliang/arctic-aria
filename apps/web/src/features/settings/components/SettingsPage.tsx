@@ -5,10 +5,7 @@ import { Info, Settings } from "lucide-react";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import { CardHeader } from "@/components/card";
-import {
-  CheckboxField,
-  SelectInput,
-} from "@/components/forms/selection-field";
+import { SelectInput } from "@/components/forms/selection-field";
 import { FieldLabel } from "@/components/forms/input-field";
 import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
@@ -17,8 +14,6 @@ import { VersionStatusRows } from "@/components/version-status";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
 import {
   formatTimeZoneOffset,
-  selectableTimeZones,
-  type TimeZonePreference,
 } from "@/features/settings/time-zones";
 import type {
   SettingsMessages,
@@ -36,19 +31,15 @@ export function SettingsPage({
   browserTimeZone,
   darkMode,
   languagePreference,
-  multipleTimezonesEnabled,
   messages,
   onLanguagePreferenceChange,
-  onMultipleTimezonesEnabledChange,
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
-  onTimeZonePreferenceChange,
   resolvedLanguage,
   showErrorNotification,
   showSuccessNotification,
   themePreference,
   timeFormatPreference,
-  timeZonePreference,
   versionMessages,
   versionStatus,
 }: {
@@ -56,19 +47,15 @@ export function SettingsPage({
   browserTimeZone: string;
   darkMode: boolean;
   languagePreference: LanguagePreference;
-  multipleTimezonesEnabled: boolean;
   messages: SettingsMessages;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
-  onMultipleTimezonesEnabledChange: (enabled: boolean) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
-  onTimeZonePreferenceChange: (preference: TimeZonePreference) => void;
   resolvedLanguage: SupportedLanguage;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
   themePreference: ThemePreference;
   timeFormatPreference: TimeFormatPreference;
-  timeZonePreference: TimeZonePreference;
   versionMessages: VersionStatusMessages;
   versionStatus: DatabaseVersionStatus;
 }) {
@@ -89,7 +76,6 @@ export function SettingsPage({
   const timeZoneOptions = buildTimeZoneOptions({
     browserTimeZone,
     messages,
-    timeZonePreference,
   });
 
   return (
@@ -154,26 +140,12 @@ export function SettingsPage({
               <FieldLabel darkMode={darkMode} label={messages.timeZoneLabel}>
                 <SelectInput
                   darkMode={darkMode}
-                  value={timeZonePreference}
+                  value="system"
                   options={timeZoneOptions}
-                  onChange={(value) =>
-                    onTimeZonePreferenceChange(value as TimeZonePreference)
-                  }
+                  disabled
+                  onChange={() => undefined}
                 />
               </FieldLabel>
-            </div>
-          </ListItem>
-          <ListItem darkMode={darkMode} className="items-start">
-            <div className="w-full sm:max-w-sm">
-              <CheckboxField
-                darkMode={darkMode}
-                checked={multipleTimezonesEnabled}
-                label={messages.multipleTimezonesLabel}
-                description={messages.multipleTimezonesDescription}
-                onChange={(event) =>
-                  onMultipleTimezonesEnabledChange(event.target.checked)
-                }
-              />
             </div>
           </ListItem>
         </List>
@@ -221,13 +193,11 @@ export function SettingsPage({
 function buildTimeZoneOptions({
   browserTimeZone,
   messages,
-  timeZonePreference,
 }: {
   browserTimeZone: string;
   messages: SettingsMessages;
-  timeZonePreference: TimeZonePreference;
 }) {
-  const options = [
+  return [
     {
       value: "system",
       label: messages.timeZoneOptions.system,
@@ -236,31 +206,5 @@ function buildTimeZoneOptions({
         formatTimeZoneOffset(browserTimeZone),
       ),
     },
-    ...selectableTimeZones([browserTimeZone, timeZonePreference]).map(
-      (timeZone) => ({
-        value: timeZone,
-        label: timeZone,
-        description: messages.timeZoneDescription(
-          timeZone,
-          formatTimeZoneOffset(timeZone),
-        ),
-      }),
-    ),
   ];
-
-  if (
-    timeZonePreference !== "system" &&
-    !options.some((option) => option.value === timeZonePreference)
-  ) {
-    options.push({
-      value: timeZonePreference,
-      label: timeZonePreference,
-      description: messages.timeZoneDescription(
-        timeZonePreference,
-        formatTimeZoneOffset(timeZonePreference),
-      ),
-    });
-  }
-
-  return options;
 }

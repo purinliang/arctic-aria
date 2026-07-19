@@ -2,6 +2,7 @@
 
 import { getCurrentUser } from "@/features/auth/actions";
 import {
+  defaultUserPreferences,
   normalizeUserPreferences,
   type UserPreferences,
 } from "./preferences";
@@ -37,10 +38,22 @@ export async function saveUserPreferences(
     return unauthorizedResult();
   }
 
-  return settingsService.savePreferences(
-    user.id,
-    normalizeUserPreferences(input),
-  );
+  const normalized = normalizeUserPreferences(input);
+
+  // Timezone preference UI is temporarily hidden for release. Reject direct
+  // writes here so stale clients cannot enable partially prepared behavior.
+  if (
+    normalized.timeZonePreference !== defaultUserPreferences.timeZonePreference ||
+    normalized.multipleTimezonesEnabled
+  ) {
+    return {
+      ok: false,
+      code: "settings_timezone_preferences_disabled",
+      message: "Timezone preferences are not available yet.",
+    };
+  }
+
+  return settingsService.savePreferences(user.id, normalized);
 }
 
 export async function getDiscordBinding(): Promise<DiscordBindingActionResult> {

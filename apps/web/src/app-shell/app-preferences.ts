@@ -22,6 +22,7 @@ import type {
   UserPreferences,
 } from "../features/settings/preferences.ts";
 import {
+  defaultTimeZonePreference,
   readTimeZonePreference,
   resolveTimeZonePreference,
   type TimeZonePreference,
@@ -50,6 +51,7 @@ const timeZonePreferenceStorageKey = "arctic-aria.timezone-preference";
 const multipleTimezonesEnabledStorageKey =
   "arctic-aria.multiple-timezones-enabled";
 const systemDarkModeQuery = "(prefers-color-scheme: dark)";
+const timeZonePreferenceUiEnabled = false;
 
 export function detectBrowserLanguage(
   languages: readonly string[] | undefined,
@@ -166,18 +168,31 @@ export function useAppPreferences() {
   }, []);
   const applyUserPreferences = useCallback((preferences: UserPreferences) => {
     const normalized = normalizeUserPreferences(preferences);
+    const activeTimeZonePreference = timeZonePreferenceUiEnabled
+      ? normalized.timeZonePreference
+      : defaultTimeZonePreference;
+    const activeMultipleTimezonesEnabled = timeZonePreferenceUiEnabled
+      ? normalized.multipleTimezonesEnabled
+      : false;
 
     setThemePreferenceState(normalized.themePreference);
     setLanguagePreference(normalized.languagePreference);
     setTimeFormatPreferenceState(normalized.timeFormatPreference);
-    setTimeZonePreferenceState(normalized.timeZonePreference);
-    setMultipleTimezonesEnabledState(normalized.multipleTimezonesEnabled);
+    setTimeZonePreferenceState(activeTimeZonePreference);
+    setMultipleTimezonesEnabledState(activeMultipleTimezonesEnabled);
     writeStoredThemePreference(normalized.themePreference);
     writeStoredLanguagePreference(normalized.languagePreference);
     writeStoredTimeFormatPreference(normalized.timeFormatPreference);
-    writeStoredTimeZonePreference(normalized.timeZonePreference);
-    writeStoredMultipleTimezonesEnabled(normalized.multipleTimezonesEnabled);
+    writeStoredTimeZonePreference(activeTimeZonePreference);
+    writeStoredMultipleTimezonesEnabled(activeMultipleTimezonesEnabled);
   }, []);
+
+  const activeTimeZonePreference = timeZonePreferenceUiEnabled
+    ? timeZonePreference
+    : defaultTimeZonePreference;
+  const activeMultipleTimezonesEnabled = timeZonePreferenceUiEnabled
+    ? multipleTimezonesEnabled
+    : false;
 
   const resolvedThemeMode = resolveThemeMode(
     themePreference,
@@ -188,7 +203,7 @@ export function useAppPreferences() {
     browserDefaults.language,
   );
   const resolvedTimeZone = resolveTimeZonePreference(
-    timeZonePreference,
+    activeTimeZonePreference,
     browserDefaults.timeZone,
   );
 
@@ -197,7 +212,7 @@ export function useAppPreferences() {
     darkMode: resolvedThemeMode === "dark",
     applyUserPreferences,
     languagePreference,
-    multipleTimezonesEnabled,
+    multipleTimezonesEnabled: activeMultipleTimezonesEnabled,
     resolvedLanguage,
     resolvedThemeMode,
     resolvedTimeZone,
@@ -208,7 +223,7 @@ export function useAppPreferences() {
     setTimeZonePreference,
     themePreference,
     timeFormatPreference,
-    timeZonePreference,
+    timeZonePreference: activeTimeZonePreference,
   };
 }
 

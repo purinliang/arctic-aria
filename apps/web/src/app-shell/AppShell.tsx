@@ -12,7 +12,7 @@ import {
 } from "@/components/notification";
 import { appShellClass } from "@/components/theme";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
-import type { ThemePreference, TimeZonePreference } from "@/app-shell/app-preferences";
+import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { AppMessages } from "@/messages/app-messages";
 import type { LanguagePreference, SupportedLanguage } from "@/messages/languages";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
@@ -40,17 +40,12 @@ export function AppShell({
   darkMode,
   languagePreference,
   messages,
-  multipleTimezonesEnabled,
   onLanguagePreferenceChange,
-  onMultipleTimezonesEnabledChange,
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
-  onTimeZonePreferenceChange,
   resolvedLanguage,
-  resolvedTimeZone,
   themePreference,
   timeFormatPreference,
-  timeZonePreference,
   versionStatus,
   logoutPending,
   notifications,
@@ -64,17 +59,12 @@ export function AppShell({
   darkMode: boolean;
   languagePreference: LanguagePreference;
   messages: AppMessages;
-  multipleTimezonesEnabled: boolean;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
-  onMultipleTimezonesEnabledChange: (enabled: boolean) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
-  onTimeZonePreferenceChange: (preference: TimeZonePreference) => void;
   resolvedLanguage: SupportedLanguage;
-  resolvedTimeZone: string;
   themePreference: ThemePreference;
   timeFormatPreference: TimeFormatPreference;
-  timeZonePreference: TimeZonePreference;
   versionStatus: DatabaseVersionStatus;
   logoutPending: boolean;
   notifications: NotificationItem[];
@@ -296,8 +286,8 @@ export function AppShell({
               messages={messages.routines}
               formMessages={messages.forms}
               timeFormatPreference={timeFormatPreference}
-              multipleTimezonesEnabled={multipleTimezonesEnabled}
-              resolvedTimeZone={resolvedTimeZone}
+              multipleTimezonesEnabled={false}
+              resolvedTimeZone={browserTimeZone}
             />
           ) : activeView === "ideas" ? (
             <IdeasPage
@@ -338,18 +328,14 @@ export function AppShell({
               darkMode={darkMode}
               languagePreference={languagePreference}
               browserTimeZone={browserTimeZone}
-              multipleTimezonesEnabled={multipleTimezonesEnabled}
               resolvedLanguage={resolvedLanguage}
               messages={messages.settings}
               themePreference={themePreference}
-              timeZonePreference={timeZonePreference}
               versionMessages={messages.versionStatus}
               versionStatus={versionStatus}
               onLanguagePreferenceChange={onLanguagePreferenceChange}
-              onMultipleTimezonesEnabledChange={onMultipleTimezonesEnabledChange}
               onThemePreferenceChange={onThemePreferenceChange}
               onTimeFormatPreferenceChange={onTimeFormatPreferenceChange}
-              onTimeZonePreferenceChange={onTimeZonePreferenceChange}
               showErrorNotification={showErrorNotification}
               showSuccessNotification={showSuccessNotification}
               timeFormatPreference={timeFormatPreference}

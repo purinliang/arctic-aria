@@ -14,6 +14,7 @@ export type SettingsActionResult =
       ok: false;
       code:
         | "settings_unauthorized"
+        | "settings_timezone_preferences_disabled"
         | "settings_preferences_unavailable"
         | "settings_preferences_save_failed";
       message: string;
