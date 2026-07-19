@@ -35,6 +35,8 @@ Language `Use system setting` resolves the browser language to English or
 Simplified Chinese, with English as the fallback for unsupported languages. If
 there is no saved language preference, the app defaults to English because the
 Simplified Chinese translation is incomplete and machine translated.
+The incomplete-translation support text should appear only when the active UI
+language is Simplified Chinese, not when the active UI language is English.
 
 Time format changes how visible times render across the app. Stored routine
 times remain normalized `HH:mm`; the rendering layer displays them as either

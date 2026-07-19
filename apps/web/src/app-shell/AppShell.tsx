@@ -14,7 +14,10 @@ import { appShellClass } from "@/components/theme";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { AppMessages } from "@/messages/app-messages";
-import type { LanguagePreference } from "@/messages/languages";
+import type {
+  LanguagePreference,
+  SupportedLanguage,
+} from "@/messages/languages";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
@@ -46,6 +49,7 @@ export function AppShell({
   onLanguagePreferenceChange,
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
+  resolvedLanguage,
   themePreference,
   timeFormatPreference,
   versionStatus,
@@ -63,6 +67,7 @@ export function AppShell({
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
+  resolvedLanguage: SupportedLanguage;
   themePreference: ThemePreference;
   timeFormatPreference: TimeFormatPreference;
   versionStatus: DatabaseVersionStatus;
@@ -325,6 +330,7 @@ export function AppShell({
               currentUserId={currentUser.id}
               darkMode={darkMode}
               languagePreference={languagePreference}
+              resolvedLanguage={resolvedLanguage}
               messages={messages.settings}
               themePreference={themePreference}
               versionMessages={messages.versionStatus}

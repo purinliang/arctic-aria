@@ -48,8 +48,8 @@ export function ListItem({
     <article
       className={cx(
         layout === "row"
-          ? "flex items-start justify-between gap-3 px-4 py-3 first-of-type:pt-4 last-of-type:pb-4"
-          : "px-4 py-3 first-of-type:pt-4 last-of-type:pb-4",
+          ? "flex items-start justify-between gap-3 px-4 py-4 first-of-type:pt-4 last-of-type:pb-4"
+          : "px-4 py-4 first-of-type:pt-4 last-of-type:pb-4",
         itemToneClass(darkMode, tone, active),
         className,
       )}

@@ -201,6 +201,7 @@ export function AuthGate() {
         currentUser={currentUser}
         darkMode={darkMode}
         languagePreference={languagePreference}
+        resolvedLanguage={resolvedLanguage}
         messages={messages}
         themePreference={themePreference}
         versionStatus={versionStatus}

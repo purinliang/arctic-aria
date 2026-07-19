@@ -16,7 +16,10 @@ import type {
   SettingsMessages,
   VersionStatusMessages,
 } from "@/messages/app-messages";
-import type { LanguagePreference } from "@/messages/languages";
+import type {
+  LanguagePreference,
+  SupportedLanguage,
+} from "@/messages/languages";
 import { DiscordBindingSettings } from "./DiscordBindingSettings";
 import { DiscordIcon } from "./DiscordIcon";
 
@@ -28,6 +31,7 @@ export function SettingsPage({
   onLanguagePreferenceChange,
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
+  resolvedLanguage,
   showErrorNotification,
   showSuccessNotification,
   themePreference,
@@ -42,6 +46,7 @@ export function SettingsPage({
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
+  resolvedLanguage: SupportedLanguage;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
   themePreference: ThemePreference;
@@ -100,9 +105,11 @@ export function SettingsPage({
                   }
                 />
               </FieldLabel>
-              <SupportingText darkMode={darkMode}>
-                {messages.languageSupport}
-              </SupportingText>
+              {resolvedLanguage === "en" ? null : (
+                <SupportingText darkMode={darkMode}>
+                  {messages.languageSupport}
+                </SupportingText>
+              )}
             </div>
           </ListItem>
           <ListItem darkMode={darkMode} className="items-start">
