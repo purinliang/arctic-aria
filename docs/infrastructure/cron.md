@@ -110,7 +110,18 @@ Set the worker secret before deploying:
 
 ```bash
 cd apps/cron
-pnpm dlx wrangler secret put CRON_SECRET
+pnpm secret:put
+```
+
+Paste the raw `CRON_SECRET` value when Wrangler prompts for it. Do not include
+surrounding quotes. `.dev.vars` is for local development only and is not
+uploaded by `wrangler deploy`.
+
+You can check that Cloudflare has a secret binding without printing the value:
+
+```bash
+cd apps/cron
+pnpm secret:list
 ```
 
 Deploy with:

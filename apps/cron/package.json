@@ -6,6 +6,8 @@
   "scripts": {
     "deploy": "pnpm dlx wrangler deploy",
     "dev": "pnpm dlx wrangler dev --test-scheduled",
+    "secret:put": "pnpm dlx wrangler secret put CRON_SECRET",
+    "secret:list": "pnpm dlx wrangler secret list",
     "test": "node --test \"src/**/*.test.js\""
   },
   "packageManager": "pnpm@11.7.0"
