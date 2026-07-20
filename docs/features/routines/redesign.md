@@ -1,0 +1,339 @@
+# Daily Board Scheduling Redesign
+
+Status: draft. This file records proposed routine reminder and project task
+daily-selection changes only. Do not treat it as implemented behavior until the
+migration, backend, cron, and UI changes are completed.
+
+## Boundary
+
+Routines and project tasks both appear on Today, but they need different data
+models:
+
+- routines generate concrete occurrences from recurrence rules
+- project tasks are selected onto a daily board
+
+Daily Review is not a routine. It only shares the Cloudflare cron route and
+Discord notification service. Its duplicate protection can continue to use
+`discord_message_deliveries` with `daily-review:<date>` unless Daily Review
+becomes a first-class persisted feature later.
+
+Important Today board invariant:
+
+- completed routine instances should stay visible on Today until the local
+  daily board date changes
+- completed project tasks should stay visible on Today when they have a
+  `project_task_daily_selections` row for the current local date
+
+## Shared Naming
+
+Use the same date/time naming rule across both designs:
+
+- `_date`: date only
+- `_time`: local clock time only
+- `_at`: exact timestamp, either planned or actual
+
+Use `Move to tomorrow` for the full action name and `Tomorrow` for a compact
+button label.
+
+Use `Later` for "remind me again in 1 hour".
+
+Avoid `Push to tomorrow` in user-facing text. It is understandable, but
+`Move to tomorrow` is more natural English for this product.
+
+## Routine Redesign
+
+### Current Behavior
+
+- `routine_instances` are created when the Today page loads.
+- The cron path can also create or ensure a `routine_instance` when it thinks a
+  reminder is due.
+- Reminder matching currently compares the cron run's local `HH:mm` exactly
+  against the routine definition's `preferred_time`.
+- Routines without `preferred_time` are ignored by reminder cron.
+- Dashboard UI currently exposes only checkbox completion/reopen behavior.
+
+### Purpose
+
+Routine reminders should become reliable with a 15-minute Cloudflare cron
+cadence. The current exact-minute check is too fragile because a routine at
+`18:00` can be missed if cron runs at `17:58` and then `18:13`.
+
+The redesign should keep routine definitions understandable while making
+routine instances the concrete reminder and completion target.
+
+### Data Model Direction
+
+Keep `routine_instances`. It is still the correct table because it stores one
+concrete occurrence generated from a recurring routine definition.
+
+Keep both routine-level preference and instance-level schedule:
+
+```text
+routine_rules.preferred_time
+routine_instances.scheduled_date
+routine_instances.scheduled_time
+routine_instances.remind_at
+routine_instances.reminded_at
+routine_instances.moved_at
+routine_instances.moved_from_date
+```
+
+Meaning:
+
+- `routine_rules.preferred_time`: the user's default clock-time preference for
+  future routine occurrences.
+- `routine_instances.scheduled_date`: the local calendar day this concrete
+  occurrence belongs to.
+- `routine_instances.scheduled_time`: the planned local clock time for this
+  concrete occurrence.
+- `routine_instances.remind_at`: the exact timestamp when Discord should next
+  remind the user.
+- `routine_instances.reminded_at`: the exact timestamp when the current
+  `remind_at` reminder was sent.
+- `routine_instances.moved_at`: the exact timestamp when the user moved this
+  occurrence.
+- `routine_instances.moved_from_date`: the previous `scheduled_date` before
+  the move.
+
+Do not remove `scheduled_time`. The routine definition's `preferred_time` is a
+preference, while the routine instance's `scheduled_time` is the resolved time
+for one occurrence.
+
+### Status Direction
+
+The routine instance status should be simplified:
+
+```text
+pending | completed
+```
+
+`skipped` should stop being a first-class current UI state if the product uses
+`Later` and `Tomorrow` instead. If historical rows already contain `skipped`,
+the migration should either map them to `pending` or keep compatibility until a
+cleanup migration is safe.
+
+### Reminder Timing
+
+The first reminder should happen once near the routine's preferred time.
+
+Target behavior:
+
+- If `preferred_time` exists, `scheduled_time` should stay equal to that
+  preferred time. It is the planned occurrence time shown to the user.
+- If `preferred_time` is empty, use `18:00` local time as the fallback
+  `scheduled_time`.
+- The first `remind_at` should be 30 minutes before the scheduled occurrence.
+  It is the exact timestamp cron uses for Discord delivery.
+- Cron should treat a reminder as due inside a 25-minute window after
+  `remind_at`. This keeps routine reminder scheduling tolerant of the
+  15-minute Cloudflare cron cadence.
+- Cron should send only when `remind_at <= now`, `reminded_at IS NULL`, and the
+  instance is still pending.
+- After a successful send, set `reminded_at = now`.
+- Later cron runs should stay silent until the user changes the instance, such
+  as choosing `Later`.
+
+### User Actions
+
+#### Complete
+
+The checkbox completes the routine occurrence.
+
+```text
+status = completed
+completed_at = clicked_at
+```
+
+Unchecking reopens the occurrence.
+
+```text
+status = pending
+completed_at = null
+```
+
+#### Later
+
+`Later` means "remind me again in 1 hour".
+
+```text
+status stays pending
+remind_at = clicked_at + 1 hour
+reminded_at = null
+```
+
+Do not create another routine instance for `Later`. It is the same occurrence
+with a new reminder time. `Later` does not change `scheduled_date` or
+`scheduled_time`.
+
+#### Tomorrow
+
+`Tomorrow` moves the same occurrence to the next local day.
+
+When the user clicks `Tomorrow`, use the routine definition's latest
+`preferred_time` immediately to resolve the moved instance's `scheduled_time`.
+If the routine has no `preferred_time`, use `18:00`.
+
+```text
+scheduled_date = tomorrow
+scheduled_time = latest preferred_time, or 18:00 if preferred_time is null
+remind_at = tomorrow scheduled timestamp minus the reminder lead window
+reminded_at = null
+moved_at = clicked_at
+moved_from_date = old scheduled_date
+status stays pending
+```
+
+The move should avoid duplicate routine rows. If tomorrow's normal generation
+would create the same occurrence, it should find the moved instance instead of
+creating another one.
+
+### Preference Change Rules
+
+When `routine_rules.preferred_time` changes, update pending future
+`routine_instances` for that routine:
+
+```text
+scheduled_time = new preferred_time, or 18:00 if preferred_time is null
+remind_at = recomputed from scheduled_date and scheduled_time
+reminded_at = null
+```
+
+Do not touch completed instances.
+
+If the user moves an instance to tomorrow and later changes the routine's
+preferred time, the pending moved instance should update to the latest
+preferred time. If the user changes preferred time first and then clicks
+`Tomorrow`, the moved instance should also use the latest preferred time.
+
+In short: for pending future instances, the latest routine preferred time wins.
+
+### Today Behavior
+
+Today should show routine instances for the current local date, including
+completed instances. Completing a routine should update its checkbox state, but
+it should not remove the row from Today until the local daily board date
+changes.
+
+### Cron Flow
+
+One cron route can handle routine reminders and Daily Review delivery.
+
+Routine reminder flow:
+
+```text
+Cloudflare cron
+  -> web cron route
+  -> ensure upcoming routine instances that need reminder timestamps
+  -> find pending instances where remind_at is inside the due window
+  -> send Discord reminder
+  -> set reminded_at when send succeeds
+```
+
+Do not add a separate "tomorrow routine creation" cron yet. The reminder cron
+can generate or ensure the small set of upcoming routine instances it needs.
+
+### Idempotency
+
+Discord delivery should continue to use `discord_message_deliveries`.
+
+Recommended idempotency key:
+
+```text
+routine-reminder:<routine_instance_id>:<remind_at>
+```
+
+Including `remind_at` allows the same routine instance to be reminded again
+after the user chooses `Later`, while still preventing duplicate sends for the
+same reminder moment.
+
+## Project Task Daily Selections
+
+### Purpose
+
+Project tasks also need a daily board selection model so completed tasks can
+stay visible on Today after completion, while still allowing a task to be moved
+to another day without changing the task itself.
+
+Project tasks should not reuse `routine_instances`. A project task does not
+repeat from a recurrence rule, but it can be selected onto a daily board.
+
+### Data Model Direction
+
+Add a lightweight table later:
+
+```text
+project_task_daily_selections
+- id
+- user_id
+- task_id
+- scheduled_date
+- created_at
+- moved_at nullable
+- moved_from_date nullable
+- source: manual | scheduler
+```
+
+Recommended database protection:
+
+```text
+unique(user_id, task_id, scheduled_date)
+```
+
+Field meaning:
+
+- `scheduled_date`: the local Today date this task should appear on.
+- `created_at`: the exact timestamp when the task was selected for that date.
+- `moved_at`: the exact timestamp when the selection was moved away from its
+  original date.
+- `moved_from_date`: the previous `scheduled_date` before the move.
+- `source`: whether the row was created by the user or by future scheduler
+  logic.
+
+Do not add `dismissed_at` for now. If the user no longer wants a task on
+Today, the first model should move the selection to another date instead of
+creating a separate dismissed state.
+
+### Today Behavior
+
+Today task behavior should become:
+
+```text
+load project_task_daily_selections for the current local scheduled_date
+  -> join project_tasks
+  -> include completed and incomplete tasks
+  -> keep completed tasks visible while scheduled_date is today
+```
+
+This separates:
+
+- task completion: `project_tasks.completed_at`
+- task visibility on Today: `project_task_daily_selections.scheduled_date`
+- moving a selected task: `moved_at` and `moved_from_date`
+
+Project task scheduling is deferred until the routine reminder redesign is
+clearer. The task design should reuse the same `_date`, `_time`, and `_at`
+naming rule.
+
+## Implementation Plan
+
+1. Add focused tests for routine reminder due-window behavior.
+2. Add migration fields on `routine_instances`.
+3. Add backend helpers to compute local scheduled timestamps and reminder
+   timestamps.
+4. Change reminder cron to select due `routine_instances` by `remind_at`.
+5. Keep Today checkbox behavior working with optimistic UI.
+6. Add Discord reminder actions later: `Done`, `Later`, and `Tomorrow`.
+7. Add web UI controls only after the backend behavior is stable.
+8. Plan `project_task_daily_selections` after routine reminder behavior is
+   stable.
+
+## Deferred Questions
+
+- Whether historical `skipped` rows should be converted immediately or kept
+  readable until a later cleanup.
+- Whether the first reminder lead time should stay fixed at 30 minutes or
+  become configurable later.
+- Whether the Today page should expose `Later` and `Tomorrow`, or reserve them
+  for Discord reminder responses first.
+- Whether project task daily selections need a separate remove-from-Today state
+  later, or whether moving to another date is enough.
