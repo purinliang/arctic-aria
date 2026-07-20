@@ -21,6 +21,7 @@ import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMem
 import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardProjects";
 import { useDashboardRoutines } from "@/features/dashboard/hooks/useDashboardRoutines";
 import type { DashboardView } from "@/features/dashboard/types";
+import { sendTodayReviewDiscordMessage } from "@/features/dashboard/actions";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import { IdeasPage } from "@/features/ideas/components/IdeasPage";
 import { useIdeasPageData } from "@/features/ideas/hooks/useIdeasPageData";
@@ -82,6 +83,7 @@ export function AppShell({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const selectedProjectId = pathnameRoute.projectId;
   const [projectDraft, setProjectDraft] = useState<ProjectInput | null>(null);
+  const [todayReviewPending, setTodayReviewPending] = useState(false);
   const projectState = useDashboardProjects(
     currentUser.id,
     showErrorNotification,
@@ -170,6 +172,38 @@ export function AppShell({
     }
 
     navigateToRoute(appPathForView(view));
+  }
+
+  async function handleTodayReviewSend() {
+    if (todayReviewPending) {
+      return;
+    }
+
+    setTodayReviewPending(true);
+
+    try {
+      const result = await sendTodayReviewDiscordMessage();
+
+      if (result.ok) {
+        showSuccessNotification(
+          messages.dashboard.review.results[result.code],
+          messages.dashboard.review.notifications.sent,
+        );
+        return;
+      }
+
+      showErrorNotification(
+        messages.dashboard.review.results[result.code] ?? result.message,
+        messages.dashboard.review.notifications.failed,
+      );
+    } catch {
+      showErrorNotification(
+        messages.dashboard.review.results.today_review_delivery_failed,
+        messages.dashboard.review.notifications.failed,
+      );
+    } finally {
+      setTodayReviewPending(false);
+    }
   }
 
   const pageTitle =
@@ -349,10 +383,12 @@ export function AppShell({
               routineLoading={routineState.routineLoading}
               pinnedMemories={memoryState.pinnedMemories}
               memoryLoading={memoryState.memoryLoading}
+              todayReviewPending={todayReviewPending}
               onTaskStatus={projectState.updateTaskFromDashboard}
               onRoutineStatus={routineState.updateRoutine}
               onMemoryDone={memoryState.markMemoryDone}
               onMemoryCancelDone={memoryState.cancelMemoryDone}
+              onTodayReviewSend={handleTodayReviewSend}
               onTaskOpen={showProjectDetail}
               messages={messages.dashboard}
               formMessages={messages.forms}

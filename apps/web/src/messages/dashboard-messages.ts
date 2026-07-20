@@ -65,6 +65,23 @@ export const englishDashboardMessages = {
       shopping: "Shopping",
     },
   },
+  review: {
+    title: "Today Review",
+    description:
+      "Send a short review of today's tasks, routines, and pinned memories to Discord.",
+    send: "Send",
+    sending: "Sending",
+    notifications: {
+      sent: "Today Review sent",
+      failed: "Today Review not sent",
+    },
+    results: {
+      auth_required: "Please sign in again.",
+      today_review_delivery_failed: "Today Review could not be sent to Discord.",
+      today_review_no_binding: "No active Discord binding.",
+      today_review_sent: "Check your Discord DM.",
+    },
+  },
   notifications: {
     projectsUnavailable: "Projects unavailable",
     projectSaveFailed: "Project save failed",
@@ -144,6 +161,22 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
       music: "音乐",
       game: "游戏",
       shopping: "购物",
+    },
+  },
+  review: {
+    title: "今日回顾",
+    description: "将今天的任务、日常和置顶回忆整理成简短消息发送到 Discord。",
+    send: "发送",
+    sending: "正在发送",
+    notifications: {
+      sent: "今日回顾已发送",
+      failed: "今日回顾未发送",
+    },
+    results: {
+      auth_required: "请先重新登录。",
+      today_review_delivery_failed: "今日回顾无法发送到 Discord。",
+      today_review_no_binding: "没有有效的 Discord 绑定。",
+      today_review_sent: "请检查你的 Discord 私信。",
     },
   },
   notifications: {
