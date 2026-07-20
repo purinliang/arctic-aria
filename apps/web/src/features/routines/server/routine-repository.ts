@@ -70,6 +70,7 @@ export type SaveRoutineInput = {
 export type RoutineRepository = {
   listRoutines(userId: string): Promise<RoutineRecord[]>;
   listActiveRoutines(userId: string): Promise<RoutineRecord[]>;
+  listActiveRoutinesForReminders(): Promise<RoutineRecord[]>;
   createRoutine(input: SaveRoutineInput): Promise<RoutineRecord>;
   updateRoutine(input: SaveRoutineInput & { routineId: string }): Promise<RoutineRecord | null>;
   deleteRoutine(input: {
@@ -126,6 +127,13 @@ export class InMemoryRoutineRepository implements RoutineRepository {
   async listActiveRoutines(userId: string) {
     return this.routines.filter(
       (routine) => routine.userId === userId && routine.deletedAt === null,
+    );
+  }
+
+  async listActiveRoutinesForReminders() {
+    return this.routines.filter(
+      (routine) =>
+        routine.deletedAt === null && routine.rule.preferredTime !== null,
     );
   }
 

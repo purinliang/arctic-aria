@@ -54,6 +54,18 @@ export class PostgresRoutineRepository implements RoutineRepository {
     return rows.map(mapRoutine);
   }
 
+  async listActiveRoutinesForReminders() {
+    const rows = (await this.getSql().query(
+      `${routineSelect}
+       WHERE routines.deleted_at IS NULL
+         AND routine_rules.preferred_time IS NOT NULL
+       ORDER BY routine_rules.preferred_time, routines.created_at`,
+      [],
+    )) as RoutineRow[];
+
+    return rows.map(mapRoutine);
+  }
+
   async createRoutine(input: SaveRoutineInput) {
     const rows = (await this.getSql().query(
       `

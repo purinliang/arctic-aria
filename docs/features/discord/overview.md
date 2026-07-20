@@ -174,6 +174,10 @@ Current server-side notification entry points:
 - `apps/web/src/features/discord/server/message-push.ts`
 - `apps/web/src/features/discord/server/discord-api.ts`
 
+Routine reminders use the same notification service. The first scheduled caller
+is the web cron route `/api/cron/routine-reminders`, protected by
+`CRON_SECRET`.
+
 Implemented `discord_message_deliveries` fields:
 
 - `id uuid PRIMARY KEY`

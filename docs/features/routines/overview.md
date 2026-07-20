@@ -32,10 +32,10 @@ The first routines feature should include:
 - marking a routine instance completed
 - marking a routine instance skipped
 - recording completion events for daily review
+- Discord reminder delivery for routine instances with preferred times
 
 The first routines feature should not include:
 
-- Discord reminder delivery
 - advanced scheduler optimization
 - pause and resume
 - health-device integration
@@ -98,6 +98,9 @@ The same routine should not generate duplicate instances for the same
 `Busy` is not a routine instance status. It is a reminder response that snoozes
 or reschedules notification delivery. `reminding` is also not a routine
 instance status; it is a UI or delivery state for an active reminder.
+
+The first Discord reminders are plain direct messages. They should not add
+Discord response buttons in this version.
 
 ## Dashboard Behavior
 

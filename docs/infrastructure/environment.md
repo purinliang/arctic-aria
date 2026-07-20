@@ -30,6 +30,7 @@ Current variables:
 | `DISCORD_BOT_TOKEN` | Yes for command registration and outbound direct messages | Local and Vercel | Secret bot token from the Discord Developer Portal. |
 | `DISCORD_APP_ID` | Yes for command registration | Local and Vercel | App ID from the Discord Developer Portal. |
 | `DISCORD_PUBLIC_KEY` | Yes for Discord interactions | Local and Vercel | Public Key used to verify requests from Discord. |
+| `CRON_SECRET` | Yes for scheduled reminder routes | Vercel and local cron-route testing | Secret used to authorize internal cron routes. |
 
 Current credential state as of 2026-07-19:
 
@@ -117,6 +118,7 @@ Current variables:
 | `DISCORD_BOT_TOKEN` | Yes to register slash commands and send outbound Discord direct messages | Secret bot token from the Discord Developer Portal. |
 | `DISCORD_APP_ID` | Yes to register slash commands | App ID from the Discord Developer Portal. |
 | `DISCORD_PUBLIC_KEY` | Yes to run the HTTP interaction endpoint | Public Key used to verify requests from Discord. |
+| `CRON_SECRET` | Yes for scheduled reminder routes | Secret used to authorize internal cron routes such as routine reminders. |
 | `NEON_POSTGRES_URL` | Yes | Same Neon PostgreSQL database used by the web app. |
 
 Use `DISCORD_APP_ID` consistently for the Discord app id. Discord OAuth2 calls
@@ -130,6 +132,10 @@ developer auto-binding prototype is removed and should not be configured.
 There is no current Discord message-push shared secret. Outbound Discord direct
 messages use an internal server-side service while delivery code lives inside
 the web app.
+
+`CRON_SECRET` is separate from Discord secrets. It protects web-hosted scheduled
+routes such as `/api/cron/routine-reminders`; it is not a Discord message-push
+secret and should not be used by client code.
 
 ## Optional App Metadata
 
