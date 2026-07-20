@@ -252,6 +252,10 @@ Current Git rules:
 - `chore/*` branches are for maintenance work that is not a product feature,
   bug fix, docs-only change, or pure refactor.
 - Before implementation, inspect the current branch and working tree state.
+- For compact related work, keep follow-up fixes on the same work branch and
+  make focused sequential commits there. Do not create a new branch for every
+  small adjustment when the changes share the same feature, fix, or tooling
+  goal.
 - If the developer asks for an unrelated bug fix or chore while another branch
   has active work in progress, do not mix it into the current branch. Stash the
   current work, switch back to `develop`, create a focused `fix/*` or

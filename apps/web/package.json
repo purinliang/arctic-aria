@@ -2,9 +2,11 @@
   "name": "@arctic-aria/web",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "deploy": "pnpm build && pnpm discord:sync-commands && pnpm db:migrate",
     "discord:ngrok": "node --env-file-if-exists=.env.local scripts/run-ngrok.mjs",
     "discord:sync-commands": "node --env-file-if-exists=.env.local src/features/discord/server/sync-commands.ts",
     "db:migrate": "node scripts/migrate.mjs",
