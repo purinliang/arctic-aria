@@ -122,8 +122,18 @@ Recommended Discord Developer Portal settings:
 5. Expose local Next.js with ngrok:
 
    ```bash
-   ngrok http 3000
+   pnpm --dir apps/web discord:ngrok
    ```
+
+   If you have a fixed ngrok domain, set `DISCORD_NGROK_DOMAIN` in
+   `apps/web/.env.local` first. For example:
+
+   ```text
+   DISCORD_NGROK_DOMAIN=your-fixed-domain.ngrok-free.dev
+   ```
+
+   The script forwards ngrok to local port `3000`. It does not start Next.js;
+   keep `pnpm --dir apps/web dev` running in a separate terminal.
 
 6. Set the Discord interaction endpoint to:
 
@@ -319,10 +329,9 @@ idea" behavior without separate privacy, rate-limit, and intent rules.
 
 The following Discord workflows are future work:
 
-- routine reminders
 - project task reminders
 - `Done`, `Busy`, and `Skip` reminder buttons
-- daily status messages
+- richer daily status messages
 - daily review prompts
 - updating existing reminder messages to avoid channel noise
 - free-text DM capture
