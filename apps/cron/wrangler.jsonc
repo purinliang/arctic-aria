@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "arctic-aria-cron",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-21",
+  "triggers": {
+    "crons": ["*/15 * * * *"]
+  },
+  "vars": {
+    "ARCTIC_ARIA_WEB_BASE_URL": "https://arctic-aria.vercel.app"
+  }
+}

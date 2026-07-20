@@ -25,6 +25,7 @@ Arctic Aria
 |
 `-- Infrastructure services
     |-- Database
+    |-- Cron scheduler
     |-- Future cache
     |-- Future dataflow
     `-- Future background jobs
@@ -38,8 +39,10 @@ and external adapters.
 Currently implemented product features are Auth, Settings, Projects, Routines,
 Memories, Dashboard, and the first Ideas capture foundation. The Discord
 integration is hosted by the Next.js web app and supports account binding,
-`/idea` capture, and outbound test messages. Scheduler, Reviews, Redis/cache,
-dataflow, and background jobs are planned directions.
+`/idea` capture, and outbound test messages. Cloudflare provides the current
+cron trigger for scheduled Discord reminders and Daily Review delivery.
+Product-level Scheduler, Reviews, Redis/cache, dataflow, and broader background
+jobs remain planned directions.
 
 Documentation follows the same shape:
 
@@ -47,9 +50,10 @@ Documentation follows the same shape:
   implementation notes.
 - `docs/web/`: shared web UI component rules.
 - `docs/web/ui.md`: shared UI terminology and UI documentation index.
-- `docs/infrastructure/`: database, migrations, Redis planning, and technical
-  service direction. Current infrastructure is Neon PostgreSQL; Redis/cache and
-  event dataflow are future directions.
+- `docs/infrastructure/`: cron scheduling, database, migrations, Redis
+  planning, and technical service direction. Current infrastructure is Neon
+  PostgreSQL plus a Cloudflare cron worker; Redis/cache and event dataflow are
+  future directions.
 - `docs/features/discord/`: Discord integration behavior implemented by the
   web app.
 
@@ -256,24 +260,26 @@ technical mechanisms, not product decisions.
 Infrastructure owns:
 
 - database persistence, migrations, indexes, and transaction support
+- cron trigger configuration and protected scheduled-route invocation
 - future cache support, likely Redis, when repeated read paths or ephemeral
   coordination need it
 - future event publishing, subscribing, retries, and delivery tracking
-- future background execution for reminders, scheduled review work, and
-  notification delivery
+- future richer background execution for reminders, scheduled review work, and
+  notification delivery when simple cron invocation is not enough
 - external service adapters
 
 Product features define entities, commands, validations, and domain events.
 Infrastructure stores those entities now. Future infrastructure may move events
 between modules when reminder, review, or cache flows need it.
 
-For the first version, only Neon PostgreSQL is implemented. Redis/cache,
-event/dataflow, queues, and background workers are future infrastructure
-directions. They still belong in infrastructure because product features should
-not depend directly on a specific storage engine, queue, or notification
-transport.
+For the current version, Neon PostgreSQL and a Cloudflare cron worker are
+implemented. Redis/cache, event/dataflow, queues, and richer background workers
+are future infrastructure directions. They still belong in infrastructure
+because product features should not depend directly on a specific storage
+engine, queue, scheduler, or notification transport.
 
 Detailed docs:
 
+- [infrastructure/cron.md](infrastructure/cron.md)
 - [infrastructure/database.md](infrastructure/database.md)
 - [infrastructure/redis.md](infrastructure/redis.md)

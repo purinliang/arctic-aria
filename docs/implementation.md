@@ -10,10 +10,10 @@ credential, and data-protection policy are documented in
 
 ## Current Scope
 
-The only implemented runtime app is the Next.js web app in `apps/web`.
-Discord is implemented as HTTP routes inside the web app, not as a separate
-process. Database migrations live under `apps/infrastructure/database` and are
-run by the web app migration script.
+The implemented runtime apps are the Next.js web app in `apps/web` and the
+Cloudflare cron scheduler in `apps/cron`. Discord is implemented as HTTP routes
+inside the web app, not as a separate process. Database migrations live under
+`apps/infrastructure/database` and are run by the web app migration script.
 
 Use this file as a code map. Current product status and future requirements
 belong in [README.md](../README.md), [roadmap.md](roadmap.md), and feature
@@ -28,6 +28,12 @@ Web app:
 - TypeScript
 - Tailwind CSS
 - `lucide-react` for icons
+
+Cron scheduler:
+
+- Cloudflare Workers Cron Triggers
+- small Worker app that invokes protected web cron routes
+- no direct database or Discord credentials
 
 Backend inside the web app:
 
@@ -52,6 +58,12 @@ workspace yet.
 ```text
 arctic-aria/
 |-- apps/
+|   |-- cron/
+|   |   |-- src/
+|   |   |   `-- index.js
+|   |   |-- package.json
+|   |   `-- wrangler.jsonc
+|   |
 |   |-- infrastructure/
 |   |   `-- database/
 |   |       `-- migrations/
@@ -212,6 +224,7 @@ Shared web docs:
 
 Infrastructure docs:
 
+- [infrastructure/cron.md](infrastructure/cron.md)
 - [infrastructure/database.md](infrastructure/database.md)
 - [infrastructure/environment.md](infrastructure/environment.md)
 - [infrastructure/redis.md](infrastructure/redis.md)
@@ -247,6 +260,12 @@ Persistence entry points:
 - `apps/infrastructure/database/migrations`
 - `apps/web/scripts/migrate.mjs`
 - `apps/web/src/features/<feature>/server`
+
+Cron entry points:
+
+- `apps/cron/src/index.js`
+- `apps/cron/wrangler.jsonc`
+- `apps/web/src/app/api/cron/discord-notifications/route.ts`
 
 ## Future Extraction Direction
 

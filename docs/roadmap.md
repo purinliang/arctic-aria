@@ -24,8 +24,9 @@ Implemented direction:
   version produces short plain text covering done and undone project tasks,
   done and undone routines, and pinned memories. Do not add a separate review
   table; the Discord delivery record is enough for now.
-- Use `/api/cron/discord-notifications` as the scheduled Vercel cron route for
-  both routine reminders and Daily Review.
+- Use the Cloudflare cron worker in `apps/cron` to invoke
+  `/api/cron/discord-notifications` for both routine reminders and Daily
+  Review.
 
 v0.11.0 interaction hardening:
 

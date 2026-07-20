@@ -1,0 +1,12 @@
+{
+  "name": "@arctic-aria/cron",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "pnpm dlx wrangler deploy",
+    "dev": "pnpm dlx wrangler dev --test-scheduled",
+    "test": "node --test \"src/**/*.test.js\""
+  },
+  "packageManager": "pnpm@11.7.0"
+}
