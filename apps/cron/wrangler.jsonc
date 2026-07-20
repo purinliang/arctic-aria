@@ -7,6 +7,6 @@
     "crons": ["*/15 * * * *"]
   },
   "vars": {
-    "ARCTIC_ARIA_WEB_BASE_URL": "https://arctic-aria.vercel.app"
+    "WEB_APP_BASE_URL": "https://arctic-aria.vercel.app"
   }
 }

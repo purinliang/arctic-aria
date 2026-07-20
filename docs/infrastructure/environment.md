@@ -126,7 +126,7 @@ Current variables:
 
 | Variable | Required now | Purpose |
 | --- | --- | --- |
-| `ARCTIC_ARIA_WEB_BASE_URL` | Yes | Base URL for the deployed web app that owns the cron route. Production currently points at `https://arctic-aria.vercel.app`. |
+| `WEB_APP_BASE_URL` | Yes | Base URL for the deployed web app that owns the cron route. Production currently points at `https://arctic-aria.vercel.app`. |
 | `CRON_SECRET` | Yes | Secret sent to the web app as `Authorization: Bearer <CRON_SECRET>`. This must match the web app's `CRON_SECRET` for the target environment. |
 
 The cron worker is deployed separately from the web app. It does not need

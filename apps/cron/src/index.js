@@ -18,7 +18,7 @@ export default {
     if (url.pathname === "/health") {
       return Response.json({
         ok: true,
-        target: safeTargetDescription(env.ARCTIC_ARIA_WEB_BASE_URL),
+        target: safeTargetDescription(env.WEB_APP_BASE_URL),
       });
     }
 
@@ -46,7 +46,7 @@ export async function invokeScheduledWebCron({
   fetcher = fetch,
   scheduledTime = Date.now(),
 }) {
-  const targetUrl = buildCronTargetUrl(env.ARCTIC_ARIA_WEB_BASE_URL);
+  const targetUrl = buildCronTargetUrl(env.WEB_APP_BASE_URL);
   const secret = readRequiredValue(env.CRON_SECRET, "CRON_SECRET");
   const startedAt = Date.now();
   const response = await fetcher(targetUrl, {
@@ -76,12 +76,12 @@ export async function invokeScheduledWebCron({
 export function buildCronTargetUrl(webBaseUrl) {
   const baseUrl = readRequiredValue(
     webBaseUrl,
-    "ARCTIC_ARIA_WEB_BASE_URL",
+    "WEB_APP_BASE_URL",
   );
   const url = new URL(baseUrl);
 
   if (url.protocol !== "http:" && url.protocol !== "https:") {
-    throw new Error("ARCTIC_ARIA_WEB_BASE_URL must be an HTTP(S) URL.");
+    throw new Error("WEB_APP_BASE_URL must be an HTTP(S) URL.");
   }
 
   url.pathname = joinUrlPaths(url.pathname, scheduledDiscordNotificationsPath);

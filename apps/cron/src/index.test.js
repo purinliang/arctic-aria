@@ -19,7 +19,7 @@ test("buildCronTargetUrl appends the scheduled web cron path", () => {
 test("buildCronTargetUrl rejects missing or unsupported base urls", () => {
   assert.throws(
     () => buildCronTargetUrl(""),
-    /ARCTIC_ARIA_WEB_BASE_URL is not configured/,
+    /WEB_APP_BASE_URL is not configured/,
   );
   assert.throws(
     () => buildCronTargetUrl("ftp://example.com"),
@@ -32,7 +32,7 @@ test("invokeScheduledWebCron calls the web cron route with the cron secret", asy
   const result = await invokeScheduledWebCron({
     cron: "*/15 * * * *",
     env: {
-      ARCTIC_ARIA_WEB_BASE_URL: "https://example.com",
+      WEB_APP_BASE_URL: "https://example.com",
       CRON_SECRET: "test-secret",
     },
     fetcher: async (url, init) => {
@@ -63,7 +63,7 @@ test("invokeScheduledWebCron fails when the web route fails", async () => {
   await assert.rejects(
     invokeScheduledWebCron({
       env: {
-        ARCTIC_ARIA_WEB_BASE_URL: "https://example.com",
+        WEB_APP_BASE_URL: "https://example.com",
         CRON_SECRET: "test-secret",
       },
       fetcher: async () => new Response("failed", { status: 502 }),

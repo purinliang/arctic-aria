@@ -63,7 +63,7 @@ The target route path is fixed in `apps/cron/src/index.js`:
 
 Cron worker:
 
-- `ARCTIC_ARIA_WEB_BASE_URL`: non-secret target web app base URL
+- `WEB_APP_BASE_URL`: non-secret target web app base URL
 - `CRON_SECRET`: secret matching the target web app environment
 
 Web app:
@@ -120,7 +120,7 @@ pnpm --dir apps/cron deploy
 ```
 
 If the production web app moves away from `https://arctic-aria.vercel.app`,
-update `ARCTIC_ARIA_WEB_BASE_URL` in `apps/cron/wrangler.jsonc` before
+update `WEB_APP_BASE_URL` in `apps/cron/wrangler.jsonc` before
 deploying the worker.
 
 ## Failure Behavior
