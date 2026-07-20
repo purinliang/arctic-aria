@@ -8,7 +8,7 @@ import {
   resolveMigrationsDir,
   schemaHashForMigrations,
   validateAppliedMigrationHistory,
-} from "../../../../scripts/migration-metadata.mjs";
+} from "../../../../../database/scripts/migration-metadata.mjs";
 
 const expectedMigrations = [
   {

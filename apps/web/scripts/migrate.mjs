@@ -9,11 +9,11 @@ import {
   finishMigrationRun,
   safeMigrationFailureMessage,
   startMigrationRun,
-} from "./migration-run-audit.mjs";
+} from "../../database/scripts/migration-run-audit.mjs";
 import {
   readMigrationFiles,
   validateAppliedMigrationHistory,
-} from "./migration-metadata.mjs";
+} from "../../database/scripts/migration-metadata.mjs";
 
 const appRoot = process.cwd();
 const envFiles = [".env.local", ".env.development.local"];

@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { resolveExpectedDatabaseMetadata } from "./migration-metadata.mjs";
+import { resolveExpectedDatabaseMetadata } from "../../database/scripts/migration-metadata.mjs";
 
 export function resolveAppMetadata(appRoot = process.cwd()) {
   const repoRoot = path.resolve(appRoot, "..", "..");

@@ -64,9 +64,9 @@ arctic-aria/
 |   |   |-- package.json
 |   |   `-- wrangler.jsonc
 |   |
-|   |-- infrastructure/
-|   |   `-- database/
-|   |       `-- migrations/
+|   |-- database/
+|   |   |-- migrations/
+|   |   `-- scripts/
 |   `-- web/
 |       |-- AGENTS.md
 |       |-- scripts/
@@ -258,6 +258,7 @@ Persistence entry points:
 
 - `apps/web/src/server/database/neon.ts`
 - `apps/database/migrations`
+- `apps/database/scripts`
 - `apps/web/scripts/migrate.mjs`
 - `apps/web/src/features/<feature>/server`
 
