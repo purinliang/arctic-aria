@@ -18,8 +18,9 @@ Implemented direction:
    existing Discord HTTP sender, and keep `discord_message_deliveries` as the
    delivery audit and idempotency record.
 - Add automatic routine reminder sending through the shared Discord
-   notification pipeline. The first reminder text should be concise and should
-   not introduce Discord response buttons.
+  notification pipeline, backed by routine instance reminder timestamps and a
+  cron-tolerant due window. The first reminder text should be concise and
+  should not introduce Discord response buttons.
 - Add Daily Review Discord messages generated from Today page items. The first
   version produces short plain text covering done and undone project tasks,
   done and undone routines, and pinned memories. Do not add a separate review
@@ -116,7 +117,8 @@ Likely future items:
 - Add stronger settings, including default theme and personal day-boundary time.
 - Improve Memories suggestions after the memory data model and dashboard
   behavior are stable.
-- Add Discord reminders after routine and daily review behavior are stable.
+- Improve Discord reminder actions after routine reminder and Daily Review
+  delivery behavior are stable.
 - Add optional sharing and deployment hardening when the core private workflow
   is reliable.
 - Add backup, sync, and account lifecycle strategy when the data model is more

@@ -2,12 +2,20 @@ import {
   discordNotificationService,
   type DiscordNotificationResult,
 } from "../../discord/server/notification-service.ts";
-import { dateKey, shouldGenerateInstance } from "./routine-service.ts";
+import { shouldGenerateInstance } from "./routine-service.ts";
 import { PostgresRoutineRepository } from "./postgres-routine-repository.ts";
 import type {
-  RoutineRecord,
   RoutineRepository,
 } from "./routine-repository.ts";
+import {
+  isRoutineReminderDueAt,
+  resolveRoutineScheduledTime,
+  routineReminderAt,
+  routineReminderCandidateDates,
+  routineReminderIdempotencyKey,
+  routineReminderText,
+  routineReminderWindowMinutes,
+} from "./routine-reminder-schedule.ts";
 
 export type RoutineReminderRunResult = {
   checked: number;
@@ -50,45 +58,86 @@ export function createRoutineReminderService({
       };
 
       for (const routine of activeRoutines) {
-        const local = localRoutineMoment(routine, occurredAt);
+        let hasDueCandidate = false;
+        let hasPendingDueCandidate = false;
 
-        if (!local || !shouldGenerateInstance(routine, local.date)) {
-          result.skipped += 1;
-          continue;
+        for (const scheduledDate of routineReminderCandidateDates(
+          routine,
+          occurredAt,
+        )) {
+          if (!shouldGenerateInstance(routine, scheduledDate)) {
+            continue;
+          }
+
+          const scheduledTime = resolveRoutineScheduledTime(routine);
+          const remindAt = routineReminderAt({
+            scheduledDate,
+            scheduledTime,
+            timeZone: routine.rule.timezone,
+          });
+
+          if (
+            !isRoutineReminderDueAt({
+              occurredAt,
+              remindAt,
+            })
+          ) {
+            continue;
+          }
+
+          hasDueCandidate = true;
+
+          const instance = await routines.ensureRoutineInstance({
+            userId: routine.userId,
+            routineId: routine.id,
+            scheduledDate,
+            scheduledTime,
+            remindAt,
+            occurredAt,
+          });
+
+          if (instance?.status === "pending" && instance.remindedAt === null) {
+            hasPendingDueCandidate = true;
+          }
         }
 
-        result.due += 1;
+        if (!hasDueCandidate || !hasPendingDueCandidate) {
+          result.skipped += 1;
+        }
+      }
 
-        const instance = await routines.ensureRoutineInstance({
-          userId: routine.userId,
-          routineId: routine.id,
-          scheduledDate: local.date,
-          scheduledTime: routine.rule.preferredTime,
+      const dueInstances =
+        await routines.listPendingRoutineInstancesForReminderWindow({
           occurredAt,
+          windowMinutes: routineReminderWindowMinutes,
         });
 
-        if (!instance || instance.status !== "pending") {
-          result.skipped += 1;
-          continue;
-        }
+      result.due = dueInstances.length;
 
+      for (const instance of dueInstances) {
         const notification = await notifier.sendUserNotification({
-          userId: routine.userId,
-          idempotencyKey: routineReminderIdempotencyKey(instance.id),
-          text: routineReminderText(routine),
+          userId: instance.userId,
+          idempotencyKey: routineReminderIdempotencyKey(instance),
+          text: routineReminderText(instance),
           source: "scheduler",
           metadata: {
             feature: "routines",
             action: "routine-reminder",
-            routineId: routine.id,
+            routineId: instance.routineId,
             routineInstanceId: instance.id,
             scheduledDate: instance.scheduledDate,
             scheduledTime: instance.scheduledTime,
+            remindAt: instance.remindAt?.toISOString() ?? null,
           },
           logEventName: "routine_reminder_notification_handled",
         });
 
         if (notification.ok) {
+          await routines.markRoutineInstanceReminded({
+            userId: instance.userId,
+            instanceId: instance.id,
+            remindedAt: occurredAt,
+          });
           result.sent += 1;
           continue;
         }
@@ -104,51 +153,6 @@ export function createRoutineReminderService({
       return result;
     },
   };
-}
-
-function localRoutineMoment(routine: RoutineRecord, occurredAt: Date) {
-  if (!routine.rule.preferredTime) {
-    return null;
-  }
-
-  const local = localDateTimeParts(occurredAt, routine.rule.timezone);
-
-  return local.time === routine.rule.preferredTime ? local : null;
-}
-
-function localDateTimeParts(date: Date, timeZone: string) {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    day: "2-digit",
-    hour: "2-digit",
-    hourCycle: "h23",
-    hour12: false,
-    minute: "2-digit",
-    month: "2-digit",
-    timeZone,
-    year: "numeric",
-  }).formatToParts(date);
-  const values = Object.fromEntries(
-    parts
-      .filter((part) => part.type !== "literal")
-      .map((part) => [part.type, part.value]),
-  );
-
-  return {
-    date: dateKey(
-      new Date(`${values.year}-${values.month}-${values.day}T00:00:00.000Z`),
-    ),
-    time: `${values.hour}:${values.minute}`,
-  };
-}
-
-function routineReminderIdempotencyKey(instanceId: string) {
-  return `routine-reminder:${instanceId}`;
-}
-
-function routineReminderText(routine: RoutineRecord) {
-  return routine.rule.preferredTime
-    ? `Routine reminder: ${routine.title} is due at ${routine.rule.preferredTime}.`
-    : `Routine reminder: ${routine.title} is due.`;
 }
 
 export const routineReminderService = createRoutineReminderService();

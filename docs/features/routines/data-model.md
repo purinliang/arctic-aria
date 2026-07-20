@@ -28,6 +28,7 @@ Database constraints should protect:
 - one rule per routine
 - one routine instance per routine/date/time combination
 - allowed routine instance statuses
+- reminder timestamps on routine instances
 - end date not before first start date
 - positive interval values when present
 - valid day-of-month range when present
@@ -130,6 +131,10 @@ Current fields:
 - `routine_id`
 - `scheduled_date`
 - `scheduled_time`
+- `remind_at`
+- `reminded_at`
+- `moved_at`
+- `moved_from_date`
 - `status`
 - `completed_at`
 - `skipped_at`
@@ -142,6 +147,22 @@ Current statuses:
 - `completed`
 - `skipped`
 
+`skipped` remains readable for compatibility, but current dashboard UI does not
+create new skipped rows. Future reminder responses should prefer `Later` and
+`Move to tomorrow` instead of treating skip as a first-class current action.
+
+Reminder fields:
+
+- `scheduled_date` is the local date this occurrence belongs to.
+- `scheduled_time` is the planned local clock time for this concrete
+  occurrence. It is resolved from `routine_rules.preferred_time`, or `18:00`
+  when preferred time is empty.
+- `remind_at` is the exact timestamp when Discord reminder delivery should be
+  attempted.
+- `reminded_at` is set only after the reminder send succeeds.
+- `moved_at` and `moved_from_date` are reserved for moving a pending occurrence
+  to another day.
+
 Current database protection:
 
 - `user_id` references `users.id`.
@@ -149,6 +170,9 @@ Current database protection:
 - status is constrained to `pending`, `completed`, or `skipped`.
 - unique schedule index prevents duplicate instances for the same
   routine/date/time.
+- due reminder index covers pending rows with `remind_at` set and
+  `reminded_at` empty.
+- move metadata requires `moved_from_date` to have `moved_at`.
 
 ## `completion_events`
 
@@ -170,11 +194,15 @@ notification service and `discord_message_deliveries`.
 
 The first reminder sender:
 
-- scans active routines with `preferred_time`
-- evaluates the routine's stored timezone against the current cron run time
-- ensures the due routine instance exists
+- scans active routines
+- resolves each routine's stored timezone, preferred time, and `18:00` fallback
+- ensures routine instances only when their `remind_at` is inside the due
+  window
+- queries pending routine instances by `remind_at`
 - sends only pending instances
-- uses the routine instance id in the Discord delivery idempotency key
+- sets `reminded_at` after successful Discord delivery
+- uses the routine instance id and `remind_at` in the Discord delivery
+  idempotency key
 
 No separate routine reminder table exists yet. `discord_message_deliveries`
 records the outbound Discord delivery result.
@@ -191,6 +219,9 @@ Historical migrations still show the old routine lifecycle shape:
 - `0021_database_deletion_governance.sql` adds `routines.deleted_at`, backfills
   deleted rows from the old `status = 'deleted'` value, drops the old lifecycle
   status column, and replaces the active-routine index.
+- `0022_add_routine_reminder_state.sql` adds instance-level reminder and move
+  metadata, backfills pending `remind_at` values, and adds the due-reminder
+  index.
 
 Because migration history is immutable, do not edit old migration files to
 match the current model. Add a follow-up migration when schema governance

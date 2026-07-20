@@ -18,6 +18,7 @@ import type {
   RoutineInstanceRow,
   RoutineRow,
 } from "./postgres-routine-mappers.ts";
+import { fallbackRoutineScheduledTime } from "./routine-reminder-schedule.ts";
 
 export class PostgresRoutineRepository implements RoutineRepository {
   private readonly sql?: NeonQueryFunction<false, false>;
@@ -58,8 +59,7 @@ export class PostgresRoutineRepository implements RoutineRepository {
     const rows = (await this.getSql().query(
       `${routineSelect}
        WHERE routines.deleted_at IS NULL
-         AND routine_rules.preferred_time IS NOT NULL
-       ORDER BY routine_rules.preferred_time, routines.created_at`,
+       ORDER BY COALESCE(routine_rules.preferred_time, '18:00'), routines.created_at`,
       [],
     )) as RoutineRow[];
 
@@ -135,10 +135,31 @@ export class PostgresRoutineRepository implements RoutineRepository {
         FROM updated_routine
         WHERE routine_rules.routine_id = updated_routine.id
         RETURNING routine_rules.*
+      ),
+      updated_pending_instances AS (
+        UPDATE routine_instances
+        SET
+          scheduled_time = COALESCE($10::time, $14::time),
+          remind_at = (
+            (
+              routine_instances.scheduled_date::timestamp
+              + COALESCE($10::time, $14::time)
+            ) AT TIME ZONE $11
+          ) - interval '30 minutes',
+          reminded_at = NULL,
+          updated_at = $12
+        FROM updated_routine
+        WHERE routine_instances.routine_id = updated_routine.id
+          AND routine_instances.user_id = $1
+          AND routine_instances.status = 'pending'
+          AND routine_instances.scheduled_date >= (
+            ($12::timestamptz AT TIME ZONE $11)::date
+          )
+        RETURNING routine_instances.id
       )
       ${routineSelectFromCtes("updated_routine", "updated_rule")}
       `,
-      [...routineParams(input), input.routineId],
+      [...routineParams(input), input.routineId, fallbackRoutineScheduledTime],
     )) as RoutineRow[];
 
     return rows[0] ? mapRoutine(rows[0]) : null;
@@ -167,6 +188,7 @@ export class PostgresRoutineRepository implements RoutineRepository {
     routineId: string;
     scheduledDate: string;
     scheduledTime: string | null;
+    remindAt: Date | null;
     occurredAt: Date;
   }) {
     const rows = (await this.getSql().query(
@@ -179,28 +201,61 @@ export class PostgresRoutineRepository implements RoutineRepository {
           AND deleted_at IS NULL
         LIMIT 1
       ),
+      existing_instance AS (
+        SELECT routine_instances.*
+        FROM routine_instances
+        INNER JOIN target ON target.id = routine_instances.routine_id
+        WHERE routine_instances.scheduled_date = $3
+          AND (
+            routine_instances.scheduled_time IS NOT DISTINCT FROM $4::time
+            OR (
+              $4::time = $7::time
+              AND routine_instances.scheduled_time IS NULL
+            )
+          )
+        LIMIT 1
+      ),
       inserted_instance AS (
         INSERT INTO routine_instances (
           user_id,
           routine_id,
           scheduled_date,
           scheduled_time,
+          remind_at,
           created_at,
           updated_at
         )
-        SELECT user_id, id, $3, $4, $5, $5
+        SELECT user_id, id, $3, $4, $6, $5, $5
         FROM target
+        WHERE NOT EXISTS (SELECT 1 FROM existing_instance)
         ON CONFLICT DO NOTHING
         RETURNING *
+      ),
+      updated_existing AS (
+        UPDATE routine_instances
+        SET
+          remind_at = COALESCE(routine_instances.remind_at, $6::timestamptz),
+          updated_at = CASE
+            WHEN routine_instances.remind_at IS NULL
+              AND $6::timestamptz IS NOT NULL
+            THEN $5::timestamptz
+            ELSE routine_instances.updated_at
+          END
+        FROM target
+        WHERE routine_instances.id IN (SELECT id FROM existing_instance)
+          AND routine_instances.status = 'pending'
+          AND routine_instances.remind_at IS NULL
+          AND $6::timestamptz IS NOT NULL
+        RETURNING routine_instances.*
       ),
       selected_instance AS (
         SELECT * FROM inserted_instance
         UNION ALL
-        SELECT routine_instances.*
-        FROM routine_instances
-        INNER JOIN target ON target.id = routine_instances.routine_id
-        WHERE routine_instances.scheduled_date = $3
-          AND routine_instances.scheduled_time IS NOT DISTINCT FROM $4::time
+        SELECT * FROM updated_existing
+        UNION ALL
+        SELECT * FROM existing_instance
+        WHERE NOT EXISTS (SELECT 1 FROM inserted_instance)
+          AND NOT EXISTS (SELECT 1 FROM updated_existing)
         LIMIT 1
       )
       ${routineInstanceSelectFromCte("selected_instance")}
@@ -211,7 +266,55 @@ export class PostgresRoutineRepository implements RoutineRepository {
         input.scheduledDate,
         input.scheduledTime,
         input.occurredAt,
+        input.remindAt,
+        fallbackRoutineScheduledTime,
       ],
+    )) as RoutineInstanceRow[];
+
+    return rows[0] ? mapRoutineInstance(rows[0]) : null;
+  }
+
+  async listPendingRoutineInstancesForReminderWindow(input: {
+    occurredAt: Date;
+    windowMinutes: number;
+  }) {
+    const rows = (await this.getSql().query(
+      `${routineInstanceSelect}
+       WHERE routine_instances.status = 'pending'
+         AND routine_instances.remind_at IS NOT NULL
+         AND routine_instances.reminded_at IS NULL
+         AND routine_instances.remind_at <= $1::timestamptz
+         AND routine_instances.remind_at >= (
+           $1::timestamptz - ($2::int * interval '1 minute')
+         )
+         AND routines.deleted_at IS NULL
+       ORDER BY routine_instances.remind_at, routines.title`,
+      [input.occurredAt, input.windowMinutes],
+    )) as RoutineInstanceRow[];
+
+    return rows.map(mapRoutineInstance);
+  }
+
+  async markRoutineInstanceReminded(input: {
+    userId: string;
+    instanceId: string;
+    remindedAt: Date;
+  }) {
+    const rows = (await this.getSql().query(
+      `
+      WITH updated_instance AS (
+        UPDATE routine_instances
+        SET
+          reminded_at = $3::timestamptz,
+          updated_at = $3::timestamptz
+        WHERE user_id = $1
+          AND id = $2
+          AND status = 'pending'
+        RETURNING *
+      )
+      ${routineInstanceSelectFromCte("updated_instance")}
+      `,
+      [input.userId, input.instanceId, input.remindedAt],
     )) as RoutineInstanceRow[];
 
     return rows[0] ? mapRoutineInstance(rows[0]) : null;

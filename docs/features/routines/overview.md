@@ -12,11 +12,11 @@ to complete; routines describe recurring behavior to check.
 ## Boundary
 
 Routines are Core product data because the user creates, edits, deletes,
-completes, and skips them.
+completes, and reopens them.
 
 Reminder delivery is not the routine itself. The routine engine owns routine
-definitions, recurrence rules, routine instances, and completion or skip
-results. Reminder jobs, Discord messages, retries, and snoozes are
+definitions, recurrence rules, routine instances, completion results, and
+historical skip state. Reminder jobs, Discord messages, retries, and snoozes are
 Infrastructure or Interface concerns.
 
 ## Scope
@@ -30,9 +30,9 @@ The first routines feature should include:
 - generating routine instances
 - showing today's routine instances on the dashboard
 - marking a routine instance completed
-- marking a routine instance skipped
+- reopening a completed routine instance
 - recording completion events for daily review
-- Discord reminder delivery for routine instances with preferred times
+- Discord reminder delivery for due routine instances
 
 The first routines feature should not include:
 
@@ -95,6 +95,12 @@ Routine instance statuses:
 The same routine should not generate duplicate instances for the same
 `scheduled_date` and `scheduled_time`.
 
+For reminder delivery, the instance also stores `remind_at` and `reminded_at`.
+The first reminder is scheduled 30 minutes before the resolved local occurrence
+time. Cron may send inside a 25-minute window after `remind_at` so a 15-minute
+Cloudflare cadence does not need to hit the exact minute. If a routine has no
+preferred time, the resolved occurrence time is `18:00` local.
+
 `Busy` is not a routine instance status. It is a reminder response that snoozes
 or reschedules notification delivery. `reminding` is also not a routine
 instance status; it is a UI or delivery state for an active reminder.
@@ -124,8 +130,8 @@ Action behavior:
 - Checking the left checkbox marks the routine instance `completed`.
 - Unchecking the left checkbox reopens the routine instance as `pending`.
 - `Skip` and `Busy` remain future reminder-response actions. `Busy` should not
-  change the instance status; it should create or update reminder delivery state
-  when reminder jobs are implemented.
+  change the instance status; it should create or update reminder delivery
+  state after reminder response actions are designed.
 
 ## Events
 

@@ -4,6 +4,10 @@ import type {
   RoutineRepository,
   RoutineRuleInput,
 } from "./routine-repository.ts";
+import {
+  resolveRoutineScheduledTime,
+  routineReminderAt,
+} from "./routine-reminder-schedule.ts";
 
 export type RoutineServiceOptions = {
   routines?: RoutineRepository;
@@ -112,15 +116,22 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
       await Promise.all(
         activeRoutines
           .filter((routine) => shouldGenerateInstance(routine, today))
-          .map((routine) =>
-            routines.ensureRoutineInstance({
+          .map((routine) => {
+            const scheduledTime = resolveRoutineScheduledTime(routine);
+
+            return routines.ensureRoutineInstance({
               userId,
               routineId: routine.id,
               scheduledDate: today,
-              scheduledTime: routine.rule.preferredTime,
+              scheduledTime,
+              remindAt: routineReminderAt({
+                scheduledDate: today,
+                scheduledTime,
+                timeZone: routine.rule.timezone,
+              }),
               occurredAt,
-            }),
-          ),
+            });
+          }),
       );
 
       return routines.listRoutineInstancesForDate(userId, today);
