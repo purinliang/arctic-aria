@@ -163,6 +163,22 @@ Current routine event target:
 The latest state remains on `routine_instances`. Event history records what
 happened.
 
+## Reminder Delivery
+
+Routine reminder delivery is implemented through the shared Discord
+notification service and `discord_message_deliveries`.
+
+The first reminder sender:
+
+- scans active routines with `preferred_time`
+- evaluates the routine's stored timezone against the current cron run time
+- ensures the due routine instance exists
+- sends only pending instances
+- uses the routine instance id in the Discord delivery idempotency key
+
+No separate routine reminder table exists yet. `discord_message_deliveries`
+records the outbound Discord delivery result.
+
 ## Migration Direction
 
 Historical migrations still show the old routine lifecycle shape:

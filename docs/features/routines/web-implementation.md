@@ -17,6 +17,8 @@ The current web implementation supports database-backed routine testing:
 - show today's routine instances on the dashboard
 - mark a dashboard routine instance completed
 - reopen a completed dashboard routine instance
+- send due routine reminders through the web-hosted cron route and Discord
+  notification service
 
 The current dashboard UI does not show `Busy` or `Skip` buttons. Those are
 future reminder-response actions.
@@ -115,6 +117,12 @@ Routine backend:
 apps/web/src/features/routines/server/
 ```
 
+Routine reminder route:
+
+```text
+apps/web/src/app/api/cron/routine-reminders/route.ts
+```
+
 Database migration:
 
 ```text
@@ -126,6 +134,7 @@ Focused tests:
 ```text
 apps/web/src/features/routines/__tests__/postgres-routine-repository.test.ts
 apps/web/src/features/routines/__tests__/routine-recurrence.test.ts
+apps/web/src/features/routines/__tests__/routine-reminder-service.test.ts
 apps/web/src/features/routines/__tests__/routine-service.test.ts
 ```
 

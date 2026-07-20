@@ -12,7 +12,7 @@ export type RoutineServiceOptions = {
 
 const msPerDay = 24 * 60 * 60 * 1000;
 
-function dateKey(date: Date) {
+export function dateKey(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
@@ -57,7 +57,7 @@ function matchesMonthlyByDate(routine: RoutineRecord, date: string) {
   );
 }
 
-function shouldGenerateInstance(routine: RoutineRecord, date: string) {
+export function shouldGenerateInstance(routine: RoutineRecord, date: string) {
   if (routine.deletedAt !== null) {
     return false;
   }
