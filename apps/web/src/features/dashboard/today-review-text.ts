@@ -24,6 +24,9 @@ type TodayReviewSummaryInput = {
   messages: TodayReviewSummaryMessages;
 };
 
+const taskProgressWeight = 3;
+const routineProgressWeight = 1;
+
 export function buildTodayReviewText({
   dateKey = todayReviewDateKey(),
   memories,
@@ -130,35 +133,44 @@ export function selectTodayReviewSummaryTone({
   TodayReviewSummaryInput,
   "dateKey" | "messages"
 >): TodayReviewSummaryTone {
-  const doneWorkCount = doneTaskCount + doneRoutineCount;
-  const openWorkCount = openTaskCount + openRoutineCount;
-  const totalWorkCount = doneWorkCount + openWorkCount;
+  const doneWeight =
+    doneTaskCount * taskProgressWeight +
+    doneRoutineCount * routineProgressWeight;
+  const totalWeight =
+    (doneTaskCount + openTaskCount) * taskProgressWeight +
+    (doneRoutineCount + openRoutineCount) * routineProgressWeight;
 
-  if (totalWorkCount === 0 && experiencedMemoryCount === 0) {
+  if (totalWeight === 0 && experiencedMemoryCount === 0) {
     return "open";
   }
 
-  if (doneWorkCount > 0 && openWorkCount === 0) {
-    return "fulfilled";
-  }
-
-  if (doneWorkCount > 0 && openWorkCount === 1) {
-    return "near";
-  }
-
-  if (doneWorkCount > 1) {
-    return "steady";
-  }
-
-  if (doneWorkCount === 1) {
-    return "started";
-  }
-
-  if (experiencedMemoryCount > 0) {
+  if (doneWeight === 0 && experiencedMemoryCount > 0) {
     return "life";
   }
 
-  return "gentle";
+  if (doneWeight === 0) {
+    return "gentle";
+  }
+
+  const progress = doneWeight / totalWeight;
+
+  if (progress >= 1) {
+    return "fulfilled";
+  }
+
+  if (progress >= 0.8) {
+    return "near";
+  }
+
+  if (progress >= 0.5) {
+    return "steady";
+  }
+
+  if (progress >= 0.2) {
+    return "started";
+  }
+
+  return "started";
 }
 
 function summaryOptionIndex(input: TodayReviewSummaryInput, optionCount: number) {

@@ -197,6 +197,11 @@ Content area:
   Review panel because those lists are already visible on the Today page
 - choose the summary tone from the visible state of tasks, routines, and pinned
   memories
+- calculate work progress from tasks and routines only. One task has weight
+  `3`; one routine has weight `1`
+- divide work progress into buckets: `100%`, `80%+`, `50%+`, `20%+`, and
+  `0%`. Positive progress below `20%` may still use the lowest progress tone
+  so small routine-only progress is not treated as no progress
 - keep at least seven localized summary options per tone so repeated status
   patterns do not feel mechanical
 - use the current date and visible counts as a stable seed inside the selected

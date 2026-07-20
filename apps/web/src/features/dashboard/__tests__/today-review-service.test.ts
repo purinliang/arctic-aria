@@ -21,9 +21,20 @@ test("selects a status-aware review summary", () => {
     summaryFor({ doneTaskCount: 1, doneRoutineCount: 1 }),
     "fulfilled",
   );
-  assert.equal(summaryFor({ doneTaskCount: 1, openTaskCount: 1 }), "near");
-  assert.equal(summaryFor({ doneTaskCount: 2, openTaskCount: 2 }), "steady");
-  assert.equal(summaryFor({ doneTaskCount: 1, openTaskCount: 2 }), "started");
+  assert.equal(
+    summaryFor({
+      doneTaskCount: 1,
+      doneRoutineCount: 1,
+      openRoutineCount: 1,
+    }),
+    "near",
+  );
+  assert.equal(summaryFor({ doneTaskCount: 1, openTaskCount: 1 }), "steady");
+  assert.equal(
+    summaryFor({ doneRoutineCount: 1, openTaskCount: 1, openRoutineCount: 1 }),
+    "started",
+  );
+  assert.equal(summaryFor({ doneRoutineCount: 1, openTaskCount: 2 }), "started");
   assert.equal(summaryFor({ experiencedMemoryCount: 1 }), "life");
   assert.equal(summaryFor({ openTaskCount: 1 }), "gentle");
   assert.equal(summaryFor({}), "open");
@@ -94,7 +105,7 @@ test("builds Today Review text from dashboard items", () => {
     ],
     summaryMessages: {
       ...summaryMessages,
-      near: ["A little remains, and that can be tomorrow's first step."],
+      steady: ["Some work is done, and the rest has shape."],
     },
   });
 
@@ -125,7 +136,7 @@ test("builds Today Review text from dashboard items", () => {
       "- Quiet book",
       "",
       "### Summary",
-      "A little remains, and that can be tomorrow's first step.",
+      "Some work is done, and the rest has shape.",
     ].join("\n"),
   );
 });
