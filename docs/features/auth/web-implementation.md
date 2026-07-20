@@ -66,7 +66,7 @@ Database client and migrations:
 
 ```text
 apps/web/src/server/database/neon.ts
-apps/infrastructure/database/migrations/0001_create_users.sql
+apps/database/migrations/0001_create_users.sql
 apps/web/scripts/migrate.mjs
 ```
 

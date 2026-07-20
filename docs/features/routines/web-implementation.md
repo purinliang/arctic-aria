@@ -128,7 +128,7 @@ apps/web/src/app/api/cron/routine-reminders/route.ts
 Database migration:
 
 ```text
-apps/infrastructure/database/migrations/0003_create_routines.sql
+apps/database/migrations/0003_create_routines.sql
 ```
 
 Focused tests:

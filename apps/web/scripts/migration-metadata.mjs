@@ -31,7 +31,7 @@ export function readMigrationFiles(appRoot = process.cwd()) {
 }
 
 export function resolveMigrationsDir(appRoot = process.cwd()) {
-  return path.resolve(appRoot, "..", "infrastructure", "database", "migrations");
+  return path.resolve(appRoot, "..", "database", "migrations");
 }
 
 export function resolveExpectedDatabaseMetadata(appRoot = process.cwd()) {

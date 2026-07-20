@@ -13,7 +13,7 @@ credential, and data-protection policy are documented in
 The implemented runtime apps are the Next.js web app in `apps/web` and the
 Cloudflare cron scheduler in `apps/cron`. Discord is implemented as HTTP routes
 inside the web app, not as a separate process. Database migrations live under
-`apps/infrastructure/database` and are run by the web app migration script.
+`apps/database` and are run by the web app migration script.
 
 Use this file as a code map. Current product status and future requirements
 belong in [README.md](../README.md), [roadmap.md](roadmap.md), and feature
@@ -257,7 +257,7 @@ Feature page and panel entry points:
 Persistence entry points:
 
 - `apps/web/src/server/database/neon.ts`
-- `apps/infrastructure/database/migrations`
+- `apps/database/migrations`
 - `apps/web/scripts/migrate.mjs`
 - `apps/web/src/features/<feature>/server`
 

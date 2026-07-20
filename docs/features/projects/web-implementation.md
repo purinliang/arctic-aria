@@ -369,8 +369,8 @@ apps/web/src/features/projects/server/
 Database migrations:
 
 ```text
-apps/infrastructure/database/migrations/0005_create_projects.sql
-apps/infrastructure/database/migrations/0006_drop_project_subtasks.sql
+apps/database/migrations/0005_create_projects.sql
+apps/database/migrations/0006_drop_project_subtasks.sql
 ```
 
 Tests:
