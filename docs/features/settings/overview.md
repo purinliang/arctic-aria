@@ -12,11 +12,13 @@ Settings should include personal configuration that affects how the product
 behaves for one user.
 
 The current prototype implements a Settings page opened from the sidebar
-`Settings` item. It is organized into three cards:
+`Settings` item. It is organized into normal user cards plus an administrator
+diagnostic card when the signed-in account is an administrator:
 
 - `Preferences`: persisted display, language, and time preferences
 - `Discord Binding`: Discord account binding controls
 - `About`: visible app version and collapsed database-version metadata
+- `Developer Tools`: administrator-only diagnostics, currently latency testing
 
 Implemented user preferences:
 
@@ -87,6 +89,30 @@ Do not show migration filenames in the user-facing Settings UI. Do not add
 developer-account-specific display rules for version metadata. If a future
 admin/debug mode is added, reveal the existing mounted database row through an
 explicit role or environment rule rather than a hard-coded account name.
+
+## Developer Tools
+
+Progress: implemented for administrator latency diagnostics
+
+The `Developer Tools` card appears only when the signed-in session has
+`isAdmin = true`. It is not a user-controlled developer-mode switch. Backend
+developer APIs must also verify the signed session and reject non-admin users.
+
+Current behavior:
+
+- show `Only visible to administrators.`
+- show one `Test Latency` button with a speed/gauge icon
+- run 30 sequential samples against `/api/developer/performance/latency`
+- show min, p10, p50, p90, max, and average timing
+- show browser-to-backend-to-database total timing, backend handler timing,
+  backend-to-database timing, and estimated browser/backend overhead
+- allow copying a Markdown report
+- also print the latest report table to the browser console for quick debugging
+- do not persist latency reports in the database
+
+The latency route performs one lightweight database query per request. The
+frontend repeats the request so the report measures real browser request
+latency, not only an internal backend loop.
 
 Current web source:
 

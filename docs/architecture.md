@@ -37,12 +37,12 @@ services provide storage now and can later provide cache, dataflow, scheduling,
 and external adapters.
 
 Currently implemented product features are Auth, Settings, Projects, Routines,
-Memories, Dashboard, and the first Ideas capture foundation. The Discord
-integration is hosted by the Next.js web app and supports account binding,
-`/idea` capture, and outbound test messages. Cloudflare provides the current
-cron trigger for scheduled Discord reminders and Daily Review delivery.
-Product-level Scheduler, Reviews, Redis/cache, dataflow, and broader background
-jobs remain planned directions.
+Memories, Dashboard, the first Ideas capture foundation, and administrator
+Performance diagnostics. The Discord integration is hosted by the Next.js web
+app and supports account binding, `/idea` capture, and outbound test messages.
+Cloudflare provides the current cron trigger for scheduled Discord reminders
+and Daily Review delivery. Product-level Scheduler, Reviews, Redis/cache,
+dataflow, and broader background jobs remain planned directions.
 
 Documentation follows the same shape:
 
@@ -85,6 +85,16 @@ password, because those commands must enforce auth security rules.
 Detailed docs:
 
 - [features/settings/overview.md](features/settings/overview.md)
+
+### Performance
+
+Performance owns administrator-only diagnostics that measure the live app
+without exposing secrets or writing benchmark data into product tables. It is a
+developer support feature, not a normal user workflow.
+
+Detailed docs:
+
+- [features/performance/overview.md](features/performance/overview.md)
 
 ### Projects
 

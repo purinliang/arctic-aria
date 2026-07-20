@@ -12,6 +12,7 @@ type UserRow = {
   username: string;
   display_name: string;
   password_hash: string;
+  is_admin: boolean;
   created_at: Date | string;
   updated_at: Date | string;
 };
@@ -22,6 +23,7 @@ function mapUser(row: UserRow): UserRecord {
     username: row.username,
     displayName: row.display_name,
     passwordHash: row.password_hash,
+    isAdmin: row.is_admin,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
   };
@@ -64,7 +66,7 @@ export class PostgresUserRepository implements UserRepository {
       rows = (await this.getSql()`
         INSERT INTO users (username, display_name, password_hash)
         VALUES (${input.username}, ${input.displayName}, ${input.passwordHash})
-        RETURNING id, username, display_name, password_hash, created_at, updated_at
+        RETURNING id, username, display_name, password_hash, is_admin, created_at, updated_at
       `) as UserRow[];
     } catch (error) {
       if (isUniqueUsernameViolation(error)) {
@@ -81,7 +83,7 @@ export class PostgresUserRepository implements UserRepository {
 
   async findByUsername(username: string) {
     const rows = (await this.getSql()`
-      SELECT id, username, display_name, password_hash, created_at, updated_at
+      SELECT id, username, display_name, password_hash, is_admin, created_at, updated_at
       FROM users
       WHERE username = ${username}
       LIMIT 1

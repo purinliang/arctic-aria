@@ -3,6 +3,7 @@ export type UserRecord = {
   username: string;
   displayName: string;
   passwordHash: string;
+  isAdmin: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -39,6 +40,7 @@ export class InMemoryUserRepository implements UserRepository {
       username: input.username,
       displayName: input.displayName,
       passwordHash: input.passwordHash,
+      isAdmin: false,
       createdAt: now,
       updatedAt: now,
     };
