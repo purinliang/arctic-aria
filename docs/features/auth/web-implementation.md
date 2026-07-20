@@ -68,7 +68,7 @@ Database client and migrations:
 apps/web/src/server/database/neon.ts
 apps/database/migrations/0001_create_users.sql
 apps/database/scripts/migration-metadata.mjs
-apps/web/scripts/migrate.mjs
+apps/web/scripts/database-migration.mjs
 ```
 
 Tests:

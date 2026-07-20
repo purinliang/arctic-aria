@@ -70,7 +70,7 @@ arctic-aria/
 |   `-- web/
 |       |-- AGENTS.md
 |       |-- scripts/
-|       |   `-- migrate.mjs
+|       |   `-- database-migration.mjs
 |       |-- src/
 |       |   |-- app/
 |       |   |-- app-shell/
@@ -259,7 +259,7 @@ Persistence entry points:
 - `apps/web/src/server/database/neon.ts`
 - `apps/database/migrations`
 - `apps/database/scripts`
-- `apps/web/scripts/migrate.mjs`
+- `apps/web/scripts/database-migration.mjs`
 - `apps/web/src/features/<feature>/server`
 
 Cron entry points:
