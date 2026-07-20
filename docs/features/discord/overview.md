@@ -35,6 +35,8 @@ Code locations:
   `apps/web/src/features/discord/server/interaction-endpoint.ts`
 - Slash command metadata:
   `apps/web/src/features/discord/server/commands.ts`
+- Command sync script:
+  `apps/web/src/features/discord/server/sync-commands.ts`
 - `/bind` behavior:
   `apps/web/src/features/discord/server/account-binding.ts`
 - `/idea` behavior:
@@ -67,6 +69,7 @@ All current Discord variables belong in `apps/web/.env.local` locally and in
 the Vercel web project environment for deployment:
 
 - `DISCORD_BOT_TOKEN`
+- `DISCORD_APP_ID` when syncing slash commands
 - `DISCORD_PUBLIC_KEY`
 
 The web app also needs its normal shared variables, such as `NEON_POSTGRES_URL`
@@ -74,17 +77,22 @@ and `AUTH_SESSION_SECRET`.
 
 ## Command Metadata
 
-Slash command names used by the interaction handler live in
-`apps/web/src/features/discord/server/commands.ts`. The committed app no longer
-includes an npm command-registration script. Command descriptions, install
-context, and option metadata are managed in the Discord Developer Portal.
+Slash command names and metadata live in
+`apps/web/src/features/discord/server/commands.ts`.
 
-When command names, descriptions, or options change, update both the code and
-the Discord Developer Portal. For user-installed Discord apps, installed command
-metadata can still be stale after command settings change. After adding,
-renaming, or changing slash-command options, reinstall or re-authorize the app
-from Discord Developer Portal -> Installation -> Install Link, then refresh or
-restart the Discord client.
+After changing slash command metadata, make sure `apps/web/.env.local` points
+at the intended Discord app and run:
+
+```bash
+pnpm --dir apps/web discord:sync-commands
+```
+
+This command uses `DISCORD_APP_ID` and `DISCORD_BOT_TOKEN` to push global
+commands to Discord. For user-installed Discord apps, installed command metadata
+can still be stale after command settings change. After adding, renaming, or
+changing slash-command options, reinstall or re-authorize the app from Discord
+Developer Portal -> Installation -> Install Link, then refresh or restart the
+Discord client.
 
 Recommended Discord Developer Portal settings:
 
@@ -103,13 +111,19 @@ Recommended Discord Developer Portal settings:
    pnpm --dir apps/web db:migrate
    ```
 
-3. Start the web app:
+3. Sync slash commands if metadata changed or if this is a new dev bot:
+
+   ```bash
+   pnpm --dir apps/web discord:sync-commands
+   ```
+
+4. Start the web app:
 
    ```bash
    pnpm --dir apps/web dev
    ```
 
-4. Expose local Next.js with ngrok:
+5. Expose local Next.js with ngrok:
 
    ```bash
    pnpm --dir apps/web discord:ngrok
@@ -125,13 +139,13 @@ Recommended Discord Developer Portal settings:
    The script forwards ngrok to local port `3000`. It does not start Next.js;
    keep `pnpm --dir apps/web dev` running in a separate terminal.
 
-5. Set the Discord interaction endpoint to:
+6. Set the Discord interaction endpoint to:
 
    ```text
    https://<ngrok-domain>/api/discord/interactions
    ```
 
-6. Bind the Discord account from the web Settings page.
+7. Bind the Discord account from the web Settings page.
 
    - Open `http://localhost:3000`.
    - Sign in to the Arctic Aria account.
@@ -139,11 +153,11 @@ Recommended Discord Developer Portal settings:
    - Create a Discord binding code.
    - Run `/bind code:<code>` in Discord.
 
-7. Run `/idea text:<raw text>` in Discord.
+8. Run `/idea text:<raw text>` in Discord.
 
-8. Check captured ideas in the web app under `Ideas`.
+9. Check captured ideas in the web app under `Ideas`.
 
-9. Verify outbound push with Settings -> Discord -> `Send Test`.
+10. Verify outbound push with Settings -> Discord -> `Send Test`.
 
 Expected Discord DM:
 
@@ -304,7 +318,7 @@ idea" behavior without separate privacy, rate-limit, and intent rules.
 - Opening `/api/discord/interactions` in a browser is expected to return a
   method message because Discord uses signed `POST` requests.
 - `This command is outdated` usually means Discord is using cached command
-  metadata. Check the command settings in Discord Developer Portal, refresh or
+  metadata. Re-run `pnpm --dir apps/web discord:sync-commands`, refresh or
   restart Discord, and reinstall or re-authorize the user-installed app when
   command options changed.
 - `The application did not respond` means Discord did not get a valid response
