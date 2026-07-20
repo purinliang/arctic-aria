@@ -14,19 +14,18 @@ The Dashboard is the daily operating surface. It should show what the user can
 act on today without turning into a management page.
 
 The Dashboard may display project tasks, routine instances, pinned memories,
-and a lightweight Today Review panel, but it must not redefine their product
-rules.
+and a lightweight Review panel, but it must not redefine their product rules.
 
 Current Dashboard scope:
 
 - today's selected project tasks
 - today's routine instances
 - pinned memories
-- Today Review panel with a non-production manual Discord delivery test
+- Review panel with a non-production manual Discord delivery test
 
 Deferred Dashboard scope:
 
-- persistent review summary UI
+- persisted review history UI
 - timeline UI
 - full project, routine, or memory management
 
@@ -44,7 +43,7 @@ Dashboard body layout:
 
 - parent layout: shared split layout
 - left column: stacked `Tasks` and `Routines`
-- right column: stacked `Today Review` and `Pinned Memories`
+- right column: stacked `Review` and `Pinned Memories`
 - desktop: left panel should be wider than the right panel through the shared
   split classes
 - mobile: panels stack vertically
@@ -163,11 +162,11 @@ categories fall back to `experienced` / `体验`.
 Clicking the row's outlineless right-arrow button opens the Memories page. The
 whole row is not clickable. Clicking the checkbox must not navigate.
 
-## Today Review Panel
+## Review Panel
 
-The Today Review panel is a lightweight sender, not a persisted review feature.
-It should send a short plain-text Discord message generated from the visible
-Today items:
+The Review panel is a lightweight sender, not a persisted review feature.
+It should send a short Markdown-style Discord message generated from the
+visible Today items:
 
 - done and undone project tasks
 - done and undone routine instances
@@ -179,14 +178,34 @@ editing workflow. Discord delivery history is enough for this version.
 Header:
 
 - icon: `ClipboardCheck`
-- title: `Today Review`
-- description: short encouragement to review today
+- visible title: `Review`
+- description: short encouragement without repeating `Today`
 - right action: secondary `Send` button for the current manual Discord delivery
   test path in local and preview environments only
+
+The Discord message heading should still be `Today Review`, because the message
+can be read outside the Today page.
 
 Hide the `Send` button in the real production environment. Production will use
 scheduled review or reminder delivery after cron behavior is ready. Settings
 `Send Test` remains available in production for explicit Discord diagnostics.
+
+Content area:
+
+- show one deterministic summary sentence above the detail rows
+- choose the summary sentence from default options using the current date as a
+  stable seed; it should not change randomly during the same day
+- show a compact live summary of the current Today panels
+- summary rows: done tasks, open tasks, done routines, open routines, and
+  experienced and not-yet pinned memories
+- use label text for row labels and description text for row values
+- show a calm empty value such as `none` or localized equivalent when a group
+  has no items
+
+Discord message text should use Markdown-style section headings and bullet
+lists so it is easier to scan in Discord. It should separate pinned memories
+that were experienced today from pinned memories that are still not yet
+experienced.
 
 While sending, the action can show the shared pending button text. Success and
 failure results must use the shared notification stack.

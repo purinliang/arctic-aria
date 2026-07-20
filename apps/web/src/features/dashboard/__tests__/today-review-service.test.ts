@@ -1,9 +1,24 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildTodayReviewText } from "../today-review-text.ts";
+import {
+  buildTodayReviewText,
+  reviewSummaryForDate,
+} from "../today-review-text.ts";
+
+test("selects a stable review summary from the date key", () => {
+  assert.equal(
+    reviewSummaryForDate("2026-07-18", ["first", "second"]),
+    "first",
+  );
+  assert.equal(
+    reviewSummaryForDate("2026-07-19", ["first", "second"]),
+    "second",
+  );
+});
 
 test("builds Today Review text from dashboard items", () => {
   const text = buildTodayReviewText({
+    dateKey: "2026-07-18",
     tasks: [
       {
         id: "task-1",
@@ -44,6 +59,16 @@ test("builds Today Review text from dashboard items", () => {
     ],
     memories: [
       {
+        id: "pinned-memory-2",
+        memoryId: "memory-2",
+        category: "Cuisine",
+        categoryBuiltInKey: "cuisine",
+        title: "Soup place",
+        description: null,
+        position: 0,
+        status: "completed",
+      },
+      {
         id: "pinned-memory-1",
         memoryId: "memory-1",
         category: "Book",
@@ -54,18 +79,36 @@ test("builds Today Review text from dashboard items", () => {
         status: "active",
       },
     ],
+    summaryOptions: ["A steady day still counts."],
   });
 
   assert.equal(
     text,
     [
-      "Today Review",
+      "## Today Review",
       "",
-      "Done tasks: Submit form.",
-      "Open tasks: Write notes.",
-      "Done routines: Evening cleanup.",
-      "Open routines: none.",
-      "Pinned memories: Quiet book.",
+      "A steady day still counts.",
+      "",
+      "### Tasks",
+      "You completed 1 task today:",
+      "- Submit form",
+      "",
+      "Open tasks:",
+      "- Write notes",
+      "",
+      "### Routines",
+      "You completed 1 routine today:",
+      "- Evening cleanup",
+      "",
+      "Open routines:",
+      "None.",
+      "",
+      "### Pinned Memories",
+      "You experienced 1 pinned memory today:",
+      "- Soup place",
+      "",
+      "Not yet:",
+      "- Quiet book",
     ].join("\n"),
   );
 });

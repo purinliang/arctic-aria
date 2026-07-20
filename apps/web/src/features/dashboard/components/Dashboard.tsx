@@ -90,7 +90,10 @@ export function Dashboard({
           <TodayReviewPanel
             darkMode={darkMode}
             pending={todayReviewPending}
+            pinnedMemories={pinnedMemories}
+            routines={routines}
             showSendAction={showTodayReviewSendAction}
+            tasks={tasks}
             messages={messages.review}
             onSend={onTodayReviewSend}
           />
