@@ -4,21 +4,43 @@ This roadmap records future work. It should not repeat released implementation
 details; released behavior belongs in `docs/releases/` and stable rules belong
 in the owning feature, web, or infrastructure docs.
 
-Current released version: `v0.7.1`.
+Current released version: `v0.10.1`.
 
-## Next Work
+## v0.11.0 Planned Work
 
-The next work should harden the current prototype before another large
-user-facing feature starts.
+v0.11.0 should make Discord push messages the foundation for routine reminders
+and Today Review. Implement the work as independent feature branches from
+`develop`, and merge each branch back after focused tests pass before starting
+the next feature.
 
-- Review Redis usage without implementing it prematurely. Redis should support
-  latency reduction, short-lived coordination, rate limiting, idempotency, or
-  queue-like behavior only when the database remains the source of truth.
-- Review Discord reminder behavior before implementation, including reminder
-  messages, button interactions, message update strategy, daily review prompts,
-  retry behavior, and quiet/noise rules.
-- Review Discord deployment and operations now that Discord interactions are
-  hosted by the web app.
+Implementation order:
+
+1. Extract the current Settings `Send Test` behavior into a shared server-side
+   Discord notification pipeline. Keep delivery inside the web app, reuse the
+   existing Discord HTTP sender, and keep `discord_message_deliveries` as the
+   delivery audit and idempotency record.
+2. Add automatic routine reminder sending through the shared Discord
+   notification pipeline. The first reminder text should be concise and should
+   not introduce Discord response buttons.
+3. Add Today Review Discord messages generated from Today page items. The
+   first version should produce short plain text covering done and undone
+   project tasks, done and undone routines, and pinned memories. Do not add a
+   separate review table; the Discord delivery record is enough for now.
+4. Fix small race issues separately: silently ignore sign-out clicks that occur
+   immediately after login/session creation, and keep rapid preference changes
+   from being overwritten by stale backend save responses.
+
+v0.11.0 should not require Redis or a separate event bus. Redis can remain a
+future option for performance, idempotency, rate limiting, queue-like behavior,
+or reminder coordination only after a concrete need appears.
+
+## Next Work After v0.11.0
+
+- Review Discord reminder interactions after the first plain reminder messages
+  work, including message update strategy, retry behavior, quiet/noise rules,
+  and whether response buttons are actually useful.
+- Review Discord deployment and operations as the web-hosted interaction and
+  notification paths grow.
 - Add or improve automated tests around existing backend behavior where
   hardening work finds risk.
 - Keep the existing web prototype stable while doing hardening work.
