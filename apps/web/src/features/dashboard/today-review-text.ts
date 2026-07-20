@@ -60,16 +60,20 @@ export function buildTodayReviewText({
     experiencedMemoryCount: experiencedMemories.length,
     messages: summaryMessages,
   });
-  const lines = [
-    `### Today Review ${dateKey}`,
-    "",
+  const summaryParagraph = [
     summaryText,
-    "",
     reviewCountSentence({
       doneMemoryCount: experiencedMemories.length,
       doneRoutineCount: doneRoutines.length,
       doneTaskCount: doneTasks.length,
     }),
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const lines = [
+    `### Today Review ${dateKey}`,
+    "",
+    summaryParagraph,
     "",
     "### Tasks",
     checkboxList(
@@ -80,7 +84,6 @@ export function buildTodayReviewText({
       })),
       "No tasks were selected today.",
     ),
-    "",
     "### Routines",
     checkboxList(
       routines.map((routine) => ({
@@ -90,7 +93,6 @@ export function buildTodayReviewText({
       })),
       "No routines were due today.",
     ),
-    "",
     "### Pinned Memories",
     checkboxList(
       memories.map((memory) => ({

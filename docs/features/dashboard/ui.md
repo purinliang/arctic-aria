@@ -214,12 +214,12 @@ Discord message text should still include Markdown-style sections because the
 message can be read outside the Today page:
 
 - start with `### Today Review <date>`
-- show the same summary sentence immediately below the heading
-- show one friendly count sentence for finished tasks, finished routines, and
-  experienced pinned memories. Handle zero, singular, and plural counts without
-  awkward wording such as `completed no tasks`
+- show the same summary sentence and one friendly count sentence as a single
+  paragraph immediately below the heading. Handle zero, singular, and plural
+  counts without awkward wording such as `completed no tasks`
+- keep exactly one empty line between that summary paragraph and `### Tasks`
 - show `Tasks`, `Routines`, and `Pinned Memories` sections as checkbox-like
-  lists
+  lists, with no empty lines between those sections
 - list each item as `- \`[x]\` **Title**: Description` or
   `- \`[ ]\` **Title**: Description`; use inline code for the checkbox marker
   so Discord renders it as fixed-width text. Omit the colon and description
