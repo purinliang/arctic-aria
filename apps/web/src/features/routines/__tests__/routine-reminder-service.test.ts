@@ -8,7 +8,7 @@ import {
 import { createRoutineReminderService } from "../server/routine-reminder-service.ts";
 
 const userId = "user-1";
-const now = new Date("2026-07-12T10:00:00.000Z");
+const dueAt = new Date("2026-07-12T09:30:00.000Z");
 
 function routine(
   input: Partial<RoutineRecord> & Pick<RoutineRecord, "id" | "title">,
@@ -49,7 +49,7 @@ test("sends due routine reminders through Discord notification service", async (
   });
   const notifier = createNotifierStub({ ok: true });
   const service = createRoutineReminderService({
-    now: () => now,
+    now: () => dueAt,
     notifier,
     routines: repository,
   });
@@ -67,7 +67,7 @@ test("sends due routine reminders through Discord notification service", async (
   assert.equal(notifier.calls[0]?.userId, userId);
   assert.match(
     String(notifier.calls[0]?.idempotencyKey),
-    /^routine-reminder:/,
+    /^routine-reminder:.+:2026-07-12T09:30:00.000Z$/,
   );
   assert.equal(
     notifier.calls[0]?.text,
@@ -80,10 +80,11 @@ test("sends due routine reminders through Discord notification service", async (
     routineInstanceId: notifier.calls[0]?.metadata.routineInstanceId,
     scheduledDate: "2026-07-12",
     scheduledTime: "10:00",
+    remindAt: "2026-07-12T09:30:00.000Z",
   });
 });
 
-test("skips routine reminders when local preferred time is not due", async () => {
+test("skips routine reminders before the reminder window opens", async () => {
   const repository = new InMemoryRoutineRepository({
     routines: [
       routine({
@@ -106,7 +107,35 @@ test("skips routine reminders when local preferred time is not due", async () =>
   });
   const notifier = createNotifierStub({ ok: true });
   const service = createRoutineReminderService({
-    now: () => now,
+    now: () => new Date("2026-07-12T09:20:00.000Z"),
+    notifier,
+    routines: repository,
+  });
+
+  const result = await service.sendDueRoutineReminders();
+
+  assert.deepEqual(result, {
+    checked: 1,
+    due: 0,
+    sent: 0,
+    skipped: 1,
+    failed: 0,
+  });
+  assert.equal(notifier.calls.length, 0);
+});
+
+test("skips routine reminders after the reminder window closes", async () => {
+  const repository = new InMemoryRoutineRepository({
+    routines: [
+      routine({
+        id: "routine-1",
+        title: "Morning check",
+      }),
+    ],
+  });
+  const notifier = createNotifierStub({ ok: true });
+  const service = createRoutineReminderService({
+    now: () => new Date("2026-07-12T09:56:00.000Z"),
     notifier,
     routines: repository,
   });
@@ -132,11 +161,15 @@ test("does not remind completed routine instances", async () => {
     description: null,
     scheduledDate: "2026-07-12",
     scheduledTime: "10:00",
+    remindAt: dueAt,
+    remindedAt: null,
+    movedAt: null,
+    movedFromDate: null,
     status: "completed",
-    completedAt: now,
+    completedAt: dueAt,
     skippedAt: null,
-    createdAt: now,
-    updatedAt: now,
+    createdAt: dueAt,
+    updatedAt: dueAt,
   };
   const repository = new InMemoryRoutineRepository({
     instances: [instance],
@@ -149,7 +182,7 @@ test("does not remind completed routine instances", async () => {
   });
   const notifier = createNotifierStub({ ok: true });
   const service = createRoutineReminderService({
-    now: () => now,
+    now: () => dueAt,
     notifier,
     routines: repository,
   });
@@ -159,6 +192,86 @@ test("does not remind completed routine instances", async () => {
   assert.equal(result.sent, 0);
   assert.equal(result.skipped, 1);
   assert.equal(notifier.calls.length, 0);
+});
+
+test("does not remind instances that were already reminded", async () => {
+  const instance: RoutineInstanceRecord = {
+    id: "instance-1",
+    userId,
+    routineId: "routine-1",
+    title: "Morning check",
+    description: null,
+    scheduledDate: "2026-07-12",
+    scheduledTime: "10:00",
+    remindAt: dueAt,
+    remindedAt: dueAt,
+    movedAt: null,
+    movedFromDate: null,
+    status: "pending",
+    completedAt: null,
+    skippedAt: null,
+    createdAt: dueAt,
+    updatedAt: dueAt,
+  };
+  const repository = new InMemoryRoutineRepository({
+    instances: [instance],
+    routines: [
+      routine({
+        id: "routine-1",
+        title: "Morning check",
+      }),
+    ],
+  });
+  const notifier = createNotifierStub({ ok: true });
+  const service = createRoutineReminderService({
+    now: () => dueAt,
+    notifier,
+    routines: repository,
+  });
+
+  const result = await service.sendDueRoutineReminders();
+
+  assert.equal(result.sent, 0);
+  assert.equal(result.skipped, 1);
+  assert.equal(notifier.calls.length, 0);
+});
+
+test("uses 18:00 as the reminder fallback when preferred time is empty", async () => {
+  const repository = new InMemoryRoutineRepository({
+    routines: [
+      routine({
+        id: "routine-1",
+        title: "Flexible check",
+        rule: {
+          id: "routine-1-rule",
+          routineId: "routine-1",
+          ruleType: "daily",
+          intervalValue: null,
+          weekdays: null,
+          dayOfMonth: null,
+          preferredTime: null,
+          timezone: "UTC",
+          createdAt: new Date("2026-07-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-07-01T00:00:00.000Z"),
+        },
+      }),
+    ],
+  });
+  const notifier = createNotifierStub({ ok: true });
+  const service = createRoutineReminderService({
+    now: () => new Date("2026-07-12T17:30:00.000Z"),
+    notifier,
+    routines: repository,
+  });
+
+  const result = await service.sendDueRoutineReminders();
+
+  assert.equal(result.sent, 1);
+  assert.equal(
+    notifier.calls[0]?.text,
+    "Routine reminder: Flexible check is due at 18:00.",
+  );
+  assert.equal(notifier.calls[0]?.metadata.scheduledTime, "18:00");
 });
 
 test("missing Discord binding skips the due reminder", async () => {
@@ -176,7 +289,7 @@ test("missing Discord binding skips the due reminder", async () => {
     message: "No active Discord binding.",
   });
   const service = createRoutineReminderService({
-    now: () => now,
+    now: () => dueAt,
     notifier,
     routines: repository,
   });

@@ -19,6 +19,8 @@ The current web implementation supports database-backed routine testing:
 - reopen a completed dashboard routine instance
 - send due routine reminders when the Cloudflare cron worker invokes the
   web-hosted scheduled Discord cron route and Discord notification service
+- store routine reminder state on routine instances with `remind_at` and
+  `reminded_at`
 
 The current dashboard UI does not show `Busy` or `Skip` buttons. Those are
 future reminder-response actions.
@@ -115,6 +117,7 @@ Routine backend:
 
 ```text
 apps/web/src/features/routines/server/
+apps/web/src/features/routines/server/routine-reminder-schedule.ts
 ```
 
 Scheduled Discord notification route and Cloudflare caller:
@@ -129,6 +132,7 @@ Database migration:
 
 ```text
 apps/database/migrations/0003_create_routines.sql
+apps/database/migrations/0022_add_routine_reminder_state.sql
 ```
 
 Focused tests:

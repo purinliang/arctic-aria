@@ -1,8 +1,8 @@
 # Daily Board Scheduling Redesign
 
-Status: draft. This file records proposed routine reminder and project task
-daily-selection changes only. Do not treat it as implemented behavior until the
-migration, backend, cron, and UI changes are completed.
+Status: partially implemented. Routine reminder timestamps, due-window cron
+selection, and reminder delivery idempotency are implemented. Routine `Later`
+and `Tomorrow` actions plus project task daily selections remain future work.
 
 ## Boundary
 
@@ -316,12 +316,11 @@ naming rule.
 
 ## Implementation Plan
 
-1. Add focused tests for routine reminder due-window behavior.
-2. Add migration fields on `routine_instances`.
-3. Add backend helpers to compute local scheduled timestamps and reminder
-   timestamps.
-4. Change reminder cron to select due `routine_instances` by `remind_at`.
-5. Keep Today checkbox behavior working with optimistic UI.
+1. Routine reminder due-window behavior is covered by focused tests.
+2. Routine instance reminder fields are added by migration.
+3. Backend helpers compute local scheduled timestamps and reminder timestamps.
+4. Reminder cron selects due `routine_instances` by `remind_at`.
+5. Today checkbox behavior keeps working with optimistic UI.
 6. Add Discord reminder actions later: `Done`, `Later`, and `Tomorrow`.
 7. Add web UI controls only after the backend behavior is stable.
 8. Plan `project_task_daily_selections` after routine reminder behavior is

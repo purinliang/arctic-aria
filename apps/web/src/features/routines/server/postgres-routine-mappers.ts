@@ -35,6 +35,10 @@ export type RoutineInstanceRow = {
   description: string | null;
   scheduled_date: Date | string;
   scheduled_time: string | null;
+  remind_at: Date | string | null;
+  reminded_at: Date | string | null;
+  moved_at: Date | string | null;
+  moved_from_date: Date | string | null;
   status: "pending" | "completed" | "skipped";
   completed_at: Date | string | null;
   skipped_at: Date | string | null;
@@ -75,6 +79,10 @@ export const routineInstanceSelect = `
     routines.description,
     routine_instances.scheduled_date,
     routine_instances.scheduled_time,
+    routine_instances.remind_at,
+    routine_instances.reminded_at,
+    routine_instances.moved_at,
+    routine_instances.moved_from_date,
     routine_instances.status,
     routine_instances.completed_at,
     routine_instances.skipped_at,
@@ -123,6 +131,12 @@ export function mapRoutineInstance(
     description: row.description,
     scheduledDate: toDateString(row.scheduled_date),
     scheduledTime: normalizeTime(row.scheduled_time),
+    remindAt: toNullableDate(row.remind_at),
+    remindedAt: toNullableDate(row.reminded_at),
+    movedAt: toNullableDate(row.moved_at),
+    movedFromDate: row.moved_from_date
+      ? toDateString(row.moved_from_date)
+      : null,
     status: row.status,
     completedAt: toNullableDate(row.completed_at),
     skippedAt: toNullableDate(row.skipped_at),
@@ -184,6 +198,10 @@ export function routineInstanceSelectFromCte(cteName: string) {
       routines.description,
       ${cteName}.scheduled_date,
       ${cteName}.scheduled_time,
+      ${cteName}.remind_at,
+      ${cteName}.reminded_at,
+      ${cteName}.moved_at,
+      ${cteName}.moved_from_date,
       ${cteName}.status,
       ${cteName}.completed_at,
       ${cteName}.skipped_at,

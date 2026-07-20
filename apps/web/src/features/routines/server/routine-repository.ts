@@ -1,3 +1,5 @@
+import { fallbackRoutineScheduledTime } from "./routine-reminder-schedule.ts";
+
 export type RoutineRuleType =
   | "daily"
   | "weekly"
@@ -40,6 +42,10 @@ export type RoutineInstanceRecord = {
   description: string | null;
   scheduledDate: string;
   scheduledTime: string | null;
+  remindAt: Date | null;
+  remindedAt: Date | null;
+  movedAt: Date | null;
+  movedFromDate: string | null;
   status: RoutineInstanceStatus;
   completedAt: Date | null;
   skippedAt: Date | null;
@@ -83,7 +89,17 @@ export type RoutineRepository = {
     routineId: string;
     scheduledDate: string;
     scheduledTime: string | null;
+    remindAt: Date | null;
     occurredAt: Date;
+  }): Promise<RoutineInstanceRecord | null>;
+  listPendingRoutineInstancesForReminderWindow(input: {
+    occurredAt: Date;
+    windowMinutes: number;
+  }): Promise<RoutineInstanceRecord[]>;
+  markRoutineInstanceReminded(input: {
+    userId: string;
+    instanceId: string;
+    remindedAt: Date;
   }): Promise<RoutineInstanceRecord | null>;
   listRoutineInstancesForDate(
     userId: string,
@@ -132,8 +148,7 @@ export class InMemoryRoutineRepository implements RoutineRepository {
 
   async listActiveRoutinesForReminders() {
     return this.routines.filter(
-      (routine) =>
-        routine.deletedAt === null && routine.rule.preferredTime !== null,
+      (routine) => routine.deletedAt === null,
     );
   }
 
@@ -212,6 +227,7 @@ export class InMemoryRoutineRepository implements RoutineRepository {
     routineId: string;
     scheduledDate: string;
     scheduledTime: string | null;
+    remindAt: Date | null;
     occurredAt: Date;
   }) {
     const routine = this.routines.find(
@@ -227,10 +243,17 @@ export class InMemoryRoutineRepository implements RoutineRepository {
       (instance) =>
         instance.routineId === input.routineId &&
         instance.scheduledDate === input.scheduledDate &&
-        instance.scheduledTime === input.scheduledTime,
+        (instance.scheduledTime === input.scheduledTime ||
+          (input.scheduledTime === fallbackRoutineScheduledTime &&
+            instance.scheduledTime === null)),
     );
 
     if (existing) {
+      if (!existing.remindAt && input.remindAt && existing.status === "pending") {
+        existing.remindAt = input.remindAt;
+        existing.updatedAt = input.occurredAt;
+      }
+
       return existing;
     }
 
@@ -242,6 +265,10 @@ export class InMemoryRoutineRepository implements RoutineRepository {
       description: routine.description,
       scheduledDate: input.scheduledDate,
       scheduledTime: input.scheduledTime,
+      remindAt: input.remindAt,
+      remindedAt: null,
+      movedAt: null,
+      movedFromDate: null,
       status: "pending",
       completedAt: null,
       skippedAt: null,
@@ -250,6 +277,50 @@ export class InMemoryRoutineRepository implements RoutineRepository {
     };
 
     this.instances.push(instance);
+
+    return instance;
+  }
+
+  async listPendingRoutineInstancesForReminderWindow(input: {
+    occurredAt: Date;
+    windowMinutes: number;
+  }) {
+    const minRemindAt = new Date(
+      input.occurredAt.getTime() - input.windowMinutes * 60 * 1000,
+    );
+    const activeRoutineIds = new Set(
+      this.routines
+        .filter((routine) => routine.deletedAt === null)
+        .map((routine) => routine.id),
+    );
+
+    return this.instances.filter(
+      (instance) =>
+        activeRoutineIds.has(instance.routineId) &&
+        instance.status === "pending" &&
+        instance.remindAt !== null &&
+        instance.remindedAt === null &&
+        instance.remindAt <= input.occurredAt &&
+        instance.remindAt >= minRemindAt,
+    );
+  }
+
+  async markRoutineInstanceReminded(input: {
+    userId: string;
+    instanceId: string;
+    remindedAt: Date;
+  }) {
+    const instance = this.instances.find(
+      (current) =>
+        current.userId === input.userId && current.id === input.instanceId,
+    );
+
+    if (!instance || instance.status !== "pending") {
+      return null;
+    }
+
+    instance.remindedAt = input.remindedAt;
+    instance.updatedAt = input.remindedAt;
 
     return instance;
   }
