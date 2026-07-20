@@ -144,7 +144,7 @@ Current deployment setup:
 - Current Vercel build command:
 
   ```bash
-  pnpm build && pnpm db:migrate
+  pnpm deploy
   ```
 
 - Production branch: `main`.
@@ -160,30 +160,33 @@ This is currently Vercel-managed CD. It is not a separate GitHub Actions
 pipeline. If the Vercel build command runs tests and lint before migration, it
 also provides a basic deployment validation gate.
 
-Recommended Vercel build command:
+`pnpm deploy` runs these steps:
 
 ```bash
-pnpm test && pnpm lint && pnpm build && pnpm db:migrate
+pnpm build && pnpm discord:sync-commands && pnpm db:migrate
 ```
 
-This order keeps the production database unchanged when tests, lint, or the
-Next.js build fail. It is safer than migrating first and then discovering that
-the app cannot build. The remaining risk is that a migration can succeed and a
-later Vercel deployment step can still fail before the deployment is promoted.
-Because of that, production migrations must remain backward-compatible.
+This order keeps the production database unchanged when the Next.js build or
+Discord command sync fails. It is safer than migrating first and then
+discovering that the app cannot build or that the Discord app credentials point
+at the wrong app. The remaining risk is that a migration can succeed and a later
+Vercel deployment step can still fail before the deployment is promoted. Because
+of that, production migrations must remain backward-compatible.
 
-The current command `pnpm build && pnpm db:migrate` runs the Next.js build
-before touching the database, then exits non-zero if migration fails, so Vercel
-will stop the deployment on migration errors. When the metadata tables are
-available, the failed run is recorded with `status = 'failed'`.
+The current command `pnpm deploy` runs the Next.js build first, syncs Discord
+slash-command metadata for the environment's configured Discord app, then runs
+database migrations. It exits non-zero if any step fails, so Vercel will stop
+the deployment on build, Discord sync, or migration errors. When the migration
+metadata tables are available, failed migration runs are recorded with
+`status = 'failed'`.
 
 If accidental production migration is a concern, do not use an unguarded
 production build command that starts with `pnpm db:migrate`. Use one of these
 safer modes:
 
-- Preferred Vercel-only mode: run `pnpm test`, `pnpm lint`, and `pnpm build`
-  before `pnpm db:migrate`. This prevents app validation failures from touching
-  the production database.
+- Preferred Vercel-only mode: run `pnpm build` and `pnpm discord:sync-commands`
+  before `pnpm db:migrate`. This prevents app validation failures and Discord
+  command-sync failures from touching the production database.
 - Stricter production mode: keep Preview migrations automatic, but run
   Production migrations manually from the exact release commit before or during
   the release checklist.
@@ -215,8 +218,9 @@ Expected local/preview test flow:
 
 Production migration is now part of the Vercel deploy command for `main`.
 Before relying on that path, confirm the Vercel Production environment contains
-the production `NEON_POSTGRES_URL` and that Preview/Development environments do
-not point at the production database. Also confirm Vercel can read
+the production `NEON_POSTGRES_URL`, production Discord env variables, and that
+Preview/Development environments point at preview database and dev Discord app
+credentials. Also confirm Vercel can read
 `apps/database/migrations` from the `apps/web` project root.
 
 To test the migration step without adding a fake schema change, inspect

@@ -27,8 +27,8 @@ Current variables:
 | --- | --- | --- | --- |
 | `NEON_POSTGRES_URL` | Yes | Local and Vercel | PostgreSQL connection URL used by the web app and migration runner. |
 | `AUTH_SESSION_SECRET` | Yes | Local and Vercel | Secret used to sign the 30-day auth session cookie. |
-| `DISCORD_BOT_TOKEN` | Yes for outbound direct messages and command sync | Local and Vercel | Secret bot token from the Discord Developer Portal. |
-| `DISCORD_APP_ID` | Only for command sync | Local | App ID from the Discord Developer Portal, used by `pnpm --dir apps/web discord:sync-commands`. |
+| `DISCORD_BOT_TOKEN` | Yes for outbound direct messages, command sync, and deploy | Local and Vercel | Secret bot token from the Discord Developer Portal. |
+| `DISCORD_APP_ID` | Yes for command sync and deploy | Local and Vercel | App ID from the Discord Developer Portal, used by `pnpm --dir apps/web discord:sync-commands`. |
 | `DISCORD_PUBLIC_KEY` | Yes for Discord interactions | Local and Vercel | Public Key used to verify requests from Discord. |
 | `CRON_SECRET` | Yes for scheduled reminder routes | Vercel web app, Cloudflare cron worker, and local cron-route testing | Secret used to authorize internal cron routes. |
 
@@ -144,15 +144,16 @@ Current variables:
 
 | Variable | Required now | Purpose |
 | --- | --- | --- |
-| `DISCORD_BOT_TOKEN` | Yes to send outbound Discord direct messages and sync commands | Secret bot token from the Discord Developer Portal. |
-| `DISCORD_APP_ID` | Only for command sync | App ID from the Discord Developer Portal, used by `pnpm --dir apps/web discord:sync-commands`. |
+| `DISCORD_BOT_TOKEN` | Yes to send outbound Discord direct messages, sync commands, and run deploy | Secret bot token from the Discord Developer Portal. |
+| `DISCORD_APP_ID` | Yes for command sync and deploy | App ID from the Discord Developer Portal, used by `pnpm --dir apps/web discord:sync-commands`. |
 | `DISCORD_PUBLIC_KEY` | Yes to run the HTTP interaction endpoint | Public Key used to verify requests from Discord. |
 | `CRON_SECRET` | Yes for scheduled Discord routes | Secret used to authorize internal cron routes such as scheduled Discord notifications. |
 | `NEON_POSTGRES_URL` | Yes | Same Neon PostgreSQL database used by the web app. |
 
 Command metadata is synced to Discord with
-`pnpm --dir apps/web discord:sync-commands`. The normal web runtime does not
-read `DISCORD_APP_ID`; it is required only while running the sync command.
+`pnpm --dir apps/web discord:sync-commands`, and `pnpm --dir apps/web deploy`
+includes that step. Each environment should use its own Discord app variables
+so local, preview, and production sync the correct Discord app automatically.
 
 Discord account binding is user-facing. The signed-in Arctic Aria user creates
 a one-time code in Settings, then runs `/bind code:<code>` in Discord. The old
