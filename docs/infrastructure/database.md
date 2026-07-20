@@ -47,9 +47,10 @@ From the repository root, run the same migration entry point with
 
 Migration files live in `apps/database/migrations` because the
 database schema is shared infrastructure, not part of the web UI surface.
-Database-owned migration helpers live in `apps/database/scripts`. The web
-migration entry point imports those helpers, but keeps web environment loading,
-app metadata, and Neon connection setup in `apps/web/scripts`.
+Database-owned migration helpers and migration-runner logic live in
+`apps/database/scripts`. The web migration entry point imports those helpers,
+but keeps web environment loading, app metadata, and Neon connection setup in
+`apps/web/scripts`.
 
 `schema_migrations` records each newly applied migration, a SHA-256 checksum of
 that migration file, and the app metadata that was active when it ran: app
