@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { createDiscordMessageSender } from "../../discord/server/discord-api.ts";
-import { handleOutboundDiscordMessage } from "../../discord/server/message-push.ts";
+import {
+  createDiscordNotificationService,
+  discordNotificationService,
+} from "../../discord/server/notification-service.ts";
 import type { OutboundMessageResult } from "../../discord/server/message-push.ts";
-import { getSql } from "../../../server/database/neon.ts";
 
 const testMessageText =
   "Hello from Arctic Aria. Discord message push is working.";
@@ -33,80 +34,57 @@ type DiscordTestMessageSender = (
 ) => Promise<OutboundMessageResult>;
 
 export function createDiscordTestMessageService({
-  config = readDiscordTestMessageConfig(),
-  sender = createDefaultTestMessageSender(config),
+  config,
+  sender,
+  notificationService = discordNotificationService,
 }: {
   config?: DiscordTestMessageConfig;
   sender?: DiscordTestMessageSender;
+  notificationService?: ReturnType<typeof createDiscordNotificationService>;
 } = {}) {
+  if (config || sender) {
+    notificationService = createDiscordNotificationService({
+      config: config ?? readDiscordTestMessageConfig(),
+      sender,
+    });
+  }
+
   return {
     async sendTestMessage(
       userId: string,
     ): Promise<DiscordTestMessageActionResult> {
-      const missingEnvVars = readMissingEnvVars(config);
+      const result = await notificationService.sendUserNotification({
+        userId,
+        idempotencyKey: `settings-discord-test-${randomUUID()}`,
+        text: testMessageText,
+        source: "manual",
+        metadata: {
+          feature: "settings",
+          action: "discord-test-message",
+        },
+        logEventName: "settings_test_message_handled",
+      });
 
-      if (missingEnvVars.length > 0) {
-        console.warn("[discord-web]", "settings_test_message_config_missing", {
-          missingEnvVars,
-        });
+      if (result.ok) {
+        return {
+          ok: true,
+          code: "settings_discord_test_sent",
+        };
+      }
 
+      if (result.code === "discord_notification_config_missing") {
         return configMissingResult();
       }
 
-      try {
-        const response = await sender({
-          userId,
-          idempotencyKey: `settings-discord-test-${randomUUID()}`,
-          text: testMessageText,
-          source: "manual",
-          metadata: {
-            feature: "settings",
-            action: "discord-test-message",
-          },
-        });
-
-        console.log(
-          "[discord-web]",
-          "settings_test_message_handled",
-          response.log,
-        );
-
-        if (response.status === 200) {
-          return {
-            ok: true,
-            code: "settings_discord_test_sent",
-          };
-        }
-
-        if (response.status === 404) {
-          return {
-            ok: false,
-            code: "settings_discord_test_no_binding",
-            message: "No active Discord binding.",
-          };
-        }
-
-        if (response.status === 503) {
-          console.warn(
-            "[discord-web]",
-            "settings_test_message_config_missing",
-            response.log,
-          );
-
-          return {
-            ok: false,
-            code: "settings_discord_test_bot_unavailable",
-            message: configMissingMessage,
-          };
-        }
-
+      if (result.code === "discord_notification_bot_unavailable") {
         return {
           ok: false,
-          code: "settings_discord_test_delivery_failed",
-          message:
-            "Discord test message could not be delivered. Check the web server log for the settings_test_message_handled status.",
+          code: "settings_discord_test_bot_unavailable",
+          message: configMissingMessage,
         };
-      } catch {
+      }
+
+      if (result.code === "discord_notification_delivery_failed") {
         return {
           ok: false,
           code: "settings_discord_test_delivery_failed",
@@ -114,6 +92,20 @@ export function createDiscordTestMessageService({
             "Discord test message could not be delivered. Check the web server log for the settings_test_message_handled status.",
         };
       }
+
+      if (result.code === "discord_notification_no_binding") {
+        return {
+          ok: false,
+          code: "settings_discord_test_no_binding",
+          message: result.message,
+        };
+      }
+
+      return {
+        ok: false,
+        code: "settings_discord_test_bot_unavailable",
+        message: configMissingMessage,
+      };
     },
   };
 }
@@ -122,15 +114,9 @@ function readDiscordTestMessageConfig(
   env: NodeJS.ProcessEnv = process.env,
 ): DiscordTestMessageConfig {
   return {
-    discordBotToken: readOptionalEnv(env, "DISCORD_BOT_TOKEN"),
-    missingEnvVars: readMissingRequiredEnvVars(env, ["DISCORD_BOT_TOKEN"]),
+    discordBotToken: env.DISCORD_BOT_TOKEN?.trim() || null,
+    missingEnvVars: env.DISCORD_BOT_TOKEN?.trim() ? [] : ["DISCORD_BOT_TOKEN"],
   };
-}
-
-function readOptionalEnv(env: NodeJS.ProcessEnv, key: string) {
-  const value = env[key]?.trim();
-
-  return value && value.length > 0 ? value : null;
 }
 
 const configMissingMessage =
@@ -141,33 +127,6 @@ function configMissingResult(): DiscordTestMessageActionResult {
     ok: false,
     code: "settings_discord_test_config_missing",
     message: configMissingMessage,
-  };
-}
-
-function readMissingRequiredEnvVars(env: NodeJS.ProcessEnv, keys: string[]) {
-  return keys.filter((key) => !readOptionalEnv(env, key));
-}
-
-function readMissingEnvVars(config: DiscordTestMessageConfig) {
-  return (
-    config.missingEnvVars ??
-    (config.discordBotToken ? [] : ["DISCORD_BOT_TOKEN"])
-  );
-}
-
-function createDefaultTestMessageSender(
-  config: DiscordTestMessageConfig,
-): DiscordTestMessageSender {
-  return (input) => {
-    if (!config.discordBotToken) {
-      throw new Error("Missing Discord bot token.");
-    }
-
-    return handleOutboundDiscordMessage(
-      getSql(),
-      input,
-      createDiscordMessageSender(config.discordBotToken),
-    );
   };
 }
 
