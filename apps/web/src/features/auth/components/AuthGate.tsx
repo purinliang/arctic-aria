@@ -1,11 +1,9 @@
 "use client";
 
 // Auth Gate.
-import { LoaderCircle } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { AppShell } from "@/app-shell/AppShell";
 import { useAppPreferences } from "@/app-shell/app-preferences";
-import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
 import { defaultDatabaseVersionStatus } from "@/components/app-metadata";
 import { NotificationStack, useNotifications } from "@/components/notification";
 import { useDocumentLanguage, useDocumentTheme } from "@/components/theme";
@@ -24,6 +22,8 @@ import {
   getPublicVersionStatus,
   logoutUser,
 } from "../actions";
+import { emptyLogin, emptyRegister } from "../auth-form-defaults";
+import { shouldIgnoreImmediateLogout } from "../auth-interaction-guards";
 import { submitLogin, submitRegister } from "../auth-client";
 import type { AuthUser } from "../server/auth-service";
 import {
@@ -36,24 +36,10 @@ import {
   type LoginInput,
   type RegisterInput,
 } from "../validation";
+import { AuthLoadingScreen } from "./AuthLoadingScreen";
 import { AuthPage } from "./AuthPage";
 
 export type AuthMode = "login" | "register";
-
-const emptyRegister: RegisterInput = {
-  username: "",
-  displayName: "",
-  password: "",
-  repeatPassword: "",
-};
-
-const emptyLogin: LoginInput = {
-  username: "",
-  password: "",
-};
-
-const englishAuthMessages = getAppMessages("en").auth;
-const simplifiedChineseAuthMessages = getAppMessages("zh-CN").auth;
 
 export function AuthGate() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
@@ -67,6 +53,8 @@ export function AuthGate() {
   const [versionStatus, setVersionStatus] = useState(
     defaultDatabaseVersionStatus(),
   );
+  const lastSessionCreatedAt = useRef<number | null>(null);
+  const preferenceRequestSequence = useRef(0);
   const [isPending, startTransition] = useTransition();
   const {
     browserDefaults,
@@ -141,9 +129,15 @@ export function AuthGate() {
 
     let active = true;
 
+    const requestSequence = preferenceRequestSequence.current;
+
     getUserPreferences()
       .then((result) => {
-        if (active && result.ok) {
+        if (
+          active &&
+          result.ok &&
+          preferenceRequestSequence.current === requestSequence
+        ) {
           applyUserPreferences(result.preferences);
         }
       })
@@ -157,43 +151,7 @@ export function AuthGate() {
   }, [applyUserPreferences, currentUser]);
 
   if (!sessionChecked) {
-    return (
-      <main
-        className="grid min-h-[100svh] place-items-center bg-[var(--aa-page-bg)] px-4 text-[var(--aa-primary-text)] transition-colors sm:min-h-screen"
-      >
-        <div
-          className="grid justify-items-center gap-4 text-center"
-          role="status"
-          aria-live="polite"
-        >
-          <ArcticAriaLogo
-            brandText={englishAuthMessages.brandName}
-            className="aa-language-block aa-language-option-en"
-          />
-          <ArcticAriaLogo
-            brandText={simplifiedChineseAuthMessages.brandName}
-            className="aa-language-block aa-language-option-zh"
-          />
-          <div className="flex items-center justify-center gap-2">
-            <LoaderCircle
-              size={18}
-              className="animate-spin text-[var(--aa-secondary-text)]"
-              aria-hidden="true"
-            />
-            <span
-              className="aa-language-inline aa-language-option-en text-xs font-medium leading-5 text-[var(--aa-secondary-text)]"
-            >
-              {englishAuthMessages.loading.openingWorkspace}
-            </span>
-            <span
-              className="aa-language-inline aa-language-option-zh text-xs font-medium leading-5 text-[var(--aa-secondary-text)]"
-            >
-              {simplifiedChineseAuthMessages.loading.openingWorkspace}
-            </span>
-          </div>
-        </div>
-      </main>
-    );
+    return <AuthLoadingScreen />;
   }
 
   if (currentUser) {
@@ -276,8 +234,14 @@ export function AuthGate() {
 
     applyUserPreferences(nextPreferences);
 
+    const requestSequence = ++preferenceRequestSequence.current;
+
     void saveUserPreferences(nextPreferences)
       .then((result) => {
+        if (preferenceRequestSequence.current !== requestSequence) {
+          return;
+        }
+
         if (result.ok) {
           applyUserPreferences(result.preferences);
           return;
@@ -289,6 +253,10 @@ export function AuthGate() {
         );
       })
       .catch(() => {
+        if (preferenceRequestSequence.current !== requestSequence) {
+          return;
+        }
+
         showErrorNotification(
           messages.settings.results.settings_preferences_save_failed,
           messages.settings.notifications.preferencesSaveFailed,
@@ -297,7 +265,13 @@ export function AuthGate() {
   }
 
   async function handleLogout() {
-    if (logoutPending) {
+    if (
+      logoutPending ||
+      shouldIgnoreImmediateLogout({
+        lastSessionCreatedAt: lastSessionCreatedAt.current,
+        now: Date.now(),
+      })
+    ) {
       return;
     }
 
@@ -363,6 +337,7 @@ export function AuthGate() {
           : messages.auth.notifications.signedIn,
       );
 
+      lastSessionCreatedAt.current = Date.now();
       setCurrentUser(result.user);
     });
   }
