@@ -154,9 +154,11 @@ Hello from Arctic Aria. Discord message push is working.
 ## Outbound Direct Messages
 
 Outbound direct messages are implemented as an internal server-side service, not
-as a private HTTP endpoint. Settings -> Discord -> `Send Test` calls the
-delivery service directly. Future scheduler or reminder code should use the
-same direct service while it lives inside the web app.
+as a private HTTP endpoint. Product features should use the shared Discord
+notification service, which wraps the delivery service and keeps Settings,
+routine reminders, and Today Review messages on the same outbound path.
+Settings -> Discord -> `Send Test` is a thin manual caller of this shared
+notification service.
 
 Do not reintroduce a private message-push HTTP endpoint or shared message-push
 secret unless a later feature moves message delivery into a separate runtime or
@@ -165,6 +167,12 @@ time.
 
 Delivery records use `discord_message_deliveries`. The table stores delivery
 state without raw message text.
+
+Current server-side notification entry points:
+
+- `apps/web/src/features/discord/server/notification-service.ts`
+- `apps/web/src/features/discord/server/message-push.ts`
+- `apps/web/src/features/discord/server/discord-api.ts`
 
 Implemented `discord_message_deliveries` fields:
 
