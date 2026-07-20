@@ -28,11 +28,8 @@ export function buildTodayReviewText({
     (memory) => memory.status !== "completed",
   );
   const summaryText = reviewSummaryForDate(dateKey, summaryOptions);
-
-  return [
+  const lines = [
     "## Today Review",
-    "",
-    summaryText,
     "",
     "### Tasks",
     completedBlock(
@@ -63,7 +60,13 @@ export function buildTodayReviewText({
     ),
     "",
     openBlock("Not yet", openMemories.map((memory) => memory.title)),
-  ].join("\n");
+  ];
+
+  if (summaryText) {
+    lines.push("", "### Summary", summaryText);
+  }
+
+  return lines.join("\n");
 }
 
 export function todayReviewDateKey(date = new Date()) {

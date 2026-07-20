@@ -80,15 +80,6 @@ export const englishDashboardMessages = {
       "One quiet review is enough.",
       "You can choose the next light step.",
     ],
-    summary: {
-      doneTasks: "Done tasks",
-      openTasks: "Open tasks",
-      doneRoutines: "Done routines",
-      openRoutines: "Open routines",
-      experiencedMemories: "Experienced memories",
-      openMemories: "Not yet",
-      none: "none",
-    },
     notifications: {
       sent: "Today Review sent",
       failed: "Today Review not sent",
@@ -196,15 +187,6 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
       "今天也往前走了一点。",
       "把重要的事留在眼前。",
     ],
-    summary: {
-      doneTasks: "已完成任务",
-      openTasks: "待完成任务",
-      doneRoutines: "已完成日常",
-      openRoutines: "待完成日常",
-      experiencedMemories: "已体验回忆",
-      openMemories: "未体验回忆",
-      none: "暂无",
-    },
     notifications: {
       sent: "今日回顾已发送",
       failed: "今日回顾未发送",

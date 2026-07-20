@@ -192,20 +192,14 @@ scheduled review or reminder delivery after cron behavior is ready. Settings
 
 Content area:
 
-- show one deterministic summary sentence above the detail rows
+- render one description-level text block
+- use the same Markdown-style text shape that is sent to Discord
+- include sections for tasks, routines, and pinned memories
+- separate pinned memories that were experienced today from pinned memories
+  that are still not yet experienced
+- append a `Summary` section at the end
 - choose the summary sentence from default options using the current date as a
   stable seed; it should not change randomly during the same day
-- show a compact live summary of the current Today panels
-- summary rows: done tasks, open tasks, done routines, open routines, and
-  experienced and not-yet pinned memories
-- use label text for row labels and description text for row values
-- show a calm empty value such as `none` or localized equivalent when a group
-  has no items
-
-Discord message text should use Markdown-style section headings and bullet
-lists so it is easier to scan in Discord. It should separate pinned memories
-that were experienced today from pinned memories that are still not yet
-experienced.
 
 While sending, the action can show the shared pending button text. Success and
 failure results must use the shared notification stack.

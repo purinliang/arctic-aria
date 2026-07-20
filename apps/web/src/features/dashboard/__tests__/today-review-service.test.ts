@@ -87,8 +87,6 @@ test("builds Today Review text from dashboard items", () => {
     [
       "## Today Review",
       "",
-      "A steady day still counts.",
-      "",
       "### Tasks",
       "You completed 1 task today:",
       "- Submit form",
@@ -109,6 +107,9 @@ test("builds Today Review text from dashboard items", () => {
       "",
       "Not yet:",
       "- Quiet book",
+      "",
+      "### Summary",
+      "A steady day still counts.",
     ].join("\n"),
   );
 });
