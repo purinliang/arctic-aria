@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/cron/routine-reminders",
+      "path": "/api/cron/discord-notifications",
       "schedule": "*/15 * * * *"
     }
   ]

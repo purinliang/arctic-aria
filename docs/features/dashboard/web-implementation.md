@@ -69,7 +69,12 @@ Current active commands:
 - mark a project task done
 - mark a routine completed or pending
 - mark a pinned memory completed or active
-- send the Today Review Discord message
+- send the manual Daily Review Discord message
+
+The production scheduled Daily Review path is called from
+`/api/cron/discord-notifications`, which also runs routine reminders. The
+manual `Send` action uses the same review text builder and Discord notification
+service.
 
 Feature management actions, such as add/edit/delete project, routine, memory,
 or category, belong to the feature pages and dialogs, not the Dashboard.

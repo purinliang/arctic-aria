@@ -6,29 +6,32 @@ in the owning feature, web, or infrastructure docs.
 
 Current released version: `v0.10.1`.
 
-## v0.11.0 Planned Work
+## v0.11.0 Current Work
 
-v0.11.0 should make Discord push messages the foundation for routine reminders
-and Today Review. Implement the work as independent feature branches from
-`develop`, and merge each branch back after focused tests pass before starting
-the next feature.
+v0.11.0 makes Discord push messages the foundation for routine reminders and
+Daily Review.
 
-Implementation order:
+Implemented direction:
 
-1. Extract the current Settings `Send Test` behavior into a shared server-side
+- Extract the current Settings `Send Test` behavior into a shared server-side
    Discord notification pipeline. Keep delivery inside the web app, reuse the
    existing Discord HTTP sender, and keep `discord_message_deliveries` as the
    delivery audit and idempotency record.
-2. Add automatic routine reminder sending through the shared Discord
+- Add automatic routine reminder sending through the shared Discord
    notification pipeline. The first reminder text should be concise and should
    not introduce Discord response buttons.
-3. Add Today Review Discord messages generated from Today page items. The
-   first version should produce short plain text covering done and undone
-   project tasks, done and undone routines, and pinned memories. Do not add a
-   separate review table; the Discord delivery record is enough for now.
-4. Fix small race issues separately: silently ignore sign-out clicks that occur
-   immediately after login/session creation, and keep rapid preference changes
-   from being overwritten by stale backend save responses.
+- Add Daily Review Discord messages generated from Today page items. The first
+  version produces short plain text covering done and undone project tasks,
+  done and undone routines, and pinned memories. Do not add a separate review
+  table; the Discord delivery record is enough for now.
+- Use `/api/cron/discord-notifications` as the scheduled Vercel cron route for
+  both routine reminders and Daily Review.
+
+Remaining v0.11.0 work:
+
+- Fix small race issues separately: silently ignore sign-out clicks that occur
+  immediately after login/session creation, and keep rapid preference changes
+  from being overwritten by stale backend save responses.
 
 v0.11.0 should not require Redis or a separate event bus. Redis can remain a
 future option for performance, idempotency, rate limiting, queue-like behavior,

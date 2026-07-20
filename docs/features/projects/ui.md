@@ -49,7 +49,7 @@ The atomic scheduled unit is the task. A task can last a few days.
 ### Dashboard Task Panel Layout
 
 The dashboard project task area appears in the left dashboard column, above
-Routines. Today Review and pinned memories stay in the right-side dashboard
+Routines. Review and pinned memories stay in the right-side dashboard
 column.
 
 Panel header:
