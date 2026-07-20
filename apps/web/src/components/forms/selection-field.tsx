@@ -20,7 +20,10 @@ import {
   formButtonControlClass,
   formControlPopupClass,
 } from "./form-control-style";
-import { orderOptionsForSelectPopover } from "./selection-field-utils";
+import {
+  orderOptionsForSelectPopover,
+  selectedOptionRenderIndexForSelectPopover,
+} from "./selection-field-utils";
 import { ScrollArea } from "../scroll-area";
 import { cx } from "../utils";
 
@@ -69,6 +72,11 @@ export function SelectInput({
   const visibleOptions = useMemo(
     () => orderOptionsForSelectPopover(options, opensAbove),
     [opensAbove, options],
+  );
+  const selectedOptionRenderIndex = useMemo(
+    () =>
+      selectedOptionRenderIndexForSelectPopover(options, value, opensAbove),
+    [opensAbove, options, value],
   );
   const popoverRootStyle = popoverStyle
     ? ({
@@ -127,6 +135,21 @@ export function SelectInput({
     });
   }, []);
 
+  const scrollSelectedOptionIntoView = useCallback(() => {
+    if (!popoverRef.current || selectedOptionRenderIndex < 0) {
+      return;
+    }
+
+    const optionButtons = popoverRef.current.querySelectorAll<HTMLButtonElement>(
+      '[role="option"]',
+    );
+    const selectedButton = optionButtons.item(selectedOptionRenderIndex);
+
+    if (selectedButton) {
+      selectedButton.scrollIntoView({ block: "center", inline: "nearest" });
+    }
+  }, [selectedOptionRenderIndex]);
+
   useEffect(() => {
     if (!open) {
       return;
@@ -156,14 +179,18 @@ export function SelectInput({
     }
 
     updatePopoverStyle();
+    const scrollFrame = window.requestAnimationFrame(
+      scrollSelectedOptionIntoView,
+    );
     window.addEventListener("resize", updatePopoverStyle);
     window.addEventListener("scroll", updatePopoverStyle, true);
 
     return () => {
+      window.cancelAnimationFrame(scrollFrame);
       window.removeEventListener("resize", updatePopoverStyle);
       window.removeEventListener("scroll", updatePopoverStyle, true);
     };
-  }, [open, updatePopoverStyle]);
+  }, [open, scrollSelectedOptionIntoView, updatePopoverStyle]);
 
   return (
     <div ref={rootRef} className="relative min-w-0">
