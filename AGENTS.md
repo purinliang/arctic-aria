@@ -95,6 +95,31 @@ developer.
   several small bugs only when the commits inside the branch remain separately
   reviewable.
 
+## Sub-Agent Workflow
+
+- Spawn sub-agents only when the developer asks for delegation or when the
+  active tooling instructions explicitly allow sub-agent work.
+- Use `gpt-5.3-codex-spark` as the default sub-agent model unless the developer
+  asks for another model or the task clearly needs a stronger model.
+- When spawning a sub-agent, tell it to read `README.md`, the root
+  `AGENTS.md`, and the nearest relevant `AGENTS.md` before editing.
+- Give each sub-agent a narrow, concrete task and an explicit ownership scope
+  for files or responsibilities. Remind it that other agents may be working in
+  the repository and it must not revert unrelated changes.
+- Sub-agents may create focused work branches and commit their completed work
+  on those branches.
+- Before a sub-agent branch is merged back, the sub-agent or parent agent must
+  run the validation required by this file for the changed area. Use focused
+  checks during the branch work and full integration checks before merging back
+  into `develop`, unless the developer explicitly limits validation.
+- The parent agent may merge a completed sub-agent branch back into `develop`
+  automatically when the sub-agent task was developer-requested, the branch is
+  focused, the required checks passed, the worktree is clean, and the merge is
+  not into `main`.
+- If the sub-agent branch contains unrelated changes, missing validation,
+  conflicts, or unclear scope, do not auto-merge it. Report the branch, commit,
+  and blocker to the developer instead.
+
 ## Code Style
 
 - Prefer existing local patterns, frameworks, helper APIs, and source
@@ -318,7 +343,9 @@ amend directly when the developer explicitly asks for an amend.
 
 - Before merging, state the source branch and target branch explicitly.
 - Agents may only merge into `develop`, and only after the developer confirms
-  the exact source branch and target branch.
+  the exact source branch and target branch. The Sub-Agent Workflow section
+  defines the only standing exception for automatically merging completed
+  developer-requested sub-agent branches back into `develop`.
 - Agents must never merge into `main`. The developer handles `main`
   integration manually through GitHub pull requests.
 - Agents may prepare merge instructions, but should not perform integration
