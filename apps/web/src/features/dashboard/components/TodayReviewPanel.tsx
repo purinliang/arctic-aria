@@ -1,19 +1,20 @@
 // Dashboard Page - Today Review Panel.
-import { Send } from "lucide-react";
+import { ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { Panel } from "@/components/panel";
-import { DescriptionText } from "@/components/text";
 import type { DashboardMessages } from "@/messages/app-messages";
 
 export function TodayReviewPanel({
   darkMode,
   pending,
+  showSendAction,
   messages,
   onSend,
 }: {
   darkMode: boolean;
   pending: boolean;
+  showSendAction: boolean;
   messages: DashboardMessages["review"];
   onSend: () => void;
 }) {
@@ -21,25 +22,23 @@ export function TodayReviewPanel({
     <Panel darkMode={darkMode}>
       <CardHeader
         darkMode={darkMode}
-        icon={<Send size={18} aria-hidden="true" />}
+        icon={<ClipboardCheck size={18} aria-hidden="true" />}
         title={messages.title}
+        description={messages.description}
         action={
-          <Button
-            darkMode={darkMode}
-            size="sm"
-            tone="secondary"
-            loading={pending}
-            onClick={onSend}
-          >
-            {pending ? messages.sending : messages.send}
-          </Button>
+          showSendAction ? (
+            <Button
+              darkMode={darkMode}
+              size="sm"
+              tone="secondary"
+              loading={pending}
+              onClick={onSend}
+            >
+              {pending ? messages.sending : messages.send}
+            </Button>
+          ) : null
         }
       />
-      <div className="px-4 py-4">
-        <DescriptionText darkMode={darkMode}>
-          {messages.description}
-        </DescriptionText>
-      </div>
     </Panel>
   );
 }

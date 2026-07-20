@@ -6,6 +6,7 @@ import {
 export const englishDashboardMessages = {
   projectTasks: {
     title: "Tasks",
+    description: "Move one project step forward.",
     loading: "Loading tasks...",
     empty: "A clear slate for today. Choose one project task when you are ready.",
     noDescription: "No description.",
@@ -23,6 +24,7 @@ export const englishDashboardMessages = {
   },
   routines: {
     title: "Routines",
+    description: "Keep today's routines light.",
     loading: "Loading routines...",
     empty: "No routines are due today. Keep the day light.",
     noDescription: "No description.",
@@ -42,6 +44,7 @@ export const englishDashboardMessages = {
   },
   pinnedMemories: {
     title: "Pinned Memories",
+    description: "Keep good options nearby.",
     loading: "Loading pinned memories...",
     empty: "No pinned memories yet.",
     open: "Open memories",
@@ -67,8 +70,7 @@ export const englishDashboardMessages = {
   },
   review: {
     title: "Today Review",
-    description:
-      "Send a short review of today's tasks, routines, and pinned memories to Discord.",
+    description: "Send today's recap to Discord.",
     send: "Send",
     sending: "Sending",
     notifications: {
@@ -104,6 +106,7 @@ export type DashboardMessages = typeof englishDashboardMessages;
 export const simplifiedChineseDashboardMessages: DashboardMessages = {
   projectTasks: {
     title: "任务",
+    description: "今天推进一步。",
     loading: "正在加载任务...",
     empty: "今天先留白。想推进项目时，再选一个任务就好。",
     noDescription: "暂无描述。",
@@ -121,6 +124,7 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
   },
   routines: {
     title: "日常",
+    description: "轻松完成日常。",
     loading: "正在加载日常...",
     empty: "今天没有日常要处理，可以轻松一点。",
     noDescription: "暂无描述。",
@@ -140,6 +144,7 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
   },
   pinnedMemories: {
     title: "置顶回忆",
+    description: "留住好选择。",
     loading: "正在加载置顶回忆...",
     empty: "还没有置顶回忆。",
     open: "打开回忆",
@@ -165,7 +170,7 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
   },
   review: {
     title: "今日回顾",
-    description: "将今天的任务、日常和置顶回忆整理成简短消息发送到 Discord。",
+    description: "发送今日回顾。",
     send: "发送",
     sending: "正在发送",
     notifications: {

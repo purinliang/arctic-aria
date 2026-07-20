@@ -40,6 +40,7 @@ export function ProjectTasksPanel({
       <CardHeader
         icon={<ListChecks size={18} aria-hidden="true" />}
         title={messages.title}
+        description={messages.description}
         darkMode={darkMode}
       />
       <List darkMode={darkMode}>

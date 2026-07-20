@@ -14,7 +14,7 @@ The Dashboard is the daily operating surface. It should show what the user can
 act on today without turning into a management page.
 
 The Dashboard may display project tasks, routine instances, pinned memories,
-and a lightweight Today Review sender, but it must not redefine their product
+and a lightweight Today Review panel, but it must not redefine their product
 rules.
 
 Current Dashboard scope:
@@ -22,7 +22,7 @@ Current Dashboard scope:
 - today's selected project tasks
 - today's routine instances
 - pinned memories
-- Today Review Discord message sender
+- Today Review panel with a non-production manual Discord delivery test
 
 Deferred Dashboard scope:
 
@@ -43,12 +43,16 @@ Dashboard behavior. Shared shell behavior is documented in:
 Dashboard body layout:
 
 - parent layout: shared split layout
-- left panel: `Tasks`
-- right panel: stacked `Routines`, `Pinned Memories`, and `Today Review`
+- left column: stacked `Tasks` and `Routines`
+- right column: stacked `Today Review` and `Pinned Memories`
 - desktop: left panel should be wider than the right panel through the shared
   split classes
 - mobile: panels stack vertically
 - panels keep independent content-driven heights
+
+Each Dashboard panel header should include a short friendly description, ideally
+5-7 English words and no more than 8 English words. The description should
+encourage action without adding instruction text or counts.
 
 The Dashboard should not show a top summary bar, duplicate progress visuals, or
 a timeline section in the current UI.
@@ -62,6 +66,7 @@ Header:
 
 - icon: `Check`
 - title: `Tasks`
+- description: short encouragement to choose a steady project step for today
 - no header count metadata
 
 Task row layout:
@@ -96,6 +101,12 @@ must not navigate.
 The Routines panel shows routine instances for the current personal day. It
 does not show every routine definition.
 
+Header:
+
+- icon: `Bell`
+- title: `Routines`
+- description: short encouragement to keep repeatable checks light and visible
+
 Routine row layout:
 
 - parent surface: shared list item
@@ -119,6 +130,12 @@ and must not navigate.
 
 The Pinned Memories panel shows pinned memories only. It does not show general
 memory suggestions.
+
+Header:
+
+- icon: `Album`
+- title: `Pinned Memories`
+- description: short encouragement to keep good options nearby
 
 Pinned memory row layout:
 
@@ -161,9 +178,15 @@ editing workflow. Discord delivery history is enough for this version.
 
 Header:
 
-- icon: `Send`
+- icon: `ClipboardCheck`
 - title: `Today Review`
-- right action: secondary `Send` button
+- description: short encouragement to review today
+- right action: secondary `Send` button for the current manual Discord delivery
+  test path in local and preview environments only
+
+Hide the `Send` button in the real production environment. Production will use
+scheduled review or reminder delivery after cron behavior is ready. Settings
+`Send Test` remains available in production for explicit Discord diagnostics.
 
 While sending, the action can show the shared pending button text. Success and
 failure results must use the shared notification stack.

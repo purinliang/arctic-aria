@@ -90,7 +90,7 @@ they apply:
 - Visible page sections should usually be named as `*Panel.tsx` components
   when they own one complete panel.
 - For desktop left-right page layouts, use the shared split pattern: flexible
-  left content panel and fixed `24rem` right metadata/action panel. If the
+  left content panel and fixed `22rem` right metadata/action panel. If the
   available width cannot keep the left panel at least 20% wider than the right
   panel, stack the panels vertically. Use `aa-split-container`,
   `aa-split-panel`, and `aa-split-panel-sidebar` for this width behavior. The
