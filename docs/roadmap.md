@@ -6,42 +6,44 @@ in the owning feature, web, or infrastructure docs.
 
 Current released version: `v0.10.1`.
 
-## v0.11.0 Current Work
+Current release candidate on `develop`: `v0.11.0`.
+
+## v0.11.0 Release Candidate
 
 v0.11.0 makes Discord push messages the foundation for routine reminders and
 Daily Review.
 
-Implemented direction:
+Release candidate contents:
 
 - Extract the current Settings `Send Test` behavior into a shared server-side
-   Discord notification pipeline. Keep delivery inside the web app, reuse the
-   existing Discord HTTP sender, and keep `discord_message_deliveries` as the
-   delivery audit and idempotency record.
-- Add automatic routine reminder sending through the shared Discord
-  notification pipeline, backed by routine instance reminder timestamps and a
-  cron-tolerant due window. The first reminder text should be concise and
-  should not introduce Discord response buttons.
+  Discord notification pipeline. Delivery stays inside the web app, reuses the
+  existing Discord HTTP sender, and keeps `discord_message_deliveries` as the
+  delivery audit and idempotency record.
+- Add automatic routine reminder sending through the shared Discord notification
+  pipeline, backed by routine instance reminder timestamps and a cron-tolerant
+  due window. The first reminder text is concise and does not introduce Discord
+  response buttons.
 - Add Daily Review Discord messages generated from Today page items. The first
-  version produces short plain text covering done and undone project tasks,
-  done and undone routines, and pinned memories. Do not add a separate review
+  version produces short plain text covering done and undone project tasks, done
+  and undone routines, and pinned memories. It does not add a separate review
   table; the Discord delivery record is enough for now.
 - Use the Cloudflare cron worker in `apps/cron` to invoke
   `/api/cron/discord-notifications` for both routine reminders and Daily
   Review.
+- Harden auth and settings interaction races: reject immediate post-login
+  sign-out, reject repeated changes to the same preference inside the cooldown,
+  merge preference saves against the latest optimistic local snapshot, and keep
+  fresh browser preference cache from being overwritten by stale backend loads.
+- Move database migrations and migration helpers under `apps/database`, add a
+  web `pnpm deploy` command, and keep Vercel deployment order as build,
+  Discord command sync, then database migration.
+- Add a human-readable database schema snapshot at `apps/database/schema.md`
+  while keeping migration files and applied migration metadata as the source of
+  truth.
 
-v0.11.0 interaction hardening:
-
-- Keep the auth and settings interaction race guards covered by tests:
-  reject sign-out clicks for 5 seconds immediately after login/session creation
-  with an operation-too-frequent notification, reject repeated changes to the
-  same preference within 2 seconds with the same notification while allowing
-  different preferences to change independently, merge preference saves against
-  the latest optimistic local snapshot, and keep fresh browser preference cache
-  from being overwritten by stale backend preference loads.
-
-v0.11.0 should not require Redis or a separate event bus. Redis can remain a
-future option for performance, idempotency, rate limiting, queue-like behavior,
-or reminder coordination only after a concrete need appears.
+v0.11.0 intentionally does not require Redis or a separate event bus. Redis can
+remain a future option for performance, idempotency, rate limiting, queue-like
+behavior, or reminder coordination only after a concrete need appears.
 
 ## Next Work After v0.11.0
 
