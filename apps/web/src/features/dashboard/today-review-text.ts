@@ -1,3 +1,5 @@
+import { formatDateKey } from "../../components/forms/date-format.ts";
+import { englishFormMessages } from "../../messages/form-messages.ts";
 import type { PinnedMemory, Routine, Task } from "./types.ts";
 
 export type TodayReviewSummaryTone =
@@ -70,8 +72,13 @@ export function buildTodayReviewText({
   ]
     .filter(Boolean)
     .join(" ");
+  const dateLabel = formatDateKey(
+    dateKey,
+    englishFormMessages.datePicker,
+    dateKey,
+  );
   const lines = [
-    `### Today Review ${dateKey}`,
+    `### Daily Review for ${dateLabel}`,
     "",
     summaryParagraph,
     "",

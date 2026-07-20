@@ -183,8 +183,8 @@ Header:
 - right action: secondary `Send` button for the current manual Discord delivery
   test path in local and preview environments only
 
-The Discord message heading should still be `Today Review`, because the message
-can be read outside the Today page.
+The Discord message heading should be `Daily Review for <date>`, because the
+message can be read outside the Today page and may arrive after the day ends.
 
 Hide the `Send` button in the real production environment. Production will use
 scheduled review or reminder delivery after cron behavior is ready. Settings
@@ -213,7 +213,8 @@ Content area:
 Discord message text should still include Markdown-style sections because the
 message can be read outside the Today page:
 
-- start with `### Today Review <date>`
+- start with `### Daily Review for <date>`; the date must use the shared long
+  date format, such as `Jul 17, 2026 Fri`
 - show the same summary sentence and one friendly count sentence as a single
   paragraph immediately below the heading. Handle zero, singular, and plural
   counts without awkward wording such as `completed no tasks`

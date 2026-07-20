@@ -75,7 +75,7 @@ export function createTodayReviewService({
         return {
           ok: true,
           code: "today_review_sent",
-          message: "Today Review sent to Discord.",
+          message: "Daily Review sent to Discord.",
         };
       }
 
@@ -90,7 +90,7 @@ export function createTodayReviewService({
       return {
         ok: false,
         code: "today_review_delivery_failed",
-        message: "Today Review could not be sent to Discord.",
+        message: "Daily Review could not be sent to Discord.",
       };
     },
   };

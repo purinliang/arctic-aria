@@ -112,7 +112,7 @@ test("builds Today Review text from dashboard items", () => {
   assert.equal(
     text,
     [
-      "### Today Review 2026-07-18",
+      "### Daily Review for Jul 18, 2026 Sat",
       "",
       "Some work is done, and the rest has shape. You finished 1 task and 1 routine today. You also experienced 1 pinned memory.",
       "",
@@ -143,7 +143,7 @@ test("uses friendly zero-count Today Review text", () => {
   assert.equal(
     text,
     [
-      "### Today Review 2026-07-18",
+      "### Daily Review for Jul 18, 2026 Sat",
       "",
       "A quiet slate can still be useful. No tasks or routines were finished today. No pinned memories were experienced today.",
       "",

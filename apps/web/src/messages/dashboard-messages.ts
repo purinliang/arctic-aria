@@ -139,12 +139,12 @@ export const englishDashboardMessages = {
       ],
     },
     notifications: {
-      sent: "Today Review sent",
-      failed: "Today Review not sent",
+      sent: "Daily Review sent",
+      failed: "Daily Review not sent",
     },
     results: {
       auth_required: "Please sign in again.",
-      today_review_delivery_failed: "Today Review could not be sent to Discord.",
+      today_review_delivery_failed: "Daily Review could not be sent to Discord.",
       today_review_no_binding: "No active Discord binding.",
       today_review_sent: "Check your Discord DM.",
     },
@@ -304,12 +304,12 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
       ],
     },
     notifications: {
-      sent: "今日回顾已发送",
-      failed: "今日回顾未发送",
+      sent: "每日回顾已发送",
+      failed: "每日回顾未发送",
     },
     results: {
       auth_required: "请先重新登录。",
-      today_review_delivery_failed: "今日回顾无法发送到 Discord。",
+      today_review_delivery_failed: "每日回顾无法发送到 Discord。",
       today_review_no_binding: "没有有效的 Discord 绑定。",
       today_review_sent: "请检查你的 Discord 私信。",
     },
