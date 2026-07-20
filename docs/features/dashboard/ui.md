@@ -192,18 +192,22 @@ scheduled review or reminder delivery after cron behavior is ready. Settings
 
 Content area:
 
-- render one description-level text block
-- use the same Markdown-style text shape that is sent to Discord
-- include sections for tasks, routines, and pinned memories
-- separate pinned memories that were experienced today from pinned memories
-  that are still not yet experienced
-- append a `Summary` section at the end
+- render only the generated summary sentence as description-level text
+- do not repeat the full task, routine, or pinned-memory lists inside the
+  Review panel because those lists are already visible on the Today page
 - choose the summary tone from the visible state of tasks, routines, and pinned
   memories
 - keep at least seven localized summary options per tone so repeated status
   patterns do not feel mechanical
 - use the current date and visible counts as a stable seed inside the selected
   tone; the summary should not change randomly during the same day
+- write summary copy as an end-of-day or midnight reflection. Do not use copy
+  that assumes the user still has evening time left or should make `today`
+  lighter.
+
+Discord message text should still include Markdown-style sections for tasks,
+routines, pinned memories, and an appended `Summary` section because the
+message can be read outside the Today page.
 
 While sending, the action can show the shared pending button text. Success and
 failure results must use the shared notification stack.

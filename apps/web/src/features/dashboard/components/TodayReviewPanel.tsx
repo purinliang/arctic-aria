@@ -5,7 +5,7 @@ import { CardHeader } from "@/components/card";
 import { Panel } from "@/components/panel";
 import { DescriptionText } from "@/components/text";
 import {
-  buildTodayReviewText,
+  buildTodayReviewSummary,
   todayReviewDateKey,
 } from "../today-review-text.ts";
 import type { DashboardMessages } from "@/messages/app-messages";
@@ -30,12 +30,23 @@ export function TodayReviewPanel({
   messages: DashboardMessages["review"];
   onSend: () => void;
 }) {
-  const reviewText = buildTodayReviewText({
+  const doneTaskCount = tasks.filter((task) => task.status === "done").length;
+  const openTaskCount = tasks.length - doneTaskCount;
+  const doneRoutineCount = routines.filter(
+    (routine) => routine.status === "completed",
+  ).length;
+  const openRoutineCount = routines.length - doneRoutineCount;
+  const experiencedMemoryCount = pinnedMemories.filter(
+    (memory) => memory.status === "completed",
+  ).length;
+  const summaryText = buildTodayReviewSummary({
     dateKey: todayReviewDateKey(),
-    memories: pinnedMemories,
-    routines,
-    summaryMessages: messages.dailySummaryMessages,
-    tasks,
+    doneTaskCount,
+    openTaskCount,
+    doneRoutineCount,
+    openRoutineCount,
+    experiencedMemoryCount,
+    messages: messages.dailySummaryMessages,
   });
 
   return (
@@ -60,12 +71,7 @@ export function TodayReviewPanel({
         }
       />
       <div className="px-4 py-4">
-        <DescriptionText
-          darkMode={darkMode}
-          className="whitespace-pre-line break-words"
-        >
-          {reviewText}
-        </DescriptionText>
+        <DescriptionText darkMode={darkMode}>{summaryText}</DescriptionText>
       </div>
     </Panel>
   );
