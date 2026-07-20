@@ -27,11 +27,15 @@ Implemented direction:
 - Use `/api/cron/discord-notifications` as the scheduled Vercel cron route for
   both routine reminders and Daily Review.
 
-Remaining v0.11.0 work:
+v0.11.0 interaction hardening:
 
-- Fix small race issues separately: silently ignore sign-out clicks that occur
-  immediately after login/session creation, and keep rapid preference changes
-  from being overwritten by stale backend save responses.
+- Keep the auth and settings interaction race guards covered by tests:
+  reject sign-out clicks for 5 seconds immediately after login/session creation
+  with an operation-too-frequent notification, reject repeated changes to the
+  same preference within 2 seconds with the same notification while allowing
+  different preferences to change independently, merge preference saves against
+  the latest optimistic local snapshot, and keep fresh browser preference cache
+  from being overwritten by stale backend preference loads.
 
 v0.11.0 should not require Redis or a separate event bus. Redis can remain a
 future option for performance, idempotency, rate limiting, queue-like behavior,
@@ -39,6 +43,16 @@ or reminder coordination only after a concrete need appears.
 
 ## Next Work After v0.11.0
 
+- Design v0.12.0 task and routine scheduling. Routine instances already exist
+  and should remain the first stable schedule primitive. Project tasks do not
+  yet have a durable daily schedule assignment; Today currently selects open
+  tasks from project data. v0.12.0 should decide whether to add task schedule
+  rows or daily task instances so a task chosen for Today remains visible on
+  the Today board after completion until the personal day/review cleanup.
+- Review Today schedule visibility for routines and project tasks together:
+  scheduled-for-today items should not disappear only because they were marked
+  done, while future selection logic should avoid showing every completed
+  project task forever.
 - Review Discord reminder interactions after the first plain reminder messages
   work, including message update strategy, retry behavior, quiet/noise rules,
   and whether response buttons are actually useful.

@@ -50,8 +50,10 @@ const timeFormatPreferenceStorageKey = "arctic-aria.time-format-preference";
 const timeZonePreferenceStorageKey = "arctic-aria.timezone-preference";
 const multipleTimezonesEnabledStorageKey =
   "arctic-aria.multiple-timezones-enabled";
+const preferenceCacheUpdatedAtStorageKey = "arctic-aria.preferences-updated-at";
 const systemDarkModeQuery = "(prefers-color-scheme: dark)";
 const timeZonePreferenceUiEnabled = false;
+export const recentPreferenceCacheWindowMs = 5_000;
 
 export function detectBrowserLanguage(
   languages: readonly string[] | undefined,
@@ -74,6 +76,45 @@ export function resolveThemeMode(
   }
 
   return preference;
+}
+
+export function mergeUserPreferenceUpdate(
+  current: UserPreferences,
+  input: Partial<UserPreferences>,
+) {
+  return normalizeUserPreferences({
+    ...current,
+    ...input,
+  });
+}
+
+export function hasRecentLocalPreferenceCache(now = Date.now()) {
+  try {
+    return isRecentPreferenceCacheTimestamp(
+      window.localStorage.getItem(preferenceCacheUpdatedAtStorageKey),
+      now,
+    );
+  } catch {
+    return false;
+  }
+}
+
+export function isRecentPreferenceCacheTimestamp(
+  value: string | null,
+  now: number,
+  windowMs = recentPreferenceCacheWindowMs,
+) {
+  if (value === null) {
+    return false;
+  }
+
+  const timestamp = Number(value);
+
+  return (
+    Number.isFinite(timestamp) &&
+    timestamp <= now &&
+    now - timestamp < windowMs
+  );
 }
 
 export function detectBrowserDefaults(): BrowserDefaults {
@@ -238,6 +279,7 @@ function readStoredThemePreference() {
 function writeStoredThemePreference(preference: ThemePreference) {
   try {
     window.localStorage.setItem(themePreferenceStorageKey, preference);
+    writeStoredPreferenceUpdatedAt();
   } catch {
     // Theme selection still works for the current session if storage is blocked.
   }
@@ -254,6 +296,7 @@ function readStoredLanguagePreference() {
 function writeStoredLanguagePreference(preference: LanguagePreference) {
   try {
     window.localStorage.setItem(languagePreferenceStorageKey, preference);
+    writeStoredPreferenceUpdatedAt();
   } catch {
     // Language selection still works for the current session if storage is blocked.
   }
@@ -270,6 +313,7 @@ function readStoredTimeFormatPreference() {
 function writeStoredTimeFormatPreference(preference: TimeFormatPreference) {
   try {
     window.localStorage.setItem(timeFormatPreferenceStorageKey, preference);
+    writeStoredPreferenceUpdatedAt();
   } catch {
     // Time display selection still works if storage is blocked.
   }
@@ -286,6 +330,7 @@ function readStoredTimeZonePreference() {
 function writeStoredTimeZonePreference(preference: TimeZonePreference) {
   try {
     window.localStorage.setItem(timeZonePreferenceStorageKey, preference);
+    writeStoredPreferenceUpdatedAt();
   } catch {
     // Timezone selection still works for the current session if storage is blocked.
   }
@@ -306,7 +351,12 @@ function writeStoredMultipleTimezonesEnabled(enabled: boolean) {
       multipleTimezonesEnabledStorageKey,
       enabled ? "true" : "false",
     );
+    writeStoredPreferenceUpdatedAt();
   } catch {
     // Multiple-timezone mode still works for the current session if storage is blocked.
   }
+}
+
+function writeStoredPreferenceUpdatedAt(now = Date.now()) {
+  window.localStorage.setItem(preferenceCacheUpdatedAtStorageKey, `${now}`);
 }

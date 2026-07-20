@@ -11,7 +11,10 @@ import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { SupportingText } from "@/components/text";
 import { VersionStatusRows } from "@/components/version-status";
-import type { TimeFormatPreference } from "@/features/settings/preferences";
+import type {
+  TimeFormatPreference,
+  UserPreferences,
+} from "@/features/settings/preferences";
 import {
   formatTimeZoneOffset,
 } from "@/features/settings/time-zones";
@@ -33,6 +36,7 @@ export function SettingsPage({
   languagePreference,
   messages,
   onLanguagePreferenceChange,
+  onPreferenceOpenAttempt,
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
   resolvedLanguage,
@@ -49,6 +53,7 @@ export function SettingsPage({
   languagePreference: LanguagePreference;
   messages: SettingsMessages;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
+  onPreferenceOpenAttempt: (preference: keyof UserPreferences) => boolean;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
   resolvedLanguage: SupportedLanguage;
@@ -98,6 +103,9 @@ export function SettingsPage({
                   onChange={(value) =>
                     onThemePreferenceChange(value as ThemePreference)
                   }
+                  onOpenAttempt={() =>
+                    onPreferenceOpenAttempt("themePreference")
+                  }
                 />
               </FieldLabel>
             </div>
@@ -111,6 +119,9 @@ export function SettingsPage({
                   options={languageOptions}
                   onChange={(value) =>
                     onLanguagePreferenceChange(value as LanguagePreference)
+                  }
+                  onOpenAttempt={() =>
+                    onPreferenceOpenAttempt("languagePreference")
                   }
                 />
               </FieldLabel>
@@ -130,6 +141,9 @@ export function SettingsPage({
                   options={timeFormatOptions}
                   onChange={(value) =>
                     onTimeFormatPreferenceChange(value as TimeFormatPreference)
+                  }
+                  onOpenAttempt={() =>
+                    onPreferenceOpenAttempt("timeFormatPreference")
                   }
                 />
               </FieldLabel>

@@ -18,6 +18,8 @@ export type NotificationItem = {
 const defaultNotificationMessages: NotificationMessages = {
   actionFailed: "Action failed",
   notAvailableYet: "Not available yet",
+  operationTooFrequentMessage: "Try again in a couple of seconds.",
+  operationTooFrequentTitle: "Please wait a moment",
   done: "Done",
   dismiss: "Dismiss notification",
 };
