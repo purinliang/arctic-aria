@@ -13,6 +13,7 @@ export type OutboundMessageResult = {
   body: Record<string, unknown>;
   log: {
     deliveryId?: string;
+    errorCode?: string;
     status: number;
   };
 };
@@ -76,6 +77,7 @@ export async function handleOutboundDiscordMessage(
       delivery.row.delivery_status === "failed" ? 502 : 200,
       deliveryResponseBody(delivery.row),
       delivery.row.id,
+      delivery.row.error_code,
     );
   }
 
@@ -102,7 +104,12 @@ export async function handleOutboundDiscordMessage(
       occurredAt,
     });
 
-    return result(502, deliveryResponseBody(failedRow), failedRow.id);
+    return result(
+      502,
+      deliveryResponseBody(failedRow),
+      failedRow.id,
+      failedRow.error_code,
+    );
   }
 }
 
@@ -299,12 +306,14 @@ function result(
   status: number,
   body: Record<string, unknown>,
   deliveryId?: string,
+  errorCode?: string | null,
 ): OutboundMessageResult {
   return {
     status,
     body,
     log: {
       deliveryId,
+      ...(errorCode ? { errorCode } : {}),
       status,
     },
   };

@@ -17,11 +17,17 @@ export type DiscordMessageSender = {
 
 export class DiscordApiError extends Error {
   readonly code: string;
+  readonly status: number | null;
 
-  constructor(code: string, message = "Discord API request failed.") {
+  constructor(
+    code: string,
+    message = "Discord API request failed.",
+    status: number | null = null,
+  ) {
     super(message);
     this.name = "DiscordApiError";
     this.code = code;
+    this.status = status;
   }
 }
 
@@ -30,9 +36,29 @@ export function createDiscordMessageSender(
 ): DiscordMessageSender {
   return {
     async sendDirectMessage(input) {
-      const dmChannelId =
-        input.dmChannelId ??
-        (await createDirectMessageChannel(botToken, input.discordUserId));
+      if (input.dmChannelId) {
+        try {
+          const message = await sendChannelMessage(
+            botToken,
+            input.dmChannelId,
+            input.text,
+          );
+
+          return {
+            discordMessageId: readStringProperty(message, "id"),
+            dmChannelId: input.dmChannelId,
+          };
+        } catch (error) {
+          if (!shouldRetryStoredDmChannel(error)) {
+            throw error;
+          }
+        }
+      }
+
+      const dmChannelId = await createDirectMessageChannel(
+        botToken,
+        input.discordUserId,
+      );
       const message = await sendChannelMessage(botToken, dmChannelId, input.text);
 
       return {
@@ -84,10 +110,22 @@ async function discordRequest(
   });
 
   if (!response.ok) {
-    throw new DiscordApiError(`discord_http_${response.status}`);
+    throw new DiscordApiError(
+      `discord_http_${response.status}`,
+      "Discord API request failed.",
+      response.status,
+    );
   }
 
   return (await response.json()) as unknown;
+}
+
+function shouldRetryStoredDmChannel(error: unknown) {
+  if (!(error instanceof DiscordApiError)) {
+    return false;
+  }
+
+  return error.status === 400 || error.status === 403 || error.status === 404;
 }
 
 function readStringProperty(value: unknown, key: string) {
