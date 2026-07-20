@@ -150,7 +150,7 @@ export const englishProjectMessages = {
     project_pin_limit: "You can pin up to 3 projects.",
     project_sidebar_pin_conflict: "Pinned projects changed. Refresh and try again.",
     project_database_tables_missing:
-      "Project database tables are missing. Run pnpm --dir apps/web db:migrate before using Projects.",
+      "Project database tables are missing. Run pnpm --dir apps/web database:migrate before using Projects.",
     project_database_update_failed: "Project database update failed.",
   },
 };
@@ -306,7 +306,7 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
     project_pin_limit: "最多只能置顶 3 个项目。",
     project_sidebar_pin_conflict: "置顶项目已变化。请刷新后重试。",
     project_database_tables_missing:
-      "项目数据库表缺失。使用项目功能前请运行 pnpm --dir apps/web db:migrate。",
+      "项目数据库表缺失。使用项目功能前请运行 pnpm --dir apps/web database:migrate。",
     project_database_update_failed: "项目数据库更新失败。",
   },
 };

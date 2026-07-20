@@ -5,7 +5,7 @@ import {
   finishMigrationRun,
   safeMigrationFailureMessage,
   startMigrationRun,
-} from "../../../../scripts/migration-run-audit.mjs";
+} from "../../../../../database/scripts/migration-run-audit.mjs";
 
 const appMetadata = {
   version: "v0.9.0-dev",

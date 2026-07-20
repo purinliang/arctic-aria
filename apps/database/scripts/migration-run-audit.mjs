@@ -110,6 +110,33 @@ export async function startMigrationRun(sql, appMetadata) {
   return runId;
 }
 
+export async function readAppliedMigrationRows(sql) {
+  return sql.query("SELECT name, checksum FROM schema_migrations ORDER BY name");
+}
+
+export async function backfillMigrationChecksum(sql, input) {
+  await sql.query("UPDATE schema_migrations SET checksum = $2 WHERE name = $1", [
+    input.name,
+    input.checksum,
+  ]);
+}
+
+export async function recordAppliedMigration(sql, input) {
+  await sql.query(
+    `INSERT INTO schema_migrations (
+       name, checksum, app_version, app_commit, app_source_state
+     )
+     VALUES ($1, $2, $3, $4, $5)`,
+    [
+      input.migration.name,
+      input.migration.checksum,
+      input.appMetadata.version,
+      input.appMetadata.commit,
+      input.appMetadata.sourceState,
+    ],
+  );
+}
+
 export async function finishMigrationRun(sql, input) {
   if (!isMigrationRunStatus(input.status)) {
     throw new Error(`Invalid migration run status: ${input.status}.`);

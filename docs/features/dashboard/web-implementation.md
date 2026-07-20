@@ -71,10 +71,10 @@ Current active commands:
 - mark a pinned memory completed or active
 - send the manual Daily Review Discord message
 
-The production scheduled Daily Review path is called from
-`/api/cron/discord-notifications`, which also runs routine reminders. The
-manual `Send` action uses the same review text builder and Discord notification
-service.
+The production scheduled Daily Review path is invoked by the Cloudflare cron
+worker through `/api/cron/discord-notifications`, which also runs routine
+reminders. The manual `Send` action uses the same review text builder and
+Discord notification service.
 
 Feature management actions, such as add/edit/delete project, routine, memory,
 or category, belong to the feature pages and dialogs, not the Dashboard.

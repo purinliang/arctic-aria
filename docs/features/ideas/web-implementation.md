@@ -11,7 +11,7 @@ Ideas has a web management page and backend capture foundation.
 - Repository: `apps/web/src/features/ideas/server/postgres-idea-repository.ts`
 - Validation: `apps/web/src/features/ideas/idea-validation.ts`
 - Migration:
-  `apps/infrastructure/database/migrations/0012_create_ideas_and_discord_accounts.sql`
+  `apps/database/migrations/0012_create_ideas_and_discord_accounts.sql`
 
 ## Current Behavior
 

@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "deploy": "pnpm build && pnpm discord:sync-commands && pnpm db:migrate",
+    "deploy": "pnpm build && pnpm discord:sync-commands && pnpm database:migrate",
+    "database:migrate": "node scripts/run-database-migrations.mjs",
     "discord:ngrok": "node --env-file-if-exists=.env.local scripts/run-ngrok.mjs",
     "discord:sync-commands": "node --env-file-if-exists=.env.local src/features/discord/server/sync-commands.ts",
-    "db:migrate": "node scripts/migrate.mjs",
     "lint": "eslint",
     "route:measure": "node scripts/measure-routes.mjs",
     "switch:measure": "node scripts/measure-switches.mjs",

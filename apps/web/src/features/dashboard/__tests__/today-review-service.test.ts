@@ -166,7 +166,7 @@ test("scheduled Daily Review sends during local day-end window", async () => {
     text: string;
   }> = [];
   const service = createTodayReviewService({
-    now: () => new Date("2026-07-18T13:45:00.000Z"),
+    now: () => new Date("2026-07-18T13:48:00.000Z"),
     notifier: {
       async sendUserNotification(input) {
         notifications.push(input);
@@ -221,6 +221,104 @@ test("scheduled Daily Review skips outside local day-end window", async () => {
   let loaderCalled = false;
   const service = createTodayReviewService({
     now: () => new Date("2026-07-18T13:30:00.000Z"),
+    notifier: {
+      async sendUserNotification() {
+        throw new Error("notification should not be sent");
+      },
+    },
+    reviewTargets: {
+      async listActiveDailyReviewTargets() {
+        return [
+          {
+            userId: "user-1",
+            timeZonePreference: "Australia/Sydney",
+          },
+        ];
+      },
+    },
+    projectDataLoader: async () => {
+      loaderCalled = true;
+
+      return {
+        projects: [],
+        tasks: [],
+      };
+    },
+  });
+
+  const result = await service.sendScheduledDailyReviews();
+
+  assert.deepEqual(result, {
+    checked: 1,
+    due: 0,
+    failed: 0,
+    sent: 0,
+    skipped: 1,
+  });
+  assert.equal(loaderCalled, false);
+});
+
+test("scheduled Daily Review sends after midnight for the previous local day", async () => {
+  const notifications: Array<{
+    idempotencyKey: string;
+    source: string;
+    text: string;
+  }> = [];
+  const service = createTodayReviewService({
+    now: () => new Date("2026-07-18T14:12:00.000Z"),
+    notifier: {
+      async sendUserNotification(input) {
+        notifications.push(input);
+
+        return discordSentResult();
+      },
+    },
+    reviewTargets: {
+      async listActiveDailyReviewTargets() {
+        return [
+          {
+            userId: "user-1",
+            timeZonePreference: "Australia/Sydney",
+          },
+        ];
+      },
+    },
+    projectDataLoader: async () => ({
+      projects: [],
+      tasks: [],
+    }),
+    routineDataLoader: async () => ({
+      routineDefinitions: [],
+      routines: [],
+    }),
+    memoryDataLoader: async () => ({
+      categories: [],
+      memoryRecords: [],
+      pinnedMemories: [],
+    }),
+  });
+
+  const result = await service.sendScheduledDailyReviews();
+
+  assert.deepEqual(result, {
+    checked: 1,
+    due: 1,
+    failed: 0,
+    sent: 1,
+    skipped: 0,
+  });
+  assert.equal(notifications.length, 1);
+  assert.equal(notifications[0]?.idempotencyKey, "daily-review:2026-07-18");
+  assert.match(
+    notifications[0]?.text ?? "",
+    /^### Daily Review for Jul 18, 2026 Sat/,
+  );
+});
+
+test("scheduled Daily Review skips after the post-midnight window", async () => {
+  let loaderCalled = false;
+  const service = createTodayReviewService({
+    now: () => new Date("2026-07-18T14:13:00.000Z"),
     notifier: {
       async sendUserNotification() {
         throw new Error("notification should not be sent");

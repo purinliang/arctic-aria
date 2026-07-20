@@ -103,7 +103,9 @@ export function createTodayReviewService({
       for (const target of targets) {
         const local = localReviewMoment(occurredAt, target.timeZonePreference);
 
-        if (!isDailyReviewDue(local)) {
+        const schedule = dailyReviewSchedule(local);
+
+        if (!schedule.due) {
           result.skipped += 1;
           continue;
         }
@@ -111,8 +113,8 @@ export function createTodayReviewService({
         result.due += 1;
 
         const review = await sendReview({
-          dateKey: local.date,
-          idempotencyKey: `daily-review:${local.date}`,
+          dateKey: schedule.date,
+          idempotencyKey: `daily-review:${schedule.date}`,
           source: "scheduler",
           userId: target.userId,
         });
@@ -224,8 +226,37 @@ function localReviewMoment(date: Date, timeZonePreference: string) {
   };
 }
 
-function isDailyReviewDue(local: { hour: number; minute: number }) {
-  return local.hour === 23 && local.minute >= 45;
+function dailyReviewSchedule(local: {
+  date: string;
+  hour: number;
+  minute: number;
+}) {
+  if (local.hour === 23 && local.minute >= 48) {
+    return {
+      due: true,
+      date: local.date,
+    };
+  }
+
+  if (local.hour === 0 && local.minute <= 12) {
+    return {
+      due: true,
+      date: previousDateKey(local.date),
+    };
+  }
+
+  return {
+    due: false,
+    date: local.date,
+  };
+}
+
+function previousDateKey(date: string) {
+  const previous = new Date(`${date}T00:00:00.000Z`);
+
+  previous.setUTCDate(previous.getUTCDate() - 1);
+
+  return previous.toISOString().slice(0, 10);
 }
 
 async function defaultProjectDataLoader(userId: string) {

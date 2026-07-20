@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { resolveAppMetadata } from "./scripts/app-metadata.mjs";
+import { resolveAppMetadata } from "./scripts/read-app-metadata.mjs";
 
 const appMetadata = resolveAppMetadata(process.cwd());
 

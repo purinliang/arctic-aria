@@ -187,8 +187,9 @@ The Discord message heading should be `Daily Review for <date>`, because the
 message can be read outside the Today page and may arrive after the day ends.
 
 Hide the `Send` button in the real production environment. Production uses the
-scheduled Discord notification cron for Daily Review delivery. Settings
-`Send Test` remains available in production for explicit Discord diagnostics.
+Cloudflare scheduled Discord notification cron for Daily Review delivery.
+Settings `Send Test` remains available in production for explicit Discord
+diagnostics.
 
 Content area:
 

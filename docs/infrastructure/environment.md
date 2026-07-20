@@ -30,7 +30,7 @@ Current variables:
 | `DISCORD_BOT_TOKEN` | Yes for outbound direct messages, command sync, and deploy | Local and Vercel | Secret bot token from the Discord Developer Portal. |
 | `DISCORD_APP_ID` | Yes for command sync and deploy | Local and Vercel | App ID from the Discord Developer Portal, used by `pnpm --dir apps/web discord:sync-commands`. |
 | `DISCORD_PUBLIC_KEY` | Yes for Discord interactions | Local and Vercel | Public Key used to verify requests from Discord. |
-| `CRON_SECRET` | Yes for scheduled reminder routes | Vercel and local cron-route testing | Secret used to authorize internal cron routes. |
+| `CRON_SECRET` | Yes for scheduled reminder routes | Vercel web app, Cloudflare cron worker, and local cron-route testing | Secret used to authorize internal cron routes. |
 
 Current credential state as of 2026-07-19:
 
@@ -106,6 +106,35 @@ explicitly requires an unpooled connection.
 `NEON_AUTH_BASE_URL` is not used because Arctic Aria currently implements its
 own username/password auth instead of Neon Auth.
 
+## Cron Worker
+
+Example file:
+
+- `apps/cron/.dev.vars.example`
+
+Local secret file:
+
+- `apps/cron/.dev.vars`
+
+Production secret storage:
+
+- Cloudflare Worker secret storage for `CRON_SECRET`
+- Cloudflare Worker variables in `apps/cron/wrangler.jsonc` for non-secret
+  configuration
+
+Current variables:
+
+| Variable | Required now | Purpose |
+| --- | --- | --- |
+| `WEB_APP_BASE_URL` | Yes | Base URL for the deployed web app that owns the cron route. Production currently points at `https://arctic-aria.vercel.app`. |
+| `CRON_SECRET` | Yes | Secret sent to the web app as `Authorization: Bearer <CRON_SECRET>`. This must match the web app's `CRON_SECRET` for the target environment. |
+
+The cron worker is deployed separately from the web app. It does not need
+`NEON_POSTGRES_URL`, `AUTH_SESSION_SECRET`, `DISCORD_BOT_TOKEN`,
+`DISCORD_APP_ID`, or `DISCORD_PUBLIC_KEY`. Those stay in the web app because
+the web cron route owns database reads, Discord delivery, idempotency, and
+logging.
+
 ## Discord Integration
 
 The Discord integration is implemented inside the web app. Configure these
@@ -137,7 +166,8 @@ the web app.
 `CRON_SECRET` is separate from Discord secrets. It protects web-hosted scheduled
 routes such as `/api/cron/discord-notifications` and
 `/api/cron/routine-reminders`; it is not a Discord message-push secret and
-should not be used by client code.
+should not be used by client code. The Cloudflare cron worker stores the same
+secret only so it can invoke those protected web routes.
 
 ## Optional App Metadata
 
@@ -148,7 +178,7 @@ possible.
 
 In Vercel Git deployments, Arctic Aria treats source state as `clean` when
 Vercel commit metadata is available. This avoids false dirty-source warnings
-when `pnpm db:migrate` runs after `pnpm build` and build-generated files exist
+when `pnpm database:migrate` runs after `pnpm build` and build-generated files exist
 in the deployment workspace.
 
 Do not set generated `NEXT_PUBLIC_*` metadata variables manually unless

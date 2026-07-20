@@ -369,8 +369,8 @@ apps/web/src/features/projects/server/
 Database migrations:
 
 ```text
-apps/infrastructure/database/migrations/0005_create_projects.sql
-apps/infrastructure/database/migrations/0006_drop_project_subtasks.sql
+apps/database/migrations/0005_create_projects.sql
+apps/database/migrations/0006_drop_project_subtasks.sql
 ```
 
 Tests:
@@ -392,7 +392,7 @@ If the database reports that `projects`, `project_milestones`, or
 run:
 
 ```text
-pnpm --dir apps/web db:migrate
+pnpm --dir apps/web database:migrate
 ```
 
 This is especially important after switching to a new Neon database or after

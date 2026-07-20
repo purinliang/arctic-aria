@@ -4,7 +4,7 @@ import {
   deriveAppVersion,
   releaseVersionFromBranch,
   resolveSourceState,
-} from "../../../../scripts/app-metadata.mjs";
+} from "../../../../scripts/read-app-metadata.mjs";
 
 test("app metadata uses the version in a hotfix branch name", () => {
   const branch = "agent/hotfix-v0.5.1";

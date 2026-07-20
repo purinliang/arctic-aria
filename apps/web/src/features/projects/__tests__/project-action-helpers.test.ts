@@ -19,7 +19,7 @@ test("project database errors explain missing project migrations", () => {
 
   assert.equal(
     message,
-    "Project database tables are missing. Run pnpm --dir apps/web db:migrate before using Projects.",
+    "Project database tables are missing. Run pnpm --dir apps/web database:migrate before using Projects.",
   );
 });
 

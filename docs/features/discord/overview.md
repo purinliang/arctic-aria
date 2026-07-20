@@ -108,7 +108,7 @@ Recommended Discord Developer Portal settings:
 2. Apply database migrations:
 
    ```bash
-   pnpm --dir apps/web db:migrate
+   pnpm --dir apps/web database:migrate
    ```
 
 3. Sync slash commands if metadata changed or if this is a new dev bot:
@@ -189,17 +189,19 @@ Current server-side notification entry points:
 - `apps/web/src/features/discord/server/discord-api.ts`
 
 Routine reminders and Daily Review messages use the same notification service.
-The scheduled Vercel caller is the web cron route
-`/api/cron/discord-notifications`, protected by `CRON_SECRET`. The older
-routine-only route `/api/cron/routine-reminders` remains available for manual
-routine reminder checks.
+The scheduled caller is the Cloudflare cron worker in `apps/cron`, which invokes
+the web cron route `/api/cron/discord-notifications` with `CRON_SECRET`. The
+older routine-only route `/api/cron/routine-reminders` remains available for
+manual routine reminder checks.
 
 The scheduled route is configured to run every 15 minutes. Routine reminders
 send when an active routine's stored timezone and preferred time match the cron
-run. Daily Review sends during the final 15 minutes of a bound account's
-configured local day and uses `daily-review:<date>` as the per-user idempotency
-key. Until server-side timezone preferences store a concrete timezone, a
-`system` timezone preference falls back to UTC for scheduled review delivery.
+run. Daily Review sends during the local `23:48-00:12` window so the 15-minute
+cron cadence does not need to hit midnight exactly. After-midnight sends still
+use the previous local date, and the per-user idempotency key is
+`daily-review:<date>`. Until server-side timezone preferences store a concrete
+timezone, a `system` timezone preference falls back to UTC for scheduled review
+delivery.
 
 Implemented `discord_message_deliveries` fields:
 
