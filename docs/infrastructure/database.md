@@ -41,8 +41,8 @@ Environment variable ownership and Vercel Neon variable mapping are documented
 in [environment.md](environment.md).
 
 Schema migration files are safe to commit. The current migration entry point is
-`apps/web/scripts/database-migration.mjs`, exposed as `pnpm db:migrate` from
-`apps/web`.
+`apps/web/scripts/run-database-migrations.mjs`, exposed as `pnpm db:migrate`
+from `apps/web`.
 From the repository root, run the same migration entry point with
 `pnpm --dir apps/web db:migrate`.
 

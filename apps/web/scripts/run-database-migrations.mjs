@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { neon } from "@neondatabase/serverless";
-import { resolveAppMetadata } from "./app-metadata.mjs";
+import { resolveAppMetadata } from "./read-app-metadata.mjs";
 import { readMigrationFiles } from "../../database/scripts/migration-metadata.mjs";
 import { runDatabaseMigrations } from "../../database/scripts/migration-runner.mjs";
 

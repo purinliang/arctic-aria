@@ -7,7 +7,7 @@
     "build": "next build",
     "discord:ngrok": "node --env-file-if-exists=.env.local scripts/run-ngrok.mjs",
     "discord:sync-commands": "node --env-file-if-exists=.env.local src/features/discord/server/sync-commands.ts",
-    "db:migrate": "node scripts/database-migration.mjs",
+    "db:migrate": "node scripts/run-database-migrations.mjs",
     "lint": "eslint",
     "route:measure": "node scripts/measure-routes.mjs",
     "switch:measure": "node scripts/measure-switches.mjs",
