@@ -108,7 +108,7 @@ Recommended Discord Developer Portal settings:
 2. Apply database migrations:
 
    ```bash
-   pnpm --dir apps/web db:migrate
+   pnpm --dir apps/web database:migrate
    ```
 
 3. Sync slash commands if metadata changed or if this is a new dev bot:

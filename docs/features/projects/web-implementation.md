@@ -392,7 +392,7 @@ If the database reports that `projects`, `project_milestones`, or
 run:
 
 ```text
-pnpm --dir apps/web db:migrate
+pnpm --dir apps/web database:migrate
 ```
 
 This is especially important after switching to a new Neon database or after

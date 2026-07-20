@@ -47,7 +47,7 @@ Verification:
 - Node's built-in test runner through `pnpm test`
 - ESLint through `pnpm lint`
 - Next.js production build through `pnpm build`
-- migration runner through `pnpm db:migrate`
+- migration runner through `pnpm database:migrate`
 
 ## Repository Shape
 
@@ -296,7 +296,7 @@ Run from `apps/web`:
 pnpm test
 pnpm lint
 pnpm build
-pnpm db:migrate
+pnpm database:migrate
 pnpm dev
 ```
 

@@ -427,7 +427,7 @@ For the web app, full checks are:
 - `pnpm --dir apps/web lint`
 - `pnpm --dir apps/web build`
 
-Also run `pnpm --dir apps/web db:migrate` when migrations, database metadata,
+Also run `pnpm --dir apps/web database:migrate` when migrations, database metadata,
 or the migration runner changed, or when the developer asks for migration
 verification.
 

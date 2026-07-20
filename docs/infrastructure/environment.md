@@ -178,7 +178,7 @@ possible.
 
 In Vercel Git deployments, Arctic Aria treats source state as `clean` when
 Vercel commit metadata is available. This avoids false dirty-source warnings
-when `pnpm db:migrate` runs after `pnpm build` and build-generated files exist
+when `pnpm database:migrate` runs after `pnpm build` and build-generated files exist
 in the deployment workspace.
 
 Do not set generated `NEXT_PUBLIC_*` metadata variables manually unless
