@@ -51,9 +51,6 @@ export function buildTodayReviewText({
   const experiencedMemories = memories.filter(
     (memory) => memory.status === "completed",
   );
-  const openMemories = memories.filter(
-    (memory) => memory.status !== "completed",
-  );
   const summaryText = buildTodayReviewSummary({
     dateKey,
     doneTaskCount: doneTasks.length,
@@ -64,42 +61,46 @@ export function buildTodayReviewText({
     messages: summaryMessages,
   });
   const lines = [
-    "## Today Review",
+    `### Today Review ${dateKey}`,
+    "",
+    summaryText,
+    "",
+    reviewCountSentence({
+      doneMemoryCount: experiencedMemories.length,
+      doneRoutineCount: doneRoutines.length,
+      doneTaskCount: doneTasks.length,
+    }),
     "",
     "### Tasks",
-    completedBlock(
-      "completed",
-      doneTasks.map((task) => task.title),
-      "task",
-      "tasks",
+    checkboxList(
+      tasks.map((task) => ({
+        done: task.status === "done",
+        title: task.title,
+        description: task.description,
+      })),
+      "No tasks were selected today.",
     ),
-    "",
-    openBlock("Open tasks", openTasks.map((task) => task.title)),
     "",
     "### Routines",
-    completedBlock(
-      "completed",
-      doneRoutines.map((routine) => routine.title),
-      "routine",
-      "routines",
+    checkboxList(
+      routines.map((routine) => ({
+        done: routine.status === "completed",
+        title: routine.title,
+        description: routine.description,
+      })),
+      "No routines were due today.",
     ),
-    "",
-    openBlock("Open routines", openRoutines.map((routine) => routine.title)),
     "",
     "### Pinned Memories",
-    completedBlock(
-      "experienced",
-      experiencedMemories.map((memory) => memory.title),
-      "pinned memory",
-      "pinned memories",
+    checkboxList(
+      memories.map((memory) => ({
+        done: memory.status === "completed",
+        title: memory.title,
+        description: memory.description,
+      })),
+      "No pinned memories yet.",
     ),
-    "",
-    openBlock("Not yet", openMemories.map((memory) => memory.title)),
   ];
-
-  if (summaryText) {
-    lines.push("", "### Summary", summaryText);
-  }
 
   return lines.join("\n");
 }
@@ -191,32 +192,6 @@ function summaryOptionIndex(input: TodayReviewSummaryInput, optionCount: number)
   return hash;
 }
 
-function completedBlock(
-  verb: string,
-  items: string[],
-  singularLabel: string,
-  pluralLabel: string,
-) {
-  if (items.length === 0) {
-    return `You ${verb} no ${pluralLabel} today.`;
-  }
-
-  return [
-    `You ${verb} ${items.length} ${
-      items.length === 1 ? singularLabel : pluralLabel
-    } today:`,
-    itemList(items),
-  ].join("\n");
-}
-
-function openBlock(title: string, items: string[]) {
-  return [`${title}:`, items.length > 0 ? itemList(items) : "None."].join("\n");
-}
-
-function itemList(items: string[]) {
-  return items.map((item) => `- ${item}`).join("\n");
-}
-
 const fallbackTodayReviewSummaryMessages: TodayReviewSummaryMessages = {
   fulfilled: ["The visible work is complete for today."],
   near: ["Only a little remains; leave enough room to breathe."],
@@ -226,3 +201,88 @@ const fallbackTodayReviewSummaryMessages: TodayReviewSummaryMessages = {
   gentle: ["Give tomorrow a little more room."],
   open: ["A quiet slate can still be useful."],
 };
+
+function reviewCountSentence({
+  doneMemoryCount,
+  doneRoutineCount,
+  doneTaskCount,
+}: {
+  doneMemoryCount: number;
+  doneRoutineCount: number;
+  doneTaskCount: number;
+}) {
+  const workSentence = workCountSentence(doneTaskCount, doneRoutineCount);
+  const memorySentence =
+    doneMemoryCount === 0
+      ? "No pinned memories were experienced today."
+      : `You also experienced ${countText(
+          doneMemoryCount,
+          "pinned memory",
+          "pinned memories",
+        )}.`;
+
+  return `${workSentence} ${memorySentence}`;
+}
+
+function workCountSentence(doneTaskCount: number, doneRoutineCount: number) {
+  if (doneTaskCount === 0 && doneRoutineCount === 0) {
+    return "No tasks or routines were finished today.";
+  }
+
+  if (doneTaskCount > 0 && doneRoutineCount > 0) {
+    return `You finished ${countText(
+      doneTaskCount,
+      "task",
+      "tasks",
+    )} and ${countText(doneRoutineCount, "routine", "routines")} today.`;
+  }
+
+  if (doneTaskCount > 0) {
+    return `You finished ${countText(
+      doneTaskCount,
+      "task",
+      "tasks",
+    )} today. No routines were finished.`;
+  }
+
+  return `You finished ${countText(
+    doneRoutineCount,
+    "routine",
+    "routines",
+  )} today. No tasks were finished.`;
+}
+
+function countText(count: number, singularLabel: string, pluralLabel: string) {
+  return `${count} ${count === 1 ? singularLabel : pluralLabel}`;
+}
+
+function checkboxList(
+  items: Array<{
+    done: boolean;
+    title: string;
+    description: string | null;
+  }>,
+  emptyText: string,
+) {
+  if (items.length === 0) {
+    return emptyText;
+  }
+
+  return items
+    .map((item) => {
+      const checkbox = item.done ? "`[x]`" : "`[ ]`";
+      const title = markdownText(item.title);
+      const description = item.description?.trim().replace(/\s+/g, " ");
+
+      if (!description) {
+        return `- ${checkbox} **${title}**`;
+      }
+
+      return `- ${checkbox} **${title}**: ${markdownText(description)}`;
+    })
+    .join("\n");
+}
+
+function markdownText(value: string) {
+  return value.replace(/([\\*_`~])/g, "\\$1");
+}

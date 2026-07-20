@@ -210,9 +210,20 @@ Content area:
   that assumes the user still has evening time left or should make `today`
   lighter.
 
-Discord message text should still include Markdown-style sections for tasks,
-routines, pinned memories, and an appended `Summary` section because the
-message can be read outside the Today page.
+Discord message text should still include Markdown-style sections because the
+message can be read outside the Today page:
+
+- start with `### Today Review <date>`
+- show the same summary sentence immediately below the heading
+- show one friendly count sentence for finished tasks, finished routines, and
+  experienced pinned memories. Handle zero, singular, and plural counts without
+  awkward wording such as `completed no tasks`
+- show `Tasks`, `Routines`, and `Pinned Memories` sections as checkbox-like
+  lists
+- list each item as `- \`[x]\` **Title**: Description` or
+  `- \`[ ]\` **Title**: Description`; use inline code for the checkbox marker
+  so Discord renders it as fixed-width text. Omit the colon and description
+  when the description is empty
 
 While sending, the action can show the shared pending button text. Success and
 failure results must use the shared notification stack.
