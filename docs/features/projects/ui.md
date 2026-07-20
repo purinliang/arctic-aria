@@ -253,7 +253,7 @@ Detail page layout:
 
 - parent layout: shared split layout
 - direction: left-right on desktop, stacked on mobile
-- desktop split: flexible left panel and fixed `22rem` right panel
+- desktop split: flexible left panel and fixed `21rem` right panel
 - if available width cannot keep the left panel at least 20% wider than the
   right panel, stack the panels vertically instead
 - use the shared `aa-split-*` classes so the two-column layout activates only
