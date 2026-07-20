@@ -229,6 +229,8 @@ const englishMessages = {
   notifications: {
     actionFailed: "Action failed",
     notAvailableYet: "Not available yet",
+    operationTooFrequentMessage: "Try again in a couple of seconds.",
+    operationTooFrequentTitle: "Please wait a moment",
     done: "Done",
     dismiss: "Dismiss notification",
   },
@@ -432,6 +434,8 @@ const simplifiedChineseMessages: AppMessages = {
   notifications: {
     actionFailed: "操作失败",
     notAvailableYet: "暂不可用",
+    operationTooFrequentMessage: "请过几秒再试。",
+    operationTooFrequentTitle: "请稍等一下",
     done: "完成",
     dismiss: "关闭通知",
   },

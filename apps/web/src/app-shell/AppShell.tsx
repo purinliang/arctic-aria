@@ -15,7 +15,10 @@ import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { AppMessages } from "@/messages/app-messages";
 import type { LanguagePreference, SupportedLanguage } from "@/messages/languages";
-import type { TimeFormatPreference } from "@/features/settings/preferences";
+import type {
+  TimeFormatPreference,
+  UserPreferences,
+} from "@/features/settings/preferences";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
 import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardProjects";
@@ -42,6 +45,7 @@ export function AppShell({
   languagePreference,
   messages,
   onLanguagePreferenceChange,
+  onPreferenceOpenAttempt,
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
   resolvedLanguage,
@@ -62,6 +66,7 @@ export function AppShell({
   languagePreference: LanguagePreference;
   messages: AppMessages;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
+  onPreferenceOpenAttempt: (preference: keyof UserPreferences) => boolean;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
   resolvedLanguage: SupportedLanguage;
@@ -370,6 +375,7 @@ export function AppShell({
               versionMessages={messages.versionStatus}
               versionStatus={versionStatus}
               onLanguagePreferenceChange={onLanguagePreferenceChange}
+              onPreferenceOpenAttempt={onPreferenceOpenAttempt}
               onThemePreferenceChange={onThemePreferenceChange}
               onTimeFormatPreferenceChange={onTimeFormatPreferenceChange}
               showErrorNotification={showErrorNotification}

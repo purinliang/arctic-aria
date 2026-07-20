@@ -1,9 +1,10 @@
-export const immediateLogoutIgnoreMs = 3_000;
+export const immediateLogoutRejectMs = 5_000;
+export const frequentOperationRejectMs = 2_000;
 
 export function shouldIgnoreImmediateLogout({
   lastSessionCreatedAt,
   now,
-  windowMs = immediateLogoutIgnoreMs,
+  windowMs = immediateLogoutRejectMs,
 }: {
   lastSessionCreatedAt: number | null;
   now: number;
@@ -13,5 +14,21 @@ export function shouldIgnoreImmediateLogout({
     lastSessionCreatedAt !== null &&
     now - lastSessionCreatedAt >= 0 &&
     now - lastSessionCreatedAt < windowMs
+  );
+}
+
+export function shouldRejectFrequentOperation({
+  lastOperationAt,
+  now,
+  windowMs = frequentOperationRejectMs,
+}: {
+  lastOperationAt: number | null;
+  now: number;
+  windowMs?: number;
+}) {
+  return (
+    lastOperationAt !== null &&
+    now - lastOperationAt >= 0 &&
+    now - lastOperationAt < windowMs
   );
 }

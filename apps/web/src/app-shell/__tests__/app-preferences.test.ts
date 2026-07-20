@@ -3,6 +3,9 @@ import test from "node:test";
 import {
   detectBrowserDefaults,
   detectBrowserLanguage,
+  isRecentPreferenceCacheTimestamp,
+  mergeUserPreferenceUpdate,
+  recentPreferenceCacheWindowMs,
   readThemePreference,
   resolveThemeMode,
 } from "../app-preferences.ts";
@@ -47,6 +50,39 @@ test("theme preference resolves against browser theme", () => {
   assert.equal(resolveThemeMode("system", "light"), "light");
   assert.equal(resolveThemeMode("dark", "light"), "dark");
   assert.equal(resolveThemeMode("light", "dark"), "light");
+});
+
+test("preference updates merge against the latest optimistic snapshot", () => {
+  const first = mergeUserPreferenceUpdate(
+    {
+      languagePreference: "en",
+      multipleTimezonesEnabled: false,
+      themePreference: "light",
+      timeFormatPreference: "12h",
+      timeZonePreference: "system",
+    },
+    { themePreference: "dark" },
+  );
+  const second = mergeUserPreferenceUpdate(first, {
+    languagePreference: "zh-CN",
+  });
+
+  assert.equal(second.themePreference, "dark");
+  assert.equal(second.languagePreference, "zh-CN");
+});
+
+test("preference cache timestamps identify only fresh local writes", () => {
+  assert.equal(isRecentPreferenceCacheTimestamp("1_000", 1_100), false);
+  assert.equal(isRecentPreferenceCacheTimestamp("1000", 1_100), true);
+  assert.equal(
+    isRecentPreferenceCacheTimestamp(
+      "1000",
+      1_000 + recentPreferenceCacheWindowMs,
+    ),
+    false,
+  );
+  assert.equal(isRecentPreferenceCacheTimestamp("2000", 1_000), false);
+  assert.equal(isRecentPreferenceCacheTimestamp(null, 1_000), false);
 });
 
 test("browser defaults use safe server fallback", () => {
