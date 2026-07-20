@@ -56,6 +56,10 @@ test("generates today's daily routine instance", async () => {
   assert.equal(instances[0].title, "Morning check");
   assert.equal(instances[0].scheduledDate, "2026-07-12");
   assert.equal(instances[0].scheduledTime, "08:00");
+  assert.deepEqual(
+    instances[0].remindAt,
+    new Date("2026-07-12T07:30:00.000Z"),
+  );
 });
 
 test("monthly by date supports yearly renewal intervals", async () => {
@@ -91,6 +95,62 @@ test("monthly by date supports yearly renewal intervals", async () => {
   assert.equal(instances[0].title, "Yearly bill");
 });
 
+test("reuses legacy no-time routine instances for fallback time", async () => {
+  const instance: RoutineInstanceRecord = {
+    id: "instance-1",
+    userId,
+    routineId: "routine-1",
+    title: "Flexible check",
+    description: "Flexible check description",
+    scheduledDate: "2026-07-12",
+    scheduledTime: null,
+    remindAt: null,
+    remindedAt: null,
+    movedAt: null,
+    movedFromDate: null,
+    status: "pending",
+    completedAt: null,
+    skippedAt: null,
+    createdAt: new Date("2026-07-12T00:00:00.000Z"),
+    updatedAt: new Date("2026-07-12T00:00:00.000Z"),
+  };
+  const repository = new InMemoryRoutineRepository({
+    routines: [
+      routine({
+        id: "routine-1",
+        title: "Flexible check",
+        rule: {
+          id: "routine-1-rule",
+          routineId: "routine-1",
+          ruleType: "daily",
+          intervalValue: null,
+          weekdays: null,
+          dayOfMonth: null,
+          preferredTime: null,
+          timezone: "UTC",
+          createdAt: new Date("2026-07-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-07-01T00:00:00.000Z"),
+        },
+      }),
+    ],
+    instances: [instance],
+  });
+  const service = createRoutineService({
+    routines: repository,
+    now: () => now,
+  });
+
+  const instances = await service.listTodayRoutineInstances(userId);
+
+  assert.equal(instances.length, 1);
+  assert.equal(instances[0].id, "instance-1");
+  assert.equal(instances[0].scheduledTime, null);
+  assert.deepEqual(
+    instances[0].remindAt,
+    new Date("2026-07-12T17:30:00.000Z"),
+  );
+});
+
 test("deleted routines do not generate instances", async () => {
   const repository = new InMemoryRoutineRepository({
     routines: [
@@ -120,6 +180,10 @@ test("complete, skip, and reopen update routine instance status", async () => {
     description: "Morning check description",
     scheduledDate: "2026-07-12",
     scheduledTime: "08:00",
+    remindAt: new Date("2026-07-12T07:30:00.000Z"),
+    remindedAt: null,
+    movedAt: null,
+    movedFromDate: null,
     status: "pending",
     completedAt: null,
     skippedAt: null,

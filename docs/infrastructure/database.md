@@ -41,12 +41,21 @@ Environment variable ownership and Vercel Neon variable mapping are documented
 in [environment.md](environment.md).
 
 Schema migration files are safe to commit. The current migration entry point is
-`apps/web/scripts/migrate.mjs`, exposed as `pnpm db:migrate` from `apps/web`.
+`apps/web/scripts/run-database-migrations.mjs`, exposed as `pnpm database:migrate`
+from `apps/web`.
 From the repository root, run the same migration entry point with
-`pnpm --dir apps/web db:migrate`.
+`pnpm --dir apps/web database:migrate`.
 
-Migration files live in `apps/infrastructure/database/migrations` because the
+A human-readable current schema snapshot lives in
+`apps/database/schema.md`. It is for review only; migration files and the
+applied migration metadata remain the source of truth.
+
+Migration files live in `apps/database/migrations` because the
 database schema is shared infrastructure, not part of the web UI surface.
+Database-owned migration helpers and migration-runner logic live in
+`apps/database/scripts`. The web migration entry point imports those helpers,
+but keeps web environment loading, app metadata, and Neon connection setup in
+`apps/web/scripts`.
 
 `schema_migrations` records each newly applied migration, a SHA-256 checksum of
 that migration file, and the app metadata that was active when it ran: app
@@ -110,7 +119,7 @@ history is a valid prefix of the current source tree:
   names match the current migration history prefix.
 
 The actual database version shown in the app comes from the applied migration
-table, not from the commit that last ran `pnpm db:migrate`. App commit metadata
+table, not from the commit that last ran `pnpm database:migrate`. App commit metadata
 is audit context only. User-facing UI shows the app version and the compact
 database schema-history hash, with a short red message when the database schema
 is behind, ahead, different, missing checksums, or unavailable.
@@ -132,14 +141,14 @@ Current deployment setup:
 - Database provider: Neon PostgreSQL.
 - Vercel project root: `apps/web`.
 - Vercel Root Directory setting: enable source files outside the root directory
-  for the Build Step. Migration files live in `apps/infrastructure`, so
+  for the Build Step. Migration files live in `apps/database`, so
   `apps/web` cannot read them during Vercel builds unless this setting is
   enabled. If this setting is disabled, the build will fail before migration
   with a missing migration directory error.
 - Current Vercel build command:
 
   ```bash
-  pnpm build && pnpm db:migrate
+  pnpm deploy
   ```
 
 - Production branch: `main`.
@@ -155,30 +164,36 @@ This is currently Vercel-managed CD. It is not a separate GitHub Actions
 pipeline. If the Vercel build command runs tests and lint before migration, it
 also provides a basic deployment validation gate.
 
-Recommended Vercel build command:
+`pnpm deploy` runs these steps:
 
 ```bash
-pnpm test && pnpm lint && pnpm build && pnpm db:migrate
+pnpm build && pnpm discord:sync-commands && pnpm database:migrate
 ```
 
-This order keeps the production database unchanged when tests, lint, or the
-Next.js build fail. It is safer than migrating first and then discovering that
-the app cannot build. The remaining risk is that a migration can succeed and a
-later Vercel deployment step can still fail before the deployment is promoted.
-Because of that, production migrations must remain backward-compatible.
+This order keeps the production database unchanged when the Next.js build or
+Discord command sync fails. It is safer than migrating first and then
+discovering that the app cannot build or that the Discord app credentials point
+at the wrong app. The remaining risk is that a migration can succeed and a later
+Vercel deployment step can still fail before the deployment is promoted. Because
+of that, production migrations must remain backward-compatible.
 
-The current command `pnpm build && pnpm db:migrate` runs the Next.js build
-before touching the database, then exits non-zero if migration fails, so Vercel
-will stop the deployment on migration errors. When the metadata tables are
-available, the failed run is recorded with `status = 'failed'`.
+The current command `pnpm deploy` runs the Next.js build first, syncs Discord
+slash-command metadata for the environment's configured Discord app, then runs
+database migrations. It exits non-zero if any step fails, so Vercel will stop
+the deployment on build, Discord sync, or migration errors. When the migration
+metadata tables are available, failed migration runs are recorded with
+`status = 'failed'`.
+
+For stricter validation, use `pnpm test && pnpm lint && pnpm deploy`.
+This keeps tests and lint in front of build, Discord sync, and migration.
 
 If accidental production migration is a concern, do not use an unguarded
-production build command that starts with `pnpm db:migrate`. Use one of these
+production build command that starts with `pnpm database:migrate`. Use one of these
 safer modes:
 
-- Preferred Vercel-only mode: run `pnpm test`, `pnpm lint`, and `pnpm build`
-  before `pnpm db:migrate`. This prevents app validation failures from touching
-  the production database.
+- Preferred Vercel-only mode: run `pnpm build` and `pnpm discord:sync-commands`
+  before `pnpm database:migrate`. This prevents app validation failures and
+  Discord command-sync failures from touching the production database.
 - Stricter production mode: keep Preview migrations automatic, but run
   Production migrations manually from the exact release commit before or during
   the release checklist.
@@ -203,16 +218,17 @@ Expected local/preview test flow:
 1. Point `NEON_POSTGRES_URL` at the preview database branch.
 2. Start the app or run a small database-backed action. If the branch has not
    been migrated, missing-table or database-version errors are expected.
-3. Run `pnpm --dir apps/web db:migrate` against the preview branch.
+3. Run `pnpm --dir apps/web database:migrate` against the preview branch.
 4. Run `pnpm --dir apps/web test`, `pnpm --dir apps/web lint`, and
    `pnpm --dir apps/web build` when validating a release candidate.
 5. Manually test the web app against the preview branch.
 
 Production migration is now part of the Vercel deploy command for `main`.
 Before relying on that path, confirm the Vercel Production environment contains
-the production `NEON_POSTGRES_URL` and that Preview/Development environments do
-not point at the production database. Also confirm Vercel can read
-`apps/infrastructure/database/migrations` from the `apps/web` project root.
+the production `NEON_POSTGRES_URL`, production Discord env variables, and that
+Preview/Development environments point at preview database and dev Discord app
+credentials. Also confirm Vercel can read
+`apps/database/migrations` from the `apps/web` project root.
 
 To test the migration step without adding a fake schema change, inspect
 `schema_migration_runs` after a Vercel deployment. The migration runner records

@@ -2,6 +2,7 @@
 import { PinnedMemoriesPanel } from "@/features/memories/components/PinnedMemoriesPanel";
 import { ProjectTasksPanel } from "@/features/projects/components/ProjectTasksPanel";
 import { RoutinesPanel } from "@/features/routines/components/RoutinesPanel";
+import { TodayReviewPanel } from "./TodayReviewPanel";
 import type { DashboardMessages } from "@/messages/app-messages";
 import type { FormMessages } from "@/messages/app-messages";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
@@ -21,10 +22,13 @@ export function Dashboard({
   routineLoading,
   pinnedMemories,
   memoryLoading,
+  todayReviewPending,
+  showTodayReviewSendAction,
   onTaskStatus,
   onRoutineStatus,
   onMemoryDone,
   onMemoryCancelDone,
+  onTodayReviewSend,
   onTaskOpen,
   onRoutineOpen,
   onMemoryOpen,
@@ -39,6 +43,8 @@ export function Dashboard({
   routineLoading: boolean;
   pinnedMemories: PinnedMemory[];
   memoryLoading: boolean;
+  todayReviewPending: boolean;
+  showTodayReviewSendAction: boolean;
   onTaskStatus: (
     taskId: string,
     status: TaskStatus,
@@ -46,6 +52,7 @@ export function Dashboard({
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
   onMemoryDone: (pinnedMemoryId: string) => void;
   onMemoryCancelDone: (pinnedMemoryId: string) => void;
+  onTodayReviewSend: () => void;
   onTaskOpen: (projectId: string) => void;
   onRoutineOpen: () => void;
   onMemoryOpen: () => void;
@@ -56,17 +63,17 @@ export function Dashboard({
   return (
     <section className="aa-split-container">
       <div className="aa-split-panel gap-4">
-        <ProjectTasksPanel
-          darkMode={darkMode}
-          tasks={tasks}
-          loading={taskLoading}
-          messages={messages.projectTasks}
-          dateMessages={formMessages.datePicker}
-          onTaskStatus={onTaskStatus}
-          onTaskOpen={onTaskOpen}
-        />
+        <div className="grid min-w-0 content-start gap-4">
+          <ProjectTasksPanel
+            darkMode={darkMode}
+            tasks={tasks}
+            loading={taskLoading}
+            messages={messages.projectTasks}
+            dateMessages={formMessages.datePicker}
+            onTaskStatus={onTaskStatus}
+            onTaskOpen={onTaskOpen}
+          />
 
-        <aside className="grid content-start gap-4">
           <RoutinesPanel
             darkMode={darkMode}
             routines={routines}
@@ -76,6 +83,19 @@ export function Dashboard({
             timeFormatPreference={timeFormatPreference}
             onRoutineStatus={onRoutineStatus}
             onRoutineOpen={onRoutineOpen}
+          />
+        </div>
+
+        <aside className="grid content-start gap-4">
+          <TodayReviewPanel
+            darkMode={darkMode}
+            pending={todayReviewPending}
+            pinnedMemories={pinnedMemories}
+            routines={routines}
+            showSendAction={showTodayReviewSendAction}
+            tasks={tasks}
+            messages={messages.review}
+            onSend={onTodayReviewSend}
           />
 
           <PinnedMemoriesPanel

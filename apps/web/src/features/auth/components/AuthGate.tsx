@@ -1,11 +1,13 @@
 "use client";
 
 // Auth Gate.
-import { LoaderCircle } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { AppShell } from "@/app-shell/AppShell";
-import { useAppPreferences } from "@/app-shell/app-preferences";
-import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
+import {
+  hasRecentLocalPreferenceCache,
+  mergeUserPreferenceUpdate,
+  useAppPreferences,
+} from "@/app-shell/app-preferences";
 import { defaultDatabaseVersionStatus } from "@/components/app-metadata";
 import { NotificationStack, useNotifications } from "@/components/notification";
 import { useDocumentLanguage, useDocumentTheme } from "@/components/theme";
@@ -24,6 +26,11 @@ import {
   getPublicVersionStatus,
   logoutUser,
 } from "../actions";
+import { emptyLogin, emptyRegister } from "../auth-form-defaults";
+import {
+  shouldIgnoreImmediateLogout,
+  shouldRejectFrequentOperation,
+} from "../auth-interaction-guards";
 import { submitLogin, submitRegister } from "../auth-client";
 import type { AuthUser } from "../server/auth-service";
 import {
@@ -36,26 +43,16 @@ import {
   type LoginInput,
   type RegisterInput,
 } from "../validation";
+import { AuthLoadingScreen } from "./AuthLoadingScreen";
 import { AuthPage } from "./AuthPage";
 
 export type AuthMode = "login" | "register";
 
-const emptyRegister: RegisterInput = {
-  username: "",
-  displayName: "",
-  password: "",
-  repeatPassword: "",
-};
-
-const emptyLogin: LoginInput = {
-  username: "",
-  password: "",
-};
-
-const englishAuthMessages = getAppMessages("en").auth;
-const simplifiedChineseAuthMessages = getAppMessages("zh-CN").auth;
-
-export function AuthGate() {
+export function AuthGate({
+  showTodayReviewSendAction,
+}: {
+  showTodayReviewSendAction: boolean;
+}) {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
   const [mode, setMode] = useState<AuthMode>("login");
@@ -67,6 +64,14 @@ export function AuthGate() {
   const [versionStatus, setVersionStatus] = useState(
     defaultDatabaseVersionStatus(),
   );
+  const lastSessionCreatedAt = useRef<number | null>(null);
+  const lastPreferenceOperationAt = useRef<
+    Partial<Record<keyof UserPreferences, number>>
+  >({});
+  const pendingPreferenceOpenApproval = useRef<
+    Partial<Record<keyof UserPreferences, number>>
+  >({});
+  const preferenceRequestSequence = useRef(0);
   const [isPending, startTransition] = useTransition();
   const {
     browserDefaults,
@@ -77,6 +82,23 @@ export function AuthGate() {
     themePreference,
     timeFormatPreference,
   } = useAppPreferences();
+  const currentPreferences = normalizeUserPreferences({
+    languagePreference,
+    multipleTimezonesEnabled: false,
+    themePreference,
+    timeFormatPreference,
+    timeZonePreference: "system",
+  });
+  const latestPreferencesRef = useRef<UserPreferences>(currentPreferences);
+  const applyPreferencesLocally = useCallback(
+    (preferences: UserPreferences) => {
+      const normalized = normalizeUserPreferences(preferences);
+
+      latestPreferencesRef.current = normalized;
+      applyUserPreferences(normalized);
+    },
+    [applyUserPreferences],
+  );
   const messages = getAppMessages(resolvedLanguage);
   const {
     notifications,
@@ -141,10 +163,17 @@ export function AuthGate() {
 
     let active = true;
 
+    const requestSequence = preferenceRequestSequence.current;
+
     getUserPreferences()
       .then((result) => {
-        if (active && result.ok) {
-          applyUserPreferences(result.preferences);
+        if (
+          active &&
+          result.ok &&
+          preferenceRequestSequence.current === requestSequence &&
+          !hasRecentLocalPreferenceCache()
+        ) {
+          applyPreferencesLocally(result.preferences);
         }
       })
       .catch(() => {
@@ -154,46 +183,10 @@ export function AuthGate() {
     return () => {
       active = false;
     };
-  }, [applyUserPreferences, currentUser]);
+  }, [applyPreferencesLocally, currentUser]);
 
   if (!sessionChecked) {
-    return (
-      <main
-        className="grid min-h-[100svh] place-items-center bg-[var(--aa-page-bg)] px-4 text-[var(--aa-primary-text)] transition-colors sm:min-h-screen"
-      >
-        <div
-          className="grid justify-items-center gap-4 text-center"
-          role="status"
-          aria-live="polite"
-        >
-          <ArcticAriaLogo
-            brandText={englishAuthMessages.brandName}
-            className="aa-language-block aa-language-option-en"
-          />
-          <ArcticAriaLogo
-            brandText={simplifiedChineseAuthMessages.brandName}
-            className="aa-language-block aa-language-option-zh"
-          />
-          <div className="flex items-center justify-center gap-2">
-            <LoaderCircle
-              size={18}
-              className="animate-spin text-[var(--aa-secondary-text)]"
-              aria-hidden="true"
-            />
-            <span
-              className="aa-language-inline aa-language-option-en text-xs font-medium leading-5 text-[var(--aa-secondary-text)]"
-            >
-              {englishAuthMessages.loading.openingWorkspace}
-            </span>
-            <span
-              className="aa-language-inline aa-language-option-zh text-xs font-medium leading-5 text-[var(--aa-secondary-text)]"
-            >
-              {simplifiedChineseAuthMessages.loading.openingWorkspace}
-            </span>
-          </div>
-        </div>
-      </main>
-    );
+    return <AuthLoadingScreen />;
   }
 
   if (currentUser) {
@@ -212,6 +205,7 @@ export function AuthGate() {
         onLanguagePreferenceChange={(nextPreference) =>
           updateUserPreferences({ languagePreference: nextPreference })
         }
+        onPreferenceOpenAttempt={canOpenUserPreferenceInput}
         onThemePreferenceChange={(nextPreference) =>
           updateUserPreferences({ themePreference: nextPreference })
         }
@@ -223,6 +217,7 @@ export function AuthGate() {
         onNotificationDismiss={dismissNotification}
         showErrorNotification={showErrorNotification}
         showSuccessNotification={showSuccessNotification}
+        showTodayReviewSendAction={showTodayReviewSendAction}
       />
     );
   }
@@ -265,21 +260,36 @@ export function AuthGate() {
   }
 
   function updateUserPreferences(input: Partial<UserPreferences>) {
-    const nextPreferences = normalizeUserPreferences({
-      languagePreference,
-      multipleTimezonesEnabled: false,
-      themePreference,
-      timeFormatPreference,
-      timeZonePreference: "system",
-      ...input,
-    });
+    const now = currentTimeMs();
+    const operationKeys = Object.keys(input) as Array<keyof UserPreferences>;
+    const uncheckedOperationKeys = operationKeys.filter(
+      (key) => pendingPreferenceOpenApproval.current[key] === undefined,
+    );
 
-    applyUserPreferences(nextPreferences);
+    if (!canStartUserPreferenceOperation(uncheckedOperationKeys, now)) {
+      return;
+    }
+
+    markUserPreferenceOperations(uncheckedOperationKeys, now);
+    clearPreferenceOpenApprovals(operationKeys);
+
+    const nextPreferences = mergeUserPreferenceUpdate(
+      latestPreferencesRef.current,
+      input,
+    );
+
+    applyPreferencesLocally(nextPreferences);
+
+    const requestSequence = ++preferenceRequestSequence.current;
 
     void saveUserPreferences(nextPreferences)
       .then((result) => {
+        if (preferenceRequestSequence.current !== requestSequence) {
+          return;
+        }
+
         if (result.ok) {
-          applyUserPreferences(result.preferences);
+          applyPreferencesLocally(result.preferences);
           return;
         }
 
@@ -289,6 +299,10 @@ export function AuthGate() {
         );
       })
       .catch(() => {
+        if (preferenceRequestSequence.current !== requestSequence) {
+          return;
+        }
+
         showErrorNotification(
           messages.settings.results.settings_preferences_save_failed,
           messages.settings.notifications.preferencesSaveFailed,
@@ -296,8 +310,83 @@ export function AuthGate() {
       });
   }
 
+  function canOpenUserPreferenceInput(preference: keyof UserPreferences) {
+    const now = currentTimeMs();
+
+    if (!canStartUserPreferenceOperation([preference], now)) {
+      return false;
+    }
+
+    markUserPreferenceOperations([preference], now);
+    pendingPreferenceOpenApproval.current = {
+      ...pendingPreferenceOpenApproval.current,
+      [preference]: now,
+    };
+    return true;
+  }
+
+  function canStartUserPreferenceOperation(
+    preferences: Array<keyof UserPreferences>,
+    now: number,
+  ) {
+    const shouldReject = preferences.some((preference) =>
+      shouldRejectFrequentOperation({
+        lastOperationAt: lastPreferenceOperationAt.current[preference] ?? null,
+        now,
+      }),
+    );
+
+    if (!shouldReject) {
+      return true;
+    }
+
+    showInfoNotification(
+      messages.notifications.operationTooFrequentMessage,
+      messages.notifications.operationTooFrequentTitle,
+    );
+    return false;
+  }
+
+  function markUserPreferenceOperations(
+    preferences: Array<keyof UserPreferences>,
+    now: number,
+  ) {
+    const next = { ...lastPreferenceOperationAt.current };
+
+    for (const preference of preferences) {
+      next[preference] = now;
+    }
+
+    lastPreferenceOperationAt.current = next;
+  }
+
+  function clearPreferenceOpenApprovals(
+    preferences: Array<keyof UserPreferences>,
+  ) {
+    const next = { ...pendingPreferenceOpenApproval.current };
+
+    for (const preference of preferences) {
+      delete next[preference];
+    }
+
+    pendingPreferenceOpenApproval.current = next;
+  }
+
   async function handleLogout() {
     if (logoutPending) {
+      return;
+    }
+
+    if (
+      shouldIgnoreImmediateLogout({
+        lastSessionCreatedAt: lastSessionCreatedAt.current,
+        now: currentTimeMs(),
+      })
+    ) {
+      showInfoNotification(
+        messages.notifications.operationTooFrequentMessage,
+        messages.notifications.operationTooFrequentTitle,
+      );
       return;
     }
 
@@ -363,6 +452,7 @@ export function AuthGate() {
           : messages.auth.notifications.signedIn,
       );
 
+      lastSessionCreatedAt.current = currentTimeMs();
       setCurrentUser(result.user);
     });
   }
@@ -418,4 +508,8 @@ function replaceBrowserPath(path: string) {
   }
 
   window.history.replaceState({ arcticAriaPath: path }, "", path);
+}
+
+function currentTimeMs() {
+  return Date.now();
 }

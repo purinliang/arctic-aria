@@ -175,7 +175,7 @@ Current implementation:
 - Settings can create and cancel one-time binding codes.
 - Settings can unbind the active Discord account after confirmation.
 - Settings can send a test Discord DM to the active bound account through the
-  same server-side delivery logic used by outbound Discord messages.
+  shared Discord notification service used by outbound Discord messages.
 - The Discord integration implements `/bind code:<code>` and consumes those
   codes.
 - The UI does not yet receive server-pushed binding completion events after the

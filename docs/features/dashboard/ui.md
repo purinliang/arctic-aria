@@ -14,17 +14,18 @@ The Dashboard is the daily operating surface. It should show what the user can
 act on today without turning into a management page.
 
 The Dashboard may display project tasks, routine instances, pinned memories,
-and future reviews, but it must not redefine their product rules.
+and a lightweight Review panel, but it must not redefine their product rules.
 
 Current Dashboard scope:
 
 - today's selected project tasks
 - today's routine instances
 - pinned memories
+- Review panel with a non-production manual Discord delivery test
 
 Deferred Dashboard scope:
 
-- review summary UI
+- persisted review history UI
 - timeline UI
 - full project, routine, or memory management
 
@@ -41,12 +42,16 @@ Dashboard behavior. Shared shell behavior is documented in:
 Dashboard body layout:
 
 - parent layout: shared split layout
-- left panel: `Tasks`
-- right panel: stacked `Routines` and `Pinned Memories`
+- left column: stacked `Tasks` and `Routines`
+- right column: stacked `Review` and `Pinned Memories`
 - desktop: left panel should be wider than the right panel through the shared
   split classes
 - mobile: panels stack vertically
 - panels keep independent content-driven heights
+
+Each Dashboard panel header should include a short friendly description, ideally
+5-7 English words and no more than 8 English words. The description should
+encourage action without adding instruction text or counts.
 
 The Dashboard should not show a top summary bar, duplicate progress visuals, or
 a timeline section in the current UI.
@@ -60,6 +65,7 @@ Header:
 
 - icon: `Check`
 - title: `Tasks`
+- description: short encouragement to choose a steady project step for today
 - no header count metadata
 
 Task row layout:
@@ -94,6 +100,12 @@ must not navigate.
 The Routines panel shows routine instances for the current personal day. It
 does not show every routine definition.
 
+Header:
+
+- icon: `Bell`
+- title: `Routines`
+- description: short encouragement to keep repeatable checks light and visible
+
 Routine row layout:
 
 - parent surface: shared list item
@@ -117,6 +129,12 @@ and must not navigate.
 
 The Pinned Memories panel shows pinned memories only. It does not show general
 memory suggestions.
+
+Header:
+
+- icon: `Album`
+- title: `Pinned Memories`
+- description: short encouragement to keep good options nearby
 
 Pinned memory row layout:
 
@@ -144,15 +162,73 @@ categories fall back to `experienced` / `体验`.
 Clicking the row's outlineless right-arrow button opens the Memories page. The
 whole row is not clickable. Clicking the checkbox must not navigate.
 
-## Review
+## Review Panel
 
-Review UI is not an active Dashboard feature yet. Do not keep review dialog
-code inside the Dashboard feature until Reviews has current docs.
+The Review panel is a lightweight sender, not a persisted review feature.
+It should send a short Markdown-style Discord message generated from the
+visible Today items:
 
-Future review UI may show:
+- done and undone project tasks
+- done and undone routine instances
+- pinned memories
 
-- completed project tasks and routines
-- unfinished tasks and skipped routines
+The first version should not add a `daily_reviews` table or a structured review
+editing workflow. Discord delivery history is enough for this version.
+
+Header:
+
+- icon: `ClipboardCheck`
+- visible title: `Review`
+- description: short encouragement without repeating `Today`
+- right action: secondary `Send` button for the current manual Discord delivery
+  test path in local and preview environments only
+
+The Discord message heading should be `Daily Review for <date>`, because the
+message can be read outside the Today page and may arrive after the day ends.
+
+Hide the `Send` button in the real production environment. Production uses the
+Cloudflare scheduled Discord notification cron for Daily Review delivery.
+Settings `Send Test` remains available in production for explicit Discord
+diagnostics.
+
+Content area:
+
+- render only the generated summary sentence as description-level text
+- do not repeat the full task, routine, or pinned-memory lists inside the
+  Review panel because those lists are already visible on the Today page
+- choose the summary tone from the visible state of tasks, routines, and pinned
+  memories
+- calculate work progress from tasks and routines only. One task has weight
+  `3`; one routine has weight `1`
+- divide work progress into buckets: `100%`, `80%+`, `50%+`, `20%+`, and
+  `0%`. Positive progress below `20%` may still use the lowest progress tone
+  so small routine-only progress is not treated as no progress
+- keep at least seven localized summary options per tone so repeated status
+  patterns do not feel mechanical
+- use the current date and visible counts as a stable seed inside the selected
+  tone; the summary should not change randomly during the same day
+- write summary copy as an end-of-day or midnight reflection. Do not use copy
+  that assumes the user still has evening time left or should make `today`
+  lighter.
+
+Discord message text should still include Markdown-style sections because the
+message can be read outside the Today page:
+
+- start with `### Daily Review for <date>`; the date must use the shared long
+  date format, such as `Jul 17, 2026 Fri`
+- show the same summary sentence and one friendly count sentence as a single
+  paragraph immediately below the heading. Handle zero, singular, and plural
+  counts without awkward wording such as `completed no tasks`
+- keep exactly one empty line between that summary paragraph and `### Tasks`
+- show `Tasks`, `Routines`, and `Pinned Memories` sections as checkbox-like
+  lists, with no empty lines between those sections
+- list each item as `- \`[x]\` **Title**: Description` or
+  `- \`[ ]\` **Title**: Description`; use inline code for the checkbox marker
+  so Discord renders it as fixed-width text. Omit the colon and description
+  when the description is empty
+
+While sending, the action can show the shared pending button text. Success and
+failure results must use the shared notification stack.
 
 ## Empty States
 

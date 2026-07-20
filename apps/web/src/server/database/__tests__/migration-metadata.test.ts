@@ -8,7 +8,7 @@ import {
   resolveMigrationsDir,
   schemaHashForMigrations,
   validateAppliedMigrationHistory,
-} from "../../../../scripts/migration-metadata.mjs";
+} from "../../../../../database/scripts/migration-metadata.mjs";
 
 const expectedMigrations = [
   {
@@ -98,13 +98,12 @@ test("schema hash represents the ordered whole migration history", () => {
   assert.notEqual(originalHash, changedHash);
 });
 
-test("migration directory resolves to shared infrastructure from web app root", () => {
+test("migration directory resolves to shared database folder from web app root", () => {
   const repoRoot = mkdtempSync(path.join(tmpdir(), "arctic-aria-"));
   const webRoot = path.join(repoRoot, "apps", "web");
   const migrationsDir = path.join(
     repoRoot,
     "apps",
-    "infrastructure",
     "database",
     "migrations",
   );
@@ -141,7 +140,6 @@ test("migration reader rejects an empty migration directory", () => {
   const migrationsDir = path.join(
     repoRoot,
     "apps",
-    "infrastructure",
     "database",
     "migrations",
   );

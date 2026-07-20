@@ -31,8 +31,9 @@ Arctic Aria is organized around features and supporting services:
   and future reviews.
 - Apps: web dashboard for full control, plus a Discord integration hosted by
   the web app for quick idea capture, account binding, test direct messages,
-  and future reminders or review prompts.
-- Infrastructure: Neon PostgreSQL now, with future cache, background job,
+  reminders, and review prompts.
+- Infrastructure: Neon PostgreSQL for persistence and a Cloudflare cron worker
+  for scheduled web-route invocation, with future cache, richer background job,
   dataflow, and external service adapters added only when needed.
 
 The web dashboard is the main workspace. The Discord integration is important
@@ -57,7 +58,7 @@ Documentation directories:
   implementation notes.
 - [docs/web/](docs/web/): shared web UI, color, theme, localization, and
   sidebar rules.
-- [docs/infrastructure/](docs/infrastructure/): database, environment, Redis,
-  and future infrastructure direction.
+- [docs/infrastructure/](docs/infrastructure/): cron scheduling, database,
+  environment, Redis, and future infrastructure direction.
 - [docs/releases/](docs/releases/): release-note records and PR/merge-message
   source text.

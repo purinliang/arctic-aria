@@ -1,5 +1,4 @@
 export type DiscordWebConfig = {
-  discordAppId: string | null;
   discordBotToken: string | null;
   discordPublicKey: string | null;
 };
@@ -8,7 +7,6 @@ export function readDiscordWebConfig(
   env: NodeJS.ProcessEnv = process.env,
 ): DiscordWebConfig {
   return {
-    discordAppId: readOptionalEnv(env, "DISCORD_APP_ID"),
     discordBotToken: readOptionalEnv(env, "DISCORD_BOT_TOKEN"),
     discordPublicKey: readOptionalEnv(env, "DISCORD_PUBLIC_KEY"),
   };

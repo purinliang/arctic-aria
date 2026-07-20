@@ -10,10 +10,10 @@ credential, and data-protection policy are documented in
 
 ## Current Scope
 
-The only implemented runtime app is the Next.js web app in `apps/web`.
-Discord is implemented as HTTP routes inside the web app, not as a separate
-process. Database migrations live under `apps/infrastructure/database` and are
-run by the web app migration script.
+The implemented runtime apps are the Next.js web app in `apps/web` and the
+Cloudflare cron scheduler in `apps/cron`. Discord is implemented as HTTP routes
+inside the web app, not as a separate process. Database migrations live under
+`apps/database` and are run by the web app migration script.
 
 Use this file as a code map. Current product status and future requirements
 belong in [README.md](../README.md), [roadmap.md](roadmap.md), and feature
@@ -29,6 +29,12 @@ Web app:
 - Tailwind CSS
 - `lucide-react` for icons
 
+Cron scheduler:
+
+- Cloudflare Workers Cron Triggers
+- small Worker app that invokes protected web cron routes
+- no direct database or Discord credentials
+
 Backend inside the web app:
 
 - Next.js server actions
@@ -41,7 +47,7 @@ Verification:
 - Node's built-in test runner through `pnpm test`
 - ESLint through `pnpm lint`
 - Next.js production build through `pnpm build`
-- migration runner through `pnpm db:migrate`
+- migration runner through `pnpm database:migrate`
 
 ## Repository Shape
 
@@ -52,13 +58,20 @@ workspace yet.
 ```text
 arctic-aria/
 |-- apps/
-|   |-- infrastructure/
-|   |   `-- database/
-|   |       `-- migrations/
+|   |-- cron/
+|   |   |-- src/
+|   |   |   `-- index.js
+|   |   |-- package.json
+|   |   `-- wrangler.jsonc
+|   |
+|   |-- database/
+|   |   |-- migrations/
+|   |   `-- scripts/
 |   `-- web/
 |       |-- AGENTS.md
 |       |-- scripts/
-|       |   `-- migrate.mjs
+|       |   |-- read-app-metadata.mjs
+|       |   `-- run-database-migrations.mjs
 |       |-- src/
 |       |   |-- app/
 |       |   |-- app-shell/
@@ -212,6 +225,7 @@ Shared web docs:
 
 Infrastructure docs:
 
+- [infrastructure/cron.md](infrastructure/cron.md)
 - [infrastructure/database.md](infrastructure/database.md)
 - [infrastructure/environment.md](infrastructure/environment.md)
 - [infrastructure/redis.md](infrastructure/redis.md)
@@ -244,9 +258,16 @@ Feature page and panel entry points:
 Persistence entry points:
 
 - `apps/web/src/server/database/neon.ts`
-- `apps/infrastructure/database/migrations`
-- `apps/web/scripts/migrate.mjs`
+- `apps/database/migrations`
+- `apps/database/scripts`
+- `apps/web/scripts/run-database-migrations.mjs`
 - `apps/web/src/features/<feature>/server`
+
+Cron entry points:
+
+- `apps/cron/src/index.js`
+- `apps/cron/wrangler.jsonc`
+- `apps/web/src/app/api/cron/discord-notifications/route.ts`
 
 ## Future Extraction Direction
 
@@ -275,7 +296,7 @@ Run from `apps/web`:
 pnpm test
 pnpm lint
 pnpm build
-pnpm db:migrate
+pnpm database:migrate
 pnpm dev
 ```
 

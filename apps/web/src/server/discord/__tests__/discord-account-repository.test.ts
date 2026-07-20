@@ -38,6 +38,25 @@ test("discord account repository looks up active bindings by user id", async () 
   assert.deepEqual(records[0]?.params, ["user-1"]);
 });
 
+test("discord account repository lists active daily review targets", async () => {
+  const { records, sql } = createSqlStub([
+    { user_id: "user-1", timezone_preference: "Australia/Sydney" },
+    { user_id: "user-2", timezone_preference: null },
+  ]);
+  const repository = new PostgresDiscordAccountRepository(sql as never);
+
+  const targets = await repository.listActiveDailyReviewTargets();
+
+  assert.deepEqual(targets, [
+    { userId: "user-1", timeZonePreference: "Australia/Sydney" },
+    { userId: "user-2", timeZonePreference: "system" },
+  ]);
+  assert.match(records[0]?.text ?? "", /FROM discord_accounts/);
+  assert.match(records[0]?.text ?? "", /LEFT JOIN user_settings/);
+  assert.match(records[0]?.text ?? "", /binding_status = 'active'/);
+  assert.deepEqual(records[0]?.params, []);
+});
+
 test("discord account repository creates a one-time binding code", async () => {
   const { records, sql } = createSqlStub([]);
   const repository = new PostgresDiscordAccountRepository(sql as never);

@@ -212,9 +212,9 @@ detailed shared component rules in `docs/web/ui-components.md`.
   app.
 - When slash-command metadata changes, update
   `apps/web/src/features/discord/server/commands.ts`, run
-  `pnpm --dir apps/web discord:register-commands`, and remind the developer to
-  reinstall or re-authorize the user-installed Discord app if new or changed
-  commands do not appear.
+  `pnpm --dir apps/web discord:sync-commands` against the intended Discord app,
+  and remind the developer to reinstall or re-authorize the user-installed
+  Discord app if new or changed commands do not appear.
 - Keep the runbook in `docs/features/discord/overview.md` aligned with the
   current web route runtime, command registration, interaction endpoint, ngrok,
   Vercel, and install steps.
@@ -252,6 +252,10 @@ Current Git rules:
 - `chore/*` branches are for maintenance work that is not a product feature,
   bug fix, docs-only change, or pure refactor.
 - Before implementation, inspect the current branch and working tree state.
+- For compact related work, keep follow-up fixes on the same work branch and
+  make focused sequential commits there. Do not create a new branch for every
+  small adjustment when the changes share the same feature, fix, or tooling
+  goal.
 - If the developer asks for an unrelated bug fix or chore while another branch
   has active work in progress, do not mix it into the current branch. Stash the
   current work, switch back to `develop`, create a focused `fix/*` or
@@ -423,7 +427,7 @@ For the web app, full checks are:
 - `pnpm --dir apps/web lint`
 - `pnpm --dir apps/web build`
 
-Also run `pnpm --dir apps/web db:migrate` when migrations, database metadata,
+Also run `pnpm --dir apps/web database:migrate` when migrations, database metadata,
 or the migration runner changed, or when the developer asks for migration
 verification.
 

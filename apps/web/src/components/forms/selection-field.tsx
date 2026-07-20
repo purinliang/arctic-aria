@@ -36,6 +36,7 @@ export function SelectInput({
   hasError = false,
   className,
   disabled = false,
+  onOpenAttempt,
   options,
   placeholder = "Select",
   value,
@@ -54,6 +55,7 @@ export function SelectInput({
   placeholder?: string;
   value: string;
   onChange: (value: string) => void;
+  onOpenAttempt?: () => boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [opensAbove, setOpensAbove] = useState(false);
@@ -175,7 +177,18 @@ export function SelectInput({
         disabled={disabled}
         aria-expanded={open}
         aria-haspopup="listbox"
-        onClick={() => setOpen((current) => !current)}
+        onClick={() => {
+          if (open) {
+            setOpen(false);
+            return;
+          }
+
+          if (onOpenAttempt && !onOpenAttempt()) {
+            return;
+          }
+
+          setOpen(true);
+        }}
         {...props}
       >
         <span className="min-w-0 truncate">

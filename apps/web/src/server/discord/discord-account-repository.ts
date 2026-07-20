@@ -18,6 +18,11 @@ export type DiscordAccountRecord = {
   revokedAt: Date | null;
 };
 
+export type DiscordDailyReviewTarget = {
+  userId: string;
+  timeZonePreference: string;
+};
+
 export type CreateDiscordBindingCodeInput = {
   userId: string;
   codeHash: string;
@@ -44,6 +49,11 @@ type DiscordAccountRow = {
   created_at: Date | string;
   updated_at: Date | string;
   revoked_at: Date | string | null;
+};
+
+type DiscordDailyReviewTargetRow = {
+  user_id: string;
+  timezone_preference: string | null;
 };
 
 function mapDiscordAccount(row: DiscordAccountRow): DiscordAccountRecord {
@@ -114,6 +124,25 @@ export class PostgresDiscordAccountRepository {
     )) as DiscordAccountRow[];
 
     return rows[0] ? mapDiscordAccount(rows[0]) : null;
+  }
+
+  async listActiveDailyReviewTargets(): Promise<DiscordDailyReviewTarget[]> {
+    const rows = (await this.getSql().query(
+      `SELECT
+         discord_accounts.user_id,
+         user_settings.timezone_preference
+       FROM discord_accounts
+       LEFT JOIN user_settings
+         ON user_settings.user_id = discord_accounts.user_id
+       WHERE discord_accounts.binding_status = 'active'
+       ORDER BY discord_accounts.created_at`,
+      [],
+    )) as DiscordDailyReviewTargetRow[];
+
+    return rows.map((row) => ({
+      userId: row.user_id,
+      timeZonePreference: row.timezone_preference ?? "system",
+    }));
   }
 
   async createBindingCode(input: CreateDiscordBindingCodeInput) {

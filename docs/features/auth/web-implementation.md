@@ -66,8 +66,9 @@ Database client and migrations:
 
 ```text
 apps/web/src/server/database/neon.ts
-apps/infrastructure/database/migrations/0001_create_users.sql
-apps/web/scripts/migrate.mjs
+apps/database/migrations/0001_create_users.sql
+apps/database/scripts/migration-metadata.mjs
+apps/web/scripts/run-database-migrations.mjs
 ```
 
 Tests:
@@ -120,7 +121,7 @@ strings.
 Run migrations from `apps/web`:
 
 ```bash
-pnpm db:migrate
+pnpm database:migrate
 ```
 
 The migration runner loads `.env.local` and `.env.development.local` before it
@@ -170,13 +171,13 @@ From `apps/web`:
 pnpm test
 pnpm lint
 pnpm build
-pnpm db:migrate
+pnpm database:migrate
 pnpm dev
 ```
 
 Manual smoke test:
 
-1. Run `pnpm db:migrate`.
+1. Run `pnpm database:migrate`.
 2. Run `pnpm dev`.
 3. Sign up with a new username.
 4. Sign in with the same username and password.

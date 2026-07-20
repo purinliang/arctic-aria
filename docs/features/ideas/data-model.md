@@ -3,7 +3,7 @@
 Ideas persistence stores quick-captured thoughts for later triage.
 
 The first table is implemented by
-`apps/infrastructure/database/migrations/0012_create_ideas_and_discord_accounts.sql`.
+`apps/database/migrations/0012_create_ideas_and_discord_accounts.sql`.
 
 ## `ideas`
 

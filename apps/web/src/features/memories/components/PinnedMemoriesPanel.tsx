@@ -35,6 +35,7 @@ export function PinnedMemoriesPanel({
       <CardHeader
         icon={<Album size={18} aria-hidden="true" />}
         title={messages.title}
+        description={messages.description}
         darkMode={darkMode}
       />
       <List darkMode={darkMode}>

@@ -35,8 +35,8 @@ Code locations:
   `apps/web/src/features/discord/server/interaction-endpoint.ts`
 - Slash command metadata:
   `apps/web/src/features/discord/server/commands.ts`
-- Command registration:
-  `apps/web/src/features/discord/server/register-commands.ts`
+- Command sync script:
+  `apps/web/src/features/discord/server/sync-commands.ts`
 - `/bind` behavior:
   `apps/web/src/features/discord/server/account-binding.ts`
 - `/idea` behavior:
@@ -69,26 +69,30 @@ All current Discord variables belong in `apps/web/.env.local` locally and in
 the Vercel web project environment for deployment:
 
 - `DISCORD_BOT_TOKEN`
-- `DISCORD_APP_ID`
+- `DISCORD_APP_ID` when syncing slash commands
 - `DISCORD_PUBLIC_KEY`
 
 The web app also needs its normal shared variables, such as `NEON_POSTGRES_URL`
 and `AUTH_SESSION_SECRET`.
 
-## Command Registration
+## Command Metadata
 
-After changing slash command metadata in
-`apps/web/src/features/discord/server/commands.ts`, run:
+Slash command names and metadata live in
+`apps/web/src/features/discord/server/commands.ts`.
+
+After changing slash command metadata, make sure `apps/web/.env.local` points
+at the intended Discord app and run:
 
 ```bash
-pnpm --dir apps/web discord:register-commands
+pnpm --dir apps/web discord:sync-commands
 ```
 
-For user-installed Discord apps, registration updates Discord's global command
-metadata, but an installed app can still show stale commands. After adding,
-renaming, or changing slash-command options, reinstall or re-authorize the app
-from Discord Developer Portal -> Installation -> Install Link, then refresh or
-restart the Discord client.
+This command uses `DISCORD_APP_ID` and `DISCORD_BOT_TOKEN` to push global
+commands to Discord. For user-installed Discord apps, installed command metadata
+can still be stale after command settings change. After adding, renaming, or
+changing slash-command options, reinstall or re-authorize the app from Discord
+Developer Portal -> Installation -> Install Link, then refresh or restart the
+Discord client.
 
 Recommended Discord Developer Portal settings:
 
@@ -104,13 +108,13 @@ Recommended Discord Developer Portal settings:
 2. Apply database migrations:
 
    ```bash
-   pnpm --dir apps/web db:migrate
+   pnpm --dir apps/web database:migrate
    ```
 
-3. Register slash commands if metadata changed:
+3. Sync slash commands if metadata changed or if this is a new dev bot:
 
    ```bash
-   pnpm --dir apps/web discord:register-commands
+   pnpm --dir apps/web discord:sync-commands
    ```
 
 4. Start the web app:
@@ -122,8 +126,18 @@ Recommended Discord Developer Portal settings:
 5. Expose local Next.js with ngrok:
 
    ```bash
-   ngrok http 3000
+   pnpm --dir apps/web discord:ngrok
    ```
+
+   If you have a fixed ngrok domain, set `DISCORD_NGROK_DOMAIN` in
+   `apps/web/.env.local` first. For example:
+
+   ```text
+   DISCORD_NGROK_DOMAIN=your-fixed-domain.ngrok-free.dev
+   ```
+
+   The script forwards ngrok to local port `3000`. It does not start Next.js;
+   keep `pnpm --dir apps/web dev` running in a separate terminal.
 
 6. Set the Discord interaction endpoint to:
 
@@ -154,9 +168,11 @@ Hello from Arctic Aria. Discord message push is working.
 ## Outbound Direct Messages
 
 Outbound direct messages are implemented as an internal server-side service, not
-as a private HTTP endpoint. Settings -> Discord -> `Send Test` calls the
-delivery service directly. Future scheduler or reminder code should use the
-same direct service while it lives inside the web app.
+as a private HTTP endpoint. Product features should use the shared Discord
+notification service, which wraps the delivery service and keeps Settings,
+routine reminders, and Today Review messages on the same outbound path.
+Settings -> Discord -> `Send Test` is a thin manual caller of this shared
+notification service.
 
 Do not reintroduce a private message-push HTTP endpoint or shared message-push
 secret unless a later feature moves message delivery into a separate runtime or
@@ -165,6 +181,30 @@ time.
 
 Delivery records use `discord_message_deliveries`. The table stores delivery
 state without raw message text.
+
+Current server-side notification entry points:
+
+- `apps/web/src/features/discord/server/notification-service.ts`
+- `apps/web/src/features/discord/server/message-push.ts`
+- `apps/web/src/features/discord/server/discord-api.ts`
+
+Routine reminders and Daily Review messages use the same notification service.
+The scheduled caller is the Cloudflare cron worker in `apps/cron`, which invokes
+the web cron route `/api/cron/discord-notifications` with `CRON_SECRET`. The
+older routine-only route `/api/cron/routine-reminders` remains available for
+manual routine reminder checks.
+
+The scheduled route is configured to run every 15 minutes. Routine reminders
+use `routine_instances.remind_at`, not exact preferred-time matching. Cron
+ensures due routine instances, sends pending instances when `remind_at` is
+inside the current due window, sets `reminded_at` after successful delivery, and
+uses `routine-reminder:<routine_instance_id>:<remind_at>` as the idempotency
+key. Daily Review sends during the local `23:48-00:12` window so the 15-minute
+cron cadence does not need to hit midnight exactly. After-midnight sends still
+use the previous local date, and the per-user idempotency key is
+`daily-review:<date>`. Until server-side timezone preferences store a concrete
+timezone, a `system` timezone preference falls back to UTC for scheduled review
+delivery.
 
 Implemented `discord_message_deliveries` fields:
 
@@ -292,7 +332,7 @@ idea" behavior without separate privacy, rate-limit, and intent rules.
 - Opening `/api/discord/interactions` in a browser is expected to return a
   method message because Discord uses signed `POST` requests.
 - `This command is outdated` usually means Discord is using cached command
-  metadata. Re-run `pnpm --dir apps/web discord:register-commands`, refresh or
+  metadata. Re-run `pnpm --dir apps/web discord:sync-commands`, refresh or
   restart Discord, and reinstall or re-authorize the user-installed app when
   command options changed.
 - `The application did not respond` means Discord did not get a valid response
@@ -307,10 +347,9 @@ idea" behavior without separate privacy, rate-limit, and intent rules.
 
 The following Discord workflows are future work:
 
-- routine reminders
 - project task reminders
 - `Done`, `Busy`, and `Skip` reminder buttons
-- daily status messages
+- richer daily status messages
 - daily review prompts
 - updating existing reminder messages to avoid channel noise
 - free-text DM capture

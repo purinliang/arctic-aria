@@ -1,0 +1,8 @@
+# Local variables for `pnpm --dir apps/cron dev`.
+# Copy this file to `.dev.vars` and keep real values out of Git.
+
+# Local testing usually points at a running Next.js dev server.
+WEB_APP_BASE_URL="http://localhost:3000"
+
+# Must match the web app's CRON_SECRET for the target environment.
+CRON_SECRET=""

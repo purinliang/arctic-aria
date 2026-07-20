@@ -4,21 +4,64 @@ This roadmap records future work. It should not repeat released implementation
 details; released behavior belongs in `docs/releases/` and stable rules belong
 in the owning feature, web, or infrastructure docs.
 
-Current released version: `v0.7.1`.
+Current released version: `v0.10.1`.
 
-## Next Work
+Current release candidate on `develop`: `v0.11.0`.
 
-The next work should harden the current prototype before another large
-user-facing feature starts.
+## v0.11.0 Release Candidate
 
-- Review Redis usage without implementing it prematurely. Redis should support
-  latency reduction, short-lived coordination, rate limiting, idempotency, or
-  queue-like behavior only when the database remains the source of truth.
-- Review Discord reminder behavior before implementation, including reminder
-  messages, button interactions, message update strategy, daily review prompts,
-  retry behavior, and quiet/noise rules.
-- Review Discord deployment and operations now that Discord interactions are
-  hosted by the web app.
+v0.11.0 makes Discord push messages the foundation for routine reminders and
+Daily Review.
+
+Release candidate contents:
+
+- Extract the current Settings `Send Test` behavior into a shared server-side
+  Discord notification pipeline. Delivery stays inside the web app, reuses the
+  existing Discord HTTP sender, and keeps `discord_message_deliveries` as the
+  delivery audit and idempotency record.
+- Add automatic routine reminder sending through the shared Discord notification
+  pipeline, backed by routine instance reminder timestamps and a cron-tolerant
+  due window. The first reminder text is concise and does not introduce Discord
+  response buttons.
+- Add Daily Review Discord messages generated from Today page items. The first
+  version produces short plain text covering done and undone project tasks, done
+  and undone routines, and pinned memories. It does not add a separate review
+  table; the Discord delivery record is enough for now.
+- Use the Cloudflare cron worker in `apps/cron` to invoke
+  `/api/cron/discord-notifications` for both routine reminders and Daily
+  Review.
+- Harden auth and settings interaction races: reject immediate post-login
+  sign-out, reject repeated changes to the same preference inside the cooldown,
+  merge preference saves against the latest optimistic local snapshot, and keep
+  fresh browser preference cache from being overwritten by stale backend loads.
+- Move database migrations and migration helpers under `apps/database`, add a
+  web `pnpm deploy` command, and keep Vercel deployment order as build,
+  Discord command sync, then database migration.
+- Add a human-readable database schema snapshot at `apps/database/schema.md`
+  while keeping migration files and applied migration metadata as the source of
+  truth.
+
+v0.11.0 intentionally does not require Redis or a separate event bus. Redis can
+remain a future option for performance, idempotency, rate limiting, queue-like
+behavior, or reminder coordination only after a concrete need appears.
+
+## Next Work After v0.11.0
+
+- Design v0.12.0 task and routine scheduling. Routine instances already exist
+  and should remain the first stable schedule primitive. Project tasks do not
+  yet have a durable daily schedule assignment; Today currently selects open
+  tasks from project data. v0.12.0 should decide whether to add task schedule
+  rows or daily task instances so a task chosen for Today remains visible on
+  the Today board after completion until the personal day/review cleanup.
+- Review Today schedule visibility for routines and project tasks together:
+  scheduled-for-today items should not disappear only because they were marked
+  done, while future selection logic should avoid showing every completed
+  project task forever.
+- Review Discord reminder interactions after the first plain reminder messages
+  work, including message update strategy, retry behavior, quiet/noise rules,
+  and whether response buttons are actually useful.
+- Review Discord deployment and operations as the web-hosted interaction and
+  notification paths grow.
 - Add or improve automated tests around existing backend behavior where
   hardening work finds risk.
 - Keep the existing web prototype stable while doing hardening work.
@@ -76,7 +119,8 @@ Likely future items:
 - Add stronger settings, including default theme and personal day-boundary time.
 - Improve Memories suggestions after the memory data model and dashboard
   behavior are stable.
-- Add Discord reminders after routine and daily review behavior are stable.
+- Improve Discord reminder actions after routine reminder and Daily Review
+  delivery behavior are stable.
 - Add optional sharing and deployment hardening when the core private workflow
   is reliable.
 - Add backup, sync, and account lifecycle strategy when the data model is more
