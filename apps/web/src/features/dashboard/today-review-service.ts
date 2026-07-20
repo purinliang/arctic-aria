@@ -53,7 +53,7 @@ export function createTodayReviewService({
         dateKey,
         memories: memoryData.pinnedMemories,
         routines: routineData.routines,
-        summaryOptions: englishDashboardMessages.review.dailySummaryOptions,
+        summaryMessages: englishDashboardMessages.review.dailySummaryMessages,
         tasks: projectData.tasks,
       });
       const result = await notifier.sendUserNotification({

@@ -198,8 +198,12 @@ Content area:
 - separate pinned memories that were experienced today from pinned memories
   that are still not yet experienced
 - append a `Summary` section at the end
-- choose the summary sentence from default options using the current date as a
-  stable seed; it should not change randomly during the same day
+- choose the summary tone from the visible state of tasks, routines, and pinned
+  memories
+- keep at least seven localized summary options per tone so repeated status
+  patterns do not feel mechanical
+- use the current date and visible counts as a stable seed inside the selected
+  tone; the summary should not change randomly during the same day
 
 While sending, the action can show the shared pending button text. Success and
 failure results must use the shared notification stack.

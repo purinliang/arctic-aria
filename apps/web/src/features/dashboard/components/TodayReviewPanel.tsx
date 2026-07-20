@@ -34,7 +34,7 @@ export function TodayReviewPanel({
     dateKey: todayReviewDateKey(),
     memories: pinnedMemories,
     routines,
-    summaryOptions: messages.dailySummaryOptions,
+    summaryMessages: messages.dailySummaryMessages,
     tasks,
   });
 

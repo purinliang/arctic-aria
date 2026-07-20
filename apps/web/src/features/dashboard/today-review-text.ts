@@ -1,16 +1,40 @@
 import type { PinnedMemory, Routine, Task } from "./types.ts";
 
+export type TodayReviewSummaryTone =
+  | "fulfilled"
+  | "near"
+  | "steady"
+  | "started"
+  | "life"
+  | "gentle"
+  | "open";
+
+export type TodayReviewSummaryMessages = Record<
+  TodayReviewSummaryTone,
+  readonly string[]
+>;
+
+type TodayReviewSummaryInput = {
+  dateKey: string;
+  doneTaskCount: number;
+  openTaskCount: number;
+  doneRoutineCount: number;
+  openRoutineCount: number;
+  experiencedMemoryCount: number;
+  messages: TodayReviewSummaryMessages;
+};
+
 export function buildTodayReviewText({
   dateKey = todayReviewDateKey(),
   memories,
   routines,
-  summaryOptions = ["A steady day still counts."],
+  summaryMessages = fallbackTodayReviewSummaryMessages,
   tasks,
 }: {
   dateKey?: string;
   memories: PinnedMemory[];
   routines: Routine[];
-  summaryOptions?: readonly string[];
+  summaryMessages?: TodayReviewSummaryMessages;
   tasks: Task[];
 }) {
   const doneTasks = tasks.filter((task) => task.status === "done");
@@ -27,7 +51,15 @@ export function buildTodayReviewText({
   const openMemories = memories.filter(
     (memory) => memory.status !== "completed",
   );
-  const summaryText = reviewSummaryForDate(dateKey, summaryOptions);
+  const summaryText = buildTodayReviewSummary({
+    dateKey,
+    doneTaskCount: doneTasks.length,
+    openTaskCount: openTasks.length,
+    doneRoutineCount: doneRoutines.length,
+    openRoutineCount: openRoutines.length,
+    experiencedMemoryCount: experiencedMemories.length,
+    messages: summaryMessages,
+  });
   const lines = [
     "## Today Review",
     "",
@@ -77,21 +109,74 @@ export function todayReviewDateKey(date = new Date()) {
   return `${year}-${month}-${day}`;
 }
 
-export function reviewSummaryForDate(
-  dateKey: string,
-  options: readonly string[],
-) {
+export function buildTodayReviewSummary(input: TodayReviewSummaryInput) {
+  const tone = selectTodayReviewSummaryTone(input);
+  const options = input.messages[tone];
+
   if (options.length === 0) {
     return "";
   }
 
-  let hash = 0;
+  return options[summaryOptionIndex(input, options.length)] ?? options[0] ?? "";
+}
 
-  for (const character of dateKey) {
-    hash = (hash * 31 + character.charCodeAt(0)) % options.length;
+export function selectTodayReviewSummaryTone({
+  doneTaskCount,
+  doneRoutineCount,
+  experiencedMemoryCount,
+  openTaskCount,
+  openRoutineCount,
+}: Omit<
+  TodayReviewSummaryInput,
+  "dateKey" | "messages"
+>): TodayReviewSummaryTone {
+  const doneWorkCount = doneTaskCount + doneRoutineCount;
+  const openWorkCount = openTaskCount + openRoutineCount;
+  const totalWorkCount = doneWorkCount + openWorkCount;
+
+  if (totalWorkCount === 0 && experiencedMemoryCount === 0) {
+    return "open";
   }
 
-  return options[hash] ?? options[0] ?? "";
+  if (doneWorkCount > 0 && openWorkCount === 0) {
+    return "fulfilled";
+  }
+
+  if (doneWorkCount > 0 && openWorkCount === 1) {
+    return "near";
+  }
+
+  if (doneWorkCount > 1) {
+    return "steady";
+  }
+
+  if (doneWorkCount === 1) {
+    return "started";
+  }
+
+  if (experiencedMemoryCount > 0) {
+    return "life";
+  }
+
+  return "gentle";
+}
+
+function summaryOptionIndex(input: TodayReviewSummaryInput, optionCount: number) {
+  let hash = 0;
+  const statusKey = [
+    input.dateKey,
+    input.doneTaskCount,
+    input.openTaskCount,
+    input.doneRoutineCount,
+    input.openRoutineCount,
+    input.experiencedMemoryCount,
+  ].join(":");
+
+  for (const character of statusKey) {
+    hash = (hash * 31 + character.charCodeAt(0)) % optionCount;
+  }
+
+  return hash;
 }
 
 function completedBlock(
@@ -119,3 +204,13 @@ function openBlock(title: string, items: string[]) {
 function itemList(items: string[]) {
   return items.map((item) => `- ${item}`).join("\n");
 }
+
+const fallbackTodayReviewSummaryMessages: TodayReviewSummaryMessages = {
+  fulfilled: ["The visible work is complete for today."],
+  near: ["Only a little remains; leave enough room to breathe."],
+  steady: ["Real progress is already visible."],
+  started: ["One finished thing still matters."],
+  life: ["Life counted today too."],
+  gentle: ["Give tomorrow a little more room."],
+  open: ["A quiet slate can still be useful."],
+};

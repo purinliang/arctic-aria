@@ -1,19 +1,32 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  buildTodayReviewSummary,
   buildTodayReviewText,
-  reviewSummaryForDate,
 } from "../today-review-text.ts";
+import type { TodayReviewSummaryMessages } from "../today-review-text.ts";
 
-test("selects a stable review summary from the date key", () => {
+const summaryMessages: TodayReviewSummaryMessages = {
+  fulfilled: ["fulfilled"],
+  near: ["near"],
+  steady: ["steady"],
+  started: ["started"],
+  life: ["life"],
+  gentle: ["gentle"],
+  open: ["open"],
+};
+
+test("selects a status-aware review summary", () => {
   assert.equal(
-    reviewSummaryForDate("2026-07-18", ["first", "second"]),
-    "first",
+    summaryFor({ doneTaskCount: 1, doneRoutineCount: 1 }),
+    "fulfilled",
   );
-  assert.equal(
-    reviewSummaryForDate("2026-07-19", ["first", "second"]),
-    "second",
-  );
+  assert.equal(summaryFor({ doneTaskCount: 1, openTaskCount: 1 }), "near");
+  assert.equal(summaryFor({ doneTaskCount: 2, openTaskCount: 2 }), "steady");
+  assert.equal(summaryFor({ doneTaskCount: 1, openTaskCount: 2 }), "started");
+  assert.equal(summaryFor({ experiencedMemoryCount: 1 }), "life");
+  assert.equal(summaryFor({ openTaskCount: 1 }), "gentle");
+  assert.equal(summaryFor({}), "open");
 });
 
 test("builds Today Review text from dashboard items", () => {
@@ -79,7 +92,10 @@ test("builds Today Review text from dashboard items", () => {
         status: "active",
       },
     ],
-    summaryOptions: ["A steady day still counts."],
+    summaryMessages: {
+      ...summaryMessages,
+      near: ["A little remains, and that can be tomorrow's first step."],
+    },
   });
 
   assert.equal(
@@ -109,7 +125,27 @@ test("builds Today Review text from dashboard items", () => {
       "- Quiet book",
       "",
       "### Summary",
-      "A steady day still counts.",
+      "A little remains, and that can be tomorrow's first step.",
     ].join("\n"),
   );
 });
+
+function summaryFor(
+  input: Partial<{
+    doneTaskCount: number;
+    openTaskCount: number;
+    doneRoutineCount: number;
+    openRoutineCount: number;
+    experiencedMemoryCount: number;
+  }>,
+) {
+  return buildTodayReviewSummary({
+    dateKey: "2026-07-18",
+    doneTaskCount: input.doneTaskCount ?? 0,
+    openTaskCount: input.openTaskCount ?? 0,
+    doneRoutineCount: input.doneRoutineCount ?? 0,
+    openRoutineCount: input.openRoutineCount ?? 0,
+    experiencedMemoryCount: input.experiencedMemoryCount ?? 0,
+    messages: summaryMessages,
+  });
+}
