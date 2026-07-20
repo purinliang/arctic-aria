@@ -83,7 +83,7 @@ function toRoutineDefinition(routine: RoutineRecord): RoutineDefinition {
   };
 }
 
-async function loadRoutineDashboardData(
+export async function loadRoutineDashboardData(
   userId: string,
 ): Promise<RoutineDashboardData> {
   const [routineDefinitions, routines] = await Promise.all([

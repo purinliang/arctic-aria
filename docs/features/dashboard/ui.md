@@ -14,17 +14,19 @@ The Dashboard is the daily operating surface. It should show what the user can
 act on today without turning into a management page.
 
 The Dashboard may display project tasks, routine instances, pinned memories,
-and future reviews, but it must not redefine their product rules.
+and a lightweight Today Review sender, but it must not redefine their product
+rules.
 
 Current Dashboard scope:
 
 - today's selected project tasks
 - today's routine instances
 - pinned memories
+- Today Review Discord message sender
 
 Deferred Dashboard scope:
 
-- review summary UI
+- persistent review summary UI
 - timeline UI
 - full project, routine, or memory management
 
@@ -42,7 +44,7 @@ Dashboard body layout:
 
 - parent layout: shared split layout
 - left panel: `Tasks`
-- right panel: stacked `Routines` and `Pinned Memories`
+- right panel: stacked `Routines`, `Pinned Memories`, and `Today Review`
 - desktop: left panel should be wider than the right panel through the shared
   split classes
 - mobile: panels stack vertically
@@ -144,15 +146,27 @@ categories fall back to `experienced` / `体验`.
 Clicking the row's outlineless right-arrow button opens the Memories page. The
 whole row is not clickable. Clicking the checkbox must not navigate.
 
-## Review
+## Today Review Panel
 
-Review UI is not an active Dashboard feature yet. Do not keep review dialog
-code inside the Dashboard feature until Reviews has current docs.
+The Today Review panel is a lightweight sender, not a persisted review feature.
+It should send a short plain-text Discord message generated from the visible
+Today items:
 
-Future review UI may show:
+- done and undone project tasks
+- done and undone routine instances
+- pinned memories
 
-- completed project tasks and routines
-- unfinished tasks and skipped routines
+The first version should not add a `daily_reviews` table or a structured review
+editing workflow. Discord delivery history is enough for this version.
+
+Header:
+
+- icon: `Send`
+- title: `Today Review`
+- right action: secondary `Send` button
+
+While sending, the action can show the shared pending button text. Success and
+failure results must use the shared notification stack.
 
 ## Empty States
 
