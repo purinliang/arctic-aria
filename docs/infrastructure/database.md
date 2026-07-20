@@ -46,6 +46,10 @@ from `apps/web`.
 From the repository root, run the same migration entry point with
 `pnpm --dir apps/web database:migrate`.
 
+A human-readable current schema snapshot lives in
+`apps/database/schema.md`. It is for review only; migration files and the
+applied migration metadata remain the source of truth.
+
 Migration files live in `apps/database/migrations` because the
 database schema is shared infrastructure, not part of the web UI surface.
 Database-owned migration helpers and migration-runner logic live in
