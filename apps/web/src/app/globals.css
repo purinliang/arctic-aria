@@ -355,7 +355,7 @@ input {
 
 @container (min-width: 53rem) {
   .aa-split-panel {
-    grid-template-columns: minmax(0, 1fr) 24rem;
+    grid-template-columns: minmax(0, 1fr) 21rem;
   }
 
   .aa-split-panel-sidebar {

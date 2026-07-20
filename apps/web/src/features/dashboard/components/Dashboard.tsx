@@ -23,6 +23,7 @@ export function Dashboard({
   pinnedMemories,
   memoryLoading,
   todayReviewPending,
+  showTodayReviewSendAction,
   onTaskStatus,
   onRoutineStatus,
   onMemoryDone,
@@ -43,6 +44,7 @@ export function Dashboard({
   pinnedMemories: PinnedMemory[];
   memoryLoading: boolean;
   todayReviewPending: boolean;
+  showTodayReviewSendAction: boolean;
   onTaskStatus: (
     taskId: string,
     status: TaskStatus,
@@ -61,17 +63,17 @@ export function Dashboard({
   return (
     <section className="aa-split-container">
       <div className="aa-split-panel gap-4">
-        <ProjectTasksPanel
-          darkMode={darkMode}
-          tasks={tasks}
-          loading={taskLoading}
-          messages={messages.projectTasks}
-          dateMessages={formMessages.datePicker}
-          onTaskStatus={onTaskStatus}
-          onTaskOpen={onTaskOpen}
-        />
+        <div className="grid min-w-0 content-start gap-4">
+          <ProjectTasksPanel
+            darkMode={darkMode}
+            tasks={tasks}
+            loading={taskLoading}
+            messages={messages.projectTasks}
+            dateMessages={formMessages.datePicker}
+            onTaskStatus={onTaskStatus}
+            onTaskOpen={onTaskOpen}
+          />
 
-        <aside className="grid content-start gap-4">
           <RoutinesPanel
             darkMode={darkMode}
             routines={routines}
@@ -82,6 +84,19 @@ export function Dashboard({
             onRoutineStatus={onRoutineStatus}
             onRoutineOpen={onRoutineOpen}
           />
+        </div>
+
+        <aside className="grid content-start gap-4">
+          <TodayReviewPanel
+            darkMode={darkMode}
+            pending={todayReviewPending}
+            pinnedMemories={pinnedMemories}
+            routines={routines}
+            showSendAction={showTodayReviewSendAction}
+            tasks={tasks}
+            messages={messages.review}
+            onSend={onTodayReviewSend}
+          />
 
           <PinnedMemoriesPanel
             darkMode={darkMode}
@@ -91,13 +106,6 @@ export function Dashboard({
             onDone={onMemoryDone}
             onCancelDone={onMemoryCancelDone}
             onMemoryOpen={onMemoryOpen}
-          />
-
-          <TodayReviewPanel
-            darkMode={darkMode}
-            pending={todayReviewPending}
-            messages={messages.review}
-            onSend={onTodayReviewSend}
           />
         </aside>
       </div>

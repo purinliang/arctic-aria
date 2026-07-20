@@ -1,12 +1,14 @@
 import { randomUUID } from "node:crypto";
-import {
-  discordNotificationService,
-  type DiscordNotificationResult,
-} from "../discord/server/notification-service.ts";
+import { englishDashboardMessages } from "@/messages/dashboard-messages.ts";
+import { discordNotificationService } from "../discord/server/notification-service.ts";
+import type { DiscordNotificationResult } from "../discord/server/notification-service.ts";
 import { loadProjectDashboardData } from "../projects/project-view-models.ts";
 import { loadMemoryDashboardData } from "../memories/memory-action-helpers.ts";
 import { loadRoutineDashboardData } from "../routines/actions.ts";
-import { buildTodayReviewText } from "./today-review-text.ts";
+import {
+  buildTodayReviewText,
+  todayReviewDateKey,
+} from "./today-review-text.ts";
 
 export type TodayReviewActionResult =
   | {
@@ -46,14 +48,17 @@ export function createTodayReviewService({
         loadRoutineDashboardData(userId),
         loadMemoryDashboardData(userId),
       ]);
+      const dateKey = todayReviewDateKey();
       const text = buildTodayReviewText({
+        dateKey,
         memories: memoryData.pinnedMemories,
         routines: routineData.routines,
+        summaryMessages: englishDashboardMessages.review.dailySummaryMessages,
         tasks: projectData.tasks,
       });
       const result = await notifier.sendUserNotification({
         userId,
-        idempotencyKey: `today-review:${todayKey()}:${randomUUID()}`,
+        idempotencyKey: `today-review:${dateKey}:${randomUUID()}`,
         text,
         source: "manual",
         metadata: {
@@ -70,7 +75,7 @@ export function createTodayReviewService({
         return {
           ok: true,
           code: "today_review_sent",
-          message: "Today Review sent to Discord.",
+          message: "Daily Review sent to Discord.",
         };
       }
 
@@ -85,14 +90,10 @@ export function createTodayReviewService({
       return {
         ok: false,
         code: "today_review_delivery_failed",
-        message: "Today Review could not be sent to Discord.",
+        message: "Daily Review could not be sent to Discord.",
       };
     },
   };
-}
-
-function todayKey() {
-  return new Date().toISOString().slice(0, 10);
 }
 
 export const todayReviewService = createTodayReviewService();

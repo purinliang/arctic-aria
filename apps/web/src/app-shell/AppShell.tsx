@@ -54,6 +54,7 @@ export function AppShell({
   onNotificationDismiss,
   showErrorNotification,
   showSuccessNotification,
+  showTodayReviewSendAction,
 }: {
   currentUser: AuthUser;
   browserTimeZone: string;
@@ -73,6 +74,7 @@ export function AppShell({
   onNotificationDismiss: (notificationId: number) => void;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
+  showTodayReviewSendAction: boolean;
 }) {
   const initialPathname = usePathname();
   const [currentPathname, setCurrentPathname] = useState(
@@ -384,6 +386,7 @@ export function AppShell({
               pinnedMemories={memoryState.pinnedMemories}
               memoryLoading={memoryState.memoryLoading}
               todayReviewPending={todayReviewPending}
+              showTodayReviewSendAction={showTodayReviewSendAction}
               onTaskStatus={projectState.updateTaskFromDashboard}
               onRoutineStatus={routineState.updateRoutine}
               onMemoryDone={memoryState.markMemoryDone}

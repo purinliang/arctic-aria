@@ -27,6 +27,7 @@ AppShell
   Dashboard
     ProjectTasksPanel
     RoutinesPanel
+    TodayReviewPanel
     PinnedMemoriesPanel
 ```
 
@@ -68,7 +69,7 @@ Current active commands:
 - mark a project task done
 - mark a routine completed or pending
 - mark a pinned memory completed or active
-- replace a pinned memory
+- send the Today Review Discord message
 
 Feature management actions, such as add/edit/delete project, routine, memory,
 or category, belong to the feature pages and dialogs, not the Dashboard.

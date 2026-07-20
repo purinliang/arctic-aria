@@ -48,13 +48,15 @@ The atomic scheduled unit is the task. A task can last a few days.
 
 ### Dashboard Task Panel Layout
 
-The dashboard project area is the main left dashboard panel. Routines and
-pinned memories stay in the right-side dashboard column.
+The dashboard project task area appears in the left dashboard column, above
+Routines. Today Review and pinned memories stay in the right-side dashboard
+column.
 
 Panel header:
 
 - icon: `Check`
 - title: `Tasks`
+- description: short encouragement to choose a steady project step for today
 - no header count metadata
 
 Task row layout:
@@ -251,7 +253,7 @@ Detail page layout:
 
 - parent layout: shared split layout
 - direction: left-right on desktop, stacked on mobile
-- desktop split: flexible left panel and fixed `24rem` right panel
+- desktop split: flexible left panel and fixed `21rem` right panel
 - if available width cannot keep the left panel at least 20% wider than the
   right panel, stack the panels vertically instead
 - use the shared `aa-split-*` classes so the two-column layout activates only
