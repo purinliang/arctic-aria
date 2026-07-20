@@ -27,8 +27,7 @@ Current variables:
 | --- | --- | --- | --- |
 | `NEON_POSTGRES_URL` | Yes | Local and Vercel | PostgreSQL connection URL used by the web app and migration runner. |
 | `AUTH_SESSION_SECRET` | Yes | Local and Vercel | Secret used to sign the 30-day auth session cookie. |
-| `DISCORD_BOT_TOKEN` | Yes for command registration and outbound direct messages | Local and Vercel | Secret bot token from the Discord Developer Portal. |
-| `DISCORD_APP_ID` | Yes for command registration | Local and Vercel | App ID from the Discord Developer Portal. |
+| `DISCORD_BOT_TOKEN` | Yes for outbound direct messages | Local and Vercel | Secret bot token from the Discord Developer Portal. |
 | `DISCORD_PUBLIC_KEY` | Yes for Discord interactions | Local and Vercel | Public Key used to verify requests from Discord. |
 | `CRON_SECRET` | Yes for scheduled reminder routes | Vercel and local cron-route testing | Secret used to authorize internal cron routes. |
 
@@ -115,15 +114,14 @@ Current variables:
 
 | Variable | Required now | Purpose |
 | --- | --- | --- |
-| `DISCORD_BOT_TOKEN` | Yes to register slash commands and send outbound Discord direct messages | Secret bot token from the Discord Developer Portal. |
-| `DISCORD_APP_ID` | Yes to register slash commands | App ID from the Discord Developer Portal. |
+| `DISCORD_BOT_TOKEN` | Yes to send outbound Discord direct messages | Secret bot token from the Discord Developer Portal. |
 | `DISCORD_PUBLIC_KEY` | Yes to run the HTTP interaction endpoint | Public Key used to verify requests from Discord. |
 | `CRON_SECRET` | Yes for scheduled reminder routes | Secret used to authorize internal cron routes such as routine reminders. |
 | `NEON_POSTGRES_URL` | Yes | Same Neon PostgreSQL database used by the web app. |
 
-Use `DISCORD_APP_ID` consistently for the Discord app id. Discord OAuth2 calls
-the same value `client_id`, but keeping one Arctic Aria env name avoids
-duplicate values drifting apart.
+Command descriptions, install context, and option metadata are managed in the
+Discord Developer Portal. The runtime no longer reads a Discord app-id
+environment variable.
 
 Discord account binding is user-facing. The signed-in Arctic Aria user creates
 a one-time code in Settings, then runs `/bind code:<code>` in Discord. The old

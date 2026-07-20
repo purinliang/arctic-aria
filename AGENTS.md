@@ -211,8 +211,8 @@ detailed shared component rules in `docs/web/ui-components.md`.
   explicitly reintroduced. Discord interaction routes currently live in the web
   app.
 - When slash-command metadata changes, update
-  `apps/web/src/features/discord/server/commands.ts`, run
-  `pnpm --dir apps/web discord:register-commands`, and remind the developer to
+  `apps/web/src/features/discord/server/commands.ts`, update the matching
+  command settings in the Discord Developer Portal, and remind the developer to
   reinstall or re-authorize the user-installed Discord app if new or changed
   commands do not appear.
 - Keep the runbook in `docs/features/discord/overview.md` aligned with the
