@@ -118,7 +118,7 @@ Current variables:
 | `DISCORD_BOT_TOKEN` | Yes to send outbound Discord direct messages and sync commands | Secret bot token from the Discord Developer Portal. |
 | `DISCORD_APP_ID` | Only for command sync | App ID from the Discord Developer Portal, used by `pnpm --dir apps/web discord:sync-commands`. |
 | `DISCORD_PUBLIC_KEY` | Yes to run the HTTP interaction endpoint | Public Key used to verify requests from Discord. |
-| `CRON_SECRET` | Yes for scheduled reminder routes | Secret used to authorize internal cron routes such as routine reminders. |
+| `CRON_SECRET` | Yes for scheduled Discord routes | Secret used to authorize internal cron routes such as scheduled Discord notifications. |
 | `NEON_POSTGRES_URL` | Yes | Same Neon PostgreSQL database used by the web app. |
 
 Command metadata is synced to Discord with
@@ -134,8 +134,9 @@ messages use an internal server-side service while delivery code lives inside
 the web app.
 
 `CRON_SECRET` is separate from Discord secrets. It protects web-hosted scheduled
-routes such as `/api/cron/routine-reminders`; it is not a Discord message-push
-secret and should not be used by client code.
+routes such as `/api/cron/discord-notifications` and
+`/api/cron/routine-reminders`; it is not a Discord message-push secret and
+should not be used by client code.
 
 ## Optional App Metadata
 

@@ -5,6 +5,8 @@ import {
   buildTodayReviewText,
 } from "../today-review-text.ts";
 import type { TodayReviewSummaryMessages } from "../today-review-text.ts";
+import { createTodayReviewService } from "../today-review-service.ts";
+import type { DiscordNotificationResult } from "../../discord/server/notification-service.ts";
 
 const summaryMessages: TodayReviewSummaryMessages = {
   fulfilled: ["fulfilled"],
@@ -157,6 +159,105 @@ test("uses friendly zero-count Today Review text", () => {
   );
 });
 
+test("scheduled Daily Review sends during local day-end window", async () => {
+  const notifications: Array<{
+    idempotencyKey: string;
+    source: string;
+    text: string;
+  }> = [];
+  const service = createTodayReviewService({
+    now: () => new Date("2026-07-18T13:45:00.000Z"),
+    notifier: {
+      async sendUserNotification(input) {
+        notifications.push(input);
+
+        return discordSentResult();
+      },
+    },
+    reviewTargets: {
+      async listActiveDailyReviewTargets() {
+        return [
+          {
+            userId: "user-1",
+            timeZonePreference: "Australia/Sydney",
+          },
+        ];
+      },
+    },
+    projectDataLoader: async () => ({
+      projects: [],
+      tasks: [],
+    }),
+    routineDataLoader: async () => ({
+      routineDefinitions: [],
+      routines: [],
+    }),
+    memoryDataLoader: async () => ({
+      categories: [],
+      memoryRecords: [],
+      pinnedMemories: [],
+    }),
+  });
+
+  const result = await service.sendScheduledDailyReviews();
+
+  assert.deepEqual(result, {
+    checked: 1,
+    due: 1,
+    failed: 0,
+    sent: 1,
+    skipped: 0,
+  });
+  assert.equal(notifications.length, 1);
+  assert.equal(notifications[0]?.idempotencyKey, "daily-review:2026-07-18");
+  assert.equal(notifications[0]?.source, "scheduler");
+  assert.match(
+    notifications[0]?.text ?? "",
+    /^### Daily Review for Jul 18, 2026 Sat/,
+  );
+});
+
+test("scheduled Daily Review skips outside local day-end window", async () => {
+  let loaderCalled = false;
+  const service = createTodayReviewService({
+    now: () => new Date("2026-07-18T13:30:00.000Z"),
+    notifier: {
+      async sendUserNotification() {
+        throw new Error("notification should not be sent");
+      },
+    },
+    reviewTargets: {
+      async listActiveDailyReviewTargets() {
+        return [
+          {
+            userId: "user-1",
+            timeZonePreference: "Australia/Sydney",
+          },
+        ];
+      },
+    },
+    projectDataLoader: async () => {
+      loaderCalled = true;
+
+      return {
+        projects: [],
+        tasks: [],
+      };
+    },
+  });
+
+  const result = await service.sendScheduledDailyReviews();
+
+  assert.deepEqual(result, {
+    checked: 1,
+    due: 0,
+    failed: 0,
+    sent: 0,
+    skipped: 1,
+  });
+  assert.equal(loaderCalled, false);
+});
+
 function summaryFor(
   input: Partial<{
     doneTaskCount: number;
@@ -175,4 +276,11 @@ function summaryFor(
     experiencedMemoryCount: input.experiencedMemoryCount ?? 0,
     messages: summaryMessages,
   });
+}
+
+function discordSentResult(): DiscordNotificationResult {
+  return {
+    ok: true,
+    code: "discord_notification_sent",
+  };
 }
