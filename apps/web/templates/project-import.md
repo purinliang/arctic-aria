@@ -37,3 +37,10 @@ Duration: 1_3_months
   Description: Review one system design topic.
   Start date: 2026-08-01
   Deadline: 2026-08-07
+
+<!-- Project import rules: keep tasks nested under the milestone they belong to. -->
+<!-- Legal project fields: Objective, Start date, Timeline, Duration, Deadline. -->
+<!-- Legal milestone fields: Objective, Start date, Timeline, Duration, Deadline. -->
+<!-- Legal task fields: Title, Description, Start date, Deadline. -->
+<!-- Each field is single-line "Field: value"; multiline values are not supported. -->
+<!-- Timeline is either duration with Duration, or deadline with Deadline. -->
