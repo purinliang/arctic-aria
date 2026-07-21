@@ -31,7 +31,7 @@ import type { AuthUser } from "@/features/auth/server/auth-service";
 import { IdeasPage } from "@/features/ideas/components/IdeasPage";
 import { useIdeasPageData } from "@/features/ideas/hooks/useIdeasPageData";
 import { MemoriesPage } from "@/features/memories/components/MemoriesPage";
-import type { ProjectInput } from "@/features/projects/actions";
+import type { ProjectInput, ProjectView } from "@/features/projects/actions";
 import { ProjectPageTitle } from "@/features/projects/components/ProjectPageTitle";
 import { ProjectsPage } from "@/features/projects/components/ProjectsPage";
 import { projectToDraft } from "@/features/projects/components/project-page-helpers";
@@ -183,6 +183,10 @@ export function AppShell({
     navigateToRoute(appPathForProject(projectId));
   }
 
+  function handleProjectEdit(project: ProjectView) {
+    setProjectDraft(projectToDraft(project));
+  }
+
   function handleDeveloperImportComplete(target: DeveloperImportTarget) {
     void refreshAfterDeveloperImport(target, {
       refreshProjectData,
@@ -286,11 +290,14 @@ export function AppShell({
                 }
                 onBackToList={showProjectsList}
                 onProjectSelect={showProjectDetail}
+                onProjectEdit={handleProjectEdit}
                 onPinProject={projectState.pinProjectFromPage}
                 onUnpinProject={projectState.unpinProjectFromPage}
                 messages={messages.projects.pageTitle}
+                detailMessages={messages.projects.detail}
                 timelineMessages={messages.projects.timeline}
                 durationMessages={messages.projects.duration}
+                defaultDescriptions={messages.projects.defaultDescriptions}
                 dateMessages={messages.forms.datePicker}
               />
             ) : (
@@ -312,9 +319,6 @@ export function AppShell({
               pendingProjectPinIds={projectState.pendingProjectPinIds}
               onProjectSave={projectState.saveProjectFromPage}
               onProjectDelete={projectState.archiveProjectFromPage}
-              onProjectEdit={(project) => {
-                setProjectDraft(projectToDraft(project));
-              }}
               onProjectPin={projectState.pinProjectFromPage}
               onProjectUnpin={projectState.unpinProjectFromPage}
               onMilestoneSave={projectState.saveMilestoneFromPage}

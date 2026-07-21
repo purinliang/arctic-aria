@@ -6,6 +6,8 @@ export const englishProjectMessages = {
     closeSwitcher: "Close project switcher",
     pin: "Pin project",
     unpin: "Unpin project",
+    projectInfo: "Project information",
+    closeProjectInfo: "Close project information",
     edit: "Edit",
   },
   list: {
@@ -163,6 +165,8 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
     closeSwitcher: "关闭项目切换器",
     pin: "置顶项目",
     unpin: "取消置顶项目",
+    projectInfo: "项目信息",
+    closeProjectInfo: "关闭项目信息",
     edit: "编辑",
   },
   list: {

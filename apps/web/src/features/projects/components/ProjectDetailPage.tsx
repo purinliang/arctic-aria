@@ -17,7 +17,6 @@ import {
 import {
   MilestoneOverviewPanel,
   MilestoneSwitchPanel,
-  ProjectOverviewPanel,
   type MilestoneChoice,
 } from "./ProjectDetailSidePanels";
 
@@ -32,7 +31,6 @@ export function ProjectDetailPage({
   dateMessages,
   onAddMilestone,
   onEditMilestone,
-  onEditProject,
   onAddTask,
   onEditTask,
   onTaskStatus,
@@ -47,7 +45,6 @@ export function ProjectDetailPage({
   dateMessages: DatePickerMessages;
   onAddMilestone: (projectId: string) => void;
   onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
-  onEditProject: (project: ProjectView) => void;
   onAddTask: (projectId: string, milestoneId?: string) => void;
   onEditTask: (task: ProjectTaskView) => void;
   onTaskStatus: (taskId: string, status: TaskStatus) => void;
@@ -76,7 +73,6 @@ export function ProjectDetailPage({
       dateMessages={dateMessages}
       onAddMilestone={onAddMilestone}
       onEditMilestone={onEditMilestone}
-      onEditProject={onEditProject}
       onAddTask={onAddTask}
       onEditTask={onEditTask}
       onTaskStatus={onTaskStatus}
@@ -95,7 +91,6 @@ function ProjectDetailContent({
   dateMessages,
   onAddMilestone,
   onEditMilestone,
-  onEditProject,
   onAddTask,
   onEditTask,
   onTaskStatus,
@@ -110,7 +105,6 @@ function ProjectDetailContent({
   dateMessages: DatePickerMessages;
   onAddMilestone: (projectId: string) => void;
   onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
-  onEditProject: (project: ProjectView) => void;
   onAddTask: (projectId: string, milestoneId?: string) => void;
   onEditTask: (task: ProjectTaskView) => void;
   onTaskStatus: (taskId: string, status: TaskStatus) => void;
@@ -119,19 +113,32 @@ function ProjectDetailContent({
     () => project.tasks.filter((task) => !task.milestoneId),
     [project.tasks],
   );
+  const taskCountsByMilestoneId = useMemo(
+    () => countTasksByMilestoneId(project.tasks),
+    [project.tasks],
+  );
   const milestoneChoices = useMemo<MilestoneChoice[]>(
     () => [
       ...[...project.milestones].sort(compareDetailMilestones).map(
-        (milestone) => ({
-          id: milestone.id,
-          title: milestone.title,
-          description: displayDescription(
-            milestone.objective,
-            milestone.title,
-            defaultDescriptions.milestone,
-          ),
-          milestone,
-        }),
+        (milestone) => {
+          const taskCounts = taskCountsByMilestoneId.get(milestone.id) ?? {
+            done: 0,
+            total: 0,
+          };
+
+          return {
+            id: milestone.id,
+            title: milestone.title,
+            description: displayDescription(
+              milestone.objective,
+              milestone.title,
+              defaultDescriptions.milestone,
+            ),
+            doneTaskCount: taskCounts.done,
+            taskCount: taskCounts.total,
+            milestone,
+          };
+        },
       ),
       ...(unassignedTasks.length > 0
         ? [
@@ -139,6 +146,8 @@ function ProjectDetailContent({
               id: "",
               title: messages.noMilestoneTitle,
               description: messages.noMilestoneDescription,
+              doneTaskCount: countDoneTasks(unassignedTasks),
+              taskCount: unassignedTasks.length,
               milestone: null,
             },
           ]
@@ -149,6 +158,7 @@ function ProjectDetailContent({
       messages.noMilestoneDescription,
       messages.noMilestoneTitle,
       project.milestones,
+      taskCountsByMilestoneId,
       unassignedTasks,
     ],
   );
@@ -226,13 +236,6 @@ function ProjectDetailContent({
         </div>
 
         <aside className="grid content-start gap-4">
-          <ProjectOverviewPanel
-            darkMode={darkMode}
-            pending={pending}
-            project={project}
-            messages={sidePanelMessages}
-            onEditProject={onEditProject}
-          />
           <MilestoneSwitchPanel
             darkMode={darkMode}
             pending={pending}
@@ -261,4 +264,29 @@ function compareDetailMilestones(
 
 function dateSortValue(date: string) {
   return date ? Date.parse(`${date}T00:00:00.000Z`) : Number.POSITIVE_INFINITY;
+}
+
+function countDoneTasks(tasks: ProjectTaskView[]) {
+  return tasks.filter((task) => task.status === "done").length;
+}
+
+function countTasksByMilestoneId(tasks: ProjectTaskView[]) {
+  const counts = new Map<string, { done: number; total: number }>();
+
+  for (const task of tasks) {
+    if (!task.milestoneId) {
+      continue;
+    }
+
+    const count = counts.get(task.milestoneId) ?? { done: 0, total: 0 };
+    count.total += 1;
+
+    if (task.status === "done") {
+      count.done += 1;
+    }
+
+    counts.set(task.milestoneId, count);
+  }
+
+  return counts;
 }

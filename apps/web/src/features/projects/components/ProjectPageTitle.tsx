@@ -1,13 +1,16 @@
 // Projects Page - Project Page Title.
-import { ChevronDown, Pin, PinOff } from "lucide-react";
+import { ChevronDown, Edit3, Info, Pin, PinOff } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/button";
 import { secondaryTextColorClass, panelColorClass } from "@/components/color";
+import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
 import { ScrollArea } from "@/components/scroll-area";
+import { DescriptionText, LabelText } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { ProjectView } from "@/features/projects/actions";
 import type { ProjectDurationRange } from "@/features/projects/project-duration";
+import { projectOverviewTimelineMetadata } from "@/features/projects/project-overview-metadata";
 import type { ProjectMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
 
@@ -18,11 +21,14 @@ export function ProjectPageTitle({
   pinPending = false,
   onBackToList,
   onProjectSelect,
+  onProjectEdit,
   onPinProject,
   onUnpinProject,
   messages,
+  detailMessages,
   timelineMessages,
   durationMessages,
+  defaultDescriptions,
   dateMessages,
 }: {
   darkMode: boolean;
@@ -31,11 +37,14 @@ export function ProjectPageTitle({
   pinPending?: boolean;
   onBackToList: () => void;
   onProjectSelect: (projectId: string) => void;
+  onProjectEdit?: (project: ProjectView) => void;
   onPinProject?: (projectId: string) => void;
   onUnpinProject?: (projectId: string) => void;
   messages: ProjectMessages["pageTitle"];
+  detailMessages: ProjectMessages["detail"];
   timelineMessages: ProjectMessages["timeline"];
   durationMessages: ProjectMessages["duration"];
+  defaultDescriptions: ProjectMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
 }) {
   const [open, setOpen] = useState(false);
@@ -66,6 +75,12 @@ export function ProjectPageTitle({
       onProjectSelect={onProjectSelect}
     />
   );
+  const timelineText = projectTimelineText(
+    selectedProject,
+    timelineMessages,
+    durationMessages,
+    dateMessages,
+  );
 
   return (
     <>
@@ -83,8 +98,14 @@ export function ProjectPageTitle({
           <ProjectTitleActions
             darkMode={darkMode}
             messages={messages}
+            detailMessages={detailMessages}
+            timelineMessages={timelineMessages}
+            durationMessages={durationMessages}
+            defaultDescriptions={defaultDescriptions}
+            dateMessages={dateMessages}
             pinPending={pinPending}
             project={selectedProject}
+            onProjectEdit={onProjectEdit}
             onPinProject={onPinProject}
             onUnpinProject={onUnpinProject}
           />
@@ -92,24 +113,38 @@ export function ProjectPageTitle({
         <h1 className="col-span-2 min-w-0 text-2xl font-semibold tracking-normal">
           {renderProjectSwitcher()}
         </h1>
+        <p className={cx("col-span-2 text-sm", secondaryTextColorClass)}>
+          {timelineText}
+        </p>
       </div>
 
-      <div className="hidden min-w-0 flex-1 items-center gap-3 sm:flex">
-        <h1 className="flex min-w-0 flex-1 items-center gap-2 text-3xl font-semibold tracking-normal">
-          <ProjectListButton
-            className={breadcrumbButtonClass}
-            label={messages.projects}
-            onBackToList={onBackToList}
-            onOpenChange={setOpen}
-          />
-          <span className={cx("shrink-0", secondaryTextColorClass)}>/</span>
-          {renderProjectSwitcher()}
-        </h1>
+      <div className="hidden min-w-0 flex-1 items-start gap-3 sm:flex">
+        <div className="grid min-w-0 flex-1 gap-1">
+          <h1 className="flex min-w-0 items-center gap-2 text-3xl font-semibold tracking-normal">
+            <ProjectListButton
+              className={breadcrumbButtonClass}
+              label={messages.projects}
+              onBackToList={onBackToList}
+              onOpenChange={setOpen}
+            />
+            <span className={cx("shrink-0", secondaryTextColorClass)}>/</span>
+            {renderProjectSwitcher()}
+          </h1>
+          <p className={cx("text-sm", secondaryTextColorClass)}>
+            {timelineText}
+          </p>
+        </div>
         <ProjectTitleActions
           darkMode={darkMode}
           messages={messages}
+          detailMessages={detailMessages}
+          timelineMessages={timelineMessages}
+          durationMessages={durationMessages}
+          defaultDescriptions={defaultDescriptions}
+          dateMessages={dateMessages}
           pinPending={pinPending}
           project={selectedProject}
+          onProjectEdit={onProjectEdit}
           onPinProject={onPinProject}
           onUnpinProject={onUnpinProject}
         />
@@ -257,24 +292,38 @@ function ProjectSwitcher({
 function ProjectTitleActions({
   darkMode,
   messages,
+  detailMessages,
+  timelineMessages,
+  durationMessages,
+  defaultDescriptions,
+  dateMessages,
   pinPending,
   project,
+  onProjectEdit,
   onPinProject,
   onUnpinProject,
 }: {
   darkMode: boolean;
   messages: ProjectMessages["pageTitle"];
+  detailMessages: ProjectMessages["detail"];
+  timelineMessages: ProjectMessages["timeline"];
+  durationMessages: ProjectMessages["duration"];
+  defaultDescriptions: ProjectMessages["defaultDescriptions"];
+  dateMessages: DatePickerMessages;
   pinPending: boolean;
   project: ProjectView;
+  onProjectEdit?: (project: ProjectView) => void;
   onPinProject?: (projectId: string) => void;
   onUnpinProject?: (projectId: string) => void;
 }) {
-  if (!onPinProject && !onUnpinProject) {
+  const [overviewOpen, setOverviewOpen] = useState(false);
+
+  if (!onPinProject && !onUnpinProject && !onProjectEdit) {
     return null;
   }
 
   return (
-    <div className="flex shrink-0 items-center gap-2">
+    <div className="relative flex shrink-0 items-center gap-2">
       {onPinProject || onUnpinProject ? (
         <Button
           darkMode={darkMode}
@@ -301,6 +350,136 @@ function ProjectTitleActions({
           }}
         />
       ) : null}
+      <Button
+        darkMode={darkMode}
+        size="icon-sm"
+        className="rounded-full"
+        aria-label={messages.projectInfo}
+        icon={<Info size={15} aria-hidden="true" />}
+        onClick={() => setOverviewOpen((current) => !current)}
+      />
+      {overviewOpen ? (
+        <>
+          <button
+            className="fixed inset-0 z-20 cursor-default"
+            type="button"
+            aria-label={messages.closeProjectInfo}
+            onClick={() => setOverviewOpen(false)}
+          />
+          <ProjectOverviewPopover
+            darkMode={darkMode}
+            project={project}
+            detailMessages={detailMessages}
+            timelineMessages={timelineMessages}
+            durationMessages={durationMessages}
+            defaultDescriptions={defaultDescriptions}
+            dateMessages={dateMessages}
+            onEdit={
+              onProjectEdit
+                ? () => {
+                    setOverviewOpen(false);
+                    onProjectEdit(project);
+                  }
+                : undefined
+            }
+          />
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+function ProjectOverviewPopover({
+  darkMode,
+  project,
+  detailMessages,
+  timelineMessages,
+  durationMessages,
+  defaultDescriptions,
+  dateMessages,
+  onEdit,
+}: {
+  darkMode: boolean;
+  project: ProjectView;
+  detailMessages: ProjectMessages["detail"];
+  timelineMessages: ProjectMessages["timeline"];
+  durationMessages: ProjectMessages["duration"];
+  defaultDescriptions: ProjectMessages["defaultDescriptions"];
+  dateMessages: DatePickerMessages;
+  onEdit?: () => void;
+}) {
+  const timelineMetadata = projectOverviewTimelineMetadata(
+    project,
+    {
+      deadline: detailMessages.deadlineLabel,
+      expectedDuration: detailMessages.expectedDuration,
+      timeline: detailMessages.timeline,
+      openEnded: timelineMessages.openEnded,
+    },
+    durationMessages,
+    (value) => formatDate(value, dateMessages),
+  );
+
+  return (
+    <div
+      className={cx(
+        "absolute right-0 top-full z-30 mt-2 w-[min(22rem,calc(100vw-2rem))] rounded-md border p-4 text-left shadow-xl",
+        panelColorClass,
+      )}
+    >
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h2 className="truncate text-base font-semibold">
+          {detailMessages.projectOverviewTitle}
+        </h2>
+        {onEdit ? (
+          <Button
+            darkMode={darkMode}
+            disabled={false}
+            icon={<Edit3 size={15} aria-hidden="true" />}
+            onClick={onEdit}
+          >
+            {detailMessages.edit}
+          </Button>
+        ) : null}
+      </div>
+      <div className="grid min-w-0 gap-3">
+        <ProjectOverviewRow
+          darkMode={darkMode}
+          label={detailMessages.description}
+          value={displayDescription(
+            project.description,
+            project.title,
+            defaultDescriptions.project,
+          )}
+        />
+        <ProjectOverviewRow
+          darkMode={darkMode}
+          label={detailMessages.startDate}
+          value={formatDate(project.startDate, dateMessages)}
+        />
+        <ProjectOverviewRow
+          darkMode={darkMode}
+          label={timelineMetadata.label}
+          value={timelineMetadata.value}
+        />
+      </div>
+    </div>
+  );
+}
+
+function ProjectOverviewRow({
+  darkMode,
+  label,
+  value,
+}: {
+  darkMode: boolean;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="grid min-w-0 gap-1">
+      <LabelText darkMode={darkMode}>{label}</LabelText>
+      <DescriptionText darkMode={darkMode}>{value}</DescriptionText>
     </div>
   );
 }

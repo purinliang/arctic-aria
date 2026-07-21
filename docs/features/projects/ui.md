@@ -259,21 +259,24 @@ Detail page layout:
 - use the shared `aa-split-*` classes so the two-column layout activates only
   when the detail container is at least `53rem` wide
 - left and right panels keep independent content-driven heights
-- left panel: `Milestone Overview`, then task list for the selected milestone
-  group
-- right panel: `Project Overview`, then milestone switcher
-- left top card: `Milestone Overview`
+- left panel: lightweight selected milestone overview text, then task list for
+  the selected milestone group
+- right panel: `Milestones` with `New`
+- left top area: selected milestone title, objective, timeline, and compact
+  task progress; this is not a separate card
 - left bottom card: `Tasks`
-- right top card: `Project Overview`
-- right bottom card: `Milestones` with `New`
+- right card: `Milestones` with `New`
 - left card: `Tasks` card with icon, supporting text, and `New`
 - title action: icon-only outline `Pin` or `PinOff` button
-- project edit action: `Edit3` icon plus `Edit`, placed in the
-  `Project Overview` card header
-- milestone edit action: `Edit3` icon plus `Edit`, placed in the
-  `Milestone Overview` card header for the selected milestone
+- title action: icon-only `Info` button opens a project overview popover
+- project edit action: `Edit3` icon plus `Edit`, placed in the project
+  overview popover
+- milestone edit action: `Edit3` icon plus `Edit`, placed beside the
+  lightweight selected milestone overview for the selected milestone
 - on mobile, keep the pin/unpin action on the first title-bar row, aligned to
   the right of `Projects /`
+- the page title bar shows the selected project timeline text, such as
+  `Due Aug 5, 2026`, below `Projects / project name`
 - project overview metadata group: objective, start date, and the selected
   timeline type
 - project overview objective row label: `Objective`
@@ -301,8 +304,10 @@ Detail page layout:
 - if tasks exist without a milestone, show a final `No milestone` switch target
   after real milestones
 - no-milestone tasks stay visible under the `No milestone` switch target
-- milestone switcher rows show title only; they do not show task details,
-  progress, description, or row-level edit actions
+- milestone switcher rows show title and compact task progress such as `0/4`;
+  omit progress when the milestone has no tasks instead of showing `0/0`
+- milestone switcher rows do not show task details, description, or row-level
+  edit actions
 - task rows appear as a flat list in the `Tasks` card for the selected
   milestone group
 - task create action appears in the `Tasks` card header as `New` with `Plus`
