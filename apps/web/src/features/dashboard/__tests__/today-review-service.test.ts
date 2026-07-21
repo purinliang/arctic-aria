@@ -179,7 +179,7 @@ test("scheduled Daily Review sends during local day-end window", async () => {
         return [
           {
             userId: "user-1",
-            timeZonePreference: "Australia/Sydney",
+            timeZone: "Australia/Sydney",
           },
         ];
       },
@@ -231,7 +231,48 @@ test("scheduled Daily Review skips outside local day-end window", async () => {
         return [
           {
             userId: "user-1",
-            timeZonePreference: "Australia/Sydney",
+            timeZone: "Australia/Sydney",
+          },
+        ];
+      },
+    },
+    projectDataLoader: async () => {
+      loaderCalled = true;
+
+      return {
+        projects: [],
+        tasks: [],
+      };
+    },
+  });
+
+  const result = await service.sendScheduledDailyReviews();
+
+  assert.deepEqual(result, {
+    checked: 1,
+    due: 0,
+    failed: 0,
+    sent: 0,
+    skipped: 1,
+  });
+  assert.equal(loaderCalled, false);
+});
+
+test("scheduled Daily Review skips targets without a concrete timezone", async () => {
+  let loaderCalled = false;
+  const service = createTodayReviewService({
+    now: () => new Date("2026-07-18T00:00:00.000Z"),
+    notifier: {
+      async sendUserNotification() {
+        throw new Error("notification should not be sent");
+      },
+    },
+    reviewTargets: {
+      async listActiveDailyReviewTargets() {
+        return [
+          {
+            userId: "user-1",
+            timeZone: null,
           },
         ];
       },
@@ -278,7 +319,7 @@ test("scheduled Daily Review sends after midnight for the previous local day", a
         return [
           {
             userId: "user-1",
-            timeZonePreference: "Australia/Sydney",
+            timeZone: "Australia/Sydney",
           },
         ];
       },
@@ -329,7 +370,7 @@ test("scheduled Daily Review skips after the post-midnight window", async () => 
         return [
           {
             userId: "user-1",
-            timeZonePreference: "Australia/Sydney",
+            timeZone: "Australia/Sydney",
           },
         ];
       },

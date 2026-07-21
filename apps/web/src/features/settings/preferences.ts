@@ -4,6 +4,7 @@ import {
 } from "../../messages/languages.ts";
 import {
   defaultTimeZonePreference,
+  readResolvedTimeZone,
   readTimeZonePreference,
   type TimeZonePreference,
 } from "./time-zones.ts";
@@ -15,6 +16,7 @@ export type TimeFormatPreference = "12h" | "24h";
 export type UserPreferences = {
   languagePreference: LanguagePreference;
   multipleTimezonesEnabled: boolean;
+  resolvedTimeZone: string | null;
   themePreference: ThemePreference;
   timeFormatPreference: TimeFormatPreference;
   timeZonePreference: TimeZonePreference;
@@ -23,6 +25,7 @@ export type UserPreferences = {
 export const defaultUserPreferences: UserPreferences = {
   languagePreference: "en",
   multipleTimezonesEnabled: false,
+  resolvedTimeZone: null,
   themePreference: "system",
   timeFormatPreference: "12h",
   timeZonePreference: defaultTimeZonePreference,
@@ -54,6 +57,7 @@ export function normalizeUserPreferences(
     multipleTimezonesEnabled: readMultipleTimezonesEnabled(
       input.multipleTimezonesEnabled,
     ),
+    resolvedTimeZone: readResolvedTimeZone(input.resolvedTimeZone),
     themePreference: readThemePreference(input.themePreference ?? null),
     timeFormatPreference: readTimeFormatPreference(input.timeFormatPreference),
     timeZonePreference: readTimeZonePreference(input.timeZonePreference),

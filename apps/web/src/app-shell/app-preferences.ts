@@ -23,6 +23,7 @@ import type {
 } from "../features/settings/preferences.ts";
 import {
   defaultTimeZonePreference,
+  readResolvedTimeZone,
   readTimeZonePreference,
   resolveTimeZonePreference,
   type TimeZonePreference,
@@ -234,6 +235,7 @@ export function useAppPreferences() {
   const activeMultipleTimezonesEnabled = timeZonePreferenceUiEnabled
     ? multipleTimezonesEnabled
     : false;
+  const resolvedBrowserTimeZone = readResolvedTimeZone(browserDefaults.timeZone);
 
   const resolvedThemeMode = resolveThemeMode(
     themePreference,
@@ -254,6 +256,7 @@ export function useAppPreferences() {
     applyUserPreferences,
     languagePreference,
     multipleTimezonesEnabled: activeMultipleTimezonesEnabled,
+    resolvedBrowserTimeZone,
     resolvedLanguage,
     resolvedThemeMode,
     resolvedTimeZone,

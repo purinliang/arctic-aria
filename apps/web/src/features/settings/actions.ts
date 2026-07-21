@@ -56,6 +56,18 @@ export async function saveUserPreferences(
   return settingsService.savePreferences(user.id, normalized);
 }
 
+export async function saveResolvedTimeZone(input: {
+  resolvedTimeZone: string;
+}): Promise<SettingsActionResult> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  return settingsService.saveResolvedTimeZone(user.id, input.resolvedTimeZone);
+}
+
 export async function getDiscordBinding(): Promise<DiscordBindingActionResult> {
   const user = await getCurrentUser();
 

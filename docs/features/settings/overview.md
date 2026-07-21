@@ -32,6 +32,11 @@ feature is intentionally hidden for the current release. The frontend treats
 timezone as system/browser timezone and keeps multiple-timezone mode off until
 the routine reminder design is ready.
 
+Server-side scheduled jobs cannot read the browser timezone directly. The web
+app stores the last concrete browser-resolved timezone separately from the
+user's `system` preference so scheduled Discord messages can use the correct
+local day boundary.
+
 Logged-in users store these preferences in the database. The browser/device
 local preference remains as a fallback before login, while the app is loading,
 or if the persisted settings cannot be read.
@@ -220,6 +225,8 @@ Current attributes:
 - `time_format_preference`: `12h` or `24h`
 - `timezone_preference`: `system` or an IANA timezone; current frontend keeps
   this disabled as `system`
+- `resolved_timezone`: nullable concrete IANA timezone captured from the
+  browser for server-side scheduled jobs
 - `multiple_timezones_enabled`: reserved for future routine-specific timezone
   editors; current frontend keeps this false and hidden
 

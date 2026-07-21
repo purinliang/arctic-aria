@@ -229,6 +229,7 @@ const englishMessages = {
       preferencesSaveFailed: "Settings not saved",
     },
     results: {
+      settings_resolved_timezone_invalid: "Timezone could not be resolved.",
       settings_timezone_preferences_disabled:
         "Timezone preferences are not available yet.",
       settings_preferences_unavailable: "Settings are unavailable.",
@@ -471,6 +472,7 @@ const simplifiedChineseMessages: AppMessages = {
       preferencesSaveFailed: "设置未保存",
     },
     results: {
+      settings_resolved_timezone_invalid: "无法识别当前时区。",
       settings_timezone_preferences_disabled: "时区偏好暂不可用。",
       settings_preferences_unavailable: "设置暂不可用。",
       settings_preferences_save_failed: "设置无法保存。",
