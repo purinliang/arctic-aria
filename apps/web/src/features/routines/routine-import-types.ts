@@ -30,6 +30,7 @@ export type RoutineImportResult<T> =
   | ActionFailureResult;
 
 export type RoutineImportCommand = {
+  groupId: string | null;
   title: string;
   description: string | null;
   firstStartDate: string;

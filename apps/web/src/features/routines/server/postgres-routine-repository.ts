@@ -3,10 +3,12 @@ import { getSql } from "../../../server/database/neon.ts";
 import type {
   RoutineInstanceStatus,
   RoutineRepository,
+  SaveRoutineGroupInput,
   SaveRoutineInput,
 } from "./routine-repository.ts";
 import {
   mapRoutine,
+  mapRoutineGroup,
   mapRoutineInstance,
   routineInstanceSelect,
   routineInstanceSelectFromCte,
@@ -15,6 +17,7 @@ import {
   routineSelectFromCtes,
 } from "./postgres-routine-mappers.ts";
 import type {
+  RoutineGroupRow,
   RoutineInstanceRow,
   RoutineRow,
 } from "./postgres-routine-mappers.ts";
@@ -29,6 +32,28 @@ export class PostgresRoutineRepository implements RoutineRepository {
 
   private getSql() {
     return this.sql ?? getSql();
+  }
+
+  async listRoutineGroups(userId: string) {
+    const rows = (await this.getSql().query(
+      `
+      SELECT
+        id,
+        user_id,
+        name,
+        description,
+        created_at,
+        updated_at,
+        deleted_at
+      FROM routine_groups
+      WHERE user_id = $1
+        AND deleted_at IS NULL
+      ORDER BY name ASC, created_at ASC
+      `,
+      [userId],
+    )) as RoutineGroupRow[];
+
+    return rows.map(mapRoutineGroup);
   }
 
   async listRoutines(userId: string) {
@@ -66,12 +91,111 @@ export class PostgresRoutineRepository implements RoutineRepository {
     return rows.map(mapRoutine);
   }
 
+  async createRoutineGroup(input: SaveRoutineGroupInput) {
+    const rows = (await this.getSql().query(
+      `
+      INSERT INTO routine_groups (
+        user_id,
+        name,
+        description,
+        created_at,
+        updated_at
+      )
+      VALUES ($1, $2, $3, $4, $4)
+      RETURNING
+        id,
+        user_id,
+        name,
+        description,
+        created_at,
+        updated_at,
+        deleted_at
+      `,
+      [input.userId, input.name, input.description, input.occurredAt],
+    )) as RoutineGroupRow[];
+
+    return mapRoutineGroup(rows[0]);
+  }
+
+  async updateRoutineGroup(input: SaveRoutineGroupInput & { groupId: string }) {
+    const rows = (await this.getSql().query(
+      `
+      UPDATE routine_groups
+      SET name = $3,
+          description = $4,
+          updated_at = $5
+      WHERE user_id = $1
+        AND id = $2
+        AND deleted_at IS NULL
+      RETURNING
+        id,
+        user_id,
+        name,
+        description,
+        created_at,
+        updated_at,
+        deleted_at
+      `,
+      [
+        input.userId,
+        input.groupId,
+        input.name,
+        input.description,
+        input.occurredAt,
+      ],
+    )) as RoutineGroupRow[];
+
+    return rows[0] ? mapRoutineGroup(rows[0]) : null;
+  }
+
+  async deleteRoutineGroup(input: {
+    userId: string;
+    groupId: string;
+    occurredAt: Date;
+  }) {
+    const rows = (await this.getSql().query(
+      `
+      WITH target_group AS (
+        UPDATE routine_groups
+        SET deleted_at = $3,
+            updated_at = $3
+        WHERE user_id = $1
+          AND id = $2
+          AND deleted_at IS NULL
+        RETURNING id
+      ),
+      cleared_routines AS (
+        UPDATE routines
+        SET group_id = NULL,
+            updated_at = $3
+        WHERE user_id = $1
+          AND group_id IN (SELECT id FROM target_group)
+          AND deleted_at IS NULL
+        RETURNING id
+      )
+      SELECT id FROM target_group
+      `,
+      [input.userId, input.groupId, input.occurredAt],
+    )) as Array<{ id: string }>;
+
+    return rows.length > 0;
+  }
+
   async createRoutine(input: SaveRoutineInput) {
     const rows = (await this.getSql().query(
       `
-      WITH inserted_routine AS (
+      WITH valid_group AS (
+        SELECT id
+        FROM routine_groups
+        WHERE user_id = $1
+          AND id = $13::uuid
+          AND deleted_at IS NULL
+        LIMIT 1
+      ),
+      inserted_routine AS (
         INSERT INTO routines (
           user_id,
+          group_id,
           title,
           description,
           first_start_date,
@@ -79,7 +203,7 @@ export class PostgresRoutineRepository implements RoutineRepository {
           created_at,
           updated_at
         )
-        VALUES ($1, $2, $3, $4, $5, $12, $12)
+        VALUES ($1, (SELECT id FROM valid_group), $2, $3, $4, $5, $12, $12)
         RETURNING *
       ),
       inserted_rule AS (
@@ -109,16 +233,28 @@ export class PostgresRoutineRepository implements RoutineRepository {
   async updateRoutine(input: SaveRoutineInput & { routineId: string }) {
     const rows = (await this.getSql().query(
       `
-      WITH updated_routine AS (
+      WITH valid_group AS (
+        SELECT id
+        FROM routine_groups
+        WHERE user_id = $1
+          AND id = $13::uuid
+          AND deleted_at IS NULL
+        LIMIT 1
+      ),
+      updated_routine AS (
         UPDATE routines
         SET
           title = $2,
           description = $3,
           first_start_date = $4,
           end_date = $5,
-          updated_at = $12
+          updated_at = $12,
+          group_id = CASE
+            WHEN $13::uuid IS NULL THEN NULL
+            ELSE (SELECT id FROM valid_group)
+          END
         WHERE user_id = $1
-          AND id = $13
+          AND id = $14
           AND deleted_at IS NULL
         RETURNING *
       ),
@@ -139,11 +275,11 @@ export class PostgresRoutineRepository implements RoutineRepository {
       updated_pending_instances AS (
         UPDATE routine_instances
         SET
-          scheduled_time = COALESCE($10::time, $14::time),
+          scheduled_time = COALESCE($10::time, $15::time),
           remind_at = (
             (
               routine_instances.scheduled_date::timestamp
-              + COALESCE($10::time, $14::time)
+              + COALESCE($10::time, $15::time)
             ) AT TIME ZONE $11
           ) - interval '30 minutes',
           reminded_at = NULL,

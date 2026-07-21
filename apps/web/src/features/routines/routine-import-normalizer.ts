@@ -25,6 +25,7 @@ export function normalizeRoutineImportDocument(
   return {
     ok: true,
     data: {
+      groupId: null,
       title: validation.title,
       description: validation.description,
       firstStartDate: validation.firstStartDate,

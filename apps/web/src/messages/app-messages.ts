@@ -296,6 +296,7 @@ const englishMessages = {
     subjectWords: {
       category: "Category",
       discord: "Discord",
+      group: "Group",
       idea: "Idea",
       memory: "Memory",
       milestone: "Milestone",
@@ -315,6 +316,7 @@ const englishMessages = {
       end_date: "end date",
       expected_duration: "expected duration",
       first_start_date: "first start date",
+      group: "group",
       name: "name",
       objective: "objective",
       preferred_time: "preferred time",
@@ -640,6 +642,7 @@ const simplifiedChineseMessages: AppMessages = {
     subjectWords: {
       category: "分类",
       discord: "Discord",
+      group: "分组",
       idea: "想法",
       memory: "回忆",
       milestone: "里程碑",
@@ -659,6 +662,7 @@ const simplifiedChineseMessages: AppMessages = {
       end_date: "结束日期",
       expected_duration: "预计持续时间",
       first_start_date: "首次开始日期",
+      group: "分组",
       name: "名称",
       objective: "目标",
       preferred_time: "偏好时间",

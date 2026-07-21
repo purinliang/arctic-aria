@@ -44,6 +44,8 @@ export type RoutineRuleType =
 
 export type RoutineDefinition = {
   id: string;
+  groupId: string | null;
+  groupName: string | null;
   title: string;
   description: string | null;
   firstStartDate: string;
@@ -54,6 +56,12 @@ export type RoutineDefinition = {
   dayOfMonth: number | null;
   preferredTime: string | null;
   timezone: string;
+};
+
+export type RoutineGroupOption = {
+  id: string;
+  name: string;
+  description: string | null;
 };
 
 export type MemoryCategory = string;

@@ -207,9 +207,9 @@ The project detail page should show:
 - objective
 - start date
 - deadline or expected duration
-- derived progress
 - project actions
-- task list and milestone management
+- selected milestone task list
+- milestone overview and milestone switching
 
 Project actions:
 
@@ -259,24 +259,29 @@ Detail page layout:
 - use the shared `aa-split-*` classes so the two-column layout activates only
   when the detail container is at least `53rem` wide
 - left and right panels keep independent content-driven heights
-- left panel: flat task list
-- right panel: project overview and milestone management
-- left card: `Tasks` card with icon, supporting text, and `New`
-- title action: `Edit3` icon plus `Edit`, placed to the right of
-  `Projects / project_name` on desktop
-- pin action: icon-only outline `Pin` or `PinOff` button, placed beside `Edit`
-- on mobile, keep the pin/unpin and edit project actions on the first row,
-  aligned to the right of `Projects /`
-- right top card: `Overview`
+- left panel: `Milestone Overview`, then task list for the selected milestone
+  group
+- right panel: `Project Overview`, then milestone switcher
+- left top card: `Milestone Overview`
+- left bottom card: `Tasks`
+- right top card: `Project Overview`
 - right bottom card: `Milestones` with `New`
-- overview metadata group: objective, start date, and the selected timeline
-  type
-- overview objective row label: `Objective`
-- overview labels use shared `LabelText`
-- overview values use shared `DescriptionText`
+- left card: `Tasks` card with icon, supporting text, and `New`
+- title action: icon-only outline `Pin` or `PinOff` button
+- project edit action: `Edit3` icon plus `Edit`, placed in the
+  `Project Overview` card header
+- milestone edit action: `Edit3` icon plus `Edit`, placed in the
+  `Milestone Overview` card header for the selected milestone
+- on mobile, keep the pin/unpin action on the first title-bar row, aligned to
+  the right of `Projects /`
+- project overview metadata group: objective, start date, and the selected
+  timeline type
+- project overview objective row label: `Objective`
+- project and milestone overview labels use shared `LabelText`
+- project and milestone overview values use shared `DescriptionText`
 - if the saved objective is empty, show localized default objective copy derived
   from the project title; this fallback is render-only and is not persisted
-- overview start date should display in English date format, not raw
+- overview start dates should display in localized date format, not raw
   `YYYY-MM-DD`
 - if the project uses a deadline, show a `Deadline` row with only the formatted
   deadline date
@@ -284,26 +289,35 @@ Detail page layout:
   only the selected duration range
 - do not label the row as `Timeline` when the project has a concrete deadline
   or no-fixed-deadline mode
-- do not repeat project title inside the Overview card; the title is already in
-  the page title
-- do not show current milestone or progress in the metadata card
-- milestone card list direction: vertical
-- milestone row left group: title, then objective
-- milestone row right group: `Edit` with `Edit3`
-- milestone rows do not show task details
-- task rows appear as a flat list in the `Tasks` card
+- do not repeat project title inside the Project Overview card; the title is
+  already in the page title
+- milestone overview shows the selected milestone title, objective, start date,
+  and timeline
+- milestone switcher list direction: vertical
+- milestone switcher rows act as jump controls, not edit controls
+- milestone switcher rows sort by deadline from earliest to latest, then start
+  date and title; milestones without a deadline sort after milestones with a
+  deadline
+- if tasks exist without a milestone, show a final `No milestone` switch target
+  after real milestones
+- no-milestone tasks stay visible under the `No milestone` switch target
+- milestone switcher rows show title only; they do not show task details,
+  progress, description, or row-level edit actions
+- task rows appear as a flat list in the `Tasks` card for the selected
+  milestone group
 - task create action appears in the `Tasks` card header as `New` with `Plus`
+- new tasks default to the selected milestone when a real milestone is selected
 - task row layout: `Done` checkbox on the left, then title, description,
-  optional milestone/deadline metadata, then `Edit` on the right
+  deadline metadata, then `Edit` on the right
 - if saved milestone objectives or task descriptions are empty, render localized
   default copy derived from the milestone or task title; these fallbacks are not
   persisted
-- project detail task rows do not show project name in metadata because the
-  page title already identifies the project
-- if a task has no milestone, omit the milestone segment and separator from the
-  metadata line
-- task sort order: not-done tasks before done tasks, then deadline from nearest
-  to farthest, then start date from oldest to newest
+- project detail task rows do not show project or milestone names in metadata
+  because the page title and selected milestone context already identify them
+- task sort order: deadline from nearest to farthest, then start date from
+  oldest to newest, then title
+- completed state must not change task order; completed and unfinished tasks
+  stay in the same deadline-first order
 - tasks without a deadline sort after tasks with a deadline
 - completion checkbox changes must not re-sort the current visible list; sort
   only when entering or refreshing the page, or after adding or editing a task
@@ -321,19 +335,21 @@ Project
 ```
 
 The detail page should not render tasks as nested milestone sections. It should
-flatten tasks in the main `Tasks` card and keep milestones as a simple
-management list in the right panel.
+use the selected milestone switch target to decide which task group the main
+`Tasks` card renders. Real milestones and the optional `No milestone` group
+live in the right-panel switcher.
 
 ## Milestones UI
 
 Milestones are phase boundaries. Keep them lightweight.
 
-Milestone row should show:
+Milestone overview should show:
 
 - title
 - objective, when present
 - deadline or expected duration, when present
-- derived progress
+
+Milestone switcher rows should show title only.
 
 Actions:
 

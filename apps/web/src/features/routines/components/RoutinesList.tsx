@@ -19,6 +19,7 @@ export function RoutinesList({
   pending,
   routines,
   messages,
+  groupMessages,
   ruleMessages,
   timeMessages,
   timeFormatPreference,
@@ -29,6 +30,7 @@ export function RoutinesList({
   pending: boolean;
   routines: RoutineDefinition[];
   messages: RoutineMessages["page"];
+  groupMessages: RoutineMessages["groups"];
   ruleMessages: RoutineMessages;
   timeMessages: TimePickerMessages;
   timeFormatPreference: TimeFormatPreference;
@@ -64,13 +66,14 @@ export function RoutinesList({
             }
             support={
               <SupportingText darkMode={darkMode}>
-                {routineTimeText(
-                  routine.preferredTime,
-                  messages.flexible,
+                {routineMetadataText({
+                  routine,
+                  groupMessages,
+                  flexibleText: messages.flexible,
+                  ruleMessages,
                   timeMessages,
                   timeFormatPreference,
-                )} ·{" "}
-                {ruleSummary(routine, ruleMessages)}
+                })}
               </SupportingText>
             }
           />
@@ -86,6 +89,33 @@ export function RoutinesList({
       ))}
     </List>
   );
+}
+
+function routineMetadataText({
+  routine,
+  groupMessages,
+  flexibleText,
+  ruleMessages,
+  timeMessages,
+  timeFormatPreference,
+}: {
+  routine: RoutineDefinition;
+  groupMessages: RoutineMessages["groups"];
+  flexibleText: string;
+  ruleMessages: RoutineMessages;
+  timeMessages: TimePickerMessages;
+  timeFormatPreference: TimeFormatPreference;
+}) {
+  return [
+    routine.groupName || groupMessages.noGroup,
+    routineTimeText(
+      routine.preferredTime,
+      flexibleText,
+      timeMessages,
+      timeFormatPreference,
+    ),
+    ruleSummary(routine, ruleMessages),
+  ].join(" · ");
 }
 
 function routineTimeText(

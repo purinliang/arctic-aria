@@ -176,6 +176,7 @@ test("routine import fills defaults and validates the typed object", () => {
   assert.deepEqual(normalizeRoutineImportDocument(parsed.data, today), {
     ok: true,
     data: {
+      groupId: null,
       title: "Morning walk",
       description: null,
       firstStartDate: "2026-07-22",

@@ -21,6 +21,7 @@ export type ActionFailureAction =
 export type ActionFailureSubject =
   | "category"
   | "discord"
+  | "group"
   | "idea"
   | "memory"
   | "milestone"

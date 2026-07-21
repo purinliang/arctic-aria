@@ -279,7 +279,6 @@ export function AppShell({
                 darkMode={darkMode}
                 projects={projectState.projects}
                 selectedProjectId={selectedProjectId}
-                editDisabled={projectState.projectActionPending}
                 pinPending={
                   selectedProjectId
                     ? projectState.pendingProjectPinIds.includes(selectedProjectId)
@@ -287,9 +286,6 @@ export function AppShell({
                 }
                 onBackToList={showProjectsList}
                 onProjectSelect={showProjectDetail}
-                onEditProject={(project) => {
-                  setProjectDraft(projectToDraft(project));
-                }}
                 onPinProject={projectState.pinProjectFromPage}
                 onUnpinProject={projectState.unpinProjectFromPage}
                 messages={messages.projects.pageTitle}
@@ -316,6 +312,9 @@ export function AppShell({
               pendingProjectPinIds={projectState.pendingProjectPinIds}
               onProjectSave={projectState.saveProjectFromPage}
               onProjectDelete={projectState.archiveProjectFromPage}
+              onProjectEdit={(project) => {
+                setProjectDraft(projectToDraft(project));
+              }}
               onProjectPin={projectState.pinProjectFromPage}
               onProjectUnpin={projectState.unpinProjectFromPage}
               onMilestoneSave={projectState.saveMilestoneFromPage}
@@ -338,10 +337,13 @@ export function AppShell({
             <RoutinesPage
               darkMode={darkMode}
               routines={routineState.routineDefinitions}
+              routineGroups={routineState.routineGroups}
               loading={routineState.routineLoading}
               pending={routineState.routineActionPending}
               onRoutineSave={routineState.saveRoutineFromPage}
               onRoutineDelete={routineState.deleteRoutineFromPage}
+              onRoutineGroupSave={routineState.saveRoutineGroupFromPage}
+              onRoutineGroupDelete={routineState.deleteRoutineGroupFromPage}
               messages={messages.routines}
               formMessages={messages.forms}
               timeFormatPreference={timeFormatPreference}

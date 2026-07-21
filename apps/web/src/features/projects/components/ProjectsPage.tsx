@@ -50,6 +50,7 @@ export function ProjectsPage({
   pendingProjectPinIds,
   onProjectSave,
   onProjectDelete,
+  onProjectEdit,
   onProjectPin,
   onProjectUnpin,
   onMilestoneSave,
@@ -71,6 +72,7 @@ export function ProjectsPage({
   pendingProjectPinIds: string[];
   onProjectSave: (input: ProjectInput) => ProjectResult;
   onProjectDelete: (projectId: string) => ProjectResult;
+  onProjectEdit: (project: ProjectView) => void;
   onProjectPin: (projectId: string) => void;
   onProjectUnpin: (projectId: string) => void;
   onMilestoneSave: (input: MilestoneInput) => ProjectResult;
@@ -252,14 +254,15 @@ export function ProjectsPage({
             durationMessages={messages.duration}
             defaultDescriptions={messages.defaultDescriptions}
             dateMessages={formMessages.datePicker}
+            onEditProject={onProjectEdit}
             onAddMilestone={(projectId) => {
               setMilestoneDraft(emptyMilestoneDraft(projectId));
             }}
             onEditMilestone={(milestone) => {
               setMilestoneDraft(milestoneToDraft(milestone));
             }}
-            onAddTask={(projectId) => {
-              setTaskDraft(emptyTaskDraft(projectId));
+            onAddTask={(projectId, milestoneId) => {
+              setTaskDraft(emptyTaskDraft(projectId, milestoneId));
             }}
             onEditTask={(task: ProjectTaskView) => {
               setTaskDraft(taskToDraft(task));
