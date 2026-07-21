@@ -10,6 +10,9 @@ Progress: implemented for manual Settings diagnostics
 The latency tool lives in Settings under `Developer Tools`. The card appears
 only for signed-in administrators.
 
+Historical environment measurements and the Singapore database decision record
+live in [latency-benchmark.md](latency-benchmark.md).
+
 Backend route:
 
 - `POST /api/developer/performance/latency`
@@ -35,3 +38,27 @@ Frontend behavior:
 Because there is no frontend-to-database direct connection by design,
 frontend/database latency is represented by the full
 browser-to-backend-to-database path.
+
+## Tab Switch Loading
+
+Progress: benchmarked for the route-backed workspace decision
+
+The tab switch benchmark measures the visible delay from clicking a sidebar tab
+until the target page heading is visible. It is separate from backend latency:
+the benchmark answers whether route-backed workspace navigation creates
+noticeable local or production tab-switch lag.
+
+Historical A/B/C route-navigation measurements live in
+[tab-switch-loading-benchmark.md](tab-switch-loading-benchmark.md).
+
+Benchmark script:
+
+```bash
+pnpm --dir apps/web switch:measure
+```
+
+Current decision:
+
+- Keep rewrite-backed route navigation.
+- Do not restore the first route-backed App Router page implementation.
+- Keep the no-route single-`/` workspace as the raw speed baseline only.
