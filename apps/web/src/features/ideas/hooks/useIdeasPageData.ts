@@ -23,6 +23,17 @@ export function useIdeasPageData(
   const [ideas, setIdeas] = useState<IdeaPageItem[]>([]);
   const [ideasLoading, setIdeasLoading] = useState(true);
   const [ideaActionPending, setIdeaActionPending] = useState(false);
+  const actionFailedTitle = (
+    action: keyof NotificationMessages["actionWords"],
+    subject: keyof NotificationMessages["subjectWords"],
+  ) =>
+    notificationMessages?.actionFailedTitle?.(
+      notificationMessages.actionWords[action],
+      notificationMessages.subjectWords[subject],
+    ) ??
+    `${String(action).charAt(0).toUpperCase() + String(action).slice(1)} ${
+      String(subject).charAt(0).toUpperCase() + String(subject).slice(1)
+    } failed`;
 
   const refreshIdeaData = useCallback(async () => {
     setIdeasLoading(true);
@@ -74,7 +85,7 @@ export function useIdeasPageData(
         notifyActionFailure({
           result,
           resultMessages: messages.results,
-          fallbackTitle: messages.notifications.saveFailed,
+          fallbackTitle: actionFailedTitle("save", "idea"),
           notificationMessages,
           showErrorNotification,
         });
@@ -110,7 +121,7 @@ export function useIdeasPageData(
         notifyActionFailure({
           result,
           resultMessages: messages.results,
-          fallbackTitle: messages.notifications.deleteFailed,
+          fallbackTitle: actionFailedTitle("delete", "idea"),
           notificationMessages,
           showErrorNotification,
         });

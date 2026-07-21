@@ -32,10 +32,6 @@ type IdeaMessagesDefinition = {
     deleting: string;
     close: string;
   };
-  notifications: {
-    saveFailed: string;
-    deleteFailed: string;
-  };
   results: Record<string, string>;
 };
 
@@ -73,10 +69,6 @@ export const englishIdeaMessages: IdeaMessagesDefinition = {
     confirm: "Delete",
     deleting: "Deleting...",
     close: "Close delete confirmation",
-  },
-  notifications: {
-    saveFailed: "Idea save failed",
-    deleteFailed: "Idea delete failed",
   },
   results: {
     auth_required: "Please sign in again.",
@@ -121,10 +113,6 @@ export const simplifiedChineseIdeaMessages: IdeaMessages = {
     confirm: "删除",
     deleting: "正在删除...",
     close: "关闭删除确认",
-  },
-  notifications: {
-    saveFailed: "想法保存失败",
-    deleteFailed: "想法删除失败",
   },
   results: {
     auth_required: "请重新登录。",

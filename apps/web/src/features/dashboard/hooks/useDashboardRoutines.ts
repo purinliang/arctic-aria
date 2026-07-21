@@ -54,6 +54,17 @@ export function useDashboardRoutines(
   const routineActionPendingCount = useRef(0);
   const routineStatusRequestChains = useRef(new Map<string, Promise<void>>());
   const routineStatusRequestVersions = useRef(new Map<string, number>());
+  const actionFailedTitle = (
+    action: keyof NotificationMessages["actionWords"],
+    subject: keyof NotificationMessages["subjectWords"],
+  ) =>
+    notificationMessages?.actionFailedTitle?.(
+      notificationMessages.actionWords[action],
+      notificationMessages.subjectWords[subject],
+    ) ??
+    `${String(action).charAt(0).toUpperCase() + String(action).slice(1)} ${
+      String(subject).charAt(0).toUpperCase() + String(subject).slice(1)
+    } failed`;
 
   const applyRoutineData = useCallback((data: RoutineDashboardData) => {
     setRoutines(data.routines);
@@ -222,7 +233,7 @@ export function useDashboardRoutines(
         notifyActionFailure({
           result,
           resultMessages,
-          fallbackTitle: messages?.routineUpdateFailed ?? "Routine update failed",
+          fallbackTitle: actionFailedTitle("update", "routine"),
           notificationMessages,
           showErrorNotification,
         });
@@ -280,12 +291,12 @@ export function useDashboardRoutines(
     saveRoutineFromPage: (input: RoutineInput) =>
       runRoutineManagementAction(
         () => saveRoutine(input),
-        messages?.routineSaveFailed ?? "Routine save failed",
+        actionFailedTitle("save", "routine"),
       ),
     deleteRoutineFromPage: (routineId: string) =>
       runRoutineManagementAction(
         () => deleteRoutine(routineId),
-        messages?.routineDeleteFailed ?? "Routine delete failed",
+        actionFailedTitle("delete", "routine"),
       ),
   };
 }
