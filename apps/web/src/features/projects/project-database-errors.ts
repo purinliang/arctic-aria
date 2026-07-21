@@ -1,6 +1,6 @@
 export function projectDatabaseErrorMessage(error: unknown) {
   if (isMissingProjectTableError(error)) {
-    return "Project database tables are missing. Run pnpm --dir apps/web database:migrate before using Projects.";
+    return "Database connection failed.";
   }
 
   if (isInvalidDateError(error)) {
@@ -11,7 +11,7 @@ export function projectDatabaseErrorMessage(error: unknown) {
     return "Pinned projects changed. Refresh and try again.";
   }
 
-  return "Project database update failed.";
+  return "Database update failed.";
 }
 
 export function projectDatabaseErrorCode(error: unknown) {

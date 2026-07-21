@@ -125,7 +125,7 @@ function readOptionalEnv(env: NodeJS.ProcessEnv, key: string) {
 }
 
 const configMissingMessage =
-  "Discord configuration is missing. Check the web server log.";
+  "Server internal error.";
 
 function configMissingResult(): DiscordNotificationResult {
   return {

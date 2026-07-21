@@ -83,9 +83,6 @@ export const englishIdeaMessages: IdeaMessagesDefinition = {
     idea_text_required: "Idea can't be empty.",
     idea_text_too_long: "Idea must be 2000 characters or fewer.",
     idea_not_found: "Idea was not found.",
-    idea_save_failed: "Idea could not be saved.",
-    idea_archive_failed: "Idea could not be deleted.",
-    ideas_unavailable: "Ideas are unavailable.",
   },
 };
 
@@ -134,8 +131,5 @@ export const simplifiedChineseIdeaMessages: IdeaMessages = {
     idea_text_required: "想法不能为空。",
     idea_text_too_long: "想法不能超过 2000 个字符。",
     idea_not_found: "没有找到这个想法。",
-    idea_save_failed: "无法保存想法。",
-    idea_archive_failed: "无法删除想法。",
-    ideas_unavailable: "无法加载想法。",
   },
 };

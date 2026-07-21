@@ -4,6 +4,10 @@ import {
   writeDashboardBrowserCacheSection,
 } from "@/app-shell/dashboard-browser-cache";
 import {
+  notifyActionFailure,
+  runNotifiedServerAction,
+} from "@/app-shell/action-notifications";
+import {
   cancelPinnedMemoryDone,
   cancelPinnedMemorySuggestion,
   completePinnedMemory,
@@ -19,10 +23,10 @@ import {
   type MemoryDashboardData,
   type MemoryInput,
 } from "@/features/memories/actions";
-import { localizedActionMessage } from "@/messages/action-result";
 import type {
   DashboardMessages,
   MemoryMessages,
+  NotificationMessages,
 } from "@/messages/app-messages";
 import {
   addPendingSuggestionId,
@@ -47,6 +51,7 @@ export function useDashboardMemories(
   showErrorNotification: (message: string, title?: string) => void,
   messages?: DashboardMessages["notifications"],
   resultMessages?: MemoryMessages["results"],
+  notificationMessages?: NotificationMessages,
 ) {
   const [pinnedMemories, setPinnedMemories] = useState<PinnedMemory[]>([]);
   const [memoryCategories, setMemoryCategories] = useState<
@@ -102,19 +107,39 @@ export function useDashboardMemories(
   }, [memoryCacheReady, memoryCategories, memoryRecords, pinnedMemories, userId]);
 
   const refreshMemoryData = useCallback(async () => {
-    const result = await getMemoryDashboardData();
+    const actionResult = await runNotifiedServerAction({
+      action: getMemoryDashboardData,
+      messages: notificationMessages,
+      showErrorNotification,
+    });
+
+    if (!actionResult.ok) {
+      setMemoryLoading(false);
+      return;
+    }
+
+    const result = actionResult.value;
 
     if (!result.ok) {
-      showErrorNotification(
-        localizedActionMessage(result, resultMessages),
-        messages?.memoriesUnavailable ?? "Memories unavailable",
-      );
+      notifyActionFailure({
+        result,
+        resultMessages,
+        fallbackTitle: messages?.memoriesUnavailable ?? "Memories unavailable",
+        notificationMessages,
+        showErrorNotification,
+      });
       setMemoryLoading(false);
       return;
     }
 
     applyMemoryData(result.data);
-  }, [applyMemoryData, messages, resultMessages, showErrorNotification]);
+  }, [
+    applyMemoryData,
+    messages,
+    notificationMessages,
+    resultMessages,
+    showErrorNotification,
+  ]);
 
   function beginMemoryAction() {
     memoryActionPendingCount.current += 1;
@@ -146,7 +171,25 @@ export function useDashboardMemories(
     beginMemoryAction();
 
     try {
-      const result = await action();
+      const actionResult = await runNotifiedServerAction({
+        action,
+        messages: notificationMessages,
+        showErrorNotification,
+      });
+
+      if (!actionResult.ok) {
+        if (
+          pinnedMemoryRequestVersions.current.get(pinnedMemoryId) ===
+          requestVersion
+        ) {
+          setPinnedMemories((current) =>
+            restorePinnedMemorySnapshot(current, snapshot, pinnedMemoryId),
+          );
+        }
+        return;
+      }
+
+      const result = actionResult.value;
 
       if (!result.ok) {
         if (
@@ -159,7 +202,13 @@ export function useDashboardMemories(
         setPinnedMemories((current) =>
           restorePinnedMemorySnapshot(current, snapshot, pinnedMemoryId),
         );
-        showErrorNotification(localizedActionMessage(result, resultMessages));
+        notifyActionFailure({
+          result,
+          resultMessages,
+          fallbackTitle: messages?.memoryUpdateFailed ?? "Memory update failed",
+          notificationMessages,
+          showErrorNotification,
+        });
         return;
       }
     } finally {
@@ -167,14 +216,33 @@ export function useDashboardMemories(
     }
   }
 
-  async function runMemoryManagementAction(action: MemoryDataAction) {
+  async function runMemoryManagementAction(
+    action: MemoryDataAction,
+    failureTitle: string,
+  ) {
     beginMemoryAction();
 
     try {
-      const result = await action();
+      const actionResult = await runNotifiedServerAction({
+        action,
+        messages: notificationMessages,
+        showErrorNotification,
+      });
+
+      if (!actionResult.ok) {
+        return false;
+      }
+
+      const result = actionResult.value;
 
       if (!result.ok) {
-        showErrorNotification(localizedActionMessage(result, resultMessages));
+        notifyActionFailure({
+          result,
+          resultMessages,
+          fallbackTitle: failureTitle,
+          notificationMessages,
+          showErrorNotification,
+        });
         return false;
       }
 
@@ -185,14 +253,33 @@ export function useDashboardMemories(
     }
   }
 
-  async function runMemoryManagementDataAction(action: MemoryDataAction) {
+  async function runMemoryManagementDataAction(
+    action: MemoryDataAction,
+    failureTitle: string,
+  ) {
     beginMemoryAction();
 
     try {
-      const result = await action();
+      const actionResult = await runNotifiedServerAction({
+        action,
+        messages: notificationMessages,
+        showErrorNotification,
+      });
+
+      if (!actionResult.ok) {
+        return null;
+      }
+
+      const result = actionResult.value;
 
       if (!result.ok) {
-        showErrorNotification(localizedActionMessage(result, resultMessages));
+        notifyActionFailure({
+          result,
+          resultMessages,
+          fallbackTitle: failureTitle,
+          notificationMessages,
+          showErrorNotification,
+        });
         return null;
       }
 
@@ -264,10 +351,29 @@ export function useDashboardMemories(
       const ignoredMemoryIds = memorySuggestions
         .filter((suggestion) => !pinnedSuggestionIdSet.has(suggestion.id))
         .map((suggestion) => suggestion.id);
-      const result = await refreshMemorySuggestions(ignoredMemoryIds);
+      const actionResult = await runNotifiedServerAction({
+        action: () => refreshMemorySuggestions(ignoredMemoryIds),
+        messages: notificationMessages,
+        showErrorNotification,
+      });
+
+      if (!actionResult.ok) {
+        setMemorySuggestions([]);
+        setPinnedSuggestionIds([]);
+        return;
+      }
+
+      const result = actionResult.value;
 
       if (!result.ok) {
-        showErrorNotification(localizedActionMessage(result, resultMessages));
+        notifyActionFailure({
+          result,
+          resultMessages,
+          fallbackTitle: messages?.memorySuggestionFailed ??
+            "Memory suggestion failed",
+          notificationMessages,
+          showErrorNotification,
+        });
         setMemorySuggestions([]);
         setPinnedSuggestionIds([]);
         return;
@@ -287,10 +393,27 @@ export function useDashboardMemories(
     );
 
     try {
-      const result = await pinMemorySuggestion(memoryId);
+      const actionResult = await runNotifiedServerAction({
+        action: () => pinMemorySuggestion(memoryId),
+        messages: notificationMessages,
+        showErrorNotification,
+      });
+
+      if (!actionResult.ok) {
+        return false;
+      }
+
+      const result = actionResult.value;
 
       if (!result.ok) {
-        showErrorNotification(localizedActionMessage(result, resultMessages));
+        notifyActionFailure({
+          result,
+          resultMessages,
+          fallbackTitle: messages?.memorySuggestionFailed ??
+            "Memory suggestion failed",
+          notificationMessages,
+          showErrorNotification,
+        });
         return false;
       }
 
@@ -315,10 +438,27 @@ export function useDashboardMemories(
     );
 
     try {
-      const result = await cancelPinnedMemorySuggestion(memoryId);
+      const actionResult = await runNotifiedServerAction({
+        action: () => cancelPinnedMemorySuggestion(memoryId),
+        messages: notificationMessages,
+        showErrorNotification,
+      });
+
+      if (!actionResult.ok) {
+        return false;
+      }
+
+      const result = actionResult.value;
 
       if (!result.ok) {
-        showErrorNotification(localizedActionMessage(result, resultMessages));
+        notifyActionFailure({
+          result,
+          resultMessages,
+          fallbackTitle: messages?.memorySuggestionFailed ??
+            "Memory suggestion failed",
+          notificationMessages,
+          showErrorNotification,
+        });
         return false;
       }
 
@@ -349,13 +489,25 @@ export function useDashboardMemories(
     markMemoryDone,
     cancelMemoryDone,
     saveMemoryFromPage: (input: MemoryInput) =>
-      runMemoryManagementAction(() => saveMemory(input)),
+      runMemoryManagementAction(
+        () => saveMemory(input),
+        messages?.memorySaveFailed ?? "Memory save failed",
+      ),
     deleteMemoryFromPage: (memoryId: string) =>
-      runMemoryManagementAction(() => deleteMemory(memoryId)),
+      runMemoryManagementAction(
+        () => deleteMemory(memoryId),
+        messages?.memoryDeleteFailed ?? "Memory delete failed",
+      ),
     saveCategoryFromPage: (input: MemoryCategoryInput) =>
-      runMemoryManagementDataAction(() => saveMemoryCategory(input)),
+      runMemoryManagementDataAction(
+        () => saveMemoryCategory(input),
+        messages?.memoryCategorySaveFailed ?? "Category save failed",
+      ),
     deleteCategoryFromPage: (categoryId: string) =>
-      runMemoryManagementAction(() => deleteMemoryCategory(categoryId)),
+      runMemoryManagementAction(
+        () => deleteMemoryCategory(categoryId),
+        messages?.memoryCategoryDeleteFailed ?? "Category delete failed",
+      ),
     refreshSuggestionsFromPage,
     pinSuggestionFromPage,
     cancelSuggestionPinFromPage,

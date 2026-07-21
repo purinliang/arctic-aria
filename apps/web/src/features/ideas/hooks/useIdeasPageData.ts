@@ -1,6 +1,12 @@
 import { useCallback, useState } from "react";
-import { localizedActionMessage } from "@/messages/action-result";
-import type { IdeaMessages } from "@/messages/app-messages";
+import {
+  notifyActionFailure,
+  runNotifiedServerAction,
+} from "@/app-shell/action-notifications";
+import type {
+  IdeaMessages,
+  NotificationMessages,
+} from "@/messages/app-messages";
 import {
   deleteIdea,
   getIdeaPageData,
@@ -12,6 +18,7 @@ import {
 export function useIdeasPageData(
   messages: IdeaMessages,
   showErrorNotification: (message: string, title?: string) => void,
+  notificationMessages?: NotificationMessages,
 ) {
   const [ideas, setIdeas] = useState<IdeaPageItem[]>([]);
   const [ideasLoading, setIdeasLoading] = useState(true);
@@ -20,30 +27,57 @@ export function useIdeasPageData(
   const refreshIdeaData = useCallback(async () => {
     setIdeasLoading(true);
 
-    const result = await getIdeaPageData();
+    const actionResult = await runNotifiedServerAction({
+      action: getIdeaPageData,
+      messages: notificationMessages,
+      showErrorNotification,
+    });
+
+    if (!actionResult.ok) {
+      setIdeasLoading(false);
+      return;
+    }
+
+    const result = actionResult.value;
 
     if (result.ok) {
       setIdeas(result.data);
     } else {
-      showErrorNotification(
-        localizedActionMessage(result, messages.results),
-      );
+      notifyActionFailure({
+        result,
+        resultMessages: messages.results,
+        notificationMessages,
+        showErrorNotification,
+      });
     }
 
     setIdeasLoading(false);
-  }, [messages.results, showErrorNotification]);
+  }, [messages.results, notificationMessages, showErrorNotification]);
 
   async function saveIdeaFromPage(input: IdeaInput) {
     setIdeaActionPending(true);
 
     try {
-      const result = await saveIdea(input);
+      const actionResult = await runNotifiedServerAction({
+        action: () => saveIdea(input),
+        messages: notificationMessages,
+        showErrorNotification,
+      });
+
+      if (!actionResult.ok) {
+        return false;
+      }
+
+      const result = actionResult.value;
 
       if (!result.ok) {
-        showErrorNotification(
-          localizedActionMessage(result, messages.results),
-          messages.notifications.saveFailed,
-        );
+        notifyActionFailure({
+          result,
+          resultMessages: messages.results,
+          fallbackTitle: messages.notifications.saveFailed,
+          notificationMessages,
+          showErrorNotification,
+        });
         return false;
       }
 
@@ -60,13 +94,26 @@ export function useIdeasPageData(
     setIdeaActionPending(true);
 
     try {
-      const result = await deleteIdea(ideaId);
+      const actionResult = await runNotifiedServerAction({
+        action: () => deleteIdea(ideaId),
+        messages: notificationMessages,
+        showErrorNotification,
+      });
+
+      if (!actionResult.ok) {
+        return false;
+      }
+
+      const result = actionResult.value;
 
       if (!result.ok) {
-        showErrorNotification(
-          localizedActionMessage(result, messages.results),
-          messages.notifications.deleteFailed,
-        );
+        notifyActionFailure({
+          result,
+          resultMessages: messages.results,
+          fallbackTitle: messages.notifications.deleteFailed,
+          notificationMessages,
+          showErrorNotification,
+        });
         return false;
       }
 

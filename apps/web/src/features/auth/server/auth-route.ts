@@ -20,7 +20,13 @@ const invalidRequestResult: AuthActionResult = {
 const failedRequestResult: AuthActionResult = {
   ok: false,
   code: "auth_request_failed",
-  message: "Authentication request failed.",
+  message: "Server internal error.",
+};
+
+const databaseRequestResult: AuthActionResult = {
+  ok: false,
+  code: "auth_database_failed",
+  message: "Database connection failed.",
 };
 
 export async function handleAuthRoute(request: Request, mode: AuthRouteMode) {
@@ -37,12 +43,18 @@ export async function handleAuthRoute(request: Request, mode: AuthRouteMode) {
       return authResultResponse(invalidRequestResult, 400);
     }
 
+    const result = isAuthDatabaseError(error)
+      ? databaseRequestResult
+      : failedRequestResult;
+
     console.error("[auth]", "request_failed", {
       command: mode,
+      failureType:
+        result.code === "auth_database_failed" ? "database" : "server",
       errorName: error instanceof Error ? error.name : "unknown",
     });
 
-    return authResultResponse(failedRequestResult, 500);
+    return authResultResponse(result, 500);
   }
 }
 
@@ -104,6 +116,25 @@ function readString(record: Record<string, unknown>, key: string) {
   const value = record[key];
 
   return typeof value === "string" ? value : "";
+}
+
+function isAuthDatabaseError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const code = "code" in error ? String(error.code) : "";
+  const message = "message" in error ? String(error.message).toLowerCase() : "";
+
+  return (
+    /^[0-9A-Z]{5}$/.test(code) ||
+    message.includes("database") ||
+    message.includes("postgres") ||
+    message.includes("neon") ||
+    message.includes("connection") ||
+    message.includes("fetch failed") ||
+    message.includes("missing database url")
+  );
 }
 
 class AuthRequestBodyError extends Error {

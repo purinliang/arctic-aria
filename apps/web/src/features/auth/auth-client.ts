@@ -37,6 +37,6 @@ function failedAuthRequest(): AuthActionResult {
   return {
     ok: false,
     code: "auth_request_failed",
-    message: "Authentication request failed.",
+    message: "Server internal error.",
   };
 }

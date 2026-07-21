@@ -54,6 +54,14 @@ function unauthorizedResult<T>(): RoutineActionResult<T> {
   };
 }
 
+function databaseResult<T>(): RoutineActionResult<T> {
+  return {
+    ok: false,
+    message: "Database update failed.",
+    code: "routine_database_update_failed",
+  };
+}
+
 function toRoutineInstance(instance: RoutineInstanceRecord): Routine {
   return {
     id: instance.id,
@@ -200,10 +208,14 @@ export async function getRoutineDashboardData(): Promise<
     return unauthorizedResult();
   }
 
-  return {
-    ok: true,
-    data: await loadRoutineDashboardData(user.id),
-  };
+  try {
+    return {
+      ok: true,
+      data: await loadRoutineDashboardData(user.id),
+    };
+  } catch {
+    return databaseResult();
+  }
 }
 
 export async function saveRoutine(
@@ -221,27 +233,31 @@ export async function saveRoutine(
     return { ok: false, message: validation.message, code: validation.code };
   }
 
-  const saved = await routineService.saveRoutine(user.id, {
-    id: input.id,
-    title: validation.title,
-    description: validation.description,
-    firstStartDate: input.firstStartDate,
-    endDate: validation.endDate,
-    rule: validation.rule,
-  });
+  try {
+    const saved = await routineService.saveRoutine(user.id, {
+      id: input.id,
+      title: validation.title,
+      description: validation.description,
+      firstStartDate: input.firstStartDate,
+      endDate: validation.endDate,
+      rule: validation.rule,
+    });
 
-  if (!saved) {
+    if (!saved) {
+      return {
+        ok: false,
+        message: "Routine was not found.",
+        code: "routine_not_found",
+      };
+    }
+
     return {
-      ok: false,
-      message: "Routine was not found.",
-      code: "routine_not_found",
+      ok: true,
+      data: await loadRoutineDashboardData(user.id),
     };
+  } catch {
+    return databaseResult();
   }
-
-  return {
-    ok: true,
-    data: await loadRoutineDashboardData(user.id),
-  };
 }
 
 export async function deleteRoutine(
@@ -253,20 +269,24 @@ export async function deleteRoutine(
     return unauthorizedResult();
   }
 
-  const deleted = await routineService.deleteRoutine(user.id, routineId);
+  try {
+    const deleted = await routineService.deleteRoutine(user.id, routineId);
 
-  if (!deleted) {
+    if (!deleted) {
+      return {
+        ok: false,
+        message: "Routine was not found.",
+        code: "routine_not_found",
+      };
+    }
+
     return {
-      ok: false,
-      message: "Routine was not found.",
-      code: "routine_not_found",
+      ok: true,
+      data: await loadRoutineDashboardData(user.id),
     };
+  } catch {
+    return databaseResult();
   }
-
-  return {
-    ok: true,
-    data: await loadRoutineDashboardData(user.id),
-  };
 }
 
 export async function completeRoutineInstance(
@@ -297,23 +317,27 @@ async function updateRoutineInstance(
     return unauthorizedResult();
   }
 
-  const instance =
-    status === "completed"
-      ? await routineService.completeRoutineInstance(user.id, instanceId)
-      : status === "skipped"
-        ? await routineService.skipRoutineInstance(user.id, instanceId)
-        : await routineService.reopenRoutineInstance(user.id, instanceId);
+  try {
+    const instance =
+      status === "completed"
+        ? await routineService.completeRoutineInstance(user.id, instanceId)
+        : status === "skipped"
+          ? await routineService.skipRoutineInstance(user.id, instanceId)
+          : await routineService.reopenRoutineInstance(user.id, instanceId);
 
-  if (!instance) {
+    if (!instance) {
+      return {
+        ok: false,
+        message: "Routine instance was not found.",
+        code: "routine_instance_not_found",
+      };
+    }
+
     return {
-      ok: false,
-      message: "Routine instance was not found.",
-      code: "routine_instance_not_found",
+      ok: true,
+      data: await loadRoutineDashboardData(user.id),
     };
+  } catch {
+    return databaseResult();
   }
-
-  return {
-    ok: true,
-    data: await loadRoutineDashboardData(user.id),
-  };
 }
