@@ -178,6 +178,8 @@ test("project tree import serializes tasks inside milestone payloads", async () 
   );
   assert.ok(insert);
   assert.equal(insert.params.length, 8);
+  assert.match(insert.text, /jsonb_array_elements\(\$8::jsonb\) WITH ORDINALITY/);
+  assert.doesNotMatch(insert.text, /jsonb_to_recordset[\s\S]*WITH ORDINALITY/);
   assert.deepEqual(JSON.parse(String(insert.params[7])), [
     {
       title: "Applications",

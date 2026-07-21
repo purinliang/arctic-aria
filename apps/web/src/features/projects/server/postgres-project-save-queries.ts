@@ -103,16 +103,22 @@ export async function importProjectTree(
        VALUES ($1, $2, $3, $4, $5, $6, $7::timestamptz, $7::timestamptz)
        RETURNING id
      ),
+     milestone_payload AS (
+       SELECT payload.value, payload.ordinal
+       FROM jsonb_array_elements($8::jsonb) WITH ORDINALITY AS payload(value, ordinal)
+     ),
      milestone_input AS (
-       SELECT *
-       FROM jsonb_to_recordset($8::jsonb) WITH ORDINALITY AS item(
+       SELECT milestone_payload.ordinal, item.title, item.objective,
+         item.start_date, item.deadline_date, item.expected_duration_days,
+         item.tasks
+       FROM milestone_payload
+       CROSS JOIN LATERAL jsonb_to_record(milestone_payload.value) AS item(
          title text,
          objective text,
          start_date date,
          deadline_date date,
          expected_duration_days integer,
-         tasks jsonb,
-         ordinal bigint
+         tasks jsonb
        )
      ),
      milestone_insert AS (
@@ -135,19 +141,24 @@ export async function importProjectTree(
        INNER JOIN milestone_insert
          ON milestone_insert.sort_order = milestone_input.ordinal - 1
      ),
-     task_input AS (
+     task_payload AS (
        SELECT milestone_input.ordinal AS milestone_ordinal,
-         task_item.title, task_item.description, task_item.start_date,
-         task_item.deadline_date, task_item.ordinal AS task_ordinal
+         payload.value, payload.ordinal AS task_ordinal
        FROM milestone_input
-       CROSS JOIN LATERAL jsonb_to_recordset(
+       CROSS JOIN LATERAL jsonb_array_elements(
          COALESCE(milestone_input.tasks, '[]'::jsonb)
-       ) WITH ORDINALITY AS task_item(
+       ) WITH ORDINALITY AS payload(value, ordinal)
+     ),
+     task_input AS (
+       SELECT task_payload.milestone_ordinal, task_item.title,
+         task_item.description, task_item.start_date, task_item.deadline_date,
+         task_payload.task_ordinal
+       FROM task_payload
+       CROSS JOIN LATERAL jsonb_to_record(task_payload.value) AS task_item(
          title text,
          description text,
          start_date date,
-         deadline_date date,
-         ordinal bigint
+         deadline_date date
        )
      ),
      task_insert AS (
