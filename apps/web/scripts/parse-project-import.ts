@@ -22,7 +22,7 @@ function readFilePath(args: string[]) {
   const filePath = fileFlagIndex >= 0 ? args[fileFlagIndex + 1] : args[0];
 
   if (!filePath) {
-    console.error("Usage: pnpm --dir apps/web project:import:parse -- --file path/to/project.md");
+    console.error("Usage: pnpm --dir apps/web project:parse -- --file templates/project-import.md");
     process.exit(1);
   }
 

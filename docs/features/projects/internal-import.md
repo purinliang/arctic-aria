@@ -43,8 +43,56 @@ output easier to validate.
 Run the parser locally with:
 
 ```sh
-pnpm --dir apps/web project:import:parse -- --file templates/project-import.md
+pnpm --dir apps/web project:parse -- --file templates/project-import.md
 ```
+
+## Naming
+
+Use `parse` for validation and canonical JSON conversion. Use `import` only
+when the API writes data to the database.
+
+The project API is named `import` because it creates a real project tree:
+
+```text
+POST /api/developer/projects/import
+```
+
+## Testing
+
+Local parse test:
+
+```sh
+pnpm --dir apps/web project:parse -- --file templates/project-import.md
+pnpm --dir apps/web project:parse -- --file templates/project-import.json
+```
+
+Developer API insert test:
+
+1. Run the web app locally.
+2. Sign in with a developer account.
+3. Open browser developer tools on the app page.
+4. Paste a canonical JSON object from `templates/project-import.json` into this
+   snippet:
+
+```js
+await fetch("/api/developer/projects/import", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(PROJECT_IMPORT_JSON),
+}).then((response) => response.json());
+```
+
+Expected success shape:
+
+```json
+{
+  "ok": true,
+  "projectId": "..."
+}
+```
+
+After success, refresh Projects and open the inserted project. It should contain
+the imported milestones and tasks.
 
 ## API Shape
 
