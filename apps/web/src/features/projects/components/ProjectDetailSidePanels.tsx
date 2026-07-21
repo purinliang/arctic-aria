@@ -46,7 +46,7 @@ export function MilestoneOverviewPanel({
     : "";
 
   return (
-    <section className="grid min-w-0 gap-2 px-1 py-1">
+    <section className="grid min-w-0 gap-2 px-1 pb-1">
       {choice ? (
         <div className="grid min-w-0 gap-1">
           <h2 className="min-w-0 truncate text-xl font-semibold leading-7 text-[var(--aa-primary-text)] sm:text-2xl sm:leading-8">
