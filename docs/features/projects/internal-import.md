@@ -34,16 +34,16 @@ output easier to validate.
 
 ## Files
 
-- `apps/web/templates/project-import.md`: human-readable template.
-- `apps/web/templates/project-import.json`: canonical JSON template.
-- `apps/web/scripts/parse-project-import.ts`: Markdown or JSON parser command.
+- `apps/cli/templates/project-import.md`: human-readable template.
+- `apps/cli/templates/project-import.json`: canonical JSON template.
+- `apps/cli/src/parse-project-import.ts`: Markdown or JSON parser command.
 - `apps/web/src/app/api/developer/projects/import/route.ts`: developer-only
   insert endpoint.
 
 Run the parser locally with:
 
 ```sh
-pnpm --dir apps/web project:parse -- --file templates/project-import.md
+pnpm --dir apps/cli project:parse -- --file templates/project-import.md
 ```
 
 ## Naming
@@ -54,25 +54,48 @@ when the API writes data to the database.
 The project API is named `import` because it creates a real project tree:
 
 ```text
+POST /api/developer/projects/parse
 POST /api/developer/projects/import
 ```
+
+Both endpoints accept canonical JSON directly, Markdown text, or an envelope:
+
+```json
+{
+  "format": "markdown",
+  "source": "# Project: ..."
+}
+```
+
+`parse` returns the canonical document and normalized command. `import` writes
+the normalized command to the signed-in administrator session account.
 
 ## Testing
 
 Local parse test:
 
 ```sh
-pnpm --dir apps/web project:parse -- --file templates/project-import.md
-pnpm --dir apps/web project:parse -- --file templates/project-import.json
+pnpm --dir apps/cli project:parse -- --file templates/project-import.md
+pnpm --dir apps/cli project:parse -- --file templates/project-import.json
 ```
 
-Developer API insert test:
+Developer API parse test:
 
 1. Run the web app locally.
 2. Sign in with a developer account.
 3. Open browser developer tools on the app page.
 4. Paste a canonical JSON object from `templates/project-import.json` into this
    snippet:
+
+```js
+await fetch("/api/developer/projects/parse", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(PROJECT_IMPORT_JSON),
+}).then((response) => response.json());
+```
+
+Developer API import test:
 
 ```js
 await fetch("/api/developer/projects/import", {
@@ -93,6 +116,18 @@ Expected success shape:
 
 After success, refresh Projects and open the inserted project. It should contain
 the imported milestones and tasks.
+
+## Account Binding
+
+The current developer APIs require an administrator web session. That is how the
+backend knows which account receives imported data, and it prevents normal users
+from calling internal import tools.
+
+A future remote CLI client should use a separate CLI binding token stored
+outside Git, such as an ignored `apps/cli/data` file or `apps/cli/.env.local`.
+Do not reuse Discord binding codes for this without a separate design, because
+Discord binding proves a Discord account, while a CLI binding would authorize
+data writes.
 
 ## API Shape
 

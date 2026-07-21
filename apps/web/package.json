@@ -11,9 +11,7 @@
     "discord:ngrok": "node --env-file-if-exists=.env.local scripts/run-ngrok.mjs",
     "discord:sync-commands": "node --env-file-if-exists=.env.local src/features/discord/server/sync-commands.ts",
     "lint": "eslint",
-    "project:parse": "node scripts/parse-project-import.ts",
     "route:measure": "node scripts/measure-routes.mjs",
-    "routine:parse": "node scripts/parse-routine-import.ts",
     "switch:measure": "node scripts/measure-switches.mjs",
     "test": "node --test \"src/**/*.test.ts\""
   },

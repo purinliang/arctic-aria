@@ -21,7 +21,8 @@ Arctic Aria
 |
 |-- App surfaces
 |   |-- Web app
-|   `-- Discord integration hosted by the web app
+|   |-- Discord integration hosted by the web app
+|   `-- CLI tooling
 |
 `-- Infrastructure services
     |-- Database
@@ -48,6 +49,7 @@ Documentation follows the same shape:
 
 - `docs/features/<feature>/`: feature overview, data model, UI behavior, and
   implementation notes.
+- `docs/apps/`: app-surface notes such as CLI tooling.
 - `docs/web/`: shared web UI component rules.
 - `docs/web/ui.md`: shared UI terminology and UI documentation index.
 - `docs/infrastructure/`: cron scheduling, database, migrations, Redis
@@ -263,6 +265,16 @@ its own planning or routine rules.
 Detailed docs:
 
 - [features/discord/overview.md](features/discord/overview.md)
+
+### CLI Tooling
+
+CLI tooling is for local developer workflows such as parsing Markdown or JSON
+templates before using administrator-only import APIs. CLI tooling should not
+own product rules; it should call feature parsers or protected APIs.
+
+Detailed docs:
+
+- [apps/cli/overview.md](apps/cli/overview.md)
 
 ## Infrastructure Services
 

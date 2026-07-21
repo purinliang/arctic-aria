@@ -1,17 +1,17 @@
 import { readFile } from "node:fs/promises";
 import {
-  parseRoutineJsonToDocument,
-  parseRoutineMarkdownToJson,
-} from "../src/features/routines/routine-import-parser.ts";
+  parseProjectJsonToDocument,
+  parseProjectMarkdownToJson,
+} from "../../web/src/features/projects/project-import-parser.ts";
 
 const filePath = readFilePath(process.argv.slice(2));
 const source = await readFile(filePath, "utf8");
 const parsed = filePath.endsWith(".json")
   ? parseJsonSource(source)
-  : parseRoutineMarkdownToJson(source);
+  : parseProjectMarkdownToJson(source);
 
 if (!parsed.ok) {
-  console.error(`${parsed.code ?? "routine_import_failed"}: ${parsed.message}`);
+  console.error(`${parsed.code ?? "project_import_failed"}: ${parsed.message}`);
   process.exit(1);
 }
 
@@ -22,7 +22,9 @@ function readFilePath(args: string[]) {
   const filePath = fileFlagIndex >= 0 ? args[fileFlagIndex + 1] : args[0];
 
   if (!filePath) {
-    console.error("Usage: pnpm --dir apps/web routine:parse -- --file templates/routine-import.md");
+    console.error(
+      "Usage: pnpm --dir apps/cli project:parse -- --file templates/project-import.md",
+    );
     process.exit(1);
   }
 
@@ -31,14 +33,14 @@ function readFilePath(args: string[]) {
 
 function parseJsonSource(source: string) {
   try {
-    return parseRoutineJsonToDocument(JSON.parse(source));
+    return parseProjectJsonToDocument(JSON.parse(source));
   } catch {
     return {
       ok: false,
-      code: "routine_import_invalid",
-      message: "Routine import JSON could not be parsed.",
+      code: "project_import_invalid",
+      message: "Project import JSON could not be parsed.",
       category: "invalid_parameter",
-      subject: "routine",
+      subject: "project",
       field: "structure",
       reason: "invalid_value",
     } as const;

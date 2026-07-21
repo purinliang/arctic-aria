@@ -1,10 +1,38 @@
 import { NextResponse } from "next/server";
 import { authorizeDeveloperApi } from "@/features/developer/server/developer-api-auth";
+import { readDeveloperImportRequest } from "@/features/developer/server/import-request-parser";
 import { getCurrentUser } from "@/features/auth/actions";
 import { projectDatabaseErrorCode } from "../project-database-errors";
 import { normalizeProjectImportDocument } from "../project-import-normalizer";
-import { parseProjectJsonToDocument } from "../project-import-parser";
+import {
+  parseProjectJsonToDocument,
+  parseProjectMarkdownToJson,
+} from "../project-import-parser";
+import type {
+  ProjectImportDocument,
+  ProjectImportResult,
+} from "../project-import-types";
 import { projectService } from "./project-service";
+
+export async function handleProjectParseRoute(request: Request) {
+  const unauthorized = await authorizeDeveloperApi();
+
+  if (unauthorized) {
+    return unauthorized;
+  }
+
+  const prepared = await prepareProjectImport(request);
+
+  if (!prepared.ok) {
+    return noStoreJson(prepared, 400);
+  }
+
+  return noStoreJson({
+    ok: true,
+    document: prepared.document,
+    project: prepared.project,
+  });
+}
 
 export async function handleProjectImportRoute(request: Request) {
   const unauthorized = await authorizeDeveloperApi();
@@ -25,39 +53,17 @@ export async function handleProjectImportRoute(request: Request) {
     );
   }
 
-  let body: unknown;
+  const prepared = await prepareProjectImport(request);
+
+  if (!prepared.ok) {
+    return noStoreJson(prepared, 400);
+  }
 
   try {
-    body = await request.json();
-  } catch {
-    return noStoreJson(
-      {
-        ok: false,
-        code: "project_import_invalid",
-        message: "Request body must be valid JSON.",
-        category: "invalid_parameter",
-        subject: "project",
-        field: "body",
-        reason: "invalid_format",
-      },
-      400,
+    const projectId = await projectService.importProjectTree(
+      user.id,
+      prepared.project,
     );
-  }
-
-  const parsed = parseProjectJsonToDocument(body);
-
-  if (!parsed.ok) {
-    return noStoreJson(parsed, 400);
-  }
-
-  const normalized = normalizeProjectImportDocument(parsed.data, todayKey());
-
-  if (!normalized.ok) {
-    return noStoreJson(normalized, 400);
-  }
-
-  try {
-    const projectId = await projectService.importProjectTree(user.id, normalized.data);
 
     if (!projectId) {
       return noStoreJson(
@@ -94,6 +100,47 @@ export async function handleProjectImportRoute(request: Request) {
       500,
     );
   }
+}
+
+async function prepareProjectImport(request: Request) {
+  const importRequest = await readDeveloperImportRequest(request, "project");
+
+  if (!importRequest.ok) {
+    return importRequest;
+  }
+
+  const parsed =
+    importRequest.data.format === "markdown"
+      ? parseProjectMarkdownToDocument(importRequest.data.value)
+      : parseProjectJsonToDocument(importRequest.data.value);
+
+  if (!parsed.ok) {
+    return parsed;
+  }
+
+  const normalized = normalizeProjectImportDocument(parsed.data, todayKey());
+
+  if (!normalized.ok) {
+    return normalized;
+  }
+
+  return {
+    ok: true as const,
+    document: parsed.data,
+    project: normalized.data,
+  };
+}
+
+function parseProjectMarkdownToDocument(
+  markdown: string,
+): ProjectImportResult<ProjectImportDocument> {
+  const parsed = parseProjectMarkdownToJson(markdown);
+
+  if (!parsed.ok) {
+    return parsed;
+  }
+
+  return parseProjectJsonToDocument(parsed.data);
 }
 
 function todayKey() {
