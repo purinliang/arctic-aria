@@ -167,14 +167,6 @@ export function SettingsPage({
           </ListItem>
         </List>
       </Panel>
-      {currentUserIsAdmin ? (
-        <DeveloperToolsPanel
-          darkMode={darkMode}
-          messages={messages}
-          showErrorNotification={showErrorNotification}
-          showSuccessNotification={showSuccessNotification}
-        />
-      ) : null}
       <Panel darkMode={darkMode} className="min-w-0">
         <CardHeader
           darkMode={darkMode}
@@ -211,6 +203,14 @@ export function SettingsPage({
           </ListItem>
         </List>
       </Panel>
+      {currentUserIsAdmin ? (
+        <DeveloperToolsPanel
+          darkMode={darkMode}
+          messages={messages}
+          showErrorNotification={showErrorNotification}
+          showSuccessNotification={showSuccessNotification}
+        />
+      ) : null}
     </section>
   );
 }
