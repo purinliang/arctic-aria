@@ -73,6 +73,13 @@ behavior, or reminder coordination only after a concrete need appears.
   categories section.
 - Review repeated edit actions in project and memory lists and choose a cleaner
   interaction pattern if the current UI feels noisy.
+- Govern error notifications across features. Infrastructure failures should
+  map to a small shared set of notification types: database connection failed,
+  database update failed, parameter missing, parameter invalid, target not
+  found, and unknown server internal error. Feature actions should avoid saving
+  many near-duplicate notification strings for the same failure class. Keep
+  clear field-level or component-level validation messages for user-fixable
+  cases such as empty title, invalid date format, or title too long.
 - Extract the custom sidebar scrollbar behavior into a shared configurable web
   scrollbar utility or component. Sidebar usage should auto-hide the scrollbar;
   dropdown/list/dialog/page usage can keep the scrollbar visible when that is
