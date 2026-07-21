@@ -93,6 +93,43 @@ test("dashboard task selections stay stable after completion", async () => {
   assert.equal(secondLoad.some((task) => task.id === "task-7"), false);
 });
 
+test("dashboard task selections refill after a selected task is deleted", async () => {
+  const repository = new InMemoryProjectRepository({
+    projects: [
+      project({
+        id: "project-1",
+        title: "Test project",
+        tasks: Array.from({ length: 7 }, (_, index) =>
+          task({
+            id: `task-${index + 1}`,
+            title: `Task ${index + 1}`,
+            deadlineDate: "2026-07-14",
+            sortOrder: index,
+          }),
+        ),
+      }),
+    ],
+  });
+  const service = createProjectService({
+    projects: repository,
+    now: () => now,
+  });
+
+  const firstLoad = await service.listDashboardTasks(userId);
+  const deleted = await service.archiveTask(userId, "task-1");
+  const secondLoad = await service.listDashboardTasks(userId);
+
+  assert.equal(deleted, true);
+  assert.deepEqual(
+    firstLoad.map((task) => task.id),
+    ["task-1", "task-2", "task-3", "task-4", "task-5", "task-6"],
+  );
+  assert.deepEqual(
+    secondLoad.map((task) => task.id),
+    ["task-2", "task-3", "task-4", "task-5", "task-6", "task-7"],
+  );
+});
+
 test("dashboard task selection uses the due window only before scheduling", async () => {
   const repository = new InMemoryProjectRepository({
     projects: [
