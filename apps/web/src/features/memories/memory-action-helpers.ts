@@ -147,17 +147,6 @@ export function validateMemoryInput(input: MemoryInput) {
   const title = input.title.trim();
   const description = input.description.trim();
 
-  if (!hasMemoryCategorySelection(input)) {
-    return {
-      ok: false as const,
-      message: "Choose a category.",
-      code: "memory_category_missing",
-      category: "missing_parameter" as const,
-      field: "category",
-      reason: "required" as const,
-    };
-  }
-
   if (title.length < 1) {
     return {
       ok: false as const,
@@ -180,6 +169,17 @@ export function validateMemoryInput(input: MemoryInput) {
       field: "title",
       reason: "too_long" as const,
       limit: 120,
+    };
+  }
+
+  if (!hasMemoryCategorySelection(input)) {
+    return {
+      ok: false as const,
+      message: "Choose a category.",
+      code: "memory_category_missing",
+      category: "missing_parameter" as const,
+      field: "category",
+      reason: "required" as const,
     };
   }
 

@@ -61,3 +61,22 @@ test("memory validation stores blank optional descriptions as null", () => {
     assert.equal(validation.description, null);
   }
 });
+
+test("memory validation follows editor field order", () => {
+  assert.deepEqual(
+    validateMemoryInput({
+      categoryId: "",
+      title: "   ",
+      description: "",
+    }),
+    {
+      ok: false,
+      message: "Memory title is required.",
+      code: "memory_title_invalid",
+      category: "missing_parameter",
+      subject: "memory",
+      field: "title",
+      reason: "required",
+    },
+  );
+});
