@@ -8,6 +8,9 @@ import {
   readTimeFormatPreference,
 } from "../preferences.ts";
 import {
+  localCalendarParts,
+  localDateKey,
+  localDateTimeParts,
   readTimeZonePreference,
   resolveTimeZonePreference,
   selectableTimeZones,
@@ -59,6 +62,28 @@ test("timezone preference resolves system against browser timezone", () => {
   );
   assert.equal(resolveTimeZonePreference("UTC", "Australia/Melbourne"), "UTC");
   assert.equal(resolveTimeZonePreference("system", "not-a-timezone"), "UTC");
+});
+
+test("timezone helpers derive local calendar dates", () => {
+  const date = new Date("2026-07-21T23:30:00.000Z");
+
+  assert.equal(localDateKey(date, "UTC"), "2026-07-21");
+  assert.equal(localDateKey(date, "Australia/Sydney"), "2026-07-22");
+  assert.deepEqual(localCalendarParts(date, "Australia/Sydney"), {
+    dateKey: "2026-07-22",
+    day: 22,
+    weekday: 3,
+  });
+  assert.deepEqual(localDateTimeParts(date, "Australia/Sydney"), {
+    dateKey: "2026-07-22",
+    day: 22,
+    hour: 9,
+    minute: 30,
+    second: 0,
+    timeZone: "Australia/Sydney",
+    weekday: 3,
+  });
+  assert.equal(localDateTimeParts(date, "not-a-timezone"), null);
 });
 
 test("timezone selector keeps valid extra zones available", () => {

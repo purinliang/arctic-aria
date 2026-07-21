@@ -192,6 +192,32 @@ test("routine import fills defaults and validates the typed object", () => {
   });
 });
 
+test("routine import can fill the default timezone from user settings", () => {
+  const parsed = parseRoutineJsonToDocument({
+    routine: {
+      title: "Morning walk",
+    },
+  });
+
+  assert.equal(parsed.ok, true);
+
+  if (!parsed.ok) {
+    return;
+  }
+
+  const normalized = normalizeRoutineImportDocument(
+    parsed.data,
+    today,
+    "Australia/Sydney",
+  );
+
+  assert.equal(normalized.ok, true);
+
+  if (normalized.ok) {
+    assert.equal(normalized.data.rule.timezone, "Australia/Sydney");
+  }
+});
+
 test("routine import rejects invalid fixed interval values", () => {
   const result = normalizeRoutineImportDocument(
     {

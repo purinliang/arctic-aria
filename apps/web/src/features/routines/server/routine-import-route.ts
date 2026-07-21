@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authorizeDeveloperApi } from "@/features/developer/server/developer-api-auth";
+import { loadDeveloperImportDefaults } from "@/features/developer/server/import-defaults";
 import { readDeveloperImportRequest } from "@/features/developer/server/import-request-parser";
 import { getCurrentUser } from "@/features/auth/actions";
 import { normalizeRoutineImportDocument } from "../routine-import-normalizer";
@@ -105,9 +106,14 @@ async function prepareRoutineImport(request: Request) {
     (routine) => ({ routine }),
   );
   const routines: RoutineImportCommand[] = [];
+  const defaults = await loadDeveloperImportDefaults();
 
   for (const document of documents) {
-    const normalized = normalizeRoutineImportDocument(document, todayKey());
+    const normalized = normalizeRoutineImportDocument(
+      document,
+      defaults.today,
+      defaults.timeZone,
+    );
 
     if (!normalized.ok) {
       return normalized;
@@ -150,10 +156,6 @@ function routineImportFailed() {
     },
     500,
   );
-}
-
-function todayKey() {
-  return new Date().toISOString().slice(0, 10);
 }
 
 function noStoreJson(body: object, status = 200) {

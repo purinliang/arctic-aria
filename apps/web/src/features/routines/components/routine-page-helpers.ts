@@ -1,5 +1,6 @@
 import type { RoutineDefinition } from "@/features/dashboard/types";
 import type { RoutineInput } from "@/features/routines/actions";
+import { localCalendarParts } from "../../settings/time-zones.ts";
 import type { RoutineMessages } from "@/messages/app-messages";
 
 export const weekdayOptions = [
@@ -12,16 +13,18 @@ export const weekdayOptions = [
   { value: 6, label: "Sat" },
 ];
 
-export function emptyDraft(timezone = "UTC"): RoutineInput {
+export function emptyDraft(timezone = "UTC", now = new Date()): RoutineInput {
+  const calendar = localCalendarParts(now, timezone);
+
   return {
     title: "",
     description: "",
-    firstStartDate: new Date().toISOString().slice(0, 10),
+    firstStartDate: calendar.dateKey,
     endDate: "",
     ruleType: "daily",
     intervalValue: 90,
-    weekdays: [new Date().getDay()],
-    dayOfMonth: new Date().getDate(),
+    weekdays: [calendar.weekday],
+    dayOfMonth: calendar.day,
     preferredTime: "",
     timezone,
   };
