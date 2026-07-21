@@ -5,12 +5,13 @@ import { getCurrentUser } from "@/features/auth/actions";
 import { projectDatabaseErrorCode } from "../project-database-errors";
 import { normalizeProjectImportDocument } from "../project-import-normalizer";
 import {
-  parseProjectJsonToDocument,
-  parseProjectMarkdownToJson,
+  parseProjectJsonToDocuments,
+  parseProjectMarkdownToDocuments,
 } from "../project-import-parser";
 import type {
+  ProjectImportBatchDocument,
+  ProjectImportCommand,
   ProjectImportDocument,
-  ProjectImportResult,
 } from "../project-import-types";
 import { projectService } from "./project-service";
 
@@ -30,7 +31,9 @@ export async function handleProjectParseRoute(request: Request) {
   return noStoreJson({
     ok: true,
     document: prepared.document,
-    project: prepared.project,
+    documents: prepared.documents,
+    project: prepared.projects[0] ?? null,
+    projects: prepared.projects,
   });
 }
 
@@ -60,45 +63,33 @@ export async function handleProjectImportRoute(request: Request) {
   }
 
   try {
-    const projectId = await projectService.importProjectTree(
-      user.id,
-      prepared.project,
-    );
+    const projectIds = [];
 
-    if (!projectId) {
-      return noStoreJson(
-        {
-          ok: false,
-          code: "project_import_failed",
-          message: "Project import could not be saved.",
-          category: "database_update",
-          action: "add",
-          subject: "project",
-        },
-        500,
+    for (const project of prepared.projects) {
+      const projectId = await projectService.importProjectTree(
+        user.id,
+        project,
       );
+
+      if (!projectId) {
+        return projectImportFailed("project_import_failed");
+      }
+
+      projectIds.push(projectId);
     }
 
     return noStoreJson({
       ok: true,
-      projectId,
+      projectId: projectIds[0] ?? null,
+      projectIds,
+      importedCount: projectIds.length,
     });
   } catch (error) {
     console.error("[projects]", "developer_project_import_failed", {
       code: safeErrorCode(error),
     });
 
-    return noStoreJson(
-      {
-        ok: false,
-        code: projectDatabaseErrorCode(error),
-        message: "Project import could not be saved.",
-        category: "database_update",
-        action: "add",
-        subject: "project",
-      },
-      500,
-    );
+    return projectImportFailed(projectDatabaseErrorCode(error));
   }
 }
 
@@ -111,36 +102,57 @@ async function prepareProjectImport(request: Request) {
 
   const parsed =
     importRequest.data.format === "markdown"
-      ? parseProjectMarkdownToDocument(importRequest.data.value)
-      : parseProjectJsonToDocument(importRequest.data.value);
+      ? parseProjectMarkdownToDocuments(importRequest.data.value)
+      : parseProjectJsonToDocuments(importRequest.data.value);
 
   if (!parsed.ok) {
     return parsed;
   }
 
-  const normalized = normalizeProjectImportDocument(parsed.data, todayKey());
+  const projects: ProjectImportCommand[] = [];
 
-  if (!normalized.ok) {
-    return normalized;
+  for (const document of parsed.data.projects) {
+    const normalized = normalizeProjectImportDocument(document, todayKey());
+
+    if (!normalized.ok) {
+      return normalized;
+    }
+
+    projects.push(normalized.data);
   }
 
   return {
     ok: true as const,
-    document: parsed.data,
-    project: normalized.data,
+    document: documentForResponse(parsed.data),
+    documents: parsed.data.projects,
+    projects,
   };
 }
 
-function parseProjectMarkdownToDocument(
-  markdown: string,
-): ProjectImportResult<ProjectImportDocument> {
-  const parsed = parseProjectMarkdownToJson(markdown);
+function documentForResponse(
+  document: ProjectImportBatchDocument,
+): ProjectImportDocument | ProjectImportBatchDocument {
+  const firstProject = document.projects[0];
 
-  if (!parsed.ok) {
-    return parsed;
+  if (document.projects.length === 1 && firstProject) {
+    return firstProject;
   }
 
-  return parseProjectJsonToDocument(parsed.data);
+  return document;
+}
+
+function projectImportFailed(code: string) {
+  return noStoreJson(
+    {
+      ok: false,
+      code,
+      message: "Project import could not be saved.",
+      category: "database_update",
+      action: "add",
+      subject: "project",
+    },
+    500,
+  );
 }
 
 function todayKey() {

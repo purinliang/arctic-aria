@@ -64,6 +64,86 @@ Duration: 1_3_months
   }
 });
 
+test("project import parses multiple markdown projects", () => {
+  const parsed = parseProjectMarkdownToJson(`# Project: Prepare release
+Objective: Ship the next release.
+Start date: 2026-07-22
+Timeline: duration
+Duration: 1_3_months
+
+## Milestone: Stabilize
+Objective: Fix release blockers.
+
+### Tasks
+- Title: Test release candidate
+
+# Project: Prepare notes
+Objective: Write the release notes.
+Start date: 2026-07-22
+Timeline: duration
+Duration: 1_3_months
+
+## Milestone: Draft
+Objective: Prepare a readable draft.
+
+### Tasks
+- Title: Draft highlights
+`);
+
+  assert.equal(parsed.ok, true);
+
+  if (parsed.ok) {
+    assert.deepEqual(parsed.data, {
+      projects: [
+        {
+          project: {
+            title: "Prepare release",
+            objective: "Ship the next release.",
+            startDate: "2026-07-22",
+            timeline: {
+              type: "duration",
+              durationRange: "1_3_months",
+            },
+          },
+          milestones: [
+            {
+              title: "Stabilize",
+              objective: "Fix release blockers.",
+              tasks: [
+                {
+                  title: "Test release candidate",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          project: {
+            title: "Prepare notes",
+            objective: "Write the release notes.",
+            startDate: "2026-07-22",
+            timeline: {
+              type: "duration",
+              durationRange: "1_3_months",
+            },
+          },
+          milestones: [
+            {
+              title: "Draft",
+              objective: "Prepare a readable draft.",
+              tasks: [
+                {
+                  title: "Draft highlights",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  }
+});
+
 test("project import accepts star markdown task bullets", () => {
   const parsed = parseProjectMarkdownToJson(`# Project: Prepare certification application
 Objective: Lodge a complete test application.

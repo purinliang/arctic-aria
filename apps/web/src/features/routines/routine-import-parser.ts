@@ -3,7 +3,9 @@ import {
   type RoutineRecurrenceOption,
 } from "./routine-recurrence.ts";
 import type {
+  RoutineImportBatchDocument,
   RoutineImportDocument,
+  RoutineImportRoutine,
   RoutineImportResult,
 } from "./routine-import-types.ts";
 
@@ -22,8 +24,8 @@ const knownFields = new Set([
 export function parseRoutineMarkdownToJson(
   markdown: string,
 ): RoutineImportResult<unknown> {
-  const routine: RoutineImportDocument["routine"] = { title: "" };
-  let inRoutine = false;
+  const routines: RoutineImportRoutine[] = [];
+  let routine: RoutineImportRoutine | null = null;
 
   const lines = markdown.split(/\r?\n/);
 
@@ -35,14 +37,15 @@ export function parseRoutineMarkdownToJson(
       continue;
     }
 
-    if (line.startsWith("# ")) {
-      const title = line.slice(2).trim().replace(/^Routine:\s*/i, "").trim();
-      routine.title = title;
-      inRoutine = true;
+    const headingTitle = readRoutineHeading(line);
+
+    if (headingTitle !== null) {
+      routine = { title: headingTitle };
+      routines.push(routine);
       continue;
     }
 
-    if (!inRoutine) {
+    if (!routine) {
       return invalidStructure(`Content on line ${lineNumber} is outside a routine.`);
     }
 
@@ -54,31 +57,142 @@ export function parseRoutineMarkdownToJson(
     applyRoutineField(routine, parsed.data.field, parsed.data.value);
   }
 
+  if (routines.length === 0) {
+    return invalidStructure("Routine import Markdown must include a Routine heading.");
+  }
+
+  const firstRoutine = routines[0];
+
   return {
     ok: true,
-    data: {
-      routine,
-    } satisfies RoutineImportDocument,
+    data:
+      routines.length === 1 && firstRoutine
+        ? ({
+            routine: firstRoutine,
+          } satisfies RoutineImportDocument)
+        : ({
+            routines,
+          } satisfies RoutineImportBatchDocument),
   };
 }
 
 export function parseRoutineJsonToDocument(
   value: unknown,
 ): RoutineImportResult<RoutineImportDocument> {
+  const parsed = parseRoutineJsonToDocuments(value);
+
+  if (!parsed.ok) {
+    return parsed;
+  }
+
+  if (parsed.data.routines.length !== 1) {
+    return invalidStructure("Routine import JSON must include exactly one routine.");
+  }
+
+  const routine = parsed.data.routines[0];
+
+  if (!routine) {
+    return missing("routine", "Routine import JSON must include a routine object.");
+  }
+
+  return {
+    ok: true,
+    data: {
+      routine,
+    },
+  };
+}
+
+export function parseRoutineJsonToDocuments(
+  value: unknown,
+): RoutineImportResult<RoutineImportBatchDocument> {
   if (!isRecord(value)) {
     return invalidStructure("Routine import JSON must be an object.");
   }
 
-  const unknownRoot = unknownKeys(value, ["routine"]);
+  const unknownRoot = unknownKeys(value, ["routine", "routines"]);
   if (unknownRoot) {
     return invalidStructure(`Unknown root field "${unknownRoot}".`);
   }
 
-  if (!isRecord(value.routine)) {
+  if (value.routine !== undefined && value.routines !== undefined) {
+    return invalidStructure('Use either "routine" or "routines", not both.');
+  }
+
+  if (value.routines !== undefined) {
+    return parseRoutineArray(value.routines);
+  }
+
+  if (value.routine === undefined) {
     return missing("routine", "Routine import JSON must include a routine object.");
   }
 
-  const unknown = unknownKeys(value.routine, [
+  const routine = parseRoutine(value.routine, "routine");
+
+  if (!routine.ok) {
+    return routine;
+  }
+
+  return {
+    ok: true,
+    data: {
+      routines: [routine.data],
+    },
+  };
+}
+
+export function parseRoutineMarkdownToDocuments(
+  markdown: string,
+): RoutineImportResult<RoutineImportBatchDocument> {
+  const parsed = parseRoutineMarkdownToJson(markdown);
+
+  if (!parsed.ok) {
+    return parsed;
+  }
+
+  return parseRoutineJsonToDocuments(parsed.data);
+}
+
+function parseRoutineArray(
+  value: unknown,
+): RoutineImportResult<RoutineImportBatchDocument> {
+  if (!Array.isArray(value)) {
+    return invalidStructure("routines must be an array.");
+  }
+
+  if (value.length === 0) {
+    return missing("routines", "Routine import JSON must include at least one routine.");
+  }
+
+  const routines: RoutineImportRoutine[] = [];
+
+  for (const [index, item] of value.entries()) {
+    const routine = parseRoutine(item, `routines[${index}]`);
+
+    if (!routine.ok) {
+      return routine;
+    }
+
+    routines.push(routine.data);
+  }
+
+  return {
+    ok: true,
+    data: {
+      routines,
+    },
+  };
+}
+
+function parseRoutine(
+  value: unknown,
+  fieldPrefix: string,
+): RoutineImportResult<RoutineImportRoutine> {
+  if (!isRecord(value)) {
+    return missing(fieldPrefix, `${fieldPrefix} must be a routine object.`);
+  }
+
+  const unknown = unknownKeys(value, [
     "description",
     "endDate",
     "firstStartDate",
@@ -89,57 +203,57 @@ export function parseRoutineJsonToDocument(
     "title",
   ]);
   if (unknown) {
-    return invalidStructure(`Unknown routine field "${unknown}".`);
+    return invalidStructure(`Unknown ${fieldPrefix} field "${unknown}".`);
   }
 
-  const title = readOptionalString(value.routine.title, "routine.title");
+  const title = readOptionalString(value.title, `${fieldPrefix}.title`);
   if (!title.ok) {
     return title;
   }
 
   const description = readOptionalString(
-    value.routine.description,
-    "routine.description",
+    value.description,
+    `${fieldPrefix}.description`,
   );
   if (!description.ok) {
     return description;
   }
 
   const firstStartDate = readOptionalString(
-    value.routine.firstStartDate,
-    "routine.firstStartDate",
+    value.firstStartDate,
+    `${fieldPrefix}.firstStartDate`,
   );
   if (!firstStartDate.ok) {
     return firstStartDate;
   }
 
-  const endDate = readOptionalString(value.routine.endDate, "routine.endDate");
+  const endDate = readOptionalString(value.endDate, `${fieldPrefix}.endDate`);
   if (!endDate.ok) {
     return endDate;
   }
 
-  const recurrence = readRecurrence(value.routine.recurrence);
+  const recurrence = readRecurrence(value.recurrence, `${fieldPrefix}.recurrence`);
   if (!recurrence.ok) {
     return recurrence;
   }
 
   const fixedIntervalDays = readOptionalNumber(
-    value.routine.fixedIntervalDays,
-    "routine.fixedIntervalDays",
+    value.fixedIntervalDays,
+    `${fieldPrefix}.fixedIntervalDays`,
   );
   if (!fixedIntervalDays.ok) {
     return fixedIntervalDays;
   }
 
   const preferredTime = readOptionalString(
-    value.routine.preferredTime,
-    "routine.preferredTime",
+    value.preferredTime,
+    `${fieldPrefix}.preferredTime`,
   );
   if (!preferredTime.ok) {
     return preferredTime;
   }
 
-  const timezone = readOptionalString(value.routine.timezone, "routine.timezone");
+  const timezone = readOptionalString(value.timezone, `${fieldPrefix}.timezone`);
   if (!timezone.ok) {
     return timezone;
   }
@@ -147,16 +261,14 @@ export function parseRoutineJsonToDocument(
   return {
     ok: true,
     data: {
-      routine: {
-        title: title.data ?? "",
-        description: description.data,
-        firstStartDate: firstStartDate.data,
-        endDate: endDate.data,
-        recurrence: recurrence.data,
-        fixedIntervalDays: fixedIntervalDays.data,
-        preferredTime: preferredTime.data,
-        timezone: timezone.data,
-      },
+      title: title.data ?? "",
+      description: description.data,
+      firstStartDate: firstStartDate.data,
+      endDate: endDate.data,
+      recurrence: recurrence.data,
+      fixedIntervalDays: fixedIntervalDays.data,
+      preferredTime: preferredTime.data,
+      timezone: timezone.data,
     },
   };
 }
@@ -189,7 +301,7 @@ function parseField(
 }
 
 function applyRoutineField(
-  routine: RoutineImportDocument["routine"],
+  routine: RoutineImportRoutine,
   field: string,
   value: string,
 ) {
@@ -214,18 +326,19 @@ function applyRoutineField(
 
 function readRecurrence(
   value: unknown,
+  field = "routine.recurrence",
 ): RoutineImportResult<RoutineRecurrenceOption | undefined> {
   if (value === undefined) {
     return { ok: true, data: undefined };
   }
 
   if (typeof value !== "string") {
-    return invalid("routine.recurrence", "routine.recurrence must be text.");
+    return invalid(field, `${field} must be text.`);
   }
 
   if (!routineRecurrenceOptions.includes(value as RoutineRecurrenceOption)) {
     return invalid(
-      "routine.recurrence",
+      field,
       "Routine recurrence must be daily, weekly, monthly, every_14_days, every_30_days, or fixed_days.",
     );
   }
@@ -270,6 +383,26 @@ function unknownKeys(value: Record<string, unknown>, allowed: string[]) {
 
 function normalizeFieldName(value: string) {
   return value.trim().toLowerCase().replace(/[-_]+/g, " ");
+}
+
+function readRoutineHeading(line: string) {
+  const hashedRoutineHeading = line.match(/^#\s+Routine:\s*(.*)$/i);
+
+  if (hashedRoutineHeading) {
+    return hashedRoutineHeading[1].trim();
+  }
+
+  const bareRoutineHeading = line.match(/^Routine:\s*(.*)$/i);
+
+  if (bareRoutineHeading) {
+    return bareRoutineHeading[1].trim();
+  }
+
+  if (line.startsWith("# ")) {
+    return line.slice(2).trim();
+  }
+
+  return null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

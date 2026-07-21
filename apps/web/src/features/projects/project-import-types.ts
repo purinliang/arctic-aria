@@ -21,6 +21,10 @@ export type ProjectImportDocument = {
   milestones?: ProjectImportMilestone[];
 };
 
+export type ProjectImportBatchDocument = {
+  projects: ProjectImportDocument[];
+};
+
 export type ProjectImportMilestone = {
   title: string;
   objective?: string;

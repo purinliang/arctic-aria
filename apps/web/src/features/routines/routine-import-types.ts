@@ -3,17 +3,23 @@ import type { RoutineInput } from "./routine-action-helpers.ts";
 import type { RoutineRecurrenceOption } from "./routine-recurrence.ts";
 import type { RoutineRuleInput } from "./server/routine-repository.ts";
 
+export type RoutineImportRoutine = {
+  title: string;
+  description?: string;
+  firstStartDate?: string;
+  endDate?: string;
+  recurrence?: RoutineRecurrenceOption;
+  fixedIntervalDays?: number;
+  preferredTime?: string;
+  timezone?: string;
+};
+
 export type RoutineImportDocument = {
-  routine: {
-    title: string;
-    description?: string;
-    firstStartDate?: string;
-    endDate?: string;
-    recurrence?: RoutineRecurrenceOption;
-    fixedIntervalDays?: number;
-    preferredTime?: string;
-    timezone?: string;
-  };
+  routine: RoutineImportRoutine;
+};
+
+export type RoutineImportBatchDocument = {
+  routines: RoutineImportRoutine[];
 };
 
 export type RoutineImportResult<T> =

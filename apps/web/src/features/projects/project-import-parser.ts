@@ -1,4 +1,5 @@
 import type {
+  ProjectImportBatchDocument,
   ProjectImportDocument,
   ProjectImportMilestone,
   ProjectImportResult,
@@ -54,9 +55,9 @@ const taskFields = new Set(["deadline", "description", "start date", "title"]);
 export function parseProjectMarkdownToJson(
   markdown: string,
 ): ProjectImportResult<unknown> {
-  const project: MutableProject = { title: "" };
-  const milestones: ProjectImportMilestone[] = [];
-  let section: Section | null = null;
+  const documents: ProjectImportDocument[] = [];
+  let currentDocument = null as ProjectImportDocument | null;
+  let section = null as Section | null;
   let currentTask: ProjectImportTask | null = null;
 
   function finishTask() {
@@ -73,6 +74,16 @@ export function parseProjectMarkdownToJson(
     currentTask = null;
   }
 
+  function startProject(title: string) {
+    finishTask();
+    currentDocument = {
+      project: { title },
+      milestones: [],
+    };
+    documents.push(currentDocument);
+    section = { type: "project" };
+  }
+
   const lines = markdown.split(/\r?\n/);
 
   for (let index = 0; index < lines.length; index += 1) {
@@ -84,23 +95,32 @@ export function parseProjectMarkdownToJson(
       continue;
     }
 
-    if (line.startsWith("# ")) {
-      finishTask();
-      const title = line.slice(2).trim().replace(/^Project:\s*/i, "").trim();
-      project.title = title;
-      section = { type: "project" };
+    const projectTitle = readProjectHeading(line);
+
+    if (projectTitle !== null) {
+      startProject(projectTitle);
       continue;
     }
 
     if (line.startsWith("## ")) {
       finishTask();
+
+      if (!currentDocument) {
+        return invalidStructure(
+          `Milestone on line ${lineNumber} must be inside a project.`,
+        );
+      }
+
       const heading = line.slice(3).trim();
 
       const title = heading.replace(/^Milestone:\s*/i, "").trim();
       const milestone: ProjectImportMilestone = {
         title,
       };
-      milestones.push(milestone);
+      currentDocument.milestones = [
+        ...(currentDocument.milestones ?? []),
+        milestone,
+      ];
       section = { type: "milestone", milestone };
       continue;
     }
@@ -169,7 +189,15 @@ export function parseProjectMarkdownToJson(
         return invalidStructure(`Unknown project field "${parsed.data.rawField}" on line ${lineNumber}.`);
       }
 
-      const result = applyProjectField(project, parsed.data.field, parsed.data.value);
+      if (!currentDocument) {
+        return invalidStructure(`Content on line ${lineNumber} is outside a project section.`);
+      }
+
+      const result = applyProjectField(
+        currentDocument.project,
+        parsed.data.field,
+        parsed.data.value,
+      );
       if (!result.ok) {
         return result;
       }
@@ -199,16 +227,103 @@ export function parseProjectMarkdownToJson(
 
   finishTask();
 
+  if (documents.length === 0) {
+    return invalidStructure("Project import Markdown must include a Project heading.");
+  }
+
+  const firstDocument = documents[0];
+
   return {
     ok: true,
-    data: {
-      project,
-      milestones,
-    } satisfies ProjectImportDocument,
+    data:
+      documents.length === 1 && firstDocument
+        ? (firstDocument satisfies ProjectImportDocument)
+        : ({
+            projects: documents,
+          } satisfies ProjectImportBatchDocument),
   };
 }
 
 export function parseProjectJsonToDocument(
+  value: unknown,
+): ProjectImportResult<ProjectImportDocument> {
+  return parseProjectJsonDocument(value);
+}
+
+export function parseProjectJsonToDocuments(
+  value: unknown,
+): ProjectImportResult<ProjectImportBatchDocument> {
+  if (!isRecord(value)) {
+    return invalidStructure("Project import JSON must be an object.");
+  }
+
+  if (value.projects !== undefined) {
+    const unknownRoot = unknownKeys(value, ["projects"]);
+    if (unknownRoot) {
+      return invalidStructure(`Unknown root field "${unknownRoot}".`);
+    }
+
+    return parseProjectArray(value.projects);
+  }
+
+  const document = parseProjectJsonDocument(value);
+
+  if (!document.ok) {
+    return document;
+  }
+
+  return {
+    ok: true,
+    data: {
+      projects: [document.data],
+    },
+  };
+}
+
+export function parseProjectMarkdownToDocuments(
+  markdown: string,
+): ProjectImportResult<ProjectImportBatchDocument> {
+  const parsed = parseProjectMarkdownToJson(markdown);
+
+  if (!parsed.ok) {
+    return parsed;
+  }
+
+  return parseProjectJsonToDocuments(parsed.data);
+}
+
+function parseProjectArray(
+  value: unknown,
+): ProjectImportResult<ProjectImportBatchDocument> {
+  if (!Array.isArray(value)) {
+    return invalidStructure("projects must be an array.");
+  }
+
+  if (value.length === 0) {
+    return missing("projects", "Project import JSON must include at least one project.");
+  }
+
+  const projects: ProjectImportDocument[] = [];
+
+  for (const item of value) {
+    const document = parseProjectJsonDocument(item);
+
+    if (!document.ok) {
+      return document;
+    }
+
+    projects.push(document.data);
+  }
+
+  return {
+    ok: true,
+    data: {
+      projects,
+    },
+  };
+}
+
+function parseProjectJsonDocument(
   value: unknown,
 ): ProjectImportResult<ProjectImportDocument> {
   if (!isRecord(value)) {
@@ -642,6 +757,26 @@ function unknownKeys(value: Record<string, unknown>, allowed: string[]) {
 
 function normalizeFieldName(value: string) {
   return value.trim().toLowerCase().replace(/[-_]+/g, " ");
+}
+
+function readProjectHeading(line: string) {
+  const hashedProjectHeading = line.match(/^#\s+Project:\s*(.*)$/i);
+
+  if (hashedProjectHeading) {
+    return hashedProjectHeading[1].trim();
+  }
+
+  const bareProjectHeading = line.match(/^Project:\s*(.*)$/i);
+
+  if (bareProjectHeading) {
+    return bareProjectHeading[1].trim();
+  }
+
+  if (line.startsWith("# ")) {
+    return line.slice(2).trim();
+  }
+
+  return null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

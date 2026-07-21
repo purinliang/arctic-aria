@@ -4,12 +4,13 @@ import { readDeveloperImportRequest } from "@/features/developer/server/import-r
 import { getCurrentUser } from "@/features/auth/actions";
 import { normalizeRoutineImportDocument } from "../routine-import-normalizer";
 import {
-  parseRoutineJsonToDocument,
-  parseRoutineMarkdownToJson,
+  parseRoutineJsonToDocuments,
+  parseRoutineMarkdownToDocuments,
 } from "../routine-import-parser";
 import type {
+  RoutineImportBatchDocument,
+  RoutineImportCommand,
   RoutineImportDocument,
-  RoutineImportResult,
 } from "../routine-import-types";
 import { routineService } from "./routine-service";
 
@@ -29,7 +30,9 @@ export async function handleRoutineParseRoute(request: Request) {
   return noStoreJson({
     ok: true,
     document: prepared.document,
-    routine: prepared.routine,
+    documents: prepared.documents,
+    routine: prepared.routines[0] ?? null,
+    routines: prepared.routines,
   });
 }
 
@@ -59,38 +62,26 @@ export async function handleRoutineImportRoute(request: Request) {
   }
 
   try {
-    const routine = await routineService.saveRoutine(user.id, prepared.routine);
+    const routines = [];
 
-    if (!routine) {
-      return noStoreJson(
-        {
-          ok: false,
-          code: "routine_import_failed",
-          message: "Routine import could not be saved.",
-          category: "database_update",
-          action: "add",
-          subject: "routine",
-        },
-        500,
-      );
+    for (const routineInput of prepared.routines) {
+      const routine = await routineService.saveRoutine(user.id, routineInput);
+
+      if (!routine) {
+        return routineImportFailed();
+      }
+
+      routines.push(routine);
     }
 
     return noStoreJson({
       ok: true,
-      routineId: routine.id,
+      routineId: routines[0]?.id ?? null,
+      routineIds: routines.map((routine) => routine.id),
+      importedCount: routines.length,
     });
   } catch {
-    return noStoreJson(
-      {
-        ok: false,
-        code: "routine_import_failed",
-        message: "Routine import could not be saved.",
-        category: "database_update",
-        action: "add",
-        subject: "routine",
-      },
-      500,
-    );
+    return routineImportFailed();
   }
 }
 
@@ -103,36 +94,62 @@ async function prepareRoutineImport(request: Request) {
 
   const parsed =
     importRequest.data.format === "markdown"
-      ? parseRoutineMarkdownToDocument(importRequest.data.value)
-      : parseRoutineJsonToDocument(importRequest.data.value);
+      ? parseRoutineMarkdownToDocuments(importRequest.data.value)
+      : parseRoutineJsonToDocuments(importRequest.data.value);
 
   if (!parsed.ok) {
     return parsed;
   }
 
-  const normalized = normalizeRoutineImportDocument(parsed.data, todayKey());
+  const documents: RoutineImportDocument[] = parsed.data.routines.map(
+    (routine) => ({ routine }),
+  );
+  const routines: RoutineImportCommand[] = [];
 
-  if (!normalized.ok) {
-    return normalized;
+  for (const document of documents) {
+    const normalized = normalizeRoutineImportDocument(document, todayKey());
+
+    if (!normalized.ok) {
+      return normalized;
+    }
+
+    routines.push(normalized.data);
   }
 
   return {
     ok: true as const,
-    document: parsed.data,
-    routine: normalized.data,
+    document: documentForResponse(parsed.data),
+    documents,
+    routines,
   };
 }
 
-function parseRoutineMarkdownToDocument(
-  markdown: string,
-): RoutineImportResult<RoutineImportDocument> {
-  const parsed = parseRoutineMarkdownToJson(markdown);
+function documentForResponse(
+  document: RoutineImportBatchDocument,
+): RoutineImportDocument | RoutineImportBatchDocument {
+  const firstRoutine = document.routines[0];
 
-  if (!parsed.ok) {
-    return parsed;
+  if (document.routines.length === 1 && firstRoutine) {
+    return {
+      routine: firstRoutine,
+    };
   }
 
-  return parseRoutineJsonToDocument(parsed.data);
+  return document;
+}
+
+function routineImportFailed() {
+  return noStoreJson(
+    {
+      ok: false,
+      code: "routine_import_failed",
+      message: "Routine import could not be saved.",
+      category: "database_update",
+      action: "add",
+      subject: "routine",
+    },
+    500,
+  );
 }
 
 function todayKey() {

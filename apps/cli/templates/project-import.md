@@ -38,7 +38,7 @@ Duration: 1_3_months
   Start date: 2026-08-01
   Deadline: 2026-08-07
 
-<!-- Project import rules: keep tasks nested under the milestone they belong to. -->
+<!-- Project import rules: one Project block creates one project. Repeat the Project heading to import multiple projects. Keep tasks nested under the milestone they belong to. -->
 <!-- Legal project fields: Objective, Start date, Timeline, Duration, Deadline. -->
 <!-- Legal milestone fields: Objective, Start date, Timeline, Duration, Deadline. -->
 <!-- Legal task fields: Title, Description, Start date, Deadline. -->

@@ -44,14 +44,14 @@ Duration: 1_3_months
   Start date: 2026-08-01
   Deadline: 2026-08-07
 
-<!-- Project import rules: keep tasks nested under the milestone they belong to. -->
+<!-- Project import rules: one Project block creates one project. Repeat the Project heading to import multiple projects. Keep tasks nested under the milestone they belong to. -->
 <!-- Legal project fields: Objective, Start date, Timeline, Duration, Deadline. -->
 <!-- Legal milestone fields: Objective, Start date, Timeline, Duration, Deadline. -->
 <!-- Legal task fields: Title, Description, Start date, Deadline. -->
 <!-- Legal duration values: 1_3_months, 3_6_months, 6_12_months, 1_3_years. -->
 <!-- Each field is single-line "Field: value"; multiline values are not supported. -->
 <!-- Timeline is either duration with Duration, or deadline with Deadline. -->`,
-  routines: `# Routine: Morning walk
+  routines: `Routine: Morning walk
 
 Description: A short walk to start the day.
 First start date: 2026-07-22
@@ -61,7 +61,17 @@ Fixed interval days:
 Preferred time: 08:30
 Timezone: Australia/Melbourne
 
-<!-- Routine import rules: one template creates one routine. -->
+Routine: Evening reset
+
+Description: Clear small loose ends before tomorrow.
+First start date: 2026-07-22
+End date:
+Repeat: daily
+Fixed interval days:
+Preferred time: 21:30
+Timezone: Australia/Melbourne
+
+<!-- Routine import rules: one Routine block creates one routine. Repeat the Routine heading to import multiple routines. -->
 <!-- Legal fields: Description, First start date, End date, Repeat, Fixed interval days, Preferred time, Timezone. -->
 <!-- Repeat is daily, weekly, monthly, every_14_days, every_30_days, or fixed_days. -->
 <!-- Fixed interval days is only used when Repeat is fixed_days. -->
@@ -85,6 +95,7 @@ function developerImportInstructionFor(target: DeveloperImportTarget) {
       "Supported timeline types are duration and deadline.",
       "Supported duration values are 1_3_months, 3_6_months, 6_12_months, and 1_3_years.",
       "If my requirement uses another duration, choose the closest supported duration; if unclear, use 3_6_months.",
+      "You may include multiple Project blocks in one document.",
     ].join("\n");
   }
 
@@ -93,5 +104,6 @@ function developerImportInstructionFor(target: DeveloperImportTarget) {
     "Return only the filled import document.",
     "Supported repeat values are daily, weekly, monthly, every_14_days, every_30_days, and fixed_days.",
     "If fixed_days is used, include Fixed interval days; otherwise leave Fixed interval days empty.",
+    "You may include multiple Routine blocks in one document.",
   ].join("\n");
 }
