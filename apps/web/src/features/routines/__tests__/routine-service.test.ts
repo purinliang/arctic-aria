@@ -101,6 +101,38 @@ test("generates today's routine instance using the routine timezone", async () =
   );
 });
 
+test("saving a routine creates today's instance immediately", async () => {
+  const repository = new InMemoryRoutineRepository();
+  const service = createRoutineService({
+    routines: repository,
+    now: () => now,
+  });
+
+  await service.saveRoutine(userId, {
+    title: "New morning check",
+    description: "New morning check description",
+    firstStartDate: "2026-07-12",
+    endDate: null,
+    rule: {
+      ruleType: "daily",
+      intervalValue: null,
+      weekdays: null,
+      dayOfMonth: null,
+      preferredTime: "08:00",
+      timezone: "UTC",
+    },
+  });
+
+  const instances = await repository.listRoutineInstancesForDate(
+    userId,
+    "2026-07-12",
+  );
+
+  assert.equal(instances.length, 1);
+  assert.equal(instances[0].title, "New morning check");
+  assert.equal(instances[0].scheduledTime, "08:00");
+});
+
 test("monthly by date supports yearly renewal intervals", async () => {
   const repository = new InMemoryRoutineRepository({
     routines: [

@@ -108,6 +108,33 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
   const routines = options.routines ?? new PostgresRoutineRepository();
   const now = options.now ?? (() => new Date());
 
+  async function ensureTodayRoutineInstance(
+    userId: string,
+    routine: RoutineRecord,
+    occurredAt: Date,
+  ) {
+    const scheduledDate = localDateKey(occurredAt, routine.rule.timezone);
+
+    if (!shouldGenerateInstance(routine, scheduledDate)) {
+      return null;
+    }
+
+    const scheduledTime = resolveRoutineScheduledTime(routine);
+
+    return routines.ensureRoutineInstance({
+      userId,
+      routineId: routine.id,
+      scheduledDate,
+      scheduledTime,
+      remindAt: routineReminderAt({
+        scheduledDate,
+        scheduledTime,
+        timeZone: routine.rule.timezone,
+      }),
+      occurredAt,
+    });
+  }
+
   return {
     async listRoutineDefinitions(userId: string) {
       return routines.listRoutines(userId);
@@ -235,8 +262,8 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
     ) {
       const occurredAt = now();
 
-      if (input.id) {
-        return routines.updateRoutine({
+      const savedRoutine = input.id
+        ? await routines.updateRoutine({
           userId,
           routineId: input.id,
           title: input.title,
@@ -245,18 +272,22 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
           endDate: input.endDate,
           rule: input.rule,
           occurredAt,
+        })
+        : await routines.createRoutine({
+          userId,
+          title: input.title,
+          description: input.description,
+          firstStartDate: input.firstStartDate,
+          endDate: input.endDate,
+          rule: input.rule,
+          occurredAt,
         });
+
+      if (savedRoutine) {
+        await ensureTodayRoutineInstance(userId, savedRoutine, occurredAt);
       }
 
-      return routines.createRoutine({
-        userId,
-        title: input.title,
-        description: input.description,
-        firstStartDate: input.firstStartDate,
-        endDate: input.endDate,
-        rule: input.rule,
-        occurredAt,
-      });
+      return savedRoutine;
     },
 
     async deleteRoutine(userId: string, routineId: string) {
