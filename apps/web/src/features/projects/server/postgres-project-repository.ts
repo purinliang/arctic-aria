@@ -15,6 +15,7 @@ import {
   saveProject,
   saveTask,
 } from "./postgres-project-save-queries.ts";
+import { listPostgresDashboardTasks } from "./postgres-project-dashboard-queries.ts";
 import type {
   ImportProjectTreeInput,
   ProjectPinResult,
@@ -46,25 +47,12 @@ export class PostgresProjectRepository implements ProjectRepository {
     return assembleProjects(projectRows, milestoneRows, taskRows);
   }
 
-  async listDashboardTasks(userId: string) {
-    const taskRows = (await this.getSql().query(
-      `${projectTaskSelect}
-       WHERE project_tasks.user_id = $1
-         AND project_tasks.deleted_at IS NULL
-         AND project_tasks.completed_at IS NULL
-         AND projects.deleted_at IS NULL
-         AND (
-           project_tasks.milestone_id IS NULL
-           OR project_milestones.deleted_at IS NULL
-         )
-       ORDER BY
-         project_tasks.deadline_date NULLS LAST,
-         project_tasks.start_date NULLS LAST,
-         project_tasks.updated_at DESC
-       LIMIT 8`,
-      [userId],
-    )) as ProjectTaskRow[];
-    return taskRows.map(mapProjectTask);
+  async listDashboardTasks(userId: string, today: string, occurredAt: Date) {
+    return listPostgresDashboardTasks(this.getSql(), {
+      userId,
+      today,
+      occurredAt,
+    });
   }
 
   saveProject(input: SaveProjectInput) {

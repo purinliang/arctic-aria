@@ -9,19 +9,28 @@ import type {
   SaveProjectInput,
   SaveProjectTaskInput,
 } from "./project-repository-types.ts";
+import type { ProjectTaskDailySelectionRecord } from "./project-task-daily-selection.ts";
+import { listInMemoryDashboardTasks } from "./in-memory-project-dashboard.ts";
+import {
+  pinInMemoryProject,
+  unpinInMemoryProject,
+} from "./in-memory-project-pinning.ts";
 import {
   cloneProject,
-  cloneTask,
-  compareDashboardTasks,
   normalizeProjectForStorage,
   syncMilestoneTasks,
 } from "./in-memory-project-records.ts";
 
 export class InMemoryProjectRepository implements ProjectRepository {
   private projects: ProjectRecord[];
+  private dailySelections: ProjectTaskDailySelectionRecord[];
 
-  constructor(seed?: { projects?: ProjectRecord[] }) {
+  constructor(seed?: {
+    projects?: ProjectRecord[];
+    dailySelections?: ProjectTaskDailySelectionRecord[];
+  }) {
     this.projects = (seed?.projects ?? []).map(normalizeProjectForStorage);
+    this.dailySelections = seed?.dailySelections ?? [];
   }
 
   async listProjects(userId: string) {
@@ -30,26 +39,18 @@ export class InMemoryProjectRepository implements ProjectRepository {
       .map(cloneProject);
   }
 
-  async listDashboardTasks(userId: string) {
-    return this.projects
-      .filter((project) => project.userId === userId && project.deletedAt === null)
-      .flatMap((project) =>
-        project.tasks.filter((task) => {
-          if (!task.milestoneId) {
-            return true;
-          }
-
-          return project.milestones.some(
-            (milestone) =>
-              milestone.id === task.milestoneId &&
-              milestone.deletedAt === null,
-          );
-        }),
-      )
-      .filter((task) => task.deletedAt === null && task.status !== "done")
-      .sort(compareDashboardTasks)
-      .slice(0, 8)
-      .map(cloneTask);
+  async listDashboardTasks(
+    userId: string,
+    today: string,
+    occurredAt: Date,
+  ) {
+    return listInMemoryDashboardTasks({
+      projects: this.projects,
+      dailySelections: this.dailySelections,
+      userId,
+      today,
+      occurredAt,
+    });
   }
 
   async saveProject(input: SaveProjectInput) {
@@ -266,35 +267,10 @@ export class InMemoryProjectRepository implements ProjectRepository {
     projectId: string;
     occurredAt: Date;
   }): Promise<ProjectPinResult> {
-    const project = this.findProject(input.userId, input.projectId);
-
-    if (!project || project.deletedAt !== null) {
-      return "not_found";
-    }
-
-    if (project.sidebarPinOrder) {
-      return "pinned";
-    }
-
-    const usedSlots = new Set(
-      this.projects
-        .filter(
-          (current) =>
-            current.userId === input.userId &&
-            current.deletedAt === null &&
-            current.sidebarPinOrder !== null,
-        )
-        .map((current) => current.sidebarPinOrder),
-    );
-    const slot = [1, 2, 3].find((candidate) => !usedSlots.has(candidate));
-
-    if (!slot) {
-      return "limit_reached";
-    }
-
-    project.sidebarPinOrder = slot;
-    project.updatedAt = input.occurredAt;
-    return "pinned";
+    return pinInMemoryProject({
+      projects: this.projects,
+      ...input,
+    });
   }
 
   async unpinProject(input: {
@@ -302,18 +278,10 @@ export class InMemoryProjectRepository implements ProjectRepository {
     projectId: string;
     occurredAt: Date;
   }) {
-    const project = this.findProject(input.userId, input.projectId);
-
-    if (!project || project.deletedAt !== null) {
-      return false;
-    }
-
-    if (project.sidebarPinOrder !== null) {
-      project.sidebarPinOrder = null;
-      project.updatedAt = input.occurredAt;
-    }
-
-    return true;
+    return unpinInMemoryProject({
+      projects: this.projects,
+      ...input,
+    });
   }
 
   async archiveMilestone(input: {
