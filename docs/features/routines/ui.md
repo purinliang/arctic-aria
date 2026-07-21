@@ -51,10 +51,12 @@ The sidebar `Routines` item opens the full routine management page.
 The first Routines page should allow the user to:
 
 - view routine definitions
+- filter routine definitions by group
 - view recent or upcoming instances
 - create a routine from a `New` header button
 - edit a routine
 - delete a routine
+- create, edit, and delete routine groups
 - choose a recurrence rule
 - choose a preferred reminder time
 
@@ -77,8 +79,70 @@ Page interaction behavior:
 - Clicking `New` opens the Add Routine dialog without calling the backend.
 - Clicking a routine row's `Edit` action opens the Edit Routine dialog with the
   current routine values.
+- Clicking a routine group filter changes only local UI state and does not call
+  the backend.
+- Clicking `Manage` in the Groups panel opens group management.
 - Opening or closing a dialog should not change persisted data.
 - Management save/delete actions are blocking, not optimistic.
+
+## Routines Page Groups Panel
+
+Routine groups are optional unordered filters for related routines. They are
+parallel buckets such as English learning, PTE practice, or housework.
+
+Routine groups are not milestones. Project milestones are ordered project
+phases and remain inside Projects.
+
+The Routines page uses the shared split layout:
+
+- left side: Routines list panel
+- right side: Groups panel
+
+Groups panel layout:
+
+- title: `Groups`
+- description: short text explaining that groups filter routines
+- header action: `Manage` with a settings icon
+- filter choices: `All`, `No group`, then user-created groups
+- filter controls use the shared single-choice group style
+- selected state uses color and border only
+
+Click behavior:
+
+- `All` shows every routine.
+- `No group` shows routines without a group.
+- a group button shows routines assigned to that group.
+- `Manage` opens group management.
+
+## Routine Group Management
+
+The group manager uses the same dialog direction as memory category management.
+
+The first group manager supports user-created groups only. There are no built-in
+routine groups yet.
+
+Group manager layout:
+
+- dialog title: `Manage Groups`
+- one section: `Routine Groups`
+- section header action: `New`
+- group rows show name, description, and `Edit`
+- empty state says there are no groups yet
+
+Group form fields:
+
+- group name
+- optional description
+
+Group save/delete behavior:
+
+- save validates name length, description length, and duplicate names
+- successful save closes the form and refreshes routines/groups from the
+  backend response
+- failed save keeps the form open and shows the shared notification
+- delete requires confirmation
+- successful delete clears the group from routines and moves them to `No group`
+- failed delete keeps the form open and shows the shared notification
 
 ## Add Routine Dialog
 
@@ -90,6 +154,7 @@ Fields:
 
 - title
 - optional description
+- group
 - first start date
 - end date
 - preferred time

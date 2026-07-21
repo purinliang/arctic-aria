@@ -1,4 +1,7 @@
-import type { RoutineDefinition } from "@/features/dashboard/types";
+import type {
+  RoutineDefinition,
+  RoutineGroupOption,
+} from "@/features/dashboard/types";
 import type { RoutineInput } from "@/features/routines/actions";
 import { localCalendarParts } from "../../settings/time-zones.ts";
 import type { RoutineMessages } from "@/messages/app-messages";
@@ -13,10 +16,17 @@ export const weekdayOptions = [
   { value: 6, label: "Sat" },
 ];
 
-export function emptyDraft(timezone = "UTC", now = new Date()): RoutineInput {
+export type RoutineGroupFilter = "All" | "none" | string;
+
+export function emptyDraft(
+  timezone = "UTC",
+  now = new Date(),
+  groupId: string | null = null,
+): RoutineInput {
   const calendar = localCalendarParts(now, timezone);
 
   return {
+    groupId,
     title: "",
     description: "",
     firstStartDate: calendar.dateKey,
@@ -33,6 +43,7 @@ export function emptyDraft(timezone = "UTC", now = new Date()): RoutineInput {
 export function toDraft(routine: RoutineDefinition): RoutineInput {
   return {
     id: routine.id,
+    groupId: routine.groupId,
     title: routine.title,
     description: routine.description ?? "",
     firstStartDate: routine.firstStartDate,
@@ -44,6 +55,27 @@ export function toDraft(routine: RoutineDefinition): RoutineInput {
     preferredTime: routine.preferredTime ?? "",
     timezone: routine.timezone,
   };
+}
+
+export function sortRoutineGroups(groups: RoutineGroupOption[]) {
+  return [...groups].sort((left, right) =>
+    left.name.localeCompare(right.name, "en"),
+  );
+}
+
+export function filterRoutinesByGroup(
+  routines: RoutineDefinition[],
+  filter: RoutineGroupFilter,
+) {
+  if (filter === "All") {
+    return routines;
+  }
+
+  if (filter === "none") {
+    return routines.filter((routine) => !routine.groupId);
+  }
+
+  return routines.filter((routine) => routine.groupId === filter);
 }
 
 export function ruleSummary(

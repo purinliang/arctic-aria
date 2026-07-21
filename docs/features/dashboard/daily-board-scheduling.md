@@ -30,6 +30,19 @@ user's stored timezone first. If the user preference is `system`, use
 IANA timezone synced by the web app. Falling back to UTC is allowed only when
 no stored concrete timezone exists.
 
+## Current Next-Day Behavior
+
+The current implementation supports automatic next-day behavior through normal
+local-date selection and recurrence generation:
+
+- Project tasks: unfinished eligible tasks can be selected again on the next
+  local day through `project_task_daily_selections`.
+- Routines: the next local day gets its own `routine_instance` when the
+  recurrence rule matches that local date.
+
+Explicit `Move to tomorrow` and `Later` actions are not implemented yet. They
+remain future work for manual rescheduling and reminder adjustment.
+
 ## Shared Naming
 
 Use the same date/time naming rule across both designs:

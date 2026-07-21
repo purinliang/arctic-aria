@@ -14,6 +14,8 @@ function routine(input: Partial<RoutineRecord> & Pick<RoutineRecord, "id" | "tit
   return {
     id: input.id,
     userId,
+    groupId: input.groupId ?? null,
+    groupName: input.groupName ?? null,
     title: input.title,
     description: input.description ?? `${input.title} description`,
     firstStartDate: input.firstStartDate ?? "2026-07-01",
@@ -109,6 +111,7 @@ test("saving a routine creates today's instance immediately", async () => {
   });
 
   await service.saveRoutine(userId, {
+    groupId: null,
     title: "New morning check",
     description: "New morning check description",
     firstStartDate: "2026-07-12",

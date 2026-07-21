@@ -44,7 +44,7 @@ page directly at `/projects/<project-id>`.
 
 Use `ProjectsPage` for the list and management entry point because it shows the
 collection of projects. Use `ProjectDetailPage` for one selected project and
-its tasks and milestone management.
+its milestone-focused task view.
 
 Do not use `ProjectPage` unless the component truly has no list/detail
 distinction.
@@ -59,9 +59,10 @@ The Project detail page should show:
 
 - breadcrumb with project switcher
 - selected project detail
-- flat task list and milestone management
+- selected milestone task list
+- milestone overview and milestone switching
 - project, milestone, and task add/edit actions
-- project pin or unpin action beside the title edit action
+- project pin or unpin action in the title bar
 
 `New` should open project creation.
 
@@ -193,44 +194,59 @@ Breadcrumb row:
   row, then place the project name switcher on a second row aligned with the
   hamburger button
 - switching through the project name keeps the user on the detail page
-- title action: `Edit3` icon plus `Edit`, placed to the right of the
-  breadcrumb and opening the project editor dialog
-- adjacent title action: icon-only outline `Pin` or `PinOff` button, updating
+- title action: icon-only outline `Pin` or `PinOff`, updating
   the sidebar shortcut state for the selected project
-- mobile actions: keep pin/unpin and edit on the first row, right aligned
+- mobile action: keep pin/unpin on the first row, right aligned
 
 Project overview card:
 
-- card title: `Overview`
+- card title: `Project Overview`
+- location: right panel, above the milestone switcher
+- header action: `Edit3` icon plus `Edit`, opening the project editor dialog
 - first row: labeled objective block with label `Objective`
 - metadata rows: `Start date` and either `Deadline` or `Expected duration`
-- start date value uses English display format, not raw `YYYY-MM-DD`
+- start date value uses localized display format, not raw `YYYY-MM-DD`
 - deadline-mode projects show only the formatted deadline date
 - no-fixed-deadline projects show only the selected expected-duration range
 - reserve `Timeline` for legacy/open-ended fallback data only
 - do not repeat the project title inside this card because the page title
   already shows it
-- no card-level edit action; project edit belongs beside the page title
 - do not show colored status or priority tags
 
-Milestone management card:
+Milestone overview card:
+
+- card title: `Milestone Overview`
+- location: main left panel, above the selected milestone task list
+- header action: `Edit3` icon plus `Edit`, opening the milestone editor dialog
+  for the selected milestone
+- first row: selected milestone title and objective
+- metadata rows: `Start date` and either `Deadline` or `Expected duration`
+- if `No milestone` is selected, hide the edit action and show the
+  no-milestone description only
+
+Milestone switcher card:
 
 - parent layout: vertical grid
-- location: right panel, below `Overview`
+- location: right panel, below `Project Overview`
 - milestone parent component: shared `ListItem`
 - milestone header layout: horizontal flex with wrapping
-- milestone left group: title, then objective
-- milestone right group: `Edit` with `Edit3`
+- milestone rows are jump controls, not edit controls
+- milestone row text: title only
+- milestone rows sort by deadline from earliest to latest, then start date and
+  title; milestones without a deadline sort after milestones with a deadline
+- if unassigned tasks exist, show a final `No milestone` switch target
 - do not render task rows inside milestone rows
 
 Task list:
 
-- location: main left panel
+- location: main left panel, below `Milestone Overview`
 - parent card title: `Tasks`
 - header action: `New` with `Plus`
-- rows are flat task rows, not nested under milestone sections
-- task sort order: not-done tasks first, then `deadlineDate` ascending with
-  empty deadlines last, then `startDate` ascending
+- rows show only tasks for the selected milestone switch target
+- new tasks default to the selected milestone when a real milestone is selected
+- task sort order: `deadlineDate` ascending with empty deadlines last, then
+  `startDate` ascending, then title
+- completed state does not affect sorting
 - sorting happens when data is loaded/refreshed or after adding/editing a task;
   checking or unchecking `Done` must keep the current visible row order
 
@@ -239,8 +255,7 @@ Task row layout:
 - parent surface: shared `ListItem`
 - row direction: three columns
 - left column: `Done` checkbox
-- middle column: title, description, then optional `milestone · deadline`
-  metadata
+- middle column: title, description, then deadline metadata
 - right column: `Edit`
 - do not show task status tags, priority tags, or Block/Skip actions in the
   first UI

@@ -1,5 +1,5 @@
 // Projects Page - Project Page Title.
-import { ChevronDown, Edit3, Pin, PinOff } from "lucide-react";
+import { ChevronDown, Pin, PinOff } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/button";
 import { secondaryTextColorClass, panelColorClass } from "@/components/color";
@@ -15,11 +15,9 @@ export function ProjectPageTitle({
   darkMode,
   projects,
   selectedProjectId,
-  editDisabled,
   pinPending = false,
   onBackToList,
   onProjectSelect,
-  onEditProject,
   onPinProject,
   onUnpinProject,
   messages,
@@ -30,11 +28,9 @@ export function ProjectPageTitle({
   darkMode: boolean;
   projects: ProjectView[];
   selectedProjectId: string | null;
-  editDisabled?: boolean;
   pinPending?: boolean;
   onBackToList: () => void;
   onProjectSelect: (projectId: string) => void;
-  onEditProject?: (project: ProjectView) => void;
   onPinProject?: (projectId: string) => void;
   onUnpinProject?: (projectId: string) => void;
   messages: ProjectMessages["pageTitle"];
@@ -86,11 +82,9 @@ export function ProjectPageTitle({
           </div>
           <ProjectTitleActions
             darkMode={darkMode}
-            editDisabled={editDisabled}
             messages={messages}
             pinPending={pinPending}
             project={selectedProject}
-            onEditProject={onEditProject}
             onPinProject={onPinProject}
             onUnpinProject={onUnpinProject}
           />
@@ -113,11 +107,9 @@ export function ProjectPageTitle({
         </h1>
         <ProjectTitleActions
           darkMode={darkMode}
-          editDisabled={editDisabled}
           messages={messages}
           pinPending={pinPending}
           project={selectedProject}
-          onEditProject={onEditProject}
           onPinProject={onPinProject}
           onUnpinProject={onUnpinProject}
         />
@@ -264,61 +256,51 @@ function ProjectSwitcher({
 
 function ProjectTitleActions({
   darkMode,
-  editDisabled,
   messages,
   pinPending,
   project,
-  onEditProject,
   onPinProject,
   onUnpinProject,
 }: {
   darkMode: boolean;
-  editDisabled?: boolean;
   messages: ProjectMessages["pageTitle"];
   pinPending: boolean;
   project: ProjectView;
-  onEditProject?: (project: ProjectView) => void;
   onPinProject?: (projectId: string) => void;
   onUnpinProject?: (projectId: string) => void;
 }) {
-  if (!onEditProject) {
+  if (!onPinProject && !onUnpinProject) {
     return null;
   }
 
   return (
     <div className="flex shrink-0 items-center gap-2">
-      <Button
-        darkMode={darkMode}
-        size="icon-sm"
-        className="rounded-full"
-        disabled={pinPending}
-        aria-label={
-          project.sidebarPinOrder !== null ? messages.unpin : messages.pin
-        }
-        icon={
-          project.sidebarPinOrder !== null ? (
-            <PinOff size={15} aria-hidden="true" />
-          ) : (
-            <Pin size={15} aria-hidden="true" />
-          )
-        }
-        onClick={() => {
-          if (project.sidebarPinOrder !== null) {
-            onUnpinProject?.(project.id);
-            return;
+      {onPinProject || onUnpinProject ? (
+        <Button
+          darkMode={darkMode}
+          size="icon-sm"
+          className="rounded-full"
+          disabled={pinPending}
+          aria-label={
+            project.sidebarPinOrder !== null ? messages.unpin : messages.pin
           }
+          icon={
+            project.sidebarPinOrder !== null ? (
+              <PinOff size={15} aria-hidden="true" />
+            ) : (
+              <Pin size={15} aria-hidden="true" />
+            )
+          }
+          onClick={() => {
+            if (project.sidebarPinOrder !== null) {
+              onUnpinProject?.(project.id);
+              return;
+            }
 
-          onPinProject?.(project.id);
-        }}
-      />
-      <Button
-        darkMode={darkMode}
-        disabled={editDisabled}
-        icon={<Edit3 size={15} aria-hidden="true" />}
-        onClick={() => onEditProject(project)}
-      >
-        {messages.edit}
-      </Button>
+            onPinProject?.(project.id);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

@@ -96,6 +96,11 @@ const fieldDisplays: Record<string, FieldDisplay> = {
     label: "first start date",
     requiredVerb: "select",
   },
+  group: {
+    article: "a",
+    label: "group",
+    requiredVerb: "choose",
+  },
   name: {
     label: "name",
     requiredVerb: "enter",
@@ -141,6 +146,7 @@ const fieldDisplays: Record<string, FieldDisplay> = {
 const subjectFallbacks: Record<ActionFailureSubject, string> = {
   category: "Category",
   discord: "Discord",
+  group: "Group",
   idea: "Idea",
   memory: "Memory",
   milestone: "Milestone",

@@ -21,3 +21,21 @@ test("routine validation reports missing first start dates with structured metad
     },
   );
 });
+
+test("routine validation rejects malformed group ids", () => {
+  const result = validateRoutineInput({
+    groupId: "not-a-uuid",
+    title: "Morning walk",
+    description: "",
+    firstStartDate: "2026-07-22",
+    ruleType: "daily",
+    timezone: "UTC",
+  });
+
+  assert.equal(result.ok, false);
+
+  if (!result.ok) {
+    assert.equal(result.code, "routine_group_invalid");
+    assert.equal(result.field, "group");
+  }
+});

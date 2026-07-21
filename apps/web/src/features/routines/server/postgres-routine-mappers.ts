@@ -1,5 +1,6 @@
 import type {
   RoutineInstanceRecord,
+  RoutineGroupRecord,
   RoutineRecord,
   RoutineRuleRecord,
   RoutineRuleType,
@@ -13,6 +14,8 @@ import {
 export type RoutineRow = {
   id: string;
   user_id: string;
+  group_id: string | null;
+  group_name: string | null;
   title: string;
   description: string | null;
   first_start_date: Date | string;
@@ -29,6 +32,16 @@ export type RoutineRow = {
   timezone: string;
   rule_created_at: Date | string;
   rule_updated_at: Date | string;
+};
+
+export type RoutineGroupRow = {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  created_at: Date | string;
+  updated_at: Date | string;
+  deleted_at: Date | string | null;
 };
 
 export type RoutineInstanceRow = {
@@ -54,6 +67,8 @@ export const routineSelect = `
   SELECT
     routines.id,
     routines.user_id,
+    routines.group_id,
+    routine_groups.name AS group_name,
     routines.title,
     routines.description,
     routines.first_start_date,
@@ -72,6 +87,9 @@ export const routineSelect = `
     routine_rules.updated_at AS rule_updated_at
   FROM routines
   INNER JOIN routine_rules ON routine_rules.routine_id = routines.id
+  LEFT JOIN routine_groups
+    ON routine_groups.id = routines.group_id
+    AND routine_groups.deleted_at IS NULL
 `;
 
 export const routineInstanceSelect = `
@@ -113,6 +131,8 @@ export function mapRoutine(row: RoutineRow): RoutineRecord {
   return {
     id: row.id,
     userId: row.user_id,
+    groupId: row.group_id,
+    groupName: row.group_name,
     title: row.title,
     description: row.description,
     firstStartDate: toDateString(row.first_start_date),
@@ -121,6 +141,18 @@ export function mapRoutine(row: RoutineRow): RoutineRecord {
     updatedAt: toDate(row.updated_at),
     deletedAt: toNullableDate(row.deleted_at),
     rule,
+  };
+}
+
+export function mapRoutineGroup(row: RoutineGroupRow): RoutineGroupRecord {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    name: row.name,
+    description: row.description,
+    createdAt: toDate(row.created_at),
+    updatedAt: toDate(row.updated_at),
+    deletedAt: toNullableDate(row.deleted_at),
   };
 }
 
@@ -163,6 +195,7 @@ export function routineParams(input: SaveRoutineInput) {
     input.rule.preferredTime,
     input.rule.timezone,
     input.occurredAt,
+    input.groupId,
   ];
 }
 
@@ -171,6 +204,8 @@ export function routineSelectFromCtes(routineCte: string, ruleCte: string) {
     SELECT
       ${routineCte}.id,
       ${routineCte}.user_id,
+      ${routineCte}.group_id,
+      routine_groups.name AS group_name,
       ${routineCte}.title,
       ${routineCte}.description,
       ${routineCte}.first_start_date,
@@ -189,6 +224,9 @@ export function routineSelectFromCtes(routineCte: string, ruleCte: string) {
       ${ruleCte}.updated_at AS rule_updated_at
     FROM ${routineCte}
     INNER JOIN ${ruleCte} ON ${ruleCte}.routine_id = ${routineCte}.id
+    LEFT JOIN routine_groups
+      ON routine_groups.id = ${routineCte}.group_id
+      AND routine_groups.deleted_at IS NULL
   `;
 }
 

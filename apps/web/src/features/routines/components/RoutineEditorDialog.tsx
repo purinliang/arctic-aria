@@ -4,9 +4,11 @@ import { useDefaultDescriptionPlaceholder } from "@/components/default-descripti
 import { CrudEditorDialog } from "@/components/dialog";
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
+import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { TextArea } from "@/components/forms/text-area-field";
 import { TimePickerField } from "@/components/forms/time-picker-field";
 import { SelectInput } from "@/components/forms/selection-field";
+import type { RoutineGroupOption } from "@/features/dashboard/types";
 import type { RoutineInput } from "@/features/routines/actions";
 import { normalizeRoutineRecurrenceDraft } from "@/features/routines/routine-recurrence";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
@@ -15,7 +17,7 @@ import {
   selectableTimeZones,
 } from "@/features/settings/time-zones";
 import type { FormMessages, RoutineMessages } from "@/messages/app-messages";
-import { SupportingText } from "@/components/text";
+import { LabelText, SupportingText } from "@/components/text";
 import { RoutineRecurrenceFields } from "./RoutineRecurrenceFields";
 
 export function RoutineEditorDialog({
@@ -23,6 +25,7 @@ export function RoutineEditorDialog({
   pending,
   saving,
   draft,
+  groups,
   messages,
   formMessages,
   timeFormatPreference,
@@ -37,6 +40,7 @@ export function RoutineEditorDialog({
   pending: boolean;
   saving: boolean;
   draft: RoutineInput;
+  groups: RoutineGroupOption[];
   messages: RoutineMessages;
   formMessages: FormMessages;
   timeFormatPreference: TimeFormatPreference;
@@ -74,6 +78,14 @@ export function RoutineEditorDialog({
         descriptionPlaceholder={descriptionPlaceholder}
         setDraft={setDraft}
       />
+      <RoutineGroupField
+        darkMode={darkMode}
+        pending={pending}
+        draft={draft}
+        groups={groups}
+        messages={messages}
+        setDraft={setDraft}
+      />
       <RoutineScheduleFields
         darkMode={darkMode}
         pending={pending}
@@ -94,6 +106,49 @@ export function RoutineEditorDialog({
         setDraft={setDraft}
       />
     </CrudEditorDialog>
+  );
+}
+
+function RoutineGroupField({
+  darkMode,
+  pending,
+  draft,
+  groups,
+  messages,
+  setDraft,
+}: {
+  darkMode: boolean;
+  pending: boolean;
+  draft: RoutineInput;
+  groups: RoutineGroupOption[];
+  messages: RoutineMessages;
+  setDraft: Dispatch<SetStateAction<RoutineInput>>;
+}) {
+  return (
+    <div className="grid gap-1.5">
+      <LabelText darkMode={darkMode}>{messages.editor.group}</LabelText>
+      <SingleChoiceGroup
+        darkMode={darkMode}
+        value={draft.groupId || "none"}
+        disabled={pending}
+        options={[
+          {
+            value: "none",
+            label: messages.groups.noGroup,
+          },
+          ...groups.map((group) => ({
+            value: group.id,
+            label: group.name,
+          })),
+        ]}
+        onChange={(groupId) =>
+          setDraft((current) => ({
+            ...current,
+            groupId: groupId === "none" ? null : groupId,
+          }))
+        }
+      />
+    </div>
   );
 }
 

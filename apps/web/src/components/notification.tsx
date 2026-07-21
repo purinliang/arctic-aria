@@ -33,6 +33,7 @@ const defaultNotificationMessages: NotificationMessages = {
   subjectWords: {
     category: "Category",
     discord: "Discord",
+    group: "Group",
     idea: "Idea",
     memory: "Memory",
     milestone: "Milestone",
@@ -52,6 +53,7 @@ const defaultNotificationMessages: NotificationMessages = {
     end_date: "end date",
     expected_duration: "expected duration",
     first_start_date: "first start date",
+    group: "group",
     name: "name",
     objective: "objective",
     preferred_time: "preferred time",

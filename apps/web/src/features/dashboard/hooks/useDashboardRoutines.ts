@@ -9,13 +9,16 @@ import {
 } from "@/app-shell/action-notifications";
 import {
   completeRoutineInstance,
+  deleteRoutineGroup,
   deleteRoutine,
   getRoutineDashboardData,
   reopenRoutineInstance,
+  saveRoutineGroup,
   saveRoutine,
   skipRoutineInstance,
   type RoutineActionResult,
   type RoutineDashboardData,
+  type RoutineGroupInput,
   type RoutineInput,
 } from "@/features/routines/actions";
 import type {
@@ -30,6 +33,7 @@ import {
 import type {
   Routine,
   RoutineDefinition,
+  RoutineGroupOption,
   RoutineStatus,
 } from "../types";
 
@@ -48,6 +52,7 @@ export function useDashboardRoutines(
   const [routineDefinitions, setRoutineDefinitions] = useState<
     RoutineDefinition[]
   >([]);
+  const [routineGroups, setRoutineGroups] = useState<RoutineGroupOption[]>([]);
   const [routineLoading, setRoutineLoading] = useState(true);
   const [routineCacheReady, setRoutineCacheReady] = useState(false);
   const [routineActionPending, setRoutineActionPending] = useState(false);
@@ -69,6 +74,7 @@ export function useDashboardRoutines(
   const applyRoutineData = useCallback((data: RoutineDashboardData) => {
     setRoutines(data.routines);
     setRoutineDefinitions(data.routineDefinitions);
+    setRoutineGroups(data.routineGroups);
     setRoutineLoading(false);
     setRoutineCacheReady(true);
   }, []);
@@ -79,6 +85,7 @@ export function useDashboardRoutines(
 
       setRoutines(cachedData?.routines ?? []);
       setRoutineDefinitions(cachedData?.routineDefinitions ?? []);
+      setRoutineGroups(cachedData?.routineGroups ?? []);
       setRoutineLoading(cachedData === null);
       setRoutineCacheReady(cachedData !== null);
     }, 0);
@@ -94,8 +101,9 @@ export function useDashboardRoutines(
     writeDashboardBrowserCacheSection(userId, "routines", {
       routines,
       routineDefinitions,
+      routineGroups,
     });
-  }, [routineCacheReady, routineDefinitions, routines, userId]);
+  }, [routineCacheReady, routineDefinitions, routineGroups, routines, userId]);
 
   const refreshRoutineData = useCallback(async () => {
     const actionResult = await runNotifiedServerAction({
@@ -284,6 +292,7 @@ export function useDashboardRoutines(
   return {
     routines,
     routineDefinitions,
+    routineGroups,
     routineLoading,
     routineActionPending,
     refreshRoutineData,
@@ -297,6 +306,16 @@ export function useDashboardRoutines(
       runRoutineManagementAction(
         () => deleteRoutine(routineId),
         actionFailedTitle("delete", "routine"),
+      ),
+    saveRoutineGroupFromPage: (input: RoutineGroupInput) =>
+      runRoutineManagementAction(
+        () => saveRoutineGroup(input),
+        actionFailedTitle("save", "group"),
+      ),
+    deleteRoutineGroupFromPage: (groupId: string) =>
+      runRoutineManagementAction(
+        () => deleteRoutineGroup(groupId),
+        actionFailedTitle("delete", "group"),
       ),
   };
 }
