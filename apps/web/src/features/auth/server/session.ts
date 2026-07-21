@@ -41,6 +41,8 @@ function isSessionPayload(value: unknown): value is AuthSession {
     typeof payload.id === "string" &&
     typeof payload.username === "string" &&
     typeof payload.displayName === "string" &&
+    (typeof payload.isAdmin === "boolean" ||
+      payload.isAdmin === undefined) &&
     typeof payload.expiresAt === "number"
   );
 }
@@ -88,7 +90,10 @@ export function readAuthSessionToken(
       return null;
     }
 
-    return payload;
+    return {
+      ...payload,
+      isAdmin: payload.isAdmin ?? false,
+    };
   } catch {
     return null;
   }

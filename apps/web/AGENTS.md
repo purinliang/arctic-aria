@@ -173,6 +173,10 @@ they apply:
 - The web app and migration runner use `NEON_POSTGRES_URL` as the database URL
   environment variable. Do not add fallback aliases for local or production
   database URLs.
+- Backend routes under `/api/developer/*` are administrator-only surfaces. They
+  must verify the signed auth session on the backend with the shared developer
+  API guard before doing any diagnostic or stateful work. Frontend-only hiding
+  is not enough.
 - Keep `logging.serverFunctions` disabled in `next.config.ts`. Next.js
   development Server Function logs can include raw action arguments, and Arctic
   Aria actions may receive user-authored product content.

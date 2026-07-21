@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHmac } from "node:crypto";
 import test from "node:test";
 import {
   authSessionMaxAgeSeconds,
@@ -11,6 +12,7 @@ const user = {
   id: "user-1",
   username: "testusername",
   displayName: "testdisplayname",
+  isAdmin: false,
 };
 
 test("auth session token round trips a user for 30 days", () => {
@@ -22,7 +24,34 @@ test("auth session token round trips a user for 30 days", () => {
   assert.equal(session.id, user.id);
   assert.equal(session.username, user.username);
   assert.equal(session.displayName, user.displayName);
+  assert.equal(session.isAdmin, false);
   assert.equal(session.expiresAt, now + authSessionMaxAgeSeconds * 1000);
+});
+
+test("auth session token treats old sessions as non-admin", () => {
+  const now = Date.UTC(2026, 0, 1);
+  const token = createAuthSessionToken(user, "secret", now);
+  const [encodedPayload] = token.split(".");
+  const payload = JSON.parse(
+    Buffer.from(encodedPayload ?? "", "base64url").toString("utf8"),
+  ) as Record<string, unknown>;
+
+  delete payload.isAdmin;
+
+  const oldEncodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString(
+    "base64url",
+  );
+  const oldSignature = createHmac("sha256", "secret")
+    .update(oldEncodedPayload)
+    .digest("base64url");
+  const session = readAuthSessionToken(
+    `${oldEncodedPayload}.${oldSignature}`,
+    "secret",
+    now,
+  );
+
+  assert.ok(session);
+  assert.equal(session.isAdmin, false);
 });
 
 test("auth session token rejects tampering and expired sessions", () => {

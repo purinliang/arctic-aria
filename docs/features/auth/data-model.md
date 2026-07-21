@@ -25,6 +25,7 @@ Database constraints should protect:
 
 - unique username
 - required password hash
+- non-null administrator flag with false as the default
 - stored username length and character set
 - stored display name length
 
@@ -42,6 +43,7 @@ Current fields:
 - `username`
 - `password_hash`
 - `display_name`
+- `is_admin`
 - `created_at`
 - `updated_at`
 
@@ -54,6 +56,24 @@ Current database constraints:
 - `password_hash` is required.
 - `display_name` is required.
 - `display_name` length is 1-24 characters.
+- `is_admin` is required and defaults to false.
+
+Admin flag rules:
+
+- `is_admin` gates developer-only diagnostics and future administrator-only
+  web tools.
+- Normal registration must create non-admin accounts.
+- The developer may promote an account manually in Neon while there is no admin
+  management UI:
+
+```sql
+UPDATE users
+SET is_admin = true
+WHERE username = '<your username>';
+```
+
+- After manually changing `is_admin`, sign out and sign in again so the signed
+  session payload receives the updated admin flag.
 
 Security rules:
 
@@ -76,7 +96,8 @@ Current session rules:
 
 - The cookie name is `arctic_aria_session`.
 - The cookie max age is 30 days.
-- The token payload stores only user id, username, display name, and expiry.
+- The token payload stores only user id, username, display name, admin flag,
+  and expiry.
 - The token is signed with HMAC SHA-256 to prevent tampering.
 - The token is not encrypted, so do not add sensitive data to the payload.
 - The cookie is `httpOnly`, `sameSite=lax`, and `secure` in production.

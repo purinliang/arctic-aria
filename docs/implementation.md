@@ -83,6 +83,7 @@ arctic-aria/
 |       |   |   |-- discord/
 |       |   |   |-- ideas/
 |       |   |   |-- memories/
+|       |   |   |-- performance/
 |       |   |   |-- projects/
 |       |   |   |-- routines/
 |       |   |   `-- settings/
@@ -194,6 +195,7 @@ Current feature implementation docs:
 
 - [features/auth/web-implementation.md](features/auth/web-implementation.md)
 - [features/dashboard/web-implementation.md](features/dashboard/web-implementation.md)
+- [features/performance/overview.md](features/performance/overview.md)
 - [features/memories/web-implementation.md](features/memories/web-implementation.md)
 - [features/projects/web-implementation.md](features/projects/web-implementation.md)
 - [features/routines/web-implementation.md](features/routines/web-implementation.md)

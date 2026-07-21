@@ -1,7 +1,7 @@
 # Current Database Schema
 
 This is a human-readable schema snapshot after
-`0022_add_routine_reminder_state.sql`.
+`0023_add_user_admin_flag.sql`.
 
 Source of truth:
 
@@ -32,6 +32,7 @@ Columns:
 - `username text NOT NULL UNIQUE`
 - `password_hash text NOT NULL`
 - `display_name text NOT NULL`
+- `is_admin boolean NOT NULL DEFAULT false`
 - `created_at timestamptz NOT NULL`
 - `updated_at timestamptz NOT NULL`
 
@@ -40,6 +41,7 @@ Important constraints:
 - username length: 4-16 characters
 - username allowed characters: visible ASCII
 - display name length: 1-24 characters
+- normal accounts are not administrators by default
 
 ### `user_settings`
 

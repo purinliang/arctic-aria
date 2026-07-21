@@ -366,6 +366,7 @@ export function AppShell({
           ) : activeView === "settings" ? (
             <SettingsPage
               currentUserId={currentUser.id}
+              currentUserIsAdmin={currentUser.isAdmin}
               darkMode={darkMode}
               languagePreference={languagePreference}
               browserTimeZone={browserTimeZone}

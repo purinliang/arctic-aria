@@ -20,6 +20,7 @@ export type AuthUser = {
   id: string;
   username: string;
   displayName: string;
+  isAdmin: boolean;
 };
 
 export type AuthActionResult =
@@ -52,11 +53,14 @@ function defaultAuthLog(event: string, details?: Record<string, unknown>) {
   console.log("[auth]", event);
 }
 
-function toAuthUser(user: Pick<UserRecord, "id" | "username" | "displayName">) {
+function toAuthUser(
+  user: Pick<UserRecord, "id" | "username" | "displayName" | "isAdmin">,
+) {
   return {
     id: user.id,
     username: user.username,
     displayName: user.displayName,
+    isAdmin: user.isAdmin,
   };
 }
 
