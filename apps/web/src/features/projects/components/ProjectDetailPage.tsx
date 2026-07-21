@@ -210,42 +210,44 @@ function ProjectDetailContent({
   );
 
   return (
-    <section className="aa-split-container">
-      <div className="aa-split-panel gap-4">
-        <div className="grid min-w-0 content-start gap-4">
-          <MilestoneOverviewPanel
-            darkMode={darkMode}
-            pending={pending}
-            choice={selectedChoice}
-            messages={sidePanelMessages}
-            onEditMilestone={onEditMilestone}
-          />
-          <ProjectDetailTasksPanel
-            darkMode={darkMode}
-            pending={pending}
-            tasks={selectedTasks}
-            messages={messages}
-            defaultDescriptions={defaultDescriptions}
-            dateMessages={dateMessages}
-            onAddTask={() =>
-              onAddTask(project.id, selectedMilestone?.id ?? undefined)
-            }
-            onEditTask={onEditTask}
-            onTaskStatus={onTaskStatus}
-          />
-        </div>
+    <section className="grid gap-4">
+      <MilestoneOverviewPanel
+        darkMode={darkMode}
+        pending={pending}
+        choice={selectedChoice}
+        messages={sidePanelMessages}
+        onEditMilestone={onEditMilestone}
+      />
+      <div className="aa-split-container">
+        <div className="aa-split-panel gap-4">
+          <div className="grid min-w-0 content-start gap-4">
+            <ProjectDetailTasksPanel
+              darkMode={darkMode}
+              pending={pending}
+              tasks={selectedTasks}
+              messages={messages}
+              defaultDescriptions={defaultDescriptions}
+              dateMessages={dateMessages}
+              onAddTask={() =>
+                onAddTask(project.id, selectedMilestone?.id ?? undefined)
+              }
+              onEditTask={onEditTask}
+              onTaskStatus={onTaskStatus}
+            />
+          </div>
 
-        <aside className="grid content-start gap-4">
-          <MilestoneSwitchPanel
-            darkMode={darkMode}
-            pending={pending}
-            choices={milestoneChoices}
-            selectedMilestoneId={selectedMilestoneId}
-            messages={sidePanelMessages}
-            onAddMilestone={() => onAddMilestone(project.id)}
-            onSelectMilestone={setSelectedMilestoneId}
-          />
-        </aside>
+          <aside className="grid content-start gap-4">
+            <MilestoneSwitchPanel
+              darkMode={darkMode}
+              pending={pending}
+              choices={milestoneChoices}
+              selectedMilestoneId={selectedMilestoneId}
+              messages={sidePanelMessages}
+              onAddMilestone={() => onAddMilestone(project.id)}
+              onSelectMilestone={setSelectedMilestoneId}
+            />
+          </aside>
+        </div>
       </div>
     </section>
   );

@@ -251,20 +251,19 @@ Project title switcher:
 
 Detail page layout:
 
-- parent layout: shared split layout
-- direction: left-right on desktop, stacked on mobile
+- parent layout: vertical milestone overview followed by shared split layout
+- direction below the overview: left-right on desktop, stacked on mobile
 - desktop split: flexible left panel and fixed `21rem` right panel
 - if available width cannot keep the left panel at least 20% wider than the
   right panel, stack the panels vertically instead
 - use the shared `aa-split-*` classes so the two-column layout activates only
   when the detail container is at least `53rem` wide
 - left and right panels keep independent content-driven heights
-- left panel: lightweight selected milestone overview text, then task list for
-  the selected milestone group
+- full-width top area: selected milestone title, objective, timeline, and
+  compact task progress; this is not a separate card
+- left panel: task list for the selected milestone group
 - right panel: `Milestones` with `New`
-- left top area: selected milestone title, objective, timeline, and compact
-  task progress; this is not a separate card
-- left bottom card: `Tasks`
+- left card: `Tasks`
 - right card: `Milestones` with `New`
 - left card: `Tasks` card with icon, supporting text, and `New`
 - title action: icon-only outline `Pin` or `PinOff` button
