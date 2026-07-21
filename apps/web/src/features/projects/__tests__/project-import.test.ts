@@ -64,6 +64,41 @@ Duration: 1_3_months
   }
 });
 
+test("project import accepts star markdown task bullets", () => {
+  const parsed = parseProjectMarkdownToJson(`# Project: Prepare certification application
+Objective: Lodge a complete test application.
+Start date: 2026-07-22
+Timeline: deadline
+Deadline: 2026-08-23
+
+## Milestone: Gather application evidence
+Objective: Collect required test documents.
+Start date: 2026-07-22
+Timeline: deadline
+Deadline: 2026-08-18
+
+### Tasks
+
+* Title: Collect first document
+  Description: Save the first required test document.
+  Start date: 2026-07-22
+  Deadline: 2026-07-23
+`);
+
+  assert.equal(parsed.ok, true);
+
+  if (parsed.ok) {
+    assert.deepEqual(parsed.data.milestones[0].tasks, [
+      {
+        title: "Collect first document",
+        description: "Save the first required test document.",
+        startDate: "2026-07-22",
+        deadlineDate: "2026-07-23",
+      },
+    ]);
+  }
+});
+
 test("project import rejects top-level tasks without milestones", () => {
   const parsed = parseProjectMarkdownToJson(`# Project: Find a job
 ## Tasks

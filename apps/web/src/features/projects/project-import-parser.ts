@@ -120,7 +120,9 @@ export function parseProjectMarkdownToJson(
       return invalidStructure(`Unsupported heading on line ${lineNumber}.`);
     }
 
-    if (line.startsWith("- ")) {
+    const taskItemText = readTaskItemText(line);
+
+    if (taskItemText !== null) {
       finishTask();
 
       if (section?.type !== "milestone_tasks") {
@@ -129,7 +131,7 @@ export function parseProjectMarkdownToJson(
         );
       }
 
-      const parsed = parseField(line.slice(2), lineNumber);
+      const parsed = parseField(taskItemText, lineNumber);
       if (!parsed.ok) {
         return parsed;
       }
@@ -507,6 +509,14 @@ function parseField(
       value: line.slice(separator + 1).trim(),
     },
   };
+}
+
+function readTaskItemText(line: string) {
+  if (line.startsWith("- ") || line.startsWith("* ")) {
+    return line.slice(2);
+  }
+
+  return null;
 }
 
 function applyProjectField(
