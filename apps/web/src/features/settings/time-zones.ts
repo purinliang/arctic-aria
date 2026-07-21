@@ -71,6 +71,80 @@ export function formatTimeZoneOffset(
   }
 }
 
+export function localDateTimeParts(date: Date, timeZone: string) {
+  const resolvedTimeZone = readResolvedTimeZone(timeZone);
+
+  if (!resolvedTimeZone) {
+    return null;
+  }
+
+  try {
+    const parts = Intl.DateTimeFormat("en-US", {
+      day: "2-digit",
+      hour: "2-digit",
+      hour12: false,
+      hourCycle: "h23",
+      minute: "2-digit",
+      month: "2-digit",
+      second: "2-digit",
+      timeZone: resolvedTimeZone,
+      year: "numeric",
+    }).formatToParts(date);
+    const values = dateTimeValues(parts);
+
+    if (
+      !values.year ||
+      !values.month ||
+      !values.day ||
+      !values.hour ||
+      !values.minute ||
+      !values.second
+    ) {
+      return null;
+    }
+
+    const dateKey = `${values.year}-${values.month}-${values.day}`;
+    const fallbackDate = new Date(`${dateKey}T00:00:00.000Z`);
+
+    return {
+      dateKey,
+      day: Number(values.day),
+      hour: Number(values.hour) % 24,
+      minute: Number(values.minute),
+      second: Number(values.second),
+      timeZone: resolvedTimeZone,
+      weekday: fallbackDate.getUTCDay(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function localDateKey(date: Date, timeZone: string) {
+  return localDateTimeParts(date, timeZone)?.dateKey ?? date.toISOString().slice(0, 10);
+}
+
+export function localCalendarParts(date: Date, timeZone: string) {
+  const parts = localDateTimeParts(date, timeZone);
+
+  if (parts) {
+    return {
+      dateKey: parts.dateKey,
+      day: parts.day,
+      weekday: parts.weekday,
+    };
+  }
+
+  const dateKey = date.toISOString().slice(0, 10);
+  const fallbackDate = new Date(dateKey);
+
+  return {
+    dateKey,
+    day: fallbackDate.getUTCDate(),
+    weekday: fallbackDate.getUTCDay(),
+  };
+}
+
 export function timeZoneOffsetMinutes(timeZone: string, date: Date) {
   try {
     const parts = Intl.DateTimeFormat("en-US", {
@@ -84,11 +158,7 @@ export function timeZoneOffsetMinutes(timeZone: string, date: Date) {
       timeZone,
       year: "numeric",
     }).formatToParts(date);
-    const values = Object.fromEntries(
-      parts
-        .filter((part) => part.type !== "literal")
-        .map((part) => [part.type, part.value]),
-    );
+    const values = dateTimeValues(parts);
     const zonedTimestamp = Date.UTC(
       Number(values.year),
       Number(values.month) - 1,
@@ -102,6 +172,14 @@ export function timeZoneOffsetMinutes(timeZone: string, date: Date) {
   } catch {
     return null;
   }
+}
+
+function dateTimeValues(parts: Intl.DateTimeFormatPart[]) {
+  return Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value]),
+  );
 }
 
 export function zonedDateTimeToUtcDate({

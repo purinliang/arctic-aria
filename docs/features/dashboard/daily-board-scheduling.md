@@ -24,6 +24,12 @@ Important Today board invariant:
 - completed project tasks should stay visible on Today when they have a
   `project_task_daily_selections` row for the current local date
 
+Server-side Today queries must resolve the current local date from the app
+user's stored timezone first. If the user preference is `system`, use
+`user_settings.resolved_timezone`, which is the last concrete browser-resolved
+IANA timezone synced by the web app. Falling back to UTC is allowed only when
+no stored concrete timezone exists.
+
 ## Shared Naming
 
 Use the same date/time naming rule across both designs:
@@ -311,7 +317,8 @@ creating a separate dismissed state.
 Today task behavior is:
 
 ```text
-load project_task_daily_selections for the current local scheduled_date
+resolve the app user's current local Today date
+  -> load project_task_daily_selections for that scheduled_date
   -> join project_tasks
   -> include completed and incomplete tasks
   -> keep completed tasks visible while scheduled_date is today

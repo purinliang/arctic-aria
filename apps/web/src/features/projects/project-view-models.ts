@@ -12,6 +12,7 @@ import type {
 } from "./server/project-repository";
 import { projectTaskProgressText } from "./project-progress";
 import { projectService } from "./server/project-service";
+import { loadUserResolvedTimeZone } from "../settings/server/user-time-zone";
 
 export type ProjectView = {
   id: string;
@@ -59,8 +60,9 @@ const dateFormatter = new Intl.DateTimeFormat("en", {
 export async function loadProjectDashboardData(
   userId: string,
 ): Promise<ProjectDashboardData> {
+  const timeZone = await loadUserResolvedTimeZone(userId);
   const [tasks, projects] = await Promise.all([
-    projectService.listDashboardTasks(userId),
+    projectService.listDashboardTasks(userId, timeZone),
     projectService.listProjects(userId),
   ]);
 

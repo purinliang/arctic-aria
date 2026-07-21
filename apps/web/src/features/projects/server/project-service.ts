@@ -1,4 +1,8 @@
 import { PostgresProjectRepository } from "./postgres-project-repository.ts";
+import {
+  defaultResolvedTimeZone,
+  localDateKey,
+} from "../../settings/time-zones.ts";
 import type {
   ImportProjectTreeInput,
   ProjectRepository,
@@ -13,10 +17,6 @@ export type ProjectServiceOptions = {
   now?: () => Date;
 };
 
-function dateKey(date: Date) {
-  return date.toISOString().slice(0, 10);
-}
-
 export function createProjectService(options: ProjectServiceOptions = {}) {
   const projects = options.projects ?? new PostgresProjectRepository();
   const now = options.now ?? (() => new Date());
@@ -26,10 +26,17 @@ export function createProjectService(options: ProjectServiceOptions = {}) {
       return projects.listProjects(userId);
     },
 
-    async listDashboardTasks(userId: string) {
+    async listDashboardTasks(
+      userId: string,
+      timeZone = defaultResolvedTimeZone,
+    ) {
       const occurredAt = now();
 
-      return projects.listDashboardTasks(userId, dateKey(occurredAt), occurredAt);
+      return projects.listDashboardTasks(
+        userId,
+        localDateKey(occurredAt, timeZone),
+        occurredAt,
+      );
     },
 
     async saveProject(

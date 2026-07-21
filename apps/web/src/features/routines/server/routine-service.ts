@@ -1,4 +1,5 @@
 import { PostgresRoutineRepository } from "./postgres-routine-repository.ts";
+import { localDateKey } from "../../settings/time-zones.ts";
 import type {
   RoutineInstanceRecord,
   RoutineRecord,
@@ -6,7 +7,6 @@ import type {
   RoutineRuleInput,
 } from "./routine-repository.ts";
 import {
-  localDateKey,
   resolveRoutineScheduledTime,
   routineReminderAt,
 } from "./routine-reminder-schedule.ts";
@@ -24,10 +24,6 @@ type TodayRoutineCandidate = {
   scheduledDate: string;
   scheduledTime: string;
 };
-
-export function dateKey(date: Date) {
-  return date.toISOString().slice(0, 10);
-}
 
 function parseDateKey(value: string) {
   return new Date(`${value}T00:00:00.000Z`);

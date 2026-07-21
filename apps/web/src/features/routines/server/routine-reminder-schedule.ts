@@ -1,5 +1,8 @@
 import { createHash } from "node:crypto";
-import { zonedDateTimeToUtcDate } from "../../settings/time-zones.ts";
+import {
+  localDateKey,
+  zonedDateTimeToUtcDate,
+} from "../../settings/time-zones.ts";
 import type { RoutineInstanceRecord, RoutineRecord } from "./routine-repository.ts";
 
 export const fallbackRoutineScheduledTime = "18:00";
@@ -172,22 +175,6 @@ function reminderTime(instance: RoutineInstanceRecord) {
 
 function scheduledTime(instance: RoutineInstanceRecord) {
   return instance.scheduledTime ?? "";
-}
-
-export function localDateKey(date: Date, timeZone: string) {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    day: "2-digit",
-    month: "2-digit",
-    timeZone,
-    year: "numeric",
-  }).formatToParts(date);
-  const values = Object.fromEntries(
-    parts
-      .filter((part) => part.type !== "literal")
-      .map((part) => [part.type, part.value]),
-  );
-
-  return `${values.year}-${values.month}-${values.day}`;
 }
 
 function addDaysToDateKey(dateKey: string, days: number) {

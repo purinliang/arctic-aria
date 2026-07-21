@@ -151,3 +151,35 @@ test("dashboard task selection uses the due window only before scheduling", asyn
   assert.equal(edited, true);
   assert.deepEqual(secondLoad.map((task) => task.id), ["due-soon"]);
 });
+
+test("dashboard task selection uses the user local day", async () => {
+  const repository = new InMemoryProjectRepository({
+    projects: [
+      project({
+        id: "project-1",
+        title: "Test project",
+        tasks: [
+          task({
+            id: "local-today",
+            title: "Local today",
+            startDate: "2026-07-22",
+            deadlineDate: "2026-07-22",
+          }),
+        ],
+      }),
+    ],
+  });
+  const service = createProjectService({
+    projects: repository,
+    now: () => new Date("2026-07-21T23:30:00.000Z"),
+  });
+
+  const utcTasks = await service.listDashboardTasks(userId, "UTC");
+  const sydneyTasks = await service.listDashboardTasks(
+    userId,
+    "Australia/Sydney",
+  );
+
+  assert.deepEqual(utcTasks.map((task) => task.id), []);
+  assert.deepEqual(sydneyTasks.map((task) => task.id), ["local-today"]);
+});
