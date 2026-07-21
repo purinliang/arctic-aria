@@ -10,11 +10,13 @@ import {
   type ProjectTaskRow,
 } from "./postgres-project-mappers.ts";
 import {
+  importProjectTree,
   saveMilestone,
   saveProject,
   saveTask,
 } from "./postgres-project-save-queries.ts";
 import type {
+  ImportProjectTreeInput,
   ProjectPinResult,
   ProjectRepository,
   ProjectTaskStatus,
@@ -75,6 +77,10 @@ export class PostgresProjectRepository implements ProjectRepository {
 
   saveTask(input: SaveProjectTaskInput) {
     return saveTask(this.getSql(), input);
+  }
+
+  importProjectTree(input: ImportProjectTreeInput) {
+    return importProjectTree(this.getSql(), input);
   }
 
   async archiveProject(input: {

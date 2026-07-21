@@ -1,5 +1,6 @@
 import { PostgresProjectRepository } from "./postgres-project-repository.ts";
 import type {
+  ImportProjectTreeInput,
   ProjectRepository,
   ProjectTaskStatus,
   SaveMilestoneInput,
@@ -56,6 +57,17 @@ export function createProjectService(options: ProjectServiceOptions = {}) {
       input: Omit<SaveProjectTaskInput, "userId" | "occurredAt">,
     ) {
       return projects.saveTask({
+        ...input,
+        userId,
+        occurredAt: now(),
+      });
+    },
+
+    async importProjectTree(
+      userId: string,
+      input: Omit<ImportProjectTreeInput, "userId" | "occurredAt">,
+    ) {
+      return projects.importProjectTree({
         ...input,
         userId,
         occurredAt: now(),

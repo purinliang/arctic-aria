@@ -1,0 +1,53 @@
+{
+  "project": {
+    "title": "Find a job",
+    "objective": "Land a backend role.",
+    "startDate": "2026-07-22",
+    "timeline": {
+      "type": "duration",
+      "durationRange": "3_6_months"
+    }
+  },
+  "milestones": [
+    {
+      "title": "Applications",
+      "objective": "Submit strong applications.",
+      "startDate": "2026-07-22",
+      "timeline": {
+        "type": "duration",
+        "durationRange": "1_3_months"
+      },
+      "tasks": [
+        {
+          "title": "Prepare resume",
+          "description": "Rewrite backend experience bullets.",
+          "startDate": "2026-07-22",
+          "deadlineDate": "2026-07-30"
+        },
+        {
+          "title": "Apply to first role",
+          "description": "Send one careful application.",
+          "startDate": "2026-07-23",
+          "deadlineDate": "2026-08-01"
+        }
+      ]
+    },
+    {
+      "title": "Interviews",
+      "objective": "Prepare for interview loops.",
+      "startDate": "2026-08-01",
+      "timeline": {
+        "type": "duration",
+        "durationRange": "1_3_months"
+      },
+      "tasks": [
+        {
+          "title": "Practice system design",
+          "description": "Review one system design topic.",
+          "startDate": "2026-08-01",
+          "deadlineDate": "2026-08-07"
+        }
+      ]
+    }
+  ]
+}
