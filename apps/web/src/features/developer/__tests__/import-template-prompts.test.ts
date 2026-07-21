@@ -25,6 +25,12 @@ test("developer import prompts wrap templates with llm instructions", () => {
   assert.match(prompt, /Supported duration values/);
   assert.match(prompt, /# Project: Find a job/);
   assert.match(prompt, /My requirement is:\n$/);
+
+  const routinePrompt = developerImportPromptFor("routines");
+
+  assert.match(routinePrompt, /Fixed interval days/);
+  assert.match(routinePrompt, /2 means every 2 days/);
+  assert.match(routinePrompt, /1 = daily, 2 = every 2 days, 7 = weekly/);
 });
 
 test("developer import target detection reads markdown and json", () => {
