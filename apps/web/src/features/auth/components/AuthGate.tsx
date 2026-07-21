@@ -15,12 +15,14 @@ import { localizedActionMessage } from "@/messages/action-result";
 import { getAppMessages } from "@/messages/app-messages";
 import {
   getUserPreferences,
+  saveResolvedTimeZone,
   saveUserPreferences,
 } from "@/features/settings/actions";
 import {
   normalizeUserPreferences,
   type UserPreferences,
 } from "@/features/settings/preferences";
+import { readResolvedTimeZone } from "@/features/settings/time-zones";
 import {
   getCurrentUser,
   getPublicVersionStatus,
@@ -85,6 +87,7 @@ export function AuthGate({
   const currentPreferences = normalizeUserPreferences({
     languagePreference,
     multipleTimezonesEnabled: false,
+    resolvedTimeZone: null,
     themePreference,
     timeFormatPreference,
     timeZonePreference: "system",
@@ -99,6 +102,34 @@ export function AuthGate({
     },
     [applyUserPreferences],
   );
+  const syncResolvedTimeZone = useCallback(() => {
+    const resolvedTimeZone = readResolvedTimeZone(browserDefaults.timeZone);
+
+    if (
+      !resolvedTimeZone ||
+      latestPreferencesRef.current.resolvedTimeZone === resolvedTimeZone
+    ) {
+      return;
+    }
+
+    latestPreferencesRef.current = mergeUserPreferenceUpdate(
+      latestPreferencesRef.current,
+      { resolvedTimeZone },
+    );
+
+    void saveResolvedTimeZone({ resolvedTimeZone })
+      .then((result) => {
+        if (result.ok) {
+          latestPreferencesRef.current = mergeUserPreferenceUpdate(
+            latestPreferencesRef.current,
+            { resolvedTimeZone: result.preferences.resolvedTimeZone },
+          );
+        }
+      })
+      .catch(() => {
+        console.warn("[settings-ui]", "resolved_timezone_sync_failed");
+      });
+  }, [browserDefaults.timeZone]);
   const messages = getAppMessages(resolvedLanguage);
   const {
     notifications,
@@ -178,12 +209,17 @@ export function AuthGate({
       })
       .catch(() => {
         console.warn("[settings-ui]", "preferences_load_failed");
+      })
+      .finally(() => {
+        if (active) {
+          syncResolvedTimeZone();
+        }
       });
 
     return () => {
       active = false;
     };
-  }, [applyPreferencesLocally, currentUser]);
+  }, [applyPreferencesLocally, currentUser, syncResolvedTimeZone]);
 
   if (!sessionChecked) {
     return <AuthLoadingScreen />;

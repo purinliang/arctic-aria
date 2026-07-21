@@ -17,6 +17,7 @@ Columns:
 - `language_preference text NOT NULL DEFAULT 'en'`
 - `time_format_preference text NOT NULL DEFAULT '12h'`
 - `timezone_preference text NOT NULL DEFAULT 'system'`
+- `resolved_timezone text`
 - `multiple_timezones_enabled boolean NOT NULL DEFAULT false`
 - `created_at timestamptz NOT NULL DEFAULT now()`
 - `updated_at timestamptz NOT NULL DEFAULT now()`
@@ -29,6 +30,9 @@ Constraints:
 - `timezone_preference` must be `system` or a non-empty trimmed string no
   longer than 64 characters. Backend normalization accepts only IANA timezone
   names.
+- `resolved_timezone` stores the last concrete browser-resolved IANA timezone
+  for server-side scheduled jobs. It is nullable, must not be `system`, and is
+  updated quietly by the web app after login when browser detection changes.
 - `multiple_timezones_enabled` must be boolean
 
 ### `discord_accounts`

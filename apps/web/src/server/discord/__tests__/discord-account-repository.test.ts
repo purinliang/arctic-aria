@@ -40,16 +40,30 @@ test("discord account repository looks up active bindings by user id", async () 
 
 test("discord account repository lists active daily review targets", async () => {
   const { records, sql } = createSqlStub([
-    { user_id: "user-1", timezone_preference: "Australia/Sydney" },
-    { user_id: "user-2", timezone_preference: null },
+    {
+      user_id: "user-1",
+      timezone_preference: "Australia/Sydney",
+      resolved_timezone: "Asia/Shanghai",
+    },
+    {
+      user_id: "user-2",
+      timezone_preference: "system",
+      resolved_timezone: "Australia/Melbourne",
+    },
+    {
+      user_id: "user-3",
+      timezone_preference: null,
+      resolved_timezone: null,
+    },
   ]);
   const repository = new PostgresDiscordAccountRepository(sql as never);
 
   const targets = await repository.listActiveDailyReviewTargets();
 
   assert.deepEqual(targets, [
-    { userId: "user-1", timeZonePreference: "Australia/Sydney" },
-    { userId: "user-2", timeZonePreference: "system" },
+    { userId: "user-1", timeZone: "Australia/Sydney" },
+    { userId: "user-2", timeZone: "Australia/Melbourne" },
+    { userId: "user-3", timeZone: null },
   ]);
   assert.match(records[0]?.text ?? "", /FROM discord_accounts/);
   assert.match(records[0]?.text ?? "", /LEFT JOIN user_settings/);

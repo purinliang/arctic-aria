@@ -2,6 +2,7 @@ import {
   normalizeUserPreferences,
   type UserPreferences,
 } from "../preferences.ts";
+import { readResolvedTimeZone } from "../time-zones.ts";
 import { PostgresUserSettingsRepository } from "./postgres-user-settings-repository.ts";
 
 export type SettingsActionResult =
@@ -14,6 +15,7 @@ export type SettingsActionResult =
       ok: false;
       code:
         | "settings_unauthorized"
+        | "settings_resolved_timezone_invalid"
         | "settings_timezone_preferences_disabled"
         | "settings_preferences_unavailable"
         | "settings_preferences_save_failed";
@@ -23,6 +25,10 @@ export type SettingsActionResult =
 type UserSettingsRepository = {
   getOrCreate(userId: string): Promise<UserPreferences>;
   upsert(userId: string, preferences: UserPreferences): Promise<UserPreferences>;
+  updateResolvedTimeZone(
+    userId: string,
+    resolvedTimeZone: string,
+  ): Promise<UserPreferences>;
 };
 
 export function createSettingsService(
@@ -52,6 +58,38 @@ export function createSettingsService(
           preferences: await settings.upsert(
             userId,
             normalizeUserPreferences(preferences),
+          ),
+        };
+      } catch {
+        return {
+          ok: false,
+          code: "settings_preferences_save_failed",
+          message: "Settings could not be saved.",
+        };
+      }
+    },
+
+    async saveResolvedTimeZone(
+      userId: string,
+      input: string,
+    ): Promise<SettingsActionResult> {
+      const resolvedTimeZone = readResolvedTimeZone(input);
+
+      if (!resolvedTimeZone) {
+        return {
+          ok: false,
+          code: "settings_resolved_timezone_invalid",
+          message: "Timezone could not be resolved.",
+        };
+      }
+
+      try {
+        return {
+          ok: true,
+          code: "settings_preferences_saved",
+          preferences: await settings.updateResolvedTimeZone(
+            userId,
+            resolvedTimeZone,
           ),
         };
       } catch {

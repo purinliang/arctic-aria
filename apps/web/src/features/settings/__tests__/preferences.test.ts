@@ -20,6 +20,7 @@ test("settings preferences normalize unsupported values to defaults", () => {
     normalizeUserPreferences({
       languagePreference: "unsupported" as never,
       multipleTimezonesEnabled: "yes" as never,
+      resolvedTimeZone: "not-a-timezone",
       themePreference: "blue" as never,
       timeFormatPreference: "system" as never,
       timeZonePreference: "not-a-timezone",
@@ -40,6 +41,15 @@ test("settings preferences accept supported theme, time, and timezone values", (
   assert.equal(readMultipleTimezonesEnabled(true), true);
   assert.equal(readMultipleTimezonesEnabled(false), false);
   assert.equal(readMultipleTimezonesEnabled("true"), false);
+  assert.equal(
+    normalizeUserPreferences({ resolvedTimeZone: "Australia/Sydney" })
+      .resolvedTimeZone,
+    "Australia/Sydney",
+  );
+  assert.equal(
+    normalizeUserPreferences({ resolvedTimeZone: "system" }).resolvedTimeZone,
+    null,
+  );
 });
 
 test("timezone preference resolves system against browser timezone", () => {

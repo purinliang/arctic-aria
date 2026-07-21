@@ -16,6 +16,7 @@ test("settings repository creates defaults when no row exists", async () => {
   assert.deepEqual(preferences, {
     languagePreference: "en",
     multipleTimezonesEnabled: false,
+    resolvedTimeZone: null,
     themePreference: "system",
     timeFormatPreference: "12h",
     timeZonePreference: "system",
@@ -28,6 +29,7 @@ test("settings repository creates defaults when no row exists", async () => {
     "en",
     "12h",
     "system",
+    null,
     false,
   ]);
 });
@@ -39,6 +41,7 @@ test("settings repository normalizes unsupported values before upsert", async ()
   await repository.upsert("user-1", {
     languagePreference: "unsupported" as never,
     multipleTimezonesEnabled: true,
+    resolvedTimeZone: "Australia/Sydney",
     themePreference: "unknown" as never,
     timeFormatPreference: "unsupported" as never,
     timeZonePreference: "not-a-timezone",
@@ -50,7 +53,30 @@ test("settings repository normalizes unsupported values before upsert", async ()
     "en",
     "12h",
     "system",
+    "Australia/Sydney",
     true,
+  ]);
+});
+
+test("settings repository updates only resolved timezone", async () => {
+  const { records, sql } = createSqlStub([]);
+  const repository = new PostgresUserSettingsRepository(sql as never);
+
+  const preferences = await repository.updateResolvedTimeZone(
+    "user-1",
+    "Australia/Sydney",
+  );
+
+  assert.equal(preferences.resolvedTimeZone, "Australia/Sydney");
+  assert.match(records[0]?.text ?? "", /resolved_timezone = EXCLUDED\.resolved_timezone/);
+  assert.deepEqual(records[0]?.params, [
+    "user-1",
+    "system",
+    "en",
+    "12h",
+    "system",
+    "Australia/Sydney",
+    false,
   ]);
 });
 
@@ -71,7 +97,8 @@ function createSqlStub(findRows: unknown[]) {
             language_preference: params[2],
             time_format_preference: params[3],
             timezone_preference: params[4],
-            multiple_timezones_enabled: params[5],
+            resolved_timezone: params[5],
+            multiple_timezones_enabled: params[6],
           },
         ];
       }
