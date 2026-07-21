@@ -5,6 +5,7 @@ import { Button } from "@/components/button";
 import { secondaryTextColorClass, panelColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
+import { HorizontalProgressBar } from "@/components/horizontal-progress-bar";
 import { ScrollArea } from "@/components/scroll-area";
 import { DescriptionText, SupportingText } from "@/components/text";
 import { cx } from "@/components/utils";
@@ -428,6 +429,12 @@ function ProjectOverviewPopover({
     timelineMetadata.value,
     dateMessages,
   );
+  const doneTasks = doneTaskCount(project);
+  const taskProgress =
+    project.tasks.length > 0 ? doneTasks / project.tasks.length : 0;
+  const deadlineProgress = project.deadlineDate
+    ? dateRangeProgress(project.startDate, project.deadlineDate)
+    : null;
 
   return (
     <div
@@ -486,6 +493,11 @@ function ProjectOverviewPopover({
         <SupportingText darkMode={darkMode} className="truncate">
           {overviewTimeline}
         </SupportingText>
+        <HorizontalProgressBar
+          primary={taskProgress}
+          secondary={deadlineProgress}
+          ariaLabel={progressAriaLabel(taskProgress, deadlineProgress)}
+        />
       </div>
     </div>
   );
@@ -547,4 +559,67 @@ function doneTaskCount(project: ProjectView) {
 
 function formatDate(value: string, messages: DatePickerMessages) {
   return formatDateKey(value, messages);
+}
+
+function dateRangeProgress(startDate: string, deadlineDate: string) {
+  const startDay = dateKeyToUtcDay(startDate);
+  const deadlineDay = dateKeyToUtcDay(deadlineDate);
+
+  if (startDay === null || deadlineDay === null) {
+    return null;
+  }
+
+  const today = localTodayToUtcDay();
+
+  if (deadlineDay <= startDay) {
+    return today >= deadlineDay ? 1 : 0;
+  }
+
+  return (today - startDay) / (deadlineDay - startDay);
+}
+
+function dateKeyToUtcDay(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+
+  if (!match) {
+    return null;
+  }
+
+  const year = Number(match[1]);
+  const monthIndex = Number(match[2]) - 1;
+  const day = Number(match[3]);
+  const timestamp = Date.UTC(year, monthIndex, day);
+  const parsed = new Date(timestamp);
+
+  if (
+    parsed.getUTCFullYear() !== year ||
+    parsed.getUTCMonth() !== monthIndex ||
+    parsed.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  return timestamp;
+}
+
+function localTodayToUtcDay(date = new Date()) {
+  return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function progressAriaLabel(primary: number, secondary: number | null) {
+  const taskText = `${Math.round(clampFraction(primary) * 100)}% tasks complete`;
+
+  if (secondary === null) {
+    return taskText;
+  }
+
+  return `${taskText}; ${Math.round(clampFraction(secondary) * 100)}% timeline elapsed`;
+}
+
+function clampFraction(value: number) {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(1, value));
 }

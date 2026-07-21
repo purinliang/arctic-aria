@@ -280,6 +280,9 @@ Detail page layout:
 - project overview popover date line shows `start date - deadline` when the
   project has a deadline, otherwise `start date · expected duration` or
   `start date · open-ended`
+- project overview popover shows a thin progress bar below the date line; the
+  primary fill shows completed tasks over total tasks, and the secondary fill
+  shows elapsed calendar progress only for deadline projects
 - if the saved objective is empty, show localized default objective copy derived
   from the project title; this fallback is render-only and is not persisted
 - overview start dates should display in localized date format, not raw
