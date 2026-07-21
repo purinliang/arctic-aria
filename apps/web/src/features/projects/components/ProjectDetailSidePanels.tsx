@@ -1,11 +1,11 @@
 // Projects Page - Project Detail Side Panels.
-import { Edit3, Flag, Plus } from "lucide-react";
+import { Flag, Settings2 } from "lucide-react";
 import { Button } from "@/components/button";
 import { Card, CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
 import { List, ListItem } from "@/components/list";
-import { DescriptionText, LabelText, SupportingText } from "@/components/text";
+import { DescriptionText, SupportingText } from "@/components/text";
 import { durationRangeForDays } from "@/features/projects/project-duration";
 import { projectOverviewTimelineMetadata } from "@/features/projects/project-overview-metadata";
 import type { ProjectView } from "@/features/projects/actions";
@@ -31,57 +31,34 @@ type SidePanelMessages = {
 
 export function MilestoneOverviewPanel({
   darkMode,
-  pending,
   choice,
   messages,
-  onEditMilestone,
 }: {
   darkMode: boolean;
-  pending: boolean;
   choice: MilestoneChoice | null;
   messages: SidePanelMessages;
-  onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
 }) {
   const selectedMilestone = choice?.milestone ?? null;
   const supportText = choice
-    ? [
-        selectedMilestone
-          ? milestoneTimelineText(selectedMilestone, messages)
-          : messages.detail.noMilestoneDescription,
-        compactProgressText(choice),
-      ]
-        .filter(Boolean)
-        .join(" · ")
+    ? selectedMilestone
+      ? milestoneTimelineText(selectedMilestone, messages)
+      : messages.detail.noMilestoneDescription
     : "";
 
   return (
     <section className="grid min-w-0 gap-2 px-1 py-1">
       {choice ? (
-        <>
-          <div className="flex min-w-0 items-start justify-between gap-3">
-            <div className="grid min-w-0 gap-1">
-              <LabelText darkMode={darkMode} className="block truncate">
-                {choice.title}
-              </LabelText>
-              <DescriptionText darkMode={darkMode} className="line-clamp-2">
-                {choice.description}
-              </DescriptionText>
-              <SupportingText darkMode={darkMode} className="truncate">
-                {supportText}
-              </SupportingText>
-            </div>
-            {selectedMilestone ? (
-              <Button
-                darkMode={darkMode}
-                disabled={pending}
-                icon={<Edit3 size={15} aria-hidden="true" />}
-                onClick={() => onEditMilestone(selectedMilestone)}
-              >
-                {messages.detail.edit}
-              </Button>
-            ) : null}
-          </div>
-        </>
+        <div className="grid min-w-0 gap-1">
+          <h2 className="min-w-0 truncate text-xl font-semibold leading-7 text-[var(--aa-primary-text)] sm:text-2xl sm:leading-8">
+            {choice.title}
+          </h2>
+          <DescriptionText darkMode={darkMode} className="line-clamp-2">
+            {choice.description}
+          </DescriptionText>
+          <SupportingText darkMode={darkMode} className="truncate">
+            {supportText}
+          </SupportingText>
+        </div>
       ) : (
         <DescriptionText darkMode={darkMode}>
           {messages.detail.noMilestones}
@@ -97,7 +74,7 @@ export function MilestoneSwitchPanel({
   choices,
   selectedMilestoneId,
   messages,
-  onAddMilestone,
+  onManageMilestones,
   onSelectMilestone,
 }: {
   darkMode: boolean;
@@ -105,7 +82,7 @@ export function MilestoneSwitchPanel({
   choices: MilestoneChoice[];
   selectedMilestoneId: string | null;
   messages: SidePanelMessages;
-  onAddMilestone: () => void;
+  onManageMilestones: () => void;
   onSelectMilestone: (milestoneId: string) => void;
 }) {
   return (
@@ -118,10 +95,10 @@ export function MilestoneSwitchPanel({
           <Button
             darkMode={darkMode}
             disabled={pending}
-            icon={<Plus size={14} aria-hidden="true" />}
-            onClick={onAddMilestone}
+            icon={<Settings2 size={14} aria-hidden="true" />}
+            onClick={onManageMilestones}
           >
-            {messages.detail.new}
+            {messages.detail.manage}
           </Button>
         }
       />

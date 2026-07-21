@@ -24,6 +24,7 @@ export function ProjectEditorDialog({
   durationMessages,
   defaultDescriptions,
   formMessages,
+  zIndex,
   onClose,
   onSubmit,
   onDelete,
@@ -37,6 +38,7 @@ export function ProjectEditorDialog({
   durationMessages: ProjectMessages["duration"];
   defaultDescriptions: ProjectMessages["defaultDescriptions"];
   formMessages: FormMessages;
+  zIndex?: "z-50" | "z-[60]";
   onClose: () => void;
   onSubmit: () => void;
   onDelete?: () => void;
@@ -56,6 +58,7 @@ export function ProjectEditorDialog({
       saveText={messages.common.save}
       savingText={messages.common.saving}
       deleteText={onDelete ? messages.common.delete : undefined}
+      zIndex={zIndex}
       onClose={onClose}
       onSubmit={onSubmit}
       onDelete={onDelete}
@@ -111,6 +114,7 @@ export function MilestoneEditorDialog({
   durationMessages,
   defaultDescriptions,
   formMessages,
+  zIndex,
   onClose,
   onSubmit,
   onDelete,
@@ -124,6 +128,7 @@ export function MilestoneEditorDialog({
   durationMessages: ProjectMessages["duration"];
   defaultDescriptions: ProjectMessages["defaultDescriptions"];
   formMessages: FormMessages;
+  zIndex?: "z-50" | "z-[60]";
   onClose: () => void;
   onSubmit: () => void;
   onDelete?: () => void;
@@ -143,6 +148,7 @@ export function MilestoneEditorDialog({
       saveText={messages.common.save}
       savingText={messages.common.saving}
       deleteText={onDelete ? messages.common.delete : undefined}
+      zIndex={zIndex}
       onClose={onClose}
       onSubmit={onSubmit}
       onDelete={onDelete}

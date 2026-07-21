@@ -259,19 +259,19 @@ Detail page layout:
 - use the shared `aa-split-*` classes so the two-column layout activates only
   when the detail container is at least `53rem` wide
 - left and right panels keep independent content-driven heights
-- full-width top area: selected milestone title, objective, timeline, and
-  compact task progress; this is not a separate card
+- full-width top area: selected milestone title, objective, and timeline; this
+  is not a separate card
 - left panel: task list for the selected milestone group
-- right panel: `Milestones` with `New`
+- right panel: `Milestones` with `Manage`
 - left card: `Tasks`
-- right card: `Milestones` with `New`
+- right card: `Milestones` with `Manage`
 - left card: `Tasks` card with icon, supporting text, and `New`
 - title action: icon-only outline `Pin` or `PinOff` button
 - title action: icon-only `Info` button opens a project overview popover
 - project edit action: `Edit3` icon plus `Edit`, placed in the project
   overview popover
-- milestone edit action: `Edit3` icon plus `Edit`, placed beside the
-  lightweight selected milestone overview for the selected milestone
+- milestone add/edit actions live in a dedicated milestone manager dialog,
+  opened from the `Milestones` panel `Manage` action
 - on mobile, keep the pin/unpin action on the first title-bar row, aligned to
   the right of `Projects /`
 - the page title bar shows the selected project timeline text, such as
@@ -293,8 +293,8 @@ Detail page layout:
   or no-fixed-deadline mode
 - do not repeat project title inside the Project Overview card; the title is
   already in the page title
-- milestone overview shows the selected milestone title, objective, start date,
-  and timeline
+- milestone overview shows the selected milestone title, objective, and
+  timeline
 - milestone switcher list direction: vertical
 - milestone switcher rows act as jump controls, not edit controls
 - milestone switcher rows sort by deadline from earliest to latest, then start
@@ -353,12 +353,13 @@ Milestone overview should show:
 - objective, when present
 - deadline or expected duration, when present
 
-Milestone switcher rows should show title only.
+Milestone switcher rows should show title plus compact task progress.
 
 Actions:
 
-- add milestone
-- edit milestone
+- manage milestones
+- add milestone inside the manager dialog
+- edit milestone inside the manager dialog
 - delete milestone
 
 Projects do not create a default milestone. The milestone list can be empty.

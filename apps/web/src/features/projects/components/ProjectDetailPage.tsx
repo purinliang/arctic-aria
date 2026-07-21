@@ -29,8 +29,7 @@ export function ProjectDetailPage({
   durationMessages,
   defaultDescriptions,
   dateMessages,
-  onAddMilestone,
-  onEditMilestone,
+  onManageMilestones,
   onAddTask,
   onEditTask,
   onTaskStatus,
@@ -43,8 +42,7 @@ export function ProjectDetailPage({
   durationMessages: ProjectMessages["duration"];
   defaultDescriptions: ProjectMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
-  onAddMilestone: (projectId: string) => void;
-  onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
+  onManageMilestones: () => void;
   onAddTask: (projectId: string, milestoneId?: string) => void;
   onEditTask: (task: ProjectTaskView) => void;
   onTaskStatus: (taskId: string, status: TaskStatus) => void;
@@ -71,8 +69,7 @@ export function ProjectDetailPage({
       durationMessages={durationMessages}
       defaultDescriptions={defaultDescriptions}
       dateMessages={dateMessages}
-      onAddMilestone={onAddMilestone}
-      onEditMilestone={onEditMilestone}
+      onManageMilestones={onManageMilestones}
       onAddTask={onAddTask}
       onEditTask={onEditTask}
       onTaskStatus={onTaskStatus}
@@ -89,8 +86,7 @@ function ProjectDetailContent({
   durationMessages,
   defaultDescriptions,
   dateMessages,
-  onAddMilestone,
-  onEditMilestone,
+  onManageMilestones,
   onAddTask,
   onEditTask,
   onTaskStatus,
@@ -103,8 +99,7 @@ function ProjectDetailContent({
   durationMessages: ProjectMessages["duration"];
   defaultDescriptions: ProjectMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
-  onAddMilestone: (projectId: string) => void;
-  onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
+  onManageMilestones: () => void;
   onAddTask: (projectId: string, milestoneId?: string) => void;
   onEditTask: (task: ProjectTaskView) => void;
   onTaskStatus: (taskId: string, status: TaskStatus) => void;
@@ -213,10 +208,8 @@ function ProjectDetailContent({
     <section className="grid gap-4">
       <MilestoneOverviewPanel
         darkMode={darkMode}
-        pending={pending}
         choice={selectedChoice}
         messages={sidePanelMessages}
-        onEditMilestone={onEditMilestone}
       />
       <div className="aa-split-container">
         <div className="aa-split-panel gap-4">
@@ -243,7 +236,7 @@ function ProjectDetailContent({
               choices={milestoneChoices}
               selectedMilestoneId={selectedMilestoneId}
               messages={sidePanelMessages}
-              onAddMilestone={() => onAddMilestone(project.id)}
+              onManageMilestones={onManageMilestones}
               onSelectMilestone={setSelectedMilestoneId}
             />
           </aside>
