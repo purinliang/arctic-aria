@@ -84,7 +84,7 @@ export async function listPostgresDashboardTasks(
        SELECT $1, candidate_tasks.id, $2::date, 'scheduler', $3::timestamptz
        FROM candidate_tasks
        ON CONFLICT (user_id, task_id, scheduled_date) DO NOTHING
-       RETURNING task_id
+       RETURNING task_id, created_at
      ),
      active_daily_selections AS (
        SELECT
@@ -104,6 +104,11 @@ export async function listPostgresDashboardTasks(
            project_tasks.milestone_id IS NULL
            OR project_milestones.deleted_at IS NULL
          )
+       UNION ALL
+       SELECT
+         inserted_selections.task_id,
+         inserted_selections.created_at
+       FROM inserted_selections
      )
      ${projectTaskSelect}
      INNER JOIN active_daily_selections
