@@ -106,7 +106,7 @@ function ProjectTaskRow({
           grow={false}
           title={<h3 className="min-w-0 text-base font-semibold">{task.title}</h3>}
           main={
-            <DescriptionText darkMode={darkMode}>
+            <DescriptionText darkMode={darkMode} className="line-clamp-4">
               {displayDescription(
                 task.description,
                 task.title,

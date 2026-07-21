@@ -106,7 +106,7 @@ function RoutineRow({
             <h3 className="min-w-0 text-sm font-semibold">{routine.title}</h3>
           }
           main={
-            <DescriptionText darkMode={darkMode}>
+            <DescriptionText darkMode={darkMode} className="line-clamp-4">
               {displayDescription(
                 routine.description,
                 routine.title,
