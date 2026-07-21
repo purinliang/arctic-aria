@@ -13,6 +13,7 @@ import { List, ListItem, ListItemContent } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { LabelText, SupportingText } from "@/components/text";
 import { DeveloperImportToolItems } from "@/features/developer/components/DeveloperImportToolItems";
+import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
 import type { SettingsMessages } from "@/messages/app-messages";
 import {
   latencyReportMarkdown,
@@ -34,11 +35,13 @@ const metricKeys: LatencyMetricKey[] = [
 export function DeveloperToolsPanel({
   darkMode,
   messages,
+  onDeveloperImportComplete,
   showErrorNotification,
   showSuccessNotification,
 }: {
   darkMode: boolean;
   messages: SettingsMessages;
+  onDeveloperImportComplete: (target: DeveloperImportTarget) => void;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
 }) {
@@ -146,6 +149,7 @@ export function DeveloperToolsPanel({
         <DeveloperImportToolItems
           darkMode={darkMode}
           messages={messages}
+          onImportComplete={onDeveloperImportComplete}
           showErrorNotification={showErrorNotification}
           showSuccessNotification={showSuccessNotification}
         />

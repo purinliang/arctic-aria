@@ -15,6 +15,8 @@ import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { AppMessages } from "@/messages/app-messages";
 import type { LanguagePreference, SupportedLanguage } from "@/messages/languages";
+import { refreshAfterDeveloperImport } from "@/features/developer/import-refresh";
+import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
 import type {
   TimeFormatPreference,
   UserPreferences,
@@ -177,6 +179,13 @@ export function AppShell({
 
   function showProjectDetail(projectId: string) {
     navigateToRoute(appPathForProject(projectId));
+  }
+
+  function handleDeveloperImportComplete(target: DeveloperImportTarget) {
+    void refreshAfterDeveloperImport(target, {
+      refreshProjectData,
+      refreshRoutineData,
+    });
   }
 
   function handleViewChange(view: DashboardView) {
@@ -383,6 +392,7 @@ export function AppShell({
               themePreference={themePreference}
               versionMessages={messages.versionStatus}
               versionStatus={versionStatus}
+              onDeveloperImportComplete={handleDeveloperImportComplete}
               onLanguagePreferenceChange={onLanguagePreferenceChange}
               onPreferenceOpenAttempt={onPreferenceOpenAttempt}
               onThemePreferenceChange={onThemePreferenceChange}

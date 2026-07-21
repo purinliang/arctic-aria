@@ -20,11 +20,13 @@ type ImportAction = "parse" | "import";
 export function DeveloperImportToolItems({
   darkMode,
   messages,
+  onImportComplete,
   showErrorNotification,
   showSuccessNotification,
 }: {
   darkMode: boolean;
   messages: SettingsMessages;
+  onImportComplete: (target: DeveloperImportTarget) => void;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
 }) {
@@ -100,6 +102,7 @@ export function DeveloperImportToolItems({
             : messages.developerImport.routineImportSuccessMessage,
           messages.developerImport.importSuccessTitle,
         );
+        onImportComplete(target);
       }
     } catch {
       showErrorNotification(

@@ -12,6 +12,7 @@ import { Panel } from "@/components/panel";
 import { SupportingText } from "@/components/text";
 import { VersionStatusRows } from "@/components/version-status";
 import { DeveloperToolsPanel } from "@/features/performance/components/DeveloperToolsPanel";
+import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
 import type {
   TimeFormatPreference,
   UserPreferences,
@@ -37,6 +38,7 @@ export function SettingsPage({
   languagePreference,
   messages,
   notificationMessages,
+  onDeveloperImportComplete,
   onLanguagePreferenceChange,
   onPreferenceOpenAttempt,
   onThemePreferenceChange,
@@ -56,6 +58,7 @@ export function SettingsPage({
   languagePreference: LanguagePreference;
   messages: SettingsMessages;
   notificationMessages: NotificationMessages;
+  onDeveloperImportComplete: (target: DeveloperImportTarget) => void;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
   onPreferenceOpenAttempt: (preference: keyof UserPreferences) => boolean;
   onThemePreferenceChange: (preference: ThemePreference) => void;
@@ -209,6 +212,7 @@ export function SettingsPage({
         <DeveloperToolsPanel
           darkMode={darkMode}
           messages={messages}
+          onDeveloperImportComplete={onDeveloperImportComplete}
           showErrorNotification={showErrorNotification}
           showSuccessNotification={showSuccessNotification}
         />
