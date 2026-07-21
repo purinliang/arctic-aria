@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { secondaryButtonDividerColorClass } from "./color";
+import { Button } from "./button";
 import { cx } from "./utils";
 
 type ListItemTone = "default" | "success";
@@ -48,8 +49,8 @@ export function ListItem({
     <article
       className={cx(
         layout === "row"
-          ? "flex items-start justify-between gap-3 px-4 py-4 first-of-type:pt-4 last-of-type:pb-4"
-          : "px-4 py-4 first-of-type:pt-4 last-of-type:pb-4",
+          ? "flex items-start justify-between gap-3 px-4 py-2 first-of-type:pt-2 last-of-type:pb-2"
+          : "px-4 py-2 first-of-type:pt-2 last-of-type:pb-2",
         itemToneClass(darkMode, tone, active),
         className,
       )}
@@ -87,6 +88,24 @@ export function ListItemContent({
       ) : (
         children
       )}
+    </div>
+  );
+}
+
+export function ListFooterAction({
+  darkMode,
+  label,
+  onClick,
+}: {
+  darkMode: boolean;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <div className="flex justify-end px-4 py-3">
+      <Button darkMode={darkMode} tone="ghost" size="sm" onClick={onClick}>
+        {label}
+      </Button>
     </div>
   );
 }

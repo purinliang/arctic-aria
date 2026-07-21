@@ -10,6 +10,7 @@ Project implementation details are split across:
 
 - [data-model.md](data-model.md): product entities and SQL direction.
 - [ui.md](ui.md): web UI behavior and page structure.
+- [internal-import.md](internal-import.md): developer-only project tree import.
 
 ## Hierarchy
 

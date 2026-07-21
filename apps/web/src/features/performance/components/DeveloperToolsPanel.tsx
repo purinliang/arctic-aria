@@ -1,7 +1,7 @@
 "use client";
 
 // Settings Page - Developer Tools Panel.
-import { Gauge, LoaderCircle } from "lucide-react";
+import { Gauge, LoaderCircle, Wrench } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/button";
 import {
@@ -12,6 +12,8 @@ import { CardHeader } from "@/components/card";
 import { List, ListItem, ListItemContent } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { LabelText, SupportingText } from "@/components/text";
+import { DeveloperImportToolItems } from "@/features/developer/components/DeveloperImportToolItems";
+import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
 import type { SettingsMessages } from "@/messages/app-messages";
 import {
   latencyReportMarkdown,
@@ -33,11 +35,13 @@ const metricKeys: LatencyMetricKey[] = [
 export function DeveloperToolsPanel({
   darkMode,
   messages,
+  onDeveloperImportComplete,
   showErrorNotification,
   showSuccessNotification,
 }: {
   darkMode: boolean;
   messages: SettingsMessages;
+  onDeveloperImportComplete: (target: DeveloperImportTarget) => void;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
 }) {
@@ -88,7 +92,7 @@ export function DeveloperToolsPanel({
     <Panel darkMode={darkMode} className="min-w-0">
       <CardHeader
         darkMode={darkMode}
-        icon={<Gauge size={18} aria-hidden="true" />}
+        icon={<Wrench size={18} aria-hidden="true" />}
         title={messages.developerTools.title}
         description={messages.developerTools.description}
       />
@@ -96,38 +100,42 @@ export function DeveloperToolsPanel({
         <ListItem darkMode={darkMode} className="items-start">
           <ListItemContent
             title={
-              <LabelText darkMode={darkMode}>
-                {messages.developerTools.visibility}
-              </LabelText>
+              <span className="flex items-center gap-2">
+                <Gauge size={14} aria-hidden="true" />
+                <LabelText darkMode={darkMode}>
+                  {messages.developerTools.latencyTitle}
+                </LabelText>
+              </span>
             }
             main={
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Button
-                  darkMode={darkMode}
-                  tone="primary"
-                  loading={pending}
-                  icon={pending ? undefined : <Gauge size={14} aria-hidden="true" />}
-                  loadingIcon={
-                    <LoaderCircle
-                      className="animate-spin"
-                      size={14}
-                      aria-hidden="true"
-                    />
-                  }
-                  onClick={handleTestLatency}
-                >
-                  {pending
-                    ? messages.developerTools.testing
-                    : messages.developerTools.testLatency}
-                </Button>
-                {report ? (
-                  <Button darkMode={darkMode} onClick={handleCopyMarkdown}>
-                    {messages.developerTools.copyMarkdown}
-                  </Button>
-                ) : null}
-              </div>
+              <SupportingText darkMode={darkMode}>
+                {messages.developerTools.latencyDescription}
+              </SupportingText>
             }
           />
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+            <Button
+              darkMode={darkMode}
+              loading={pending}
+              loadingIcon={
+                <LoaderCircle
+                  className="animate-spin"
+                  size={14}
+                  aria-hidden="true"
+                />
+              }
+              onClick={handleTestLatency}
+            >
+              {pending
+                ? messages.developerTools.testing
+                : messages.developerTools.testLatency}
+            </Button>
+            {report ? (
+              <Button darkMode={darkMode} onClick={handleCopyMarkdown}>
+                {messages.developerTools.copyMarkdown}
+              </Button>
+            ) : null}
+          </div>
         </ListItem>
         {report ? (
           <ListItem darkMode={darkMode} layout="block">
@@ -138,6 +146,13 @@ export function DeveloperToolsPanel({
             />
           </ListItem>
         ) : null}
+        <DeveloperImportToolItems
+          darkMode={darkMode}
+          messages={messages}
+          onImportComplete={onDeveloperImportComplete}
+          showErrorNotification={showErrorNotification}
+          showSuccessNotification={showSuccessNotification}
+        />
       </List>
     </Panel>
   );

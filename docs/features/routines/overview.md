@@ -4,6 +4,9 @@ This document defines the Core product rules for routines. Routine persistence,
 backend validation, and database constraints are documented in
 [data-model.md](data-model.md).
 
+Internal routine import tooling is documented in
+[internal-import.md](internal-import.md).
+
 Routines are repeatable daily-life work such as medication, walking, evening
 shutdown, household upkeep, exercise, or review. A routine is not a project,
 and it should not use the project hierarchy. Projects and tasks describe work

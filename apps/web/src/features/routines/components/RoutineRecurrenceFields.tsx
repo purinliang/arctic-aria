@@ -8,6 +8,8 @@ import { SupportingText } from "@/components/text";
 import type { RoutineInput } from "@/features/routines/actions";
 import {
   applyRecurrenceOption,
+  fixedDayIntervalInputValue,
+  fixedDayIntervalValueFromInput,
   normalizeRoutineRecurrenceDraft,
   previewRoutineDateKeys,
   recurrenceOptionFromRule,
@@ -59,15 +61,15 @@ export function RoutineRecurrenceFields({
           <NumberInput
             darkMode={darkMode}
             min={1}
-            value={draft.intervalValue ?? 90}
+            value={fixedDayIntervalInputValue(draft.intervalValue)}
             disabled={pending}
             onChange={(event) =>
               setDraft((current) =>
                 normalizeRoutineRecurrenceDraft({
                   ...current,
-                  intervalValue: event.target.value
-                    ? Number(event.target.value)
-                    : null,
+                  intervalValue: fixedDayIntervalValueFromInput(
+                    event.target.value,
+                  ),
                 }),
               )
             }

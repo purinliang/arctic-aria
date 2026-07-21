@@ -1,0 +1,12 @@
+{
+  "routine": {
+    "title": "Morning walk",
+    "description": "A short walk to start the day.",
+    "firstStartDate": "2026-07-22",
+    "endDate": "",
+    "recurrence": "daily",
+    "fixedIntervalDays": 90,
+    "preferredTime": "08:30",
+    "timezone": "Australia/Melbourne"
+  }
+}

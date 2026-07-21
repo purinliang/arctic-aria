@@ -17,6 +17,27 @@ export function durationDaysForRange(value: string) {
   );
 }
 
+export function coerceProjectDurationRange(value: string | null | undefined) {
+  if (!value) {
+    return defaultProjectDurationRange;
+  }
+
+  const normalized = normalizeDurationText(value);
+  const exact = projectDurationOptions.find(
+    (option) =>
+      normalizeDurationText(option.value) === normalized ||
+      normalizeDurationText(option.label) === normalized,
+  );
+
+  if (exact) {
+    return exact.value;
+  }
+
+  const days = durationDaysFromText(value);
+
+  return durationRangeForDays(days);
+}
+
 export function durationRangeForDays(days: number | null) {
   if (!days) {
     return defaultProjectDurationRange;
@@ -35,4 +56,57 @@ export function durationLabelForDays(days: number | null) {
     projectDurationOptions.find((option) => option.value === range)?.label ??
     "3-6 months"
   );
+}
+
+function normalizeDurationText(value: string) {
+  return value.trim().toLowerCase().replace(/[\s-]+/g, "_");
+}
+
+function durationDaysFromText(value: string) {
+  const normalized = value.trim().toLowerCase();
+  const rangeMatch = normalized.match(
+    /(\d+(?:\.\d+)?)\s*(?:-|to|_)\s*(\d+(?:\.\d+)?)\s*(day|days|week|weeks|month|months|year|years|yr|yrs)\b/,
+  );
+
+  if (rangeMatch) {
+    const start = Number(rangeMatch[1]);
+    const end = Number(rangeMatch[2]);
+    const unit = rangeMatch[3];
+
+    if (Number.isFinite(start) && Number.isFinite(end)) {
+      return durationAmountToDays((start + end) / 2, unit);
+    }
+  }
+
+  const singleMatch = normalized.match(
+    /(\d+(?:\.\d+)?)\s*(day|days|week|weeks|month|months|year|years|yr|yrs)\b/,
+  );
+
+  if (!singleMatch) {
+    return null;
+  }
+
+  const amount = Number(singleMatch[1]);
+
+  if (!Number.isFinite(amount)) {
+    return null;
+  }
+
+  return durationAmountToDays(amount, singleMatch[2]);
+}
+
+function durationAmountToDays(amount: number, unit: string) {
+  if (unit.startsWith("day")) {
+    return amount;
+  }
+
+  if (unit.startsWith("week")) {
+    return amount * 7;
+  }
+
+  if (unit.startsWith("month")) {
+    return amount * 30;
+  }
+
+  return amount * 365;
 }

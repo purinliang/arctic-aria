@@ -11,13 +11,13 @@ import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { SupportingText } from "@/components/text";
 import { VersionStatusRows } from "@/components/version-status";
+import { DeveloperToolsPanel } from "@/features/performance/components/DeveloperToolsPanel";
+import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
 import type {
   TimeFormatPreference,
   UserPreferences,
 } from "@/features/settings/preferences";
-import {
-  formatTimeZoneOffset,
-} from "@/features/settings/time-zones";
+import { formatTimeZoneOffset } from "@/features/settings/time-zones";
 import type {
   NotificationMessages,
   SettingsMessages,
@@ -29,7 +29,6 @@ import type {
 } from "@/messages/languages";
 import { DiscordBindingSettings } from "./DiscordBindingSettings";
 import { DiscordIcon } from "./DiscordIcon";
-import { DeveloperToolsPanel } from "@/features/performance/components/DeveloperToolsPanel";
 
 export function SettingsPage({
   currentUserId,
@@ -39,6 +38,7 @@ export function SettingsPage({
   languagePreference,
   messages,
   notificationMessages,
+  onDeveloperImportComplete,
   onLanguagePreferenceChange,
   onPreferenceOpenAttempt,
   onThemePreferenceChange,
@@ -58,6 +58,7 @@ export function SettingsPage({
   languagePreference: LanguagePreference;
   messages: SettingsMessages;
   notificationMessages: NotificationMessages;
+  onDeveloperImportComplete: (target: DeveloperImportTarget) => void;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
   onPreferenceOpenAttempt: (preference: keyof UserPreferences) => boolean;
   onThemePreferenceChange: (preference: ThemePreference) => void;
@@ -179,11 +180,11 @@ export function SettingsPage({
         />
         <List darkMode={darkMode}>
           <DiscordBindingSettings
-          currentUserId={currentUserId}
-          darkMode={darkMode}
-          messages={messages}
-          notificationMessages={notificationMessages}
-          showErrorNotification={showErrorNotification}
+            currentUserId={currentUserId}
+            darkMode={darkMode}
+            messages={messages}
+            notificationMessages={notificationMessages}
+            showErrorNotification={showErrorNotification}
             showSuccessNotification={showSuccessNotification}
           />
         </List>
@@ -211,6 +212,7 @@ export function SettingsPage({
         <DeveloperToolsPanel
           darkMode={darkMode}
           messages={messages}
+          onDeveloperImportComplete={onDeveloperImportComplete}
           showErrorNotification={showErrorNotification}
           showSuccessNotification={showSuccessNotification}
         />
