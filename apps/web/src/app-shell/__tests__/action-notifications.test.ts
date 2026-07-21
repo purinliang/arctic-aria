@@ -164,13 +164,17 @@ test("server failure codes use the shared server notification", () => {
   ]);
 });
 
-test("parameter and not-found codes use shared notifications", () => {
+test("parameter codes use localized feature messages; not-found falls back to shared", () => {
   const notifications: Array<{ message: string; title?: string }> = [];
 
   notifyActionFailure({
     result: {
       code: "project_deadline_missing",
       message: "Select a deadline date.",
+    },
+    resultMessages: {
+      project_deadline_missing: "Select a deadline date.",
+      task_title_invalid: "Task title must be 1-120 characters.",
     },
     fallbackTitle: "Project save failed",
     showErrorNotification: (message, title) => {
@@ -181,6 +185,9 @@ test("parameter and not-found codes use shared notifications", () => {
     result: {
       code: "task_title_invalid",
       message: "Task title must be 1-120 characters.",
+    },
+    resultMessages: {
+      task_title_invalid: "Task title must be 1-120 characters.",
     },
     fallbackTitle: "Task save failed",
     showErrorNotification: (message, title) => {
@@ -200,11 +207,11 @@ test("parameter and not-found codes use shared notifications", () => {
 
   assert.deepEqual(notifications, [
     {
-      message: "A required parameter is missing.",
+      message: "Select a deadline date.",
       title: "Parameter missing",
     },
     {
-      message: "A parameter is invalid.",
+      message: "Task title must be 1-120 characters.",
       title: "Parameter invalid",
     },
     {

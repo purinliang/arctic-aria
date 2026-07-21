@@ -100,8 +100,10 @@ export function notifyActionFailure({
   }
 
   if (category === "parameter_missing") {
+    const messageFromResult = localizedActionMessage(result, resultMessages);
     showErrorNotification(
-      notificationMessages?.missingParameterMessage ??
+      messageFromResult ??
+        notificationMessages?.missingParameterMessage ??
         "A required parameter is missing.",
       notificationMessages?.missingParameterTitle ?? "Parameter missing",
     );
@@ -109,8 +111,10 @@ export function notifyActionFailure({
   }
 
   if (category === "parameter_invalid") {
+    const messageFromResult = localizedActionMessage(result, resultMessages);
     showErrorNotification(
-      notificationMessages?.invalidParameterMessage ??
+      messageFromResult ??
+        notificationMessages?.invalidParameterMessage ??
         "A parameter is invalid.",
       notificationMessages?.invalidParameterTitle ?? "Parameter invalid",
     );
