@@ -4,6 +4,7 @@ import {
 } from "../preferences.ts";
 import { readResolvedTimeZone } from "../time-zones.ts";
 import { PostgresUserSettingsRepository } from "./postgres-user-settings-repository.ts";
+import type { ActionFailureResult } from "../../../messages/action-result.ts";
 
 export type SettingsActionResult =
   | {
@@ -11,16 +12,14 @@ export type SettingsActionResult =
       code: "settings_preferences_saved" | "settings_preferences_loaded";
       preferences: UserPreferences;
     }
-  | {
-      ok: false;
+  | (ActionFailureResult & {
       code:
         | "settings_unauthorized"
         | "settings_resolved_timezone_invalid"
         | "settings_timezone_preferences_disabled"
         | "settings_preferences_unavailable"
         | "settings_preferences_save_failed";
-      message: string;
-    };
+    });
 
 type UserSettingsRepository = {
   getOrCreate(userId: string): Promise<UserPreferences>;
@@ -65,6 +64,9 @@ export function createSettingsService(
           ok: false,
           code: "settings_preferences_save_failed",
           message: "Settings could not be saved.",
+          category: "database_update",
+          action: "save",
+          subject: "settings",
         };
       }
     },
@@ -80,6 +82,10 @@ export function createSettingsService(
           ok: false,
           code: "settings_resolved_timezone_invalid",
           message: "Timezone could not be resolved.",
+          category: "invalid_parameter",
+          subject: "settings",
+          field: "timezone",
+          reason: "invalid_value",
         };
       }
 
@@ -97,6 +103,9 @@ export function createSettingsService(
           ok: false,
           code: "settings_preferences_save_failed",
           message: "Settings could not be saved.",
+          category: "database_update",
+          action: "save",
+          subject: "settings",
         };
       }
     },
@@ -108,6 +117,7 @@ function unavailableResult(): SettingsActionResult {
     ok: false,
     code: "settings_preferences_unavailable",
     message: "Settings are unavailable.",
+    category: "database_connection",
   };
 }
 

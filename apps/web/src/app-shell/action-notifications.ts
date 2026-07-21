@@ -1,8 +1,10 @@
 import type { NotificationMessages } from "../messages/app-messages.ts";
 import {
   actionFailureCategory,
+  actionFailureTitle,
   type ActionFailureCategory,
-  type CodedActionFailure,
+  type StructuredActionFailure,
+  structuredActionFailureMessage,
 } from "../messages/action-failure.ts";
 import { localizedActionMessage } from "../messages/action-result.ts";
 
@@ -11,18 +13,23 @@ type ShowErrorNotification = (message: string, title?: string) => void;
 type ActionNotificationMessages = Partial<
   Pick<
     NotificationMessages,
+    | "actionFailedTitle"
+    | "actionWords"
     | "databaseConnectionFailedMessage"
     | "databaseConnectionFailedTitle"
     | "databaseUpdateFailedMessage"
     | "databaseUpdateFailedTitle"
+    | "fieldWords"
     | "invalidParameterMessage"
     | "invalidParameterTitle"
     | "missingParameterMessage"
     | "missingParameterTitle"
+    | "parameterFailureMessages"
     | "targetNotFoundMessage"
     | "targetNotFoundTitle"
     | "serverActionFailedMessage"
     | "serverActionFailedTitle"
+    | "subjectWords"
   >
 >;
 
@@ -72,7 +79,7 @@ export function notifyActionFailure({
   notificationMessages,
   showErrorNotification,
 }: {
-  result: CodedActionFailure;
+  result: StructuredActionFailure;
   resultMessages?: Record<string, string>;
   fallbackTitle?: string;
   notificationMessages?: ActionNotificationMessages;
@@ -99,18 +106,26 @@ export function notifyActionFailure({
     return;
   }
 
-  if (category === "parameter_missing") {
+  if (category === "missing_parameter") {
+    const messageFromResult =
+      structuredActionFailureMessage(result, notificationMessages) ??
+      localizedActionMessage(result, resultMessages);
     showErrorNotification(
-      notificationMessages?.missingParameterMessage ??
+      messageFromResult ??
+        notificationMessages?.missingParameterMessage ??
         "A required parameter is missing.",
       notificationMessages?.missingParameterTitle ?? "Parameter missing",
     );
     return;
   }
 
-  if (category === "parameter_invalid") {
+  if (category === "invalid_parameter") {
+    const messageFromResult =
+      structuredActionFailureMessage(result, notificationMessages) ??
+      localizedActionMessage(result, resultMessages);
     showErrorNotification(
-      notificationMessages?.invalidParameterMessage ??
+      messageFromResult ??
+        notificationMessages?.invalidParameterMessage ??
         "A parameter is invalid.",
       notificationMessages?.invalidParameterTitle ?? "Parameter invalid",
     );
@@ -126,8 +141,18 @@ export function notifyActionFailure({
     return;
   }
 
-  const message = localizedActionMessage(result, resultMessages);
-  showErrorNotification(message, fallbackTitle);
+  const structuredMessage = structuredActionFailureMessage(
+    result,
+    notificationMessages,
+  );
+  const message =
+    structuredMessage ?? localizedActionMessage(result, resultMessages);
+  const title = actionFailureTitle(
+    result,
+    notificationMessages,
+    fallbackTitle,
+  );
+  showErrorNotification(message, title);
 }
 
 export function showActionTransportFailure({

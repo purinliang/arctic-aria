@@ -15,6 +15,7 @@ import {
   type UserRecord,
   type UserRepository,
 } from "./user-repository.ts";
+import type { ActionFailureResult } from "../../../messages/action-result.ts";
 
 export type AuthUser = {
   id: string;
@@ -31,12 +32,10 @@ export type AuthActionResult =
       displayName: string;
       user: AuthUser;
     }
-  | {
-      ok: false;
+  | (ActionFailureResult & {
       code: string;
-      message: string;
       fieldErrors?: AuthFieldErrors;
-    };
+    });
 
 type AuthServiceOptions = {
   users?: UserRepository;
@@ -69,6 +68,7 @@ function usernameTakenResult(): AuthActionResult {
     ok: false,
     code: "auth_username_taken",
     message: "Username is already taken.",
+    category: "domain",
     fieldErrors: { username: "Username is already taken." },
   };
 }
@@ -92,6 +92,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
           ok: false,
           code: "auth_validation_failed",
           message: "Please fix the highlighted fields.",
+          category: "invalid_parameter",
           fieldErrors,
         };
       }
@@ -148,6 +149,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
           ok: false,
           code: "auth_validation_failed",
           message: "Please fix the highlighted fields.",
+          category: "invalid_parameter",
           fieldErrors,
         };
       }
@@ -164,6 +166,7 @@ export function createAuthService(options: AuthServiceOptions = {}) {
           ok: false,
           code: "auth_invalid_credentials",
           message: "Invalid username or password.",
+          category: "auth",
         };
       }
 

@@ -59,6 +59,17 @@ export function useDashboardProjects(
   );
   const taskStatusRequestChains = useRef(new Map<string, Promise<void>>());
   const taskStatusRequestVersions = useRef(new Map<string, number>());
+  const actionFailedTitle = (
+    action: keyof NotificationMessages["actionWords"],
+    subject: keyof NotificationMessages["subjectWords"],
+  ) =>
+    notificationMessages?.actionFailedTitle?.(
+      notificationMessages.actionWords[action],
+      notificationMessages.subjectWords[subject],
+    ) ??
+    `${String(action).charAt(0).toUpperCase() + String(action).slice(1)} ${
+      String(subject).charAt(0).toUpperCase() + String(subject).slice(1)
+    } failed`;
 
   const applyProjectData = useCallback((data: ProjectDashboardData) => {
     setTasks(data.tasks);
@@ -285,7 +296,7 @@ export function useDashboardProjects(
         notifyActionFailure({
           result,
           resultMessages,
-          fallbackTitle: messages?.taskUpdateFailed ?? "Task update failed",
+          fallbackTitle: actionFailedTitle("update", "task"),
           notificationMessages,
           showErrorNotification,
         });
@@ -310,45 +321,45 @@ export function useDashboardProjects(
     saveProjectFromPage: (input: ProjectInput) =>
       runProjectManagementAction(
         () => saveProject(input),
-        messages?.projectSaveFailed ?? "Project save failed",
+        actionFailedTitle("save", "project"),
       ),
     archiveProjectFromPage: (projectId: string) =>
       runProjectManagementAction(
         () => archiveProject(projectId),
-        messages?.projectArchiveFailed ?? "Project archive failed",
+        actionFailedTitle("archive", "project"),
       ),
     archiveMilestoneFromPage: (milestoneId: string) =>
       runProjectManagementAction(
         () => archiveMilestone(milestoneId),
-        messages?.milestoneDeleteFailed ?? "Milestone delete failed",
+        actionFailedTitle("delete", "milestone"),
       ),
     archiveTaskFromPage: (taskId: string) =>
       runProjectManagementAction(
         () => archiveProjectTask(taskId),
-        messages?.taskDeleteFailed ?? "Task delete failed",
+        actionFailedTitle("delete", "task"),
       ),
     saveMilestoneFromPage: (input: MilestoneInput) =>
       runProjectManagementAction(
         () => saveMilestone(input),
-        messages?.milestoneSaveFailed ?? "Milestone save failed",
+        actionFailedTitle("save", "milestone"),
       ),
     saveTaskFromPage: (input: ProjectTaskInput) =>
       runProjectManagementAction(
         () => saveProjectTask(input),
-        messages?.taskSaveFailed ?? "Task save failed",
+        actionFailedTitle("save", "task"),
       ),
     statusTaskFromPage: updateTaskFromPage,
     pinProjectFromPage: (projectId: string) =>
       updateProjectPinFromPage(
         projectId,
         () => pinProject(projectId),
-        messages?.projectPinFailed ?? "Project pin failed",
+        actionFailedTitle("pin", "project"),
       ),
     unpinProjectFromPage: (projectId: string) =>
       updateProjectPinFromPage(
         projectId,
         () => unpinProject(projectId),
-        messages?.projectUnpinFailed ?? "Project unpin failed",
+        actionFailedTitle("unpin", "project"),
       ),
   };
 }

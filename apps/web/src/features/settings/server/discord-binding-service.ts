@@ -4,6 +4,7 @@ import {
   hashDiscordBindingCode,
 } from "./discord-binding-code.ts";
 import { discordBindingCodeExpiryMinutes } from "../discord-binding-config.ts";
+import type { ActionFailureResult } from "../../../messages/action-result.ts";
 
 export type DiscordBindingView = {
   discordUserId: string;
@@ -26,16 +27,14 @@ export type DiscordBindingActionResult =
         expiresAt: string;
       };
     }
-  | {
-      ok: false;
+  | (ActionFailureResult & {
       code:
         | "settings_unauthorized"
         | "settings_discord_binding_unavailable"
         | "settings_discord_code_cancel_failed"
         | "settings_discord_code_create_failed"
         | "settings_discord_unbind_failed";
-      message: string;
-    };
+    });
 
 type DiscordBindingRepository = Pick<
   PostgresDiscordAccountRepository,
@@ -63,6 +62,8 @@ export function createDiscordBindingService(
           ok: false,
           code: "settings_discord_binding_unavailable",
           message: "Discord binding is unavailable.",
+          category: "database_connection",
+          subject: "discord",
         };
       }
     },
@@ -100,6 +101,9 @@ export function createDiscordBindingService(
           ok: false,
           code: "settings_discord_code_create_failed",
           message: "Discord connection code could not be created.",
+          category: "database_update",
+          action: "add",
+          subject: "discord",
         };
       }
     },
@@ -118,6 +122,9 @@ export function createDiscordBindingService(
           ok: false,
           code: "settings_discord_unbind_failed",
           message: "Discord account could not be disconnected.",
+          category: "database_update",
+          action: "delete",
+          subject: "discord",
         };
       }
     },
@@ -139,6 +146,9 @@ export function createDiscordBindingService(
           ok: false,
           code: "settings_discord_code_cancel_failed",
           message: "Discord connection code could not be canceled.",
+          category: "database_update",
+          action: "delete",
+          subject: "discord",
         };
       }
     },

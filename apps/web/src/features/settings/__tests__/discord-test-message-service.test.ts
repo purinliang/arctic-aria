@@ -53,6 +53,9 @@ test("discord test message service reports missing bot token", async () => {
     ok: false,
     code: "settings_discord_test_config_missing",
     message: "Server internal error.",
+    category: "server",
+    action: "update",
+    subject: "discord",
   });
   assert.equal(sender.calls.length, 0);
 });
@@ -72,6 +75,9 @@ test("discord test message service reports missing binding", async () => {
     ok: false,
     code: "settings_discord_test_no_binding",
     message: "No active Discord binding.",
+    category: "domain",
+    action: "update",
+    subject: "discord",
   });
 });
 
@@ -90,6 +96,9 @@ test("discord test message service reports unconfigured bot sender", async () =>
     ok: false,
     code: "settings_discord_test_bot_unavailable",
     message: "Server internal error.",
+    category: "server",
+    action: "update",
+    subject: "discord",
   });
 });
 
@@ -108,6 +117,9 @@ test("discord test message service reports delivery failure", async () => {
     ok: false,
     code: "settings_discord_test_delivery_failed",
     message: "Server internal error.",
+    category: "server",
+    action: "update",
+    subject: "discord",
   });
 });
 
@@ -126,6 +138,9 @@ test("discord test message service reports sender errors as delivery failures", 
     ok: false,
     code: "settings_discord_test_delivery_failed",
     message: "Server internal error.",
+    category: "server",
+    action: "update",
+    subject: "discord",
   });
 });
 

@@ -17,6 +17,77 @@ export type NotificationItem = {
 
 const defaultNotificationMessages: NotificationMessages = {
   actionFailed: "Action failed",
+  actionFailedTitle: (action: string, subject: string) =>
+    `${action} ${subject.toLowerCase()} failed`,
+  actionWords: {
+    add: "Add",
+    archive: "Archive",
+    delete: "Delete",
+    edit: "Edit",
+    pin: "Pin",
+    saving: "Saving",
+    save: "Save",
+    unpin: "Unpin",
+    update: "Update",
+  },
+  subjectWords: {
+    category: "Category",
+    discord: "Discord",
+    idea: "Idea",
+    memory: "Memory",
+    milestone: "Milestone",
+    project: "Project",
+    routine: "Routine",
+    settings: "Settings",
+    suggestion: "Suggestion",
+    task: "Task",
+  },
+  fieldWords: {
+    category: "category",
+    category_name: "name",
+    date: "date",
+    dates: "dates",
+    deadline: "deadline",
+    description: "description",
+    end_date: "end date",
+    expected_duration: "expected duration",
+    first_start_date: "first start date",
+    name: "name",
+    objective: "objective",
+    preferred_time: "preferred time",
+    rule: "rule",
+    start_date: "start date",
+    text: "text",
+    timezone: "timezone",
+    title: "title",
+  },
+  parameterFailureMessages: {
+    beforeStart: (field: string, startField: string) =>
+      `${field} cannot be before ${startField}.`,
+    chooseRequired: (field: string) => `Choose ${field}.`,
+    duplicateName: (subject: string) =>
+      `A ${subject} with that name already exists.`,
+    inUse: (subject: string) => `This ${subject} is still in use.`,
+    invalidFormatDate: (field: string) =>
+      `${field} must be a real date in YYYY-MM-DD format.`,
+    invalidFormatTime: (field: string) => `${field} must use HH:MM format.`,
+    invalidValue: (field: string) => `${field} is invalid.`,
+    limitReached: (action: string, subject: string, limit?: number) =>
+      limit === undefined
+        ? `${action} ${subject} limit reached.`
+        : `You can ${action} up to ${limit} ${subject}s.`,
+    protected: (subject: string) => `This ${subject} is protected.`,
+    required: (field: string) => `${field} is required.`,
+    selectRequired: (field: string) => `Select ${field}.`,
+    tooLong: (field: string, limit?: number) =>
+      limit === undefined
+        ? `${field} is too long.`
+        : `${field} must be ${limit} characters or fewer.`,
+    tooShort: (field: string, limit?: number) =>
+      limit === undefined
+        ? `${field} is too short.`
+        : `${field} must be at least ${limit} characters.`,
+  },
   databaseConnectionFailedMessage:
     "Database connection failed. Please try again.",
   databaseConnectionFailedTitle: "Database connection failed",

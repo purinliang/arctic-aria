@@ -5,6 +5,7 @@ import {
 import { shouldGenerateInstance } from "./routine-service.ts";
 import { PostgresRoutineRepository } from "./postgres-routine-repository.ts";
 import type {
+  RoutineInstanceRecord,
   RoutineRepository,
 } from "./routine-repository.ts";
 import {
@@ -13,6 +14,7 @@ import {
   routineReminderAt,
   routineReminderCandidateDates,
   routineReminderIdempotencyKey,
+  routineReminderNotificationBatches,
   routineReminderText,
   routineReminderWindowMinutes,
 } from "./routine-reminder-schedule.ts";
@@ -114,40 +116,40 @@ export function createRoutineReminderService({
 
       result.due = dueInstances.length;
 
-      for (const instance of dueInstances) {
+      for (const instances of routineReminderNotificationGroups(dueInstances)) {
+        const userId = instances[0]?.userId;
+
+        if (!userId) {
+          continue;
+        }
+
         const notification = await notifier.sendUserNotification({
-          userId: instance.userId,
-          idempotencyKey: routineReminderIdempotencyKey(instance),
-          text: routineReminderText(instance),
+          userId,
+          idempotencyKey: routineReminderIdempotencyKey(instances),
+          text: routineReminderText(instances),
           source: "scheduler",
-          metadata: {
-            feature: "routines",
-            action: "routine-reminder",
-            routineId: instance.routineId,
-            routineInstanceId: instance.id,
-            scheduledDate: instance.scheduledDate,
-            scheduledTime: instance.scheduledTime,
-            remindAt: instance.remindAt?.toISOString() ?? null,
-          },
+          metadata: routineReminderMetadata(instances),
           logEventName: "routine_reminder_notification_handled",
         });
 
         if (notification.ok) {
-          await routines.markRoutineInstanceReminded({
-            userId: instance.userId,
-            instanceId: instance.id,
-            remindedAt: occurredAt,
-          });
-          result.sent += 1;
+          for (const instance of instances) {
+            await routines.markRoutineInstanceReminded({
+              userId: instance.userId,
+              instanceId: instance.id,
+              remindedAt: occurredAt,
+            });
+          }
+          result.sent += instances.length;
           continue;
         }
 
         if (notification.code === "discord_notification_no_binding") {
-          result.skipped += 1;
+          result.skipped += instances.length;
           continue;
         }
 
-        result.failed += 1;
+        result.failed += instances.length;
       }
 
       return result;
@@ -156,3 +158,53 @@ export function createRoutineReminderService({
 }
 
 export const routineReminderService = createRoutineReminderService();
+
+function routineReminderNotificationGroups(
+  instances: RoutineInstanceRecord[],
+) {
+  const userGroups = new Map<string, RoutineInstanceRecord[]>();
+
+  for (const instance of instances) {
+    const group = userGroups.get(instance.userId) ?? [];
+    group.push(instance);
+    userGroups.set(instance.userId, group);
+  }
+
+  return [...userGroups.values()].flatMap((group) =>
+    routineReminderNotificationBatches(group),
+  );
+}
+
+function routineReminderMetadata(instances: RoutineInstanceRecord[]) {
+  const firstInstance = instances[0];
+  const metadata: Record<string, unknown> = {
+    feature: "routines",
+    action: "routine-reminder",
+    routineCount: instances.length,
+    routineIds: uniqueValues(instances.map((instance) => instance.routineId)),
+    routineInstanceIds: instances.map((instance) => instance.id),
+    scheduledDates: uniqueValues(
+      instances.map((instance) => instance.scheduledDate),
+    ),
+    scheduledTimes: uniqueValues(
+      instances.map((instance) => instance.scheduledTime),
+    ),
+    remindAts: uniqueValues(
+      instances.map((instance) => instance.remindAt?.toISOString() ?? null),
+    ),
+  };
+
+  if (instances.length === 1 && firstInstance) {
+    metadata.routineId = firstInstance.routineId;
+    metadata.routineInstanceId = firstInstance.id;
+    metadata.scheduledDate = firstInstance.scheduledDate;
+    metadata.scheduledTime = firstInstance.scheduledTime;
+    metadata.remindAt = firstInstance.remindAt?.toISOString() ?? null;
+  }
+
+  return metadata;
+}
+
+function uniqueValues<T>(values: T[]) {
+  return [...new Set(values)];
+}

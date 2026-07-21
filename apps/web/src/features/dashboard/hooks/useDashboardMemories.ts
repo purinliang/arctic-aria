@@ -71,6 +71,17 @@ export function useDashboardMemories(
   const memoryActionPendingCount = useRef(0);
   const pinnedMemoryRequestChains = useRef(new Map<string, Promise<void>>());
   const pinnedMemoryRequestVersions = useRef(new Map<string, number>());
+  const actionFailedTitle = (
+    action: keyof NotificationMessages["actionWords"],
+    subject: keyof NotificationMessages["subjectWords"],
+  ) =>
+    notificationMessages?.actionFailedTitle?.(
+      notificationMessages.actionWords[action],
+      notificationMessages.subjectWords[subject],
+    ) ??
+    `${String(action).charAt(0).toUpperCase() + String(action).slice(1)} ${
+      String(subject).charAt(0).toUpperCase() + String(subject).slice(1)
+    } failed`;
 
   const applyMemoryData = useCallback((data: MemoryDashboardData) => {
     setPinnedMemories(data.pinnedMemories);
@@ -205,7 +216,7 @@ export function useDashboardMemories(
         notifyActionFailure({
           result,
           resultMessages,
-          fallbackTitle: messages?.memoryUpdateFailed ?? "Memory update failed",
+          fallbackTitle: actionFailedTitle("update", "memory"),
           notificationMessages,
           showErrorNotification,
         });
@@ -369,8 +380,7 @@ export function useDashboardMemories(
         notifyActionFailure({
           result,
           resultMessages,
-          fallbackTitle: messages?.memorySuggestionFailed ??
-            "Memory suggestion failed",
+          fallbackTitle: actionFailedTitle("update", "suggestion"),
           notificationMessages,
           showErrorNotification,
         });
@@ -409,8 +419,7 @@ export function useDashboardMemories(
         notifyActionFailure({
           result,
           resultMessages,
-          fallbackTitle: messages?.memorySuggestionFailed ??
-            "Memory suggestion failed",
+          fallbackTitle: actionFailedTitle("save", "suggestion"),
           notificationMessages,
           showErrorNotification,
         });
@@ -454,8 +463,7 @@ export function useDashboardMemories(
         notifyActionFailure({
           result,
           resultMessages,
-          fallbackTitle: messages?.memorySuggestionFailed ??
-            "Memory suggestion failed",
+          fallbackTitle: actionFailedTitle("delete", "suggestion"),
           notificationMessages,
           showErrorNotification,
         });
@@ -491,22 +499,22 @@ export function useDashboardMemories(
     saveMemoryFromPage: (input: MemoryInput) =>
       runMemoryManagementAction(
         () => saveMemory(input),
-        messages?.memorySaveFailed ?? "Memory save failed",
+        actionFailedTitle("save", "memory"),
       ),
     deleteMemoryFromPage: (memoryId: string) =>
       runMemoryManagementAction(
         () => deleteMemory(memoryId),
-        messages?.memoryDeleteFailed ?? "Memory delete failed",
+        actionFailedTitle("delete", "memory"),
       ),
     saveCategoryFromPage: (input: MemoryCategoryInput) =>
       runMemoryManagementDataAction(
         () => saveMemoryCategory(input),
-        messages?.memoryCategorySaveFailed ?? "Category save failed",
+        actionFailedTitle("save", "category"),
       ),
     deleteCategoryFromPage: (categoryId: string) =>
       runMemoryManagementAction(
         () => deleteMemoryCategory(categoryId),
-        messages?.memoryCategoryDeleteFailed ?? "Category delete failed",
+        actionFailedTitle("delete", "category"),
       ),
     refreshSuggestionsFromPage,
     pinSuggestionFromPage,

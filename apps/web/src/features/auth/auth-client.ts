@@ -38,5 +38,6 @@ function failedAuthRequest(): AuthActionResult {
     ok: false,
     code: "auth_request_failed",
     message: "Server internal error.",
+    category: "server",
   };
 }

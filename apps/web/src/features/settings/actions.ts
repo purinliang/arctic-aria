@@ -50,6 +50,9 @@ export async function saveUserPreferences(
       ok: false,
       code: "settings_timezone_preferences_disabled",
       message: "Timezone preferences are not available yet.",
+      category: "domain",
+      action: "save",
+      subject: "settings",
     };
   }
 
@@ -131,6 +134,7 @@ function unauthorizedResult(): SettingsActionResult {
     ok: false,
     code: "settings_unauthorized",
     message: "Sign in before changing settings.",
+    category: "auth",
   };
 }
 
@@ -139,6 +143,7 @@ function unauthorizedDiscordResult(): DiscordBindingActionResult {
     ok: false,
     code: "settings_unauthorized",
     message: "Sign in before changing settings.",
+    category: "auth",
   };
 }
 
@@ -147,5 +152,6 @@ function unauthorizedDiscordTestResult(): DiscordTestMessageActionResult {
     ok: false,
     code: "settings_unauthorized",
     message: "Sign in before changing settings.",
+    category: "auth",
   };
 }

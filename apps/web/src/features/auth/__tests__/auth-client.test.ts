@@ -19,6 +19,7 @@ test("auth client reports failed requests without credential details", async () 
       ok: false,
       code: "auth_request_failed",
       message: "Server internal error.",
+      category: "server",
     });
   } finally {
     globalThis.fetch = previousFetch;

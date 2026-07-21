@@ -1,3 +1,5 @@
+import type { ActionFailureCategory } from "../../messages/action-result.ts";
+
 export function projectDatabaseErrorMessage(error: unknown) {
   if (isMissingProjectTableError(error)) {
     return "Database connection failed.";
@@ -12,6 +14,35 @@ export function projectDatabaseErrorMessage(error: unknown) {
   }
 
   return "Database update failed.";
+}
+
+export function projectDatabaseErrorCategory(
+  error: unknown,
+): ActionFailureCategory {
+  if (isMissingProjectTableError(error)) {
+    return "database_connection";
+  }
+
+  if (isInvalidDateError(error)) {
+    return "invalid_parameter";
+  }
+
+  if (isProjectSidebarPinConflict(error)) {
+    return "domain";
+  }
+
+  return "database_update";
+}
+
+export function projectDatabaseErrorMetadata(error: unknown) {
+  if (!isInvalidDateError(error)) {
+    return {};
+  }
+
+  return {
+    field: "dates",
+    reason: "invalid_format" as const,
+  };
 }
 
 export function projectDatabaseErrorCode(error: unknown) {

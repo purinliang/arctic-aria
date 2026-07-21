@@ -2,8 +2,10 @@
 
 import { getCurrentUser } from "@/features/auth/actions";
 import {
-  databaseMessage,
+  databaseCategory,
   databaseCode,
+  databaseMessage,
+  databaseMetadata,
   loadMemoryDashboardData,
   resolveMemoryInputCategory,
   toMemorySuggestion,
@@ -39,6 +41,8 @@ function databaseResult<T>(error: unknown): MemoryActionResult<T> {
     ok: false,
     message: databaseMessage(error),
     code: databaseCode(error),
+    category: databaseCategory(error),
+    ...databaseMetadata(error),
   };
 }
 
@@ -136,7 +140,7 @@ export async function saveMemoryCategory(
   const validation = validateCategoryInput(input);
 
   if (!validation.ok) {
-    return { ok: false, message: validation.message, code: validation.code };
+    return validation;
   }
 
   try {
@@ -150,6 +154,8 @@ export async function saveMemoryCategory(
           ok: false,
           message: "Category was not found.",
           code: "memory_category_not_found",
+          category: "not_found",
+          subject: "category",
         };
       }
 
@@ -158,6 +164,10 @@ export async function saveMemoryCategory(
           ok: false,
           message: "Built-in categories cannot be edited.",
           code: "memory_category_built_in_protected",
+          category: "domain",
+          action: "edit",
+          subject: "category",
+          reason: "protected",
         };
       }
 
@@ -207,6 +217,8 @@ export async function deleteMemoryCategory(
         ok: false,
         message: "Category was not found.",
         code: "memory_category_not_found",
+        category: "not_found",
+        subject: "category",
       };
     }
 
@@ -215,6 +227,10 @@ export async function deleteMemoryCategory(
         ok: false,
         message: "Built-in categories cannot be deleted.",
         code: "memory_category_built_in_protected",
+        category: "domain",
+        action: "delete",
+        subject: "category",
+        reason: "protected",
       };
     }
 
@@ -225,6 +241,8 @@ export async function deleteMemoryCategory(
         ok: false,
         message: "Category was not found.",
         code: "memory_category_not_found",
+        category: "not_found",
+        subject: "category",
       };
     }
   } catch (error) {
@@ -253,7 +271,7 @@ export async function saveMemory(
   const validation = validateMemoryInput(input);
 
   if (!validation.ok) {
-    return { ok: false, message: validation.message, code: validation.code };
+    return validation;
   }
 
   try {
@@ -276,6 +294,7 @@ export async function saveMemory(
           ok: false,
           message: "Memory or category was not found.",
           code: "memory_or_category_not_found",
+          category: "not_found",
         };
       }
     } else {
@@ -291,6 +310,8 @@ export async function saveMemory(
           ok: false,
           message: "Category was not found.",
           code: "memory_category_not_found",
+          category: "not_found",
+          subject: "category",
         };
       }
     }
@@ -321,6 +342,8 @@ export async function deleteMemory(
         ok: false,
         message: "Memory was not found.",
         code: "memory_not_found",
+        category: "not_found",
+        subject: "memory",
       };
     }
 
@@ -382,6 +405,9 @@ export async function pinMemorySuggestion(
         ok: false,
         message: "Memory cannot be pinned right now.",
         code: "memory_pin_unavailable",
+        category: "domain",
+        action: "pin",
+        subject: "memory",
       };
     }
 
@@ -413,6 +439,8 @@ export async function ignoreMemorySuggestion(
         ok: false,
         message: "Memory was not found.",
         code: "memory_not_found",
+        category: "not_found",
+        subject: "memory",
       };
     }
 
@@ -444,6 +472,8 @@ export async function cancelPinnedMemorySuggestion(
         ok: false,
         message: "Pinned memory was not found.",
         code: "pinned_memory_not_found",
+        category: "not_found",
+        subject: "memory",
       };
     }
 
