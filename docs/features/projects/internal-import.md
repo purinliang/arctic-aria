@@ -37,6 +37,13 @@ output easier to validate.
 - `apps/cli/templates/project-import.md`: human-readable template.
 - `apps/cli/templates/project-import.json`: canonical JSON template.
 - `apps/cli/src/parse-project-import.ts`: Markdown or JSON parser command.
+- `apps/web/src/features/developer/components/DeveloperImportToolItems.tsx`:
+  developer Settings tool rows for copy-template, paste-to-parse, and
+  paste-to-import tests.
+- `apps/web/src/features/developer/import-template-prompts.ts`: prompt wrapper
+  for copying the CLI template into an LLM.
+- `apps/web/src/app/api/developer/projects/parse/route.ts`: developer-only
+  validation endpoint.
 - `apps/web/src/app/api/developer/projects/import/route.ts`: developer-only
   insert endpoint.
 
@@ -68,7 +75,7 @@ Both endpoints accept canonical JSON directly, Markdown text, or an envelope:
 ```
 
 `parse` returns the canonical document and normalized command. `import` writes
-the normalized command to the signed-in administrator session account.
+the normalized command to the signed-in developer session account.
 
 ## Testing
 
@@ -83,9 +90,13 @@ Developer API parse test:
 
 1. Run the web app locally.
 2. Sign in with a developer account.
-3. Open browser developer tools on the app page.
-4. Paste a canonical JSON object from `templates/project-import.json` into this
-   snippet:
+3. Open Settings.
+4. Use the developer-only Developer Tools panel.
+5. Select Project.
+6. Click Copy Template when asking an LLM to prepare the import Markdown.
+7. Paste Markdown or canonical JSON, then click Parse.
+
+The browser developer console can also call the API directly:
 
 ```js
 await fetch("/api/developer/projects/parse", {
@@ -96,6 +107,12 @@ await fetch("/api/developer/projects/parse", {
 ```
 
 Developer API import test:
+
+Use the same Developer Tools panel, select Project, paste Markdown or
+canonical JSON, then click Import. The import writes to the signed-in
+developer account.
+
+The browser developer console can also call the API directly:
 
 ```js
 await fetch("/api/developer/projects/import", {
@@ -162,3 +179,9 @@ It does not accept top-level tasks.
 
 The importer fills missing optional start dates and timelines using the same
 project validation helpers as normal project actions.
+
+LLM-generated duration text is forgiving. Exact values are preferred:
+`1_3_months`, `3_6_months`, `6_12_months`, and `1_3_years`. If the LLM returns
+plain language such as `4 months`, the parser maps it to the closest supported
+duration range. If the duration is unclear, it falls back to the default
+`3_6_months`.

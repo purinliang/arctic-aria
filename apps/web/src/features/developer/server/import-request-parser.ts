@@ -1,7 +1,5 @@
 import type { ActionFailureResult } from "@/messages/action-result";
 
-type ImportFormat = "json" | "markdown";
-
 export type DeveloperImportRequest =
   | {
       format: "json";

@@ -42,5 +42,6 @@ Duration: 1_3_months
 <!-- Legal project fields: Objective, Start date, Timeline, Duration, Deadline. -->
 <!-- Legal milestone fields: Objective, Start date, Timeline, Duration, Deadline. -->
 <!-- Legal task fields: Title, Description, Start date, Deadline. -->
+<!-- Legal duration values: 1_3_months, 3_6_months, 6_12_months, 1_3_years. -->
 <!-- Each field is single-line "Field: value"; multiline values are not supported. -->
 <!-- Timeline is either duration with Duration, or deadline with Deadline. -->

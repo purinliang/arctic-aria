@@ -5,7 +5,7 @@ import type {
   ProjectImportTask,
   ProjectImportTimeline,
 } from "./project-import-types.ts";
-import { durationDaysForRange } from "./project-duration.ts";
+import { coerceProjectDurationRange } from "./project-duration.ts";
 import type { ProjectDurationRange } from "./project-duration.ts";
 
 type MutableProject = ProjectImportDocument["project"];
@@ -468,10 +468,7 @@ function parseTimeline(
       return durationRange;
     }
 
-    const range = durationRange.data ?? "";
-    if (range && !durationDaysForRange(range)) {
-      return invalid(`${field}.durationRange`, "Choose a valid duration range.");
-    }
+    const range = coerceProjectDurationRange(durationRange.data);
 
     return {
       ok: true,
@@ -530,7 +527,10 @@ function applyProjectField(
   } else if (field === "deadline") {
     project.timeline = { type: "deadline", deadlineDate: value };
   } else if (field === "duration") {
-    project.timeline = { type: "duration", durationRange: value as never };
+    project.timeline = {
+      type: "duration",
+      durationRange: coerceProjectDurationRange(value),
+    };
   }
 
   return { ok: true, data: undefined };
@@ -560,7 +560,10 @@ function applyMilestoneField(
   } else if (field === "deadline") {
     milestone.timeline = { type: "deadline", deadlineDate: value };
   } else if (field === "duration") {
-    milestone.timeline = { type: "duration", durationRange: value as never };
+    milestone.timeline = {
+      type: "duration",
+      durationRange: coerceProjectDurationRange(value),
+    };
   }
 
   return { ok: true, data: undefined };

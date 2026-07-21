@@ -11,13 +11,12 @@ import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { SupportingText } from "@/components/text";
 import { VersionStatusRows } from "@/components/version-status";
+import { DeveloperToolsPanel } from "@/features/performance/components/DeveloperToolsPanel";
 import type {
   TimeFormatPreference,
   UserPreferences,
 } from "@/features/settings/preferences";
-import {
-  formatTimeZoneOffset,
-} from "@/features/settings/time-zones";
+import { formatTimeZoneOffset } from "@/features/settings/time-zones";
 import type {
   NotificationMessages,
   SettingsMessages,
@@ -29,7 +28,6 @@ import type {
 } from "@/messages/languages";
 import { DiscordBindingSettings } from "./DiscordBindingSettings";
 import { DiscordIcon } from "./DiscordIcon";
-import { DeveloperToolsPanel } from "@/features/performance/components/DeveloperToolsPanel";
 
 export function SettingsPage({
   currentUserId,
@@ -179,11 +177,11 @@ export function SettingsPage({
         />
         <List darkMode={darkMode}>
           <DiscordBindingSettings
-          currentUserId={currentUserId}
-          darkMode={darkMode}
-          messages={messages}
-          notificationMessages={notificationMessages}
-          showErrorNotification={showErrorNotification}
+            currentUserId={currentUserId}
+            darkMode={darkMode}
+            messages={messages}
+            notificationMessages={notificationMessages}
+            showErrorNotification={showErrorNotification}
             showSuccessNotification={showSuccessNotification}
           />
         </List>

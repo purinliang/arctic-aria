@@ -184,6 +184,87 @@ test("project import fills defaults and validates the typed object", () => {
   });
 });
 
+test("project import maps plain language durations to supported ranges", () => {
+  const markdown = parseProjectMarkdownToJson(`# Project: Find a job
+Timeline: duration
+Duration: 4 months
+
+## Milestone: Applications
+Timeline: duration
+Duration: 2 years
+
+### Tasks
+- Title: Prepare resume
+`);
+
+  assert.equal(markdown.ok, true);
+
+  if (markdown.ok) {
+    assert.deepEqual(markdown.data, {
+      project: {
+        title: "Find a job",
+        timeline: {
+          type: "duration",
+          durationRange: "3_6_months",
+        },
+      },
+      milestones: [
+        {
+          title: "Applications",
+          timeline: {
+            type: "duration",
+            durationRange: "1_3_years",
+          },
+          tasks: [
+            {
+              title: "Prepare resume",
+            },
+          ],
+        },
+      ],
+    });
+  }
+
+  const json = parseProjectJsonToDocument({
+    project: {
+      title: "Find a job",
+      timeline: {
+        type: "duration",
+        durationRange: "4 months",
+      },
+    },
+    milestones: [
+      {
+        title: "Applications",
+        timeline: {
+          type: "duration",
+          durationRange: "2 years",
+        },
+        tasks: [
+          {
+            title: "Prepare resume",
+          },
+        ],
+      },
+    ],
+  });
+
+  assert.equal(json.ok, true);
+
+  if (!json.ok) {
+    return;
+  }
+
+  assert.deepEqual(json.data.project.timeline, {
+    type: "duration",
+    durationRange: "3_6_months",
+  });
+  assert.deepEqual(json.data.milestones[0].timeline, {
+    type: "duration",
+    durationRange: "1_3_years",
+  });
+});
+
 test("project import rejects invalid task fields inside milestones", () => {
   const result = normalizeProjectImportDocument(
     {
