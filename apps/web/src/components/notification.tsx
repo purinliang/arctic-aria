@@ -17,8 +17,22 @@ export type NotificationItem = {
 
 const defaultNotificationMessages: NotificationMessages = {
   actionFailed: "Action failed",
+  databaseConnectionFailedMessage:
+    "Database connection failed. Please try again.",
+  databaseConnectionFailedTitle: "Database connection failed",
+  databaseUpdateFailedMessage: "Database update failed. Please try again.",
+  databaseUpdateFailedTitle: "Database update failed",
+  invalidParameterMessage: "A parameter is invalid.",
+  invalidParameterTitle: "Parameter invalid",
+  missingParameterMessage: "A required parameter is missing.",
+  missingParameterTitle: "Parameter missing",
+  serverActionFailedMessage:
+    "The server hit an internal error. Please try again.",
+  serverActionFailedTitle: "Server error",
+  targetNotFoundMessage: "The requested item was not found.",
+  targetNotFoundTitle: "Target not found",
   notAvailableYet: "Not available yet",
-  operationTooFrequentMessage: "Try again in a couple of seconds.",
+  operationTooFrequentMessage: "Please wait before trying again.",
   operationTooFrequentTitle: "Please wait a moment",
   done: "Done",
   dismiss: "Dismiss notification",

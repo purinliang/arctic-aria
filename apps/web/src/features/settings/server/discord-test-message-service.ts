@@ -88,8 +88,7 @@ export function createDiscordTestMessageService({
         return {
           ok: false,
           code: "settings_discord_test_delivery_failed",
-          message:
-            "Discord test message could not be delivered. Check the web server log for the settings_test_message_handled status.",
+          message: "Server internal error.",
         };
       }
 
@@ -120,7 +119,7 @@ function readDiscordTestMessageConfig(
 }
 
 const configMissingMessage =
-  "Discord configuration is missing. Check the web server log.";
+  "Server internal error.";
 
 function configMissingResult(): DiscordTestMessageActionResult {
   return {

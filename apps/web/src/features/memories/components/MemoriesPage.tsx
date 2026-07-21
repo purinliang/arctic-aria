@@ -237,8 +237,8 @@ export function MemoriesPage({
 
         if (deleted) {
           setMemoryEditorOpen(false);
+          setConfirmationTarget(null);
         }
-        setConfirmationTarget(null);
       } finally {
         setMemoryDialogAction(null);
       }
@@ -255,8 +255,8 @@ export function MemoriesPage({
 
         setCategoryDraft(nextCategoryFormState.categoryDraft);
         setCategoryFormOpen(nextCategoryFormState.categoryFormOpen);
+        setConfirmationTarget(null);
       }
-      setConfirmationTarget(null);
     } finally {
       setCategoryDialogAction(null);
     }

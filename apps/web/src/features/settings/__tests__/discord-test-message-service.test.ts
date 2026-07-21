@@ -52,8 +52,7 @@ test("discord test message service reports missing bot token", async () => {
   assert.deepEqual(result, {
     ok: false,
     code: "settings_discord_test_config_missing",
-    message:
-      "Discord configuration is missing. Check the web server log.",
+    message: "Server internal error.",
   });
   assert.equal(sender.calls.length, 0);
 });
@@ -90,8 +89,7 @@ test("discord test message service reports unconfigured bot sender", async () =>
   assert.deepEqual(result, {
     ok: false,
     code: "settings_discord_test_bot_unavailable",
-    message:
-      "Discord configuration is missing. Check the web server log.",
+    message: "Server internal error.",
   });
 });
 
@@ -109,8 +107,7 @@ test("discord test message service reports delivery failure", async () => {
   assert.deepEqual(result, {
     ok: false,
     code: "settings_discord_test_delivery_failed",
-    message:
-      "Discord test message could not be delivered. Check the web server log for the settings_test_message_handled status.",
+    message: "Server internal error.",
   });
 });
 
@@ -128,8 +125,7 @@ test("discord test message service reports sender errors as delivery failures", 
   assert.deepEqual(result, {
     ok: false,
     code: "settings_discord_test_delivery_failed",
-    message:
-      "Discord test message could not be delivered. Check the web server log for the settings_test_message_handled status.",
+    message: "Server internal error.",
   });
 });
 

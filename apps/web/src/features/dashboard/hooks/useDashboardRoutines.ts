@@ -4,6 +4,10 @@ import {
   writeDashboardBrowserCacheSection,
 } from "@/app-shell/dashboard-browser-cache";
 import {
+  notifyActionFailure,
+  runNotifiedServerAction,
+} from "@/app-shell/action-notifications";
+import {
   completeRoutineInstance,
   deleteRoutine,
   getRoutineDashboardData,
@@ -14,9 +18,9 @@ import {
   type RoutineDashboardData,
   type RoutineInput,
 } from "@/features/routines/actions";
-import { localizedActionMessage } from "@/messages/action-result";
 import type {
   DashboardMessages,
+  NotificationMessages,
   RoutineMessages,
 } from "@/messages/app-messages";
 import {
@@ -38,6 +42,7 @@ export function useDashboardRoutines(
   showErrorNotification: (message: string, title?: string) => void,
   messages?: DashboardMessages["notifications"],
   resultMessages?: RoutineMessages["results"],
+  notificationMessages?: NotificationMessages,
 ) {
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [routineDefinitions, setRoutineDefinitions] = useState<
@@ -82,19 +87,39 @@ export function useDashboardRoutines(
   }, [routineCacheReady, routineDefinitions, routines, userId]);
 
   const refreshRoutineData = useCallback(async () => {
-    const result = await getRoutineDashboardData();
+    const actionResult = await runNotifiedServerAction({
+      action: getRoutineDashboardData,
+      messages: notificationMessages,
+      showErrorNotification,
+    });
+
+    if (!actionResult.ok) {
+      setRoutineLoading(false);
+      return;
+    }
+
+    const result = actionResult.value;
 
     if (!result.ok) {
-      showErrorNotification(
-        localizedActionMessage(result, resultMessages),
-        messages?.routinesUnavailable ?? "Routines unavailable",
-      );
+      notifyActionFailure({
+        result,
+        resultMessages,
+        fallbackTitle: messages?.routinesUnavailable ?? "Routines unavailable",
+        notificationMessages,
+        showErrorNotification,
+      });
       setRoutineLoading(false);
       return;
     }
 
     applyRoutineData(result.data);
-  }, [applyRoutineData, messages, resultMessages, showErrorNotification]);
+  }, [
+    applyRoutineData,
+    messages,
+    notificationMessages,
+    resultMessages,
+    showErrorNotification,
+  ]);
 
   function beginRoutineAction() {
     routineActionPendingCount.current += 1;
@@ -119,13 +144,26 @@ export function useDashboardRoutines(
     beginRoutineAction();
 
     try {
-      const result = await action();
+      const actionResult = await runNotifiedServerAction({
+        action,
+        messages: notificationMessages,
+        showErrorNotification,
+      });
+
+      if (!actionResult.ok) {
+        return false;
+      }
+
+      const result = actionResult.value;
 
       if (!result.ok) {
-        showErrorNotification(
-          localizedActionMessage(result, resultMessages),
-          failureTitle,
-        );
+        notifyActionFailure({
+          result,
+          resultMessages,
+          fallbackTitle: failureTitle,
+          notificationMessages,
+          showErrorNotification,
+        });
         return false;
       }
 
@@ -150,7 +188,25 @@ export function useDashboardRoutines(
     beginRoutineAction();
 
     try {
-      const result = await action();
+      const actionResult = await runNotifiedServerAction({
+        action,
+        messages: notificationMessages,
+        showErrorNotification,
+      });
+
+      if (!actionResult.ok) {
+        if (
+          routineStatusRequestVersions.current.get(routineId) ===
+          requestVersion
+        ) {
+          setRoutines((current) =>
+            restoreRoutineSnapshot(current, snapshot, routineId),
+          );
+        }
+        return;
+      }
+
+      const result = actionResult.value;
 
       if (!result.ok) {
         if (
@@ -163,7 +219,13 @@ export function useDashboardRoutines(
         setRoutines((current) =>
           restoreRoutineSnapshot(current, snapshot, routineId),
         );
-        showErrorNotification(localizedActionMessage(result, resultMessages));
+        notifyActionFailure({
+          result,
+          resultMessages,
+          fallbackTitle: messages?.routineUpdateFailed ?? "Routine update failed",
+          notificationMessages,
+          showErrorNotification,
+        });
         return;
       }
     } finally {

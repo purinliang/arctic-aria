@@ -4,6 +4,10 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { AppShell } from "@/app-shell/AppShell";
 import {
+  notifyActionFailure,
+  showActionTransportFailure,
+} from "@/app-shell/action-notifications";
+import {
   hasRecentLocalPreferenceCache,
   mergeUserPreferenceUpdate,
   useAppPreferences,
@@ -329,20 +333,24 @@ export function AuthGate({
           return;
         }
 
-        showErrorNotification(
-          localizedActionMessage(result, messages.settings.results),
-          messages.settings.notifications.preferencesSaveFailed,
-        );
+        notifyActionFailure({
+          result,
+          resultMessages: messages.settings.results,
+          fallbackTitle: messages.settings.notifications.preferencesSaveFailed,
+          notificationMessages: messages.notifications,
+          showErrorNotification,
+        });
       })
       .catch(() => {
         if (preferenceRequestSequence.current !== requestSequence) {
           return;
         }
 
-        showErrorNotification(
-          messages.settings.results.settings_preferences_save_failed,
-          messages.settings.notifications.preferencesSaveFailed,
-        );
+        showActionTransportFailure({
+          category: "server",
+          messages: messages.notifications,
+          showErrorNotification,
+        });
       });
   }
 
@@ -441,7 +449,11 @@ export function AuthGate({
       replaceBrowserPath("/");
       setCurrentUser(null);
     } catch {
-      showErrorNotification(messages.notifications.actionFailed);
+      showActionTransportFailure({
+        category: "server",
+        messages: messages.notifications,
+        showErrorNotification,
+      });
     } finally {
       setLogoutPending(false);
     }
@@ -472,12 +484,15 @@ export function AuthGate({
 
       if (!result.ok) {
         setServerErrors(result.fieldErrors ?? {});
-        showErrorNotification(
-          localizedActionMessage(result, messages.auth.results),
-          mode === "register"
+        notifyActionFailure({
+          result,
+          resultMessages: messages.auth.results,
+          fallbackTitle: mode === "register"
             ? messages.auth.notifications.signUpFailed
             : messages.auth.notifications.signInFailed,
-        );
+          notificationMessages: messages.notifications,
+          showErrorNotification,
+        });
         return;
       }
 
