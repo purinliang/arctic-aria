@@ -4,10 +4,14 @@
 import { Gauge, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/button";
+import {
+  secondaryButtonBorderColorClass,
+  secondaryTextColorClass,
+} from "@/components/color";
 import { CardHeader } from "@/components/card";
 import { List, ListItem, ListItemContent } from "@/components/list";
 import { Panel } from "@/components/panel";
-import { DescriptionText, SupportingText } from "@/components/text";
+import { LabelText, SupportingText } from "@/components/text";
 import type { SettingsMessages } from "@/messages/app-messages";
 import {
   latencyReportMarkdown,
@@ -92,9 +96,9 @@ export function DeveloperToolsPanel({
         <ListItem darkMode={darkMode} className="items-start">
           <ListItemContent
             title={
-              <DescriptionText darkMode={darkMode}>
+              <LabelText darkMode={darkMode}>
                 {messages.developerTools.visibility}
-              </DescriptionText>
+              </LabelText>
             }
             main={
               <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -155,7 +159,7 @@ function LatencyReportView({
       </SupportingText>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[620px] text-left text-xs">
-          <thead className="text-[var(--aa-secondary-text)]">
+          <thead className={secondaryTextColorClass}>
             <tr>
               <th className="py-2 pr-3 font-semibold">
                 {messages.developerTools.metric}
@@ -203,7 +207,7 @@ function LatencyMetricRow({
   summary: LatencyStatSummary;
 }) {
   return (
-    <tr className="border-t border-[var(--aa-secondary-button-border)]">
+    <tr className={`border-t ${secondaryButtonBorderColorClass}`}>
       <td className="py-2 pr-3 font-medium">{label}</td>
       <td className="px-3 py-2 text-right">{formatMs(summary.avg)}</td>
       <td className="px-3 py-2 text-right">{formatMs(summary.min)}</td>
