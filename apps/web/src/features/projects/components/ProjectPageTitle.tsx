@@ -75,10 +75,11 @@ export function ProjectPageTitle({
       onProjectSelect={onProjectSelect}
     />
   );
-  const timelineText = projectTimelineText(
+  const titleMetadata = projectTitleMetadata(
     selectedProject,
     timelineMessages,
     durationMessages,
+    defaultDescriptions,
     dateMessages,
   );
 
@@ -113,8 +114,14 @@ export function ProjectPageTitle({
         <h1 className="col-span-2 min-w-0 text-2xl font-semibold tracking-normal">
           {renderProjectSwitcher()}
         </h1>
-        <p className={cx("col-span-2 text-sm", secondaryTextColorClass)}>
-          {timelineText}
+        <p
+          className={cx(
+            "col-span-2 min-w-0 truncate text-sm",
+            secondaryTextColorClass,
+          )}
+          title={titleMetadata}
+        >
+          {titleMetadata}
         </p>
       </div>
 
@@ -130,8 +137,11 @@ export function ProjectPageTitle({
             <span className={cx("shrink-0", secondaryTextColorClass)}>/</span>
             {renderProjectSwitcher()}
           </h1>
-          <p className={cx("text-sm", secondaryTextColorClass)}>
-            {timelineText}
+          <p
+            className={cx("min-w-0 truncate text-sm", secondaryTextColorClass)}
+            title={titleMetadata}
+          >
+            {titleMetadata}
           </p>
         </div>
         <ProjectTitleActions
@@ -501,6 +511,23 @@ function projectTimelineText(
   }
 
   return messages.openEnded;
+}
+
+function projectTitleMetadata(
+  project: ProjectView,
+  messages: ProjectMessages["timeline"],
+  durations: ProjectMessages["duration"],
+  defaultDescriptions: ProjectMessages["defaultDescriptions"],
+  dateMessages: DatePickerMessages,
+) {
+  return [
+    projectTimelineText(project, messages, durations, dateMessages),
+    displayDescription(
+      project.description,
+      project.title,
+      defaultDescriptions.project,
+    ),
+  ].join(" · ");
 }
 
 function doneTaskCount(project: ProjectView) {

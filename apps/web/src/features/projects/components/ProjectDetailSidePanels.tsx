@@ -41,21 +41,21 @@ export function MilestoneOverviewPanel({
   const selectedMilestone = choice?.milestone ?? null;
   const supportText = choice
     ? selectedMilestone
-      ? milestoneTimelineText(selectedMilestone, messages)
+      ? milestoneMetadataText(selectedMilestone, choice.description, messages)
       : messages.detail.noMilestoneDescription
     : "";
 
   return (
-    <section className="grid min-w-0 gap-2 px-1 pb-1">
+    <section className="grid min-w-0 gap-2 px-1">
       {choice ? (
         <div className="grid min-w-0 gap-1">
           <h2 className="min-w-0 truncate text-xl font-semibold leading-7 text-[var(--aa-primary-text)] sm:text-2xl sm:leading-8">
             {choice.title}
           </h2>
-          <DescriptionText darkMode={darkMode} className="line-clamp-2">
-            {choice.description}
-          </DescriptionText>
-          <SupportingText darkMode={darkMode} className="truncate">
+          <SupportingText
+            darkMode={darkMode}
+            className="block min-w-0 truncate"
+          >
             {supportText}
           </SupportingText>
         </div>
@@ -197,4 +197,12 @@ function milestoneTimelineText(
   }
 
   return metadata.value;
+}
+
+function milestoneMetadataText(
+  milestone: ProjectView["milestones"][number],
+  objective: string,
+  messages: SidePanelMessages,
+) {
+  return [milestoneTimelineText(milestone, messages), objective].join(" · ");
 }

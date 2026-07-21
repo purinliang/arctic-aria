@@ -259,8 +259,9 @@ Detail page layout:
 - use the shared `aa-split-*` classes so the two-column layout activates only
   when the detail container is at least `53rem` wide
 - left and right panels keep independent content-driven heights
-- full-width top area: selected milestone title, objective, and timeline; this
-  is not a separate card
+- full-width top area: selected milestone title, then one truncated metadata
+  line as `deadline or expected duration · objective`; this is not a separate
+  card
 - left panel: task list for the selected milestone group
 - right panel: `Milestones` with `Manage`
 - left card: `Tasks`
@@ -274,13 +275,13 @@ Detail page layout:
   opened from the `Milestones` panel `Manage` action
 - on mobile, keep the pin/unpin action on the first title-bar row, aligned to
   the right of `Projects /`
-- the page title bar shows the selected project timeline text, such as
-  `Due Aug 5, 2026`, below `Projects / project name`
+- the page title bar shows one truncated metadata line, such as
+  `Due Aug 5, 2026 · objective`, below `Projects / project name`
 - project overview metadata group: objective, start date, and the selected
   timeline type
 - project overview objective row label: `Objective`
-- project and milestone overview labels use shared `LabelText`
-- project and milestone overview values use shared `DescriptionText`
+- project overview popover labels use shared `LabelText`
+- project overview popover values use shared `DescriptionText`
 - if the saved objective is empty, show localized default objective copy derived
   from the project title; this fallback is render-only and is not persisted
 - overview start dates should display in localized date format, not raw
@@ -293,8 +294,8 @@ Detail page layout:
   or no-fixed-deadline mode
 - do not repeat project title inside the Project Overview card; the title is
   already in the page title
-- milestone overview shows the selected milestone title, objective, and
-  timeline
+- milestone overview shows the selected milestone title, then deadline or
+  expected duration followed by the objective with ` · ` between them
 - milestone switcher list direction: vertical
 - milestone switcher rows act as jump controls, not edit controls
 - milestone switcher rows sort by deadline from earliest to latest, then start
@@ -350,8 +351,7 @@ Milestones are phase boundaries. Keep them lightweight.
 Milestone overview should show:
 
 - title
-- objective, when present
-- deadline or expected duration, when present
+- one metadata line: deadline or expected duration, then objective
 
 Milestone switcher rows should show title plus compact task progress.
 
