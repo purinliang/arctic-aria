@@ -1,9 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { englishDashboardMessages } from "../../messages/dashboard-messages.ts";
-import {
-  defaultResolvedTimeZone,
-  readResolvedTimeZone,
-} from "../settings/time-zones.ts";
+import { readResolvedTimeZone } from "../settings/time-zones.ts";
 import {
   PostgresDiscordAccountRepository,
 } from "../../server/discord/discord-account-repository.ts";
@@ -101,7 +98,12 @@ export function createTodayReviewService({
       };
 
       for (const target of targets) {
-        const local = localReviewMoment(occurredAt, target.timeZonePreference);
+        const local = localReviewMoment(occurredAt, target.timeZone);
+
+        if (!local) {
+          result.skipped += 1;
+          continue;
+        }
 
         const schedule = dailyReviewSchedule(local);
 
@@ -199,9 +201,13 @@ export function createTodayReviewService({
   }
 }
 
-function localReviewMoment(date: Date, timeZonePreference: string) {
-  const timeZone =
-    readResolvedTimeZone(timeZonePreference) ?? defaultResolvedTimeZone;
+function localReviewMoment(date: Date, timeZone: string | null) {
+  const resolvedTimeZone = readResolvedTimeZone(timeZone);
+
+  if (!resolvedTimeZone) {
+    return null;
+  }
+
   const parts = new Intl.DateTimeFormat("en-CA", {
     day: "2-digit",
     hour: "2-digit",
@@ -209,7 +215,7 @@ function localReviewMoment(date: Date, timeZonePreference: string) {
     hourCycle: "h23",
     minute: "2-digit",
     month: "2-digit",
-    timeZone,
+    timeZone: resolvedTimeZone,
     year: "numeric",
   }).formatToParts(date);
   const values = Object.fromEntries(
@@ -222,7 +228,7 @@ function localReviewMoment(date: Date, timeZonePreference: string) {
     date: `${values.year}-${values.month}-${values.day}`,
     hour: Number(values.hour),
     minute: Number(values.minute),
-    timeZone,
+    timeZone: resolvedTimeZone,
   };
 }
 

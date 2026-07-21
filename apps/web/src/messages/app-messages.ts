@@ -182,6 +182,41 @@ const englishMessages = {
       unbind: "Unbind",
       viewAccountId: "View",
     },
+    developerTools: {
+      avg: "Avg",
+      copyMarkdown: "Copy Markdown",
+      description: "Production-safe diagnostics for the current app.",
+      lastRun: (sampleCount: number, measuredAt: string) =>
+        `Last run: ${sampleCount} samples · ${measuredAt}`,
+      markdownTitle: (sampleCount: number, measuredAt: string) =>
+        `Latency diagnostics, ${sampleCount} samples, ${measuredAt}`,
+      max: "Max",
+      metric: "Metric",
+      metrics: {
+        clientTotalMs: "Frontend -> Backend -> Database",
+        databaseMs: "Backend -> Database",
+        networkEstimateMs: "Frontend/backend overhead",
+        serverTotalMs: "Backend handler",
+      },
+      min: "Min",
+      notifications: {
+        latencyFailed: "Latency test failed",
+        reportCopied: "Latency report copied",
+        reportCopyFailed: "Report not copied",
+      },
+      p10: "P10",
+      p50: "P50",
+      p90: "P90",
+      results: {
+        performance_latency_copied: "Markdown report copied.",
+        performance_latency_copy_failed: "Markdown report could not be copied.",
+        performance_latency_failed: "Latency diagnostics failed.",
+      },
+      testLatency: "Test Latency",
+      testing: "Testing...",
+      title: "Developer Tools",
+      visibility: "Only visible to administrators.",
+    },
     languageLabel: "Language",
     languageOptions: {
       english: "English",
@@ -194,6 +229,7 @@ const englishMessages = {
       preferencesSaveFailed: "Settings not saved",
     },
     results: {
+      settings_resolved_timezone_invalid: "Timezone could not be resolved.",
       settings_timezone_preferences_disabled:
         "Timezone preferences are not available yet.",
       settings_preferences_unavailable: "Settings are unavailable.",
@@ -389,6 +425,41 @@ const simplifiedChineseMessages: AppMessages = {
       unbind: "解绑",
       viewAccountId: "查看",
     },
+    developerTools: {
+      avg: "平均",
+      copyMarkdown: "复制 Markdown",
+      description: "当前应用的生产安全诊断。",
+      lastRun: (sampleCount, measuredAt) =>
+        `上次运行：${sampleCount} 次采样 · ${measuredAt}`,
+      markdownTitle: (sampleCount, measuredAt) =>
+        `延迟诊断，${sampleCount} 次采样，${measuredAt}`,
+      max: "最大",
+      metric: "指标",
+      metrics: {
+        clientTotalMs: "前端 -> 后端 -> 数据库",
+        databaseMs: "后端 -> 数据库",
+        networkEstimateMs: "前端/后端开销估算",
+        serverTotalMs: "后端处理",
+      },
+      min: "最小",
+      notifications: {
+        latencyFailed: "延迟测试失败",
+        reportCopied: "延迟报告已复制",
+        reportCopyFailed: "报告未复制",
+      },
+      p10: "P10",
+      p50: "P50",
+      p90: "P90",
+      results: {
+        performance_latency_copied: "Markdown 报告已复制。",
+        performance_latency_copy_failed: "Markdown 报告无法复制。",
+        performance_latency_failed: "延迟诊断失败。",
+      },
+      testLatency: "测试延迟",
+      testing: "正在测试...",
+      title: "开发者工具",
+      visibility: "仅管理员可见。",
+    },
     languageLabel: "语言",
     languageOptions: {
       english: "English",
@@ -401,6 +472,7 @@ const simplifiedChineseMessages: AppMessages = {
       preferencesSaveFailed: "设置未保存",
     },
     results: {
+      settings_resolved_timezone_invalid: "无法识别当前时区。",
       settings_timezone_preferences_disabled: "时区偏好暂不可用。",
       settings_preferences_unavailable: "设置暂不可用。",
       settings_preferences_save_failed: "设置无法保存。",

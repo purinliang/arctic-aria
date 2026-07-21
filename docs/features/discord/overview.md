@@ -202,9 +202,10 @@ uses `routine-reminder:<routine_instance_id>:<remind_at>` as the idempotency
 key. Daily Review sends during the local `23:48-00:12` window so the 15-minute
 cron cadence does not need to hit midnight exactly. After-midnight sends still
 use the previous local date, and the per-user idempotency key is
-`daily-review:<date>`. Until server-side timezone preferences store a concrete
-timezone, a `system` timezone preference falls back to UTC for scheduled review
-delivery.
+`daily-review:<date>`. If timezone preference is `system`, the server uses the
+last browser-resolved concrete timezone stored in
+`user_settings.resolved_timezone`. If no concrete timezone is available,
+scheduled Daily Review is skipped rather than falling back to UTC.
 
 Implemented `discord_message_deliveries` fields:
 

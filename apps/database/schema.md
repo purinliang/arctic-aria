@@ -1,7 +1,7 @@
 # Current Database Schema
 
 This is a human-readable schema snapshot after
-`0022_add_routine_reminder_state.sql`.
+`0024_add_user_resolved_timezone.sql`.
 
 Source of truth:
 
@@ -32,6 +32,7 @@ Columns:
 - `username text NOT NULL UNIQUE`
 - `password_hash text NOT NULL`
 - `display_name text NOT NULL`
+- `is_admin boolean NOT NULL DEFAULT false`
 - `created_at timestamptz NOT NULL`
 - `updated_at timestamptz NOT NULL`
 
@@ -40,6 +41,7 @@ Important constraints:
 - username length: 4-16 characters
 - username allowed characters: visible ASCII
 - display name length: 1-24 characters
+- normal accounts are not administrators by default
 
 ### `user_settings`
 
@@ -52,6 +54,7 @@ Columns:
 - `language_preference text NOT NULL DEFAULT 'en'`
 - `time_format_preference text NOT NULL DEFAULT '12h'`
 - `timezone_preference text NOT NULL DEFAULT 'system'`
+- `resolved_timezone text`
 - `multiple_timezones_enabled boolean NOT NULL DEFAULT false`
 - `created_at timestamptz NOT NULL`
 - `updated_at timestamptz NOT NULL`
@@ -63,6 +66,8 @@ Important constraints:
 - time format preference: `12h`, `24h`
 - timezone preference: `system` or a trimmed non-empty value up to 64
   characters
+- resolved timezone: null or a trimmed concrete IANA timezone value up to 64
+  characters; never `system`
 
 ## Memories
 

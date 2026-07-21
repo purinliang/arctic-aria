@@ -57,6 +57,7 @@ test("preference updates merge against the latest optimistic snapshot", () => {
     {
       languagePreference: "en",
       multipleTimezonesEnabled: false,
+      resolvedTimeZone: null,
       themePreference: "light",
       timeFormatPreference: "12h",
       timeZonePreference: "system",

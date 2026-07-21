@@ -20,7 +20,7 @@ export type DiscordAccountRecord = {
 
 export type DiscordDailyReviewTarget = {
   userId: string;
-  timeZonePreference: string;
+  timeZone: string | null;
 };
 
 export type CreateDiscordBindingCodeInput = {
@@ -52,6 +52,7 @@ type DiscordAccountRow = {
 };
 
 type DiscordDailyReviewTargetRow = {
+  resolved_timezone: string | null;
   user_id: string;
   timezone_preference: string | null;
 };
@@ -130,7 +131,8 @@ export class PostgresDiscordAccountRepository {
     const rows = (await this.getSql().query(
       `SELECT
          discord_accounts.user_id,
-         user_settings.timezone_preference
+         user_settings.timezone_preference,
+         user_settings.resolved_timezone
        FROM discord_accounts
        LEFT JOIN user_settings
          ON user_settings.user_id = discord_accounts.user_id
@@ -141,7 +143,10 @@ export class PostgresDiscordAccountRepository {
 
     return rows.map((row) => ({
       userId: row.user_id,
-      timeZonePreference: row.timezone_preference ?? "system",
+      timeZone:
+        row.timezone_preference && row.timezone_preference !== "system"
+          ? row.timezone_preference
+          : row.resolved_timezone,
     }));
   }
 

@@ -28,9 +28,11 @@ import type {
 } from "@/messages/languages";
 import { DiscordBindingSettings } from "./DiscordBindingSettings";
 import { DiscordIcon } from "./DiscordIcon";
+import { DeveloperToolsPanel } from "@/features/performance/components/DeveloperToolsPanel";
 
 export function SettingsPage({
   currentUserId,
+  currentUserIsAdmin,
   browserTimeZone,
   darkMode,
   languagePreference,
@@ -48,6 +50,7 @@ export function SettingsPage({
   versionStatus,
 }: {
   currentUserId: string;
+  currentUserIsAdmin: boolean;
   browserTimeZone: string;
   darkMode: boolean;
   languagePreference: LanguagePreference;
@@ -200,6 +203,14 @@ export function SettingsPage({
           </ListItem>
         </List>
       </Panel>
+      {currentUserIsAdmin ? (
+        <DeveloperToolsPanel
+          darkMode={darkMode}
+          messages={messages}
+          showErrorNotification={showErrorNotification}
+          showSuccessNotification={showSuccessNotification}
+        />
+      ) : null}
     </section>
   );
 }

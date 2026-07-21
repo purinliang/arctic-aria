@@ -18,7 +18,7 @@ export function FieldLabel({
   children: ReactNode;
 }) {
   return (
-    <label className="relative grid gap-1.5">
+    <div className="relative grid gap-1.5">
       <LabelText darkMode={darkMode}>
         {label}
         {optional ? (
@@ -29,7 +29,7 @@ export function FieldLabel({
         ) : null}
       </LabelText>
       {children}
-    </label>
+    </div>
   );
 }
 
