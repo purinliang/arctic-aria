@@ -101,7 +101,7 @@ export function ProjectPageTitle({
       </div>
 
       <div className="hidden min-w-0 flex-1 items-center gap-3 sm:flex">
-        <h1 className="flex min-w-0 items-center gap-2 text-3xl font-semibold tracking-normal">
+        <h1 className="flex min-w-0 flex-1 items-center gap-2 text-3xl font-semibold tracking-normal">
           <ProjectListButton
             className={breadcrumbButtonClass}
             label={messages.projects}
@@ -178,10 +178,10 @@ function ProjectSwitcher({
   onProjectSelect: (projectId: string) => void;
 }) {
   return (
-    <span className="relative block min-w-0 max-w-full">
+    <span className="relative block min-w-0 max-w-full flex-1">
       <button
         className={cx(
-          "flex w-full max-w-full min-w-0 items-center gap-2 rounded-sm text-left outline-none transition sm:w-auto sm:max-w-[min(58vw,42rem)]",
+          "flex w-full max-w-full min-w-0 items-center gap-2 rounded-sm text-left outline-none transition",
           breadcrumbButtonClass,
         )}
         type="button"
