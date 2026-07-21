@@ -1,4 +1,5 @@
 import type {
+  ImportProjectTreeInput,
   ProjectPinResult,
   ProjectRecord,
   ProjectRepository,
@@ -193,6 +194,54 @@ export class InMemoryProjectRepository implements ProjectRepository {
     ];
     syncMilestoneTasks(target.project);
     return true;
+  }
+
+  async importProjectTree(input: ImportProjectTreeInput) {
+    const projectId = await this.saveProject({
+      userId: input.userId,
+      ...input.project,
+      occurredAt: input.occurredAt,
+    });
+
+    if (!projectId) {
+      return null;
+    }
+
+    for (const milestone of input.milestones) {
+      const milestoneId = await this.saveMilestone({
+        userId: input.userId,
+        projectId,
+        title: milestone.title,
+        objective: milestone.objective,
+        startDate: milestone.startDate,
+        deadlineDate: milestone.deadlineDate,
+        expectedDurationDays: milestone.expectedDurationDays,
+        occurredAt: input.occurredAt,
+      });
+
+      if (!milestoneId) {
+        return null;
+      }
+
+      for (const task of milestone.tasks) {
+        const saved = await this.saveTask({
+          userId: input.userId,
+          projectId,
+          milestoneId,
+          title: task.title,
+          description: task.description,
+          startDate: task.startDate,
+          deadlineDate: task.deadlineDate,
+          occurredAt: input.occurredAt,
+        });
+
+        if (!saved) {
+          return null;
+        }
+      }
+    }
+
+    return projectId;
   }
 
   async archiveProject(input: {

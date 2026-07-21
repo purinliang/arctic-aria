@@ -5,11 +5,17 @@ import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { CheckboxControl } from "@/components/forms/selection-field";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListFooterAction,
+  ListItem,
+  ListItemContent,
+} from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import { formatTimeDisplay } from "@/components/forms/time-display";
+import { todayPanelItemLimit } from "@/features/dashboard/today-panel-display";
 import type { Routine, RoutineStatus } from "@/features/dashboard/types";
 import type { DashboardMessages } from "@/messages/app-messages";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
@@ -34,6 +40,9 @@ export function RoutinesPanel({
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
   onRoutineOpen: () => void;
 }) {
+  const visibleRoutines = routines.slice(0, todayPanelItemLimit);
+  const hasMoreRoutines = routines.length > visibleRoutines.length;
+
   return (
     <Panel darkMode={darkMode}>
       <CardHeader
@@ -49,7 +58,7 @@ export function RoutinesPanel({
         {!loading && routines.length === 0 ? (
           <EmptyLine darkMode={darkMode} text={messages.empty} />
         ) : null}
-        {routines.map((routine) => (
+        {visibleRoutines.map((routine) => (
           <RoutineRow
             key={routine.id}
             routine={routine}
@@ -61,6 +70,13 @@ export function RoutinesPanel({
             onOpen={onRoutineOpen}
           />
         ))}
+        {!loading && hasMoreRoutines ? (
+          <ListFooterAction
+            darkMode={darkMode}
+            label={messages.open}
+            onClick={onRoutineOpen}
+          />
+        ) : null}
       </List>
     </Panel>
   );
@@ -106,7 +122,7 @@ function RoutineRow({
             <h3 className="min-w-0 text-sm font-semibold">{routine.title}</h3>
           }
           main={
-            <DescriptionText darkMode={darkMode}>
+            <DescriptionText darkMode={darkMode} className="line-clamp-3">
               {displayDescription(
                 routine.description,
                 routine.title,

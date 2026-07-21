@@ -6,11 +6,16 @@ import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
 import { CheckboxControl } from "@/components/forms/selection-field";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemContent,
+} from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import { dashboardTaskStatusForChecked } from "@/features/dashboard/optimistic-updates";
+import { todayPanelItemLimit } from "@/features/dashboard/today-panel-display";
 import type { Task, TaskStatus } from "@/features/dashboard/types";
 import type { DashboardMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
@@ -35,6 +40,8 @@ export function ProjectTasksPanel({
   ) => void;
   onTaskOpen: (projectId: string) => void;
 }) {
+  const visibleTasks = tasks.slice(0, todayPanelItemLimit);
+
   return (
     <Panel darkMode={darkMode} className="min-w-0">
       <CardHeader
@@ -50,7 +57,7 @@ export function ProjectTasksPanel({
         {!loading && tasks.length === 0 ? (
           <EmptyLine darkMode={darkMode} text={messages.empty} />
         ) : null}
-        {tasks.map((task) => (
+        {visibleTasks.map((task) => (
           <ProjectTaskRow
             key={task.id}
             task={task}
@@ -106,7 +113,7 @@ function ProjectTaskRow({
           grow={false}
           title={<h3 className="min-w-0 text-base font-semibold">{task.title}</h3>}
           main={
-            <DescriptionText darkMode={darkMode}>
+            <DescriptionText darkMode={darkMode} className="line-clamp-3">
               {displayDescription(
                 task.description,
                 task.title,

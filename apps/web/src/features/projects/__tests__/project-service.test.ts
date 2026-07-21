@@ -50,6 +50,49 @@ test("saving a project does not create a default milestone", async () => {
   assert.equal(projects[0].milestones.length, 0);
 });
 
+test("importing a project tree creates milestones and linked tasks", async () => {
+  const repository = new InMemoryProjectRepository();
+  const service = createProjectService({
+    projects: repository,
+    now: () => now,
+  });
+
+  const projectId = await service.importProjectTree(userId, {
+    project: {
+      title: "Find a job",
+      objective: "Land a backend engineering role.",
+      startDate: "2026-07-22",
+      deadlineDate: null,
+      expectedDurationDays: 180,
+    },
+    milestones: [
+      {
+        title: "Applications",
+        objective: "Submit strong applications.",
+        startDate: "2026-07-22",
+        deadlineDate: null,
+        expectedDurationDays: 90,
+        tasks: [
+          {
+            title: "Prepare resume",
+            description: "Rewrite backend experience bullets.",
+            startDate: "2026-07-22",
+            deadlineDate: "2026-07-30",
+          },
+        ],
+      },
+    ],
+  });
+  const projects = await service.listProjects(userId);
+
+  assert.ok(projectId);
+  assert.equal(projects.length, 1);
+  assert.equal(projects[0].milestones.length, 1);
+  assert.equal(projects[0].tasks.length, 1);
+  assert.equal(projects[0].milestones[0].tasks.length, 1);
+  assert.equal(projects[0].tasks[0].milestoneId, projects[0].milestones[0].id);
+});
+
 test("saving a task can omit a milestone", async () => {
   const repository = new InMemoryProjectRepository();
   const service = createProjectService({

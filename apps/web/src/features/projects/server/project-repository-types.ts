@@ -90,12 +90,29 @@ export type SaveProjectTaskInput = {
   occurredAt: Date;
 };
 
+export type ImportProjectTreeInput = {
+  userId: string;
+  project: Omit<SaveProjectInput, "projectId" | "userId" | "occurredAt">;
+  milestones: Array<
+    Omit<SaveMilestoneInput, "milestoneId" | "projectId" | "userId" | "occurredAt"> & {
+      tasks: Array<
+        Omit<
+          SaveProjectTaskInput,
+          "milestoneId" | "projectId" | "taskId" | "userId" | "occurredAt"
+        >
+      >;
+    }
+  >;
+  occurredAt: Date;
+};
+
 export type ProjectRepository = {
   listProjects(userId: string): Promise<ProjectRecord[]>;
   listDashboardTasks(userId: string, today: string): Promise<ProjectTaskRecord[]>;
   saveProject(input: SaveProjectInput): Promise<string | null>;
   saveMilestone(input: SaveMilestoneInput): Promise<string | null>;
   saveTask(input: SaveProjectTaskInput): Promise<boolean>;
+  importProjectTree(input: ImportProjectTreeInput): Promise<string | null>;
   archiveProject(input: {
     userId: string;
     projectId: string;

@@ -179,7 +179,11 @@ export function normalizeRoutineRecurrence(
   }
 
   if (draft.ruleType === "day_interval") {
-    const intervalValue = Number(draft.intervalValue ?? 90);
+    if (draft.intervalValue === null || draft.intervalValue === undefined) {
+      return null;
+    }
+
+    const intervalValue = Number(draft.intervalValue);
 
     if (!Number.isInteger(intervalValue) || intervalValue < 1) {
       return null;
@@ -194,6 +198,18 @@ export function normalizeRoutineRecurrence(
   }
 
   return null;
+}
+
+export function fixedDayIntervalInputValue(
+  intervalValue: number | null | undefined,
+) {
+  return intervalValue ?? "";
+}
+
+export function fixedDayIntervalValueFromInput(value: string) {
+  const intervalValue = value.trim();
+
+  return intervalValue ? Number(intervalValue) : null;
 }
 
 export function previewRoutineDateKeys(

@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  applyRecurrenceOption,
+  fixedDayIntervalInputValue,
+  fixedDayIntervalValueFromInput,
   normalizeRoutineRecurrence,
   previewRoutineDateKeys,
   recurrenceOptionFromRule,
@@ -38,12 +41,24 @@ test("monthly recurrence derives day from first start date", () => {
   );
 });
 
-test("fixed day interval defaults to 90 days", () => {
+test("fixed day interval option starts at 90 days", () => {
+  assert.equal(
+    applyRecurrenceOption(
+      {
+        firstStartDate: "2026-07-16",
+        ruleType: "daily",
+        intervalValue: null,
+      },
+      "fixed_days",
+    ).intervalValue,
+    90,
+  );
+
   assert.deepEqual(
     normalizeRoutineRecurrence({
       firstStartDate: "2026-07-16",
       ruleType: "day_interval",
-      intervalValue: null,
+      intervalValue: 90,
     }),
     {
       ruleType: "day_interval",
@@ -51,6 +66,19 @@ test("fixed day interval defaults to 90 days", () => {
       weekdays: null,
       dayOfMonth: null,
     },
+  );
+});
+
+test("fixed day interval input can stay blank while editing", () => {
+  assert.equal(fixedDayIntervalInputValue(null), "");
+  assert.equal(fixedDayIntervalValueFromInput(""), null);
+  assert.equal(
+    normalizeRoutineRecurrence({
+      firstStartDate: "2026-07-16",
+      ruleType: "day_interval",
+      intervalValue: null,
+    }),
+    null,
   );
 });
 
