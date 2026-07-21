@@ -1,7 +1,7 @@
 "use client";
 
 // Settings Page - Developer Tools Panel.
-import { Gauge, LoaderCircle, Wrench } from "lucide-react";
+import { Gauge, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/button";
 import {
@@ -11,8 +11,8 @@ import {
 import { CardHeader } from "@/components/card";
 import { List, ListItem, ListItemContent } from "@/components/list";
 import { Panel } from "@/components/panel";
-import { LabelText, SupportingText } from "@/components/text";
-import { DeveloperImportToolItems } from "@/features/developer/components/DeveloperImportToolItems";
+import { SupportingText } from "@/components/text";
+import { DeveloperImportToolPanel } from "@/features/developer/components/DeveloperImportToolPanel";
 import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
 import type { SettingsMessages } from "@/messages/app-messages";
 import {
@@ -26,10 +26,8 @@ import type {
 } from "../latency-types";
 
 const metricKeys: LatencyMetricKey[] = [
-  "clientTotalMs",
-  "serverTotalMs",
-  "databaseMs",
-  "networkEstimateMs",
+  "frontendBackendMs",
+  "backendDatabaseMs",
 ];
 
 export function DeveloperToolsPanel({
@@ -89,72 +87,69 @@ export function DeveloperToolsPanel({
   }
 
   return (
-    <Panel darkMode={darkMode} className="min-w-0">
-      <CardHeader
-        darkMode={darkMode}
-        icon={<Wrench size={18} aria-hidden="true" />}
-        title={messages.developerTools.title}
-        description={messages.developerTools.description}
-      />
-      <List darkMode={darkMode}>
-        <ListItem darkMode={darkMode} className="items-start">
-          <ListItemContent
-            title={
-              <span className="flex items-center gap-2">
-                <Gauge size={14} aria-hidden="true" />
-                <LabelText darkMode={darkMode}>
-                  {messages.developerTools.latencyTitle}
-                </LabelText>
-              </span>
-            }
-            main={
-              <SupportingText darkMode={darkMode}>
-                {messages.developerTools.latencyDescription}
-              </SupportingText>
-            }
-          />
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-            <Button
-              darkMode={darkMode}
-              loading={pending}
-              loadingIcon={
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              }
-              onClick={handleTestLatency}
-            >
-              {pending
-                ? messages.developerTools.testing
-                : messages.developerTools.testLatency}
-            </Button>
-            {report ? (
-              <Button darkMode={darkMode} onClick={handleCopyMarkdown}>
-                {messages.developerTools.copyMarkdown}
-              </Button>
-            ) : null}
-          </div>
-        </ListItem>
-        {report ? (
-          <ListItem darkMode={darkMode} layout="block">
-            <LatencyReportView
-              darkMode={darkMode}
-              messages={messages}
-              report={report}
-            />
-          </ListItem>
-        ) : null}
-        <DeveloperImportToolItems
+    <>
+      <Panel darkMode={darkMode} className="min-w-0">
+        <CardHeader
           darkMode={darkMode}
-          messages={messages}
-          onImportComplete={onDeveloperImportComplete}
-          showErrorNotification={showErrorNotification}
-          showSuccessNotification={showSuccessNotification}
+          icon={<Gauge size={18} aria-hidden="true" />}
+          title={messages.developerTools.latencyTitle}
+          description={messages.developerTools.latencyDescription}
         />
-      </List>
-    </Panel>
+        <List darkMode={darkMode}>
+          <ListItem darkMode={darkMode} className="items-center">
+            <ListItemContent
+              main={
+                <SupportingText darkMode={darkMode}>
+                  {messages.developerTools.latencyActionDescription}
+                </SupportingText>
+              }
+            />
+            <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+              <Button
+                darkMode={darkMode}
+                loading={pending}
+                loadingIcon={
+                  <LoaderCircle
+                    className="animate-spin"
+                    size={14}
+                    aria-hidden="true"
+                  />
+                }
+                onClick={handleTestLatency}
+              >
+                {pending
+                  ? messages.developerTools.testing
+                  : messages.developerTools.testLatency}
+              </Button>
+              {report ? (
+                <Button
+                  darkMode={darkMode}
+                  onClick={handleCopyMarkdown}
+                >
+                  {messages.developerTools.copyMarkdown}
+                </Button>
+              ) : null}
+            </div>
+          </ListItem>
+          {report ? (
+            <ListItem darkMode={darkMode} layout="block">
+              <LatencyReportView
+                darkMode={darkMode}
+                messages={messages}
+                report={report}
+              />
+            </ListItem>
+          ) : null}
+        </List>
+      </Panel>
+      <DeveloperImportToolPanel
+        darkMode={darkMode}
+        messages={messages}
+        onImportComplete={onDeveloperImportComplete}
+        showErrorNotification={showErrorNotification}
+        showSuccessNotification={showSuccessNotification}
+      />
+    </>
   );
 }
 
@@ -173,7 +168,7 @@ function LatencyReportView({
         {messages.developerTools.lastRun(report.sampleCount, report.measuredAt)}
       </SupportingText>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[620px] text-left text-xs">
+        <table className="w-full min-w-[520px] text-left text-xs">
           <thead className={secondaryTextColorClass}>
             <tr>
               <th className="py-2 pr-3 font-semibold">

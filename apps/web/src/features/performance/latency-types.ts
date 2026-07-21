@@ -1,14 +1,8 @@
-export type LatencyMetricKey =
-  | "clientTotalMs"
-  | "serverTotalMs"
-  | "databaseMs"
-  | "networkEstimateMs";
+export type LatencyMetricKey = "frontendBackendMs" | "backendDatabaseMs";
 
 export type LatencySample = {
-  clientTotalMs: number;
-  serverTotalMs: number;
-  databaseMs: number;
-  networkEstimateMs: number;
+  frontendBackendMs: number;
+  backendDatabaseMs: number;
 };
 
 export type LatencyStatSummary = {
@@ -26,12 +20,24 @@ export type LatencyReport = {
   metrics: Record<LatencyMetricKey, LatencyStatSummary>;
 };
 
-export type LatencyApiSuccess = {
+export type LatencyProbe = "backend" | "database";
+
+export type BackendLatencyApiSuccess = {
   ok: true;
   measuredAt: string;
-  serverTotalMs: number;
+  probe: "backend";
+};
+
+export type DatabaseLatencyApiSuccess = {
+  ok: true;
+  measuredAt: string;
+  probe: "database";
   databaseMs: number;
 };
+
+export type LatencyApiSuccess =
+  | BackendLatencyApiSuccess
+  | DatabaseLatencyApiSuccess;
 
 export type LatencyApiFailure = {
   ok: false;

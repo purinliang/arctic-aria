@@ -4,6 +4,7 @@ import { summarizeLatency } from "./latency-stats";
 import type {
   LatencyApiResult,
   LatencyMetricKey,
+  LatencyProbe,
   LatencyReport,
   LatencySample,
 } from "./latency-types";
@@ -68,28 +69,54 @@ function formatMs(value: number) {
 }
 
 async function runLatencySample(): Promise<LatencySample> {
-  const clientStartedAt = performance.now();
-  const response = await fetch("/api/developer/performance/latency", {
-    method: "POST",
-    cache: "no-store",
-  });
-  const clientTotalMs = performance.now() - clientStartedAt;
-  const result = (await response.json()) as LatencyApiResult;
+  const frontendBackendMs = await measureFrontendBackendRtt();
+  const databaseResult = await requestLatencyProbe("database");
 
-  if (!response.ok || !result.ok) {
+  if (!databaseResult.ok || databaseResult.probe !== "database") {
     throw new Error(
-      !result.ok ? result.message : "Latency diagnostics failed.",
+      databaseResult.ok
+        ? "Latency diagnostics returned the wrong probe."
+        : databaseResult.message,
     );
   }
 
   return {
-    clientTotalMs: roundMs(clientTotalMs),
-    serverTotalMs: result.serverTotalMs,
-    databaseMs: result.databaseMs,
-    networkEstimateMs: roundMs(
-      Math.max(0, clientTotalMs - result.serverTotalMs),
-    ),
+    frontendBackendMs,
+    backendDatabaseMs: databaseResult.databaseMs,
   };
+}
+
+async function measureFrontendBackendRtt() {
+  const startedAt = performance.now();
+  const result = await requestLatencyProbe("backend");
+
+  if (!result.ok) {
+    throw new Error(result.message);
+  }
+
+  return roundMs(performance.now() - startedAt);
+}
+
+async function requestLatencyProbe(probe: LatencyProbe) {
+  const response = await fetch("/api/developer/performance/latency", {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ probe }),
+  });
+  const result = (await response.json()) as LatencyApiResult;
+
+  if (!response.ok && result.ok) {
+    return {
+      ok: false as const,
+      code: "performance_latency_failed",
+      message: "Latency diagnostics failed.",
+    };
+  }
+
+  return result;
 }
 
 function roundMs(value: number) {

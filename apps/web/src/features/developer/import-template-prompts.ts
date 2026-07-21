@@ -1,4 +1,5 @@
 export type DeveloperImportTarget = "projects" | "routines";
+export type DeveloperImportDetection = DeveloperImportTarget | "ambiguous" | null;
 
 export const developerImportMarkdownTemplates: Record<
   DeveloperImportTarget,
@@ -93,6 +94,24 @@ My requirement is:
 `;
 }
 
+export function detectDeveloperImportTarget(
+  source: string,
+): DeveloperImportDetection {
+  const trimmedSource = source.trim();
+
+  if (!trimmedSource) {
+    return null;
+  }
+
+  const jsonTarget = detectJsonTarget(trimmedSource);
+
+  if (jsonTarget) {
+    return jsonTarget;
+  }
+
+  return detectMarkdownTarget(trimmedSource);
+}
+
 function developerImportInstructionFor(target: DeveloperImportTarget) {
   if (target === "projects") {
     return [
@@ -112,4 +131,81 @@ function developerImportInstructionFor(target: DeveloperImportTarget) {
     "If fixed_days is used, include Fixed interval days; otherwise leave Fixed interval days empty.",
     "You may include multiple Routine blocks in one document.",
   ].join("\n");
+}
+
+function detectMarkdownTarget(markdown: string): DeveloperImportDetection {
+  const hasProject = /^#{0,6}\s*Project\s*:/im.test(markdown);
+  const hasRoutine = /^#{0,6}\s*Routine\s*:/im.test(markdown);
+
+  if (hasProject && hasRoutine) {
+    return "ambiguous";
+  }
+
+  if (hasProject) {
+    return "projects";
+  }
+
+  if (hasRoutine) {
+    return "routines";
+  }
+
+  return null;
+}
+
+function detectJsonTarget(source: string): DeveloperImportDetection {
+  if (!source.startsWith("{")) {
+    return null;
+  }
+
+  try {
+    return detectJsonValueTarget(JSON.parse(source));
+  } catch {
+    return null;
+  }
+}
+
+function detectJsonValueTarget(value: unknown): DeveloperImportDetection {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  if (
+    value.format === "markdown" &&
+    typeof value.source === "string"
+  ) {
+    return detectMarkdownTarget(value.source);
+  }
+
+  if (value.format === "json") {
+    if (typeof value.source === "string") {
+      try {
+        return detectJsonValueTarget(JSON.parse(value.source));
+      } catch {
+        return null;
+      }
+    }
+
+    return detectJsonValueTarget(value.source);
+  }
+
+  const hasProject = "project" in value || "projects" in value;
+  const hasRoutine = "routine" in value || "routines" in value;
+
+  if (hasProject && hasRoutine) {
+    return "ambiguous";
+  }
+
+  if (hasProject) {
+    return "projects";
+  }
+
+  if (hasRoutine) {
+    return "routines";
+  }
+
+  return null;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
