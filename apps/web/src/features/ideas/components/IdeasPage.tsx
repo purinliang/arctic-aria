@@ -5,7 +5,12 @@ import type { SetStateAction } from "react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { ConfirmDialog } from "@/components/dialog";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemActions,
+  ListItemContent,
+} from "@/components/list";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import { formatDateKey } from "@/components/forms/date-format";
@@ -226,13 +231,15 @@ function IdeaRow({
           </SupportingText>
         }
       />
-      <Button
-        darkMode={darkMode}
-        icon={<PenLine size={14} aria-hidden="true" />}
-        onClick={onEdit}
-      >
-        {messages.page.edit}
-      </Button>
+      <ListItemActions>
+        <Button
+          darkMode={darkMode}
+          icon={<PenLine size={14} aria-hidden="true" />}
+          onClick={onEdit}
+        >
+          {messages.page.edit}
+        </Button>
+      </ListItemActions>
     </ListItem>
   );
 }

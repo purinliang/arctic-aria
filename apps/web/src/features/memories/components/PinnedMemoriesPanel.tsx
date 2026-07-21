@@ -5,7 +5,12 @@ import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { CheckboxControl } from "@/components/forms/selection-field";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemActions,
+  ListItemContent,
+} from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
@@ -121,7 +126,7 @@ function PinnedMemoryRow({
           }
         />
       </div>
-      <div className="flex shrink-0 items-center gap-1">
+      <ListItemActions className="gap-1">
         <Button
           darkMode={darkMode}
           tone="ghost"
@@ -130,7 +135,7 @@ function PinnedMemoryRow({
           icon={<ChevronRight size={16} aria-hidden="true" />}
           onClick={onOpen}
         />
-      </div>
+      </ListItemActions>
     </ListItem>
   );
 }

@@ -10,6 +10,7 @@ import { CheckboxControl } from "@/components/forms/selection-field";
 import {
   List,
   ListItem,
+  ListItemActions,
   ListItemContent,
 } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
@@ -126,14 +127,16 @@ function ProjectTaskRow({
           }
         />
       </div>
-      <Button
-        darkMode={darkMode}
-        tone="ghost"
-        size="icon-sm"
-        aria-label={messages.openProject(task.title)}
-        icon={<ChevronRight size={16} aria-hidden="true" />}
-        onClick={onOpen}
-      />
+      <ListItemActions>
+        <Button
+          darkMode={darkMode}
+          tone="ghost"
+          size="icon-sm"
+          aria-label={messages.openProject(task.title)}
+          icon={<ChevronRight size={16} aria-hidden="true" />}
+          onClick={onOpen}
+        />
+      </ListItemActions>
     </ListItem>
   );
 }

@@ -9,7 +9,12 @@ import {
   DialogOverlay,
 } from "@/components/dialog";
 import { formatDateKey } from "@/components/forms/date-format";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemActions,
+  ListItemContent,
+} from "@/components/list";
 import {
   DescriptionText,
   SectionTitle,
@@ -59,7 +64,7 @@ export function ProjectMilestoneManagerDialog({
           onClose={onClose}
         />
         <section className="grid gap-2">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
             <SectionTitle>{messages.milestonesTitle}</SectionTitle>
             <Button
               darkMode={darkMode}
@@ -158,14 +163,16 @@ function MilestoneList({
               </SupportingText>
             }
           />
-          <Button
-            darkMode={darkMode}
-            disabled={pending}
-            icon={<Edit3 size={15} aria-hidden="true" />}
-            onClick={() => onOpenEdit(milestone)}
-          >
-            {messages.edit}
-          </Button>
+          <ListItemActions>
+            <Button
+              darkMode={darkMode}
+              disabled={pending}
+              icon={<Edit3 size={15} aria-hidden="true" />}
+              onClick={() => onOpenEdit(milestone)}
+            >
+              {messages.edit}
+            </Button>
+          </ListItemActions>
         </ListItem>
       ))}
     </List>

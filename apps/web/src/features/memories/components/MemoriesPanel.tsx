@@ -14,7 +14,12 @@ import {
 } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemActions,
+  ListItemContent,
+} from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import {
@@ -166,7 +171,7 @@ function MemoryRow({
         }
         support={<SupportingText darkMode={darkMode}>{metadata}</SupportingText>}
       />
-      <div className="flex shrink-0 items-center gap-2">
+      <ListItemActions>
         <Button
           darkMode={darkMode}
           size="icon-sm"
@@ -196,7 +201,7 @@ function MemoryRow({
         >
           {messages.edit}
         </Button>
-      </div>
+      </ListItemActions>
     </ListItem>
   );
 }

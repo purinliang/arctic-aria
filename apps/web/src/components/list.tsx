@@ -92,6 +92,20 @@ export function ListItemContent({
   );
 }
 
+export function ListItemActions({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cx("my-2 flex shrink-0 items-center gap-2", className)}>
+      {children}
+    </div>
+  );
+}
+
 export function ListFooterAction({
   darkMode,
   label,

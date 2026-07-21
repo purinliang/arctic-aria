@@ -12,7 +12,12 @@ import {
 } from "@/components/dialog";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemActions,
+  ListItemContent,
+} from "@/components/list";
 import { DescriptionText, SectionTitle } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
@@ -159,7 +164,7 @@ function CategorySection({
 }) {
   return (
     <section className="grid gap-2">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-3">
         <SectionTitle>{title}</SectionTitle>
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>
@@ -259,14 +264,16 @@ function CategoryRow({
         }
       />
       {category.builtInKey ? null : (
-        <Button
-          darkMode={darkMode}
-          disabled={editDisabled}
-          icon={<Edit3 size={15} aria-hidden="true" />}
-          onClick={() => onOpenEdit(category)}
-        >
-          {messages.edit}
-        </Button>
+        <ListItemActions>
+          <Button
+            darkMode={darkMode}
+            disabled={editDisabled}
+            icon={<Edit3 size={15} aria-hidden="true" />}
+            onClick={() => onOpenEdit(category)}
+          >
+            {messages.edit}
+          </Button>
+        </ListItemActions>
       )}
     </ListItem>
   );

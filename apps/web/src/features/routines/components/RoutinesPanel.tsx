@@ -9,6 +9,7 @@ import {
   List,
   ListFooterAction,
   ListItem,
+  ListItemActions,
   ListItemContent,
 } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
@@ -145,14 +146,16 @@ function RoutineRow({
           }
         />
       </div>
-      <Button
-        darkMode={darkMode}
-        tone="ghost"
-        size="icon-sm"
-        aria-label={messages.open}
-        icon={<ChevronRight size={16} aria-hidden="true" />}
-        onClick={onOpen}
-      />
+      <ListItemActions>
+        <Button
+          darkMode={darkMode}
+          tone="ghost"
+          size="icon-sm"
+          aria-label={messages.open}
+          icon={<ChevronRight size={16} aria-hidden="true" />}
+          onClick={onOpen}
+        />
+      </ListItemActions>
     </ListItem>
   );
 }

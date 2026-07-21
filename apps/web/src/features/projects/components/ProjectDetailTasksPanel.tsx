@@ -6,7 +6,12 @@ import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
 import { CheckboxControl } from "@/components/forms/selection-field";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemActions,
+  ListItemContent,
+} from "@/components/list";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { TaskStatus } from "@/features/dashboard/types";
 import type { ProjectTaskView } from "@/features/projects/actions";
@@ -149,14 +154,16 @@ function ProjectTaskRow({
             ) : null
           }
         />
-        <Button
-          darkMode={darkMode}
-          disabled={pending}
-          icon={<Edit3 size={15} aria-hidden="true" />}
-          onClick={onEdit}
-        >
-          {messages.edit}
-        </Button>
+        <ListItemActions>
+          <Button
+            darkMode={darkMode}
+            disabled={pending}
+            icon={<Edit3 size={15} aria-hidden="true" />}
+            onClick={onEdit}
+          >
+            {messages.edit}
+          </Button>
+        </ListItemActions>
       </div>
     </div>
   );

@@ -4,7 +4,12 @@ import { Button } from "@/components/button";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { formatTimeDisplay } from "@/components/forms/time-display";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemActions,
+  ListItemContent,
+} from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { RoutineDefinition } from "@/features/dashboard/types";
@@ -77,14 +82,16 @@ export function RoutinesList({
               </SupportingText>
             }
           />
-          <Button
-            darkMode={darkMode}
-            disabled={pending}
-            icon={<Edit3 size={15} aria-hidden="true" />}
-            onClick={() => onEdit(routine)}
-          >
-            {messages.edit}
-          </Button>
+          <ListItemActions>
+            <Button
+              darkMode={darkMode}
+              disabled={pending}
+              icon={<Edit3 size={15} aria-hidden="true" />}
+              onClick={() => onEdit(routine)}
+            >
+              {messages.edit}
+            </Button>
+          </ListItemActions>
         </ListItem>
       ))}
     </List>

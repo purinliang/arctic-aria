@@ -5,7 +5,12 @@ import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemActions,
+  ListItemContent,
+} from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
@@ -154,7 +159,7 @@ function ProjectListItem({
           </SupportingText>
         }
       />
-      <div className="flex shrink-0 items-center gap-2">
+      <ListItemActions>
         <Button
           darkMode={darkMode}
           size="icon-sm"
@@ -178,7 +183,7 @@ function ProjectListItem({
           icon={<ChevronRight size={16} aria-hidden="true" />}
           onClick={onView}
         />
-      </div>
+      </ListItemActions>
     </ListItem>
   );
 }
