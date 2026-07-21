@@ -1,10 +1,12 @@
 import { PostgresRoutineRepository } from "./postgres-routine-repository.ts";
 import type {
+  RoutineInstanceRecord,
   RoutineRecord,
   RoutineRepository,
   RoutineRuleInput,
 } from "./routine-repository.ts";
 import {
+  localDateKey,
   resolveRoutineScheduledTime,
   routineReminderAt,
 } from "./routine-reminder-schedule.ts";
@@ -110,22 +112,32 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
 
     async listTodayRoutineInstances(userId: string) {
       const occurredAt = now();
-      const today = dateKey(occurredAt);
       const activeRoutines = await routines.listActiveRoutines(userId);
+      const scheduledDateByRoutineId = new Map<string, string>();
+      const scheduledDates = new Set<string>();
 
       await Promise.all(
         activeRoutines
-          .filter((routine) => shouldGenerateInstance(routine, today))
-          .map((routine) => {
+          .map((routine) => ({
+            routine,
+            scheduledDate: localDateKey(occurredAt, routine.rule.timezone),
+          }))
+          .filter(({ routine, scheduledDate }) => {
+            scheduledDateByRoutineId.set(routine.id, scheduledDate);
+            scheduledDates.add(scheduledDate);
+
+            return shouldGenerateInstance(routine, scheduledDate);
+          })
+          .map(({ routine, scheduledDate }) => {
             const scheduledTime = resolveRoutineScheduledTime(routine);
 
             return routines.ensureRoutineInstance({
               userId,
               routineId: routine.id,
-              scheduledDate: today,
+              scheduledDate,
               scheduledTime,
               remindAt: routineReminderAt({
-                scheduledDate: today,
+                scheduledDate,
                 scheduledTime,
                 timeZone: routine.rule.timezone,
               }),
@@ -134,7 +146,16 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
           }),
       );
 
-      return routines.listRoutineInstancesForDate(userId, today);
+      const instances = await Promise.all(
+        [...scheduledDates].map((scheduledDate) =>
+          routines.listRoutineInstancesForDate(userId, scheduledDate),
+        ),
+      );
+
+      return dedupeRoutineInstances(instances.flat()).filter(
+        (instance) =>
+          instance.scheduledDate === scheduledDateByRoutineId.get(instance.routineId),
+      );
     },
 
     async saveRoutine(
@@ -209,3 +230,16 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
 }
 
 export const routineService = createRoutineService();
+
+function dedupeRoutineInstances(instances: RoutineInstanceRecord[]) {
+  const seen = new Set<string>();
+
+  return instances.filter((instance) => {
+    if (seen.has(instance.id)) {
+      return false;
+    }
+
+    seen.add(instance.id);
+    return true;
+  });
+}
