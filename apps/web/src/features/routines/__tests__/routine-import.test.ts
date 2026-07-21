@@ -1,0 +1,118 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { normalizeRoutineImportDocument } from "../routine-import-normalizer.ts";
+import {
+  parseRoutineJsonToDocument,
+  parseRoutineMarkdownToJson,
+} from "../routine-import-parser.ts";
+
+const today = "2026-07-22";
+
+test("routine import parses markdown into canonical JSON", () => {
+  const parsed = parseRoutineMarkdownToJson(`# Routine: Morning walk
+Description: A short walk to start the day.
+First start date: 2026-07-22
+Repeat: daily
+Preferred time: 08:30
+Timezone: Australia/Melbourne
+`);
+
+  assert.equal(parsed.ok, true);
+
+  if (parsed.ok) {
+    assert.deepEqual(parsed.data, {
+      routine: {
+        title: "Morning walk",
+        description: "A short walk to start the day.",
+        firstStartDate: "2026-07-22",
+        recurrence: "daily",
+        preferredTime: "08:30",
+        timezone: "Australia/Melbourne",
+      },
+    });
+  }
+});
+
+test("routine import validates json shape before normalization", () => {
+  assert.deepEqual(parseRoutineJsonToDocument({ wrong: true }), {
+    ok: false,
+    code: "routine_import_invalid",
+    message: 'Unknown root field "wrong".',
+    category: "invalid_parameter",
+    subject: "routine",
+    field: "structure",
+    reason: "invalid_value",
+  });
+
+  assert.deepEqual(
+    parseRoutineJsonToDocument({
+      routine: {
+        title: "Morning walk",
+        recurrence: "yearly",
+      },
+    }),
+    {
+      ok: false,
+      code: "routine_import_invalid",
+      message:
+        "Routine recurrence must be daily, weekly, monthly, every_14_days, every_30_days, or fixed_days.",
+      category: "invalid_parameter",
+      subject: "routine",
+      field: "routine.recurrence",
+      reason: "invalid_value",
+    },
+  );
+});
+
+test("routine import fills defaults and validates the typed object", () => {
+  const parsed = parseRoutineJsonToDocument({
+    routine: {
+      title: "Morning walk",
+    },
+  });
+
+  assert.equal(parsed.ok, true);
+
+  if (!parsed.ok) {
+    return;
+  }
+
+  assert.deepEqual(normalizeRoutineImportDocument(parsed.data, today), {
+    ok: true,
+    data: {
+      title: "Morning walk",
+      description: null,
+      firstStartDate: "2026-07-22",
+      endDate: null,
+      rule: {
+        ruleType: "daily",
+        intervalValue: null,
+        weekdays: null,
+        dayOfMonth: null,
+        preferredTime: null,
+        timezone: "UTC",
+      },
+    },
+  });
+});
+
+test("routine import rejects invalid fixed interval values", () => {
+  const result = normalizeRoutineImportDocument(
+    {
+      routine: {
+        title: "Quarterly check",
+        firstStartDate: "2026-07-22",
+        recurrence: "fixed_days",
+        fixedIntervalDays: -2,
+      },
+    },
+    today,
+  );
+
+  assert.equal(result.ok, false);
+
+  if (!result.ok) {
+    assert.equal(result.code, "routine_rule_invalid");
+    assert.equal(result.field, "rule");
+  }
+});

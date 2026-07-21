@@ -13,6 +13,7 @@
     "lint": "eslint",
     "project:import:parse": "node scripts/parse-project-import.ts",
     "route:measure": "node scripts/measure-routes.mjs",
+    "routine:parse": "node scripts/parse-routine-import.ts",
     "switch:measure": "node scripts/measure-switches.mjs",
     "test": "node --test \"src/**/*.test.ts\""
   },
