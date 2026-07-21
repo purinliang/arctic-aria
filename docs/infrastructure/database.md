@@ -129,6 +129,142 @@ The Projects feature requires `0005_create_projects.sql` and the cleanup
 `projects`, `project_milestones`, or `project_tasks` tables, treat the database
 as not migrated and run the web database migration before manual testing.
 
+## Neon Region Data Copy
+
+Use this runbook when moving Arctic Aria from one Neon project or region to
+another, such as copying the old production database into a new Singapore
+database.
+
+Neon does not move an existing project to a different region in place. The safe
+model is:
+
+1. Create the new Neon project or branch in the target region.
+2. Dump the old source database before running any destructive command on the
+   new destination database.
+3. Confirm the target database is disposable. If it contains test tables or
+   test rows, reset the target schema before restore.
+4. Copy data from the old database to the new database.
+5. Run Arctic Aria's migration runner against the new database.
+6. Point local, preview, or production environment variables at the new
+   database only after the copy has been verified.
+
+Use unpooled Neon connection strings for `pg_dump` and `pg_restore`. Do not use
+pooled PgBouncer URLs for database dumps. The normal app runtime can still use
+the pooled `NEON_POSTGRES_URL` after cutover.
+
+Use PostgreSQL client tools with a major version at least as new as the source
+and destination database servers. Neon PostgreSQL 17 requires PostgreSQL 17
+`pg_dump` and `pg_restore`; Ubuntu 24.04's default PostgreSQL 16 client is not
+enough for that copy.
+
+Copy only the `public` schema. Arctic Aria product tables, migration metadata,
+and settings live in `public`. Neon may create provider-managed schemas such as
+`neon_auth`; Arctic Aria does not use Neon Auth, and restoring that schema can
+collide with Neon-managed objects that already exist in the destination
+project.
+
+Never commit source or destination database URLs. For this one-off copy, store
+the unpooled copy URLs in `apps/database/.env.local`, not in
+`apps/web/.env.local`:
+
+```bash
+SOURCE_NEON_UNPOOLED_URL="postgresql://..."
+DESTINATION_NEON_UNPOOLED_URL="postgresql://..."
+```
+
+`apps/database/.env.local` is ignored by Git and is only for database
+operations helper variables. `apps/web/.env.local` remains the web app runtime
+env file and should contain the destination `NEON_POSTGRES_URL` only when
+locally verifying the copied database.
+
+Keep dump files outside the repository, for example under `/tmp`:
+
+```bash
+mkdir -p /tmp/arctic-aria-db-copy
+export ARCTIC_ARIA_DUMP_FILE="/tmp/arctic-aria-db-copy/arctic-aria-$(date +%Y%m%d-%H%M%S).dump"
+```
+
+The helper script lives at `apps/database/scripts/copy-neon-region.sh`. It
+reads `SOURCE_NEON_UNPOOLED_URL` and `DESTINATION_NEON_UNPOOLED_URL` from
+`apps/database/.env.local`, checks PostgreSQL client/server major versions,
+dumps only the `public` schema, resets only the destination `public` schema
+after confirmation, restores the dump, and then runs
+`pnpm --dir apps/web database:migrate` after a second confirmation.
+
+Recommended copy flow for the current small database:
+
+```bash
+set -a
+source apps/database/.env.local
+set +a
+
+pg_dump \
+  -Fc \
+  -v \
+  --schema=public \
+  --no-owner \
+  --no-privileges \
+  -d "$SOURCE_NEON_UNPOOLED_URL" \
+  -f "$ARCTIC_ARIA_DUMP_FILE"
+```
+
+After the source dump exists, reset the destination database's `public` schema
+if the destination contains test tables or test rows. Run this only against the
+new destination database, never against the source database:
+
+```bash
+psql "$DESTINATION_NEON_UNPOOLED_URL" \
+  -v ON_ERROR_STOP=1 \
+  -c "DROP SCHEMA IF EXISTS public CASCADE;"
+```
+
+Then restore the dump into the destination:
+
+```bash
+pg_restore \
+  -v \
+  --exit-on-error \
+  --no-owner \
+  --no-privileges \
+  -d "$DESTINATION_NEON_UNPOOLED_URL" \
+  "$ARCTIC_ARIA_DUMP_FILE"
+```
+
+If the destination was already known to be empty, the explicit schema reset can
+be skipped. Do not rely on `pg_restore --clean` alone to remove unrelated test
+tables, because it only drops objects that are present in the dump.
+
+After restore, point `apps/web/.env.local` at the destination database for
+local verification, but do not commit that file. Then run:
+
+```bash
+pnpm --dir apps/web database:migrate
+```
+
+The migration runner must succeed against the destination database. A successful
+run with `applied=0` is acceptable when the restored database already contained
+all migration rows.
+
+Minimum verification after copy:
+
+- Sign in locally against the destination database.
+- Open Today, Projects, Routines, Memories, Ideas, and Settings.
+- Confirm the Settings app/database version line is not reporting schema drift.
+- Send a Discord test message only if the destination environment intentionally
+  uses the same Discord account binding data.
+- Run the admin latency test if the signed-in account has `is_admin = true`.
+
+Cutover checklist:
+
+- Update the intended environment's `NEON_POSTGRES_URL` to the target-region
+  database URL.
+- Keep local and preview pointed at non-production databases unless explicitly
+  testing production.
+- Redeploy the web app from the release commit.
+- Confirm `schema_migration_runs` has a successful row from the new database.
+- Keep the old database read-only or unused until the new environment has been
+  manually verified.
+
 ## Vercel CD And Migration Flow
 
 Do not treat frontend/backend deployment and database migration as the same
