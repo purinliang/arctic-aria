@@ -59,6 +59,8 @@ export function MemoriesPage({
   onSuggestionsRefresh,
   onSuggestionPin,
   onSuggestionCancel,
+  onMemoryPin,
+  onMemoryUnpin,
   pinnedSuggestionIds,
   pendingSuggestionIds,
   messages,
@@ -81,6 +83,8 @@ export function MemoriesPage({
   onSuggestionsRefresh: () => Promise<void>;
   onSuggestionPin: (memoryId: string) => SuggestionResult;
   onSuggestionCancel: (memoryId: string) => SuggestionResult;
+  onMemoryPin: (memoryId: string) => SuggestionResult;
+  onMemoryUnpin: (memoryId: string) => SuggestionResult;
   messages: MemoryMessages;
   formMessages: FormMessages;
 }) {
@@ -273,6 +277,7 @@ export function MemoriesPage({
             filter={filter}
             categories={filterCategories}
             memories={visibleMemories}
+            pendingPinIds={pendingSuggestionIds}
             messages={messages.panel}
             categoryMessages={messages.categories.builtIns}
             defaultDescriptions={messages.defaultDescriptions}
@@ -281,6 +286,8 @@ export function MemoriesPage({
             onFilterChange={setFilter}
             onManage={openManageCategories}
             onEditMemory={openMemoryEditor}
+            onPinMemory={(memoryId) => void onMemoryPin(memoryId)}
+            onUnpinMemory={(memoryId) => void onMemoryUnpin(memoryId)}
           />
 
           <SuggestionsPanel

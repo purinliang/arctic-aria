@@ -376,6 +376,8 @@ export function AppShell({
               onCategorySave={memoryState.saveCategoryFromPage}
               onCategoryDelete={memoryState.deleteCategoryFromPage}
               onSuggestionsRefresh={memoryState.refreshSuggestionsFromPage}
+              onMemoryPin={memoryState.pinMemoryFromPage}
+              onMemoryUnpin={memoryState.unpinMemoryFromPage}
               onSuggestionPin={memoryState.pinSuggestionFromPage}
               onSuggestionCancel={memoryState.cancelSuggestionPinFromPage}
               messages={messages.memories}
