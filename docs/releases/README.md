@@ -56,3 +56,4 @@ documentation updates. Keep the body specific enough to be useful when reading
 - [v0.11.2.md](v0.11.2.md): patch release record.
 - [v0.11.3.md](v0.11.3.md): patch release record.
 - [v0.11.4.md](v0.11.4.md): patch release record.
+- [v0.11.5.md](v0.11.5.md): patch release record.

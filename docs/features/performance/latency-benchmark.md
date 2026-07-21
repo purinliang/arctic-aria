@@ -15,9 +15,15 @@ why Arctic Aria moved the database closer to the deployed backend.
 - Database query: one lightweight `SELECT 1` per sample.
 - Results are operational measurements, not an SLA.
 
-`Backend handler` and `Backend -> Database` are currently equal because the
-diagnostic handler does little besides measuring the database probe. If the
-handler later does more work, those two rows can diverge.
+The current Settings diagnostic UI shows two rows:
+
+- `Frontend-Backend RTT`: a signed-in developer API probe without a database
+  query.
+- `Backend-Database RTT`: the backend's measured round trip for one lightweight
+  database query.
+
+Older raw measurements below may include extra rows from the previous diagnostic
+output.
 
 ## Summary
 

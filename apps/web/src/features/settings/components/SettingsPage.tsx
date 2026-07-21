@@ -2,14 +2,16 @@
 
 // Settings Page.
 import { Info, Settings } from "lucide-react";
+import { useState } from "react";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import { CardHeader } from "@/components/card";
 import { SelectInput } from "@/components/forms/selection-field";
 import { FieldLabel } from "@/components/forms/input-field";
-import { List, ListItem } from "@/components/list";
+import { List, ListItem, ListItemContent } from "@/components/list";
 import { Panel } from "@/components/panel";
-import { SupportingText } from "@/components/text";
+import { Switch } from "@/components/switch";
+import { LabelText, SupportingText } from "@/components/text";
 import { VersionStatusRows } from "@/components/version-status";
 import { DeveloperToolsPanel } from "@/features/performance/components/DeveloperToolsPanel";
 import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
@@ -89,6 +91,8 @@ export function SettingsPage({
     browserTimeZone,
     messages,
   });
+  const [developerModeEnabled, setDeveloperModeEnabled] = useState(false);
+  const showDeveloperTools = currentUserIsAdmin && developerModeEnabled;
 
   return (
     <section className="grid gap-4">
@@ -206,9 +210,33 @@ export function SettingsPage({
               />
             </div>
           </ListItem>
+          {currentUserIsAdmin ? (
+            <ListItem darkMode={darkMode} className="items-center">
+              <ListItemContent
+                title={
+                  <LabelText darkMode={darkMode}>
+                    {messages.developerModeTitle}
+                  </LabelText>
+                }
+                main={
+                  <SupportingText darkMode={darkMode}>
+                    {messages.developerModeDescription}
+                  </SupportingText>
+                }
+              />
+              <div className="flex shrink-0 self-center">
+                <Switch
+                  checked={developerModeEnabled}
+                  darkMode={darkMode}
+                  label={messages.developerModeTitle}
+                  onChange={setDeveloperModeEnabled}
+                />
+              </div>
+            </ListItem>
+          ) : null}
         </List>
       </Panel>
-      {currentUserIsAdmin ? (
+      {showDeveloperTools ? (
         <DeveloperToolsPanel
           darkMode={darkMode}
           messages={messages}

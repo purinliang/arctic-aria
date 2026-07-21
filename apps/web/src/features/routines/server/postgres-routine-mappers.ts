@@ -5,6 +5,10 @@ import type {
   RoutineRuleType,
   SaveRoutineInput,
 } from "./routine-repository.ts";
+import {
+  dateOnlyFieldToDateKey,
+  nullableTimeOnlyFieldToTime,
+} from "../../../server/database/postgres-fields.ts";
 
 export type RoutineRow = {
   id: string;
@@ -221,15 +225,11 @@ function toNullableDate(value: Date | string | null) {
 }
 
 function toDateString(value: Date | string) {
-  if (typeof value === "string") {
-    return value.slice(0, 10);
-  }
-
-  return value.toISOString().slice(0, 10);
+  return dateOnlyFieldToDateKey(value);
 }
 
 function normalizeTime(value: string | null) {
-  return value ? value.slice(0, 5) : null;
+  return nullableTimeOnlyFieldToTime(value);
 }
 
 function normalizeWeekdays(value: number[] | string | null) {

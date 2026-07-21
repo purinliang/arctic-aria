@@ -1,5 +1,13 @@
 // Memories Page - Memories Panel.
-import { Album, Edit3, Plus, Settings2 } from "lucide-react";
+import {
+  Album,
+  Edit3,
+  LoaderCircle,
+  Pin,
+  PinOff,
+  Plus,
+  Settings2,
+} from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import {
@@ -41,6 +49,7 @@ export function MemoriesPanel({
   filter,
   categories,
   memories,
+  pendingPinIds,
   messages,
   categoryMessages,
   defaultDescriptions,
@@ -49,6 +58,8 @@ export function MemoriesPanel({
   onFilterChange,
   onManage,
   onEditMemory,
+  onPinMemory,
+  onUnpinMemory,
 }: {
   darkMode: boolean;
   loading: boolean;
@@ -56,6 +67,7 @@ export function MemoriesPanel({
   filter: MemoryFilter;
   categories: MemoryCategoryOption[];
   memories: MemoryRecord[];
+  pendingPinIds: string[];
   messages: MemoryMessages["panel"];
   categoryMessages: MemoryMessages["categories"]["builtIns"];
   defaultDescriptions: MemoryMessages["defaultDescriptions"];
@@ -64,6 +76,8 @@ export function MemoriesPanel({
   onFilterChange: (filter: MemoryFilter) => void;
   onManage: () => void;
   onEditMemory: (memory: MemoryRecord) => void;
+  onPinMemory: (memoryId: string) => void;
+  onUnpinMemory: (memoryId: string) => void;
 }) {
   const categoryByName = new Map(
     categories.map((category) => [category.name, category]),
@@ -152,7 +166,10 @@ export function MemoriesPanel({
             categoryMessages={categoryMessages}
             defaultDescriptions={defaultDescriptions}
             dateMessages={dateMessages}
+            pinPending={pendingPinIds.includes(memory.id)}
             onEdit={() => onEditMemory(memory)}
+            onPin={() => onPinMemory(memory.id)}
+            onUnpin={() => onUnpinMemory(memory.id)}
           />
         ))}
       </List>
@@ -168,7 +185,10 @@ function MemoryRow({
   categoryMessages,
   defaultDescriptions,
   dateMessages,
+  pinPending,
   onEdit,
+  onPin,
+  onUnpin,
 }: {
   memory: MemoryRecord;
   darkMode: boolean;
@@ -176,7 +196,10 @@ function MemoryRow({
   categoryMessages: MemoryMessages["categories"]["builtIns"];
   defaultDescriptions: MemoryMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
+  pinPending: boolean;
   onEdit: () => void;
+  onPin: () => void;
+  onUnpin: () => void;
 }) {
   const metadata = [
     getMemoryCategoryLabel(
@@ -211,14 +234,37 @@ function MemoryRow({
         }
         support={<SupportingText darkMode={darkMode}>{metadata}</SupportingText>}
       />
-      <Button
-        darkMode={darkMode}
-        size="sm"
-        icon={<Edit3 size={15} aria-hidden="true" />}
-        onClick={onEdit}
-      >
-        {messages.edit}
-      </Button>
+      <div className="flex shrink-0 items-center gap-2">
+        <Button
+          darkMode={darkMode}
+          size="icon-sm"
+          className="rounded-full"
+          disabled={pinPending}
+          aria-label={memory.pinned ? messages.cancelPin : messages.pin}
+          icon={
+            pinPending ? (
+              <LoaderCircle
+                className="animate-spin"
+                size={15}
+                aria-hidden="true"
+              />
+            ) : memory.pinned ? (
+              <PinOff size={14} aria-hidden="true" />
+            ) : (
+              <Pin size={14} aria-hidden="true" />
+            )
+          }
+          onClick={memory.pinned ? onUnpin : onPin}
+        />
+        <Button
+          darkMode={darkMode}
+          size="sm"
+          icon={<Edit3 size={15} aria-hidden="true" />}
+          onClick={onEdit}
+        >
+          {messages.edit}
+        </Button>
+      </div>
     </ListItem>
   );
 }

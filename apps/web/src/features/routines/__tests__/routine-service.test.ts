@@ -62,6 +62,77 @@ test("generates today's daily routine instance", async () => {
   );
 });
 
+test("generates today's routine instance using the routine timezone", async () => {
+  const occurredAt = new Date("2026-07-21T23:30:00.000Z");
+  const repository = new InMemoryRoutineRepository({
+    routines: [
+      routine({
+        id: "routine-1",
+        title: "Local morning check",
+        firstStartDate: "2026-07-22",
+        rule: {
+          id: "routine-1-rule",
+          routineId: "routine-1",
+          ruleType: "daily",
+          intervalValue: null,
+          weekdays: null,
+          dayOfMonth: null,
+          preferredTime: "10:00",
+          timezone: "Australia/Sydney",
+          createdAt: new Date("2026-07-21T00:00:00.000Z"),
+          updatedAt: new Date("2026-07-21T00:00:00.000Z"),
+        },
+      }),
+    ],
+  });
+  const service = createRoutineService({
+    routines: repository,
+    now: () => occurredAt,
+  });
+
+  const instances = await service.listTodayRoutineInstances(userId);
+
+  assert.equal(instances.length, 1);
+  assert.equal(instances[0].title, "Local morning check");
+  assert.equal(instances[0].scheduledDate, "2026-07-22");
+  assert.deepEqual(
+    instances[0].remindAt,
+    new Date("2026-07-21T23:30:00.000Z"),
+  );
+});
+
+test("saving a routine creates today's instance immediately", async () => {
+  const repository = new InMemoryRoutineRepository();
+  const service = createRoutineService({
+    routines: repository,
+    now: () => now,
+  });
+
+  await service.saveRoutine(userId, {
+    title: "New morning check",
+    description: "New morning check description",
+    firstStartDate: "2026-07-12",
+    endDate: null,
+    rule: {
+      ruleType: "daily",
+      intervalValue: null,
+      weekdays: null,
+      dayOfMonth: null,
+      preferredTime: "08:00",
+      timezone: "UTC",
+    },
+  });
+
+  const instances = await repository.listRoutineInstancesForDate(
+    userId,
+    "2026-07-12",
+  );
+
+  assert.equal(instances.length, 1);
+  assert.equal(instances[0].title, "New morning check");
+  assert.equal(instances[0].scheduledTime, "08:00");
+});
+
 test("monthly by date supports yearly renewal intervals", async () => {
   const repository = new InMemoryRoutineRepository({
     routines: [
@@ -171,6 +242,47 @@ test("deleted routines do not generate instances", async () => {
   assert.equal(instances.length, 0);
 });
 
+test("today routine instances are limited to six visible rows", async () => {
+  const repository = new InMemoryRoutineRepository({
+    routines: Array.from({ length: 8 }, (_, index) =>
+      routine({
+        id: `routine-${index + 1}`,
+        title: `Routine ${index + 1}`,
+        rule: {
+          id: `routine-${index + 1}-rule`,
+          routineId: `routine-${index + 1}`,
+          ruleType: "daily",
+          intervalValue: null,
+          weekdays: null,
+          dayOfMonth: null,
+          preferredTime: `08:${String(index).padStart(2, "0")}`,
+          timezone: "UTC",
+          createdAt: new Date("2026-07-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-07-01T00:00:00.000Z"),
+        },
+      }),
+    ),
+  });
+  const service = createRoutineService({
+    routines: repository,
+    now: () => now,
+  });
+
+  const instances = await service.listTodayRoutineInstances(userId);
+
+  assert.deepEqual(
+    instances.map((instance) => instance.title),
+    [
+      "Routine 1",
+      "Routine 2",
+      "Routine 3",
+      "Routine 4",
+      "Routine 5",
+      "Routine 6",
+    ],
+  );
+});
+
 test("complete, skip, and reopen update routine instance status", async () => {
   const instance: RoutineInstanceRecord = {
     id: "instance-1",
@@ -221,4 +333,44 @@ test("complete, skip, and reopen update routine instance status", async () => {
   assert.equal(reopened?.status, "pending");
   assert.equal(reopened?.completedAt, null);
   assert.equal(reopened?.skippedAt, null);
+});
+
+test("completed routine instances stay visible for today", async () => {
+  const instance: RoutineInstanceRecord = {
+    id: "instance-1",
+    userId,
+    routineId: "routine-1",
+    title: "Morning check",
+    description: "Morning check description",
+    scheduledDate: "2026-07-12",
+    scheduledTime: "08:00",
+    remindAt: new Date("2026-07-12T07:30:00.000Z"),
+    remindedAt: null,
+    movedAt: null,
+    movedFromDate: null,
+    status: "completed",
+    completedAt: new Date("2026-07-12T09:00:00.000Z"),
+    skippedAt: null,
+    createdAt: new Date("2026-07-12T00:00:00.000Z"),
+    updatedAt: new Date("2026-07-12T09:00:00.000Z"),
+  };
+  const repository = new InMemoryRoutineRepository({
+    routines: [
+      routine({
+        id: "routine-1",
+        title: "Morning check",
+      }),
+    ],
+    instances: [instance],
+  });
+  const service = createRoutineService({
+    routines: repository,
+    now: () => now,
+  });
+
+  const instances = await service.listTodayRoutineInstances(userId);
+
+  assert.equal(instances.length, 1);
+  assert.equal(instances[0].id, "instance-1");
+  assert.equal(instances[0].status, "completed");
 });

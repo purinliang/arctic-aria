@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { englishDashboardMessages } from "../../messages/dashboard-messages.ts";
-import { readResolvedTimeZone } from "../settings/time-zones.ts";
+import { localDateTimeParts } from "../settings/time-zones.ts";
 import {
   PostgresDiscordAccountRepository,
 } from "../../server/discord/discord-account-repository.ts";
@@ -202,58 +202,35 @@ export function createTodayReviewService({
 }
 
 function localReviewMoment(date: Date, timeZone: string | null) {
-  const resolvedTimeZone = readResolvedTimeZone(timeZone);
-
-  if (!resolvedTimeZone) {
+  if (!timeZone) {
     return null;
   }
 
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    day: "2-digit",
-    hour: "2-digit",
-    hour12: false,
-    hourCycle: "h23",
-    minute: "2-digit",
-    month: "2-digit",
-    timeZone: resolvedTimeZone,
-    year: "numeric",
-  }).formatToParts(date);
-  const values = Object.fromEntries(
-    parts
-      .filter((part) => part.type !== "literal")
-      .map((part) => [part.type, part.value]),
-  );
-
-  return {
-    date: `${values.year}-${values.month}-${values.day}`,
-    hour: Number(values.hour),
-    minute: Number(values.minute),
-    timeZone: resolvedTimeZone,
-  };
+  return localDateTimeParts(date, timeZone);
 }
 
 function dailyReviewSchedule(local: {
-  date: string;
+  dateKey: string;
   hour: number;
   minute: number;
 }) {
   if (local.hour === 23 && local.minute >= 48) {
     return {
       due: true,
-      date: local.date,
+      date: local.dateKey,
     };
   }
 
   if (local.hour === 0 && local.minute <= 12) {
     return {
       due: true,
-      date: previousDateKey(local.date),
+      date: previousDateKey(local.dateKey),
     };
   }
 
   return {
     due: false,
-    date: local.date,
+    date: local.dateKey,
   };
 }
 

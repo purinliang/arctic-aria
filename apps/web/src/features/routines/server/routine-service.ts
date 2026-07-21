@@ -1,5 +1,7 @@
 import { PostgresRoutineRepository } from "./postgres-routine-repository.ts";
+import { localDateKey } from "../../settings/time-zones.ts";
 import type {
+  RoutineInstanceRecord,
   RoutineRecord,
   RoutineRepository,
   RoutineRuleInput,
@@ -15,10 +17,13 @@ export type RoutineServiceOptions = {
 };
 
 const msPerDay = 24 * 60 * 60 * 1000;
+const todayRoutineInstanceLimit = 6;
 
-export function dateKey(date: Date) {
-  return date.toISOString().slice(0, 10);
-}
+type TodayRoutineCandidate = {
+  routine: RoutineRecord;
+  scheduledDate: string;
+  scheduledTime: string;
+};
 
 function parseDateKey(value: string) {
   return new Date(`${value}T00:00:00.000Z`);
@@ -103,6 +108,33 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
   const routines = options.routines ?? new PostgresRoutineRepository();
   const now = options.now ?? (() => new Date());
 
+  async function ensureTodayRoutineInstance(
+    userId: string,
+    routine: RoutineRecord,
+    occurredAt: Date,
+  ) {
+    const scheduledDate = localDateKey(occurredAt, routine.rule.timezone);
+
+    if (!shouldGenerateInstance(routine, scheduledDate)) {
+      return null;
+    }
+
+    const scheduledTime = resolveRoutineScheduledTime(routine);
+
+    return routines.ensureRoutineInstance({
+      userId,
+      routineId: routine.id,
+      scheduledDate,
+      scheduledTime,
+      remindAt: routineReminderAt({
+        scheduledDate,
+        scheduledTime,
+        timeZone: routine.rule.timezone,
+      }),
+      occurredAt,
+    });
+  }
+
   return {
     async listRoutineDefinitions(userId: string) {
       return routines.listRoutines(userId);
@@ -110,31 +142,111 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
 
     async listTodayRoutineInstances(userId: string) {
       const occurredAt = now();
-      const today = dateKey(occurredAt);
       const activeRoutines = await routines.listActiveRoutines(userId);
+      const scheduledDateByRoutineId = new Map<string, string>();
+      const scheduledDates = new Set<string>();
+      const routineCandidates: TodayRoutineCandidate[] = activeRoutines.map((routine) => {
+        const scheduledDate = localDateKey(occurredAt, routine.rule.timezone);
+        const scheduledTime = resolveRoutineScheduledTime(routine);
 
-      await Promise.all(
-        activeRoutines
-          .filter((routine) => shouldGenerateInstance(routine, today))
-          .map((routine) => {
-            const scheduledTime = resolveRoutineScheduledTime(routine);
+        scheduledDateByRoutineId.set(routine.id, scheduledDate);
+        scheduledDates.add(scheduledDate);
 
-            return routines.ensureRoutineInstance({
+        return {
+          routine,
+          scheduledDate,
+          scheduledTime,
+        };
+      });
+
+      const existingInstances = await Promise.all(
+        [...scheduledDates].map((scheduledDate) =>
+          routines.listRoutineInstancesForDate(userId, scheduledDate),
+        ),
+      );
+      const existingTodayInstances = dedupeRoutineInstances(
+        existingInstances.flat(),
+      )
+        .filter(
+          (instance) =>
+            instance.scheduledDate ===
+            scheduledDateByRoutineId.get(instance.routineId),
+        )
+        .sort(compareTodayRoutineInstances)
+        .slice(0, todayRoutineInstanceLimit);
+      const existingRoutineIds = new Set(
+        existingTodayInstances.map((instance) => instance.routineId),
+      );
+      const remainingSlots = Math.max(
+        todayRoutineInstanceLimit - existingTodayInstances.length,
+        0,
+      );
+
+      const refreshedExistingInstances = await Promise.all(
+        existingTodayInstances.map((instance) => {
+          const candidate = routineCandidates.find(
+            ({ routine }) => routine.id === instance.routineId,
+          );
+
+          if (!candidate) {
+            return instance;
+          }
+
+          return routines.ensureRoutineInstance({
+            userId,
+            routineId: candidate.routine.id,
+            scheduledDate: candidate.scheduledDate,
+            scheduledTime: candidate.scheduledTime,
+            remindAt: routineReminderAt({
+              scheduledDate: candidate.scheduledDate,
+              scheduledTime: candidate.scheduledTime,
+              timeZone: candidate.routine.rule.timezone,
+            }),
+            occurredAt,
+          });
+        }),
+      );
+      const ensuredInstances = await Promise.all(
+        routineCandidates
+          .filter(
+            ({ routine, scheduledDate }) =>
+              !existingRoutineIds.has(routine.id) &&
+              shouldGenerateInstance(routine, scheduledDate),
+          )
+          .sort(compareRoutineCandidates)
+          .slice(0, remainingSlots)
+          .map(({ routine, scheduledDate, scheduledTime }) =>
+            routines.ensureRoutineInstance({
               userId,
               routineId: routine.id,
-              scheduledDate: today,
+              scheduledDate,
               scheduledTime,
               remindAt: routineReminderAt({
-                scheduledDate: today,
+                scheduledDate,
                 scheduledTime,
                 timeZone: routine.rule.timezone,
               }),
               occurredAt,
-            });
-          }),
+            }),
+          ),
       );
+      const allInstances = [
+        ...refreshedExistingInstances.filter(
+          (instance): instance is RoutineInstanceRecord => Boolean(instance),
+        ),
+        ...ensuredInstances.filter(
+          (instance): instance is RoutineInstanceRecord => Boolean(instance),
+        ),
+      ];
 
-      return routines.listRoutineInstancesForDate(userId, today);
+      return dedupeRoutineInstances(allInstances)
+        .filter(
+          (instance) =>
+            instance.scheduledDate ===
+            scheduledDateByRoutineId.get(instance.routineId),
+        )
+        .sort(compareTodayRoutineInstances)
+        .slice(0, todayRoutineInstanceLimit);
     },
 
     async saveRoutine(
@@ -150,8 +262,8 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
     ) {
       const occurredAt = now();
 
-      if (input.id) {
-        return routines.updateRoutine({
+      const savedRoutine = input.id
+        ? await routines.updateRoutine({
           userId,
           routineId: input.id,
           title: input.title,
@@ -160,18 +272,22 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
           endDate: input.endDate,
           rule: input.rule,
           occurredAt,
+        })
+        : await routines.createRoutine({
+          userId,
+          title: input.title,
+          description: input.description,
+          firstStartDate: input.firstStartDate,
+          endDate: input.endDate,
+          rule: input.rule,
+          occurredAt,
         });
+
+      if (savedRoutine) {
+        await ensureTodayRoutineInstance(userId, savedRoutine, occurredAt);
       }
 
-      return routines.createRoutine({
-        userId,
-        title: input.title,
-        description: input.description,
-        firstStartDate: input.firstStartDate,
-        endDate: input.endDate,
-        rule: input.rule,
-        occurredAt,
-      });
+      return savedRoutine;
     },
 
     async deleteRoutine(userId: string, routineId: string) {
@@ -209,3 +325,48 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
 }
 
 export const routineService = createRoutineService();
+
+function dedupeRoutineInstances(instances: RoutineInstanceRecord[]) {
+  const seen = new Set<string>();
+
+  return instances.filter((instance) => {
+    if (seen.has(instance.id)) {
+      return false;
+    }
+
+    seen.add(instance.id);
+    return true;
+  });
+}
+
+function compareTodayRoutineInstances(
+  left: RoutineInstanceRecord,
+  right: RoutineInstanceRecord,
+) {
+  return (
+    timeSortValue(left.scheduledTime) - timeSortValue(right.scheduledTime) ||
+    left.title.localeCompare(right.title) ||
+    left.createdAt.getTime() - right.createdAt.getTime()
+  );
+}
+
+function compareRoutineCandidates(
+  left: TodayRoutineCandidate,
+  right: TodayRoutineCandidate,
+) {
+  return (
+    timeSortValue(left.scheduledTime) - timeSortValue(right.scheduledTime) ||
+    left.routine.title.localeCompare(right.routine.title) ||
+    left.routine.createdAt.getTime() - right.routine.createdAt.getTime()
+  );
+}
+
+function timeSortValue(time: string | null) {
+  if (!time) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  const [hour = "0", minute = "0"] = time.split(":");
+
+  return Number(hour) * 60 + Number(minute);
+}

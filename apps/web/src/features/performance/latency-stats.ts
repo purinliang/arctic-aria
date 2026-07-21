@@ -6,10 +6,8 @@ import type {
 } from "./latency-types.ts";
 
 const metricKeys: LatencyMetricKey[] = [
-  "clientTotalMs",
-  "serverTotalMs",
-  "databaseMs",
-  "networkEstimateMs",
+  "frontendBackendMs",
+  "backendDatabaseMs",
 ];
 
 export function summarizeLatency(samples: LatencySample[]): LatencyReport {

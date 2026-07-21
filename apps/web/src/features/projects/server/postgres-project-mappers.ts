@@ -4,6 +4,7 @@ import type {
   ProjectTaskRecord,
   ProjectTaskStatus,
 } from "./project-repository.ts";
+import { nullableDateOnlyFieldToDateKey } from "../../../server/database/postgres-fields.ts";
 
 export type ProjectRow = {
   id: string;
@@ -149,13 +150,5 @@ function toNullableDate(value: Date | string | null) {
 }
 
 function toDateString(value: Date | string | null) {
-  if (!value) {
-    return null;
-  }
-
-  if (typeof value === "string") {
-    return value.slice(0, 10);
-  }
-
-  return value.toISOString().slice(0, 10);
+  return nullableDateOnlyFieldToDateKey(value);
 }

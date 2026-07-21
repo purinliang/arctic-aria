@@ -85,6 +85,7 @@ export function AuthGate({
     applyUserPreferences,
     languagePreference,
     resolvedLanguage,
+    resolvedTimeZone,
     themePreference,
     timeFormatPreference,
   } = useAppPreferences();
@@ -237,6 +238,7 @@ export function AuthGate({
         darkMode={darkMode}
         languagePreference={languagePreference}
         resolvedLanguage={resolvedLanguage}
+        resolvedTimeZone={resolvedTimeZone}
         messages={messages}
         themePreference={themePreference}
         versionStatus={versionStatus}

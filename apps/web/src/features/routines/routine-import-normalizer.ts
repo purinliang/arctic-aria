@@ -13,8 +13,9 @@ import type {
 export function normalizeRoutineImportDocument(
   document: RoutineImportDocument,
   today: string,
+  defaultTimeZone = "UTC",
 ): RoutineImportResult<RoutineImportCommand> {
-  const input = routineImportToInput(document, today);
+  const input = routineImportToInput(document, today, defaultTimeZone);
   const validation = validateRoutineInput(input);
 
   if (!validation.ok) {
@@ -36,6 +37,7 @@ export function normalizeRoutineImportDocument(
 function routineImportToInput(
   document: RoutineImportDocument,
   today: string,
+  defaultTimeZone: string,
 ): RoutineImportInput {
   const routine = document.routine;
   const recurrence = routine.recurrence ?? "daily";
@@ -49,7 +51,7 @@ function routineImportToInput(
     weekdays: null,
     dayOfMonth: null,
     preferredTime: routine.preferredTime ?? "",
-    timezone: routine.timezone ?? "UTC",
+    timezone: routine.timezone ?? defaultTimeZone,
   };
 
   return normalizeRoutineRecurrenceDraft(

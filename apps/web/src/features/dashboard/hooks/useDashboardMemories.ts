@@ -45,6 +45,9 @@ import type {
 type MemoryDataAction = () => Promise<
   MemoryActionResult<MemoryDashboardData>
 >;
+type MemoryPinAction = () => Promise<
+  MemoryActionResult<{ dashboardData: MemoryDashboardData }>
+>;
 
 export function useDashboardMemories(
   userId: string,
@@ -397,14 +400,24 @@ export function useDashboardMemories(
     }
   }
 
-  async function pinSuggestionFromPage(memoryId: string) {
+  async function runMemoryPinAction({
+    memoryId,
+    action,
+    failureTitle,
+    onSuccess,
+  }: {
+    memoryId: string;
+    action: MemoryPinAction;
+    failureTitle: string;
+    onSuccess?: () => void;
+  }) {
     setPendingSuggestionIds((current) =>
       addPendingSuggestionId(current, memoryId),
     );
 
     try {
       const actionResult = await runNotifiedServerAction({
-        action: () => pinMemorySuggestion(memoryId),
+        action,
         messages: notificationMessages,
         showErrorNotification,
       });
@@ -419,7 +432,7 @@ export function useDashboardMemories(
         notifyActionFailure({
           result,
           resultMessages,
-          fallbackTitle: actionFailedTitle("save", "suggestion"),
+          fallbackTitle: failureTitle,
           notificationMessages,
           showErrorNotification,
         });
@@ -427,12 +440,7 @@ export function useDashboardMemories(
       }
 
       applyMemoryData(result.data.dashboardData);
-      setMemorySuggestions((current) =>
-        removeMemorySuggestion(current, memoryId),
-      );
-      setPinnedSuggestionIds((current) =>
-        current.filter((suggestionId) => suggestionId !== memoryId),
-      );
+      onSuccess?.();
       return true;
     } finally {
       setPendingSuggestionIds((current) =>
@@ -441,45 +449,49 @@ export function useDashboardMemories(
     }
   }
 
-  async function cancelSuggestionPinFromPage(memoryId: string) {
-    setPendingSuggestionIds((current) =>
-      addPendingSuggestionId(current, memoryId),
-    );
+  function pinMemoryFromPage(memoryId: string) {
+    return runMemoryPinAction({
+      memoryId,
+      action: () => pinMemorySuggestion(memoryId),
+      failureTitle: actionFailedTitle("pin", "memory"),
+    });
+  }
 
-    try {
-      const actionResult = await runNotifiedServerAction({
-        action: () => cancelPinnedMemorySuggestion(memoryId),
-        messages: notificationMessages,
-        showErrorNotification,
-      });
+  function unpinMemoryFromPage(memoryId: string) {
+    return runMemoryPinAction({
+      memoryId,
+      action: () => cancelPinnedMemorySuggestion(memoryId),
+      failureTitle: actionFailedTitle("unpin", "memory"),
+    });
+  }
 
-      if (!actionResult.ok) {
-        return false;
-      }
+  function pinSuggestionFromPage(memoryId: string) {
+    return runMemoryPinAction({
+      memoryId,
+      action: () => pinMemorySuggestion(memoryId),
+      failureTitle: actionFailedTitle("pin", "suggestion"),
+      onSuccess: () => {
+        setMemorySuggestions((current) =>
+          removeMemorySuggestion(current, memoryId),
+        );
+        setPinnedSuggestionIds((current) =>
+          current.filter((suggestionId) => suggestionId !== memoryId),
+        );
+      },
+    });
+  }
 
-      const result = actionResult.value;
-
-      if (!result.ok) {
-        notifyActionFailure({
-          result,
-          resultMessages,
-          fallbackTitle: actionFailedTitle("delete", "suggestion"),
-          notificationMessages,
-          showErrorNotification,
-        });
-        return false;
-      }
-
-      applyMemoryData(result.data.dashboardData);
-      setPinnedSuggestionIds((current) =>
-        current.filter((suggestionId) => suggestionId !== memoryId),
-      );
-      return true;
-    } finally {
-      setPendingSuggestionIds((current) =>
-        removePendingSuggestionId(current, memoryId),
-      );
-    }
+  function cancelSuggestionPinFromPage(memoryId: string) {
+    return runMemoryPinAction({
+      memoryId,
+      action: () => cancelPinnedMemorySuggestion(memoryId),
+      failureTitle: actionFailedTitle("unpin", "suggestion"),
+      onSuccess: () => {
+        setPinnedSuggestionIds((current) =>
+          current.filter((suggestionId) => suggestionId !== memoryId),
+        );
+      },
+    });
   }
 
   return {
@@ -517,6 +529,8 @@ export function useDashboardMemories(
         actionFailedTitle("delete", "category"),
       ),
     refreshSuggestionsFromPage,
+    pinMemoryFromPage,
+    unpinMemoryFromPage,
     pinSuggestionFromPage,
     cancelSuggestionPinFromPage,
   };

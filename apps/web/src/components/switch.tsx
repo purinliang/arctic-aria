@@ -16,10 +16,10 @@ export function Switch({
   return (
     <button
       className={cx(
-        "h-7 w-12 rounded-full border p-1 transition",
+        "inline-flex h-7 w-12 shrink-0 items-center rounded-full border p-1 transition",
         checked
-          ? "border-[var(--aa-primary-button-bg)] bg-[var(--aa-primary-button-bg)]"
-          : "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)]",
+          ? "border-[var(--aa-primary-button-hover-bg)] bg-[var(--aa-primary-button-bg)] hover:bg-[var(--aa-primary-button-hover-bg)]"
+          : "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)]",
       )}
       type="button"
       role="switch"

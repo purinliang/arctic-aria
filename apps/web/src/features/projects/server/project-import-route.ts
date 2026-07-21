@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authorizeDeveloperApi } from "@/features/developer/server/developer-api-auth";
+import { loadDeveloperImportDefaults } from "@/features/developer/server/import-defaults";
 import { readDeveloperImportRequest } from "@/features/developer/server/import-request-parser";
 import { getCurrentUser } from "@/features/auth/actions";
 import { projectDatabaseErrorCode } from "../project-database-errors";
@@ -110,9 +111,10 @@ async function prepareProjectImport(request: Request) {
   }
 
   const projects: ProjectImportCommand[] = [];
+  const defaults = await loadDeveloperImportDefaults();
 
   for (const document of parsed.data.projects) {
-    const normalized = normalizeProjectImportDocument(document, todayKey());
+    const normalized = normalizeProjectImportDocument(document, defaults.today);
 
     if (!normalized.ok) {
       return normalized;
@@ -153,10 +155,6 @@ function projectImportFailed(code: string) {
     },
     500,
   );
-}
-
-function todayKey() {
-  return new Date().toISOString().slice(0, 10);
 }
 
 function safeErrorCode(error: unknown) {

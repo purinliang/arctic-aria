@@ -51,6 +51,7 @@ export function AppShell({
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
   resolvedLanguage,
+  resolvedTimeZone,
   themePreference,
   timeFormatPreference,
   versionStatus,
@@ -72,6 +73,7 @@ export function AppShell({
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
   resolvedLanguage: SupportedLanguage;
+  resolvedTimeZone: string;
   themePreference: ThemePreference;
   timeFormatPreference: TimeFormatPreference;
   versionStatus: DatabaseVersionStatus;
@@ -344,7 +346,7 @@ export function AppShell({
               formMessages={messages.forms}
               timeFormatPreference={timeFormatPreference}
               multipleTimezonesEnabled={false}
-              resolvedTimeZone={browserTimeZone}
+              resolvedTimeZone={resolvedTimeZone}
             />
           ) : activeView === "ideas" ? (
             <IdeasPage
@@ -374,6 +376,8 @@ export function AppShell({
               onCategorySave={memoryState.saveCategoryFromPage}
               onCategoryDelete={memoryState.deleteCategoryFromPage}
               onSuggestionsRefresh={memoryState.refreshSuggestionsFromPage}
+              onMemoryPin={memoryState.pinMemoryFromPage}
+              onMemoryUnpin={memoryState.unpinMemoryFromPage}
               onSuggestionPin={memoryState.pinSuggestionFromPage}
               onSuggestionCancel={memoryState.cancelSuggestionPinFromPage}
               messages={messages.memories}

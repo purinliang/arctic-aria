@@ -18,26 +18,25 @@ Backend route:
 - `POST /api/developer/performance/latency`
 - requires a valid signed auth session
 - requires `isAdmin = true` in the signed session payload
-- returns one no-store sample
-- runs one lightweight `SELECT 1` database query
-- returns backend handler time and database query time only
+- returns one no-store probe result
+- supports a `backend` probe without a database query
+- supports a `database` probe with one lightweight `SELECT 1` database query
 - does not return database URLs, environment values, usernames, cookies, or
   secrets
 
 Frontend behavior:
 
-- `Test Latency` runs 30 sequential POST requests
-- the browser records total request time around each fetch
+- `Test Latency` runs 30 paired backend and database probes
+- the browser records frontend/backend round-trip time around each backend probe
 - the report shows min, p10, p50, p90, max, and average
-- the report includes browser-to-backend-to-database total, backend handler,
-  backend-to-database, and estimated browser/backend overhead
+- the report includes `Frontend-Backend RTT` and `Backend-Database RTT`
 - the result is shown in the Settings panel, can be copied as Markdown, and is
   also printed with `console.table`
 - reports are not persisted
 
-Because there is no frontend-to-database direct connection by design,
-frontend/database latency is represented by the full
-browser-to-backend-to-database path.
+Because there is no frontend-to-database direct connection by design, the tool
+keeps frontend/backend and backend/database probes separate instead of reporting
+a synthetic frontend/database number.
 
 ## Tab Switch Loading
 
