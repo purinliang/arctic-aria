@@ -5,6 +5,7 @@ import type {
   IdeaRepository,
   IdeaSource,
 } from "./idea-repository.ts";
+import type { ActionFailureResult } from "../../../messages/action-result.ts";
 
 export type CaptureIdeaResult =
   | {
@@ -12,14 +13,12 @@ export type CaptureIdeaResult =
       code: "idea_captured";
       idea: IdeaRecord;
     }
-  | {
-      ok: false;
+  | (ActionFailureResult & {
       code:
         | "idea_text_required"
         | "idea_text_too_long"
         | "idea_capture_failed";
-      message: string;
-    };
+    });
 
 export type SaveIdeaResult =
   | {
@@ -27,26 +26,22 @@ export type SaveIdeaResult =
       code: "idea_saved";
       idea: IdeaRecord;
     }
-  | {
-      ok: false;
+  | (ActionFailureResult & {
       code:
         | "idea_text_required"
         | "idea_text_too_long"
         | "idea_not_found"
         | "idea_save_failed";
-      message: string;
-    };
+    });
 
 export type ArchiveIdeaResult =
   | {
       ok: true;
       code: "idea_archived";
     }
-  | {
-      ok: false;
+  | (ActionFailureResult & {
       code: "idea_not_found" | "idea_archive_failed";
-      message: string;
-    };
+    });
 
 export type IdeaServiceOptions = {
   ideas?: IdeaRepository;
@@ -97,6 +92,9 @@ export function createIdeaService(options: IdeaServiceOptions = {}) {
           ok: false,
           code: "idea_capture_failed",
           message: "Idea could not be captured.",
+          category: "database_update",
+          action: "add",
+          subject: "idea",
         };
       }
     },
@@ -132,6 +130,8 @@ export function createIdeaService(options: IdeaServiceOptions = {}) {
             ok: false,
             code: "idea_not_found",
             message: "Idea was not found.",
+            category: "not_found",
+            subject: "idea",
           };
         }
 
@@ -151,6 +151,9 @@ export function createIdeaService(options: IdeaServiceOptions = {}) {
           ok: false,
           code: "idea_save_failed",
           message: "Idea could not be saved.",
+          category: "database_update",
+          action: "save",
+          subject: "idea",
         };
       }
     },
@@ -171,6 +174,8 @@ export function createIdeaService(options: IdeaServiceOptions = {}) {
             ok: false,
             code: "idea_not_found",
             message: "Idea was not found.",
+            category: "not_found",
+            subject: "idea",
           };
         }
 
@@ -189,6 +194,9 @@ export function createIdeaService(options: IdeaServiceOptions = {}) {
           ok: false,
           code: "idea_archive_failed",
           message: "Idea could not be deleted.",
+          category: "database_update",
+          action: "delete",
+          subject: "idea",
         };
       }
     },

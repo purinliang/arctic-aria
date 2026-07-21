@@ -47,6 +47,10 @@ test("rejects blank idea text", async () => {
     ok: false,
     code: "idea_text_required",
     message: "Idea text can't be empty.",
+    category: "missing_parameter",
+    subject: "idea",
+    field: "text",
+    reason: "required",
   });
 });
 
@@ -63,6 +67,11 @@ test("rejects overlong idea text", async () => {
     ok: false,
     code: "idea_text_too_long",
     message: `Idea text must be ${ideaRawTextMaxLength} characters or fewer.`,
+    category: "invalid_parameter",
+    subject: "idea",
+    field: "text",
+    reason: "too_long",
+    limit: ideaRawTextMaxLength,
   });
 });
 
@@ -150,6 +159,8 @@ test("does not update another user's idea", async () => {
     ok: false,
     code: "idea_not_found",
     message: "Idea was not found.",
+    category: "not_found",
+    subject: "idea",
   });
   assert.equal((await service.listIdeas(userId))[0]?.rawText, "renew passport");
 });
@@ -205,6 +216,8 @@ test("does not archive another user's idea", async () => {
     ok: false,
     code: "idea_not_found",
     message: "Idea was not found.",
+    category: "not_found",
+    subject: "idea",
   });
   assert.equal((await service.listIdeas(userId)).length, 1);
 });

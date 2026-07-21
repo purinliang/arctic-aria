@@ -14,6 +14,11 @@ import type {
   MemorySuggestionRecord,
 } from "./server/memory-service";
 import type { MemoryRecord as ServerMemoryRecord } from "./server/memory-repository";
+import type {
+  ActionFailureCategory,
+  ActionFailureReason,
+  ActionFailureResult,
+} from "../../messages/action-result.ts";
 
 export type MemoryDashboardData = {
   categories: MemoryCategoryOption[];
@@ -49,11 +54,7 @@ export type MemoryActionResult<T> =
       ok: true;
       data: T;
     }
-  | {
-      ok: false;
-      message: string;
-      code?: string;
-    };
+  | ActionFailureResult;
 
 const dateFormatter = new Intl.DateTimeFormat("en", {
   month: "short",
@@ -65,6 +66,7 @@ export function unauthorizedResult<T>(): MemoryActionResult<T> {
     ok: false,
     message: "Please sign in again.",
     code: "auth_required",
+    category: "auth",
   };
 }
 
@@ -100,11 +102,28 @@ export function validateCategoryInput(input: MemoryCategoryInput) {
   const name = input.name.trim();
   const description = input.description.trim();
 
-  if (name.length < 1 || name.length > 40) {
+  if (name.length < 1) {
     return {
       ok: false as const,
-      message: "Category name must be 1-40 characters.",
+      message: "Category name is required.",
       code: "memory_category_name_invalid",
+      category: "missing_parameter" as const,
+      subject: "category" as const,
+      field: "name",
+      reason: "required" as const,
+    };
+  }
+
+  if (name.length > 40) {
+    return {
+      ok: false as const,
+      message: "Category name must be 40 characters or fewer.",
+      code: "memory_category_name_invalid",
+      category: "invalid_parameter" as const,
+      subject: "category" as const,
+      field: "name",
+      reason: "too_long" as const,
+      limit: 40,
     };
   }
 
@@ -113,6 +132,11 @@ export function validateCategoryInput(input: MemoryCategoryInput) {
       ok: false as const,
       message: "Category description must be 500 characters or fewer.",
       code: "memory_category_description_invalid",
+      category: "invalid_parameter" as const,
+      subject: "category" as const,
+      field: "description",
+      reason: "too_long" as const,
+      limit: 500,
     };
   }
 
@@ -128,14 +152,34 @@ export function validateMemoryInput(input: MemoryInput) {
       ok: false as const,
       message: "Choose a category.",
       code: "memory_category_missing",
+      category: "missing_parameter" as const,
+      field: "category",
+      reason: "required" as const,
     };
   }
 
-  if (title.length < 1 || title.length > 120) {
+  if (title.length < 1) {
     return {
       ok: false as const,
-      message: "Memory title must be 1-120 characters.",
+      message: "Memory title is required.",
       code: "memory_title_invalid",
+      category: "missing_parameter" as const,
+      subject: "memory" as const,
+      field: "title",
+      reason: "required" as const,
+    };
+  }
+
+  if (title.length > 120) {
+    return {
+      ok: false as const,
+      message: "Memory title must be 120 characters or fewer.",
+      code: "memory_title_invalid",
+      category: "invalid_parameter" as const,
+      subject: "memory" as const,
+      field: "title",
+      reason: "too_long" as const,
+      limit: 120,
     };
   }
 
@@ -144,6 +188,11 @@ export function validateMemoryInput(input: MemoryInput) {
       ok: false as const,
       message: "Memory description must be 2000 characters or fewer.",
       code: "memory_description_invalid",
+      category: "invalid_parameter" as const,
+      subject: "memory" as const,
+      field: "description",
+      reason: "too_long" as const,
+      limit: 2000,
     };
   }
 
@@ -191,6 +240,47 @@ export function databaseCode(error: unknown) {
   }
 
   return "memory_database_update_failed";
+}
+
+export function databaseCategory(error: unknown): ActionFailureCategory {
+  if (!error || typeof error !== "object") {
+    return "database_update";
+  }
+
+  const candidate = error as { code?: unknown };
+
+  if (candidate.code === "23505" || candidate.code === "23503") {
+    return "domain";
+  }
+
+  return "database_update";
+}
+
+export function databaseMetadata(error: unknown): {
+  subject?: "category";
+  reason?: ActionFailureReason;
+} {
+  if (!error || typeof error !== "object") {
+    return {};
+  }
+
+  const candidate = error as { code?: unknown };
+
+  if (candidate.code === "23505") {
+    return {
+      subject: "category",
+      reason: "duplicate",
+    };
+  }
+
+  if (candidate.code === "23503") {
+    return {
+      subject: "category",
+      reason: "in_use",
+    };
+  }
+
+  return {};
 }
 
 export function toMemorySuggestion(

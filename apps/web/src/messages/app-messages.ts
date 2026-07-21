@@ -249,7 +249,7 @@ const englishMessages = {
   notifications: {
     actionFailed: "Action failed",
     actionFailedTitle: (action: string, subject: string) =>
-      `${action} ${subject} failed`,
+      `${action} ${subject.toLowerCase()} failed`,
     actionWords: {
       add: "Add",
       archive: "Archive",
@@ -263,13 +263,62 @@ const englishMessages = {
     },
     subjectWords: {
       category: "Category",
+      discord: "Discord",
       idea: "Idea",
       memory: "Memory",
       milestone: "Milestone",
       project: "Project",
       routine: "Routine",
+      settings: "Settings",
       suggestion: "Suggestion",
       task: "Task",
+    },
+    fieldWords: {
+      category: "category",
+      category_name: "name",
+      date: "date",
+      dates: "dates",
+      deadline: "deadline",
+      description: "description",
+      end_date: "end date",
+      expected_duration: "expected duration",
+      first_start_date: "first start date",
+      name: "name",
+      objective: "objective",
+      preferred_time: "preferred time",
+      rule: "rule",
+      start_date: "start date",
+      text: "text",
+      timezone: "timezone",
+      title: "title",
+    },
+    parameterFailureMessages: {
+      beforeStart: (field: string, startField: string) =>
+        `${field} cannot be before ${startField}.`,
+      chooseRequired: (field: string) => `Choose ${field}.`,
+      duplicateName: (subject: string) =>
+        `A ${subject} with that name already exists.`,
+      inUse: (subject: string) => `This ${subject} is still in use.`,
+      invalidFormatDate: (field: string) =>
+        `${field} must be a real date in YYYY-MM-DD format.`,
+      invalidFormatTime: (field: string) =>
+        `${field} must use HH:MM format.`,
+      invalidValue: (field: string) => `${field} is invalid.`,
+      limitReached: (action: string, subject: string, limit?: number) =>
+        limit === undefined
+          ? `${action} ${subject} limit reached.`
+          : `You can ${action} up to ${limit} ${subject}s.`,
+      protected: (subject: string) => `This ${subject} is protected.`,
+      required: (field: string) => `${field} is required.`,
+      selectRequired: (field: string) => `Select ${field}.`,
+      tooLong: (field: string, limit?: number) =>
+        limit === undefined
+          ? `${field} is too long.`
+          : `${field} must be ${limit} characters or fewer.`,
+      tooShort: (field: string, limit?: number) =>
+        limit === undefined
+          ? `${field} is too short.`
+          : `${field} must be at least ${limit} characters.`,
     },
     databaseConnectionFailedMessage:
       "Database connection failed. Please try again.",
@@ -528,13 +577,61 @@ const simplifiedChineseMessages: AppMessages = {
     },
     subjectWords: {
       category: "分类",
+      discord: "Discord",
       idea: "想法",
       memory: "回忆",
       milestone: "里程碑",
       project: "项目",
       routine: "日常",
+      settings: "设置",
       suggestion: "建议",
       task: "任务",
+    },
+    fieldWords: {
+      category: "分类",
+      category_name: "名称",
+      date: "日期",
+      dates: "日期",
+      deadline: "截止日期",
+      description: "描述",
+      end_date: "结束日期",
+      expected_duration: "预计持续时间",
+      first_start_date: "首次开始日期",
+      name: "名称",
+      objective: "目标",
+      preferred_time: "偏好时间",
+      rule: "规则",
+      start_date: "开始日期",
+      text: "内容",
+      timezone: "时区",
+      title: "标题",
+    },
+    parameterFailureMessages: {
+      beforeStart: (field: string, startField: string) =>
+        `${field}不能早于${startField}。`,
+      chooseRequired: (field: string) => `请选择${field}。`,
+      duplicateName: (subject: string) => `同名${subject}已存在。`,
+      inUse: (subject: string) => `这个${subject}仍在使用中。`,
+      invalidFormatDate: (field: string) =>
+        `${field}必须是真实日期，格式为 YYYY-MM-DD。`,
+      invalidFormatTime: (field: string) =>
+        `${field}必须使用 HH:MM 格式。`,
+      invalidValue: (field: string) => `${field}无效。`,
+      limitReached: (action: string, subject: string, limit?: number) =>
+        limit === undefined
+          ? `${action}${subject}已达到上限。`
+          : `最多只能${action} ${limit} 个${subject}。`,
+      protected: (subject: string) => `这个${subject}受保护。`,
+      required: (field: string) => `${field}不能为空。`,
+      selectRequired: (field: string) => `请选择${field}。`,
+      tooLong: (field: string, limit?: number) =>
+        limit === undefined
+          ? `${field}过长。`
+          : `${field}必须不超过 ${limit} 个字符。`,
+      tooShort: (field: string, limit?: number) =>
+        limit === undefined
+          ? `${field}过短。`
+          : `${field}至少需要 ${limit} 个字符。`,
     },
     databaseConnectionFailedMessage: "数据库连接失败，请稍后再试。",
     databaseConnectionFailedTitle: "数据库连接失败",

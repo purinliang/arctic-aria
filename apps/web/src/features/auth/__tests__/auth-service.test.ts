@@ -166,6 +166,7 @@ test("login returns a generic error for invalid credentials", async () => {
     ok: false,
     code: "auth_invalid_credentials",
     message: "Invalid username or password.",
+    category: "auth",
   });
 });
 

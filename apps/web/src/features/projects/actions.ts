@@ -2,7 +2,9 @@
 
 import { getCurrentUser } from "@/features/auth/actions";
 import {
+  projectDatabaseErrorCategory,
   projectDatabaseErrorCode,
+  projectDatabaseErrorMetadata,
   projectDatabaseErrorMessage,
 } from "./project-database-errors";
 import {
@@ -37,6 +39,16 @@ export type {
 
 type ProjectCommandResult = ProjectActionResult<null>;
 
+function projectDatabaseResult<T>(error: unknown): ProjectActionResult<T> {
+  return {
+    ok: false,
+    message: projectDatabaseErrorMessage(error),
+    code: projectDatabaseErrorCode(error),
+    category: projectDatabaseErrorCategory(error),
+    ...projectDatabaseErrorMetadata(error),
+  };
+}
+
 async function withProjectData(
   action: (userId: string) => Promise<boolean>,
   notFoundMessage: string,
@@ -52,7 +64,12 @@ async function withProjectData(
     const ok = await action(user.id);
 
     if (!ok) {
-      return { ok: false, message: notFoundMessage, code: notFoundCode };
+      return {
+        ok: false,
+        message: notFoundMessage,
+        code: notFoundCode,
+        category: "not_found",
+      };
     }
 
     return {
@@ -60,11 +77,7 @@ async function withProjectData(
       data: await loadProjectDashboardData(user.id),
     };
   } catch (error) {
-    return {
-      ok: false,
-      message: projectDatabaseErrorMessage(error),
-      code: projectDatabaseErrorCode(error),
-    };
+    return projectDatabaseResult(error);
   }
 }
 
@@ -83,7 +96,12 @@ async function withProjectCommand(
     const ok = await action(user.id);
 
     if (!ok) {
-      return { ok: false, message: notFoundMessage, code: notFoundCode };
+      return {
+        ok: false,
+        message: notFoundMessage,
+        code: notFoundCode,
+        category: "not_found",
+      };
     }
 
     return {
@@ -91,11 +109,7 @@ async function withProjectCommand(
       data: null,
     };
   } catch (error) {
-    return {
-      ok: false,
-      message: projectDatabaseErrorMessage(error),
-      code: projectDatabaseErrorCode(error),
-    };
+    return projectDatabaseResult(error);
   }
 }
 
@@ -114,11 +128,7 @@ export async function getProjectDashboardData(): Promise<
       data: await loadProjectDashboardData(user.id),
     };
   } catch (error) {
-    return {
-      ok: false,
-      message: projectDatabaseErrorMessage(error),
-      code: projectDatabaseErrorCode(error),
-    };
+    return projectDatabaseResult(error);
   }
 }
 
@@ -134,7 +144,7 @@ export async function saveProject(
   const validation = validateProjectInput(input);
 
   if (!validation.ok) {
-    return { ok: false, message: validation.message, code: validation.code };
+    return validation;
   }
 
   try {
@@ -152,6 +162,8 @@ export async function saveProject(
         ok: false,
         message: "Project was not found.",
         code: "project_not_found",
+        category: "not_found",
+        subject: "project",
       };
     }
 
@@ -160,11 +172,7 @@ export async function saveProject(
       data: await loadProjectDashboardData(user.id),
     };
   } catch (error) {
-    return {
-      ok: false,
-      message: projectDatabaseErrorMessage(error),
-      code: projectDatabaseErrorCode(error),
-    };
+    return projectDatabaseResult(error);
   }
 }
 
@@ -180,7 +188,7 @@ export async function saveMilestone(
   const validation = validateMilestoneInput(input);
 
   if (!validation.ok) {
-    return { ok: false, message: validation.message, code: validation.code };
+    return validation;
   }
 
   try {
@@ -199,6 +207,7 @@ export async function saveMilestone(
         ok: false,
         message: "Project or milestone was not found.",
         code: "project_or_milestone_not_found",
+        category: "not_found",
       };
     }
 
@@ -207,11 +216,7 @@ export async function saveMilestone(
       data: await loadProjectDashboardData(user.id),
     };
   } catch (error) {
-    return {
-      ok: false,
-      message: projectDatabaseErrorMessage(error),
-      code: projectDatabaseErrorCode(error),
-    };
+    return projectDatabaseResult(error);
   }
 }
 
@@ -227,7 +232,7 @@ export async function saveProjectTask(
   const validation = validateProjectTaskInput(input);
 
   if (!validation.ok) {
-    return { ok: false, message: validation.message, code: validation.code };
+    return validation;
   }
 
   try {
@@ -246,6 +251,7 @@ export async function saveProjectTask(
         ok: false,
         message: "Project, milestone, or task was not found.",
         code: "project_milestone_or_task_not_found",
+        category: "not_found",
       };
     }
 
@@ -254,11 +260,7 @@ export async function saveProjectTask(
       data: await loadProjectDashboardData(user.id),
     };
   } catch (error) {
-    return {
-      ok: false,
-      message: projectDatabaseErrorMessage(error),
-      code: projectDatabaseErrorCode(error),
-    };
+    return projectDatabaseResult(error);
   }
 }
 
@@ -289,6 +291,8 @@ export async function pinProject(
         ok: false,
         message: "Project was not found.",
         code: "project_not_found",
+        category: "not_found",
+        subject: "project",
       };
     }
 
@@ -297,6 +301,11 @@ export async function pinProject(
         ok: false,
         message: "You can pin up to 3 projects.",
         code: "project_pin_limit",
+        category: "domain",
+        action: "pin",
+        subject: "project",
+        reason: "limit_reached",
+        limit: 3,
       };
     }
 
@@ -305,11 +314,7 @@ export async function pinProject(
       data: await loadProjectDashboardData(user.id),
     };
   } catch (error) {
-    return {
-      ok: false,
-      message: projectDatabaseErrorMessage(error),
-      code: projectDatabaseErrorCode(error),
-    };
+    return projectDatabaseResult(error);
   }
 }
 
@@ -357,6 +362,10 @@ export async function skipProjectTask(
     ok: false,
     message: "Task skip is not supported.",
     code: "task_status_unsupported",
+    category: "domain",
+    action: "update",
+    subject: "task",
+    reason: "invalid_value",
   };
 }
 
@@ -368,6 +377,10 @@ export async function blockProjectTask(
     ok: false,
     message: "Task blocking is not supported.",
     code: "task_status_unsupported",
+    category: "domain",
+    action: "update",
+    subject: "task",
+    reason: "invalid_value",
   };
 }
 

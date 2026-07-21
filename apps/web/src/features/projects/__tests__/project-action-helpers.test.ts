@@ -45,11 +45,15 @@ test("required project date validation asks the user to select empty dates", () 
       invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
       missingCode: "project_deadline_missing",
       invalidCode: "project_deadline_invalid",
+      field: "deadline",
     }),
     {
       ok: false,
       message: "Select a deadline date.",
       code: "project_deadline_missing",
+      category: "missing_parameter",
+      field: "deadline",
+      reason: "required",
     },
   );
 });
@@ -62,11 +66,15 @@ test("required project date validation explains malformed dates", () => {
       invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
       missingCode: "project_deadline_missing",
       invalidCode: "project_deadline_invalid",
+      field: "deadline",
     }),
     {
       ok: false,
       message: "Deadline date must be a real date in YYYY-MM-DD format.",
       code: "project_deadline_invalid",
+      category: "invalid_parameter",
+      field: "deadline",
+      reason: "invalid_format",
     },
   );
 });
@@ -79,6 +87,7 @@ test("required project date validation returns trimmed valid dates", () => {
       invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
       missingCode: "project_deadline_missing",
       invalidCode: "project_deadline_invalid",
+      field: "deadline",
     }),
     {
       ok: true,
@@ -140,7 +149,52 @@ test("project validation still rejects over-length descriptions", () => {
     ok: false,
     message: "Project objective must be 1000 characters or fewer.",
     code: "project_description_invalid",
+    category: "invalid_parameter",
+    subject: "project",
+    field: "objective",
+    reason: "too_long",
+    limit: 1000,
   });
+});
+
+test("project validation reports structured deadline failures", () => {
+  assert.deepEqual(
+    validateProjectInput({
+      title: "Find a job",
+      description: "",
+      startDate: "2026-07-19",
+      timelineType: "deadline",
+      deadlineDate: "",
+      durationRange: "3_6_months",
+    }),
+    {
+      ok: false,
+      message: "Select a deadline date.",
+      code: "project_deadline_missing",
+      category: "missing_parameter",
+      field: "deadline",
+      reason: "required",
+    },
+  );
+
+  assert.deepEqual(
+    validateProjectInput({
+      title: "Find a job",
+      description: "",
+      startDate: "2026-07-19",
+      timelineType: "deadline",
+      deadlineDate: "2026-02-30",
+      durationRange: "3_6_months",
+    }),
+    {
+      ok: false,
+      message: "Deadline date must be a real date in YYYY-MM-DD format.",
+      code: "project_deadline_invalid",
+      category: "invalid_parameter",
+      field: "deadline",
+      reason: "invalid_format",
+    },
+  );
 });
 
 test("milestone validation stores blank optional objectives as null", () => {
@@ -176,4 +230,47 @@ test("task validation stores blank optional descriptions as null", () => {
   if (validation.ok) {
     assert.equal(validation.description, null);
   }
+});
+
+test("task validation reports structured title failures", () => {
+  assert.deepEqual(
+    validateProjectTaskInput({
+      projectId: "project-1",
+      milestoneId: "",
+      title: "   ",
+      description: "",
+      startDate: "",
+      deadlineDate: "",
+    }),
+    {
+      ok: false,
+      message: "Task title is required.",
+      code: "task_title_invalid",
+      category: "missing_parameter",
+      subject: "task",
+      field: "title",
+      reason: "required",
+    },
+  );
+
+  assert.deepEqual(
+    validateProjectTaskInput({
+      projectId: "project-1",
+      milestoneId: "",
+      title: "x".repeat(121),
+      description: "",
+      startDate: "",
+      deadlineDate: "",
+    }),
+    {
+      ok: false,
+      message: "Task title must be 120 characters or fewer.",
+      code: "task_title_invalid",
+      category: "invalid_parameter",
+      subject: "task",
+      field: "title",
+      reason: "too_long",
+      limit: 120,
+    },
+  );
 });

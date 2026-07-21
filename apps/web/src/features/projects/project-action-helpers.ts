@@ -7,6 +7,11 @@ import type {
   ProjectDurationRange,
   ProjectTimelineType,
 } from "./project-duration.ts";
+import type {
+  ActionFailureReason,
+  ActionFailureResult,
+  ActionFailureSubject,
+} from "../../messages/action-result.ts";
 
 export type ProjectInput = {
   id?: string;
@@ -44,17 +49,14 @@ export type ProjectActionResult<T> =
       ok: true;
       data: T;
     }
-  | {
-      ok: false;
-      message: string;
-      code?: string;
-    };
+  | ActionFailureResult;
 
 export function unauthorizedResult<T>(): ProjectActionResult<T> {
   return {
     ok: false,
     message: "Please sign in again.",
     code: "auth_required",
+    category: "auth",
   };
 }
 
@@ -64,11 +66,28 @@ export function validateProjectInput(input: ProjectInput) {
   let deadlineDate: string | null = null;
   let expectedDurationDays: number | null = null;
 
-  if (title.length < 1 || title.length > 120) {
+  if (title.length < 1) {
     return {
       ok: false as const,
-      message: "Project title must be 1-120 characters.",
+      message: "Project title is required.",
       code: "project_title_invalid",
+      category: "missing_parameter" as const,
+      subject: "project" as const,
+      field: "title",
+      reason: "required" as const,
+    };
+  }
+
+  if (title.length > 120) {
+    return {
+      ok: false as const,
+      message: "Project title must be 120 characters or fewer.",
+      code: "project_title_invalid",
+      category: "invalid_parameter" as const,
+      subject: "project" as const,
+      field: "title",
+      reason: "too_long" as const,
+      limit: 120,
     };
   }
 
@@ -77,6 +96,11 @@ export function validateProjectInput(input: ProjectInput) {
       ok: false as const,
       message: "Project objective must be 1000 characters or fewer.",
       code: "project_description_invalid",
+      category: "invalid_parameter" as const,
+      subject: "project" as const,
+      field: "objective",
+      reason: "too_long" as const,
+      limit: 1000,
     };
   }
 
@@ -86,10 +110,11 @@ export function validateProjectInput(input: ProjectInput) {
     invalidMessage: "Start date must be a real date in YYYY-MM-DD format.",
     missingCode: "project_start_date_missing",
     invalidCode: "project_start_date_invalid",
+    field: "start_date",
   });
 
   if (!startDate.ok) {
-    return { ok: false as const, message: startDate.message, code: startDate.code };
+    return startDate;
   }
 
   if (input.timelineType === "deadline") {
@@ -99,10 +124,11 @@ export function validateProjectInput(input: ProjectInput) {
       invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
       missingCode: "project_deadline_missing",
       invalidCode: "project_deadline_invalid",
+      field: "deadline",
     });
 
     if (!deadline.ok) {
-      return { ok: false as const, message: deadline.message, code: deadline.code };
+      return deadline;
     }
 
     deadlineDate = deadline.value;
@@ -112,6 +138,9 @@ export function validateProjectInput(input: ProjectInput) {
         ok: false as const,
         message: "Deadline cannot be before start date.",
         code: "project_deadline_before_start",
+        category: "invalid_parameter" as const,
+        field: "deadline",
+        reason: "before_start" as const,
       };
     }
   } else {
@@ -122,6 +151,9 @@ export function validateProjectInput(input: ProjectInput) {
         ok: false as const,
         message: "Choose an expected duration.",
         code: "project_duration_missing",
+        category: "missing_parameter" as const,
+        field: "expected_duration",
+        reason: "required" as const,
       };
     }
   }
@@ -142,11 +174,28 @@ export function validateMilestoneInput(input: MilestoneInput) {
   let deadlineDate: string | null = null;
   let expectedDurationDays: number | null = null;
 
-  if (title.length < 1 || title.length > 120) {
+  if (title.length < 1) {
     return {
       ok: false as const,
-      message: "Milestone title must be 1-120 characters.",
+      message: "Milestone title is required.",
       code: "milestone_title_invalid",
+      category: "missing_parameter" as const,
+      subject: "milestone" as const,
+      field: "title",
+      reason: "required" as const,
+    };
+  }
+
+  if (title.length > 120) {
+    return {
+      ok: false as const,
+      message: "Milestone title must be 120 characters or fewer.",
+      code: "milestone_title_invalid",
+      category: "invalid_parameter" as const,
+      subject: "milestone" as const,
+      field: "title",
+      reason: "too_long" as const,
+      limit: 120,
     };
   }
 
@@ -155,6 +204,11 @@ export function validateMilestoneInput(input: MilestoneInput) {
       ok: false as const,
       message: "Milestone objective must be 500 characters or fewer.",
       code: "milestone_objective_invalid",
+      category: "invalid_parameter" as const,
+      subject: "milestone" as const,
+      field: "objective",
+      reason: "too_long" as const,
+      limit: 500,
     };
   }
 
@@ -164,10 +218,11 @@ export function validateMilestoneInput(input: MilestoneInput) {
     invalidMessage: "Start date must be a real date in YYYY-MM-DD format.",
     missingCode: "project_start_date_missing",
     invalidCode: "project_start_date_invalid",
+    field: "start_date",
   });
 
   if (!startDate.ok) {
-    return { ok: false as const, message: startDate.message, code: startDate.code };
+    return startDate;
   }
 
   if (input.timelineType === "deadline") {
@@ -177,10 +232,11 @@ export function validateMilestoneInput(input: MilestoneInput) {
       invalidMessage: "Deadline date must be a real date in YYYY-MM-DD format.",
       missingCode: "project_deadline_missing",
       invalidCode: "project_deadline_invalid",
+      field: "deadline",
     });
 
     if (!deadline.ok) {
-      return { ok: false as const, message: deadline.message, code: deadline.code };
+      return deadline;
     }
 
     deadlineDate = deadline.value;
@@ -190,6 +246,9 @@ export function validateMilestoneInput(input: MilestoneInput) {
         ok: false as const,
         message: "Deadline cannot be before start date.",
         code: "project_deadline_before_start",
+        category: "invalid_parameter" as const,
+        field: "deadline",
+        reason: "before_start" as const,
       };
     }
   } else {
@@ -200,6 +259,9 @@ export function validateMilestoneInput(input: MilestoneInput) {
         ok: false as const,
         message: "Choose an expected duration.",
         code: "project_duration_missing",
+        category: "missing_parameter" as const,
+        field: "expected_duration",
+        reason: "required" as const,
       };
     }
   }
@@ -221,11 +283,28 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
   const startDate = input.startDate.trim() || null;
   const deadlineDate = input.deadlineDate.trim() || null;
 
-  if (title.length < 1 || title.length > 120) {
+  if (title.length < 1) {
     return {
       ok: false as const,
-      message: "Task title must be 1-120 characters.",
+      message: "Task title is required.",
       code: "task_title_invalid",
+      category: "missing_parameter" as const,
+      subject: "task" as const,
+      field: "title",
+      reason: "required" as const,
+    };
+  }
+
+  if (title.length > 120) {
+    return {
+      ok: false as const,
+      message: "Task title must be 120 characters or fewer.",
+      code: "task_title_invalid",
+      category: "invalid_parameter" as const,
+      subject: "task" as const,
+      field: "title",
+      reason: "too_long" as const,
+      limit: 120,
     };
   }
 
@@ -234,17 +313,30 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
       ok: false as const,
       message: "Task description must be 2000 characters or fewer.",
       code: "task_description_invalid",
+      category: "invalid_parameter" as const,
+      subject: "task" as const,
+      field: "description",
+      reason: "too_long" as const,
+      limit: 2000,
     };
   }
 
-  for (const value of [startDate, deadlineDate]) {
-    if (value && !validateDate(value)) {
-      return {
-        ok: false as const,
-        message: "Dates must be real calendar dates in YYYY-MM-DD format.",
-        code: "project_dates_invalid",
-      };
-    }
+  if (startDate && !validateDate(startDate)) {
+    return invalidParameter({
+      message: "Start date must be a real date in YYYY-MM-DD format.",
+      code: "project_dates_invalid",
+      field: "start_date",
+      reason: "invalid_format",
+    });
+  }
+
+  if (deadlineDate && !validateDate(deadlineDate)) {
+    return invalidParameter({
+      message: "Deadline date must be a real date in YYYY-MM-DD format.",
+      code: "project_dates_invalid",
+      field: "deadline",
+      reason: "invalid_format",
+    });
   }
 
   if (startDate && deadlineDate && deadlineDate < startDate) {
@@ -252,6 +344,9 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
       ok: false as const,
       message: "Deadline cannot be before start date.",
       code: "project_deadline_before_start",
+      category: "invalid_parameter" as const,
+      field: "deadline",
+      reason: "before_start" as const,
     };
   }
 
@@ -267,4 +362,39 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
 
 function validateDate(value: string) {
   return isValidProjectDate(value);
+}
+
+function invalidParameter({
+  message,
+  code,
+  subject,
+  field,
+  reason,
+  limit,
+}: {
+  message: string;
+  code: string;
+  subject?: ActionFailureSubject;
+  field: string;
+  reason: ActionFailureReason;
+  limit?: number;
+}) {
+  const failure: ActionFailureResult = {
+    ok: false as const,
+    message,
+    code,
+    category: "invalid_parameter" as const,
+    field,
+    reason,
+  };
+
+  if (subject) {
+    failure.subject = subject;
+  }
+
+  if (limit !== undefined) {
+    failure.limit = limit;
+  }
+
+  return failure;
 }

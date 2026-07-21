@@ -15,18 +15,21 @@ const invalidRequestResult: AuthActionResult = {
   ok: false,
   code: "auth_request_invalid",
   message: "Authentication request was invalid.",
+  category: "server",
 };
 
 const failedRequestResult: AuthActionResult = {
   ok: false,
   code: "auth_request_failed",
   message: "Server internal error.",
+  category: "server",
 };
 
 const databaseRequestResult: AuthActionResult = {
   ok: false,
   code: "auth_database_failed",
   message: "Database connection failed.",
+  category: "database_connection",
 };
 
 export async function handleAuthRoute(request: Request, mode: AuthRouteMode) {

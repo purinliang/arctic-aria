@@ -4,6 +4,7 @@ import {
   discordNotificationService,
 } from "../../discord/server/notification-service.ts";
 import type { OutboundMessageResult } from "../../discord/server/message-push.ts";
+import type { ActionFailureResult } from "../../../messages/action-result.ts";
 
 const testMessageText =
   "Hello from Arctic Aria. Discord message push is working.";
@@ -13,16 +14,14 @@ export type DiscordTestMessageActionResult =
       ok: true;
       code: "settings_discord_test_sent";
     }
-  | {
-      ok: false;
+  | (ActionFailureResult & {
       code:
         | "settings_unauthorized"
         | "settings_discord_test_bot_unavailable"
         | "settings_discord_test_config_missing"
         | "settings_discord_test_delivery_failed"
         | "settings_discord_test_no_binding";
-      message: string;
-    };
+    });
 
 type DiscordTestMessageConfig = {
   discordBotToken: string | null;
@@ -81,6 +80,9 @@ export function createDiscordTestMessageService({
           ok: false,
           code: "settings_discord_test_bot_unavailable",
           message: configMissingMessage,
+          category: "server",
+          action: "update",
+          subject: "discord",
         };
       }
 
@@ -89,6 +91,9 @@ export function createDiscordTestMessageService({
           ok: false,
           code: "settings_discord_test_delivery_failed",
           message: "Server internal error.",
+          category: "server",
+          action: "update",
+          subject: "discord",
         };
       }
 
@@ -97,6 +102,9 @@ export function createDiscordTestMessageService({
           ok: false,
           code: "settings_discord_test_no_binding",
           message: result.message,
+          category: "domain",
+          action: "update",
+          subject: "discord",
         };
       }
 
@@ -104,6 +112,9 @@ export function createDiscordTestMessageService({
         ok: false,
         code: "settings_discord_test_bot_unavailable",
         message: configMissingMessage,
+        category: "server",
+        action: "update",
+        subject: "discord",
       };
     },
   };
@@ -126,6 +137,9 @@ function configMissingResult(): DiscordTestMessageActionResult {
     ok: false,
     code: "settings_discord_test_config_missing",
     message: configMissingMessage,
+    category: "server",
+    action: "update",
+    subject: "discord",
   };
 }
 

@@ -3,6 +3,7 @@
 import { getCurrentUser } from "@/features/auth/actions";
 import { ideaService } from "./server/idea-service";
 import type { IdeaRecord, IdeaSource } from "./server/idea-repository";
+import type { ActionFailureResult } from "../../messages/action-result.ts";
 
 export type IdeaPageItem = {
   id: string;
@@ -22,17 +23,14 @@ export type IdeaActionResult<T> =
       ok: true;
       data: T;
     }
-  | {
-      ok: false;
-      message: string;
-      code?: string;
-    };
+  | ActionFailureResult;
 
 function unauthorizedResult<T>(): IdeaActionResult<T> {
   return {
     ok: false,
     message: "Please sign in again.",
     code: "auth_required",
+    category: "auth",
   };
 }
 
@@ -41,6 +39,7 @@ function unavailableResult<T>(): IdeaActionResult<T> {
     ok: false,
     message: "Ideas are unavailable.",
     code: "ideas_unavailable",
+    category: "database_connection",
   };
 }
 
@@ -97,11 +96,7 @@ export async function captureWebIdea(
   });
 
   if (!result.ok) {
-    return {
-      ok: false,
-      message: result.message,
-      code: result.code,
-    };
+    return result;
   }
 
   return {
@@ -126,11 +121,7 @@ export async function saveIdea(
   });
 
   if (!result.ok) {
-    return {
-      ok: false,
-      message: result.message,
-      code: result.code,
-    };
+    return result;
   }
 
   return {
@@ -154,11 +145,7 @@ export async function deleteIdea(
   });
 
   if (!result.ok) {
-    return {
-      ok: false,
-      message: result.message,
-      code: result.code,
-    };
+    return result;
   }
 
   return {
