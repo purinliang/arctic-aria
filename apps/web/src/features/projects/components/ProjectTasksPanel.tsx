@@ -1,5 +1,6 @@
 // Dashboard - Project Tasks Panel.
 import { ChevronRight, ListChecks } from "lucide-react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
@@ -89,13 +90,7 @@ function ProjectTaskRow({
   onTaskStatus: (status: TaskStatus) => void;
   onOpen: () => void;
 }) {
-  const metadata = [
-    task.projectLabel,
-    task.milestoneLabel,
-    deadlineText(task, messages, dateMessages),
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const deadline = deadlineText(task, messages, dateMessages);
 
   return (
     <ListItem darkMode={darkMode} className="items-start">
@@ -121,7 +116,14 @@ function ProjectTaskRow({
               )}
             </DescriptionText>
           }
-          support={<SupportingText darkMode={darkMode}>{metadata}</SupportingText>}
+          support={
+            <TaskSupportText
+              darkMode={darkMode}
+              projectLabel={task.projectLabel}
+              milestoneLabel={task.milestoneLabel}
+              deadline={deadline}
+            />
+          }
         />
       </div>
       <Button
@@ -133,6 +135,82 @@ function ProjectTaskRow({
         onClick={onOpen}
       />
     </ListItem>
+  );
+}
+
+function TaskSupportText({
+  darkMode,
+  projectLabel,
+  milestoneLabel,
+  deadline,
+}: {
+  darkMode: boolean;
+  projectLabel: string;
+  milestoneLabel: string;
+  deadline: string;
+}) {
+  const containerRef = useRef<HTMLSpanElement>(null);
+  const fullLineRef = useRef<HTMLSpanElement>(null);
+  const [showMilestone, setShowMilestone] = useState(true);
+  const fullSegments = [projectLabel, milestoneLabel, deadline].filter(Boolean);
+  const compactSegments = [projectLabel, deadline].filter(Boolean);
+  const visibleSegments =
+    showMilestone || !milestoneLabel ? fullSegments : compactSegments;
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    const fullLine = fullLineRef.current;
+
+    if (!container || !fullLine || !milestoneLabel) {
+      setShowMilestone(true);
+      return;
+    }
+
+    const containerElement = container;
+    const fullLineElement = fullLine;
+
+    function updateMilestoneVisibility() {
+      const nextShowMilestone =
+        fullLineElement.scrollWidth <= Math.ceil(containerElement.clientWidth);
+
+      setShowMilestone((current) =>
+        current === nextShowMilestone ? current : nextShowMilestone,
+      );
+    }
+
+    updateMilestoneVisibility();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", updateMilestoneVisibility);
+
+      return () =>
+        window.removeEventListener("resize", updateMilestoneVisibility);
+    }
+
+    const observer = new ResizeObserver(updateMilestoneVisibility);
+    observer.observe(container);
+
+    return () => observer.disconnect();
+  }, [deadline, milestoneLabel, projectLabel]);
+
+  return (
+    <SupportingText darkMode={darkMode} className="relative block min-w-0">
+      <span
+        ref={containerRef}
+        className="block min-w-0 truncate whitespace-nowrap"
+      >
+        {visibleSegments.join(" · ")}
+      </span>
+      {milestoneLabel ? (
+        <span
+          ref={fullLineRef}
+          aria-hidden="true"
+          className="invisible pointer-events-none absolute left-0 top-0 whitespace-nowrap"
+        >
+          {fullSegments.join(" · ")}
+        </span>
+      ) : null}
+    </SupportingText>
   );
 }
 
