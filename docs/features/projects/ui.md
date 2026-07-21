@@ -267,32 +267,24 @@ Detail page layout:
 - left card: `Tasks`
 - right card: `Milestones` with `Manage`
 - left card: `Tasks` card with icon, supporting text, and `New`
-- title action: icon-only outline `Pin` or `PinOff` button
 - title action: icon-only `Info` button opens a project overview popover
-- project edit action: `Edit3` icon plus `Edit`, placed in the project
-  overview popover
+- project overview popover action order: icon-only `Pin` or `PinOff`, then
+  `Edit3` icon plus `Edit`
 - milestone add/edit actions live in a dedicated milestone manager dialog,
   opened from the `Milestones` panel `Manage` action
-- on mobile, keep the pin/unpin action on the first title-bar row, aligned to
-  the right of `Projects /`
+- on mobile, keep the project info action on the first title-bar row, aligned
+  to the right of `Projects /`
 - the page title bar shows one truncated metadata line, such as
   `Due Aug 5, 2026 · objective`, below `Projects / project name`
-- project overview metadata group: objective, start date, and the selected
-  timeline type
-- project overview objective row label: `Objective`
-- project overview popover labels use shared `LabelText`
-- project overview popover values use shared `DescriptionText`
+- project overview popover shows objective text without an `Objective` label
+- project overview popover date line shows `start date - deadline` when the
+  project has a deadline, otherwise `start date · expected duration` or
+  `start date · open-ended`
 - if the saved objective is empty, show localized default objective copy derived
   from the project title; this fallback is render-only and is not persisted
 - overview start dates should display in localized date format, not raw
   `YYYY-MM-DD`
-- if the project uses a deadline, show a `Deadline` row with only the formatted
-  deadline date
-- if the project uses no fixed deadline, show an `Expected duration` row with
-  only the selected duration range
-- do not label the row as `Timeline` when the project has a concrete deadline
-  or no-fixed-deadline mode
-- do not repeat project title inside the Project Overview card; the title is
+- do not repeat project title inside the Project Overview popover; the title is
   already in the page title
 - milestone overview shows the selected milestone title, then deadline or
   expected duration followed by the objective with ` · ` between them

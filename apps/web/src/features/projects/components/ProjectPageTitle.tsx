@@ -6,7 +6,7 @@ import { secondaryTextColorClass, panelColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
 import { ScrollArea } from "@/components/scroll-area";
-import { DescriptionText, LabelText } from "@/components/text";
+import { DescriptionText, SupportingText } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { ProjectView } from "@/features/projects/actions";
 import type { ProjectDurationRange } from "@/features/projects/project-duration";
@@ -334,32 +334,6 @@ function ProjectTitleActions({
 
   return (
     <div className="relative flex shrink-0 items-center gap-2">
-      {onPinProject || onUnpinProject ? (
-        <Button
-          darkMode={darkMode}
-          size="icon-sm"
-          className="rounded-full"
-          disabled={pinPending}
-          aria-label={
-            project.sidebarPinOrder !== null ? messages.unpin : messages.pin
-          }
-          icon={
-            project.sidebarPinOrder !== null ? (
-              <PinOff size={15} aria-hidden="true" />
-            ) : (
-              <Pin size={15} aria-hidden="true" />
-            )
-          }
-          onClick={() => {
-            if (project.sidebarPinOrder !== null) {
-              onUnpinProject?.(project.id);
-              return;
-            }
-
-            onPinProject?.(project.id);
-          }}
-        />
-      ) : null}
       <Button
         darkMode={darkMode}
         size="icon-sm"
@@ -384,6 +358,11 @@ function ProjectTitleActions({
             durationMessages={durationMessages}
             defaultDescriptions={defaultDescriptions}
             dateMessages={dateMessages}
+            pinPending={pinPending}
+            pinLabel={messages.pin}
+            unpinLabel={messages.unpin}
+            onPinProject={onPinProject}
+            onUnpinProject={onUnpinProject}
             onEdit={
               onProjectEdit
                 ? () => {
@@ -407,6 +386,11 @@ function ProjectOverviewPopover({
   durationMessages,
   defaultDescriptions,
   dateMessages,
+  pinPending,
+  pinLabel,
+  unpinLabel,
+  onPinProject,
+  onUnpinProject,
   onEdit,
 }: {
   darkMode: boolean;
@@ -416,6 +400,11 @@ function ProjectOverviewPopover({
   durationMessages: ProjectMessages["duration"];
   defaultDescriptions: ProjectMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
+  pinPending: boolean;
+  pinLabel: string;
+  unpinLabel: string;
+  onPinProject?: (projectId: string) => void;
+  onUnpinProject?: (projectId: string) => void;
   onEdit?: () => void;
 }) {
   const timelineMetadata = projectOverviewTimelineMetadata(
@@ -429,6 +418,16 @@ function ProjectOverviewPopover({
     durationMessages,
     (value) => formatDate(value, dateMessages),
   );
+  const overviewObjective = displayDescription(
+    project.description,
+    project.title,
+    defaultDescriptions.project,
+  );
+  const overviewTimeline = projectOverviewTimelineText(
+    project,
+    timelineMetadata.value,
+    dateMessages,
+  );
 
   return (
     <div
@@ -441,55 +440,53 @@ function ProjectOverviewPopover({
         <h2 className="truncate text-base font-semibold">
           {detailMessages.projectOverviewTitle}
         </h2>
-        {onEdit ? (
-          <Button
-            darkMode={darkMode}
-            disabled={false}
-            icon={<Edit3 size={15} aria-hidden="true" />}
-            onClick={onEdit}
-          >
-            {detailMessages.edit}
-          </Button>
-        ) : null}
+        <div className="flex shrink-0 items-center gap-2">
+          {onPinProject || onUnpinProject ? (
+            <Button
+              darkMode={darkMode}
+              size="icon-sm"
+              className="rounded-full"
+              disabled={pinPending}
+              aria-label={
+                project.sidebarPinOrder !== null ? unpinLabel : pinLabel
+              }
+              icon={
+                project.sidebarPinOrder !== null ? (
+                  <PinOff size={15} aria-hidden="true" />
+                ) : (
+                  <Pin size={15} aria-hidden="true" />
+                )
+              }
+              onClick={() => {
+                if (project.sidebarPinOrder !== null) {
+                  onUnpinProject?.(project.id);
+                  return;
+                }
+
+                onPinProject?.(project.id);
+              }}
+            />
+          ) : null}
+          {onEdit ? (
+            <Button
+              darkMode={darkMode}
+              disabled={false}
+              icon={<Edit3 size={15} aria-hidden="true" />}
+              onClick={onEdit}
+            >
+              {detailMessages.edit}
+            </Button>
+          ) : null}
+        </div>
       </div>
       <div className="grid min-w-0 gap-3">
-        <ProjectOverviewRow
-          darkMode={darkMode}
-          label={detailMessages.description}
-          value={displayDescription(
-            project.description,
-            project.title,
-            defaultDescriptions.project,
-          )}
-        />
-        <ProjectOverviewRow
-          darkMode={darkMode}
-          label={detailMessages.startDate}
-          value={formatDate(project.startDate, dateMessages)}
-        />
-        <ProjectOverviewRow
-          darkMode={darkMode}
-          label={timelineMetadata.label}
-          value={timelineMetadata.value}
-        />
+        <DescriptionText darkMode={darkMode}>
+          {overviewObjective}
+        </DescriptionText>
+        <SupportingText darkMode={darkMode} className="truncate">
+          {overviewTimeline}
+        </SupportingText>
       </div>
-    </div>
-  );
-}
-
-function ProjectOverviewRow({
-  darkMode,
-  label,
-  value,
-}: {
-  darkMode: boolean;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="grid min-w-0 gap-1">
-      <LabelText darkMode={darkMode}>{label}</LabelText>
-      <DescriptionText darkMode={darkMode}>{value}</DescriptionText>
     </div>
   );
 }
@@ -511,6 +508,20 @@ function projectTimelineText(
   }
 
   return messages.openEnded;
+}
+
+function projectOverviewTimelineText(
+  project: ProjectView,
+  timelineText: string,
+  dateMessages: DatePickerMessages,
+) {
+  const startText = formatDate(project.startDate, dateMessages);
+
+  if (project.deadlineDate) {
+    return `${startText} - ${formatDate(project.deadlineDate, dateMessages)}`;
+  }
+
+  return `${startText} · ${timelineText}`;
 }
 
 function projectTitleMetadata(
