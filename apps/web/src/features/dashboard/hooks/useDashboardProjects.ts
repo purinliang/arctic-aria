@@ -4,6 +4,10 @@ import {
   writeDashboardBrowserCacheSection,
 } from "@/app-shell/dashboard-browser-cache";
 import {
+  notifyActionFailure,
+  runNotifiedServerAction,
+} from "@/app-shell/action-notifications";
+import {
   archiveMilestone,
   archiveProject,
   archiveProjectTask,
@@ -22,9 +26,9 @@ import {
   type ProjectView,
 } from "@/features/projects/actions";
 import { projectTaskProgressText } from "@/features/projects/project-progress";
-import { localizedActionMessage } from "@/messages/action-result";
 import type {
   DashboardMessages,
+  NotificationMessages,
   ProjectMessages,
 } from "@/messages/app-messages";
 import {
@@ -43,6 +47,7 @@ export function useDashboardProjects(
   showErrorNotification: (message: string, title?: string) => void,
   messages?: DashboardMessages["notifications"],
   resultMessages?: ProjectMessages["results"],
+  notificationMessages?: NotificationMessages,
 ) {
   const [tasks, setTasks] = useState<ProjectDashboardData["tasks"]>([]);
   const [projects, setProjects] = useState<ProjectView[]>([]);
@@ -87,19 +92,39 @@ export function useDashboardProjects(
   }, [projectCacheReady, projects, tasks, userId]);
 
   const refreshProjectData = useCallback(async () => {
-    const result = await getProjectDashboardData();
+    const actionResult = await runNotifiedServerAction({
+      action: getProjectDashboardData,
+      messages: notificationMessages,
+      showErrorNotification,
+    });
+
+    if (!actionResult.ok) {
+      setProjectLoading(false);
+      return;
+    }
+
+    const result = actionResult.value;
 
     if (!result.ok) {
-      showErrorNotification(
-        localizedActionMessage(result, resultMessages),
-        messages?.projectsUnavailable ?? "Projects unavailable",
-      );
+      notifyActionFailure({
+        result,
+        resultMessages,
+        fallbackTitle: messages?.projectsUnavailable ?? "Projects unavailable",
+        notificationMessages,
+        showErrorNotification,
+      });
       setProjectLoading(false);
       return;
     }
 
     applyProjectData(result.data);
-  }, [applyProjectData, messages, resultMessages, showErrorNotification]);
+  }, [
+    applyProjectData,
+    messages,
+    notificationMessages,
+    resultMessages,
+    showErrorNotification,
+  ]);
 
   async function runProjectManagementAction(
     action: ProjectDataAction,
@@ -108,13 +133,26 @@ export function useDashboardProjects(
     setProjectActionPending(true);
 
     try {
-      const result = await action();
+      const actionResult = await runNotifiedServerAction({
+        action,
+        messages: notificationMessages,
+        showErrorNotification,
+      });
+
+      if (!actionResult.ok) {
+        return false;
+      }
+
+      const result = actionResult.value;
 
       if (!result.ok) {
-        showErrorNotification(
-          localizedActionMessage(result, resultMessages),
-          failureTitle,
-        );
+        notifyActionFailure({
+          result,
+          resultMessages,
+          fallbackTitle: failureTitle,
+          notificationMessages,
+          showErrorNotification,
+        });
         return false;
       }
 
@@ -133,13 +171,26 @@ export function useDashboardProjects(
     setPendingProjectPinIds((current) => addPendingId(current, projectId));
 
     try {
-      const result = await action();
+      const actionResult = await runNotifiedServerAction({
+        action,
+        messages: notificationMessages,
+        showErrorNotification,
+      });
+
+      if (!actionResult.ok) {
+        return;
+      }
+
+      const result = actionResult.value;
 
       if (!result.ok) {
-        showErrorNotification(
-          localizedActionMessage(result, resultMessages),
-          failureTitle,
-        );
+        notifyActionFailure({
+          result,
+          resultMessages,
+          fallbackTitle: failureTitle,
+          notificationMessages,
+          showErrorNotification,
+        });
         return;
       }
 
@@ -199,7 +250,25 @@ export function useDashboardProjects(
     const request = previousRequest
       .catch(() => undefined)
       .then(async () => {
-        const result = await updateProjectTaskStatus(taskId, status);
+        const actionResult = await runNotifiedServerAction({
+          action: () => updateProjectTaskStatus(taskId, status),
+          messages: notificationMessages,
+          showErrorNotification,
+        });
+
+        if (!actionResult.ok) {
+          if (
+            taskStatusRequestVersions.current.get(taskId) === requestVersion
+          ) {
+            setTasks((current) =>
+              restoreTaskSnapshot(current, previousTasks, taskId),
+            );
+            setProjects(previousProjects);
+          }
+          return;
+        }
+
+        const result = actionResult.value;
 
         if (result.ok) {
           return;
@@ -213,7 +282,13 @@ export function useDashboardProjects(
           restoreTaskSnapshot(current, previousTasks, taskId),
         );
         setProjects(previousProjects);
-        showErrorNotification(localizedActionMessage(result, resultMessages));
+        notifyActionFailure({
+          result,
+          resultMessages,
+          fallbackTitle: messages?.taskUpdateFailed ?? "Task update failed",
+          notificationMessages,
+          showErrorNotification,
+        });
       });
 
     taskStatusRequestChains.current.set(taskId, request);

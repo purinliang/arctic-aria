@@ -19,6 +19,7 @@ import {
   formatTimeZoneOffset,
 } from "@/features/settings/time-zones";
 import type {
+  NotificationMessages,
   SettingsMessages,
   VersionStatusMessages,
 } from "@/messages/app-messages";
@@ -37,6 +38,7 @@ export function SettingsPage({
   darkMode,
   languagePreference,
   messages,
+  notificationMessages,
   onLanguagePreferenceChange,
   onPreferenceOpenAttempt,
   onThemePreferenceChange,
@@ -55,6 +57,7 @@ export function SettingsPage({
   darkMode: boolean;
   languagePreference: LanguagePreference;
   messages: SettingsMessages;
+  notificationMessages: NotificationMessages;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
   onPreferenceOpenAttempt: (preference: keyof UserPreferences) => boolean;
   onThemePreferenceChange: (preference: ThemePreference) => void;
@@ -176,10 +179,11 @@ export function SettingsPage({
         />
         <List darkMode={darkMode}>
           <DiscordBindingSettings
-            currentUserId={currentUserId}
-            darkMode={darkMode}
-            messages={messages}
-            showErrorNotification={showErrorNotification}
+          currentUserId={currentUserId}
+          darkMode={darkMode}
+          messages={messages}
+          notificationMessages={notificationMessages}
+          showErrorNotification={showErrorNotification}
             showSuccessNotification={showSuccessNotification}
           />
         </List>

@@ -3,11 +3,18 @@
 // Settings Page - Discord Binding Settings.
 import { Link, LoaderCircle, Unlink } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  notifyActionFailure,
+  showActionTransportFailure,
+} from "@/app-shell/action-notifications";
 import { Button } from "@/components/button";
 import { ConfirmDialog } from "@/components/dialog";
 import { ListItem } from "@/components/list";
 import { DescriptionText } from "@/components/text";
-import type { SettingsMessages } from "@/messages/app-messages";
+import type {
+  NotificationMessages,
+  SettingsMessages,
+} from "@/messages/app-messages";
 import {
   readDiscordBindingCache,
   writeDiscordBindingCache,
@@ -35,12 +42,14 @@ export function DiscordBindingSettings({
   currentUserId,
   darkMode,
   messages,
+  notificationMessages,
   showErrorNotification,
   showSuccessNotification,
 }: {
   currentUserId: string;
   darkMode: boolean;
   messages: SettingsMessages;
+  notificationMessages: NotificationMessages;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
 }) {
@@ -108,10 +117,13 @@ export function DiscordBindingSettings({
         setBindingStatusFailed(true);
 
         if (showFailure) {
-          activeShowErrorNotification(
-            bindingResultMessage(result.code, result.message, activeMessages),
-            activeMessages.discord.notifications.loadFailed,
-          );
+          notifyActionFailure({
+            result,
+            resultMessages: activeMessages.discord.results,
+            fallbackTitle: activeMessages.discord.notifications.loadFailed,
+            notificationMessages,
+            showErrorNotification: activeShowErrorNotification,
+          });
         }
 
         return false;
@@ -119,10 +131,11 @@ export function DiscordBindingSettings({
         setBindingStatusFailed(true);
 
         if (showFailure) {
-          activeShowErrorNotification(
-            activeMessages.discord.results.settings_discord_binding_unavailable,
-            activeMessages.discord.notifications.loadFailed,
-          );
+          showActionTransportFailure({
+            category: "server",
+            messages: notificationMessages,
+            showErrorNotification: activeShowErrorNotification,
+          });
         }
 
         return false;
@@ -131,7 +144,7 @@ export function DiscordBindingSettings({
         setDiscordAction(null);
       }
     },
-    [currentUserId],
+    [currentUserId, notificationMessages],
   );
 
   useEffect(() => {
@@ -153,10 +166,13 @@ export function DiscordBindingSettings({
       const result = await createDiscordBindingCode();
 
       if (!result.ok) {
-        showErrorNotification(
-          bindingResultMessage(result.code, result.message, messages),
-          messages.discord.notifications.codeCreateFailed,
-        );
+        notifyActionFailure({
+          result,
+          resultMessages: messages.discord.results,
+          fallbackTitle: messages.discord.notifications.codeCreateFailed,
+          notificationMessages,
+          showErrorNotification,
+        });
         return;
       }
 
@@ -171,10 +187,11 @@ export function DiscordBindingSettings({
         messages.discord.notifications.codeCreated,
       );
     } catch {
-      showErrorNotification(
-        messages.discord.results.settings_discord_code_create_failed,
-        messages.discord.notifications.codeCreateFailed,
-      );
+      showActionTransportFailure({
+        category: "server",
+        messages: notificationMessages,
+        showErrorNotification,
+      });
     } finally {
       setDiscordAction(null);
     }
@@ -191,10 +208,13 @@ export function DiscordBindingSettings({
       const result = await cancelDiscordBindingCode();
 
       if (!result.ok) {
-        showErrorNotification(
-          bindingResultMessage(result.code, result.message, messages),
-          messages.discord.notifications.codeCancelFailed,
-        );
+        notifyActionFailure({
+          result,
+          resultMessages: messages.discord.results,
+          fallbackTitle: messages.discord.notifications.codeCancelFailed,
+          notificationMessages,
+          showErrorNotification,
+        });
         return;
       }
 
@@ -209,10 +229,11 @@ export function DiscordBindingSettings({
         messages.discord.notifications.codeCanceled,
       );
     } catch {
-      showErrorNotification(
-        messages.discord.results.settings_discord_code_cancel_failed,
-        messages.discord.notifications.codeCancelFailed,
-      );
+      showActionTransportFailure({
+        category: "server",
+        messages: notificationMessages,
+        showErrorNotification,
+      });
     } finally {
       setDiscordAction(null);
     }
@@ -225,10 +246,13 @@ export function DiscordBindingSettings({
       const result = await unbindDiscordAccount();
 
       if (!result.ok) {
-        showErrorNotification(
-          bindingResultMessage(result.code, result.message, messages),
-          messages.discord.notifications.unbindFailed,
-        );
+        notifyActionFailure({
+          result,
+          resultMessages: messages.discord.results,
+          fallbackTitle: messages.discord.notifications.unbindFailed,
+          notificationMessages,
+          showErrorNotification,
+        });
         return;
       }
 
@@ -244,10 +268,11 @@ export function DiscordBindingSettings({
         messages.discord.notifications.unbound,
       );
     } catch {
-      showErrorNotification(
-        messages.discord.results.settings_discord_unbind_failed,
-        messages.discord.notifications.unbindFailed,
-      );
+      showActionTransportFailure({
+        category: "server",
+        messages: notificationMessages,
+        showErrorNotification,
+      });
     } finally {
       setDiscordAction(null);
     }
@@ -260,10 +285,13 @@ export function DiscordBindingSettings({
       const result = await sendDiscordTestMessage();
 
       if (!result.ok) {
-        showErrorNotification(
-          bindingResultMessage(result.code, result.message, messages),
-          messages.discord.notifications.testFailed,
-        );
+        notifyActionFailure({
+          result,
+          resultMessages: messages.discord.results,
+          fallbackTitle: messages.discord.notifications.testFailed,
+          notificationMessages,
+          showErrorNotification,
+        });
         return;
       }
 
@@ -272,10 +300,11 @@ export function DiscordBindingSettings({
         messages.discord.notifications.testSent,
       );
     } catch {
-      showErrorNotification(
-        messages.discord.results.settings_discord_test_delivery_failed,
-        messages.discord.notifications.testFailed,
-      );
+      showActionTransportFailure({
+        category: "server",
+        messages: notificationMessages,
+        showErrorNotification,
+      });
     } finally {
       setDiscordAction(null);
     }

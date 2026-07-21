@@ -96,23 +96,30 @@ export function AppShell({
     showErrorNotification,
     messages.dashboard.notifications,
     messages.projects.results,
+    messages.notifications,
   );
   const routineState = useDashboardRoutines(
     currentUser.id,
     showErrorNotification,
     messages.dashboard.notifications,
     messages.routines.results,
+    messages.notifications,
   );
   const memoryState = useDashboardMemories(
     currentUser.id,
     showErrorNotification,
     messages.dashboard.notifications,
     messages.memories.results,
+    messages.notifications,
   );
   const { refreshProjectData } = projectState;
   const { refreshMemoryData } = memoryState;
   const { refreshRoutineData } = routineState;
-  const ideaState = useIdeasPageData(messages.ideas, showErrorNotification);
+  const ideaState = useIdeasPageData(
+    messages.ideas,
+    showErrorNotification,
+    messages.notifications,
+  );
   const { refreshIdeaData } = ideaState;
   const pinnedProjects = useMemo(
     () =>
@@ -372,6 +379,7 @@ export function AppShell({
               browserTimeZone={browserTimeZone}
               resolvedLanguage={resolvedLanguage}
               messages={messages.settings}
+              notificationMessages={messages.notifications}
               themePreference={themePreference}
               versionMessages={messages.versionStatus}
               versionStatus={versionStatus}

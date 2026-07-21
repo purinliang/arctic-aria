@@ -67,7 +67,7 @@ test("discord notification service reports missing configuration", async () => {
   assert.deepEqual(result, {
     ok: false,
     code: "discord_notification_config_missing",
-    message: "Discord configuration is missing. Check the web server log.",
+    message: "Server internal error.",
   });
   assert.equal(sender.calls.length, 0);
 });

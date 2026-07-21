@@ -95,6 +95,8 @@ developer support feature, not a normal user workflow.
 Detailed docs:
 
 - [features/performance/overview.md](features/performance/overview.md)
+- [features/performance/latency-benchmark.md](features/performance/latency-benchmark.md)
+- [features/performance/tab-switch-loading-benchmark.md](features/performance/tab-switch-loading-benchmark.md)
 
 ### Projects
 

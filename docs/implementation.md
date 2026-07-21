@@ -196,6 +196,8 @@ Current feature implementation docs:
 - [features/auth/web-implementation.md](features/auth/web-implementation.md)
 - [features/dashboard/web-implementation.md](features/dashboard/web-implementation.md)
 - [features/performance/overview.md](features/performance/overview.md)
+- [features/performance/latency-benchmark.md](features/performance/latency-benchmark.md)
+- [features/performance/tab-switch-loading-benchmark.md](features/performance/tab-switch-loading-benchmark.md)
 - [features/memories/web-implementation.md](features/memories/web-implementation.md)
 - [features/projects/web-implementation.md](features/projects/web-implementation.md)
 - [features/routines/web-implementation.md](features/routines/web-implementation.md)
@@ -223,7 +225,6 @@ Shared web docs:
 - [web/theme.md](web/theme.md)
 - [web/color.md](web/color.md)
 - [web/localization.md](web/localization.md)
-- [web/tab-switch-loading-benchmark.md](web/tab-switch-loading-benchmark.md)
 
 Infrastructure docs:
 

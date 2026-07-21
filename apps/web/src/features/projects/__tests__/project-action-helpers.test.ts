@@ -19,14 +19,14 @@ test("project database errors explain missing project migrations", () => {
 
   assert.equal(
     message,
-    "Project database tables are missing. Run pnpm --dir apps/web database:migrate before using Projects.",
+    "Database connection failed.",
   );
 });
 
 test("project database errors fall back to a generic update failure", () => {
   assert.equal(
     projectDatabaseErrorMessage(new Error("connection interrupted")),
-    "Project database update failed.",
+    "Database update failed.",
   );
 });
 

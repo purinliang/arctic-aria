@@ -34,6 +34,14 @@ async function requireCurrentUser() {
   return getCurrentUser();
 }
 
+function databaseResult<T>(error: unknown): MemoryActionResult<T> {
+  return {
+    ok: false,
+    message: databaseMessage(error),
+    code: databaseCode(error),
+  };
+}
+
 export async function getMemoryDashboardData(): Promise<
   MemoryActionResult<MemoryDashboardData>
 > {
@@ -43,10 +51,14 @@ export async function getMemoryDashboardData(): Promise<
     return unauthorizedResult();
   }
 
-  return {
-    ok: true,
-    data: await loadMemoryDashboardData(user.id),
-  };
+  try {
+    return {
+      ok: true,
+      data: await loadMemoryDashboardData(user.id),
+    };
+  } catch (error) {
+    return databaseResult(error);
+  }
 }
 
 export async function completePinnedMemory(
@@ -58,12 +70,16 @@ export async function completePinnedMemory(
     return unauthorizedResult();
   }
 
-  await memoryService.completePinnedMemory(user.id, pinnedMemoryId);
+  try {
+    await memoryService.completePinnedMemory(user.id, pinnedMemoryId);
 
-  return {
-    ok: true,
-    data: await loadMemoryDashboardData(user.id),
-  };
+    return {
+      ok: true,
+      data: await loadMemoryDashboardData(user.id),
+    };
+  } catch (error) {
+    return databaseResult(error);
+  }
 }
 
 export async function cancelPinnedMemoryDone(
@@ -75,12 +91,16 @@ export async function cancelPinnedMemoryDone(
     return unauthorizedResult();
   }
 
-  await memoryService.cancelPinnedMemoryDone(user.id, pinnedMemoryId);
+  try {
+    await memoryService.cancelPinnedMemoryDone(user.id, pinnedMemoryId);
 
-  return {
-    ok: true,
-    data: await loadMemoryDashboardData(user.id),
-  };
+    return {
+      ok: true,
+      data: await loadMemoryDashboardData(user.id),
+    };
+  } catch (error) {
+    return databaseResult(error);
+  }
 }
 
 export async function replacePinnedMemory(
@@ -92,12 +112,16 @@ export async function replacePinnedMemory(
     return unauthorizedResult();
   }
 
-  await memoryService.replacePinnedMemory(user.id, pinnedMemoryId);
+  try {
+    await memoryService.replacePinnedMemory(user.id, pinnedMemoryId);
 
-  return {
-    ok: true,
-    data: await loadMemoryDashboardData(user.id),
-  };
+    return {
+      ok: true,
+      data: await loadMemoryDashboardData(user.id),
+    };
+  } catch (error) {
+    return databaseResult(error);
+  }
 }
 
 export async function saveMemoryCategory(
@@ -151,17 +175,17 @@ export async function saveMemoryCategory(
       );
     }
   } catch (error) {
-    return {
-      ok: false,
-      message: databaseMessage(error),
-      code: databaseCode(error),
-    };
+    return databaseResult(error);
   }
 
-  return {
-    ok: true,
-    data: await loadMemoryDashboardData(user.id),
-  };
+  try {
+    return {
+      ok: true,
+      data: await loadMemoryDashboardData(user.id),
+    };
+  } catch (error) {
+    return databaseResult(error);
+  }
 }
 
 export async function deleteMemoryCategory(
@@ -204,17 +228,17 @@ export async function deleteMemoryCategory(
       };
     }
   } catch (error) {
-    return {
-      ok: false,
-      message: databaseMessage(error),
-      code: databaseCode(error),
-    };
+    return databaseResult(error);
   }
 
-  return {
-    ok: true,
-    data: await loadMemoryDashboardData(user.id),
-  };
+  try {
+    return {
+      ok: true,
+      data: await loadMemoryDashboardData(user.id),
+    };
+  } catch (error) {
+    return databaseResult(error);
+  }
 }
 
 export async function saveMemory(
@@ -232,48 +256,52 @@ export async function saveMemory(
     return { ok: false, message: validation.message, code: validation.code };
   }
 
-  const categoryId = resolveMemoryInputCategory(
-    input,
-    await memoryService.listMemoryCategories(user.id),
-  );
-
-  if (input.id) {
-    const memory = await memoryService.updateMemory(
-      user.id,
-      input.id,
-      categoryId,
-      validation.title,
-      validation.description,
+  try {
+    const categoryId = resolveMemoryInputCategory(
+      input,
+      await memoryService.listMemoryCategories(user.id),
     );
 
-    if (!memory) {
-      return {
-        ok: false,
-        message: "Memory or category was not found.",
-        code: "memory_or_category_not_found",
-      };
-    }
-  } else {
-    const memory = await memoryService.createMemory(
-      user.id,
-      categoryId,
-      validation.title,
-      validation.description,
-    );
+    if (input.id) {
+      const memory = await memoryService.updateMemory(
+        user.id,
+        input.id,
+        categoryId,
+        validation.title,
+        validation.description,
+      );
 
-    if (!memory) {
-      return {
-        ok: false,
-        message: "Category was not found.",
-        code: "memory_category_not_found",
-      };
+      if (!memory) {
+        return {
+          ok: false,
+          message: "Memory or category was not found.",
+          code: "memory_or_category_not_found",
+        };
+      }
+    } else {
+      const memory = await memoryService.createMemory(
+        user.id,
+        categoryId,
+        validation.title,
+        validation.description,
+      );
+
+      if (!memory) {
+        return {
+          ok: false,
+          message: "Category was not found.",
+          code: "memory_category_not_found",
+        };
+      }
     }
+
+    return {
+      ok: true,
+      data: await loadMemoryDashboardData(user.id),
+    };
+  } catch (error) {
+    return databaseResult(error);
   }
-
-  return {
-    ok: true,
-    data: await loadMemoryDashboardData(user.id),
-  };
 }
 
 export async function deleteMemory(
@@ -285,20 +313,24 @@ export async function deleteMemory(
     return unauthorizedResult();
   }
 
-  const deleted = await memoryService.deleteMemory(user.id, memoryId);
+  try {
+    const deleted = await memoryService.deleteMemory(user.id, memoryId);
 
-  if (!deleted) {
+    if (!deleted) {
+      return {
+        ok: false,
+        message: "Memory was not found.",
+        code: "memory_not_found",
+      };
+    }
+
     return {
-      ok: false,
-      message: "Memory was not found.",
-      code: "memory_not_found",
+      ok: true,
+      data: await loadMemoryDashboardData(user.id),
     };
+  } catch (error) {
+    return databaseResult(error);
   }
-
-  return {
-    ok: true,
-    data: await loadMemoryDashboardData(user.id),
-  };
 }
 
 export async function refreshMemorySuggestions(
@@ -312,21 +344,25 @@ export async function refreshMemorySuggestions(
     return unauthorizedResult();
   }
 
-  await Promise.all(
-    Array.from(new Set(ignoredMemoryIds)).map((memoryId) =>
-      memoryService.ignoreSuggestedMemory(user.id, memoryId),
-    ),
-  );
+  try {
+    await Promise.all(
+      Array.from(new Set(ignoredMemoryIds)).map((memoryId) =>
+        memoryService.ignoreSuggestedMemory(user.id, memoryId),
+      ),
+    );
 
-  const suggestions = await memoryService.suggestMemories(user.id);
+    const suggestions = await memoryService.suggestMemories(user.id);
 
-  return {
-    ok: true,
-    data: {
-      suggestions: suggestions.map(toMemorySuggestion),
-      dashboardData: await loadMemoryDashboardData(user.id),
-    },
-  };
+    return {
+      ok: true,
+      data: {
+        suggestions: suggestions.map(toMemorySuggestion),
+        dashboardData: await loadMemoryDashboardData(user.id),
+      },
+    };
+  } catch (error) {
+    return databaseResult(error);
+  }
 }
 
 export async function pinMemorySuggestion(
@@ -338,22 +374,26 @@ export async function pinMemorySuggestion(
     return unauthorizedResult();
   }
 
-  const pinnedMemory = await memoryService.pinSuggestedMemory(user.id, memoryId);
+  try {
+    const pinnedMemory = await memoryService.pinSuggestedMemory(user.id, memoryId);
 
-  if (!pinnedMemory) {
+    if (!pinnedMemory) {
+      return {
+        ok: false,
+        message: "Memory cannot be pinned right now.",
+        code: "memory_pin_unavailable",
+      };
+    }
+
     return {
-      ok: false,
-      message: "Memory cannot be pinned right now.",
-      code: "memory_pin_unavailable",
+      ok: true,
+      data: {
+        dashboardData: await loadMemoryDashboardData(user.id),
+      },
     };
+  } catch (error) {
+    return databaseResult(error);
   }
-
-  return {
-    ok: true,
-    data: {
-      dashboardData: await loadMemoryDashboardData(user.id),
-    },
-  };
 }
 
 export async function ignoreMemorySuggestion(
@@ -365,22 +405,26 @@ export async function ignoreMemorySuggestion(
     return unauthorizedResult();
   }
 
-  const ignored = await memoryService.ignoreSuggestedMemory(user.id, memoryId);
+  try {
+    const ignored = await memoryService.ignoreSuggestedMemory(user.id, memoryId);
 
-  if (!ignored) {
+    if (!ignored) {
+      return {
+        ok: false,
+        message: "Memory was not found.",
+        code: "memory_not_found",
+      };
+    }
+
     return {
-      ok: false,
-      message: "Memory was not found.",
-      code: "memory_not_found",
+      ok: true,
+      data: {
+        dashboardData: await loadMemoryDashboardData(user.id),
+      },
     };
+  } catch (error) {
+    return databaseResult(error);
   }
-
-  return {
-    ok: true,
-    data: {
-      dashboardData: await loadMemoryDashboardData(user.id),
-    },
-  };
 }
 
 export async function cancelPinnedMemorySuggestion(
@@ -392,20 +436,24 @@ export async function cancelPinnedMemorySuggestion(
     return unauthorizedResult();
   }
 
-  const canceled = await memoryService.cancelSuggestedPin(user.id, memoryId);
+  try {
+    const canceled = await memoryService.cancelSuggestedPin(user.id, memoryId);
 
-  if (!canceled) {
+    if (!canceled) {
+      return {
+        ok: false,
+        message: "Pinned memory was not found.",
+        code: "pinned_memory_not_found",
+      };
+    }
+
     return {
-      ok: false,
-      message: "Pinned memory was not found.",
-      code: "pinned_memory_not_found",
+      ok: true,
+      data: {
+        dashboardData: await loadMemoryDashboardData(user.id),
+      },
     };
+  } catch (error) {
+    return databaseResult(error);
   }
-
-  return {
-    ok: true,
-    data: {
-      dashboardData: await loadMemoryDashboardData(user.id),
-    },
-  };
 }

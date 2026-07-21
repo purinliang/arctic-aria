@@ -133,7 +133,6 @@ export const englishMemoryMessages = {
     memory_category_in_use: "This category is still used by memories.",
     memory_category_built_in_protected:
       "Built-in categories cannot be edited or deleted.",
-    memory_database_update_failed: "Database update failed.",
     memory_category_not_found: "Category was not found.",
     memory_or_category_not_found: "Memory or category was not found.",
     memory_not_found: "Memory was not found.",
@@ -269,7 +268,6 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     memory_category_duplicate: "同名分类已存在。",
     memory_category_in_use: "这个分类仍被回忆使用。",
     memory_category_built_in_protected: "内置分类不能编辑或删除。",
-    memory_database_update_failed: "数据库更新失败。",
     memory_category_not_found: "没有找到分类。",
     memory_or_category_not_found: "没有找到回忆或分类。",
     memory_not_found: "没有找到回忆。",

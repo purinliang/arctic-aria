@@ -89,7 +89,7 @@ export function writeDashboardBrowserCacheSection<
       } satisfies DashboardBrowserCacheEnvelope<Section>),
     );
   } catch {
-    // The page can still use live backend data when browser storage is blocked.
+    // The page can still use live server data when browser storage is blocked.
   }
 }
 

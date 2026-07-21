@@ -106,6 +106,23 @@ explicitly requires an unpooled connection.
 `NEON_AUTH_BASE_URL` is not used because Arctic Aria currently implements its
 own username/password auth instead of Neon Auth.
 
+## One-Off Neon Region Copy Variables
+
+Region-to-region data copy is not normal app runtime. The web app still reads
+only `NEON_POSTGRES_URL`, but a one-off Neon project or region copy should use
+`apps/database/.env.local` with unpooled URLs:
+
+```bash
+SOURCE_NEON_UNPOOLED_URL="postgresql://..."
+DESTINATION_NEON_UNPOOLED_URL="postgresql://..."
+```
+
+Do not commit these variables to `.env.example`, docs, or scripts. Use them
+only from the local database helper that runs `pg_dump` and `pg_restore`.
+After the copy is verified, update the intended runtime environment's
+`NEON_POSTGRES_URL` through `apps/web/.env.local` or through deployment secret
+storage.
+
 ## Cron Worker
 
 Example file:

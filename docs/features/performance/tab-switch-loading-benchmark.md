@@ -1,12 +1,12 @@
-# Web Tab Switch Loading Benchmark
+# Tab Switch Loading Benchmark
 
 This document archives focused tab switch loading benchmark runs. It measures
 the user-visible delay after clicking a sidebar tab until the target page
 heading is visible.
 
-This is not a generic web performance summary. Full route loading, direct URL
-entry, refresh behavior, backend command latency, and visual polish are
-separate concerns.
+This is a Performance feature record, not a shared web UI rule. Full route
+loading, direct URL entry, refresh behavior, backend command latency, and visual
+polish are separate concerns.
 
 ## Benchmark Files
 
