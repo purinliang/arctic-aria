@@ -91,7 +91,7 @@ export function parseProjectMarkdownToJson(
     const rawLine = lines[index];
     const line = rawLine.trim();
 
-    if (!line || line.startsWith("<!--")) {
+    if (!line || line.startsWith("<!--") || isSeparatorLine(line)) {
       continue;
     }
 
@@ -757,6 +757,10 @@ function unknownKeys(value: Record<string, unknown>, allowed: string[]) {
 
 function normalizeFieldName(value: string) {
   return value.trim().toLowerCase().replace(/[-_]+/g, " ");
+}
+
+function isSeparatorLine(value: string) {
+  return /^-{3,}$/.test(value);
 }
 
 function readProjectHeading(line: string) {

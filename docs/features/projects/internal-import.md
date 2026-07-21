@@ -14,8 +14,8 @@ Markdown template
   -> database insert
 ```
 
-The Markdown template is for reading and light editing. The JSON form is the
-canonical structure sent to the API.
+The Markdown template is copied from the administrator-only Developer Tools
+panel in Settings. The JSON form is the canonical structure accepted by the API.
 
 ## Structure
 
@@ -34,24 +34,19 @@ output easier to validate.
 
 ## Files
 
-- `apps/cli/templates/project-import.md`: human-readable template.
-- `apps/cli/templates/project-import.json`: canonical JSON template.
-- `apps/cli/src/parse-project-import.ts`: Markdown or JSON parser command.
+- `apps/cli/templates/project-import.md`: human-readable template kept for
+  future CLI work and checked against the web copy-template text.
+- `apps/cli/templates/project-import.json`: canonical JSON example kept for
+  future CLI work.
 - `apps/web/src/features/developer/components/DeveloperImportToolItems.tsx`:
   developer Settings tool rows for copy-template, paste-to-parse, and
   paste-to-import tests.
 - `apps/web/src/features/developer/import-template-prompts.ts`: prompt wrapper
-  for copying the CLI template into an LLM.
+  and template text copied into an LLM.
 - `apps/web/src/app/api/developer/projects/parse/route.ts`: developer-only
   validation endpoint.
 - `apps/web/src/app/api/developer/projects/import/route.ts`: developer-only
   insert endpoint.
-
-Run the parser locally with:
-
-```sh
-pnpm --dir apps/cli project:parse -- --file templates/project-import.md
-```
 
 ## Naming
 
@@ -74,17 +69,10 @@ Both endpoints accept canonical JSON directly, Markdown text, or an envelope:
 }
 ```
 
-`parse` returns the canonical document and normalized command. `import` writes
-the normalized command to the signed-in developer session account.
+`parse` returns the canonical document(s) and normalized command(s). `import`
+writes the normalized command(s) to the signed-in developer session account.
 
 ## Testing
-
-Local parse test:
-
-```sh
-pnpm --dir apps/cli project:parse -- --file templates/project-import.md
-pnpm --dir apps/cli project:parse -- --file templates/project-import.json
-```
 
 Developer API parse test:
 
@@ -127,12 +115,14 @@ Expected success shape:
 ```json
 {
   "ok": true,
-  "projectId": "..."
+  "projectId": "...",
+  "projectIds": ["..."],
+  "importedCount": 1
 }
 ```
 
-After success, refresh Projects and open the inserted project. It should contain
-the imported milestones and tasks.
+After success, Projects data refreshes automatically. Open the inserted project;
+it should contain the imported milestones and tasks.
 
 ## Account Binding
 
@@ -141,10 +131,9 @@ backend knows which account receives imported data, and it prevents normal users
 from calling internal import tools.
 
 A future remote CLI client should use a separate CLI binding token stored
-outside Git, such as an ignored `apps/cli/data` file or `apps/cli/.env.local`.
-Do not reuse Discord binding codes for this without a separate design, because
-Discord binding proves a Discord account, while a CLI binding would authorize
-data writes.
+outside Git. Do not reuse Discord binding codes for this without a separate
+design, because Discord binding proves a Discord account, while a CLI binding
+would authorize data writes.
 
 ## API Shape
 
@@ -176,6 +165,33 @@ It does not accept top-level tasks.
   ]
 }
 ```
+
+Batch JSON is also accepted:
+
+```json
+{
+  "projects": [
+    {
+      "project": {
+        "title": "Find a job"
+      },
+      "milestones": [
+        {
+          "title": "Applications",
+          "tasks": [
+            {
+              "title": "Prepare resume"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+Markdown may contain one or more `Project:` or `# Project:` blocks. A line with
+`---` is optional and only acts as a visual separator.
 
 The importer fills missing optional start dates and timelines using the same
 project validation helpers as normal project actions.

@@ -13,29 +13,24 @@ Markdown template
   -> optional database insert
 ```
 
-The parse API validates without writing. The import API writes one routine to
-the signed-in developer account.
+The parse API validates without writing. The import API writes one or more
+routines to the signed-in developer account.
 
 ## Files
 
-- `apps/cli/templates/routine-import.md`: human-readable template.
-- `apps/cli/templates/routine-import.json`: canonical JSON template.
-- `apps/cli/src/parse-routine-import.ts`: Markdown or JSON parser command.
+- `apps/cli/templates/routine-import.md`: human-readable template kept for
+  future CLI work and checked against the web copy-template text.
+- `apps/cli/templates/routine-import.json`: canonical JSON example kept for
+  future CLI work.
 - `apps/web/src/features/developer/components/DeveloperImportToolItems.tsx`:
   developer Settings tool rows for copy-template, paste-to-parse, and
   paste-to-import tests.
 - `apps/web/src/features/developer/import-template-prompts.ts`: prompt wrapper
-  for copying the CLI template into an LLM.
+  and template text copied into an LLM.
 - `apps/web/src/app/api/developer/routines/parse/route.ts`: developer-only
   parse endpoint.
 - `apps/web/src/app/api/developer/routines/import/route.ts`: developer-only
   insert endpoint.
-
-Run the parser locally with:
-
-```sh
-pnpm --dir apps/cli routine:parse -- --file templates/routine-import.md
-```
 
 ## Naming
 
@@ -49,17 +44,10 @@ POST /api/developer/routines/parse
 POST /api/developer/routines/import
 ```
 
-`parse` returns the canonical document and normalized command. `import` writes
-one routine to the signed-in administrator session account.
+`parse` returns the canonical document(s) and normalized command(s). `import`
+writes routine(s) to the signed-in administrator session account.
 
 ## Testing
-
-Local parse test:
-
-```sh
-pnpm --dir apps/cli routine:parse -- --file templates/routine-import.md
-pnpm --dir apps/cli routine:parse -- --file templates/routine-import.json
-```
 
 Developer API parse test:
 
@@ -117,13 +105,19 @@ Expected success shape:
 ```json
 {
   "ok": true,
-  "routineId": "..."
+  "routineId": "...",
+  "routineIds": ["..."],
+  "importedCount": 1
 }
 ```
 
 ## Structure
 
-One template describes one routine. Legal recurrence values are:
+One `Routine:` block describes one routine. Repeat the `Routine:` heading to
+import multiple routines. A line with `---` is optional and only acts as a
+visual separator.
+
+Legal recurrence values are:
 
 - `daily`
 - `weekly`

@@ -268,9 +268,9 @@ Detailed docs:
 
 ### CLI Tooling
 
-CLI tooling is for local developer workflows such as parsing Markdown or JSON
-templates before using administrator-only import APIs. CLI tooling should not
-own product rules; it should call feature parsers or protected APIs.
+CLI tooling is reserved for local developer workflows and future remote import
+commands. It should not own product rules; it should call feature parsers or
+protected APIs.
 
 Detailed docs:
 

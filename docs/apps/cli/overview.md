@@ -1,26 +1,27 @@
 # CLI App
 
-`apps/cli` contains command-line tooling for local developer workflows. It is
-separate from `apps/web` because parsing templates, storing local generated
-files, and future remote import commands are CLI concerns, not web runtime
-concerns.
+`apps/cli` is reserved for local developer workflows and future remote import
+commands. It is separate from `apps/web` because generated files, local tokens,
+and command-line workflows should not become web runtime concerns.
 
-## Current Commands
+## Current State
 
-```sh
-pnpm --dir apps/cli project:parse -- --file templates/project-import.md
-pnpm --dir apps/cli routine:parse -- --file templates/routine-import.md
-```
+There are no active CLI commands. The previous parse-only helper duplicated the
+web Developer Tools import flow and was removed.
 
-The current commands parse Markdown or JSON templates and print canonical JSON.
-They do not call the web API.
+The current project and routine import workflow lives in the web Settings
+Developer Tools panel and the protected developer APIs.
+
+The `templates/` directory keeps Markdown and JSON examples for future CLI
+work. The Markdown templates are checked against the web copy-template text, so
+they should stay aligned.
 
 ## Local Files
 
 `apps/cli/.env.local` and `apps/cli/data/*` are ignored by Git. Use them later
 for local API hosts, generated template drafts, or a CLI binding token.
 
-Do not store real binding tokens in tracked template files.
+Do not store real binding tokens in tracked files.
 
 ## Future Binding
 

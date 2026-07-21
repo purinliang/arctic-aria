@@ -44,6 +44,10 @@ Duration: 1_3_months
   Start date: 2026-08-01
   Deadline: 2026-08-07
 
+---
+
+<!-- Add another Project block here if you want to import multiple projects. -->
+
 <!-- Project import rules: one Project block creates one project. Repeat the Project heading to import multiple projects. Keep tasks nested under the milestone they belong to. -->
 <!-- Legal project fields: Objective, Start date, Timeline, Duration, Deadline. -->
 <!-- Legal milestone fields: Objective, Start date, Timeline, Duration, Deadline. -->
@@ -60,6 +64,8 @@ Repeat: daily
 Fixed interval days:
 Preferred time: 08:30
 Timezone: Australia/Melbourne
+
+---
 
 Routine: Evening reset
 

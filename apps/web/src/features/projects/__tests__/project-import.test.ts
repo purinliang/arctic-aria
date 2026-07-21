@@ -77,6 +77,8 @@ Objective: Fix release blockers.
 ### Tasks
 - Title: Test release candidate
 
+---
+
 # Project: Prepare notes
 Objective: Write the release notes.
 Start date: 2026-07-22

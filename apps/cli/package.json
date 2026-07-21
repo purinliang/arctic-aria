@@ -3,9 +3,5 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "scripts": {
-    "project:parse": "node src/parse-project-import.ts",
-    "routine:parse": "node src/parse-routine-import.ts"
-  },
   "packageManager": "pnpm@11.7.0"
 }
