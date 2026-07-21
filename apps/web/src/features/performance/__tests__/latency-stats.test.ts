@@ -16,22 +16,20 @@ test("latency stats summarize sorted percentiles and averages", () => {
 test("latency report summarizes every metric", () => {
   const report = summarizeLatency([
     {
-      clientTotalMs: 40,
-      serverTotalMs: 30,
-      databaseMs: 20,
-      networkEstimateMs: 10,
+      frontendBackendMs: 40,
+      backendDatabaseMs: 20,
     },
     {
-      clientTotalMs: 20,
-      serverTotalMs: 15,
-      databaseMs: 10,
-      networkEstimateMs: 5,
+      frontendBackendMs: 20,
+      backendDatabaseMs: 10,
     },
   ]);
 
   assert.equal(report.sampleCount, 2);
-  assert.equal(report.metrics.clientTotalMs.avg, 30);
-  assert.equal(report.metrics.serverTotalMs.max, 30);
-  assert.equal(report.metrics.databaseMs.min, 10);
-  assert.equal(report.metrics.networkEstimateMs.p50, 7.5);
+  assert.equal(report.metrics.frontendBackendMs.avg, 30);
+  assert.equal(report.metrics.backendDatabaseMs.min, 10);
+  assert.deepEqual(Object.keys(report.metrics).sort(), [
+    "backendDatabaseMs",
+    "frontendBackendMs",
+  ]);
 });
