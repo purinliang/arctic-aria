@@ -67,21 +67,77 @@ test("sends due routine reminders through Discord notification service", async (
   assert.equal(notifier.calls[0]?.userId, userId);
   assert.match(
     String(notifier.calls[0]?.idempotencyKey),
-    /^routine-reminder:.+:2026-07-12T09:30:00.000Z$/,
+    /^routine-reminder:[0-9a-f]{32}$/,
   );
   assert.equal(
     notifier.calls[0]?.text,
-    "Routine reminder: Morning check is due at 10:00.",
+    ["### Routine Reminder", "", "- `[ ]` **Morning check**: Due at 10:00."].join(
+      "\n",
+    ),
   );
   assert.deepEqual(notifier.calls[0]?.metadata, {
     feature: "routines",
     action: "routine-reminder",
+    routineCount: 1,
+    routineIds: ["routine-1"],
+    routineInstanceIds: [notifier.calls[0]?.metadata.routineInstanceId],
+    scheduledDates: ["2026-07-12"],
+    scheduledTimes: ["10:00"],
+    remindAts: ["2026-07-12T09:30:00.000Z"],
     routineId: "routine-1",
     routineInstanceId: notifier.calls[0]?.metadata.routineInstanceId,
     scheduledDate: "2026-07-12",
     scheduledTime: "10:00",
     remindAt: "2026-07-12T09:30:00.000Z",
   });
+});
+
+test("merges due routine reminders for the same user", async () => {
+  const repository = new InMemoryRoutineRepository({
+    routines: [
+      routine({
+        id: "routine-1",
+        title: "Morning check",
+        description: "Review overnight notes.",
+      }),
+      routine({
+        id: "routine-2",
+        title: "Plan `demo`",
+        description: "Confirm *handoff* list.",
+      }),
+    ],
+  });
+  const notifier = createNotifierStub({ ok: true });
+  const service = createRoutineReminderService({
+    now: () => dueAt,
+    notifier,
+    routines: repository,
+  });
+
+  const result = await service.sendDueRoutineReminders();
+
+  assert.deepEqual(result, {
+    checked: 2,
+    due: 2,
+    sent: 2,
+    skipped: 0,
+    failed: 0,
+  });
+  assert.equal(notifier.calls.length, 1);
+  assert.equal(
+    notifier.calls[0]?.text,
+    [
+      "### Routine Reminders",
+      "",
+      "- `[ ]` **Morning check**: Review overnight notes. Due at 10:00.",
+      "- `[ ]` **Plan \\`demo\\`**: Confirm \\*handoff\\* list. Due at 10:00.",
+    ].join("\n"),
+  );
+  assert.deepEqual(notifier.calls[0]?.metadata.routineIds, [
+    "routine-1",
+    "routine-2",
+  ]);
+  assert.equal(notifier.calls[0]?.metadata.routineCount, 2);
 });
 
 test("skips routine reminders before the reminder window opens", async () => {
@@ -269,7 +325,9 @@ test("uses 18:00 as the reminder fallback when preferred time is empty", async (
   assert.equal(result.sent, 1);
   assert.equal(
     notifier.calls[0]?.text,
-    "Routine reminder: Flexible check is due at 18:00.",
+    ["### Routine Reminder", "", "- `[ ]` **Flexible check**: Due at 18:00."].join(
+      "\n",
+    ),
   );
   assert.equal(notifier.calls[0]?.metadata.scheduledTime, "18:00");
 });
