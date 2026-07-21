@@ -174,7 +174,7 @@ function scheduledTime(instance: RoutineInstanceRecord) {
   return instance.scheduledTime ?? "";
 }
 
-function localDateKey(date: Date, timeZone: string) {
+export function localDateKey(date: Date, timeZone: string) {
   const parts = new Intl.DateTimeFormat("en-CA", {
     day: "2-digit",
     month: "2-digit",

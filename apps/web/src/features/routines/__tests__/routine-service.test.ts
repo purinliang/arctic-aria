@@ -62,6 +62,45 @@ test("generates today's daily routine instance", async () => {
   );
 });
 
+test("generates today's routine instance using the routine timezone", async () => {
+  const occurredAt = new Date("2026-07-21T23:30:00.000Z");
+  const repository = new InMemoryRoutineRepository({
+    routines: [
+      routine({
+        id: "routine-1",
+        title: "Local morning check",
+        firstStartDate: "2026-07-22",
+        rule: {
+          id: "routine-1-rule",
+          routineId: "routine-1",
+          ruleType: "daily",
+          intervalValue: null,
+          weekdays: null,
+          dayOfMonth: null,
+          preferredTime: "10:00",
+          timezone: "Australia/Sydney",
+          createdAt: new Date("2026-07-21T00:00:00.000Z"),
+          updatedAt: new Date("2026-07-21T00:00:00.000Z"),
+        },
+      }),
+    ],
+  });
+  const service = createRoutineService({
+    routines: repository,
+    now: () => occurredAt,
+  });
+
+  const instances = await service.listTodayRoutineInstances(userId);
+
+  assert.equal(instances.length, 1);
+  assert.equal(instances[0].title, "Local morning check");
+  assert.equal(instances[0].scheduledDate, "2026-07-22");
+  assert.deepEqual(
+    instances[0].remindAt,
+    new Date("2026-07-21T23:30:00.000Z"),
+  );
+});
+
 test("monthly by date supports yearly renewal intervals", async () => {
   const repository = new InMemoryRoutineRepository({
     routines: [
