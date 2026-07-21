@@ -1,7 +1,7 @@
 # Current Database Schema
 
 This is a human-readable schema snapshot after
-`0024_add_user_resolved_timezone.sql`.
+`0025_create_project_task_daily_selections.sql`.
 
 Source of truth:
 
@@ -389,6 +389,33 @@ Indexes:
 - `(user_id, deadline_date, start_date, updated_at DESC)` where
   `deleted_at IS NULL AND completed_at IS NULL`
 - `(milestone_id, sort_order, created_at)` where `deleted_at IS NULL`
+
+### `project_task_daily_selections`
+
+Stable Today board selections for project tasks. Task completion remains on
+`project_tasks.completed_at`; Today visibility remains on this table.
+
+Columns:
+
+- `id uuid PRIMARY KEY`
+- `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
+- `task_id uuid NOT NULL REFERENCES project_tasks(id) ON DELETE CASCADE`
+- `scheduled_date date NOT NULL`
+- `source text NOT NULL DEFAULT 'scheduler'`
+- `created_at timestamptz NOT NULL`
+- `moved_at timestamptz`
+- `moved_from_date date`
+
+Important constraints:
+
+- source: `manual`, `scheduler`
+- `moved_from_date` requires `moved_at`
+- one selection per user, task, and scheduled date
+
+Indexes:
+
+- unique `(user_id, task_id, scheduled_date)`
+- `(user_id, scheduled_date, created_at)`
 
 ## Ideas
 

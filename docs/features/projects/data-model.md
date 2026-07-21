@@ -196,6 +196,8 @@ Field rules:
 - Task done/not-done state is stored through `completed_at`.
 - The UI maps checked to `completed_at = occurred_at` and unchecked to
   `completed_at = NULL`.
+- Today visibility is stored separately in `project_task_daily_selections`.
+  Completing a task should not remove its scheduled Today row.
 
 Removed task fields:
 
@@ -226,6 +228,43 @@ Current task event types:
 Do not add task-child completion events in the current design. The current
 schedulable unit is the task.
 
+## Project Task Daily Selections
+
+`project_task_daily_selections` stores the project tasks selected for one
+Today board date.
+
+Current fields:
+
+- `id`
+- `user_id`
+- `task_id`
+- `scheduled_date`
+- `source`
+- `created_at`
+- `moved_at`
+- `moved_from_date`
+
+Field rules:
+
+- `scheduled_date` is the local Today date where the task should appear.
+- `source` is `scheduler` for automatic Today filling or `manual` for future
+  explicit user selection.
+- There can be only one selection per `(user_id, task_id, scheduled_date)`.
+- A selected task stays visible on Today after completion.
+- A selected task stays visible on Today even if its start date or deadline is
+  edited later.
+- Deleted tasks, deleted projects, and tasks under deleted milestones do not
+  appear on Today.
+- Automatic Today filling returns at most six selected project task rows.
+- Automatic Today filling only considers open tasks whose start date has
+  arrived, whose deadline exists, and whose deadline is within the next five
+  days including today.
+- If a task is edited before it has been selected, the new date fields decide
+  whether it can be selected on the next Today load.
+- If a task is edited after it has been selected, the selection remains until a
+  future move/remove command changes it or the selected date is no longer
+  Today.
+
 ## Migration Direction
 
 Historical migrations still show the old task and project prototype shape:
@@ -243,6 +282,8 @@ Historical migrations still show the old task and project prototype shape:
   task, and routine soft deletion on `deleted_at`, removes project/task
   priority, removes task status variants, removes task scheduled-date storage,
   and drops `project_task_dependencies`.
+- `0025_create_project_task_daily_selections.sql` adds stable Today selection
+  rows so completed scheduled project tasks do not disappear from Today.
 
 Because migration history is immutable, do not edit old migration files to
 match the current model. Add a follow-up migration when schema governance

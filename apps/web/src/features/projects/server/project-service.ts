@@ -27,7 +27,9 @@ export function createProjectService(options: ProjectServiceOptions = {}) {
     },
 
     async listDashboardTasks(userId: string) {
-      return projects.listDashboardTasks(userId, dateKey(now()));
+      const occurredAt = now();
+
+      return projects.listDashboardTasks(userId, dateKey(occurredAt), occurredAt);
     },
 
     async saveProject(

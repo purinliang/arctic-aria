@@ -1,8 +1,8 @@
 # Daily Board Scheduling Redesign
 
 Status: partially implemented. Routine reminder timestamps, due-window cron
-selection, and reminder delivery idempotency are implemented. Routine `Later`
-and `Tomorrow` actions plus project task daily selections remain future work.
+selection, reminder delivery idempotency, and project task daily selections are
+implemented. Routine `Later` and `Tomorrow` actions remain future work.
 
 ## Boundary
 
@@ -214,6 +214,19 @@ completed instances. Completing a routine should update its checkbox state, but
 it should not remove the row from Today until the local daily board date
 changes.
 
+The backend returns at most six routine instances for Today. Existing
+`routine_instances` for the current local scheduled date are loaded first,
+including completed instances. If fewer than six existing instances are present,
+the backend can create new instances from routine definitions whose recurrence
+matches the current local scheduled date.
+
+New or edited routine definitions follow the same rule on the next Today load:
+if the routine should occur today and there is room in the six-row board, a
+new instance can be created. If a routine instance already exists for today,
+editing the routine definition should not hide that instance from Today.
+Pending future instances can still have their scheduled time and reminder time
+updated from the latest routine preference.
+
 ### Cron Flow
 
 One cron route can handle routine reminders and Daily Review delivery.
@@ -257,9 +270,9 @@ to another day without changing the task itself.
 Project tasks should not reuse `routine_instances`. A project task does not
 repeat from a recurrence rule, but it can be selected onto a daily board.
 
-### Data Model Direction
+### Data Model
 
-Add a lightweight table later:
+Project task daily selections use a lightweight table:
 
 ```text
 project_task_daily_selections
@@ -295,7 +308,7 @@ creating a separate dismissed state.
 
 ### Today Behavior
 
-Today task behavior should become:
+Today task behavior is:
 
 ```text
 load project_task_daily_selections for the current local scheduled_date
@@ -304,15 +317,33 @@ load project_task_daily_selections for the current local scheduled_date
   -> keep completed tasks visible while scheduled_date is today
 ```
 
+If fewer than six visible task selections exist for today, the backend fills
+empty slots from open project tasks that are eligible for automatic scheduling.
+An unscheduled task is eligible only when:
+
+- the task is not completed
+- the task and project are not deleted
+- its milestone, when present, is not deleted
+- its start date is empty or not after today
+- it has a deadline
+- its deadline is within the next five days, including today
+
+The backend returns at most six task rows for Today. If a task is already
+selected for today, later edits to its deadline or start date do not remove it
+from Today. It stays visible until the scheduled date changes, the task is
+deleted, the project is deleted, or a future move/remove command changes the
+selection.
+
 This separates:
 
 - task completion: `project_tasks.completed_at`
 - task visibility on Today: `project_task_daily_selections.scheduled_date`
 - moving a selected task: `moved_at` and `moved_from_date`
 
-Project task scheduling is deferred until the routine reminder redesign is
-clearer. The task design should reuse the same `_date`, `_time`, and `_at`
-naming rule.
+The task design reuses the same `_date`, `_time`, and `_at` naming rule.
+
+Daily Review should use the same returned Today rows as the visible Dashboard
+panels.
 
 ## Implementation Plan
 
@@ -323,8 +354,8 @@ naming rule.
 5. Today checkbox behavior keeps working with optimistic UI.
 6. Add Discord reminder actions later: `Done`, `Later`, and `Tomorrow`.
 7. Add web UI controls only after the backend behavior is stable.
-8. Plan `project_task_daily_selections` after routine reminder behavior is
-   stable.
+8. Add future move/remove controls for project task daily selections after the
+   first stable Today behavior is released.
 
 ## Deferred Questions
 

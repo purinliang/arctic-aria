@@ -254,17 +254,17 @@ test("dashboard tasks sort by deadline then start date", async () => {
             deletedAt: null,
             tasks: [
               {
-                id: "no-deadline",
+                id: "later-deadline",
                 userId,
                 projectId: "project-1",
                 projectTitle: "Find a job",
                 milestoneId: "milestone-1",
                 milestoneTitle: "Applications",
-                title: "No deadline task",
+                title: "Later deadline task",
                 description: "",
                 status: "todo",
                 startDate: "2026-07-14",
-                deadlineDate: null,
+                deadlineDate: "2026-07-19",
                 sortOrder: 0,
                 createdAt: now,
                 updatedAt: now,
@@ -299,7 +299,7 @@ test("dashboard tasks sort by deadline then start date", async () => {
                 title: "Near deadline task",
                 description: "",
                 status: "todo",
-                startDate: "2026-07-16",
+                startDate: "2026-07-14",
                 deadlineDate: "2026-07-18",
                 sortOrder: 2,
                 createdAt: now,
@@ -322,7 +322,7 @@ test("dashboard tasks sort by deadline then start date", async () => {
 
   assert.equal(tasks[0].id, "older-start");
   assert.equal(tasks[1].id, "near-deadline");
-  assert.equal(tasks[2].id, "no-deadline");
+  assert.equal(tasks[2].id, "later-deadline");
   assert.equal(tasks[0].projectTitle, "Find a job");
   assert.equal(tasks[0].milestoneTitle, "Applications");
 });

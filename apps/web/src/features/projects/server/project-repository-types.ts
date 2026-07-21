@@ -2,6 +2,9 @@ export type ProjectTaskStatus = "todo" | "done";
 
 export type ProjectPinResult = "pinned" | "limit_reached" | "not_found";
 
+export const projectTaskDailySelectionLimit = 6;
+export const projectTaskAutoScheduleHorizonDays = 5;
+
 export type ProjectTaskRecord = {
   id: string;
   userId: string;
@@ -108,7 +111,11 @@ export type ImportProjectTreeInput = {
 
 export type ProjectRepository = {
   listProjects(userId: string): Promise<ProjectRecord[]>;
-  listDashboardTasks(userId: string, today: string): Promise<ProjectTaskRecord[]>;
+  listDashboardTasks(
+    userId: string,
+    today: string,
+    occurredAt: Date,
+  ): Promise<ProjectTaskRecord[]>;
   saveProject(input: SaveProjectInput): Promise<string | null>;
   saveMilestone(input: SaveMilestoneInput): Promise<string | null>;
   saveTask(input: SaveProjectTaskInput): Promise<boolean>;

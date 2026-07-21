@@ -17,6 +17,13 @@ export type RoutineServiceOptions = {
 };
 
 const msPerDay = 24 * 60 * 60 * 1000;
+const todayRoutineInstanceLimit = 6;
+
+type TodayRoutineCandidate = {
+  routine: RoutineRecord;
+  scheduledDate: string;
+  scheduledTime: string;
+};
 
 export function dateKey(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -115,23 +122,78 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
       const activeRoutines = await routines.listActiveRoutines(userId);
       const scheduledDateByRoutineId = new Map<string, string>();
       const scheduledDates = new Set<string>();
+      const routineCandidates: TodayRoutineCandidate[] = activeRoutines.map((routine) => {
+        const scheduledDate = localDateKey(occurredAt, routine.rule.timezone);
+        const scheduledTime = resolveRoutineScheduledTime(routine);
 
-      await Promise.all(
-        activeRoutines
-          .map((routine) => ({
-            routine,
-            scheduledDate: localDateKey(occurredAt, routine.rule.timezone),
-          }))
-          .filter(({ routine, scheduledDate }) => {
-            scheduledDateByRoutineId.set(routine.id, scheduledDate);
-            scheduledDates.add(scheduledDate);
+        scheduledDateByRoutineId.set(routine.id, scheduledDate);
+        scheduledDates.add(scheduledDate);
 
-            return shouldGenerateInstance(routine, scheduledDate);
-          })
-          .map(({ routine, scheduledDate }) => {
-            const scheduledTime = resolveRoutineScheduledTime(routine);
+        return {
+          routine,
+          scheduledDate,
+          scheduledTime,
+        };
+      });
 
-            return routines.ensureRoutineInstance({
+      const existingInstances = await Promise.all(
+        [...scheduledDates].map((scheduledDate) =>
+          routines.listRoutineInstancesForDate(userId, scheduledDate),
+        ),
+      );
+      const existingTodayInstances = dedupeRoutineInstances(
+        existingInstances.flat(),
+      )
+        .filter(
+          (instance) =>
+            instance.scheduledDate ===
+            scheduledDateByRoutineId.get(instance.routineId),
+        )
+        .sort(compareTodayRoutineInstances)
+        .slice(0, todayRoutineInstanceLimit);
+      const existingRoutineIds = new Set(
+        existingTodayInstances.map((instance) => instance.routineId),
+      );
+      const remainingSlots = Math.max(
+        todayRoutineInstanceLimit - existingTodayInstances.length,
+        0,
+      );
+
+      const refreshedExistingInstances = await Promise.all(
+        existingTodayInstances.map((instance) => {
+          const candidate = routineCandidates.find(
+            ({ routine }) => routine.id === instance.routineId,
+          );
+
+          if (!candidate) {
+            return instance;
+          }
+
+          return routines.ensureRoutineInstance({
+            userId,
+            routineId: candidate.routine.id,
+            scheduledDate: candidate.scheduledDate,
+            scheduledTime: candidate.scheduledTime,
+            remindAt: routineReminderAt({
+              scheduledDate: candidate.scheduledDate,
+              scheduledTime: candidate.scheduledTime,
+              timeZone: candidate.routine.rule.timezone,
+            }),
+            occurredAt,
+          });
+        }),
+      );
+      const ensuredInstances = await Promise.all(
+        routineCandidates
+          .filter(
+            ({ routine, scheduledDate }) =>
+              !existingRoutineIds.has(routine.id) &&
+              shouldGenerateInstance(routine, scheduledDate),
+          )
+          .sort(compareRoutineCandidates)
+          .slice(0, remainingSlots)
+          .map(({ routine, scheduledDate, scheduledTime }) =>
+            routines.ensureRoutineInstance({
               userId,
               routineId: routine.id,
               scheduledDate,
@@ -142,20 +204,26 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
                 timeZone: routine.rule.timezone,
               }),
               occurredAt,
-            });
-          }),
+            }),
+          ),
       );
-
-      const instances = await Promise.all(
-        [...scheduledDates].map((scheduledDate) =>
-          routines.listRoutineInstancesForDate(userId, scheduledDate),
+      const allInstances = [
+        ...refreshedExistingInstances.filter(
+          (instance): instance is RoutineInstanceRecord => Boolean(instance),
         ),
-      );
+        ...ensuredInstances.filter(
+          (instance): instance is RoutineInstanceRecord => Boolean(instance),
+        ),
+      ];
 
-      return dedupeRoutineInstances(instances.flat()).filter(
-        (instance) =>
-          instance.scheduledDate === scheduledDateByRoutineId.get(instance.routineId),
-      );
+      return dedupeRoutineInstances(allInstances)
+        .filter(
+          (instance) =>
+            instance.scheduledDate ===
+            scheduledDateByRoutineId.get(instance.routineId),
+        )
+        .sort(compareTodayRoutineInstances)
+        .slice(0, todayRoutineInstanceLimit);
     },
 
     async saveRoutine(
@@ -242,4 +310,36 @@ function dedupeRoutineInstances(instances: RoutineInstanceRecord[]) {
     seen.add(instance.id);
     return true;
   });
+}
+
+function compareTodayRoutineInstances(
+  left: RoutineInstanceRecord,
+  right: RoutineInstanceRecord,
+) {
+  return (
+    timeSortValue(left.scheduledTime) - timeSortValue(right.scheduledTime) ||
+    left.title.localeCompare(right.title) ||
+    left.createdAt.getTime() - right.createdAt.getTime()
+  );
+}
+
+function compareRoutineCandidates(
+  left: TodayRoutineCandidate,
+  right: TodayRoutineCandidate,
+) {
+  return (
+    timeSortValue(left.scheduledTime) - timeSortValue(right.scheduledTime) ||
+    left.routine.title.localeCompare(right.routine.title) ||
+    left.routine.createdAt.getTime() - right.routine.createdAt.getTime()
+  );
+}
+
+function timeSortValue(time: string | null) {
+  if (!time) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  const [hour = "0", minute = "0"] = time.split(":");
+
+  return Number(hour) * 60 + Number(minute);
 }
