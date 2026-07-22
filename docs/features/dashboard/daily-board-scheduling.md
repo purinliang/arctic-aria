@@ -66,10 +66,11 @@ Avoid `Push to tomorrow` in user-facing text. It is understandable, but
 - `routine_instances` are created when the Today page loads.
 - The cron path can also create or ensure a `routine_instance` when it thinks a
   reminder is due.
-- Reminder matching currently compares the cron run's local `HH:mm` exactly
-  against the routine definition's `preferred_time`.
-- Routines without `preferred_time` are ignored by reminder cron.
-- Dashboard UI currently exposes only checkbox completion/reopen behavior.
+- Reminder matching uses `routine_instances.remind_at` and a 25-minute due
+  window, not exact `HH:mm` matching against the routine definition.
+- Routines without `preferred_time` use the `18:00` local fallback.
+- Dashboard UI currently exposes checkbox completion/reopen behavior, but not
+  `Later` or `Tomorrow`.
 
 ### Purpose
 
@@ -266,17 +267,18 @@ can generate or ensure the small set of upcoming routine instances it needs.
 
 ### Idempotency
 
-Discord delivery should continue to use `discord_message_deliveries`.
+Discord delivery continues to use `discord_message_deliveries`.
 
-Recommended idempotency key:
+Current idempotency key:
 
 ```text
-routine-reminder:<routine_instance_id>:<remind_at>
+routine-reminder:<digest>
 ```
 
-Including `remind_at` allows the same routine instance to be reminded again
-after the user chooses `Later`, while still preventing duplicate sends for the
-same reminder moment.
+The digest is generated from the grouped routine instance ids, user ids, and
+`remind_at` values. Including `remind_at` allows the same routine instance to
+be reminded again after a future `Later` action changes the reminder timestamp,
+while still preventing duplicate sends for the same reminder moment.
 
 ## Project Task Daily Selections
 
@@ -362,8 +364,7 @@ This separates:
 
 The task design reuses the same `_date`, `_time`, and `_at` naming rule.
 
-Daily Review should use the same returned Today rows as the visible Dashboard
-panels.
+Daily Review should use the same returned rows as the visible Today panels.
 
 ## Implementation Plan
 

@@ -394,7 +394,7 @@ Current lifecycle policy:
 - Memory categories: deleting a category hard-deletes it only when no memory
   references it. The database should refuse non-empty category deletion.
 - Pinned memories: completing, canceling, replacing, or cleaning up a pinned
-  memory updates or removes only the dashboard shortlist row. The canonical
+  memory updates or removes only the Today shortlist row. The canonical
   memory remains unless the memory itself is deleted.
 - Users/accounts: user-facing account deletion is not implemented yet. Future
   account deletion needs a dedicated policy before implementation.
@@ -468,7 +468,7 @@ Latency facts to record:
 - frontend-to-backend latency, because the user experiences this before any
   database work can start
 - full user action latency for important flows, such as login, adding a project,
-  checking a dashboard task, or refreshing memory suggestions
+  checking a Today task, or refreshing memory suggestions
 
 Use concrete measurements instead of guesses. Prefer dated measurements with a
 small table:

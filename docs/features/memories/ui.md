@@ -4,17 +4,16 @@ This document describes user-visible Memories UI behavior. Product rules,
 tables, and recommendation behavior are documented in [overview.md](overview.md)
 and [data-model.md](data-model.md).
 
-## Dashboard
+## Today Panel
 
-The home dashboard should show a compact `Pinned Memories` panel. Its icon
-should match the Memories item in the hamburger menu. Use the Lucide
-`Album` icon.
+Today shows a compact `Pinned Memories` panel. Its icon should match the
+Memories item in the hamburger menu. Use the Lucide `Album` icon.
 
-The dashboard's required first behavior is to show pinned memories only.
+The panel shows pinned memories only.
 
-The dashboard can show pinned memories from any category. Do not hard-code the
-dashboard to Cuisine and Sightseeing, and do not apply a per-category count
-limit in the UI or backend selection logic.
+Today can show pinned memories from any category. Do not hard-code the panel to
+Cuisine and Sightseeing, and do not apply a per-category count limit in the UI
+or backend selection logic.
 
 For each pinned memory, show:
 
@@ -22,13 +21,12 @@ For each pinned memory, show:
 - title
 - short description
 - category metadata
-- optional right-side navigation affordance if the row opens the Memories page
+- underlined title that opens the Memories page
 
-Pinned memory dashboard rows should not expand or collapse. Do not show a
-dashboard `View` button. Do not show a single-row refresh or replace button on
-dashboard pinned memories.
+Pinned memory rows should not expand or collapse. Do not show a `View` button.
+Do not show a single-row refresh or replace button on Today pinned memories.
 Do not show internal rotation state such as `visible_until`, cleanup timing, or
-visible-window status in the dashboard row metadata.
+visible-window status in the row metadata.
 
 If the user checks the experienced checkbox, optimistically show the experienced
 state.
@@ -39,22 +37,19 @@ the backend message in the shared notification component.
 The checkbox must remain enabled while the backend request is pending so the
 user can immediately undo the optimistic state. Do not disable the clicked
 checkbox, other pinned-memory checkboxes, or the row navigation action for this
-lightweight dashboard command.
+lightweight Today command.
 
 Successful checkbox responses should stay silent and must not apply a full
-dashboard data refresh to checkbox rows while another lightweight checkbox
+Today data refresh to checkbox rows while another lightweight checkbox
 request may still be in progress. Failed requests should roll back only the
 affected pinned-memory row when that failed request is still the latest request
 for that row.
 
-On dashboard load or reload:
+On Today load or reload:
 
 - apply the rules in Pinned Memory Behavior
 - preserve the order of still-active pinned memories
-- fill empty slots by appending new pinned memories at the end of the category
-  list when candidates exist
-- remove or replace experienced pins whose cleanup time has passed
-- remove or replace active pins whose visible window has expired
+- do not show cleanup, expiry, or visible-window metadata in the row
 
 ## Memories Page
 
@@ -238,19 +233,6 @@ Refresh behavior:
 - If refresh fails, keep the page open and show the backend message through the
   shared notification stack.
 
-## Memory Pinning Follow-Up
-
-This is a future Memories-page interaction cleanup, not release-specific
-roadmap text.
-
-- The Memories page should manage pinned and unpinned memories in one panel so
-  pin state is visible and editable from the main memory-management surface.
-- The Memories page should support unpinning from that page.
-- Pin and unpin actions in that panel should use the same icon-only outline
-  button style as memory suggestions and project pin actions.
-- The dashboard should remain a lightweight daily surface; detailed pin/unpin
-  management belongs on the Memories page.
-
 ## Memory Management
 
 Memory management is part of the Memories page.
@@ -260,6 +242,7 @@ The user must be able to:
 - add a memory
 - edit a memory
 - delete a memory
+- pin or unpin a memory from the memory row
 - add a memory category
 - edit a memory category
 - delete a memory category when it is not used by memories

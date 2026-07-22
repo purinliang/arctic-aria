@@ -1,7 +1,7 @@
 # Current Database Schema
 
 This is a human-readable schema snapshot after
-`0025_create_project_task_daily_selections.sql`.
+`0026_create_routine_groups.sql`.
 
 Source of truth:
 
@@ -148,8 +148,7 @@ Indexes:
 
 ### `pinned_memories`
 
-Today/dashboard shortlist rows for memories. The canonical memory row remains
-separate.
+Today shortlist rows for memories. The canonical memory row remains separate.
 
 Columns:
 
@@ -185,6 +184,7 @@ Columns:
 
 - `id uuid PRIMARY KEY`
 - `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
+- `group_id uuid REFERENCES routine_groups(id) ON DELETE SET NULL`
 - `title text NOT NULL`
 - `description text`
 - `first_start_date date NOT NULL`
@@ -202,6 +202,33 @@ Important constraints:
 Indexes:
 
 - `(user_id, first_start_date)` where `deleted_at IS NULL`
+- `(user_id, group_id, first_start_date)` where `deleted_at IS NULL`
+
+### `routine_groups`
+
+Optional user-owned groups for organizing routines. Routine groups are soft
+deleted through `deleted_at`.
+
+Columns:
+
+- `id uuid PRIMARY KEY`
+- `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
+- `name text NOT NULL`
+- `description text`
+- `created_at timestamptz NOT NULL`
+- `updated_at timestamptz NOT NULL`
+- `deleted_at timestamptz`
+
+Important constraints:
+
+- name length: 1-80 characters
+- description length: at most 500 characters
+- active group names are unique per user case-insensitively
+
+Indexes:
+
+- unique `(user_id, lower(name))` where `deleted_at IS NULL`
+- `(user_id, name)` where `deleted_at IS NULL`
 
 ### `routine_rules`
 

@@ -52,13 +52,13 @@ Project, milestone, and task delete actions are soft deletes.
 Current rules:
 
 - deletable project tables use `deleted_at`
-- normal project lists, project detail views, dashboard task rows, pinned
+- normal project lists, project detail views, Today task rows, pinned
   sidebar shortcuts, and scheduler candidates show only rows where
   `deleted_at IS NULL`
 - deleting a project clears its `sidebar_pin_order`
 - deleting a milestone detaches its visible tasks by setting their
   `milestone_id` to `NULL`
-- deleting a task hides it from normal project and dashboard views
+- deleting a task hides it from normal project and Today views
 - hard delete is not a user-facing command for project data
 
 Do not add a lifecycle `status` column for project, milestone, or task

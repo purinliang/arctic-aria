@@ -16,16 +16,16 @@ The current web implementation supports database-backed routine testing:
 - add, edit, delete, and filter by routine groups
 - choose start-date anchored recurrence rules
 - choose a preferred time, first start date, and optional end date
-- show today's routine instances on the dashboard
-- mark a dashboard routine instance completed
-- reopen a completed dashboard routine instance
+- show today's routine instances on Today
+- mark a Today routine instance completed
+- reopen a completed Today routine instance
 - send due routine reminders when the Cloudflare cron worker invokes the
   web-hosted scheduled Discord cron route and Discord notification service
 - store routine reminder state on routine instances with `remind_at` and
   `reminded_at`
 
-The current dashboard UI does not show `Busy` or `Skip` buttons. Those are
-future reminder-response actions.
+The current Today UI does not show `Busy`, `Skip`, `Later`, or
+`Move to tomorrow` buttons. Those are future reminder-response actions.
 
 ## Current User Flow
 
@@ -46,7 +46,7 @@ The page should show:
 
 Routine `Edit` opens routine editing UI.
 
-Successful save or delete refreshes dashboard routine instances and routine
+Successful save or delete refreshes Today routine instances and routine
 definitions from the backend response.
 
 Routine group save/delete also refreshes routine definitions, routine groups,
@@ -55,23 +55,22 @@ and today's routine instances from the backend response.
 The routine group filter is local UI state. It is not persisted and does not
 call the backend.
 
-## Dashboard Panel
+## Today Panel
 
-The dashboard `Routines` panel is feature-owned and rendered by
-`RoutinesPanel`.
+The Today `Routines` panel is feature-owned and rendered by `RoutinesPanel`.
 
 Each routine row shows:
 
 - completion checkbox on the left
 - title
 - description
-- supporting metadata as `scheduled time · due/answered text`
+- scheduled time beside the title
 
 Checkbox behavior:
 
 - checking the box marks the instance completed
 - unchecking the box reopens the instance
-- the dashboard should treat this as a lightweight command
+- Today should treat this as a lightweight command
 - future refactors should keep pending state per routine row and use the shared
   notification stack for backend failures
 

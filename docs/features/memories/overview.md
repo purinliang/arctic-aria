@@ -29,25 +29,25 @@ feature because they need planning, budgeting, milestones, and long-term review.
 
 ## Scope
 
-The Memories feature should include:
+The implemented Memories feature includes:
 
 - creating memories
 - editing and deleting memories
-- creating and editing lightweight categories
+- creating, editing, and deleting lightweight custom categories
 - manually refreshing suggested memories on the Memories page
 - pinning suggested memories into `Pinned Memories`
 - recording ignored suggestion signals when the user refreshes suggestions
-- unpinning pinned memories
+- pinning and unpinning memories from the Memories page
+- unpinning pinned memories from Today
 - marking pinned memories as experienced
 - canceling a mistaken experience action before cleanup
-- showing pinned cuisine and sightseeing memories on the home dashboard
-- opening a memory detail page from suggested memories, pinned memories, the
-  Memories page, or any other place a memory appears
+- showing pinned memories from any category on Today
 
 The Memories feature should not include:
 
 - automatic background suggestion refresh
 - location search or map integration
+- a memory detail page
 - recommendations for places the user has never saved
 - aspirations or dreams
 - vector search
@@ -69,15 +69,14 @@ Examples:
 A memory can be experienced multiple times. Experience history should be stored
 as events, not as an array on the memory row.
 
-A memory should eventually support a detail page with an edit action. The detail
-page can show title, description, category, current pin state, experienced
-count, and last experienced time. Event history should be stored in the
-database, but the first UI does not need to show an event-history view.
+The current UI edits memories through modal dialogs from the Memories page.
+There is no separate memory detail page. Event history is stored in the
+database, but the first UI does not show an event-history view.
 
 ### Memory Category
 
-A memory category groups related memories and controls how often that category
-appears in suggestions.
+A memory category groups related memories and provides filtering, icons, and
+default localized labels for built-in experience types.
 
 Built-in default categories:
 
@@ -89,10 +88,6 @@ Built-in default categories:
 - Music
 - Game
 - Shopping
-
-Cuisine can have a higher default base weight because food-related experiences
-can be repeated more often. Sightseeing can have a lower default base weight
-because sightseeing places are usually not revisited as frequently.
 
 Built-in categories should have:
 
@@ -122,15 +117,15 @@ Built-in categories can have default translations and icons. They are still
 normal per-user categories in storage so memories can reference them
 consistently.
 
-The dashboard can show pinned memories from any category. Category add and edit
-actions belong on the Memories page, not on the dashboard.
+Today can show pinned memories from any category. Category add and edit actions
+belong on the Memories page, not on Today.
 
 ### Suggested Memories
 
 Suggested memories are temporary choices generated from the memory library.
 
-The system should recommend a small number of memories per category, usually
-three to five items.
+The system recommends a small number of memories from the memory library. The
+current web implementation asks for four suggestions.
 
 When the user opens the Memories page, the UI may load the most recent
 suggestion page from a browser cache, backend cache, or database-backed cache.
@@ -141,7 +136,6 @@ The user can:
 
 - pin a suggestion
 - manually refresh suggestions
-- open the memory detail page
 
 Pin actions should be recorded as events. When the user manually refreshes
 suggestions or explicitly passes a suggestion, currently visible suggestions
@@ -154,12 +148,12 @@ Pinned memories are memories that the user has explicitly marked as something
 they may want to do soon. They are not tasks and should not become overdue.
 Pinned memories are closer to a soft shortlist or temporary favorites list.
 
-The dashboard should use the title `Pinned Memories`.
+The Today page should use the title `Pinned Memories`.
 
-The dashboard's primary responsibility is to show the user's pinned memories.
-Pinned memories from custom categories can appear on the dashboard. Do not
-filter dashboard pinned memories by display name, built-in key, dashboard
-metadata, or per-category count.
+Today's primary responsibility is to show the user's pinned memories. Pinned
+memories from custom categories can appear on Today. Do not filter pinned
+memories by display name, built-in key, dashboard metadata, or per-category
+count.
 
 The user can:
 
@@ -167,9 +161,9 @@ The user can:
 - cancel an experience mark if it was a misclick
 - unpin a memory
 
-Pinned memory dashboard rows do not expand or collapse in the current UI.
-The dashboard should not expose a single-row refresh or replace button for
-pinned memories. Detailed pin and unpin management belongs on the Memories page.
+Pinned memory Today rows do not expand or collapse in the current UI.
+Today should not expose a single-row refresh or replace button for pinned
+memories. Detailed pin and unpin management belongs on the Memories page.
 
 ### Optional Later Tables
 
@@ -216,8 +210,7 @@ items.
 
 Rules:
 
-- Suggestions should appear on the Memories page, not directly on the
-  dashboard.
+- Suggestions should appear on the Memories page, not directly on Today.
 - Opening the Memories page may load a cached suggestion page without recording
   ignored events.
 - Suggestions refresh with ignored-event recording only when the user clicks
@@ -240,26 +233,19 @@ Rules:
 Pinned memories do not need the normal suggestion score. Pinning is already a
 strong manual signal.
 
-Dashboard behavior:
+Today behavior:
 
-- The dashboard should show pinned memories from any category.
-- The dashboard should not apply a per-category count limit.
-- The first dashboard should not support adding or editing memory categories.
-- Pinned memory order should remain stable across refreshes and dashboard loads.
+- Today should show pinned memories from any category.
+- Today should not apply a per-category count limit.
+- Today should not support adding or editing memory categories.
+- Pinned memory order should remain stable across refreshes and Today loads.
 - Marking a pinned memory as experienced records an internal `completed` event,
   updates memory summary fields, sets `completed_at`, and sets
   `completed_cleanup_at` to about 2 hours later.
 - If the experience mark was a misclick, the user can cancel it before cleanup.
-- On dashboard load, experienced pinned records whose cleanup time has passed
-  should be deleted and replaced with another memory if one is available.
-- On dashboard load, active pinned records whose `visible_until` time has passed
-  should also be deleted and replaced with another memory from the same category
-  if one is available.
-- Cleanup and expiry should run before the dashboard response is returned so the
-  user sees the final active pinned-memory list after reload.
-- Cleanup and expiry replacement should prefer another memory from the same
-  category when one is available, but the final dashboard list does not enforce
-  category limits.
+- The current visible Today UI does not expose cleanup or expiry metadata.
+- Automatic cleanup and replacement of expired or completed pins is not
+  performed during the current Today list load path.
 
 Visibility timing:
 

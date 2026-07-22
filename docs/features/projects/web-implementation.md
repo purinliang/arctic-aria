@@ -19,7 +19,7 @@ The current web implementation supports the first database-backed Project model:
   Next.js runtime overlay
 - record task completion and reopen events
 - show task command failure through shared notifications
-- show dashboard task rows for today's selected tasks
+- show Today task rows for today's selected tasks
 - pin up to three non-deleted projects into the sidebar
 
 The current implementation does not include:
@@ -89,31 +89,31 @@ Task `Edit` can still use a dialog inside the project detail page.
 Progress comes from completed tasks and milestone phases instead of editable
 numeric progress fields.
 
-## Dashboard Behavior
+## Today Behavior
 
-The dashboard should show `Tasks`. It should load task candidates from the
-database for signed-in users.
+Today should show `Tasks`. It should load selected task rows from the database
+for signed-in users.
 
-Dashboard task rows support:
+Today task rows support:
 
 - static read-only task summary rows
 - left-side `Done` checkbox
 - title, description, and supporting metadata
 
-Checking `Done` uses optimistic UI. Dashboard task rows must not expose edit,
+Checking `Done` uses optimistic UI. Today task rows must not expose edit,
 expand, collapse, or task-management detail controls. If the backend rejects
 the command, the previous visible state is restored and the shared notification
 component shows the error.
 
 The checkbox must remain enabled while the backend request is pending so the
 user can immediately undo the optimistic state. Do not disable the clicked
-checkbox, other dashboard task checkboxes, or the row navigation action.
-Successful checkbox responses stay silent and must not apply a full dashboard
+checkbox, other Today task checkboxes, or the row navigation action.
+Successful checkbox responses stay silent and must not apply a full Today
 data refresh to checkbox rows while another lightweight checkbox request may be
 in progress. Failed requests roll back only the affected task row when that
 failed request is still the latest request for that row.
 
-Dashboard task rows should not show standalone project progress visualization,
+Today task rows should not show standalone project progress visualization,
 editable numeric progress, or colored tag chips.
 
 ## Current UI Structure
@@ -353,7 +353,7 @@ Task row:
   omitting the milestone segment when the task has no milestone
 - no chevron
 - no expanded content
-- no dashboard edit action
+- no Today edit action
 
 ## Code Locations
 

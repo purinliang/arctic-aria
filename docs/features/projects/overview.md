@@ -73,8 +73,8 @@ milestone.
 
 ### Task
 
-A task is the schedulable work unit. The scheduler and dashboard should select
-tasks directly.
+A task is the schedulable work unit. Today selection should select tasks
+directly.
 
 Typical duration depends on project scale:
 
@@ -90,11 +90,11 @@ can decide whether it is the right thing to work on today.
 - The user can add milestones when phase boundaries are useful.
 - The user creates tasks under a project, optionally assigning a milestone.
 - Implementation details under a milestone should be easy to change.
-- Today's dashboard should focus on today's tasks to move projects forward.
+- Today should focus on today's tasks to move projects forward.
 - The user can pin up to three non-deleted projects as sidebar shortcuts for
   quick access to important current work.
 - Editable numeric progress fields should not appear in the UI.
-- Dashboard task rows should avoid standalone progress visuals.
+- Today task rows should avoid standalone progress visuals.
 - Child checklist rows are intentionally removed from the current design. Add
   them back only if task-only management proves insufficient.
 

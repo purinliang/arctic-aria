@@ -50,7 +50,7 @@ Routine delete actions are soft deletes.
 Current rules:
 
 - `routines.deleted_at` marks a routine deleted
-- normal routine lists and dashboard rows show only routines where
+- normal routine lists and Today rows show only routines where
   `deleted_at IS NULL`
 - deleted routines are excluded from future instance generation
 - existing historical routine instances remain available for review/history
