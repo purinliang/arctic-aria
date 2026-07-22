@@ -4,59 +4,33 @@ This roadmap records future work. It should not repeat released implementation
 details; released behavior belongs in `docs/releases/` and stable rules belong
 in the owning feature, web, or infrastructure docs.
 
-Current released version: `v0.10.1`.
+Current released version: `v0.11.5`.
 
-Current release candidate on `develop`: `v0.11.0`.
+Current release candidate on `develop`: `v0.12.0`.
 
-## v0.11.0 Release Candidate
+## v0.12.0 Release Candidate
 
-v0.11.0 makes Discord push messages the foundation for routine reminders and
-Daily Review.
+v0.12.0 refines the daily planning workspace after the v0.11 scheduling and
+import releases.
 
 Release candidate contents:
 
-- Extract the current Settings `Send Test` behavior into a shared server-side
-  Discord notification pipeline. Delivery stays inside the web app, reuses the
-  existing Discord HTTP sender, and keeps `discord_message_deliveries` as the
-  delivery audit and idempotency record.
-- Add automatic routine reminder sending through the shared Discord notification
-  pipeline, backed by routine instance reminder timestamps and a cron-tolerant
-  due window. The first reminder text is concise and does not introduce Discord
-  response buttons.
-- Add Daily Review Discord messages generated from Today page items. The first
-  version produces short plain text covering done and undone project tasks, done
-  and undone routines, and pinned memories. It does not add a separate review
-  table; the Discord delivery record is enough for now.
-- Use the Cloudflare cron worker in `apps/cron` to invoke
-  `/api/cron/discord-notifications` for both routine reminders and Daily
-  Review.
-- Harden auth and settings interaction races: reject immediate post-login
-  sign-out, reject repeated changes to the same preference inside the cooldown,
-  merge preference saves against the latest optimistic local snapshot, and keep
-  fresh browser preference cache from being overwritten by stale backend loads.
-- Move database migrations and migration helpers under `apps/database`, add a
-  web `pnpm deploy` command, and keep Vercel deployment order as build,
-  Discord command sync, then database migration.
-- Add a human-readable database schema snapshot at `apps/database/schema.md`
-  while keeping migration files and applied migration metadata as the source of
-  truth.
+- Add routine groups and move routine and memory organization into right-side
+  panels.
+- Refocus project detail around milestone overview, selected milestone tasks,
+  compact project metadata, and milestone management in a dialog.
+- Keep Daily Review as a compact Today header popover instead of a full panel.
+- Show project and Today progress with shared thin progress bars.
+- Move Today routines above pinned memories in the right column.
+- Replace list-row right-arrow jump buttons with underlined title navigation.
+- Update project, routine, memory, and dashboard UI docs to match the current
+  workspace.
 
-v0.11.0 intentionally does not require Redis or a separate event bus. Redis can
-remain a future option for performance, idempotency, rate limiting, queue-like
-behavior, or reminder coordination only after a concrete need appears.
+## Next Work After v0.12.0
 
-## Next Work After v0.11.0
-
-- Design v0.12.0 task and routine scheduling. Routine instances already exist
-  and should remain the first stable schedule primitive. Project tasks do not
-  yet have a durable daily schedule assignment; Today currently selects open
-  tasks from project data. v0.12.0 should decide whether to add task schedule
-  rows or daily task instances so a task chosen for Today remains visible on
-  the Today board after completion until the personal day/review cleanup.
-- Review Today schedule visibility for routines and project tasks together:
-  scheduled-for-today items should not disappear only because they were marked
-  done, while future selection logic should avoid showing every completed
-  project task forever.
+- Review explicit schedule actions for Today items, especially Move to tomorrow
+  and Later. Completed scheduled tasks and routines should remain visible on the
+  Today board for the current local day.
 - Review Discord reminder interactions after the first plain reminder messages
   work, including message update strategy, retry behavior, quiet/noise rules,
   and whether response buttons are actually useful.
