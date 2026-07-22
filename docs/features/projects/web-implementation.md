@@ -170,9 +170,12 @@ List body:
 - item parent component: shared `ListItem` with row layout
 - item first line: project title only
 - item second line: truncated description
-- item third line: timeline text and progress text
+- item third line: one-line timeline text and progress text, truncated when
+  needed on narrow screens
 - item right actions: icon-only outline `Pin` or `PinOff` button
 - do not render milestone preview rows or task rows on the list page
+- keep `min-w-0` shrink constraints on the page wrapper, panel, row, and text
+  columns so the full-width list behaves like split layouts on mobile
 
 Clicking only the underlined project title opens the detail page. The whole
 project item is not clickable. Do not add a text `View` button or footer action

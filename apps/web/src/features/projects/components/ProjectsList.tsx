@@ -52,7 +52,7 @@ export function ProjectsList({
   onAddProject: () => void;
 }) {
   return (
-    <Panel darkMode={darkMode}>
+    <Panel darkMode={darkMode} className="min-w-0">
       <CardHeader
         darkMode={darkMode}
         icon={<FolderKanban size={18} aria-hidden="true" />}
@@ -128,16 +128,14 @@ function ProjectListItem({
   const pinned = project.sidebarPinOrder !== null;
 
   return (
-    <ListItem darkMode={darkMode} className="items-start">
+    <ListItem darkMode={darkMode} className="min-w-0 items-start">
       <ListItemContent
         title={
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="min-w-0 text-sm font-semibold">
-              <ListItemTitleButton onClick={onView}>
-                {project.title}
-              </ListItemTitleButton>
-            </h3>
-          </div>
+          <h3 className="min-w-0 text-sm font-semibold">
+            <ListItemTitleButton onClick={onView}>
+              {project.title}
+            </ListItemTitleButton>
+          </h3>
         }
         main={
           <DescriptionText darkMode={darkMode} className="line-clamp-2">
@@ -149,7 +147,7 @@ function ProjectListItem({
           </DescriptionText>
         }
         support={
-          <SupportingText darkMode={darkMode}>
+          <SupportingText darkMode={darkMode} className="block min-w-0 truncate">
             {projectTimelineText(
               project,
               timelineMessages,

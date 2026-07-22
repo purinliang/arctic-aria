@@ -132,10 +132,13 @@ Project list layout:
 - list direction: vertical
 - project item first line: title only
 - project item second line: truncated description
-- project item third line: timeline and progress text
+- project item third line: one-line timeline and progress text, truncated when
+  needed on narrow screens
 - project item right actions: icon-only outline `Pin` or `PinOff` button
 - do not show milestone preview rows
 - click target: underlined project title only
+- the full-width Projects list must keep `min-w-0` shrink constraints on the
+  page wrapper, panel, row, and text columns so mobile widths do not overflow
 - do not add a text `View` button or footer band inside project list items
 
 ## Add Project Flow
