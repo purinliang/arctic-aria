@@ -249,7 +249,7 @@ export function AppShell({
 
   return (
     <main className={`min-h-screen transition-colors ${appShellClass(darkMode)}`}>
-      <div className="lg:flex lg:items-start">
+      <div className="mx-auto w-full xl:flex xl:max-w-[1500px] xl:items-start">
         <Sidebar
           open={sidebarOpen}
           darkMode={darkMode}
@@ -274,7 +274,7 @@ export function AppShell({
             <Button
               darkMode={darkMode}
               size="icon-sm"
-              className="h-10 w-10 lg:hidden"
+              className="h-10 w-10 xl:hidden"
               aria-label={messages.appShell.openNavigation}
               icon={<Menu size={20} aria-hidden="true" />}
               onClick={() => setSidebarOpen(true)}
