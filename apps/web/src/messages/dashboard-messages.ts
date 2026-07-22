@@ -11,7 +11,7 @@ export const englishDashboardMessages = {
     empty: "A clear slate for today. Choose one project task when you are ready.",
     noDescription: "No description.",
     noDeadline: "No deadline",
-    deadline: (value: string) => `Deadline ${value}`,
+    due: (value: string) => `Due ${value}`,
     markDone: (title: string) => `Mark ${title} done`,
     openProject: (title: string) => `Open project for ${title}`,
     defaultDescriptions: [
@@ -168,7 +168,7 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
     empty: "今天先留白。想推进项目时，再选一个任务就好。",
     noDescription: "暂无描述。",
     noDeadline: "无截止日期",
-    deadline: (value) => `截止日期 ${value}`,
+    due: (value) => `截止 ${value}`,
     markDone: (title) => `将 ${title} 标记为完成`,
     openProject: (title) => `打开 ${title} 所属项目`,
     defaultDescriptions: [

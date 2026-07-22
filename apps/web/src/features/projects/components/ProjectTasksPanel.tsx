@@ -217,7 +217,7 @@ function deadlineText(
   dateMessages: DatePickerMessages,
 ) {
   return task.deadlineDate
-    ? messages.deadline(formatDate(task.deadlineDate, dateMessages))
+    ? messages.due(formatDate(task.deadlineDate, dateMessages))
     : messages.noDeadline;
 }
 

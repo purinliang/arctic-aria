@@ -46,7 +46,7 @@ export const englishProjectMessages = {
     noDescription: "No description.",
     noDeadline: "No deadline",
     notSet: "Not set",
-    deadline: (value: string) => `Deadline ${value}`,
+    due: (value: string) => `Due ${value}`,
     markDone: (title: string) => `Mark ${title} done`,
   },
   timeline: {
@@ -209,7 +209,7 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
     noDescription: "暂无描述。",
     noDeadline: "无截止日期",
     notSet: "未设置",
-    deadline: (value) => `截止日期 ${value}`,
+    due: (value) => `截止 ${value}`,
     markDone: (title) => `将 ${title} 标记为完成`,
   },
   timeline: {
