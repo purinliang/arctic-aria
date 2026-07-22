@@ -22,6 +22,7 @@ import type {
   UserPreferences,
 } from "@/features/settings/preferences";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
+import { TodayReviewPopover } from "@/features/dashboard/components/TodayReviewPopover";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
 import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardProjects";
 import { useDashboardRoutines } from "@/features/dashboard/hooks/useDashboardRoutines";
@@ -301,9 +302,23 @@ export function AppShell({
                 dateMessages={messages.forms.datePicker}
               />
             ) : (
-              <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
-                {pageTitle}
-              </h1>
+              <div className="col-start-2 flex min-w-0 flex-1 items-center justify-between gap-3">
+                <h1 className="min-w-0 truncate text-2xl font-semibold tracking-normal sm:text-3xl">
+                  {pageTitle}
+                </h1>
+                {activeView === "dashboard" ? (
+                  <TodayReviewPopover
+                    darkMode={darkMode}
+                    pending={todayReviewPending}
+                    pinnedMemories={memoryState.pinnedMemories}
+                    routines={routineState.routines}
+                    showSendAction={showTodayReviewSendAction}
+                    tasks={projectState.tasks}
+                    messages={messages.dashboard.review}
+                    onSend={handleTodayReviewSend}
+                  />
+                ) : null}
+              </div>
             )}
           </header>
 
@@ -420,13 +435,10 @@ export function AppShell({
               routineLoading={routineState.routineLoading}
               pinnedMemories={memoryState.pinnedMemories}
               memoryLoading={memoryState.memoryLoading}
-              todayReviewPending={todayReviewPending}
-              showTodayReviewSendAction={showTodayReviewSendAction}
               onTaskStatus={projectState.updateTaskFromDashboard}
               onRoutineStatus={routineState.updateRoutine}
               onMemoryDone={memoryState.markMemoryDone}
               onMemoryCancelDone={memoryState.cancelMemoryDone}
-              onTodayReviewSend={handleTodayReviewSend}
               onTaskOpen={showProjectDetail}
               messages={messages.dashboard}
               formMessages={messages.forms}

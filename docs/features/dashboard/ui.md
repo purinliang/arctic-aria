@@ -14,14 +14,15 @@ The Dashboard is the daily operating surface. It should show what the user can
 act on today without turning into a management page.
 
 The Dashboard may display project tasks, routine instances, pinned memories,
-and a lightweight Review panel, but it must not redefine their product rules.
+and a lightweight Daily Review title-bar action, but it must not redefine their
+product rules.
 
 Current Dashboard scope:
 
 - today's selected project tasks
 - today's routine instances
 - pinned memories
-- Review panel with a non-production manual Discord delivery test
+- Daily Review popover with a non-production manual Discord delivery test
 
 Deferred Dashboard scope:
 
@@ -43,7 +44,7 @@ Dashboard body layout:
 
 - parent layout: shared split layout
 - left column: stacked `Tasks` and `Routines`
-- right column: stacked `Review` and `Pinned Memories`
+- right column: `Pinned Memories`
 - desktop: left panel should be wider than the right panel through the shared
   split classes
 - mobile: panels stack vertically
@@ -56,15 +57,15 @@ encourage action without adding instruction text or counts.
 The Dashboard should not show a top summary bar, duplicate progress visuals, or
 a timeline section in the current UI.
 
-## Review Panel
+## Daily Review Popover
 
-The Review panel stays compact on the Today page. The panel body shows only a
-thin progress bar, and the summary text lives in an info popover using the
-shared floating popover view. The summary paragraph should clamp at two lines
-without forcing a two-line minimum. The progress bar uses the same weighted
-progress as Daily Review text selection: project tasks count as three units,
-routines count as one unit, and pinned memories do not affect the progress
-fill. The secondary fill shows local day elapsed time.
+Daily Review is opened from the Today page title bar, not shown as a Dashboard
+panel. The title-bar action opens an info popover using the shared floating
+popover view. The summary paragraph should clamp at two lines without forcing a
+two-line minimum. The progress bar uses the same weighted progress as Daily
+Review text selection: project tasks count as three units, routines count as
+one unit, and pinned memories do not affect the progress fill. The secondary
+fill shows local day elapsed time.
 
 ## Project-Owned Tasks Panel
 
@@ -172,11 +173,11 @@ categories fall back to `experienced` / `体验`.
 Clicking the row's outlineless right-arrow button opens the Memories page. The
 whole row is not clickable. Clicking the checkbox must not navigate.
 
-## Review Panel
+## Daily Review Message
 
-The Review panel is a lightweight sender, not a persisted review feature.
-It should send a short Markdown-style Discord message generated from the
-visible Today items:
+Daily Review is a lightweight popover and sender, not a persisted review
+feature. It should send a short Markdown-style Discord message generated from
+the visible Today items:
 
 - done and undone project tasks
 - done and undone routine instances
@@ -187,11 +188,10 @@ editing workflow. Discord delivery history is enough for this version.
 
 Header:
 
-- icon: `ClipboardCheck`
-- visible title: `Review`
-- description: short encouragement without repeating `Today`
-- right action: secondary `Send` button for the current manual Discord delivery
-  test path in local and preview environments only
+- title-bar action icon: `ClipboardCheck`
+- popover title: `Daily Review`
+- popover action: secondary `Send` button for the current manual Discord
+  delivery test path in local and preview environments only
 
 The Discord message heading should be `Daily Review for <date>`, because the
 message can be read outside the Today page and may arrive after the day ends.
@@ -201,11 +201,11 @@ Cloudflare scheduled Discord notification cron for Daily Review delivery.
 Settings `Send Test` remains available in production for explicit Discord
 diagnostics.
 
-Content area:
+Popover content:
 
 - render only the generated summary sentence as description-level text
 - do not repeat the full task, routine, or pinned-memory lists inside the
-  Review panel because those lists are already visible on the Today page
+  Daily Review popover because those lists are already visible on the Today page
 - choose the summary tone from the visible state of tasks, routines, and pinned
   memories
 - calculate work progress from tasks and routines only. One task has weight

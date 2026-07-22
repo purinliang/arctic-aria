@@ -69,7 +69,7 @@ export const englishDashboardMessages = {
     },
   },
   review: {
-    title: "Review",
+    title: "Daily Review",
     description: "A short daily recap.",
     send: "Send",
     sending: "Sending",
@@ -226,7 +226,7 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
     },
   },
   review: {
-    title: "回顾",
+    title: "每日回顾",
     description: "简单看一眼。",
     send: "发送",
     sending: "正在发送",
