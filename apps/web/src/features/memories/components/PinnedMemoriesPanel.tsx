@@ -8,11 +8,13 @@ import {
   List,
   ListItem,
   ListItemContent,
+  ListItemDescription,
+  ListItemSupportingText,
+  ListItemTitle,
   ListItemTitleButton,
 } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
-import { DescriptionText, SupportingText } from "@/components/text";
 import type { PinnedMemory } from "@/features/dashboard/types";
 import type { DashboardMessages } from "@/messages/app-messages";
 import { memoryExperienceActionLabels } from "./memory-metadata";
@@ -107,27 +109,27 @@ function PinnedMemoryRow({
         <ListItemContent
           grow={false}
           title={
-            <h3 className="min-w-0 text-sm font-semibold">
+            <ListItemTitle>
               <ListItemTitleButton onClick={onOpen}>
                 {memory.title}
               </ListItemTitleButton>
-            </h3>
+            </ListItemTitle>
           }
           main={
-            <DescriptionText darkMode={darkMode} className="line-clamp-2">
+            <ListItemDescription className="line-clamp-2">
               {displayDescription(
                 memory.description,
                 memory.title,
                 messages.defaultDescriptions,
               )}
-            </DescriptionText>
+            </ListItemDescription>
           }
           support={
-            <SupportingText darkMode={darkMode}>
+            <ListItemSupportingText>
               {memory.categoryBuiltInKey
                 ? messages.builtInCategories[memory.categoryBuiltInKey]
                 : memory.category}
-            </SupportingText>
+            </ListItemSupportingText>
           }
         />
       </div>

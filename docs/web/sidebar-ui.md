@@ -11,6 +11,9 @@ from page panels and should not share the right page's height.
 The page area starts to the right of the sidebar and keeps its own max width.
 The sidebar should not look like another page panel.
 
+On 4K and other very wide screens, center the whole sidebar plus page frame so
+navigation stays close to the workspace.
+
 The right page content should have a minimum height of `110vh` on desktop.
 This keeps the page scroll behavior visible and separate from the sidebar. On
 mobile, use the visible viewport height instead of `110vh` so browser chrome

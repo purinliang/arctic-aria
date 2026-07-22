@@ -4,7 +4,12 @@ import { Button } from "@/components/button";
 import { Card, CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
-import { List, ListItem } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemSupportingText,
+  ListItemTitle,
+} from "@/components/list";
 import { DescriptionText, SupportingText } from "@/components/text";
 import { durationRangeForDays } from "@/features/projects/project-duration";
 import { projectOverviewTimelineMetadata } from "@/features/projects/project-overview-metadata";
@@ -91,6 +96,7 @@ export function MilestoneSwitchPanel({
         darkMode={darkMode}
         icon={<Flag size={18} aria-hidden="true" />}
         title={messages.detail.milestonesTitle}
+        description={messages.detail.milestonesDescription}
         action={
           <Button
             darkMode={darkMode}
@@ -122,26 +128,22 @@ export function MilestoneSwitchPanel({
               title={choice.title}
               onClick={() => onSelectMilestone(choice.id)}
             >
-              <span
+              <ListItemTitle
+                truncate
                 className={
                   choice.id === selectedMilestoneId
-                    ? "block min-w-0 truncate text-sm font-semibold text-[var(--aa-primary-button-text)]"
-                    : `block min-w-0 truncate text-sm font-semibold ${secondaryTextColorClass}`
+                    ? "font-medium text-[var(--aa-primary-button-text)]"
+                    : `font-medium ${secondaryTextColorClass}`
                 }
               >
                 {choice.title}
-              </span>
-              {compactProgressText(choice) ? (
-                <span
-                  className={
-                    choice.id === selectedMilestoneId
-                      ? "shrink-0 text-xs leading-5 text-[var(--aa-primary-button-text)]"
-                      : `shrink-0 text-xs leading-5 ${secondaryTextColorClass}`
-                  }
-                >
-                  {compactProgressText(choice)}
-                </span>
-              ) : null}
+              </ListItemTitle>
+              <ListItemSupportingText
+                tone={choice.id === selectedMilestoneId ? "selected" : "default"}
+                className="shrink-0"
+              >
+                {compactProgressText(choice, messages.detail)}
+              </ListItemSupportingText>
             </button>
           </ListItem>
         ))}
@@ -167,8 +169,13 @@ function formatDate(
   return formatDateKey(value, messages, value || fallback);
 }
 
-function compactProgressText(choice: MilestoneChoice) {
-  return choice.taskCount > 0 ? `${choice.doneTaskCount}/${choice.taskCount}` : "";
+function compactProgressText(
+  choice: MilestoneChoice,
+  messages: ProjectMessages["detail"],
+) {
+  return choice.taskCount > 0
+    ? `${choice.doneTaskCount}/${choice.taskCount}`
+    : messages.noTasksShort;
 }
 
 function milestoneTimelineText(

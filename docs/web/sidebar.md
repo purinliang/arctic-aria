@@ -8,6 +8,10 @@ documented in [sidebar-ui.md](sidebar-ui.md).
 On desktop, the sidebar is persistent on the left and the page content is on
 the right.
 
+On very wide screens, the sidebar and page content should stay centered
+together as one app frame instead of leaving the sidebar at the far browser
+edge.
+
 The sidebar height is independent from the page content height. It should stay
 anchored to the viewport and must not stretch to match a long right-side page.
 The sidebar and page content may scroll independently. If the sidebar does not

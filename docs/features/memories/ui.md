@@ -187,7 +187,7 @@ Layout:
 - Use the Lucide `Lightbulb` icon.
 - The title text can be `Suggestions`.
 - The description should explain the panel, for example:
-  `To reexperience in a few days.`
+  `To reexperience soon.`
 - Show a `Refresh` button in the panel title section.
 
 ### List Section

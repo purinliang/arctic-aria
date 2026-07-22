@@ -10,11 +10,13 @@ import {
   ListItem,
   ListItemActions,
   ListItemContent,
+  ListItemDescription,
+  ListItemSupportingText,
+  ListItemTitle,
   ListItemTitleButton,
 } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
-import { DescriptionText, SupportingText } from "@/components/text";
 import type { ProjectView } from "@/features/projects/actions";
 import type { ProjectMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
@@ -52,7 +54,7 @@ export function ProjectsList({
   onAddProject: () => void;
 }) {
   return (
-    <Panel darkMode={darkMode}>
+    <Panel darkMode={darkMode} className="min-w-0">
       <CardHeader
         darkMode={darkMode}
         icon={<FolderKanban size={18} aria-hidden="true" />}
@@ -128,28 +130,26 @@ function ProjectListItem({
   const pinned = project.sidebarPinOrder !== null;
 
   return (
-    <ListItem darkMode={darkMode} className="items-start">
+    <ListItem darkMode={darkMode} className="min-w-0 items-start">
       <ListItemContent
         title={
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="min-w-0 text-sm font-semibold">
-              <ListItemTitleButton onClick={onView}>
-                {project.title}
-              </ListItemTitleButton>
-            </h3>
-          </div>
+          <ListItemTitle>
+            <ListItemTitleButton onClick={onView}>
+              {project.title}
+            </ListItemTitleButton>
+          </ListItemTitle>
         }
         main={
-          <DescriptionText darkMode={darkMode} className="line-clamp-2">
+          <ListItemDescription className="line-clamp-2">
             {displayDescription(
               project.description,
               project.title,
               defaultDescriptions.project,
             )}
-          </DescriptionText>
+          </ListItemDescription>
         }
         support={
-          <SupportingText darkMode={darkMode}>
+          <ListItemSupportingText className="block min-w-0 truncate">
             {projectTimelineText(
               project,
               timelineMessages,
@@ -161,7 +161,7 @@ function ProjectListItem({
               doneTaskCount(project),
               project.tasks.length,
             )}
-          </SupportingText>
+          </ListItemSupportingText>
         }
       />
       <ListItemActions>

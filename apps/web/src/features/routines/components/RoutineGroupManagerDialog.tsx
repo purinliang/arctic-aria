@@ -17,6 +17,8 @@ import {
   ListItem,
   ListItemActions,
   ListItemContent,
+  ListItemDescription,
+  ListItemTitle,
 } from "@/components/list";
 import { DescriptionText, SectionTitle } from "@/components/text";
 import { cx } from "@/components/utils";
@@ -148,11 +150,11 @@ function GroupList({
       {groups.map((group) => (
         <ListItem key={group.id} darkMode={darkMode} className="items-start">
           <ListItemContent
-            title={<p className="truncate text-sm font-semibold">{group.name}</p>}
+            title={<ListItemTitle truncate>{group.name}</ListItemTitle>}
             main={
-              <DescriptionText darkMode={darkMode}>
+              <ListItemDescription>
                 {group.description || messages.noDescription}
-              </DescriptionText>
+              </ListItemDescription>
             }
           />
           <ListItemActions>

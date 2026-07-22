@@ -9,9 +9,11 @@ import {
   ListItem,
   ListItemActions,
   ListItemContent,
+  ListItemDescription,
+  ListItemSupportingText,
+  ListItemTitle,
 } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
-import { DescriptionText, SupportingText } from "@/components/text";
 import type { RoutineDefinition } from "@/features/dashboard/types";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { RoutineMessages } from "@/messages/app-messages";
@@ -52,25 +54,21 @@ export function RoutinesList({
         </p>
       ) : null}
       {routines.map((routine) => (
-        <ListItem key={routine.id} darkMode={darkMode}>
+        <ListItem key={routine.id} darkMode={darkMode} className="items-start">
           <ListItemContent
             grow={false}
-            title={
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-sm font-semibold">{routine.title}</h3>
-              </div>
-            }
+            title={<ListItemTitle>{routine.title}</ListItemTitle>}
             main={
-              <DescriptionText darkMode={darkMode}>
+              <ListItemDescription>
                 {displayDescription(
                   routine.description,
                   routine.title,
                   ruleMessages.defaultDescriptions,
                 )}
-              </DescriptionText>
+              </ListItemDescription>
             }
             support={
-              <SupportingText darkMode={darkMode}>
+              <ListItemSupportingText className="block min-w-0 truncate">
                 {routineMetadataText({
                   routine,
                   groupMessages,
@@ -79,7 +77,7 @@ export function RoutinesList({
                   timeMessages,
                   timeFormatPreference,
                 })}
-              </SupportingText>
+              </ListItemSupportingText>
             }
           />
           <ListItemActions>

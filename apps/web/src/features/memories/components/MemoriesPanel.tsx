@@ -19,13 +19,12 @@ import {
   ListItem,
   ListItemActions,
   ListItemContent,
+  ListItemDescription,
+  ListItemSupportingText,
+  ListItemTitle,
 } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
-import {
-  DescriptionText,
-  SupportingText,
-} from "@/components/text";
 import type {
   MemoryRecord,
 } from "@/features/dashboard/types";
@@ -155,21 +154,17 @@ function MemoryRow({
   return (
     <ListItem darkMode={darkMode} className="items-start gap-3">
       <ListItemContent
-        title={
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-semibold">{memory.title}</h3>
-          </div>
-        }
+        title={<ListItemTitle>{memory.title}</ListItemTitle>}
         main={
-          <DescriptionText darkMode={darkMode}>
+          <ListItemDescription>
             {displayDescription(
               memory.description,
               memory.title,
               defaultDescriptions.memory,
             )}
-          </DescriptionText>
+          </ListItemDescription>
         }
-        support={<SupportingText darkMode={darkMode}>{metadata}</SupportingText>}
+        support={<ListItemSupportingText>{metadata}</ListItemSupportingText>}
       />
       <ListItemActions>
         <Button

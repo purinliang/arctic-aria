@@ -5,10 +5,16 @@ import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemContent,
+  ListItemDescription,
+  ListItemSupportingText,
+  ListItemTitle,
+} from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
-import { DescriptionText, SupportingText } from "@/components/text";
 import type { MemorySuggestion } from "@/features/dashboard/types";
 import type { MemoryMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
@@ -151,21 +157,17 @@ function SuggestionRow({
   return (
     <ListItem darkMode={darkMode} className="gap-3">
       <ListItemContent
-        title={
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-semibold">{suggestion.title}</h3>
-          </div>
-        }
+        title={<ListItemTitle>{suggestion.title}</ListItemTitle>}
         main={
-          <DescriptionText darkMode={darkMode}>
+          <ListItemDescription>
             {displayDescription(
               suggestion.description,
               suggestion.title,
               defaultDescriptions.memory,
             )}
-          </DescriptionText>
+          </ListItemDescription>
         }
-        support={<SupportingText darkMode={darkMode}>{metadata}</SupportingText>}
+        support={<ListItemSupportingText>{metadata}</ListItemSupportingText>}
       />
       <div className="shrink-0">
         <Button

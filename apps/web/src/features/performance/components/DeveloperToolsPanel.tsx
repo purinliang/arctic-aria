@@ -9,7 +9,12 @@ import {
   secondaryTextColorClass,
 } from "@/components/color";
 import { CardHeader } from "@/components/card";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemContent,
+  ListItemDescription,
+} from "@/components/list";
 import { Panel } from "@/components/panel";
 import { SupportingText } from "@/components/text";
 import { DeveloperImportToolPanel } from "@/features/developer/components/DeveloperImportToolPanel";
@@ -98,10 +103,11 @@ export function DeveloperToolsPanel({
         <List darkMode={darkMode}>
           <ListItem darkMode={darkMode} className="items-center">
             <ListItemContent
+              className="self-center"
               main={
-                <SupportingText darkMode={darkMode}>
+                <ListItemDescription className="block">
                   {messages.developerTools.latencyActionDescription}
-                </SupportingText>
+                </ListItemDescription>
               }
             />
             <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">

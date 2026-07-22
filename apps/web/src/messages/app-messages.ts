@@ -122,7 +122,7 @@ const englishMessages = {
         "Send {command} to Arctic Aria in Discord in {status}.",
       bindInstructionExpired:
         "Send {command} to Arctic Aria in Discord. {status}",
-      bound: "Bound account.",
+      bound: "Bound account",
       boundAccountId: (accountId: string) => `Bound Account ID: ${accountId}`,
       boundAccountIdLabel: "Bound Account ID",
       cancel: "Cancel",
@@ -474,7 +474,7 @@ const simplifiedChineseMessages: AppMessages = {
         "在 Discord 中向 Arctic Aria 发送 {command}，请在 {status}内完成。",
       bindInstructionExpired:
         "在 Discord 中向 Arctic Aria 发送 {command}。 {status}",
-      bound: "已绑定账户。",
+      bound: "已绑定账户",
       boundAccountId: (accountId: string) => `已绑定账户 ID：${accountId}`,
       boundAccountIdLabel: "已绑定账户 ID",
       cancel: "取消",

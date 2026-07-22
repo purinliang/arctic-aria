@@ -10,9 +10,11 @@ import {
   ListItem,
   ListItemActions,
   ListItemContent,
+  ListItemSupportingText,
+  ListItemTitle,
 } from "@/components/list";
 import { Panel } from "@/components/panel";
-import { DescriptionText, SupportingText } from "@/components/text";
+import { DescriptionText } from "@/components/text";
 import { formatDateKey } from "@/components/forms/date-format";
 import type { IdeaInput, IdeaPageItem } from "../actions";
 import type { IdeaMessages } from "@/messages/app-messages";
@@ -144,12 +146,11 @@ export function IdeasPage({
               />
             ))
           ) : (
-            <ListItem darkMode={darkMode} layout="block">
-              <p className="text-sm font-semibold">{messages.page.emptyTitle}</p>
-              <DescriptionText darkMode={darkMode} className="mt-1">
-                {messages.page.emptyDescription}
+            <div className="px-4 py-4">
+              <DescriptionText darkMode={darkMode}>
+                {messages.page.empty}
               </DescriptionText>
-            </ListItem>
+            </div>
           )}
         </List>
       </Panel>
@@ -224,11 +225,11 @@ function IdeaRow({
   return (
     <ListItem darkMode={darkMode}>
       <ListItemContent
-        title={<p className="text-sm font-semibold">{idea.rawText}</p>}
+        title={<ListItemTitle>{idea.rawText}</ListItemTitle>}
         support={
-          <SupportingText darkMode={darkMode}>
+          <ListItemSupportingText>
             {metadata.join(" · ")}
-          </SupportingText>
+          </ListItemSupportingText>
         }
       />
       <ListItemActions>

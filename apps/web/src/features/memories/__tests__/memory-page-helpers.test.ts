@@ -18,7 +18,7 @@ import {
 import { defaultDescriptionForTitle } from "../../../components/default-description.ts";
 import { simplifiedChineseMemoryMessages } from "../../../messages/memory-messages.ts";
 
-test("memory filters include categories even when they have no memories", () => {
+test("memory filters include all category names for editor options", () => {
   const categories: MemoryCategoryOption[] = [
     {
       id: "category-cuisine",
@@ -45,7 +45,7 @@ test("memory filters include categories even when they have no memories", () => 
   ]);
 });
 
-test("memory filters hide empty optional built-in categories", () => {
+test("memory filters hide empty built-in categories", () => {
   const categories: MemoryCategoryOption[] = [
     {
       id: "category-cuisine",
@@ -77,14 +77,14 @@ test("memory filters hide empty optional built-in categories", () => {
     getVisibleMemoryFilterCategories(categories, []).map(
       (category) => category.name,
     ),
-    ["Cuisine", "Custom"],
+    ["Custom"],
   );
 
   assert.deepEqual(
     getVisibleMemoryFilterCategories(categories, [
       memoryRecord("memory-movie", "category-movie", "Movie"),
     ]).map((category) => category.name),
-    ["Cuisine", "Movie", "Custom"],
+    ["Movie", "Custom"],
   );
 });
 

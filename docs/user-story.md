@@ -61,11 +61,11 @@ You can:
 - create, edit, delete, and check tasks
 - create, edit, and delete milestones
 - open a project detail page from the Projects page or a pinned sidebar project
-- see today's project tasks on the Today page
+- see scheduled project tasks on the Today page, where completed tasks stay
+  visible for the current local day
 
 In progress:
 
-- automatic daily task selection and scheduling logic
 - project pause, resume, complete, and archive UI
 - task reminder delivery through Discord
 - review summaries based on completed tasks
@@ -85,10 +85,10 @@ You can:
 - create, edit, and delete routines
 - see due routine instances on the Today page
 - check a routine as done without opening the routine detail UI
+- receive Discord routine reminders from the scheduled notification path
 
 In progress:
 
-- Discord reminder messages
 - reminder response buttons such as busy or skip
 - suggestions to adjust a routine after repeated misses
 - daily review summaries for routine completion
@@ -150,10 +150,10 @@ You can:
 - bind your Discord account with a short code from Settings
 - capture an idea with `/idea`
 - send a test direct message from Settings to confirm message push works
+- receive scheduled routine reminders and Daily Review messages
 
 In progress:
 
-- routine reminders
 - project task reminders
 - reminder buttons
 - daily status messages

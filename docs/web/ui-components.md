@@ -302,7 +302,7 @@ Panel spacing should be controlled by the panel and the immediate layout, not
 recreated independently in each feature page.
 
 Desktop pages that use a left detail area and a right metadata panel should use
-the same split pattern: flexible left panel plus fixed `21rem` right panel. If
+the same split pattern: flexible left panel plus fixed `20rem` right panel. If
 the available width cannot keep the left panel at least 20% wider than the
 right panel, stack the panels vertically. Use the shared CSS classes
 `aa-split-container`, `aa-split-panel`, and `aa-split-panel-sidebar`; they switch
@@ -358,12 +358,16 @@ row keeps the larger bottom padding automatically. Feature rows should not
 hand-code first/last padding.
 
 For normal title, main-content, and supporting-metadata rows, use
-`ListItemContent` with its `title`, `main`, and `support` slots. The `main` slot
-is usually a `DescriptionText`, but it may receive richer injected content when
-a row needs it. `ListItemContent` owns the vertical relationship between these
-three slots. Do not add local `mt-*` spacing between title, description/main,
-and supporting metadata; the slots should have no extra external margin because
-the text components already carry their own line height.
+`ListItemContent` with its `title`, `main`, and `support` slots. Use
+`ListItemTitle`, `ListItemDescription`, and `ListItemSupportingText` inside
+those slots. Feature rows should not hand-code list title, description, or
+metadata font size, weight, line height, muted color, or local `mt-*` spacing.
+`ListItemContent` owns the vertical relationship between the slots, and the list
+text components own the compact multiline rhythm.
+
+Empty states, overview copy, form help, and dialog body text are not list rows.
+Use `DescriptionText` or `SupportingText` for those surfaces instead of forcing
+them into `ListItemTitle` or `ListItemContent`.
 
 Use `ExpandableListItem` for rows that open details. The header row and expanded
 details must be rendered inside the same list item so the background, padding,

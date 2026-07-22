@@ -109,8 +109,7 @@ Current behavior:
 - show one `Test Latency` button with a speed/gauge icon
 - run 30 sequential samples against `/api/developer/performance/latency`
 - show min, p10, p50, p90, max, and average timing
-- show browser-to-backend-to-database total timing, backend handler timing,
-  backend-to-database timing, and estimated browser/backend overhead
+- show `Frontend-Backend RTT` and `Backend-Database RTT`
 - allow copying a Markdown report
 - also print the latest report table to the browser console for quick debugging
 - do not persist latency reports in the database
@@ -170,10 +169,9 @@ Pending code state:
 
 Bound state:
 
-- show `Bound account.` as normal status text
-- show the bound Discord account id as read-only masked text, not a disabled
-  password input
-- show an icon-only view/hide button inside the masked text
+- show `Bound account` as the field label
+- show the bound Discord account id in a disabled shared password input
+- show an icon-only view/hide button inside the password input
 - show `Send Test` to send a simple Discord DM directly from the web server to
   the bound Discord account
 - show `Unbind` in the same horizontal row when width allows

@@ -254,7 +254,7 @@ export function ProjectsPage({
 
   return (
     <>
-      <div className="grid gap-3">
+      <div className="grid min-w-0 gap-3">
         {selectedProject ? (
           <ProjectDetailPage
             darkMode={darkMode}

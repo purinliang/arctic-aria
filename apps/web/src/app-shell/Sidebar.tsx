@@ -60,7 +60,7 @@ export function Sidebar({
   return (
     <>
       <div
-        className={`fixed inset-0 z-40 bg-transparent lg:hidden ${
+        className={`fixed inset-0 z-40 bg-transparent xl:hidden ${
           open ? "visible pointer-events-auto" : "invisible pointer-events-none"
         }`}
         aria-hidden={!open}
@@ -144,7 +144,7 @@ function SidebarFrame({
           ? `absolute left-0 top-0 flex h-full w-[300px] max-w-[86vw] shadow-xl transition-transform ${
               open ? "translate-x-0" : "-translate-x-full"
             }`
-          : "hidden h-screen w-[300px] shrink-0 lg:sticky lg:top-0 lg:flex"
+          : "hidden h-screen w-[300px] shrink-0 xl:sticky xl:top-0 xl:flex"
       } relative flex-col border-r border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-header-bg)] text-[var(--aa-primary-text)]`}
     >
       <ScrollArea

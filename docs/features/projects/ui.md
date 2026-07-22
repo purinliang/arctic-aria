@@ -132,10 +132,13 @@ Project list layout:
 - list direction: vertical
 - project item first line: title only
 - project item second line: truncated description
-- project item third line: timeline and progress text
+- project item third line: one-line timeline and progress text, truncated when
+  needed on narrow screens
 - project item right actions: icon-only outline `Pin` or `PinOff` button
 - do not show milestone preview rows
 - click target: underlined project title only
+- the full-width Projects list must keep `min-w-0` shrink constraints on the
+  page wrapper, panel, row, and text columns so mobile widths do not overflow
 - do not add a text `View` button or footer band inside project list items
 
 ## Add Project Flow
@@ -252,7 +255,7 @@ Detail page layout:
 
 - parent layout: vertical milestone overview followed by shared split layout
 - direction below the overview: left-right on desktop, stacked on mobile
-- desktop split: flexible left panel and fixed `21rem` right panel
+- desktop split: flexible left panel and fixed `20rem` right panel
 - if available width cannot keep the left panel at least 20% wider than the
   right panel, stack the panels vertically instead
 - use the shared `aa-split-*` classes so the two-column layout activates only

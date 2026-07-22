@@ -10,7 +10,6 @@ import { displayDescription } from "../../../components/default-description.ts";
 
 export type MemoryFilter = "All" | MemoryCategory;
 type BuiltInCategoryMessages = MemoryMessages["categories"]["builtIns"];
-const alwaysVisibleBuiltInKeys = new Set(["cuisine", "sightseeing"]);
 const primaryBuiltInOrder = new Map([
   ["cuisine", 0],
   ["sightseeing", 1],
@@ -79,7 +78,6 @@ export function getVisibleMemoryFilterCategories(
   return categories.filter(
     (category) =>
       !category.builtInKey ||
-      alwaysVisibleBuiltInKeys.has(category.builtInKey) ||
       categoryIdsWithMemories.has(category.id),
   );
 }
