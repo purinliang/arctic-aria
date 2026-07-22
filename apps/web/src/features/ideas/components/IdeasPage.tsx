@@ -148,10 +148,7 @@ export function IdeasPage({
           ) : (
             <div className="px-4 py-4">
               <DescriptionText darkMode={darkMode}>
-                {messages.page.emptyTitle}
-              </DescriptionText>
-              <DescriptionText darkMode={darkMode} className="mt-1">
-                {messages.page.emptyDescription}
+                {messages.page.empty}
               </DescriptionText>
             </div>
           )}

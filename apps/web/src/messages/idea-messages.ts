@@ -2,8 +2,7 @@ type IdeaMessagesDefinition = {
   page: {
     title: string;
     description: string;
-    emptyTitle: string;
-    emptyDescription: string;
+    empty: string;
     loading: string;
     sourceAgent: string;
     sourceDiscord: string;
@@ -39,9 +38,7 @@ export const englishIdeaMessages: IdeaMessagesDefinition = {
   page: {
     title: "Ideas",
     description: "Captured thoughts waiting for review.",
-    emptyTitle: "No ideas yet",
-    emptyDescription:
-      "Future Discord /idea captures and web quick notes will appear here.",
+    empty: "No ideas yet.",
     loading: "Loading ideas...",
     sourceAgent: "Agent",
     sourceDiscord: "Discord",
@@ -84,8 +81,7 @@ export const simplifiedChineseIdeaMessages: IdeaMessages = {
   page: {
     title: "想法",
     description: "等待整理的临时想法。",
-    emptyTitle: "还没有想法",
-    emptyDescription: "未来的 Discord /idea 和网页快速记录会显示在这里。",
+    empty: "还没有想法。",
     loading: "正在加载想法...",
     sourceAgent: "智能助手",
     sourceDiscord: "Discord",

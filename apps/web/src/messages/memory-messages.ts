@@ -10,7 +10,7 @@ export const englishMemoryMessages = {
     new: "New",
     categories: "Categories:",
     categoriesTitle: "Categories",
-    categoriesDescription: "Filter memories by experience type.",
+    categoriesDescription: "Filter memories by type.",
     all: "All",
     manage: "Manage",
     loading: "Loading memories...",

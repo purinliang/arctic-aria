@@ -96,6 +96,7 @@ export function MilestoneSwitchPanel({
         darkMode={darkMode}
         icon={<Flag size={18} aria-hidden="true" />}
         title={messages.detail.milestonesTitle}
+        description={messages.detail.milestonesDescription}
         action={
           <Button
             darkMode={darkMode}
