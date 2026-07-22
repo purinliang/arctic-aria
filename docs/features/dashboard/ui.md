@@ -58,12 +58,13 @@ a timeline section in the current UI.
 
 ## Review Panel
 
-The Review panel shows one short summary paragraph and a thin progress bar.
-The summary paragraph should clamp at two lines without forcing a two-line
-minimum. The progress bar uses the same weighted progress as Daily Review text
-selection: project tasks count as three units, routines count as one unit, and
-pinned memories do not affect the progress fill. The secondary fill shows local
-day elapsed time.
+The Review panel stays compact on the Today page. The panel body shows only a
+thin progress bar, and the summary text lives in an info popover using the
+shared floating popover view. The summary paragraph should clamp at two lines
+without forcing a two-line minimum. The progress bar uses the same weighted
+progress as Daily Review text selection: project tasks count as three units,
+routines count as one unit, and pinned memories do not affect the progress
+fill. The secondary fill shows local day elapsed time.
 
 ## Project-Owned Tasks Panel
 

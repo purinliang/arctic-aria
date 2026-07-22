@@ -4,6 +4,10 @@ import { useState } from "react";
 import { Button } from "@/components/button";
 import { secondaryTextColorClass, panelColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
+import {
+  FloatingPopover,
+  PopoverDismissLayer,
+} from "@/components/floating-popover";
 import { formatDateKey } from "@/components/forms/date-format";
 import { HorizontalProgressBar } from "@/components/horizontal-progress-bar";
 import { ScrollArea } from "@/components/scroll-area";
@@ -345,11 +349,9 @@ function ProjectTitleActions({
       />
       {overviewOpen ? (
         <>
-          <button
-            className="fixed inset-0 z-20 cursor-default"
-            type="button"
-            aria-label={messages.closeProjectInfo}
-            onClick={() => setOverviewOpen(false)}
+          <PopoverDismissLayer
+            label={messages.closeProjectInfo}
+            onDismiss={() => setOverviewOpen(false)}
           />
           <ProjectOverviewPopover
             darkMode={darkMode}
@@ -437,17 +439,10 @@ function ProjectOverviewPopover({
     : null;
 
   return (
-    <div
-      className={cx(
-        "absolute right-0 top-full z-30 mt-2 w-[min(22rem,calc(100vw-2rem))] rounded-md border p-4 text-left shadow-xl",
-        panelColorClass,
-      )}
-    >
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="truncate text-base font-semibold">
-          {detailMessages.projectOverviewTitle}
-        </h2>
-        <div className="flex shrink-0 items-center gap-2">
+    <FloatingPopover
+      title={detailMessages.projectOverviewTitle}
+      actions={
+        <>
           {onPinProject || onUnpinProject ? (
             <Button
               darkMode={darkMode}
@@ -484,22 +479,19 @@ function ProjectOverviewPopover({
               {detailMessages.edit}
             </Button>
           ) : null}
-        </div>
-      </div>
-      <div className="grid min-w-0 gap-3">
-        <DescriptionText darkMode={darkMode}>
-          {overviewObjective}
-        </DescriptionText>
-        <SupportingText darkMode={darkMode} className="truncate">
-          {overviewTimeline}
-        </SupportingText>
-        <HorizontalProgressBar
-          primary={taskProgress}
-          secondary={deadlineProgress}
-          ariaLabel={progressAriaLabel(taskProgress, deadlineProgress)}
-        />
-      </div>
-    </div>
+        </>
+      }
+    >
+      <DescriptionText darkMode={darkMode}>{overviewObjective}</DescriptionText>
+      <SupportingText darkMode={darkMode} className="truncate">
+        {overviewTimeline}
+      </SupportingText>
+      <HorizontalProgressBar
+        primary={taskProgress}
+        secondary={deadlineProgress}
+        ariaLabel={progressAriaLabel(taskProgress, deadlineProgress)}
+      />
+    </FloatingPopover>
   );
 }
 

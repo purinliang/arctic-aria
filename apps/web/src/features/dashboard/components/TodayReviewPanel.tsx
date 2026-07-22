@@ -1,7 +1,12 @@
 // Dashboard Page - Review Panel.
-import { ClipboardCheck } from "lucide-react";
+import { ClipboardCheck, Info } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
+import {
+  FloatingPopover,
+  PopoverDismissLayer,
+} from "@/components/floating-popover";
 import { HorizontalProgressBar } from "@/components/horizontal-progress-bar";
 import { Panel } from "@/components/panel";
 import { DescriptionText } from "@/components/text";
@@ -32,6 +37,7 @@ export function TodayReviewPanel({
   messages: DashboardMessages["review"];
   onSend: () => void;
 }) {
+  const [reviewOpen, setReviewOpen] = useState(false);
   const doneTaskCount = tasks.filter((task) => task.status === "done").length;
   const openTaskCount = tasks.length - doneTaskCount;
   const doneRoutineCount = routines.filter(
@@ -66,26 +72,50 @@ export function TodayReviewPanel({
         title={messages.title}
         description={messages.description}
         action={
-          showSendAction ? (
+          <div className="relative flex items-center gap-2">
             <Button
               darkMode={darkMode}
-              size="sm"
-              tone="secondary"
-              loading={pending}
-              onClick={onSend}
-            >
-              {pending ? messages.sending : messages.send}
-            </Button>
-          ) : null
+              size="icon-sm"
+              className="rounded-full"
+              aria-label={messages.openSummary}
+              icon={<Info size={15} aria-hidden="true" />}
+              onClick={() => setReviewOpen((current) => !current)}
+            />
+            {showSendAction ? (
+              <Button
+                darkMode={darkMode}
+                size="sm"
+                tone="secondary"
+                loading={pending}
+                onClick={onSend}
+              >
+                {pending ? messages.sending : messages.send}
+              </Button>
+            ) : null}
+            {reviewOpen ? (
+              <>
+                <PopoverDismissLayer
+                  label={messages.closeSummary}
+                  onDismiss={() => setReviewOpen(false)}
+                />
+                <FloatingPopover title={messages.title}>
+                  <DescriptionText
+                    darkMode={darkMode}
+                    className="overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
+                  >
+                    {summaryText}
+                  </DescriptionText>
+                  <HorizontalProgressBar
+                    primary={todayProgress}
+                    secondary={todayTimeProgress}
+                  />
+                </FloatingPopover>
+              </>
+            ) : null}
+          </div>
         }
       />
-      <div className="grid gap-3 px-4 py-4">
-        <DescriptionText
-          darkMode={darkMode}
-          className="overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
-        >
-          {summaryText}
-        </DescriptionText>
+      <div className="px-4 py-4">
         <HorizontalProgressBar
           primary={todayProgress}
           secondary={todayTimeProgress}

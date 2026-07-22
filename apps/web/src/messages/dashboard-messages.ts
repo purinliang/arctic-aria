@@ -73,6 +73,8 @@ export const englishDashboardMessages = {
     description: "A short daily recap.",
     send: "Send",
     sending: "Sending",
+    openSummary: "Open review summary",
+    closeSummary: "Close review summary",
     dailySummaryMessages: {
       fulfilled: [
         "Everything visible is complete. This day closed cleanly, with room for tomorrow.",
@@ -228,6 +230,8 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
     description: "简单看一眼。",
     send: "发送",
     sending: "正在发送",
+    openSummary: "打开回顾摘要",
+    closeSummary: "关闭回顾摘要",
     dailySummaryMessages: {
       fulfilled: [
         "这一天眼前的事都收好了。",
