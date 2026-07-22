@@ -143,14 +143,17 @@ export function selectTodayReviewSummaryTone({
   TodayReviewSummaryInput,
   "dateKey" | "messages"
 >): TodayReviewSummaryTone {
+  const progress = todayReviewCompletionProgress({
+    doneRoutineCount,
+    doneTaskCount,
+    openRoutineCount,
+    openTaskCount,
+  });
   const doneWeight =
     doneTaskCount * taskProgressWeight +
     doneRoutineCount * routineProgressWeight;
-  const totalWeight =
-    (doneTaskCount + openTaskCount) * taskProgressWeight +
-    (doneRoutineCount + openRoutineCount) * routineProgressWeight;
 
-  if (totalWeight === 0 && experiencedMemoryCount === 0) {
+  if (progress.totalWeight === 0 && experiencedMemoryCount === 0) {
     return "open";
   }
 
@@ -162,25 +165,47 @@ export function selectTodayReviewSummaryTone({
     return "gentle";
   }
 
-  const progress = doneWeight / totalWeight;
-
-  if (progress >= 1) {
+  if (progress.value >= 1) {
     return "fulfilled";
   }
 
-  if (progress >= 0.8) {
+  if (progress.value >= 0.8) {
     return "near";
   }
 
-  if (progress >= 0.5) {
+  if (progress.value >= 0.5) {
     return "steady";
   }
 
-  if (progress >= 0.2) {
+  if (progress.value >= 0.2) {
     return "started";
   }
 
   return "started";
+}
+
+export function todayReviewCompletionProgress({
+  doneTaskCount,
+  doneRoutineCount,
+  openTaskCount,
+  openRoutineCount,
+}: {
+  doneTaskCount: number;
+  doneRoutineCount: number;
+  openTaskCount: number;
+  openRoutineCount: number;
+}) {
+  const doneWeight =
+    doneTaskCount * taskProgressWeight +
+    doneRoutineCount * routineProgressWeight;
+  const totalWeight =
+    (doneTaskCount + openTaskCount) * taskProgressWeight +
+    (doneRoutineCount + openRoutineCount) * routineProgressWeight;
+
+  return {
+    totalWeight,
+    value: totalWeight > 0 ? doneWeight / totalWeight : 0,
+  };
 }
 
 function summaryOptionIndex(input: TodayReviewSummaryInput, optionCount: number) {

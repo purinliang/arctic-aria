@@ -75,6 +75,11 @@ Panels may have different heights, but their styling should stay consistent
 with the dashboard panels. Shared dashboard and Memories page panel styles
 should be implemented in one reusable place.
 
+Use the shared split layout:
+
+- left side: Memories list panel
+- right side: Categories panel, then Suggestions panel
+
 The bottom padding can be increased slightly. Keep dashboard and Memories page
 spacing consistent through the same reusable panel design.
 
@@ -95,14 +100,16 @@ Layout:
 
 Do not put category chips in this section.
 
-### Categories Section
+### Categories Panel
 
-The categories section appears below the title section and above the memory
-list.
+The categories panel appears in the right-side column above Suggestions.
 
 Layout:
 
-- Show the text `Categories:` using shared `LabelText`.
+- Use the Lucide `Album` icon.
+- Title: `Categories`.
+- Description: short text explaining that categories filter memories.
+- Header action: `Manage` with a settings icon.
 - Show filter buttons starting with `All`.
 - Always show `Cuisine`, `Sightseeing`, and user-created categories, even when
   they have no memories yet.
@@ -115,11 +122,6 @@ Layout:
 - Category filter buttons should show the category icon when one is available.
 - If there are too many categories, the filter buttons should wrap onto multiple
   lines.
-- Show a Lucide `Settings2` button with text `Manage`.
-- The `Manage` button should use the shared choice-action style, matching
-  filter items while remaining an action instead of a selected filter.
-- The categories strip should use the same horizontal separator line as list
-  rows, but it is not itself a list item.
 
 Click behavior:
 

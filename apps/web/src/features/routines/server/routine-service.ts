@@ -140,6 +140,44 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
       return routines.listRoutines(userId);
     },
 
+    async listRoutineGroups(userId: string) {
+      return routines.listRoutineGroups(userId);
+    },
+
+    async saveRoutineGroup(
+      userId: string,
+      input: {
+        id?: string;
+        name: string;
+        description: string | null;
+      },
+    ) {
+      const occurredAt = now();
+
+      return input.id
+        ? routines.updateRoutineGroup({
+            userId,
+            groupId: input.id,
+            name: input.name,
+            description: input.description,
+            occurredAt,
+          })
+        : routines.createRoutineGroup({
+            userId,
+            name: input.name,
+            description: input.description,
+            occurredAt,
+          });
+    },
+
+    async deleteRoutineGroup(userId: string, groupId: string) {
+      return routines.deleteRoutineGroup({
+        userId,
+        groupId,
+        occurredAt: now(),
+      });
+    },
+
     async listTodayRoutineInstances(userId: string) {
       const occurredAt = now();
       const activeRoutines = await routines.listActiveRoutines(userId);
@@ -253,6 +291,7 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
       userId: string,
       input: {
         id?: string;
+        groupId: string | null;
         title: string;
         description: string | null;
         firstStartDate: string;
@@ -266,6 +305,7 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
         ? await routines.updateRoutine({
           userId,
           routineId: input.id,
+          groupId: input.groupId,
           title: input.title,
           description: input.description,
           firstStartDate: input.firstStartDate,
@@ -275,6 +315,7 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
         })
         : await routines.createRoutine({
           userId,
+          groupId: input.groupId,
           title: input.title,
           description: input.description,
           firstStartDate: input.firstStartDate,

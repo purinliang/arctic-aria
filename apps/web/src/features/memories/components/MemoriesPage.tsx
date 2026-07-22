@@ -15,6 +15,7 @@ import type {
 import type { MemoryMessages } from "@/messages/app-messages";
 import type { FormMessages } from "@/messages/app-messages";
 import { CategoryManagerDialog } from "./CategoryManagerDialog";
+import { MemoryCategoriesPanel } from "./MemoryCategoriesPanel";
 import { MemoryEditorDialog } from "./MemoryEditorDialog";
 import { MemoriesPanel } from "./MemoriesPanel";
 import { SuggestionsPanel } from "./SuggestionsPanel";
@@ -270,41 +271,51 @@ export function MemoriesPage({
     <>
       <section className="aa-split-container">
         <div className="aa-split-panel gap-4">
-          <MemoriesPanel
-            darkMode={darkMode}
-            loading={loading}
-            pending={pending}
-            filter={filter}
-            categories={filterCategories}
-            memories={visibleMemories}
-            pendingPinIds={pendingSuggestionIds}
-            messages={messages.panel}
-            categoryMessages={messages.categories.builtIns}
-            defaultDescriptions={messages.defaultDescriptions}
-            dateMessages={formMessages.datePicker}
-            onAdd={openNewMemoryEditor}
-            onFilterChange={setFilter}
-            onManage={openManageCategories}
-            onEditMemory={openMemoryEditor}
-            onPinMemory={(memoryId) => void onMemoryPin(memoryId)}
-            onUnpinMemory={(memoryId) => void onMemoryUnpin(memoryId)}
-          />
+          <div className="grid min-w-0 content-start gap-4">
+            <MemoriesPanel
+              darkMode={darkMode}
+              loading={loading}
+              pending={pending}
+              memories={visibleMemories}
+              pendingPinIds={pendingSuggestionIds}
+              messages={messages.panel}
+              categoryMessages={messages.categories.builtIns}
+              defaultDescriptions={messages.defaultDescriptions}
+              dateMessages={formMessages.datePicker}
+              onAdd={openNewMemoryEditor}
+              onEditMemory={openMemoryEditor}
+              onPinMemory={(memoryId) => void onMemoryPin(memoryId)}
+              onUnpinMemory={(memoryId) => void onMemoryUnpin(memoryId)}
+            />
+          </div>
 
-          <SuggestionsPanel
-            darkMode={darkMode}
-            suggestions={suggestions}
-            suggestionLoading={suggestionLoading}
-            suggestionsRequested={suggestionsRequested}
-            pinnedSuggestionIds={pinnedSuggestionIds}
-            pendingSuggestionIds={pendingSuggestionIds}
-            messages={messages.suggestions}
-            categoryMessages={messages.categories.builtIns}
-            defaultDescriptions={messages.defaultDescriptions}
-            dateMessages={formMessages.datePicker}
-            onSuggestionsRefresh={onSuggestionsRefresh}
-            onSuggestionPin={onSuggestionPin}
-            onSuggestionCancel={onSuggestionCancel}
-          />
+          <aside className="grid content-start gap-4">
+            <MemoryCategoriesPanel
+              darkMode={darkMode}
+              filter={filter}
+              categories={filterCategories}
+              pending={pending}
+              messages={messages.panel}
+              categoryMessages={messages.categories.builtIns}
+              onFilterChange={setFilter}
+              onManage={openManageCategories}
+            />
+            <SuggestionsPanel
+              darkMode={darkMode}
+              suggestions={suggestions}
+              suggestionLoading={suggestionLoading}
+              suggestionsRequested={suggestionsRequested}
+              pinnedSuggestionIds={pinnedSuggestionIds}
+              pendingSuggestionIds={pendingSuggestionIds}
+              messages={messages.suggestions}
+              categoryMessages={messages.categories.builtIns}
+              defaultDescriptions={messages.defaultDescriptions}
+              dateMessages={formMessages.datePicker}
+              onSuggestionsRefresh={onSuggestionsRefresh}
+              onSuggestionPin={onSuggestionPin}
+              onSuggestionCancel={onSuggestionCancel}
+            />
+          </aside>
         </div>
       </section>
 

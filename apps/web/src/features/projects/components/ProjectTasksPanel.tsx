@@ -1,7 +1,6 @@
 // Dashboard - Project Tasks Panel.
-import { ChevronRight, ListChecks } from "lucide-react";
+import { ListChecks } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
-import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
@@ -11,6 +10,7 @@ import {
   List,
   ListItem,
   ListItemContent,
+  ListItemTitleButton,
 } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
@@ -94,7 +94,7 @@ function ProjectTaskRow({
 
   return (
     <ListItem darkMode={darkMode} className="items-start">
-      <div className="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] gap-3">
+      <div className="grid min-w-0 w-full flex-1 grid-cols-[auto_minmax(0,1fr)] gap-3">
         <CheckboxControl
           darkMode={darkMode}
           className="mt-1"
@@ -106,7 +106,13 @@ function ProjectTaskRow({
         />
         <ListItemContent
           grow={false}
-          title={<h3 className="min-w-0 text-base font-semibold">{task.title}</h3>}
+          title={
+            <h3 className="min-w-0 text-base font-semibold">
+              <ListItemTitleButton onClick={onOpen}>
+                {task.title}
+              </ListItemTitleButton>
+            </h3>
+          }
           main={
             <DescriptionText darkMode={darkMode} className="line-clamp-3">
               {displayDescription(
@@ -126,14 +132,6 @@ function ProjectTaskRow({
           }
         />
       </div>
-      <Button
-        darkMode={darkMode}
-        tone="ghost"
-        size="icon-sm"
-        aria-label={messages.openProject(task.title)}
-        icon={<ChevronRight size={16} aria-hidden="true" />}
-        onClick={onOpen}
-      />
     </ListItem>
   );
 }

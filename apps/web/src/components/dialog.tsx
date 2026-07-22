@@ -81,7 +81,7 @@ export function DialogHeader({
 }) {
   return (
     <div className="mb-4 flex items-center justify-between gap-3">
-      <h3 className="text-base font-semibold">{title}</h3>
+      <h3 className="text-lg font-semibold leading-7">{title}</h3>
       <Button
         darkMode={darkMode}
         tone="ghost"

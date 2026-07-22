@@ -4,7 +4,12 @@ import { Button } from "@/components/button";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { formatTimeDisplay } from "@/components/forms/time-display";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemActions,
+  ListItemContent,
+} from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { DescriptionText, SupportingText } from "@/components/text";
 import type { RoutineDefinition } from "@/features/dashboard/types";
@@ -19,6 +24,7 @@ export function RoutinesList({
   pending,
   routines,
   messages,
+  groupMessages,
   ruleMessages,
   timeMessages,
   timeFormatPreference,
@@ -29,6 +35,7 @@ export function RoutinesList({
   pending: boolean;
   routines: RoutineDefinition[];
   messages: RoutineMessages["page"];
+  groupMessages: RoutineMessages["groups"];
   ruleMessages: RoutineMessages;
   timeMessages: TimePickerMessages;
   timeFormatPreference: TimeFormatPreference;
@@ -64,28 +71,58 @@ export function RoutinesList({
             }
             support={
               <SupportingText darkMode={darkMode}>
-                {routineTimeText(
-                  routine.preferredTime,
-                  messages.flexible,
+                {routineMetadataText({
+                  routine,
+                  groupMessages,
+                  flexibleText: messages.flexible,
+                  ruleMessages,
                   timeMessages,
                   timeFormatPreference,
-                )} ·{" "}
-                {ruleSummary(routine, ruleMessages)}
+                })}
               </SupportingText>
             }
           />
-          <Button
-            darkMode={darkMode}
-            disabled={pending}
-            icon={<Edit3 size={15} aria-hidden="true" />}
-            onClick={() => onEdit(routine)}
-          >
-            {messages.edit}
-          </Button>
+          <ListItemActions>
+            <Button
+              darkMode={darkMode}
+              disabled={pending}
+              icon={<Edit3 size={15} aria-hidden="true" />}
+              onClick={() => onEdit(routine)}
+            >
+              {messages.edit}
+            </Button>
+          </ListItemActions>
         </ListItem>
       ))}
     </List>
   );
+}
+
+function routineMetadataText({
+  routine,
+  groupMessages,
+  flexibleText,
+  ruleMessages,
+  timeMessages,
+  timeFormatPreference,
+}: {
+  routine: RoutineDefinition;
+  groupMessages: RoutineMessages["groups"];
+  flexibleText: string;
+  ruleMessages: RoutineMessages;
+  timeMessages: TimePickerMessages;
+  timeFormatPreference: TimeFormatPreference;
+}) {
+  return [
+    routine.groupName || groupMessages.noGroup,
+    routineTimeText(
+      routine.preferredTime,
+      flexibleText,
+      timeMessages,
+      timeFormatPreference,
+    ),
+    ruleSummary(routine, ruleMessages),
+  ].join(" · ");
 }
 
 function routineTimeText(

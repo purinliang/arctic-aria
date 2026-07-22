@@ -16,6 +16,8 @@ function routine(
   return {
     id: input.id,
     userId: input.userId ?? userId,
+    groupId: input.groupId ?? null,
+    groupName: input.groupName ?? null,
     title: input.title,
     description: input.description ?? null,
     firstStartDate: input.firstStartDate ?? "2026-07-01",

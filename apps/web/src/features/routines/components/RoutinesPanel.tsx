@@ -1,6 +1,5 @@
 // Dashboard - Routines Panel.
-import { Bell, ChevronRight } from "lucide-react";
-import { Button } from "@/components/button";
+import { Bell } from "lucide-react";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
@@ -10,6 +9,7 @@ import {
   ListFooterAction,
   ListItem,
   ListItemContent,
+  ListItemTitleButton,
 } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
@@ -102,7 +102,7 @@ function RoutineRow({
 }) {
   return (
     <ListItem darkMode={darkMode} className="items-start">
-      <div className="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] gap-3">
+      <div className="grid min-w-0 w-full flex-1 grid-cols-[auto_minmax(0,1fr)] gap-3">
         <CheckboxControl
           darkMode={darkMode}
           className="mt-1"
@@ -119,10 +119,24 @@ function RoutineRow({
         <ListItemContent
           grow={false}
           title={
-            <h3 className="min-w-0 text-sm font-semibold">{routine.title}</h3>
+            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+              <h3 className="min-w-0 truncate text-sm font-semibold">
+                <ListItemTitleButton onClick={onOpen}>
+                  {routine.title}
+                </ListItemTitleButton>
+              </h3>
+              <SupportingText darkMode={darkMode} className="whitespace-nowrap">
+                {routineTimeText(
+                  routine,
+                  messages,
+                  timeMessages,
+                  timeFormatPreference,
+                )}
+              </SupportingText>
+            </div>
           }
           main={
-            <DescriptionText darkMode={darkMode} className="line-clamp-3">
+            <DescriptionText darkMode={darkMode} className="line-clamp-2">
               {displayDescription(
                 routine.description,
                 routine.title,
@@ -130,29 +144,8 @@ function RoutineRow({
               )}
             </DescriptionText>
           }
-          support={
-            <SupportingText darkMode={darkMode}>
-              {routineTimeText(
-                routine,
-                messages,
-                timeMessages,
-                timeFormatPreference,
-              )} ·{" "}
-              {routine.status === "pending"
-                ? messages.dueToday
-                : messages.answeredToday}
-            </SupportingText>
-          }
         />
       </div>
-      <Button
-        darkMode={darkMode}
-        tone="ghost"
-        size="icon-sm"
-        aria-label={messages.open}
-        icon={<ChevronRight size={16} aria-hidden="true" />}
-        onClick={onOpen}
-      />
     </ListItem>
   );
 }

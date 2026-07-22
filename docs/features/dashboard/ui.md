@@ -14,14 +14,15 @@ The Dashboard is the daily operating surface. It should show what the user can
 act on today without turning into a management page.
 
 The Dashboard may display project tasks, routine instances, pinned memories,
-and a lightweight Review panel, but it must not redefine their product rules.
+and a lightweight Daily Review title-bar action, but it must not redefine their
+product rules.
 
 Current Dashboard scope:
 
 - today's selected project tasks
 - today's routine instances
 - pinned memories
-- Review panel with a non-production manual Discord delivery test
+- Daily Review popover with a non-production manual Discord delivery test
 
 Deferred Dashboard scope:
 
@@ -42,8 +43,8 @@ Dashboard behavior. Shared shell behavior is documented in:
 Dashboard body layout:
 
 - parent layout: shared split layout
-- left column: stacked `Tasks` and `Routines`
-- right column: stacked `Review` and `Pinned Memories`
+- left column: `Tasks`
+- right column: stacked `Routines` and `Pinned Memories`
 - desktop: left panel should be wider than the right panel through the shared
   split classes
 - mobile: panels stack vertically
@@ -55,6 +56,16 @@ encourage action without adding instruction text or counts.
 
 The Dashboard should not show a top summary bar, duplicate progress visuals, or
 a timeline section in the current UI.
+
+## Daily Review Popover
+
+Daily Review is opened from the Today page title bar, not shown as a Dashboard
+panel. The title-bar action opens an info popover using the shared floating
+popover view. The summary paragraph should clamp at two lines without forcing a
+two-line minimum. The progress bar uses the same weighted progress as Daily
+Review text selection: project tasks count as three units, routines count as
+one unit, and pinned memories do not affect the progress fill. The secondary
+fill shows local day elapsed time.
 
 ## Project-Owned Tasks Panel
 
@@ -73,6 +84,8 @@ Task row layout:
 - parent surface: shared list item
 - left: done checkbox
 - right: title, description, and supporting metadata
+- title is underlined and opens the Projects detail page for that task's
+  project
 - description is always visible
 - supporting metadata uses `project · milestone · deadline`
 - omit the milestone segment when the task has no milestone
@@ -90,10 +103,10 @@ Checking a task is a lightweight Dashboard action. The visible row should update
 optimistically and backend failure should be reported through the shared
 notification stack.
 
-Clicking the row's outlineless right-arrow button opens the Projects detail page
-for that task's project. It should not open the Projects list page. The whole
-row is not clickable. Clicking the checkbox only changes completion state and
-must not navigate.
+Clicking the underlined title opens the Projects detail page for that task's
+project. It should not open the Projects list page. The whole row is not
+clickable. Clicking the checkbox only changes completion state and must not
+navigate.
 
 ## Routines Panel
 
@@ -110,9 +123,12 @@ Routine row layout:
 
 - parent surface: shared list item
 - left: completion checkbox
-- right: title, description, and supporting metadata
-- description is always visible
-- supporting metadata uses scheduled time and due/answered text
+- right: title and scheduled time on the first row, then description
+- title is underlined and opens the Routines page
+- scheduled time is right-aligned beside the title
+- description is visible and clamps at two lines
+- do not show `Due today`; every routine instance on the Today page is due
+  today
 
 Routine rows should not expand or collapse. Do not show `Busy` or `Skip`
 buttons in the Dashboard UI. Those are future reminder-response actions.
@@ -121,9 +137,9 @@ Checking a routine is a lightweight Dashboard action. The visible row should
 update optimistically and backend failure should be reported through the shared
 notification stack.
 
-Clicking the row's outlineless right-arrow button opens the Routines page. The
-whole row is not clickable. Clicking the checkbox only changes completion state
-and must not navigate.
+Clicking the underlined title opens the Routines page. The whole row is not
+clickable. Clicking the checkbox only changes completion state and must not
+navigate.
 
 ## Pinned Memories Panel
 
@@ -141,7 +157,7 @@ Pinned memory row layout:
 - parent surface: shared list item
 - left: experienced checkbox
 - middle: title, description, and supporting metadata
-- right: optional outlineless right-arrow button to open the Memories page
+- title is underlined and opens the Memories page
 - description is always visible
 - supporting metadata uses category only
 
@@ -159,14 +175,14 @@ Pinned-memory checkbox labels can use category-specific experience verbs in
 both English and Chinese when the row has a built-in category key. Custom
 categories fall back to `experienced` / `体验`.
 
-Clicking the row's outlineless right-arrow button opens the Memories page. The
-whole row is not clickable. Clicking the checkbox must not navigate.
+Clicking the underlined title opens the Memories page. The whole row is not
+clickable. Clicking the checkbox must not navigate.
 
-## Review Panel
+## Daily Review Message
 
-The Review panel is a lightweight sender, not a persisted review feature.
-It should send a short Markdown-style Discord message generated from the
-visible Today items:
+Daily Review is a lightweight popover and sender, not a persisted review
+feature. It should send a short Markdown-style Discord message generated from
+the visible Today items:
 
 - done and undone project tasks
 - done and undone routine instances
@@ -177,11 +193,10 @@ editing workflow. Discord delivery history is enough for this version.
 
 Header:
 
-- icon: `ClipboardCheck`
-- visible title: `Review`
-- description: short encouragement without repeating `Today`
-- right action: secondary `Send` button for the current manual Discord delivery
-  test path in local and preview environments only
+- title-bar action icon: `ClipboardCheck`
+- popover title: `Daily Review`
+- popover action: secondary `Send` button for the current manual Discord
+  delivery test path in local and preview environments only
 
 The Discord message heading should be `Daily Review for <date>`, because the
 message can be read outside the Today page and may arrive after the day ends.
@@ -191,11 +206,11 @@ Cloudflare scheduled Discord notification cron for Daily Review delivery.
 Settings `Send Test` remains available in production for explicit Discord
 diagnostics.
 
-Content area:
+Popover content:
 
 - render only the generated summary sentence as description-level text
 - do not repeat the full task, routine, or pinned-memory lists inside the
-  Review panel because those lists are already visible on the Today page
+  Daily Review popover because those lists are already visible on the Today page
 - choose the summary tone from the visible state of tasks, routines, and pinned
   memories
 - calculate work progress from tasks and routines only. One task has weight

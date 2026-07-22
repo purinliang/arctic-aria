@@ -135,6 +135,7 @@ Memory web UI:
 
 ```text
 apps/web/src/features/memories/components/MemoriesPage.tsx
+apps/web/src/features/memories/components/MemoryCategoriesPanel.tsx
 apps/web/src/features/memories/components/MemoriesPanel.tsx
 apps/web/src/features/memories/components/SuggestionsPanel.tsx
 apps/web/src/features/memories/components/PinnedMemoriesPanel.tsx

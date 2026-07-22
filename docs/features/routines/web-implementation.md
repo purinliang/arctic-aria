@@ -10,8 +10,10 @@ Product rules are defined in [overview.md](overview.md), data rules are defined 
 The current web implementation supports database-backed routine testing:
 
 - load routine definitions from Neon
+- load routine groups from Neon
 - load today's routine instances from Neon
 - add, edit, and delete routine definitions
+- add, edit, delete, and filter by routine groups
 - choose start-date anchored recurrence rules
 - choose a preferred time, first start date, and optional end date
 - show today's routine instances on the dashboard
@@ -32,9 +34,12 @@ The user opens the Routines page from the sidebar.
 The page should show:
 
 - routine definition list
+- right-side routine group filter panel
 - `New` action in the panel header
+- `Manage` action in the Groups panel header
 - edit action on each routine row
 - add/edit routine dialog
+- group manager dialog
 - delete confirmation dialog when deleting an existing routine
 
 `New` opens routine creation UI.
@@ -43,6 +48,12 @@ Routine `Edit` opens routine editing UI.
 
 Successful save or delete refreshes dashboard routine instances and routine
 definitions from the backend response.
+
+Routine group save/delete also refreshes routine definitions, routine groups,
+and today's routine instances from the backend response.
+
+The routine group filter is local UI state. It is not persisted and does not
+call the backend.
 
 ## Dashboard Panel
 
@@ -72,6 +83,7 @@ Fields:
 
 - title
 - optional description
+- group
 - fixed day interval only when the fixed-days option is selected
 - first start date
 - end date
@@ -101,6 +113,8 @@ Routine web UI:
 apps/web/src/features/routines/components/RoutinesPage.tsx
 apps/web/src/features/routines/components/RoutinesList.tsx
 apps/web/src/features/routines/components/RoutineEditorDialog.tsx
+apps/web/src/features/routines/components/RoutineGroupManagerDialog.tsx
+apps/web/src/features/routines/components/RoutineGroupsPanel.tsx
 apps/web/src/features/routines/components/RoutineRecurrenceFields.tsx
 apps/web/src/features/routines/components/RoutinesPanel.tsx
 apps/web/src/features/routines/components/routine-page-helpers.ts
@@ -133,6 +147,7 @@ Database migration:
 ```text
 apps/database/migrations/0003_create_routines.sql
 apps/database/migrations/0022_add_routine_reminder_state.sql
+apps/database/migrations/0026_create_routine_groups.sql
 ```
 
 Focused tests:

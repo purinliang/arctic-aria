@@ -22,6 +22,7 @@ import type {
   UserPreferences,
 } from "@/features/settings/preferences";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
+import { TodayReviewPopover } from "@/features/dashboard/components/TodayReviewPopover";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
 import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardProjects";
 import { useDashboardRoutines } from "@/features/dashboard/hooks/useDashboardRoutines";
@@ -31,7 +32,7 @@ import type { AuthUser } from "@/features/auth/server/auth-service";
 import { IdeasPage } from "@/features/ideas/components/IdeasPage";
 import { useIdeasPageData } from "@/features/ideas/hooks/useIdeasPageData";
 import { MemoriesPage } from "@/features/memories/components/MemoriesPage";
-import type { ProjectInput } from "@/features/projects/actions";
+import type { ProjectInput, ProjectView } from "@/features/projects/actions";
 import { ProjectPageTitle } from "@/features/projects/components/ProjectPageTitle";
 import { ProjectsPage } from "@/features/projects/components/ProjectsPage";
 import { projectToDraft } from "@/features/projects/components/project-page-helpers";
@@ -183,6 +184,10 @@ export function AppShell({
     navigateToRoute(appPathForProject(projectId));
   }
 
+  function handleProjectEdit(project: ProjectView) {
+    setProjectDraft(projectToDraft(project));
+  }
+
   function handleDeveloperImportComplete(target: DeveloperImportTarget) {
     void refreshAfterDeveloperImport(target, {
       refreshProjectData,
@@ -279,7 +284,6 @@ export function AppShell({
                 darkMode={darkMode}
                 projects={projectState.projects}
                 selectedProjectId={selectedProjectId}
-                editDisabled={projectState.projectActionPending}
                 pinPending={
                   selectedProjectId
                     ? projectState.pendingProjectPinIds.includes(selectedProjectId)
@@ -287,20 +291,34 @@ export function AppShell({
                 }
                 onBackToList={showProjectsList}
                 onProjectSelect={showProjectDetail}
-                onEditProject={(project) => {
-                  setProjectDraft(projectToDraft(project));
-                }}
+                onProjectEdit={handleProjectEdit}
                 onPinProject={projectState.pinProjectFromPage}
                 onUnpinProject={projectState.unpinProjectFromPage}
                 messages={messages.projects.pageTitle}
+                detailMessages={messages.projects.detail}
                 timelineMessages={messages.projects.timeline}
                 durationMessages={messages.projects.duration}
+                defaultDescriptions={messages.projects.defaultDescriptions}
                 dateMessages={messages.forms.datePicker}
               />
             ) : (
-              <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
-                {pageTitle}
-              </h1>
+              <div className="col-start-2 flex min-w-0 flex-1 items-center justify-between gap-3">
+                <h1 className="min-w-0 truncate text-2xl font-semibold tracking-normal sm:text-3xl">
+                  {pageTitle}
+                </h1>
+                {activeView === "dashboard" ? (
+                  <TodayReviewPopover
+                    darkMode={darkMode}
+                    pending={todayReviewPending}
+                    pinnedMemories={memoryState.pinnedMemories}
+                    routines={routineState.routines}
+                    showSendAction={showTodayReviewSendAction}
+                    tasks={projectState.tasks}
+                    messages={messages.dashboard.review}
+                    onSend={handleTodayReviewSend}
+                  />
+                ) : null}
+              </div>
             )}
           </header>
 
@@ -338,10 +356,13 @@ export function AppShell({
             <RoutinesPage
               darkMode={darkMode}
               routines={routineState.routineDefinitions}
+              routineGroups={routineState.routineGroups}
               loading={routineState.routineLoading}
               pending={routineState.routineActionPending}
               onRoutineSave={routineState.saveRoutineFromPage}
               onRoutineDelete={routineState.deleteRoutineFromPage}
+              onRoutineGroupSave={routineState.saveRoutineGroupFromPage}
+              onRoutineGroupDelete={routineState.deleteRoutineGroupFromPage}
               messages={messages.routines}
               formMessages={messages.forms}
               timeFormatPreference={timeFormatPreference}
@@ -414,13 +435,10 @@ export function AppShell({
               routineLoading={routineState.routineLoading}
               pinnedMemories={memoryState.pinnedMemories}
               memoryLoading={memoryState.memoryLoading}
-              todayReviewPending={todayReviewPending}
-              showTodayReviewSendAction={showTodayReviewSendAction}
               onTaskStatus={projectState.updateTaskFromDashboard}
               onRoutineStatus={routineState.updateRoutine}
               onMemoryDone={memoryState.markMemoryDone}
               onMemoryCancelDone={memoryState.cancelMemoryDone}
-              onTodayReviewSend={handleTodayReviewSend}
               onTaskOpen={showProjectDetail}
               messages={messages.dashboard}
               formMessages={messages.forms}

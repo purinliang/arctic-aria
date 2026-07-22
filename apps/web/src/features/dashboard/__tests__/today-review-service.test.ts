@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   buildTodayReviewSummary,
   buildTodayReviewText,
+  todayReviewCompletionProgress,
 } from "../today-review-text.ts";
 import type { TodayReviewSummaryMessages } from "../today-review-text.ts";
 import { createTodayReviewService } from "../today-review-service.ts";
@@ -40,6 +41,33 @@ test("selects a status-aware review summary", () => {
   assert.equal(summaryFor({ experiencedMemoryCount: 1 }), "life");
   assert.equal(summaryFor({ openTaskCount: 1 }), "gentle");
   assert.equal(summaryFor({}), "open");
+});
+
+test("computes Today Review completion progress with task weight", () => {
+  assert.deepEqual(
+    todayReviewCompletionProgress({
+      doneTaskCount: 1,
+      openTaskCount: 1,
+      doneRoutineCount: 1,
+      openRoutineCount: 1,
+    }),
+    {
+      totalWeight: 8,
+      value: 0.5,
+    },
+  );
+  assert.deepEqual(
+    todayReviewCompletionProgress({
+      doneTaskCount: 0,
+      openTaskCount: 0,
+      doneRoutineCount: 0,
+      openRoutineCount: 0,
+    }),
+    {
+      totalWeight: 0,
+      value: 0,
+    },
+  );
 });
 
 test("builds Today Review text from dashboard items", () => {

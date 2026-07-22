@@ -107,6 +107,47 @@ test("mark routine instance reminded writes reminded_at", async () => {
   assert.match(capturedQuery, /reminded_at = \$3::timestamptz/);
 });
 
+test("routine group create writes routine_groups row", async () => {
+  let capturedQuery = "";
+  let capturedParams: unknown[] = [];
+  const occurredAt = new Date("2026-07-12T10:00:00.000Z");
+  const sql = {
+    async query(query: string, params: unknown[]) {
+      capturedQuery = query;
+      capturedParams = params;
+
+      return [
+        {
+          id: "group-1",
+          user_id: "user-1",
+          name: "Housework",
+          description: "Home routines",
+          created_at: occurredAt,
+          updated_at: occurredAt,
+          deleted_at: null,
+        },
+      ];
+    },
+  };
+  const repository = new PostgresRoutineRepository(sql as never);
+
+  const result = await repository.createRoutineGroup({
+    userId: "user-1",
+    name: "Housework",
+    description: "Home routines",
+    occurredAt,
+  });
+
+  assert.equal(result.name, "Housework");
+  assert.match(capturedQuery, /INSERT INTO routine_groups/);
+  assert.deepEqual(capturedParams, [
+    "user-1",
+    "Housework",
+    "Home routines",
+    occurredAt,
+  ]);
+});
+
 test("routine delete writes deleted_at instead of lifecycle status", async () => {
   let capturedQuery = "";
   const occurredAt = new Date("2026-07-12T10:00:00.000Z");
@@ -133,4 +174,29 @@ test("routine delete writes deleted_at instead of lifecycle status", async () =>
   );
   assert.match(capturedQuery, /\bdeleted_at\b/);
   assert.doesNotMatch(capturedQuery, /SET status/);
+});
+
+test("routine group delete soft deletes the group and clears routines", async () => {
+  let capturedQuery = "";
+  const occurredAt = new Date("2026-07-12T10:00:00.000Z");
+  const sql = {
+    async query(query: string) {
+      capturedQuery = query;
+
+      return [{ id: "group-1" }];
+    },
+  };
+  const repository = new PostgresRoutineRepository(sql as never);
+
+  assert.equal(
+    await repository.deleteRoutineGroup({
+      userId: "user-1",
+      groupId: "group-1",
+      occurredAt,
+    }),
+    true,
+  );
+  assert.match(capturedQuery, /UPDATE routine_groups/);
+  assert.match(capturedQuery, /\bdeleted_at\b/);
+  assert.match(capturedQuery, /SET group_id = NULL/);
 });

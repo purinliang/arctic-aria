@@ -1,22 +1,24 @@
 // Projects Page - Project Detail Page.
-import { Edit3, Flag, Info, ListChecks, Plus } from "lucide-react";
-import { Button } from "@/components/button";
-import { Card, CardHeader } from "@/components/card";
+import { useMemo, useState } from "react";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
-import { formatDateKey } from "@/components/forms/date-format";
-import { CheckboxControl } from "@/components/forms/selection-field";
-import { List, ListItem, ListItemContent } from "@/components/list";
 import { Panel } from "@/components/panel";
-import { DescriptionText, LabelText, SupportingText } from "@/components/text";
+import type { TaskStatus } from "@/features/dashboard/types";
 import type {
   ProjectTaskView,
   ProjectView,
 } from "@/features/projects/actions";
-import type { TaskStatus } from "@/features/dashboard/types";
-import { projectOverviewTimelineMetadata } from "@/features/projects/project-overview-metadata";
 import type { ProjectMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
+import {
+  compareDetailTasks,
+  ProjectDetailTasksPanel,
+} from "./ProjectDetailTasksPanel";
+import {
+  MilestoneOverviewPanel,
+  MilestoneSwitchPanel,
+  type MilestoneChoice,
+} from "./ProjectDetailSidePanels";
 
 export function ProjectDetailPage({
   darkMode,
@@ -27,8 +29,7 @@ export function ProjectDetailPage({
   durationMessages,
   defaultDescriptions,
   dateMessages,
-  onAddMilestone,
-  onEditMilestone,
+  onManageMilestones,
   onAddTask,
   onEditTask,
   onTaskStatus,
@@ -41,14 +42,10 @@ export function ProjectDetailPage({
   durationMessages: ProjectMessages["duration"];
   defaultDescriptions: ProjectMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
-  onAddMilestone: (projectId: string) => void;
-  onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
-  onAddTask: (projectId: string) => void;
+  onManageMilestones: () => void;
+  onAddTask: (projectId: string, milestoneId?: string) => void;
   onEditTask: (task: ProjectTaskView) => void;
-  onTaskStatus: (
-    taskId: string,
-    status: TaskStatus,
-  ) => void;
+  onTaskStatus: (taskId: string, status: TaskStatus) => void;
 }) {
   if (!project) {
     return (
@@ -62,263 +59,229 @@ export function ProjectDetailPage({
     );
   }
 
-  const timelineMetadata = projectOverviewTimelineMetadata(
-    project,
-    {
-      deadline: messages.deadlineLabel,
-      expectedDuration: messages.expectedDuration,
-      timeline: messages.timeline,
-      openEnded: timelineMessages.openEnded,
-    },
-    durationMessages,
-    (value) => formatDate(value, dateMessages, messages.notSet),
+  return (
+    <ProjectDetailContent
+      darkMode={darkMode}
+      pending={pending}
+      project={project}
+      messages={messages}
+      timelineMessages={timelineMessages}
+      durationMessages={durationMessages}
+      defaultDescriptions={defaultDescriptions}
+      dateMessages={dateMessages}
+      onManageMilestones={onManageMilestones}
+      onAddTask={onAddTask}
+      onEditTask={onEditTask}
+      onTaskStatus={onTaskStatus}
+    />
+  );
+}
+
+function ProjectDetailContent({
+  darkMode,
+  pending,
+  project,
+  messages,
+  timelineMessages,
+  durationMessages,
+  defaultDescriptions,
+  dateMessages,
+  onManageMilestones,
+  onAddTask,
+  onEditTask,
+  onTaskStatus,
+}: {
+  darkMode: boolean;
+  pending: boolean;
+  project: ProjectView;
+  messages: ProjectMessages["detail"];
+  timelineMessages: ProjectMessages["timeline"];
+  durationMessages: ProjectMessages["duration"];
+  defaultDescriptions: ProjectMessages["defaultDescriptions"];
+  dateMessages: DatePickerMessages;
+  onManageMilestones: () => void;
+  onAddTask: (projectId: string, milestoneId?: string) => void;
+  onEditTask: (task: ProjectTaskView) => void;
+  onTaskStatus: (taskId: string, status: TaskStatus) => void;
+}) {
+  const unassignedTasks = useMemo(
+    () => project.tasks.filter((task) => !task.milestoneId),
+    [project.tasks],
+  );
+  const taskCountsByMilestoneId = useMemo(
+    () => countTasksByMilestoneId(project.tasks),
+    [project.tasks],
+  );
+  const milestoneChoices = useMemo<MilestoneChoice[]>(
+    () => [
+      ...[...project.milestones].sort(compareDetailMilestones).map(
+        (milestone) => {
+          const taskCounts = taskCountsByMilestoneId.get(milestone.id) ?? {
+            done: 0,
+            total: 0,
+          };
+
+          return {
+            id: milestone.id,
+            title: milestone.title,
+            description: displayDescription(
+              milestone.objective,
+              milestone.title,
+              defaultDescriptions.milestone,
+            ),
+            doneTaskCount: taskCounts.done,
+            taskCount: taskCounts.total,
+            milestone,
+          };
+        },
+      ),
+      ...(unassignedTasks.length > 0
+        ? [
+            {
+              id: "",
+              title: messages.noMilestoneTitle,
+              description: messages.noMilestoneDescription,
+              doneTaskCount: countDoneTasks(unassignedTasks),
+              taskCount: unassignedTasks.length,
+              milestone: null,
+            },
+          ]
+        : []),
+    ],
+    [
+      defaultDescriptions.milestone,
+      messages.noMilestoneDescription,
+      messages.noMilestoneTitle,
+      project.milestones,
+      taskCountsByMilestoneId,
+      unassignedTasks,
+    ],
+  );
+  const [requestedMilestoneId, setSelectedMilestoneId] = useState<
+    string | null
+  >(null);
+  const defaultMilestoneId = milestoneChoices[0]?.id ?? null;
+  const selectedMilestoneId = milestoneChoices.some(
+    (choice) => choice.id === requestedMilestoneId,
+  )
+    ? requestedMilestoneId
+    : defaultMilestoneId;
+
+  const selectedChoice = useMemo(
+    () =>
+      milestoneChoices.find((choice) => choice.id === selectedMilestoneId) ??
+      null,
+    [milestoneChoices, selectedMilestoneId],
+  );
+  const selectedMilestone = selectedChoice?.milestone ?? null;
+  const selectedTasks = useMemo(
+    () =>
+      selectedMilestoneId === null
+        ? []
+        : [...project.tasks]
+            .filter((task) =>
+              selectedMilestoneId === ""
+                ? !task.milestoneId
+                : task.milestoneId === selectedMilestoneId,
+            )
+            .sort(compareDetailTasks),
+    [project.tasks, selectedMilestoneId],
+  );
+  const sidePanelMessages = useMemo(
+    () => ({
+      dates: dateMessages,
+      defaults: defaultDescriptions,
+      detail: messages,
+      duration: durationMessages,
+      timeline: timelineMessages,
+    }),
+    [
+      dateMessages,
+      defaultDescriptions,
+      durationMessages,
+      messages,
+      timelineMessages,
+    ],
   );
 
   return (
-    <section className="aa-split-container">
-      <div className="aa-split-panel gap-4">
-        <Card darkMode={darkMode} className="min-w-0">
-          <CardHeader
-            darkMode={darkMode}
-            icon={<ListChecks size={18} aria-hidden="true" />}
-            title={messages.tasksTitle}
-            description={messages.tasksDescription}
-            action={
-              <Button
-                darkMode={darkMode}
-                disabled={pending}
-                icon={<Plus size={14} aria-hidden="true" />}
-                onClick={() => onAddTask(project.id)}
-              >
-                {messages.new}
-              </Button>
-            }
-          />
-          <List darkMode={darkMode}>
-            {project.tasks.length === 0 ? (
-              <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
-                {messages.noTasks}
-              </p>
-            ) : null}
-            {project.tasks.map((task) => (
-              <ListItem key={task.id} darkMode={darkMode} layout="block">
-                <ProjectTaskRow
-                  darkMode={darkMode}
-                  pending={pending}
-                  task={task}
-            messages={messages}
-            defaultDescriptions={defaultDescriptions}
-            dateMessages={dateMessages}
-                  onEdit={() => onEditTask(task)}
-                  onTaskStatus={onTaskStatus}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Card>
-
-        <aside className="grid content-start gap-4">
-          <Card darkMode={darkMode}>
-            <CardHeader
+    <section className="grid gap-4">
+      <MilestoneOverviewPanel
+        darkMode={darkMode}
+        choice={selectedChoice}
+        messages={sidePanelMessages}
+      />
+      <div className="aa-split-container">
+        <div className="aa-split-panel gap-4">
+          <div className="grid min-w-0 content-start gap-4">
+            <ProjectDetailTasksPanel
               darkMode={darkMode}
-              icon={<Info size={18} aria-hidden="true" />}
-              title={messages.overviewTitle}
-            />
-            <div className="grid min-w-0 gap-4 px-4 py-4">
-              <div className="grid min-w-0 gap-1">
-                <LabelText darkMode={darkMode}>{messages.description}</LabelText>
-                <DescriptionText darkMode={darkMode}>
-                  {displayDescription(
-                    project.description,
-                    project.title,
-                    defaultDescriptions.project,
-                  )}
-                </DescriptionText>
-              </div>
-              <dl className="grid min-w-0 gap-3 text-sm">
-                <ProjectMetadataRow
-                  darkMode={darkMode}
-                  label={messages.startDate}
-                  value={formatDate(project.startDate, dateMessages, messages.notSet)}
-                />
-                <ProjectMetadataRow
-                  darkMode={darkMode}
-                  label={timelineMetadata.label}
-                  value={timelineMetadata.value}
-                />
-              </dl>
-            </div>
-          </Card>
-
-          <Card darkMode={darkMode}>
-            <CardHeader
-              darkMode={darkMode}
-              icon={<Flag size={18} aria-hidden="true" />}
-              title={messages.milestonesTitle}
-              description={messages.milestonesDescription}
-              action={
-                <Button
-                  darkMode={darkMode}
-                  disabled={pending}
-                  icon={<Plus size={14} aria-hidden="true" />}
-                  onClick={() => onAddMilestone(project.id)}
-                >
-                  {messages.new}
-                </Button>
+              pending={pending}
+              tasks={selectedTasks}
+              messages={messages}
+              defaultDescriptions={defaultDescriptions}
+              dateMessages={dateMessages}
+              onAddTask={() =>
+                onAddTask(project.id, selectedMilestone?.id ?? undefined)
               }
+              onEditTask={onEditTask}
+              onTaskStatus={onTaskStatus}
             />
-            <List darkMode={darkMode}>
-              {project.milestones.length === 0 ? (
-                <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
-                  {messages.noMilestones}
-                </p>
-              ) : null}
-              {project.milestones.map((milestone) => (
-                <ListItem
-                  key={milestone.id}
-                  darkMode={darkMode}
-                  className="items-center"
-                >
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-semibold">
-                        {milestone.title}
-                      </span>
-                    </div>
-                    <p className={`mt-1 text-sm ${secondaryTextColorClass}`}>
-                      {displayDescription(
-                        milestone.objective,
-                        milestone.title,
-                        defaultDescriptions.milestone,
-                      )}
-                    </p>
-                  </div>
-                  <Button
-                    darkMode={darkMode}
-                    disabled={pending}
-                    icon={<Edit3 size={15} aria-hidden="true" />}
-                    onClick={() => onEditMilestone(milestone)}
-                  >
-                    {messages.edit}
-                  </Button>
-                </ListItem>
-              ))}
-            </List>
-          </Card>
-        </aside>
+          </div>
+
+          <aside className="grid content-start gap-4">
+            <MilestoneSwitchPanel
+              darkMode={darkMode}
+              pending={pending}
+              choices={milestoneChoices}
+              selectedMilestoneId={selectedMilestoneId}
+              messages={sidePanelMessages}
+              onManageMilestones={onManageMilestones}
+              onSelectMilestone={setSelectedMilestoneId}
+            />
+          </aside>
+        </div>
       </div>
     </section>
   );
 }
 
-function ProjectMetadataRow({
-  darkMode,
-  label,
-  value,
-}: {
-  darkMode: boolean;
-  label: string;
-  value: string;
-}) {
+function compareDetailMilestones(
+  left: ProjectView["milestones"][number],
+  right: ProjectView["milestones"][number],
+) {
   return (
-    <div className="grid min-w-0 gap-1">
-      <dt>
-        <LabelText darkMode={darkMode}>{label}</LabelText>
-      </dt>
-      <dd>
-        <DescriptionText darkMode={darkMode}>{value}</DescriptionText>
-      </dd>
-    </div>
+    dateSortValue(left.deadlineDate) - dateSortValue(right.deadlineDate) ||
+    dateSortValue(left.startDate) - dateSortValue(right.startDate) ||
+    left.title.localeCompare(right.title)
   );
 }
 
-function ProjectTaskRow({
-  darkMode,
-  pending,
-  task,
-  messages,
-  defaultDescriptions,
-  dateMessages,
-  onEdit,
-  onTaskStatus,
-}: {
-  darkMode: boolean;
-  pending: boolean;
-  task: ProjectTaskView;
-  messages: ProjectMessages["detail"];
-  defaultDescriptions: ProjectMessages["defaultDescriptions"];
-  dateMessages: DatePickerMessages;
-  onEdit: () => void;
-  onTaskStatus: (
-    taskId: string,
-    status: TaskStatus,
-  ) => void;
-}) {
-  const metadata = [task.milestoneLabel, deadlineText(task, messages, dateMessages)]
-    .filter(Boolean)
-    .join(" · ");
-
-  return (
-    <div className="grid gap-3">
-      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3">
-        <CheckboxControl
-          darkMode={darkMode}
-          className="mt-1"
-          checked={task.status === "done"}
-          aria-label={messages.markDone(task.title)}
-          onChange={(event) =>
-            onTaskStatus(task.id, event.target.checked ? "done" : "todo")
-          }
-        />
-        <ListItemContent
-          grow={false}
-          title={
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-semibold">{task.title}</span>
-            </div>
-          }
-          main={
-            <DescriptionText darkMode={darkMode}>
-              {displayDescription(
-                task.description,
-                task.title,
-                defaultDescriptions.task,
-              )}
-            </DescriptionText>
-          }
-          support={
-            metadata ? (
-              <SupportingText darkMode={darkMode}>{metadata}</SupportingText>
-            ) : null
-          }
-        />
-        <Button
-          darkMode={darkMode}
-          disabled={pending}
-          icon={<Edit3 size={15} aria-hidden="true" />}
-          onClick={onEdit}
-        >
-          {messages.edit}
-        </Button>
-      </div>
-    </div>
-  );
+function dateSortValue(date: string) {
+  return date ? Date.parse(`${date}T00:00:00.000Z`) : Number.POSITIVE_INFINITY;
 }
 
-function deadlineText(
-  task: ProjectTaskView,
-  messages: ProjectMessages["detail"],
-  dateMessages: DatePickerMessages,
-) {
-  return task.deadlineDate
-    ? messages.deadline(formatDate(task.deadlineDate, dateMessages, task.deadline))
-    : messages.noDeadline;
+function countDoneTasks(tasks: ProjectTaskView[]) {
+  return tasks.filter((task) => task.status === "done").length;
 }
 
-function formatDate(
-  value: string,
-  messages: DatePickerMessages,
-  fallback: string,
-) {
-  return formatDateKey(value, messages, value || fallback);
+function countTasksByMilestoneId(tasks: ProjectTaskView[]) {
+  const counts = new Map<string, { done: number; total: number }>();
+
+  for (const task of tasks) {
+    if (!task.milestoneId) {
+      continue;
+    }
+
+    const count = counts.get(task.milestoneId) ?? { done: 0, total: 0 };
+    count.total += 1;
+
+    if (task.status === "done") {
+      count.done += 1;
+    }
+
+    counts.set(task.milestoneId, count);
+  }
+
+  return counts;
 }

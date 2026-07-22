@@ -12,6 +12,8 @@ test("routine date-only fields preserve the local calendar date", () => {
   const routine = mapRoutine({
     id: "routine-1",
     user_id: "user-1",
+    group_id: null,
+    group_name: null,
     title: "Morning check",
     description: null,
     first_start_date: dateOnlyValue,

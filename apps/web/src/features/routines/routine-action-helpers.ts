@@ -10,6 +10,7 @@ import type {
 
 export type RoutineInput = {
   id?: string;
+  groupId?: string | null;
   title: string;
   description: string;
   firstStartDate: string;
@@ -22,7 +23,17 @@ export type RoutineInput = {
   timezone?: string;
 };
 
+export type RoutineGroupInput = {
+  id?: string;
+  name: string;
+  description: string;
+};
+
+const uuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export function validateRoutineInput(input: RoutineInput) {
+  const groupId = input.groupId?.trim() || null;
   const title = input.title.trim();
   const description = input.description.trim();
   const firstStartDate = input.firstStartDate.trim();
@@ -63,6 +74,18 @@ export function validateRoutineInput(input: RoutineInput) {
       field: "description",
       reason: "too_long" as const,
       limit: 2000,
+    };
+  }
+
+  if (groupId && !uuidPattern.test(groupId)) {
+    return {
+      ok: false as const,
+      message: "Routine group is invalid.",
+      code: "routine_group_invalid",
+      category: "invalid_parameter" as const,
+      subject: "group" as const,
+      field: "group",
+      reason: "invalid_value" as const,
     };
   }
 
@@ -152,11 +175,61 @@ export function validateRoutineInput(input: RoutineInput) {
 
   return {
     ok: true as const,
+    groupId,
     title,
     description: description || null,
     firstStartDate,
     endDate,
     rule,
+  };
+}
+
+export function validateRoutineGroupInput(input: RoutineGroupInput) {
+  const name = input.name.trim();
+  const description = input.description.trim();
+
+  if (name.length < 1) {
+    return {
+      ok: false as const,
+      message: "Routine group name is required.",
+      code: "routine_group_name_invalid",
+      category: "missing_parameter" as const,
+      subject: "group" as const,
+      field: "name",
+      reason: "required" as const,
+    };
+  }
+
+  if (name.length > 80) {
+    return {
+      ok: false as const,
+      message: "Routine group name must be 80 characters or fewer.",
+      code: "routine_group_name_invalid",
+      category: "invalid_parameter" as const,
+      subject: "group" as const,
+      field: "name",
+      reason: "too_long" as const,
+      limit: 80,
+    };
+  }
+
+  if (description.length > 500) {
+    return {
+      ok: false as const,
+      message: "Routine group description must be 500 characters or fewer.",
+      code: "routine_group_description_invalid",
+      category: "invalid_parameter" as const,
+      subject: "group" as const,
+      field: "description",
+      reason: "too_long" as const,
+      limit: 500,
+    };
+  }
+
+  return {
+    ok: true as const,
+    name,
+    description: description || null,
   };
 }
 

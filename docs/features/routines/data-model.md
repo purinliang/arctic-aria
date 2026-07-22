@@ -13,6 +13,9 @@ Backend validation should check:
 
 - routine title is required and 1-120 characters
 - routine description is optional and 2000 characters or fewer
+- optional routine group id is blank or a valid group owned by the same user
+- routine group name is required and 1-80 characters
+- routine group description is optional and 500 characters or fewer
 - first start date is a valid date
 - optional end date is blank or not before first start date
 - recurrence rule type is supported
@@ -25,6 +28,8 @@ Backend validation should check:
 Database constraints should protect:
 
 - routine ownership through `user_id`
+- routine group ownership through `user_id`
+- active routine group names are unique per user
 - one rule per routine
 - one routine instance per routine/date/time combination
 - allowed routine instance statuses
@@ -64,6 +69,7 @@ Current fields:
 
 - `id`
 - `user_id`
+- `group_id`
 - `title`
 - `description`
 - `first_start_date`
@@ -76,12 +82,40 @@ Field rules:
 
 - `title` is required.
 - `description` is optional and stored as `NULL` when omitted.
+- `group_id` is optional and points at a routine group owned by the same user.
 - Generated default description copy is render-only and must not be stored in
   the database.
 
 Removed routine fields:
 
 - `status`
+
+## `routine_groups`
+
+Stores optional parallel buckets for routine definitions.
+
+Routine groups are different from project milestones. Groups are unordered
+life-area filters such as English learning, PTE practice, or housework.
+Milestones remain ordered project phases.
+
+Current fields:
+
+- `id`
+- `user_id`
+- `name`
+- `description`
+- `created_at`
+- `updated_at`
+- `deleted_at`
+
+Current rules:
+
+- group names are required and 1-80 characters
+- descriptions are optional and 500 characters or fewer
+- active group names are unique per user, case-insensitively
+- deleting a group is a soft delete
+- when a group is deleted, active routines in that group move to no group
+- no built-in routine groups exist yet
 
 ## `routine_rules`
 
@@ -222,6 +256,8 @@ Historical migrations still show the old routine lifecycle shape:
 - `0022_add_routine_reminder_state.sql` adds instance-level reminder and move
   metadata, backfills pending `remind_at` values, and adds the due-reminder
   index.
+- `0026_create_routine_groups.sql` adds optional `routine_groups` and
+  `routines.group_id`.
 
 Because migration history is immutable, do not edit old migration files to
 match the current model. Add a follow-up migration when schema governance

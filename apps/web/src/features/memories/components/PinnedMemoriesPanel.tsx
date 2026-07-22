@@ -1,11 +1,15 @@
 // Dashboard - Pinned Memories Panel.
-import { Album, ChevronRight } from "lucide-react";
-import { Button } from "@/components/button";
+import { Album } from "lucide-react";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { CheckboxControl } from "@/components/forms/selection-field";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemContent,
+  ListItemTitleButton,
+} from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
@@ -86,7 +90,7 @@ function PinnedMemoryRow({
 
   return (
     <ListItem darkMode={darkMode} className="items-start">
-      <div className="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] gap-3">
+      <div className="grid min-w-0 w-full flex-1 grid-cols-[auto_minmax(0,1fr)] gap-3">
         <CheckboxControl
           darkMode={darkMode}
           className="mt-1"
@@ -102,7 +106,13 @@ function PinnedMemoryRow({
         />
         <ListItemContent
           grow={false}
-          title={<h3 className="min-w-0 text-sm font-semibold">{memory.title}</h3>}
+          title={
+            <h3 className="min-w-0 text-sm font-semibold">
+              <ListItemTitleButton onClick={onOpen}>
+                {memory.title}
+              </ListItemTitleButton>
+            </h3>
+          }
           main={
             <DescriptionText darkMode={darkMode} className="line-clamp-2">
               {displayDescription(
@@ -119,16 +129,6 @@ function PinnedMemoryRow({
                 : memory.category}
             </SupportingText>
           }
-        />
-      </div>
-      <div className="flex shrink-0 items-center gap-1">
-        <Button
-          darkMode={darkMode}
-          tone="ghost"
-          size="icon-sm"
-          aria-label={messages.open}
-          icon={<ChevronRight size={16} aria-hidden="true" />}
-          onClick={onOpen}
         />
       </div>
     </ListItem>

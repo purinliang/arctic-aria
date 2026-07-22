@@ -17,6 +17,7 @@ import {
   MilestoneEditorDialog,
   ProjectEditorDialog,
 } from "./ProjectEditorDialog";
+import { ProjectMilestoneManagerDialog } from "./ProjectMilestoneManagerDialog";
 import { ProjectsList } from "./ProjectsList";
 import { ProjectTaskEditorDialog } from "./ProjectTaskEditorDialog";
 import {
@@ -88,6 +89,9 @@ export function ProjectsPage({
   const [milestoneDraft, setMilestoneDraft] = useState<MilestoneInput | null>(
     null,
   );
+  const [milestoneManagerProjectId, setMilestoneManagerProjectId] = useState<
+    string | null
+  >(null);
   const [taskDraft, setTaskDraft] = useState<ProjectTaskInput | null>(null);
   const [confirmationTarget, setConfirmationTarget] =
     useState<ConfirmationTarget | null>(null);
@@ -99,6 +103,9 @@ export function ProjectsPage({
         : null,
     [projects, selectedProjectId],
   );
+  const milestoneManagerOpen = selectedProject
+    ? milestoneManagerProjectId === selectedProject.id
+    : false;
 
   useEffect(() => {
     if (selectedProjectId && !loading && !selectedProject) {
@@ -112,6 +119,12 @@ export function ProjectsPage({
       setMilestoneDraft(null);
       setTaskDraft(null);
       setConfirmationTarget(null);
+    }
+  }
+
+  function closeMilestoneManager() {
+    if (!pending && dialogAction === null) {
+      setMilestoneManagerProjectId(null);
     }
   }
 
@@ -252,14 +265,11 @@ export function ProjectsPage({
             durationMessages={messages.duration}
             defaultDescriptions={messages.defaultDescriptions}
             dateMessages={formMessages.datePicker}
-            onAddMilestone={(projectId) => {
-              setMilestoneDraft(emptyMilestoneDraft(projectId));
-            }}
-            onEditMilestone={(milestone) => {
-              setMilestoneDraft(milestoneToDraft(milestone));
-            }}
-            onAddTask={(projectId) => {
-              setTaskDraft(emptyTaskDraft(projectId));
+            onManageMilestones={() =>
+              setMilestoneManagerProjectId(selectedProject.id)
+            }
+            onAddTask={(projectId, milestoneId) => {
+              setTaskDraft(emptyTaskDraft(projectId, milestoneId));
             }}
             onEditTask={(task: ProjectTaskView) => {
               setTaskDraft(taskToDraft(task));
@@ -287,6 +297,26 @@ export function ProjectsPage({
           />
         )}
       </div>
+
+      {selectedProject && milestoneManagerOpen ? (
+        <ProjectMilestoneManagerDialog
+          darkMode={darkMode}
+          pending={pending}
+          milestones={selectedProject.milestones}
+          messages={messages.detail}
+          timelineMessages={messages.timeline}
+          durationMessages={messages.duration}
+          defaultDescriptions={messages.defaultDescriptions}
+          dateMessages={formMessages.datePicker}
+          onClose={closeMilestoneManager}
+          onOpenNew={() => {
+            setMilestoneDraft(emptyMilestoneDraft(selectedProject.id));
+          }}
+          onOpenEdit={(milestone) => {
+            setMilestoneDraft(milestoneToDraft(milestone));
+          }}
+        />
+      ) : null}
 
       {projectDraft ? (
         <ProjectEditorDialog
@@ -327,6 +357,7 @@ export function ProjectsPage({
           durationMessages={messages.duration}
           defaultDescriptions={messages.defaultDescriptions}
           formMessages={formMessages}
+          zIndex={milestoneManagerOpen ? "z-[60]" : undefined}
           onDelete={
             milestoneDraft.id
               ? () =>
