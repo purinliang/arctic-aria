@@ -43,8 +43,8 @@ Dashboard behavior. Shared shell behavior is documented in:
 Dashboard body layout:
 
 - parent layout: shared split layout
-- left column: stacked `Tasks` and `Routines`
-- right column: `Pinned Memories`
+- left column: `Tasks`
+- right column: stacked `Routines` and `Pinned Memories`
 - desktop: left panel should be wider than the right panel through the shared
   split classes
 - mobile: panels stack vertically
@@ -84,6 +84,8 @@ Task row layout:
 - parent surface: shared list item
 - left: done checkbox
 - right: title, description, and supporting metadata
+- title is underlined and opens the Projects detail page for that task's
+  project
 - description is always visible
 - supporting metadata uses `project · milestone · deadline`
 - omit the milestone segment when the task has no milestone
@@ -101,10 +103,10 @@ Checking a task is a lightweight Dashboard action. The visible row should update
 optimistically and backend failure should be reported through the shared
 notification stack.
 
-Clicking the row's outlineless right-arrow button opens the Projects detail page
-for that task's project. It should not open the Projects list page. The whole
-row is not clickable. Clicking the checkbox only changes completion state and
-must not navigate.
+Clicking the underlined title opens the Projects detail page for that task's
+project. It should not open the Projects list page. The whole row is not
+clickable. Clicking the checkbox only changes completion state and must not
+navigate.
 
 ## Routines Panel
 
@@ -121,9 +123,12 @@ Routine row layout:
 
 - parent surface: shared list item
 - left: completion checkbox
-- right: title, description, and supporting metadata
-- description is always visible
-- supporting metadata uses scheduled time and due/answered text
+- right: title and scheduled time on the first row, then description
+- title is underlined and opens the Routines page
+- scheduled time is right-aligned beside the title
+- description is visible and clamps at two lines
+- do not show `Due today`; every routine instance on the Today page is due
+  today
 
 Routine rows should not expand or collapse. Do not show `Busy` or `Skip`
 buttons in the Dashboard UI. Those are future reminder-response actions.
@@ -132,9 +137,9 @@ Checking a routine is a lightweight Dashboard action. The visible row should
 update optimistically and backend failure should be reported through the shared
 notification stack.
 
-Clicking the row's outlineless right-arrow button opens the Routines page. The
-whole row is not clickable. Clicking the checkbox only changes completion state
-and must not navigate.
+Clicking the underlined title opens the Routines page. The whole row is not
+clickable. Clicking the checkbox only changes completion state and must not
+navigate.
 
 ## Pinned Memories Panel
 
@@ -152,7 +157,7 @@ Pinned memory row layout:
 - parent surface: shared list item
 - left: experienced checkbox
 - middle: title, description, and supporting metadata
-- right: optional outlineless right-arrow button to open the Memories page
+- title is underlined and opens the Memories page
 - description is always visible
 - supporting metadata uses category only
 
@@ -170,8 +175,8 @@ Pinned-memory checkbox labels can use category-specific experience verbs in
 both English and Chinese when the row has a built-in category key. Custom
 categories fall back to `experienced` / `体验`.
 
-Clicking the row's outlineless right-arrow button opens the Memories page. The
-whole row is not clickable. Clicking the checkbox must not navigate.
+Clicking the underlined title opens the Memories page. The whole row is not
+clickable. Clicking the checkbox must not navigate.
 
 ## Daily Review Message
 

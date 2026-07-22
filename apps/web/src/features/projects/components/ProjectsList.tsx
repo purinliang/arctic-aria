@@ -1,5 +1,5 @@
 // Projects Page - Projects List.
-import { ChevronRight, FolderKanban, Pin, PinOff, Plus } from "lucide-react";
+import { FolderKanban, Pin, PinOff, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
@@ -10,6 +10,7 @@ import {
   ListItem,
   ListItemActions,
   ListItemContent,
+  ListItemTitleButton,
 } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
@@ -131,7 +132,11 @@ function ProjectListItem({
       <ListItemContent
         title={
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-semibold">{project.title}</span>
+            <h3 className="min-w-0 text-sm font-semibold">
+              <ListItemTitleButton onClick={onView}>
+                {project.title}
+              </ListItemTitleButton>
+            </h3>
           </div>
         }
         main={
@@ -174,14 +179,6 @@ function ProjectListItem({
             )
           }
           onClick={pinned ? onUnpin : onPin}
-        />
-        <Button
-          darkMode={darkMode}
-          tone="ghost"
-          size="icon-sm"
-          aria-label={messages.open(project.title)}
-          icon={<ChevronRight size={16} aria-hidden="true" />}
-          onClick={onView}
         />
       </ListItemActions>
     </ListItem>

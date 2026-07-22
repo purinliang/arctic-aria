@@ -66,7 +66,9 @@ export function Dashboard({
             onTaskStatus={onTaskStatus}
             onTaskOpen={onTaskOpen}
           />
+        </div>
 
+        <aside className="grid content-start gap-4">
           <RoutinesPanel
             darkMode={darkMode}
             routines={routines}
@@ -77,9 +79,7 @@ export function Dashboard({
             onRoutineStatus={onRoutineStatus}
             onRoutineOpen={onRoutineOpen}
           />
-        </div>
 
-        <aside className="grid content-start gap-4">
           <PinnedMemoriesPanel
             darkMode={darkMode}
             pinnedMemories={pinnedMemories}

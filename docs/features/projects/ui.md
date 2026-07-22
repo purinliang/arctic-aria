@@ -106,9 +106,9 @@ Each project list item should show:
 - pin or unpin action
 - no colored status, priority, or category-like tags in the current UI
 
-The project list page should not show milestone rows or task rows. Clicking a
-project row's outlineless right-arrow button opens the Project detail page. The
-whole row is not clickable, and the row should not open an edit dialog.
+The project list page should not show milestone rows or task rows. Clicking an
+underlined project title opens the Project detail page. The whole row is not
+clickable, and the row should not open an edit dialog.
 
 ### Projects Page Layout
 
@@ -133,10 +133,9 @@ Project list layout:
 - project item first line: title only
 - project item second line: truncated description
 - project item third line: timeline and progress text
-- project item right actions: icon-only outline `Pin` or `PinOff` button, then
-  right-arrow ghost button
+- project item right actions: icon-only outline `Pin` or `PinOff` button
 - do not show milestone preview rows
-- click target: right-arrow ghost button only
+- click target: underlined project title only
 - do not add a text `View` button or footer band inside project list items
 
 ## Add Project Flow
@@ -199,7 +198,7 @@ Project dialog layout:
 
 ## Project Detail Page
 
-Clicking a project row's right-arrow button opens a detail page.
+Clicking an underlined project title opens a detail page.
 
 The project detail page should show:
 

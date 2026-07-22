@@ -92,6 +92,32 @@ export function ListItemContent({
   );
 }
 
+export function ListItemTitleButton({
+  children,
+  className,
+  onClick,
+}: {
+  children: ReactNode;
+  className?: string;
+  onClick: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
+}) {
+  return (
+    <button
+      type="button"
+      className={cx(
+        "block max-w-full cursor-pointer truncate text-left underline",
+        "decoration-[var(--aa-secondary-text)] underline-offset-2 transition",
+        "hover:decoration-[var(--aa-primary-text)]",
+        "focus-visible:outline-none focus-visible:decoration-[var(--aa-primary-text)]",
+        className,
+      )}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function ListItemActions({
   children,
   className,
