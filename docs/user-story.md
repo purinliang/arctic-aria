@@ -67,8 +67,8 @@ You can:
 In progress:
 
 - project pause, resume, complete, and archive UI
-- task reminder delivery through Discord
-- review summaries based on completed tasks
+- project task reminder delivery through Discord
+- richer review summaries based on completed and unfinished tasks
 
 ## Routines
 
@@ -89,9 +89,8 @@ You can:
 
 In progress:
 
-- reminder response buttons such as busy or skip
+- reminder response buttons such as Later or Move to tomorrow
 - suggestions to adjust a routine after repeated misses
-- daily review summaries for routine completion
 
 ## Memories
 
@@ -108,6 +107,7 @@ You can:
 - create and edit user-created memory categories
 - use built-in categories with fixed icons and translated names
 - refresh suggestions
+- pin or unpin memories from the Memories page
 - pin memories to Today
 - check a pinned memory when you use it
 
@@ -115,12 +115,11 @@ In progress:
 
 - smarter suggestion logic
 - richer category configuration
-- clearer pin/unpin management inside Memories
 - using memory history in daily review
 
 ## Ideas
 
-Status: implemented for capture and read-only viewing.
+Status: implemented for capture and basic web management.
 
 You might have an idea on a train, before sleep, or while doing something else.
 The first goal is to capture it quickly before it disappears.
@@ -130,13 +129,12 @@ You can:
 - bind a Discord account in Settings
 - run `/idea text:<raw text>` in Discord
 - view captured ideas in the web Ideas page
+- create, edit, and delete ideas from the web Ideas page
 
 In progress:
 
-- adding ideas directly from the web UI
-- editing and archiving ideas
 - converting an idea into a project, task, routine, memory, or review note
-- triage states beyond the first read-only page
+- triage states beyond the first untriaged list
 
 ## Discord
 
@@ -156,22 +154,20 @@ In progress:
 
 - project task reminders
 - reminder buttons
-- daily status messages
-- daily review prompts
 - free-text DM capture
 
 ## Daily Review And Sharing
 
-Status: in progress.
+Status: implemented for generated Today summary and Discord delivery.
 
 You may finish part of a hard day and still feel like nothing happened. Arctic
-Aria should later help you see completed tasks, completed routines, skipped or
-unfinished work, and small progress that is easy to forget.
+Aria can summarize today's visible tasks, routines, and pinned memories into a
+short Daily Review. The Today page shows the summary in a popover, and the
+scheduled Discord path can send the review near the local day boundary.
 
 In progress:
 
 - daily review page
 - daily review data model
-- progress summary
 - shareable progress card
-- optional shareable review summary
+- richer long-term review workflow

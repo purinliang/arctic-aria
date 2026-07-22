@@ -16,7 +16,8 @@ not a medical, therapy, or mental health treatment product.
 ## What It Helps With
 
 - Break a long-term project into milestones and tasks.
-- Choose what to do today based on priority, urgency, progress, and deadlines.
+- Choose what to do today based on start dates, deadlines, progress, and the
+  current daily board.
 - Remember routines with reminders and quick completion checks.
 - Capture ideas, possible tasks, and possible routines before they are lost.
 - Revisit saved personal experiences such as cuisine, sightseeing, books, or
@@ -28,7 +29,7 @@ not a medical, therapy, or mental health treatment product.
 Arctic Aria is organized around features and supporting services:
 
 - Features: auth, settings, projects, routines, memories, dashboard, ideas,
-  and future reviews.
+  Daily Review delivery, and future broader reviews.
 - Apps: web dashboard for full control, Discord integration hosted by the web
   app for quick idea capture and messages, and CLI tooling for local developer
   import workflows.
@@ -51,6 +52,9 @@ Start here:
 - [docs/implementation.md](docs/implementation.md): technology, storage, and
   current repository structure. Its Implementation References section contains
   the detailed file-level documentation map.
+- [docs/implementation-audit.md](docs/implementation-audit.md):
+  documentation-only known limitations and implementation risks found during
+  repository inspection.
 
 Documentation directories:
 

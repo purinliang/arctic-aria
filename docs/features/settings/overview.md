@@ -11,7 +11,7 @@ Progress: implemented
 Settings should include personal configuration that affects how the product
 behaves for one user.
 
-The current prototype implements a Settings page opened from the sidebar
+The current web app implements a Settings page opened from the sidebar
 `Settings` item. It is organized into normal user cards plus an administrator
 diagnostic card when the signed-in account is an administrator:
 

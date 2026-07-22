@@ -13,7 +13,9 @@ credential, and data-protection policy are documented in
 The implemented runtime apps are the Next.js web app in `apps/web` and the
 Cloudflare cron scheduler in `apps/cron`. Discord is implemented as HTTP routes
 inside the web app, not as a separate process. Database migrations live under
-`apps/database` and are run by the web app migration script.
+`apps/database` and are run by the web app migration script. `apps/cli` exists
+as a templates-only developer surface for future local import workflows; it has
+no active runtime commands yet.
 
 Use this file as a code map. Current product status and future requirements
 belong in [README.md](../README.md), [roadmap.md](roadmap.md), and feature
@@ -58,6 +60,10 @@ workspace yet.
 ```text
 arctic-aria/
 |-- apps/
+|   |-- cli/
+|   |   |-- templates/
+|   |   `-- package.json
+|   |
 |   |-- cron/
 |   |   |-- src/
 |   |   |   `-- index.js
@@ -70,7 +76,10 @@ arctic-aria/
 |   `-- web/
 |       |-- AGENTS.md
 |       |-- scripts/
+|       |   |-- measure-routes.mjs
+|       |   |-- measure-switches.mjs
 |       |   |-- read-app-metadata.mjs
+|       |   |-- run-ngrok.mjs
 |       |   `-- run-database-migrations.mjs
 |       |-- src/
 |       |   |-- app/
@@ -94,6 +103,8 @@ arctic-aria/
 |       `-- pnpm-workspace.yaml
 |
 |-- docs/
+|   |-- apps/
+|   |   `-- cli/
 |   |-- features/
 |   |   `-- discord/
 |   |-- infrastructure/
@@ -189,6 +200,10 @@ business rules for projects, routines, or memories.
 `apps/web/src/server/database` owns shared database connection helpers. Feature
 repositories should import the database client; UI components should not.
 
+`apps/cli` currently owns only import templates and ignored local data
+placeholders. The implemented import parser and import endpoints live in the
+web app's administrator Developer Tools flow, not in a standalone CLI command.
+
 ## Implementation References
 
 Current feature implementation docs:
@@ -216,6 +231,10 @@ Integration docs:
 
 - [features/discord/overview.md](features/discord/overview.md)
 
+App-surface docs:
+
+- [apps/cli/overview.md](apps/cli/overview.md)
+
 Shared web docs:
 
 - [web/ui.md](web/ui.md)
@@ -232,6 +251,10 @@ Infrastructure docs:
 - [infrastructure/database.md](infrastructure/database.md)
 - [infrastructure/environment.md](infrastructure/environment.md)
 - [infrastructure/redis.md](infrastructure/redis.md)
+
+Documentation-only diagnostics:
+
+- [implementation-audit.md](implementation-audit.md)
 
 ## Current Entry Points
 
@@ -271,6 +294,7 @@ Cron entry points:
 - `apps/cron/src/index.js`
 - `apps/cron/wrangler.jsonc`
 - `apps/web/src/app/api/cron/discord-notifications/route.ts`
+- `apps/web/src/app/api/cron/routine-reminders/route.ts`
 
 ## Future Extraction Direction
 

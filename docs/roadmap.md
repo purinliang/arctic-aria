@@ -4,27 +4,9 @@ This roadmap records future work. It should not repeat released implementation
 details; released behavior belongs in `docs/releases/` and stable rules belong
 in the owning feature, web, or infrastructure docs.
 
-Current released version: `v0.11.5`.
+Current released version: `v0.12.0`.
 
-Current release candidate on `develop`: `v0.12.0`.
-
-## v0.12.0 Release Candidate
-
-v0.12.0 refines the daily planning workspace after the v0.11 scheduling and
-import releases.
-
-Release candidate contents:
-
-- Add routine groups and move routine and memory organization into right-side
-  panels.
-- Refocus project detail around milestone overview, selected milestone tasks,
-  compact project metadata, and milestone management in a dialog.
-- Keep Daily Review as a compact Today header popover instead of a full panel.
-- Show project and Today progress with shared thin progress bars.
-- Move Today routines above pinned memories in the right column.
-- Replace list-row right-arrow jump buttons with underlined title navigation.
-- Update project, routine, memory, and dashboard UI docs to match the current
-  workspace.
+Current release candidate on `develop`: `v0.12.1`.
 
 ## Next Work After v0.12.0
 
@@ -38,13 +20,9 @@ Release candidate contents:
   notification paths grow.
 - Add or improve automated tests around existing backend behavior where
   hardening work finds risk.
-- Keep the existing web prototype stable while doing hardening work.
-- Improve memory pin/unpin management inside Memories instead of managing
-  single pinned-memory replacement from Today.
-- Refine memory category management: separate built-in default categories from
-  user-created custom categories, keep the dialog padding consistent with other
-  add/edit dialogs, and place the `New` category action inside the custom
-  categories section.
+- Keep the existing web app stable while doing hardening work.
+- Review whether the current Memories-page pin/unpin row actions need clearer
+  placement, bulk management, or stronger visual hierarchy after more use.
 - Review repeated edit actions in project and memory lists and choose a cleaner
   interaction pattern if the current UI feels noisy.
 - Govern error notifications across features. Infrastructure failures should
@@ -54,16 +32,8 @@ Release candidate contents:
   many near-duplicate notification strings for the same failure class. Keep
   clear field-level or component-level validation messages for user-fixable
   cases such as empty title, invalid date format, or title too long.
-- Extract the custom sidebar scrollbar behavior into a shared configurable web
-  scrollbar utility or component. Sidebar usage should auto-hide the scrollbar;
-  dropdown/list/dialog/page usage can keep the scrollbar visible when that is
-  clearer. Naming is open and should be chosen after inspecting the current UI
-  code.
-- Review whether pages and dialogs should use the shared scrollbar behavior
-  where overflow is visible to the user.
-- Review the global `110vh` minimum-height behavior on mobile. Mobile browsers
-  do not reserve desktop scrollbar width in the same way, so mobile pages may
-  not need the forced extra height.
+- Review broader shared-scroll behavior for pages, dialogs, and popovers where
+  overflow is visible to the user.
 
 ## Feature Review Discipline
 
@@ -86,7 +56,7 @@ For each feature branch that adds or changes persisted behavior, review:
 
 ## Future Product Work
 
-Future work should be chosen after using the current prototype and writing more
+Future work should be chosen after using the current app and writing more
 concrete feature details.
 
 Likely future items:
