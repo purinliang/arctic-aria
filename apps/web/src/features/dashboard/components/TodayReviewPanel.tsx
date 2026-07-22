@@ -2,10 +2,12 @@
 import { ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
+import { HorizontalProgressBar } from "@/components/horizontal-progress-bar";
 import { Panel } from "@/components/panel";
 import { DescriptionText } from "@/components/text";
 import {
   buildTodayReviewSummary,
+  todayReviewCompletionProgress,
   todayReviewDateKey,
 } from "../today-review-text.ts";
 import type { DashboardMessages } from "@/messages/app-messages";
@@ -48,6 +50,13 @@ export function TodayReviewPanel({
     experiencedMemoryCount,
     messages: messages.dailySummaryMessages,
   });
+  const todayProgress = todayReviewCompletionProgress({
+    doneTaskCount,
+    openTaskCount,
+    doneRoutineCount,
+    openRoutineCount,
+  }).value;
+  const todayTimeProgress = localDayProgress();
 
   return (
     <Panel darkMode={darkMode}>
@@ -70,9 +79,28 @@ export function TodayReviewPanel({
           ) : null
         }
       />
-      <div className="px-4 py-4">
-        <DescriptionText darkMode={darkMode}>{summaryText}</DescriptionText>
+      <div className="grid gap-3 px-4 py-4">
+        <DescriptionText
+          darkMode={darkMode}
+          className="overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
+        >
+          {summaryText}
+        </DescriptionText>
+        <HorizontalProgressBar
+          primary={todayProgress}
+          secondary={todayTimeProgress}
+        />
       </div>
     </Panel>
   );
+}
+
+function localDayProgress(date = new Date()) {
+  const elapsedMilliseconds =
+    date.getHours() * 60 * 60 * 1000 +
+    date.getMinutes() * 60 * 1000 +
+    date.getSeconds() * 1000 +
+    date.getMilliseconds();
+
+  return elapsedMilliseconds / (24 * 60 * 60 * 1000);
 }

@@ -56,6 +56,15 @@ encourage action without adding instruction text or counts.
 The Dashboard should not show a top summary bar, duplicate progress visuals, or
 a timeline section in the current UI.
 
+## Review Panel
+
+The Review panel shows one short summary paragraph and a thin progress bar.
+The summary paragraph should clamp at two lines without forcing a two-line
+minimum. The progress bar uses the same weighted progress as Daily Review text
+selection: project tasks count as three units, routines count as one unit, and
+pinned memories do not affect the progress fill. The secondary fill shows local
+day elapsed time.
+
 ## Project-Owned Tasks Panel
 
 The project-owned task panel is the main left Dashboard panel. Task product
