@@ -69,9 +69,12 @@ export function PasswordInput(
     darkMode: boolean;
     hasError?: boolean;
     trailing?: ReactNode;
+    visible?: boolean;
   },
 ) {
-  return <TextInput {...props} type="password" />;
+  const { visible = false, ...inputProps } = props;
+
+  return <TextInput {...inputProps} type={visible ? "text" : "password"} />;
 }
 
 export function FieldError({
