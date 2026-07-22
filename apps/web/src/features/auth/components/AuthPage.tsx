@@ -3,8 +3,8 @@
 // Auth Page.
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
-import { secondaryTextColorClass } from "@/components/color";
 import { Panel } from "@/components/panel";
+import { DescriptionText } from "@/components/text";
 import { appShellClass } from "@/components/theme";
 import { VersionStatusSupport } from "@/components/version-status";
 import type {
@@ -33,11 +33,12 @@ export function AuthPage({
         <div className="w-full">
           <Panel darkMode={darkMode} className="w-full p-5 shadow-sm sm:p-8">
             <ArcticAriaLogo brandText={messages.brandName} />
-            <p
-              className={`mx-auto mb-8 mt-2 max-w-[320px] text-center text-sm leading-6 ${secondaryTextColorClass}`}
+            <DescriptionText
+              darkMode={darkMode}
+              className="mx-auto mb-8 mt-2 max-w-[320px] text-center"
             >
               {messages.brandDescription}
-            </p>
+            </DescriptionText>
             <AuthForm darkMode={darkMode} messages={messages} {...props} />
           </Panel>
           <footer className="mt-3">

@@ -10,6 +10,7 @@ import {
   secondaryButtonBorderColorClass,
 } from "@/components/color";
 import { PendingText } from "@/components/loading";
+import { SectionTitle } from "@/components/text";
 import type { AuthMode } from "./AuthGate";
 import {
   authFieldOrder,
@@ -136,7 +137,7 @@ export function AuthForm({
           onSubmit();
         }}
       >
-        <h2 className="text-xl font-semibold tracking-normal">{title}</h2>
+        <SectionTitle>{title}</SectionTitle>
 
         <AuthTextField
           darkMode={darkMode}
