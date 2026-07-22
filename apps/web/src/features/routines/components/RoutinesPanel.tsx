@@ -9,11 +9,13 @@ import {
   ListFooterAction,
   ListItem,
   ListItemContent,
+  ListItemDescription,
+  ListItemSupportingText,
+  ListItemTitle,
   ListItemTitleButton,
 } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
-import { DescriptionText, SupportingText } from "@/components/text";
 import { formatTimeDisplay } from "@/components/forms/time-display";
 import { todayPanelItemLimit } from "@/features/dashboard/today-panel-display";
 import type { Routine, RoutineStatus } from "@/features/dashboard/types";
@@ -120,29 +122,29 @@ function RoutineRow({
           grow={false}
           title={
             <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
-              <h3 className="min-w-0 truncate text-sm font-semibold">
+              <ListItemTitle truncate>
                 <ListItemTitleButton onClick={onOpen}>
                   {routine.title}
                 </ListItemTitleButton>
-              </h3>
-              <SupportingText darkMode={darkMode} className="whitespace-nowrap">
+              </ListItemTitle>
+              <ListItemSupportingText className="whitespace-nowrap">
                 {routineTimeText(
                   routine,
                   messages,
                   timeMessages,
                   timeFormatPreference,
                 )}
-              </SupportingText>
+              </ListItemSupportingText>
             </div>
           }
           main={
-            <DescriptionText darkMode={darkMode} className="line-clamp-2">
+            <ListItemDescription className="line-clamp-2">
               {displayDescription(
                 routine.description,
                 routine.title,
                 messages.defaultDescriptions,
               )}
-            </DescriptionText>
+            </ListItemDescription>
           }
         />
       </div>

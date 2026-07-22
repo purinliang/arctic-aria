@@ -9,8 +9,7 @@ import {
 } from "@/app-shell/action-notifications";
 import { Button } from "@/components/button";
 import { ConfirmDialog } from "@/components/dialog";
-import { ListItem } from "@/components/list";
-import { DescriptionText } from "@/components/text";
+import { ListItem, ListItemDescription } from "@/components/list";
 import type {
   NotificationMessages,
   SettingsMessages,
@@ -330,9 +329,9 @@ export function DiscordBindingSettings({
           ) : (
             !pendingBindingCode ? (
               <DiscordBindingRow>
-                <DescriptionText darkMode={darkMode} className="shrink-0">
+                <ListItemDescription className="shrink-0">
                   {discordStatusText}
-                </DescriptionText>
+                </ListItemDescription>
                 {discordLoading ? null : bindingStatusFailed ? (
                   <CheckAgainButton
                     darkMode={darkMode}

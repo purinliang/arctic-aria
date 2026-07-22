@@ -1,9 +1,13 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { secondaryButtonDividerColorClass } from "./color";
+import {
+  secondaryButtonDividerColorClass,
+  secondaryTextColorClass,
+} from "./color";
 import { Button } from "./button";
 import { cx } from "./utils";
 
 type ListItemTone = "default" | "success";
+type ListItemTextTone = "default" | "selected";
 
 export function List({
   className,
@@ -89,6 +93,60 @@ export function ListItemContent({
         children
       )}
     </div>
+  );
+}
+
+export function ListItemTitle({
+  children,
+  className,
+  truncate = false,
+}: {
+  children: ReactNode;
+  className?: string;
+  truncate?: boolean;
+}) {
+  return (
+    <span
+      className={cx(
+        "block min-w-0 text-base font-semibold leading-6",
+        truncate ? "truncate" : undefined,
+        className,
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+export function ListItemDescription({
+  children,
+  className,
+  tone = "default",
+}: {
+  children: ReactNode;
+  className?: string;
+  tone?: ListItemTextTone;
+}) {
+  return (
+    <p className={cx("text-sm leading-5", listItemTextToneClass(tone), className)}>
+      {children}
+    </p>
+  );
+}
+
+export function ListItemSupportingText({
+  children,
+  className,
+  tone = "default",
+}: {
+  children: ReactNode;
+  className?: string;
+  tone?: ListItemTextTone;
+}) {
+  return (
+    <span className={cx("text-xs leading-5", listItemTextToneClass(tone), className)}>
+      {children}
+    </span>
   );
 }
 
@@ -227,4 +285,10 @@ function itemToneClass(
   }
 
   return "hover:bg-[var(--aa-panel-hover-bg)] hover:text-[var(--aa-primary-text)]";
+}
+
+function listItemTextToneClass(tone: ListItemTextTone) {
+  return tone === "selected"
+    ? "text-[var(--aa-primary-button-text)]"
+    : secondaryTextColorClass;
 }

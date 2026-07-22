@@ -2,7 +2,8 @@ import {
   shouldShowExpectedDatabaseVersion,
   type DatabaseVersionStatus,
 } from "./app-metadata";
-import { DescriptionText, LabelText, SupportingText } from "./text";
+import { ListItemDescription, ListItemTitle } from "./list";
+import { SupportingText } from "./text";
 import type { VersionStatusMessages } from "@/messages/app-messages";
 import type { ReactNode } from "react";
 
@@ -63,12 +64,10 @@ export function VersionStatusRows({
   return (
     <div className="grid gap-3">
       <VersionRow
-        darkMode={darkMode}
         label={messages.appVersion}
         value={status.appVersionText}
       />
       <VersionRow
-        darkMode={darkMode}
         label={messages.databaseVersion}
         rowId="database"
         value={status.actualDatabaseVersionText}
@@ -86,14 +85,12 @@ export function VersionStatusRows({
 }
 
 function VersionRow({
-  darkMode,
   label,
   rowId,
   visible = true,
   value,
   message = null,
 }: {
-  darkMode: boolean;
   label: string;
   rowId?: string;
   visible?: boolean;
@@ -106,11 +103,11 @@ function VersionRow({
       aria-hidden={!visible}
       data-version-row={rowId ?? label.toLowerCase().replace(/\s+/g, "-")}
     >
-      <LabelText darkMode={darkMode}>{label}</LabelText>
-      <DescriptionText darkMode={darkMode} className="mt-1 tabular-nums">
+      <ListItemTitle>{label}</ListItemTitle>
+      <ListItemDescription className="tabular-nums">
         {value}
         {message}
-      </DescriptionText>
+      </ListItemDescription>
     </div>
   );
 }

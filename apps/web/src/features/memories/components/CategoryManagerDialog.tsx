@@ -17,6 +17,8 @@ import {
   ListItem,
   ListItemActions,
   ListItemContent,
+  ListItemDescription,
+  ListItemTitle,
 } from "@/components/list";
 import { DescriptionText, SectionTitle } from "@/components/text";
 import { cx } from "@/components/utils";
@@ -249,18 +251,18 @@ function CategoryRow({
       </span>
       <ListItemContent
         title={
-          <p className="truncate text-sm font-semibold">
+          <ListItemTitle truncate>
             {getMemoryCategoryName(category, messages.builtIns)}
-          </p>
+          </ListItemTitle>
         }
         main={
-          <DescriptionText darkMode={darkMode}>
+          <ListItemDescription>
             {getMemoryCategoryDisplayDescription(
               category,
               messages.builtIns,
               defaultDescriptions.category,
             )}
-          </DescriptionText>
+          </ListItemDescription>
         }
       />
       {category.builtInKey ? null : (

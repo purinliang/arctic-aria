@@ -8,10 +8,16 @@ import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import { CardHeader } from "@/components/card";
 import { SelectInput } from "@/components/forms/selection-field";
 import { FieldLabel } from "@/components/forms/input-field";
-import { List, ListItem, ListItemContent } from "@/components/list";
+import {
+  List,
+  ListItem,
+  ListItemContent,
+  ListItemDescription,
+  ListItemTitle,
+} from "@/components/list";
 import { Panel } from "@/components/panel";
 import { Switch } from "@/components/switch";
-import { LabelText, SupportingText } from "@/components/text";
+import { SupportingText } from "@/components/text";
 import { VersionStatusRows } from "@/components/version-status";
 import { DeveloperToolsPanel } from "@/features/performance/components/DeveloperToolsPanel";
 import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
@@ -214,14 +220,12 @@ export function SettingsPage({
             <ListItem darkMode={darkMode} className="items-center">
               <ListItemContent
                 title={
-                  <LabelText darkMode={darkMode}>
-                    {messages.developerModeTitle}
-                  </LabelText>
+                  <ListItemTitle>{messages.developerModeTitle}</ListItemTitle>
                 }
                 main={
-                  <SupportingText darkMode={darkMode}>
+                  <ListItemDescription>
                     {messages.developerModeDescription}
-                  </SupportingText>
+                  </ListItemDescription>
                 }
               />
               <div className="flex shrink-0 self-center">

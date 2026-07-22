@@ -10,11 +10,13 @@ import {
   ListItem,
   ListItemActions,
   ListItemContent,
+  ListItemDescription,
+  ListItemSupportingText,
+  ListItemTitle,
   ListItemTitleButton,
 } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
-import { DescriptionText, SupportingText } from "@/components/text";
 import type { ProjectView } from "@/features/projects/actions";
 import type { ProjectMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
@@ -131,23 +133,23 @@ function ProjectListItem({
     <ListItem darkMode={darkMode} className="min-w-0 items-start">
       <ListItemContent
         title={
-          <h3 className="min-w-0 text-sm font-semibold">
+          <ListItemTitle>
             <ListItemTitleButton onClick={onView}>
               {project.title}
             </ListItemTitleButton>
-          </h3>
+          </ListItemTitle>
         }
         main={
-          <DescriptionText darkMode={darkMode} className="line-clamp-2">
+          <ListItemDescription className="line-clamp-2">
             {displayDescription(
               project.description,
               project.title,
               defaultDescriptions.project,
             )}
-          </DescriptionText>
+          </ListItemDescription>
         }
         support={
-          <SupportingText darkMode={darkMode} className="block min-w-0 truncate">
+          <ListItemSupportingText className="block min-w-0 truncate">
             {projectTimelineText(
               project,
               timelineMessages,
@@ -159,7 +161,7 @@ function ProjectListItem({
               doneTaskCount(project),
               project.tasks.length,
             )}
-          </SupportingText>
+          </ListItemSupportingText>
         }
       />
       <ListItemActions>

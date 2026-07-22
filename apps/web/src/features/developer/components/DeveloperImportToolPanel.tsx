@@ -7,9 +7,8 @@ import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { FieldLabel } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
-import { List, ListItem } from "@/components/list";
+import { List, ListItem, ListItemSupportingText } from "@/components/list";
 import { Panel } from "@/components/panel";
-import { SupportingText } from "@/components/text";
 import type { SettingsMessages } from "@/messages/app-messages";
 import {
   detectDeveloperImportTarget,
@@ -207,9 +206,9 @@ export function DeveloperImportToolPanel({
         {result ? (
           <ListItem darkMode={darkMode} layout="block">
             <div className="grid gap-2">
-              <SupportingText darkMode={darkMode}>
+              <ListItemSupportingText>
                 {messages.developerImport.resultTitle}
-              </SupportingText>
+              </ListItemSupportingText>
               <pre className="max-h-80 overflow-auto rounded-md border border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-bg)] p-3 text-sm leading-6 text-[var(--aa-secondary-text)]">
                 {resultText}
               </pre>

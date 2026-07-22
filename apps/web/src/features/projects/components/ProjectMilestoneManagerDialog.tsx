@@ -14,11 +14,13 @@ import {
   ListItem,
   ListItemActions,
   ListItemContent,
+  ListItemDescription,
+  ListItemSupportingText,
+  ListItemTitle,
 } from "@/components/list";
 import {
   DescriptionText,
   SectionTitle,
-  SupportingText,
 } from "@/components/text";
 import { cx } from "@/components/utils";
 import { durationRangeForDays } from "@/features/projects/project-duration";
@@ -137,22 +139,18 @@ function MilestoneList({
       {milestones.map((milestone) => (
         <ListItem key={milestone.id} darkMode={darkMode} className="items-start">
           <ListItemContent
-            title={
-              <p className="truncate text-sm font-semibold">
-                {milestone.title}
-              </p>
-            }
+            title={<ListItemTitle truncate>{milestone.title}</ListItemTitle>}
             main={
-              <DescriptionText darkMode={darkMode} className="line-clamp-2">
+              <ListItemDescription className="line-clamp-2">
                 {displayDescription(
                   milestone.objective,
                   milestone.title,
                   defaultDescriptions.milestone,
                 )}
-              </DescriptionText>
+              </ListItemDescription>
             }
             support={
-              <SupportingText darkMode={darkMode} className="truncate">
+              <ListItemSupportingText className="truncate">
                 {milestoneTimelineText(
                   milestone,
                   messages,
@@ -160,7 +158,7 @@ function MilestoneList({
                   durationMessages,
                   dateMessages,
                 )}
-              </SupportingText>
+              </ListItemSupportingText>
             }
           />
           <ListItemActions>

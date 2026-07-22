@@ -10,11 +10,13 @@ import {
   List,
   ListItem,
   ListItemContent,
+  ListItemDescription,
+  ListItemSupportingText,
+  ListItemTitle,
   ListItemTitleButton,
 } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
-import { DescriptionText, SupportingText } from "@/components/text";
 import { dashboardTaskStatusForChecked } from "@/features/dashboard/optimistic-updates";
 import { todayPanelItemLimit } from "@/features/dashboard/today-panel-display";
 import type { Task, TaskStatus } from "@/features/dashboard/types";
@@ -107,24 +109,23 @@ function ProjectTaskRow({
         <ListItemContent
           grow={false}
           title={
-            <h3 className="min-w-0 text-base font-semibold">
+            <ListItemTitle>
               <ListItemTitleButton onClick={onOpen}>
                 {task.title}
               </ListItemTitleButton>
-            </h3>
+            </ListItemTitle>
           }
           main={
-            <DescriptionText darkMode={darkMode} className="line-clamp-3">
+            <ListItemDescription className="line-clamp-3">
               {displayDescription(
                 task.description,
                 task.title,
                 messages.defaultDescriptions,
               )}
-            </DescriptionText>
+            </ListItemDescription>
           }
           support={
             <TaskSupportText
-              darkMode={darkMode}
               projectLabel={task.projectLabel}
               milestoneLabel={task.milestoneLabel}
               deadline={deadline}
@@ -137,12 +138,10 @@ function ProjectTaskRow({
 }
 
 function TaskSupportText({
-  darkMode,
   projectLabel,
   milestoneLabel,
   deadline,
 }: {
-  darkMode: boolean;
   projectLabel: string;
   milestoneLabel: string;
   deadline: string;
@@ -192,7 +191,7 @@ function TaskSupportText({
   }, [deadline, milestoneLabel, projectLabel]);
 
   return (
-    <SupportingText darkMode={darkMode} className="relative block min-w-0">
+    <ListItemSupportingText className="relative block min-w-0">
       <span
         ref={containerRef}
         className="block min-w-0 truncate whitespace-nowrap"
@@ -208,7 +207,7 @@ function TaskSupportText({
           {fullSegments.join(" · ")}
         </span>
       ) : null}
-    </SupportingText>
+    </ListItemSupportingText>
   );
 }
 

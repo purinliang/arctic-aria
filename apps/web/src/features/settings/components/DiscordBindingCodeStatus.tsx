@@ -3,7 +3,7 @@
 // Settings Page - Discord Binding Code Status.
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
-import { secondaryTextColorClass } from "@/components/color";
+import { ListItemDescription } from "@/components/list";
 import type { SettingsMessages } from "@/messages/app-messages";
 import { discordBindingCodeExpiryMinutes } from "../discord-binding-config";
 import { DiscordBindingRow } from "./DiscordBindingRow";
@@ -47,7 +47,7 @@ export function DiscordBindingCodeStatus({
 
   return (
     <DiscordBindingRow>
-      <p className={`min-w-0 max-w-full text-sm leading-6 ${secondaryTextColorClass}`}>
+      <ListItemDescription className="min-w-0 max-w-full">
         {renderBindInstruction({
           command: `/bind code:${code}`,
           darkMode,
@@ -55,7 +55,7 @@ export function DiscordBindingCodeStatus({
           statusTone: expired ? "expired" : "normal",
           template: instructionTemplate,
         })}
-      </p>
+      </ListItemDescription>
       <Button
         darkMode={darkMode}
         disabled={action !== null && action !== "cancel"}

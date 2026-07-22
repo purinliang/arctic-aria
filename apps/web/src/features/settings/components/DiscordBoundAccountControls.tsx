@@ -4,7 +4,7 @@
 import { Eye, EyeOff, LoaderCircle, Send, Unlink } from "lucide-react";
 import { Button } from "@/components/button";
 import { TextInput } from "@/components/forms/input-field";
-import { DescriptionText } from "@/components/text";
+import { ListItemDescription } from "@/components/list";
 import type { SettingsMessages } from "@/messages/app-messages";
 import { DiscordBindingRow } from "./DiscordBindingRow";
 
@@ -29,9 +29,9 @@ export function DiscordBoundAccountControls({
 }) {
   return (
     <DiscordBindingRow>
-      <DescriptionText darkMode={darkMode} className="shrink-0">
+      <ListItemDescription className="shrink-0">
         {messages.discord.bound}
-      </DescriptionText>
+      </ListItemDescription>
       <span className="w-full min-w-0 sm:w-96 sm:max-w-full sm:flex-none">
         <TextInput
           darkMode={darkMode}

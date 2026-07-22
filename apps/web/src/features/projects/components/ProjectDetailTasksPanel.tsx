@@ -11,8 +11,10 @@ import {
   ListItem,
   ListItemActions,
   ListItemContent,
+  ListItemDescription,
+  ListItemSupportingText,
+  ListItemTitle,
 } from "@/components/list";
-import { DescriptionText, SupportingText } from "@/components/text";
 import type { TaskStatus } from "@/features/dashboard/types";
 import type { ProjectTaskView } from "@/features/projects/actions";
 import type { ProjectMessages } from "@/messages/app-messages";
@@ -134,23 +136,19 @@ function ProjectTaskRow({
         />
         <ListItemContent
           grow={false}
-          title={
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-semibold">{task.title}</span>
-            </div>
-          }
+          title={<ListItemTitle>{task.title}</ListItemTitle>}
           main={
-            <DescriptionText darkMode={darkMode}>
+            <ListItemDescription>
               {displayDescription(
                 task.description,
                 task.title,
                 defaultDescriptions.task,
               )}
-            </DescriptionText>
+            </ListItemDescription>
           }
           support={
             metadata ? (
-              <SupportingText darkMode={darkMode}>{metadata}</SupportingText>
+              <ListItemSupportingText>{metadata}</ListItemSupportingText>
             ) : null
           }
         />
