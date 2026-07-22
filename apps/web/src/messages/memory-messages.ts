@@ -23,7 +23,7 @@ export const englishMemoryMessages = {
   },
   suggestions: {
     title: "Suggestions",
-    description: "To reexperience in a few days.",
+    description: "To reexperience soon.",
     refresh: "Refresh",
     initial: "Click Refresh to load suggestions.",
     loading: "Loading suggestions...",
@@ -167,7 +167,7 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
   },
   suggestions: {
     title: "建议",
-    description: "适合几天后重新体验。",
+    description: "近期值得再体验。",
     refresh: "刷新",
     initial: "点击刷新加载建议。",
     loading: "正在加载建议...",

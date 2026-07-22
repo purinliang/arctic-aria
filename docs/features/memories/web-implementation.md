@@ -54,7 +54,7 @@ Header:
 - The left side shows the `Lightbulb` icon.
 - The title text is `Suggestions`.
 - Under the title, show short muted text:
-  `To reexperience in a few days.`
+  `To reexperience soon.`
 - The right side shows a compact `Refresh` button.
 - The `Refresh` button includes the `RefreshCw` icon and the text `Refresh`.
 
