@@ -1,9 +1,11 @@
 import type { RoutineRuleType } from "../dashboard/types.ts";
 
 export type RoutineRecurrenceOption =
+  | "once"
   | "daily"
   | "weekly"
   | "monthly"
+  | "yearly"
   | "every_14_days"
   | "every_30_days"
   | "fixed_days";
@@ -12,6 +14,7 @@ export type RoutineRecurrenceDraft = {
   firstStartDate: string;
   endDate?: string | null;
   ruleType: RoutineRuleType;
+  recurrenceOption?: RoutineRecurrenceOption;
   intervalValue?: number | null;
   weekdays?: number[] | null;
   dayOfMonth?: number | null;
@@ -25,9 +28,11 @@ export type NormalizedRoutineRule = {
 };
 
 export const routineRecurrenceOptions: RoutineRecurrenceOption[] = [
+  "once",
   "daily",
   "weekly",
   "monthly",
+  "yearly",
   "every_14_days",
   "every_30_days",
   "fixed_days",
@@ -46,10 +51,21 @@ export function isValidDateKey(value: string) {
 }
 
 export function recurrenceOptionFromRule(
-  draft: Pick<RoutineRecurrenceDraft, "ruleType" | "intervalValue">,
+  draft: Pick<
+    RoutineRecurrenceDraft,
+    "ruleType" | "intervalValue" | "recurrenceOption"
+  >,
 ): RoutineRecurrenceOption {
+  if ("recurrenceOption" in draft && draft.recurrenceOption) {
+    return draft.recurrenceOption;
+  }
+
+  if (draft.ruleType === "once") {
+    return "once";
+  }
+
   if (draft.ruleType === "monthly_by_date") {
-    return "monthly";
+    return draft.intervalValue === 12 ? "yearly" : "monthly";
   }
 
   if (draft.ruleType === "bi_weekly") {
@@ -70,9 +86,21 @@ export function applyRecurrenceOption<T extends RoutineRecurrenceDraft>(
   const weekday = weekdayFromDateKey(draft.firstStartDate);
   const dayOfMonth = dayOfMonthFromDateKey(draft.firstStartDate);
 
+  if (option === "once") {
+    return {
+      ...draft,
+      recurrenceOption: option,
+      ruleType: "once",
+      intervalValue: null,
+      weekdays: null,
+      dayOfMonth: null,
+    };
+  }
+
   if (option === "daily") {
     return {
       ...draft,
+      recurrenceOption: option,
       ruleType: "daily",
       intervalValue: null,
       weekdays: null,
@@ -83,6 +111,7 @@ export function applyRecurrenceOption<T extends RoutineRecurrenceDraft>(
   if (option === "weekly") {
     return {
       ...draft,
+      recurrenceOption: option,
       ruleType: "weekly",
       intervalValue: null,
       weekdays: weekday === null ? [] : [weekday],
@@ -93,8 +122,20 @@ export function applyRecurrenceOption<T extends RoutineRecurrenceDraft>(
   if (option === "monthly") {
     return {
       ...draft,
+      recurrenceOption: option,
       ruleType: "monthly_by_date",
       intervalValue: 1,
+      weekdays: null,
+      dayOfMonth,
+    };
+  }
+
+  if (option === "yearly") {
+    return {
+      ...draft,
+      recurrenceOption: option,
+      ruleType: "monthly_by_date",
+      intervalValue: 12,
       weekdays: null,
       dayOfMonth,
     };
@@ -103,6 +144,7 @@ export function applyRecurrenceOption<T extends RoutineRecurrenceDraft>(
   if (option === "every_14_days") {
     return {
       ...draft,
+      recurrenceOption: option,
       ruleType: "bi_weekly",
       intervalValue: null,
       weekdays: null,
@@ -113,6 +155,7 @@ export function applyRecurrenceOption<T extends RoutineRecurrenceDraft>(
   if (option === "every_30_days") {
     return {
       ...draft,
+      recurrenceOption: option,
       ruleType: "day_interval",
       intervalValue: 30,
       weekdays: null,
@@ -122,11 +165,14 @@ export function applyRecurrenceOption<T extends RoutineRecurrenceDraft>(
 
   return {
     ...draft,
+    recurrenceOption: option,
     ruleType: "day_interval",
     weekdays: null,
     dayOfMonth: null,
     intervalValue:
-      draft.intervalValue && draft.intervalValue !== 30 ? draft.intervalValue : 90,
+      draft.intervalValue === null || draft.intervalValue === undefined
+        ? 90
+        : draft.intervalValue,
   };
 }
 
@@ -152,6 +198,10 @@ export function normalizeRoutineRecurrence(
     return null;
   }
 
+  if (draft.ruleType === "once") {
+    return noDetailRule("once");
+  }
+
   if (draft.ruleType === "daily") {
     return noDetailRule("daily");
   }
@@ -166,9 +216,15 @@ export function normalizeRoutineRecurrence(
   }
 
   if (draft.ruleType === "monthly_by_date") {
+    const intervalValue = draft.intervalValue ?? 1;
+
+    if (!Number.isInteger(intervalValue) || intervalValue < 1) {
+      return null;
+    }
+
     return {
       ruleType: "monthly_by_date",
-      intervalValue: 1,
+      intervalValue,
       weekdays: null,
       dayOfMonth,
     };
@@ -227,6 +283,14 @@ export function previewRoutineDateKeys(
   }
 
   const endDate = draft.endDate?.trim() || null;
+
+  if (rule.ruleType === "once") {
+    return {
+      dates: endDate && draft.firstStartDate > endDate ? [] : [draft.firstStartDate],
+      continues: false,
+    };
+  }
+
   const dates: string[] = [];
   let offset = 0;
 
@@ -255,7 +319,9 @@ export function dayOfMonthFromDateKey(value: string) {
   return isValidDateKey(value) ? parseDateKey(value).getUTCDate() : null;
 }
 
-function noDetailRule(ruleType: "daily" | "bi_weekly"): NormalizedRoutineRule {
+function noDetailRule(
+  ruleType: "once" | "daily" | "bi_weekly",
+): NormalizedRoutineRule {
   return {
     ruleType,
     intervalValue: null,
@@ -282,7 +348,7 @@ function nextDateKey(
   }
 
   if (rule.ruleType === "monthly_by_date") {
-    return addMonths(firstStartDate, offset);
+    return addMonths(firstStartDate, offset * (rule.intervalValue ?? 1));
   }
 
   return addDays(firstStartDate, offset * (rule.intervalValue ?? 90));

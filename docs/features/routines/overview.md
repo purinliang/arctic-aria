@@ -31,7 +31,7 @@ The first routines feature should include:
 - deleting routines
 - defining recurrence rules
 - generating routine instances
-- showing today's routine instances on the dashboard
+- showing today's routine instances on Today
 - marking a routine instance completed
 - reopening a completed routine instance
 - recording completion events for daily review
@@ -60,25 +60,27 @@ A routine rule defines when instances should be generated.
 
 Supported first UI choices:
 
+- `Once`: one check on the first start date.
 - `Daily`: every day.
 - `Weekly`: every 7 days from the first start date. The weekday is implied by
   the first start date.
 - `Monthly`: every month on the calendar day implied by the first start
   date. This is useful for bills and renewal checks.
+- `Yearly`: every year on the date implied by the first start date.
 - `Every 14 days`: every 14 days from the first start date.
 - `Every 30 days`: useful when the user wants a fixed 30-day
   cycle instead of a calendar month.
-- `Fixed day interval`: useful for subscription-like routines that should
-  repeat after exactly 90 days by default, or another explicit number of days,
-  instead of on a calendar date.
+- `Fixed interval`: useful for routines that repeat after an explicit number of
+  days instead of on a calendar date.
 
 Rule constraints:
 
 - `interval_value` stores either a month interval for `monthly_by_date` or a
-  day interval for `day_interval`.
+  day interval for `day_interval`. The yearly preset uses `monthly_by_date`
+  with a 12-month interval.
 - `weekdays` stores the first start date weekday for `weekly`.
 - `day_of_month` stores the first start date day for `monthly_by_date`.
-- `preferred_time` is optional, but the dashboard should show it when present.
+- `preferred_time` is optional, but Today should show it when present.
 - `timezone` should default to the user's settings timezone.
 
 Monthly rules need a short-month policy. The first policy is: if the target day
@@ -111,22 +113,23 @@ instance status; it is a UI or delivery state for an active reminder.
 The first Discord reminders are plain direct messages. They should not add
 Discord response buttons in this version.
 
-## Dashboard Behavior
+## Today Behavior
 
-The dashboard should show today's routine instances, not routine definitions.
+Today should show today's routine instances, not routine definitions.
 
 Each routine instance should show:
 
 - title
 - scheduled time, when present
 - current instance status
-- useful small metadata such as streak or due text when available
+- description
 
-The first dashboard should use static routine rows:
+The current Today panel uses static routine rows:
 
 - the completion checkbox appears on the left of the row
 - rows do not expand or collapse
-- `Busy` and `Skip` are not exposed in the current dashboard UI
+- `Busy`, `Skip`, `Later`, and `Move to tomorrow` are not exposed in the
+  current Today UI
 
 Action behavior:
 

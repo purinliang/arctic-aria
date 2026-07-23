@@ -34,9 +34,67 @@ test("monthly recurrence derives day from first start date", () => {
     }),
     {
       ruleType: "monthly_by_date",
-      intervalValue: 1,
+      intervalValue: 3,
       weekdays: null,
       dayOfMonth: 16,
+    },
+  );
+});
+
+test("once recurrence previews only the first start date", () => {
+  assert.deepEqual(
+    normalizeRoutineRecurrence({
+      firstStartDate: "2026-07-16",
+      ruleType: "once",
+    }),
+    {
+      ruleType: "once",
+      intervalValue: null,
+      weekdays: null,
+      dayOfMonth: null,
+    },
+  );
+
+  assert.deepEqual(
+    previewRoutineDateKeys({
+      firstStartDate: "2026-07-16",
+      ruleType: "once",
+    }),
+    {
+      dates: ["2026-07-16"],
+      continues: false,
+    },
+  );
+});
+
+test("yearly option stores a twelve-month calendar rule", () => {
+  assert.deepEqual(
+    applyRecurrenceOption(
+      {
+        firstStartDate: "2026-07-16",
+        ruleType: "once",
+      },
+      "yearly",
+    ),
+    {
+      firstStartDate: "2026-07-16",
+      recurrenceOption: "yearly",
+      ruleType: "monthly_by_date",
+      intervalValue: 12,
+      weekdays: null,
+      dayOfMonth: 16,
+    },
+  );
+
+  assert.deepEqual(
+    previewRoutineDateKeys({
+      firstStartDate: "2026-07-16",
+      ruleType: "monthly_by_date",
+      intervalValue: 12,
+    }),
+    {
+      dates: ["2026-07-16", "2027-07-16", "2028-07-16"],
+      continues: true,
     },
   );
 });
@@ -79,6 +137,17 @@ test("fixed day interval input can stay blank while editing", () => {
       intervalValue: null,
     }),
     null,
+  );
+});
+
+test("fixed day interval keeps the explicit fixed option while typing preset values", () => {
+  assert.equal(
+    recurrenceOptionFromRule({
+      ruleType: "day_interval",
+      recurrenceOption: "fixed_days",
+      intervalValue: 30,
+    }),
+    "fixed_days",
   );
 });
 

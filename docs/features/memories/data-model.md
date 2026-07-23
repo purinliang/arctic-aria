@@ -16,8 +16,6 @@ Backend validation should check:
 - memory title is required and 1-120 characters
 - memory description is optional and 2000 characters or fewer
 - memory category belongs to the current user
-- pinned memory category is supported by the dashboard when pinning into the
-  dashboard shortlist
 - replacement candidates are not already visible and are from the same category
 
 Database constraints should protect:
@@ -66,7 +64,7 @@ Current implementation note:
   app-controlled so categories such as Cuisine and Sightseeing cannot lose
   their default translation, description, or icon.
 - `shown_on_dashboard` remains in the schema as legacy metadata for now, but
-  the current dashboard pinned-memory list does not filter by this field.
+  the current Today pinned-memory list does not filter by this field.
 - Existing users are backfilled by migration, and memory category
   initialization can safely restore missing default category metadata for future
   users or partially initialized accounts.
@@ -85,7 +83,7 @@ Current database protection:
 - `built_in_key` is null or one of the allowed built-in keys.
 - `description` is 500 characters or fewer.
 - `icon_name` defaults to `bookmark`.
-- `shown_on_dashboard` defaults to `false`; do not use it for current dashboard
+- `shown_on_dashboard` defaults to `false`; do not use it for current Today
   pinned-memory filtering.
 
 Delete behavior:
@@ -176,7 +174,7 @@ Retention behavior:
 
 ## `pinned_memories`
 
-Stores the current soft shortlist shown on the dashboard.
+Stores the current soft shortlist shown on Today.
 
 Current fields:
 
@@ -200,12 +198,12 @@ Current database protection:
 - `position` is positive.
 - `completed_cleanup_at` is null or not before `completed_at`.
 
-The dashboard should not enforce per-category count limits. Replacement rules
-still belong in the backend service because they depend on current visible rows
-and candidate selection.
+Today should not enforce per-category count limits. Replacement rules still
+belong in the backend service because they depend on current visible rows and
+candidate selection.
 
 Lifecycle behavior:
 
-- Pinned rows are dashboard shortlist state, not the canonical memory record.
+- Pinned rows are Today shortlist state, not the canonical memory record.
 - Completing, canceling, replacing, or cleaning up pinned memories should update
   or remove pinned rows while leaving the memory record intact.

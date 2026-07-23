@@ -20,16 +20,16 @@ Pinned projects:
 - pinned shortcut labels truncate when long
 - deleted projects must disappear from the pinned shortcut list
 
-## Dashboard
+## Today Panel
 
-The dashboard should not manage the full project tree. It should show the
-selected work for today.
+Today should not manage the full project tree. It should show the selected work
+for today.
 
 Section title:
 
 `Tasks`
 
-Dashboard task rows should show:
+Today task rows should show:
 
 - task title
 - project title
@@ -37,7 +37,7 @@ Dashboard task rows should show:
 - done checkbox
 - deadline
 
-Dashboard task rows should not show:
+Today task rows should not show:
 
 - editable numeric progress fields
 - standalone progress visualization
@@ -46,11 +46,10 @@ Dashboard task rows should not show:
 
 The atomic scheduled unit is the task. A task can last a few days.
 
-### Dashboard Task Panel Layout
+### Today Task Panel Layout
 
-The dashboard project task area appears in the left dashboard column, above
-Routines. Review and pinned memories stay in the right-side dashboard
-column.
+The Today project task area appears in the left column. Routines and pinned
+memories stay in the right column.
 
 Panel header:
 
@@ -70,12 +69,12 @@ Task row layout:
 - third text line: supporting metadata as `project · milestone · deadline`,
   omitting the milestone segment when the task has no milestone
 - no expand/collapse behavior
-- no dashboard edit action
+- no Today edit action
 - do not show `Block`, `Skip`, or a multi-status selector in the first UI
 - checkbox changes use optimistic UI and must not disable the clicked checkbox,
-  other dashboard task checkboxes, or the row navigation action while the
+  other Today task checkboxes, or the row navigation action while the
   backend request is pending
-- successful checkbox responses stay silent and must not apply a full dashboard
+- successful checkbox responses stay silent and must not apply a full Today
   data refresh to checkbox rows while another lightweight checkbox request may
   still be in progress; failed requests roll back only the affected task row
   when that failed request is still the latest request for that row

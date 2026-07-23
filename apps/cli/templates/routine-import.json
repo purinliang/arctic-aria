@@ -4,7 +4,7 @@
     "description": "A short walk to start the day.",
     "firstStartDate": "2026-07-22",
     "endDate": "",
-    "recurrence": "daily",
+    "recurrence": "once",
     "fixedIntervalDays": 90,
     "preferredTime": "08:30",
     "timezone": "Australia/Melbourne"

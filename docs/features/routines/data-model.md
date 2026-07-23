@@ -50,7 +50,7 @@ Routine delete actions are soft deletes.
 Current rules:
 
 - `routines.deleted_at` marks a routine deleted
-- normal routine lists and dashboard rows show only routines where
+- normal routine lists and Today rows show only routines where
   `deleted_at IS NULL`
 - deleted routines are excluded from future instance generation
 - existing historical routine instances remain available for review/history
@@ -136,12 +136,14 @@ Current fields:
 
 Supported rule types:
 
+- `once`, shown only on the first start date
 - `daily`
 - `weekly`, anchored to first start date weekday
-- `monthly_by_date`, anchored to first start date day
+- `monthly_by_date`, anchored to first start date day; an interval of 12 is the
+  yearly preset
 - `bi_weekly`, anchored to first start date
-- `day_interval`, used by the every-30-days preset and the fixed-days option,
-  which defaults to 90 days
+- `day_interval`, used by the every-30-days preset and the fixed interval
+  option
 
 Current database protection:
 

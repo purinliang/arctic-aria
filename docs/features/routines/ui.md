@@ -4,23 +4,22 @@ This document describes user-visible Routine UI behavior. Product rules and
 table attributes are documented in [overview.md](overview.md) and
 [data-model.md](data-model.md).
 
-## Dashboard
+## Today Panel
 
-The home dashboard should continue showing a compact `Routines` panel.
+Today shows a compact `Routines` panel.
 
-The dashboard shows routine instances for the current personal day. It should
-not show every routine definition.
+The panel shows routine instances for the current local day. It should not show
+every routine definition.
 
 Each routine row should show:
 
 - completion checkbox on the left
 - title
 - scheduled time, if present
-- status
-- short metadata such as streak or due text when available
+- description, clamped at two lines
 
-Dashboard routine rows should not expand or collapse. Do not show `Busy` or
-`Skip` buttons in the current dashboard UI.
+Today routine rows should not expand or collapse. Do not show `Busy`, `Skip`,
+`Later`, or `Move to tomorrow` buttons in the current Today UI.
 
 Click behavior:
 
@@ -32,14 +31,14 @@ Click behavior:
 - The checkbox must remain enabled while the backend request is pending so the
   user can immediately undo the optimistic state. Do not disable the clicked
   checkbox, other routine checkboxes, or the row navigation action for this
-  lightweight dashboard command.
+  lightweight Today command.
 - Successful checkbox responses should stay silent and must not apply a full
-  dashboard data refresh to checkbox rows while another lightweight checkbox
+  Today data refresh to checkbox rows while another lightweight checkbox
   request may still be in progress. Failed requests should roll back only the
   affected routine row when that failed request is still the latest request for
   that row.
-- `Busy` and `Skip` are deferred reminder-response actions, not dashboard
-  controls in the current UI.
+- `Busy`, `Skip`, `Later`, and `Move to tomorrow` are deferred
+  reminder-response actions, not Today controls in the current UI.
 
 The UI may show a temporary reminder delivery state, but the persisted Core
 instance statuses are only `pending`, `completed`, and `skipped`.
@@ -168,16 +167,19 @@ cron expression UI.
 
 The routine editor should keep recurrence choices ordered by likely usefulness:
 
+- `Once`: show only on the first start date. This is the default for a new
+  routine.
 - `Daily`: every day from the first start date.
 - `Weekly`: every 7 days from the first start date. Do not show a weekday
   multi-select.
 - `Monthly`: every month on the day implied by the first start date. This is
   typical for bills and renewal checks.
+- `Yearly`: every year on the date implied by the first start date.
 - `Every 14 days`: every 14 days from the first start date.
 - `Every 30 days`: every 30 days from the first start date.
-- `Fixed day interval`: repeat after an explicit number of days. Default this
-  field to 90 days because 30 days already has a preset. This is typical for
-  software memberships or subscription-like checks.
+- `Fixed interval`: repeat after an explicit number of days. While editing this
+  field, keep the fixed-interval choice stable even if the current value equals
+  a preset such as 30.
 
 The first start date and end date should be enough for most schedules. Keep the
 visible field labels short; do not append technical qualifiers such as

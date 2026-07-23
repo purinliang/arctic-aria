@@ -36,6 +36,7 @@ export type Routine = {
 };
 
 export type RoutineRuleType =
+  | "once"
   | "daily"
   | "weekly"
   | "bi_weekly"

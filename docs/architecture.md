@@ -38,11 +38,12 @@ services provide storage now and can later provide cache, dataflow, scheduling,
 and external adapters.
 
 Currently implemented product features are Auth, Settings, Projects, Routines,
-Memories, Dashboard, the first Ideas capture foundation, and administrator
-Performance diagnostics. The Discord integration is hosted by the Next.js web
-app and supports account binding, `/idea` capture, and outbound test messages.
-Cloudflare provides the current cron trigger for scheduled Discord reminders
-and Daily Review delivery. Product-level Scheduler, Reviews, Redis/cache,
+Memories, Dashboard, Ideas, administrator Performance diagnostics, and the
+feature-level scheduling needed for Today and Discord notifications. The
+Discord integration is hosted by the Next.js web app and supports account
+binding, `/idea` capture, outbound test messages, routine reminders, and Daily
+Review delivery. Cloudflare provides the current cron trigger. Product-level
+Scheduler and Reviews are still not separate first-class modules; Redis/cache,
 dataflow, and broader background jobs remain planned directions.
 
 Documentation follows the same shape:
@@ -174,8 +175,8 @@ The Ideas feature owns:
 - triage state
 - conversion into a project, task, routine, memory, or review note
 
-Ideas persistence, read-only web listing, and Discord `/idea` capture are
-implemented. Web add/edit/triage and conversion controls are planned but not
+Ideas persistence, web add/edit/delete management, and Discord `/idea` capture
+are implemented. User-facing triage and conversion controls are planned but not
 implemented yet.
 
 Detailed docs:
@@ -199,7 +200,9 @@ The scheduler owns:
 - creating reminder jobs
 - handling retry and quiet-period rules
 
-Scheduler is planned but not implemented yet.
+Feature-level scheduling exists today for Today project-task selections,
+routine instances, routine reminders, and Daily Review delivery. A unified
+product-level Scheduler module is planned but not implemented yet.
 
 ### Reviews
 
@@ -213,7 +216,9 @@ The Reviews feature owns:
 - progress summaries
 - adjustment suggestions
 
-Reviews is planned but not implemented yet.
+Daily Review summary generation and Discord delivery are implemented as part of
+the Dashboard and Discord notification flow. A broader first-class Reviews
+feature with persisted review workflows is planned but not implemented yet.
 
 ## App Surfaces
 

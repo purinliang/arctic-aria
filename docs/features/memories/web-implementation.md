@@ -13,11 +13,10 @@ The current web implementation supports database-backed memory testing:
 - load memories from Neon
 - add, edit, and delete memories
 - add, edit, and delete categories
-- show pinned memories on the dashboard from Neon
+- pin and unpin memories from the Memories page
+- show pinned memories on Today from Neon
 - mark pinned memories experienced
 - cancel pinned memory experience marks
-
-Projects and Routines are database-backed.
 
 ## Current User Flow
 
@@ -88,14 +87,14 @@ Button behavior:
   the shared notification stack.
 - A pending pin disables only that suggestion's action. `Refresh` is disabled
   while suggestions are loading or while any suggestion action is pending.
-- `Pin` should refresh the database-backed memory list and dashboard pinned
+- `Pin` should refresh the database-backed memory list and Today pinned
   state after success.
 - `Refresh` should refresh memory list summary fields after recording ignored
   suggestion signals.
 
 What should not happen:
 
-- Suggestions should not appear on the home dashboard.
+- Suggestions should not appear on Today.
 - Refreshing suggestions should not create database rows except event rows
   caused by explicit user actions such as `Refresh` or `Pin`.
 - Viewing cached suggestions should not create database rows.
@@ -162,6 +161,11 @@ Database migration:
 ```text
 apps/database/migrations/0002_create_memories.sql
 apps/database/migrations/0007_add_memory_category_description.sql
+apps/database/migrations/0011_add_memory_built_in_metadata.sql
+apps/database/migrations/0015_add_builtin_memory_categories.sql
+apps/database/migrations/0016_add_memory_category_icons.sql
+apps/database/migrations/0017_backfill_memory_category_icons.sql
+apps/database/migrations/0019_add_memory_optional_descriptions.sql
 ```
 
 ## Verification

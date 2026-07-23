@@ -9,6 +9,8 @@ test("routine empty draft uses the selected timezone local date", () => {
   );
 
   assert.equal(draft.firstStartDate, "2026-07-22");
-  assert.deepEqual(draft.weekdays, [3]);
-  assert.equal(draft.dayOfMonth, 22);
+  assert.equal(draft.ruleType, "once");
+  assert.equal(draft.recurrenceOption, "once");
+  assert.equal(draft.weekdays, null);
+  assert.equal(draft.dayOfMonth, null);
 });

@@ -198,14 +198,14 @@ The scheduled route is configured to run every 15 minutes. Routine reminders
 use `routine_instances.remind_at`, not exact preferred-time matching. Cron
 ensures due routine instances, sends pending instances when `remind_at` is
 inside the current due window, sets `reminded_at` after successful delivery, and
-uses `routine-reminder:<routine_instance_id>:<remind_at>` as the idempotency
-key. Daily Review sends during the local `23:48-00:12` window so the 15-minute
-cron cadence does not need to hit midnight exactly. After-midnight sends still
-use the previous local date, and the per-user idempotency key is
-`daily-review:<date>`. If timezone preference is `system`, the server uses the
-last browser-resolved concrete timezone stored in
-`user_settings.resolved_timezone`. If no concrete timezone is available,
-scheduled Daily Review is skipped rather than falling back to UTC.
+uses a `routine-reminder:<digest>` idempotency key derived from the grouped
+routine instance ids, user ids, and `remind_at` values. Daily Review sends
+during the local `23:48-00:12` window so the 15-minute cron cadence does not
+need to hit midnight exactly. After-midnight sends still use the previous local
+date, and the per-user idempotency key is `daily-review:<date>`. If timezone
+preference is `system`, the server uses the last browser-resolved concrete
+timezone stored in `user_settings.resolved_timezone`. If no concrete timezone is
+available, scheduled Daily Review is skipped rather than falling back to UTC.
 
 Implemented `discord_message_deliveries` fields:
 

@@ -27,7 +27,7 @@ AppShell
   Dashboard
     ProjectTasksPanel
     RoutinesPanel
-    TodayReviewPanel
+    TodayReviewPopover
     PinnedMemoriesPanel
 ```
 
@@ -131,4 +131,4 @@ Manual inspection should cover:
 - no incoherent text overlap
 - Dashboard task checkbox behavior
 - routine checkbox behavior
-- pinned memory done and replace behavior
+- pinned memory experienced/cancel behavior

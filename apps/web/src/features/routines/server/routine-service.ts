@@ -81,6 +81,10 @@ export function shouldGenerateInstance(routine: RoutineRecord, date: string) {
 
   const dayOffset = daysBetween(date, routine.firstStartDate);
 
+  if (routine.rule.ruleType === "once") {
+    return date === routine.firstStartDate;
+  }
+
   if (routine.rule.ruleType === "daily") {
     return true;
   }
