@@ -71,22 +71,27 @@ export const englishRoutineMessages = {
     delete: "Delete",
   },
   recurrenceOptions: {
+    once: "Once",
     daily: "Daily",
     weekly: "Weekly",
     monthly: "Monthly",
+    yearly: "Yearly",
     every_14_days: "Every 14 days",
     every_30_days: "Every 30 days",
-    fixed_days: "Fixed day interval",
+    fixed_days: "Fixed interval",
   } satisfies Record<RoutineRecurrenceOption, string>,
   recurrenceDescriptions: {
+    once: "For a one-time check on the first start date.",
     daily: "For habits or checks that matter every day.",
     weekly: "Every 7 days from the first start date.",
     monthly: "For bills and renewal checks on a calendar day.",
+    yearly: "For annual checks on the same calendar date.",
     every_14_days: "Every 14 days from the first start date.",
     every_30_days: "A fixed 30-day cycle, not a calendar month.",
-    fixed_days: "For custom cycles such as subscriptions; defaults to 90 days.",
+    fixed_days: "For a custom cycle such as every 70 or 300 days.",
   } satisfies Record<RoutineRecurrenceOption, string>,
   rules: {
+    once: "Once",
     daily: "Daily",
     weekly: "Weekly",
     bi_weekly: "Every two weeks",
@@ -94,6 +99,7 @@ export const englishRoutineMessages = {
     day_interval: "Every few days",
   } satisfies Record<RoutineRuleType, string>,
   ruleDescriptions: {
+    once: "Show this routine once on the first start date.",
     daily: "Show this routine every day.",
     weekly: "Repeat every 7 days from the first start date.",
     bi_weekly: "Repeat every 14 days from the first start date.",
@@ -103,10 +109,13 @@ export const englishRoutineMessages = {
   weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   summary: {
     noDaySelected: "No day selected",
+    once: "Once",
     weekly: (days: string) => `Weekly: ${days}`,
     every14Days: "Every 14 days",
     monthly: (interval: number, day: number) =>
-      interval === 1
+      interval === 12
+        ? `Yearly on this date`
+        : interval === 1
         ? `Monthly on day ${day}`
         : `Every ${interval} months on day ${day}`,
     dayInterval: (interval: number) => `Every ${interval} days`,
@@ -222,22 +231,27 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     delete: "删除",
   },
   recurrenceOptions: {
+    once: "一次",
     daily: "每天",
     weekly: "每周",
     monthly: "每月",
+    yearly: "每年",
     every_14_days: "每 14 天",
     every_30_days: "每 30 天",
-    fixed_days: "固定天数间隔",
+    fixed_days: "固定间隔",
   },
   recurrenceDescriptions: {
+    once: "只在首次开始日期显示一次。",
     daily: "适合每天都需要检查的习惯或事项。",
     weekly: "从首次开始日期起，每 7 天重复。",
     monthly: "适合账单和续费检查，按日历日期重复。",
+    yearly: "适合每年同一天检查的事项。",
     every_14_days: "从首次开始日期起，每 14 天重复。",
     every_30_days: "固定 30 天周期，不是日历月。",
-    fixed_days: "适合自定义周期，例如订阅；默认 90 天。",
+    fixed_days: "适合自定义周期，例如每 70 天或 300 天。",
   },
   rules: {
+    once: "一次",
     daily: "每天",
     weekly: "每周",
     bi_weekly: "每两周",
@@ -245,6 +259,7 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     day_interval: "每隔几天",
   },
   ruleDescriptions: {
+    once: "只在首次开始日期显示这个日常。",
     daily: "每天显示这个日常。",
     weekly: "从首次开始日期起，每 7 天重复。",
     bi_weekly: "从首次开始日期起，每 14 天重复一次。",
@@ -254,10 +269,15 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
   weekdays: ["日", "一", "二", "三", "四", "五", "六"],
   summary: {
     noDaySelected: "未选择日期",
+    once: "一次",
     weekly: (days) => `每周：${days}`,
     every14Days: "每 14 天",
     monthly: (interval, day) =>
-      interval === 1 ? `每月第 ${day} 天` : `每 ${interval} 个月的第 ${day} 天`,
+      interval === 12
+        ? "每年这一天"
+        : interval === 1
+          ? `每月第 ${day} 天`
+          : `每 ${interval} 个月的第 ${day} 天`,
     dayInterval: (interval) => `每 ${interval} 天`,
   },
   defaultDescriptions: [

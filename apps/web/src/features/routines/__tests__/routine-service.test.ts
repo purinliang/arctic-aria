@@ -64,6 +64,46 @@ test("generates today's daily routine instance", async () => {
   );
 });
 
+test("generates a once routine only on the first start date", async () => {
+  const repository = new InMemoryRoutineRepository({
+    routines: [
+      routine({
+        id: "routine-1",
+        title: "One-time check",
+        firstStartDate: "2026-07-12",
+        rule: {
+          id: "routine-1-rule",
+          routineId: "routine-1",
+          ruleType: "once",
+          intervalValue: null,
+          weekdays: null,
+          dayOfMonth: null,
+          preferredTime: "08:00",
+          timezone: "UTC",
+          createdAt: new Date("2026-07-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-07-01T00:00:00.000Z"),
+        },
+      }),
+    ],
+  });
+  const service = createRoutineService({
+    routines: repository,
+    now: () => now,
+  });
+
+  const instances = await service.listTodayRoutineInstances(userId);
+
+  assert.equal(instances.length, 1);
+  assert.equal(instances[0].title, "One-time check");
+
+  const nextDayService = createRoutineService({
+    routines: repository,
+    now: () => new Date("2026-07-13T10:00:00.000Z"),
+  });
+
+  assert.equal((await nextDayService.listTodayRoutineInstances(userId)).length, 0);
+});
+
 test("generates today's routine instance using the routine timezone", async () => {
   const occurredAt = new Date("2026-07-21T23:30:00.000Z");
   const repository = new InMemoryRoutineRepository({

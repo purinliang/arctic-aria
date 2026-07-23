@@ -339,7 +339,7 @@ function readRecurrence(
   if (!routineRecurrenceOptions.includes(value as RoutineRecurrenceOption)) {
     return invalid(
       field,
-      "Routine recurrence must be daily, weekly, monthly, every_14_days, every_30_days, or fixed_days.",
+      "Routine recurrence must be once, daily, weekly, monthly, yearly, every_14_days, every_30_days, or fixed_days.",
     );
   }
 

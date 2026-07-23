@@ -1,6 +1,7 @@
 import {
   isValidDateKey,
   normalizeRoutineRecurrence,
+  type RoutineRecurrenceOption,
 } from "./routine-recurrence.ts";
 import { readResolvedTimeZone } from "../settings/time-zones.ts";
 import type {
@@ -16,6 +17,7 @@ export type RoutineInput = {
   firstStartDate: string;
   endDate?: string | null;
   ruleType: RoutineRuleType;
+  recurrenceOption?: RoutineRecurrenceOption;
   intervalValue?: number | null;
   weekdays?: number[] | null;
   dayOfMonth?: number | null;

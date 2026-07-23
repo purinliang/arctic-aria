@@ -121,14 +121,14 @@ test("routine import validates json shape before normalization", () => {
     parseRoutineJsonToDocument({
       routine: {
         title: "Morning walk",
-        recurrence: "yearly",
+        recurrence: "weekdays",
       },
     }),
     {
       ok: false,
       code: "routine_import_invalid",
       message:
-        "Routine recurrence must be daily, weekly, monthly, every_14_days, every_30_days, or fixed_days.",
+        "Routine recurrence must be once, daily, weekly, monthly, yearly, every_14_days, every_30_days, or fixed_days.",
       category: "invalid_parameter",
       subject: "routine",
       field: "routine.recurrence",
@@ -182,7 +182,7 @@ test("routine import fills defaults and validates the typed object", () => {
       firstStartDate: "2026-07-22",
       endDate: null,
       rule: {
-        ruleType: "daily",
+        ruleType: "once",
         intervalValue: null,
         weekdays: null,
         dayOfMonth: null,

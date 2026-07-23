@@ -77,8 +77,8 @@ Status: implemented for routine creation and daily checks.
 You might have repeated work that is not a project, such as bills,
 subscriptions, cleaning, medicine, or regular personal habits. Arctic Aria lets
 you create routines with start/end dates, a due time, and a recurrence pattern
-such as daily, weekly, monthly, every 14 days, every 30 days, or every fixed
-number of days.
+such as once, daily, weekly, monthly, yearly, every 14 days, every 30 days, or
+every fixed number of days.
 
 You can:
 

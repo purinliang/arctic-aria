@@ -47,13 +47,13 @@ export function RoutineRecurrenceFields({
             label: messages.recurrenceOptions[option],
             description: messages.recurrenceDescriptions[option],
           }))}
-          onChange={(value) =>
+          onChange={(value) => {
             setDraft((current) =>
               normalizeRoutineRecurrenceDraft(
                 applyRecurrenceOption(current, value as RoutineRecurrenceOption),
               ),
-            )
-          }
+            );
+          }}
         />
       </FieldLabel>
       {selectedOption === "fixed_days" ? (
@@ -64,14 +64,16 @@ export function RoutineRecurrenceFields({
             value={fixedDayIntervalInputValue(draft.intervalValue)}
             disabled={pending}
             onChange={(event) =>
-              setDraft((current) =>
-                normalizeRoutineRecurrenceDraft({
-                  ...current,
-                  intervalValue: fixedDayIntervalValueFromInput(
-                    event.target.value,
-                  ),
-                }),
-              )
+              setDraft((current) => ({
+                ...current,
+                recurrenceOption: "fixed_days",
+                ruleType: "day_interval",
+                intervalValue: fixedDayIntervalValueFromInput(
+                  event.target.value,
+                ),
+                weekdays: null,
+                dayOfMonth: null,
+              }))
             }
           />
         </FieldLabel>

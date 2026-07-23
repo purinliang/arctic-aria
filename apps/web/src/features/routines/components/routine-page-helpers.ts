@@ -31,10 +31,11 @@ export function emptyDraft(
     description: "",
     firstStartDate: calendar.dateKey,
     endDate: "",
-    ruleType: "daily",
-    intervalValue: 90,
-    weekdays: [calendar.weekday],
-    dayOfMonth: calendar.day,
+    ruleType: "once",
+    recurrenceOption: "once",
+    intervalValue: null,
+    weekdays: null,
+    dayOfMonth: null,
     preferredTime: "",
     timezone,
   };
@@ -49,6 +50,7 @@ export function toDraft(routine: RoutineDefinition): RoutineInput {
     firstStartDate: routine.firstStartDate,
     endDate: routine.endDate ?? "",
     ruleType: routine.ruleType,
+    recurrenceOption: undefined,
     intervalValue: routine.intervalValue ?? 90,
     weekdays: routine.weekdays ?? [],
     dayOfMonth: routine.dayOfMonth ?? 1,
@@ -84,6 +86,10 @@ export function ruleSummary(
 ) {
   if (routine.ruleType === "daily") {
     return messages?.rules.daily ?? "Daily";
+  }
+
+  if (routine.ruleType === "once") {
+    return messages?.rules.once ?? "Once";
   }
 
   if (routine.ruleType === "weekly") {

@@ -41,14 +41,14 @@ function routineImportToInput(
   defaultTimeZone: string,
 ): RoutineImportInput {
   const routine = document.routine;
-  const recurrence = routine.recurrence ?? "daily";
+  const recurrence = routine.recurrence ?? "once";
   const base: RoutineImportInput = {
     title: routine.title,
     description: routine.description ?? "",
     firstStartDate: routine.firstStartDate ?? today,
     endDate: routine.endDate ?? "",
-    ruleType: "daily",
-    intervalValue: routine.fixedIntervalDays ?? 90,
+    ruleType: "once",
+    intervalValue: routine.fixedIntervalDays ?? null,
     weekdays: null,
     dayOfMonth: null,
     preferredTime: routine.preferredTime ?? "",

@@ -180,8 +180,9 @@ Rule types:
 - `daily`: every day.
 - `weekly`: every 7 days or selected weekdays.
 - `bi_weekly`: every 14 days.
+- `once`: once on the first start date.
 - `monthly_by_date`: every 1, 2, 3, 6, or 12 months on a selected day of
-  month.
+  month. The routine editor exposes a yearly preset as a 12-month interval.
 - `day_interval`: every fixed number of days, such as every 30 days.
 
 `routine_rules` should store:

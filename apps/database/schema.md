@@ -249,7 +249,7 @@ Columns:
 
 Important constraints:
 
-- rule type: `daily`, `weekly`, `bi_weekly`, `monthly_by_date`,
+- rule type: `once`, `daily`, `weekly`, `bi_weekly`, `monthly_by_date`,
   `day_interval`
 - interval value is null or positive
 - day of month is null or 1-31

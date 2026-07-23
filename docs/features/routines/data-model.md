@@ -136,12 +136,14 @@ Current fields:
 
 Supported rule types:
 
+- `once`, shown only on the first start date
 - `daily`
 - `weekly`, anchored to first start date weekday
-- `monthly_by_date`, anchored to first start date day
+- `monthly_by_date`, anchored to first start date day; an interval of 12 is the
+  yearly preset
 - `bi_weekly`, anchored to first start date
-- `day_interval`, used by the every-30-days preset and the fixed-days option,
-  which defaults to 90 days
+- `day_interval`, used by the every-30-days preset and the fixed interval
+  option
 
 Current database protection:
 

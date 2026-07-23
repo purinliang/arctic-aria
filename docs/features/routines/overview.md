@@ -60,22 +60,24 @@ A routine rule defines when instances should be generated.
 
 Supported first UI choices:
 
+- `Once`: one check on the first start date.
 - `Daily`: every day.
 - `Weekly`: every 7 days from the first start date. The weekday is implied by
   the first start date.
 - `Monthly`: every month on the calendar day implied by the first start
   date. This is useful for bills and renewal checks.
+- `Yearly`: every year on the date implied by the first start date.
 - `Every 14 days`: every 14 days from the first start date.
 - `Every 30 days`: useful when the user wants a fixed 30-day
   cycle instead of a calendar month.
-- `Fixed day interval`: useful for subscription-like routines that should
-  repeat after exactly 90 days by default, or another explicit number of days,
-  instead of on a calendar date.
+- `Fixed interval`: useful for routines that repeat after an explicit number of
+  days instead of on a calendar date.
 
 Rule constraints:
 
 - `interval_value` stores either a month interval for `monthly_by_date` or a
-  day interval for `day_interval`.
+  day interval for `day_interval`. The yearly preset uses `monthly_by_date`
+  with a 12-month interval.
 - `weekdays` stores the first start date weekday for `weekly`.
 - `day_of_month` stores the first start date day for `monthly_by_date`.
 - `preferred_time` is optional, but Today should show it when present.

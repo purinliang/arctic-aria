@@ -1,6 +1,7 @@
 import { fallbackRoutineScheduledTime } from "./routine-reminder-schedule.ts";
 
 export type RoutineRuleType =
+  | "once"
   | "daily"
   | "weekly"
   | "bi_weekly"

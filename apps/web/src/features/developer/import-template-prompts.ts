@@ -61,7 +61,7 @@ Duration: 1_3_months
 Description: A short walk to start the day.
 First start date: 2026-07-22
 End date:
-Repeat: daily
+Repeat: once
 Fixed interval days:
 Preferred time: 08:30
 Timezone: Australia/Melbourne
@@ -80,7 +80,7 @@ Timezone: Australia/Melbourne
 
 <!-- Routine import rules: one Routine block creates one routine. Repeat the Routine heading to import multiple routines. -->
 <!-- Legal fields: Description, First start date, End date, Repeat, Fixed interval days, Preferred time, Timezone. -->
-<!-- Repeat is daily, weekly, monthly, every_14_days, every_30_days, or fixed_days. -->
+<!-- Repeat is once, daily, weekly, monthly, yearly, every_14_days, every_30_days, or fixed_days. -->
 <!-- Fixed interval days is only used when Repeat is fixed_days. Examples: 1 = daily, 2 = every 2 days, 7 = weekly. -->
 <!-- Each field is single-line "Field: value"; multiline values are not supported. -->`,
 };
@@ -127,7 +127,7 @@ function developerImportInstructionFor(target: DeveloperImportTarget) {
   return [
     "According to the following template, parse my requirement into the same Arctic Aria routine import Markdown.",
     "Return only the filled import document.",
-    "Supported repeat values are daily, weekly, monthly, every_14_days, every_30_days, and fixed_days.",
+    "Supported repeat values are once, daily, weekly, monthly, yearly, every_14_days, every_30_days, and fixed_days.",
     "If fixed_days is used, include Fixed interval days; for example 1 means daily, 2 means every 2 days, and 7 means weekly. Otherwise leave Fixed interval days empty.",
     "You may include multiple Routine blocks in one document.",
   ].join("\n");

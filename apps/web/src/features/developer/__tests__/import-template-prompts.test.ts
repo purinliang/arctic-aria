@@ -31,6 +31,7 @@ test("developer import prompts wrap templates with llm instructions", () => {
   assert.match(routinePrompt, /Fixed interval days/);
   assert.match(routinePrompt, /2 means every 2 days/);
   assert.match(routinePrompt, /1 = daily, 2 = every 2 days, 7 = weekly/);
+  assert.match(routinePrompt, /once, daily, weekly, monthly, yearly/);
 });
 
 test("developer import target detection reads markdown and json", () => {

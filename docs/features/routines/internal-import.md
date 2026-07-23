@@ -119,9 +119,11 @@ visual separator.
 
 Legal recurrence values are:
 
+- `once`
 - `daily`
 - `weekly`
 - `monthly`
+- `yearly`
 - `every_14_days`
 - `every_30_days`
 - `fixed_days`

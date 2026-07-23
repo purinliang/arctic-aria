@@ -167,16 +167,19 @@ cron expression UI.
 
 The routine editor should keep recurrence choices ordered by likely usefulness:
 
+- `Once`: show only on the first start date. This is the default for a new
+  routine.
 - `Daily`: every day from the first start date.
 - `Weekly`: every 7 days from the first start date. Do not show a weekday
   multi-select.
 - `Monthly`: every month on the day implied by the first start date. This is
   typical for bills and renewal checks.
+- `Yearly`: every year on the date implied by the first start date.
 - `Every 14 days`: every 14 days from the first start date.
 - `Every 30 days`: every 30 days from the first start date.
-- `Fixed day interval`: repeat after an explicit number of days. Default this
-  field to 90 days because 30 days already has a preset. This is typical for
-  software memberships or subscription-like checks.
+- `Fixed interval`: repeat after an explicit number of days. While editing this
+  field, keep the fixed-interval choice stable even if the current value equals
+  a preset such as 30.
 
 The first start date and end date should be enough for most schedules. Keep the
 visible field labels short; do not append technical qualifiers such as
