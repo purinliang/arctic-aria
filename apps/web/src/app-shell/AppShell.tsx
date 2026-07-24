@@ -10,6 +10,7 @@ import {
   NotificationStack,
   type NotificationItem,
 } from "@/components/notification";
+import { DescriptionText, LabelText } from "@/components/text";
 import { appShellClass } from "@/components/theme";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import type { ThemePreference } from "@/app-shell/app-preferences";
@@ -302,10 +303,22 @@ export function AppShell({
                 dateMessages={messages.forms.datePicker}
               />
             ) : (
-              <div className="col-start-2 flex min-w-0 flex-1 items-center justify-between gap-3">
-                <h1 className="min-w-0 truncate text-2xl font-semibold tracking-normal sm:text-3xl">
-                  {pageTitle}
-                </h1>
+              <div className="col-start-2 flex min-w-0 flex-1 items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h1 className="min-w-0 truncate text-2xl font-semibold tracking-normal sm:text-3xl">
+                    {pageTitle}
+                  </h1>
+                  {activeView === "dashboard" ? (
+                    <div className="mt-2 grid gap-1">
+                      <LabelText darkMode={darkMode} className="block text-base">
+                        {messages.appShell.todayPlanSubtitle}
+                      </LabelText>
+                      <DescriptionText darkMode={darkMode} className="italic">
+                        {messages.appShell.todayPlanSupport}
+                      </DescriptionText>
+                    </div>
+                  ) : null}
+                </div>
                 {activeView === "dashboard" ? (
                   <TodayReviewPopover
                     darkMode={darkMode}

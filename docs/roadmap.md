@@ -66,6 +66,9 @@ Likely future items:
 - Add daily review as a first-class feature after the expected review workflow
   is clearer.
 - Improve project task planning after enough manual project/task usage exists.
+- Estimate each task's expected time and add a schedule algorithm, such as
+  network flow or an equivalent planner, so the generated Today plan stays
+  within available time and does not require overtime.
 - Improve dashboard selection rules only after the user workflow feels stable.
 - Add stronger settings, including default theme and personal day-boundary time.
 - Improve Memories suggestions after the memory data model and dashboard

@@ -52,6 +52,9 @@ const englishMessages = {
       routines: "Routines",
       settings: "Settings",
     },
+    todayPlanSubtitle: "Trust Aria. Simply follow today's plan.",
+    todayPlanSupport:
+      "Your future plan remains safe and achievable: no day is overloaded, and every task can still be completed on time. If I don't remind you, there's no need to check it today.",
     sidebar: {
       darkMode: "Dark mode",
       lightMode: "Light mode",
@@ -405,6 +408,9 @@ const simplifiedChineseMessages: AppMessages = {
       routines: "日常",
       settings: "设置",
     },
+    todayPlanSubtitle: "信任阿莉雅，只需按照今天的计划行动。",
+    todayPlanSupport:
+      "你的未来计划仍然安全可行：每天都不会超负荷，所有工作都能按时完成。如果我没有提醒你，就不必今天检查。",
     sidebar: {
       darkMode: "深色模式",
       lightMode: "浅色模式",
