@@ -240,7 +240,8 @@ Project title switcher:
 
 - use a button plus dropdown menu, not an input-like select field
 - the button text is the current project name
-- show a `ChevronDown` icon to hint that it opens a menu
+- clicking the project name returns to project-level detail
+- only the `ChevronDown` button opens the project switcher menu
 - the menu lists available projects as buttons
 - the current project should be visually active
 - long project names should truncate in the title button without changing title
@@ -252,46 +253,46 @@ Project title switcher:
 
 Detail page layout:
 
-- parent layout: vertical milestone overview followed by shared split layout
-- direction below the overview: left-right on desktop, stacked on mobile
+- parent layout: shared split layout
+- direction: left-right on desktop, stacked on mobile
 - desktop split: flexible left panel and fixed `20rem` right panel
 - if available width cannot keep the left panel at least 20% wider than the
   right panel, stack the panels vertically instead
 - use the shared `aa-split-*` classes so the two-column layout activates only
   when the detail container is at least `53rem` wide
 - left and right panels keep independent content-driven heights
-- full-width top area: selected milestone title, then one truncated metadata
-  line as `deadline or expected duration · objective`; this is not a separate
-  card
-- left panel: task list for the selected milestone group
-- right panel: `Milestones` with `Manage`
-- left card: `Tasks`
-- right card: `Milestones` with `Manage`
-- left card: `Tasks` card with icon, supporting text, and `New`
-- title action: icon-only `Info` button opens a project overview popover
-- project overview popover action order: icon-only `Pin` or `PinOff`, then
-  `Edit3` icon plus `Edit`
+- opening a project from the project list, sidebar pinned shortcut, or title
+  switcher enters project-level detail first
+- project-level left panel: `Project Overview` card with project objective,
+  project progress bar, and milestone marker ticks/labels
+- project-level right panel: `Milestones` with `Manage`
+- milestone-level title bar: `Projects / project name` is reduced to
+  description-level text; selected milestone title and metadata become the only
+  main page title and metadata line
+- milestone-level left panel: `Tasks` card for the selected milestone group
+- milestone-level right panel first card: `Project Overview`
+- milestone-level right panel second card: `Milestones` with `Manage`
+- title action: icon-only `Pin` or `PinOff`
+- project overview card action: `Edit3` icon plus `Edit`
 - milestone add/edit actions live in a dedicated milestone manager dialog,
   opened from the `Milestones` panel `Manage` action
-- on mobile, keep the project info action on the first title-bar row, aligned
-  to the right of `Projects /`
-- the page title bar shows one truncated metadata line, such as
-  `Due Aug 5, 2026 · objective`, below `Projects / project name`
-- project overview popover shows objective text without an `Objective` label
-- project overview popover date line shows `start date - deadline` when the
+- project overview card shows objective text without an `Objective` label
+- project overview card uses the same icon as the main `Projects` navigation
+  item and includes a short description
+- project overview card date line shows `start date - deadline` when the
   project has a deadline, otherwise `start date · expected duration` or
   `start date · open-ended`
-- project overview popover shows a thin progress bar below the date line; the
+- project overview card shows a thin progress bar below the date line; the
   primary fill shows completed tasks over total tasks, and the secondary fill
   shows elapsed calendar progress only for deadline projects
+- project-level overview progress bar shows vertical milestone markers. Marker
+  labels are hover/focus tooltips to avoid overlap.
 - if the saved objective is empty, show localized default objective copy derived
   from the project title; this fallback is render-only and is not persisted
 - overview start dates should display in localized date format, not raw
   `YYYY-MM-DD`
-- do not repeat project title inside the Project Overview popover; the title is
+- do not repeat project title inside the Project Overview card; the title is
   already in the page title
-- milestone overview shows the selected milestone title, then deadline or
-  expected duration followed by the objective with ` · ` between them
 - milestone switcher list direction: vertical
 - milestone switcher rows act as jump controls, not edit controls
 - milestone switcher rows sort by deadline from earliest to latest, then start

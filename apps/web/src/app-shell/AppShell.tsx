@@ -34,10 +34,11 @@ import type { AuthUser } from "@/features/auth/server/auth-service";
 import { IdeasPage } from "@/features/ideas/components/IdeasPage";
 import { useIdeasPageData } from "@/features/ideas/hooks/useIdeasPageData";
 import { MemoriesPage } from "@/features/memories/components/MemoriesPage";
-import type { ProjectInput, ProjectView } from "@/features/projects/actions";
+import type { ProjectInput } from "@/features/projects/actions";
+import { displayDescription } from "@/components/default-description";
+import { milestoneMetadataText } from "@/features/projects/components/ProjectDetailSidePanels";
 import { ProjectPageTitle } from "@/features/projects/components/ProjectPageTitle";
 import { ProjectsPage } from "@/features/projects/components/ProjectsPage";
-import { projectToDraft } from "@/features/projects/components/project-page-helpers";
 import { RoutinesPage } from "@/features/routines/components/RoutinesPage";
 import { SettingsPage } from "@/features/settings/components/SettingsPage";
 import { appPathForProject, appPathForView, appRouteFromPathname, browserPathname } from "./app-routes";
@@ -94,6 +95,14 @@ export function AppShell({
   const activeView = pathnameRoute.view;
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const selectedProjectId = pathnameRoute.projectId;
+  const [selectedProjectMilestone, setSelectedProjectMilestone] = useState<{
+    projectId: string | null;
+    milestoneId: string | null;
+  }>({ projectId: null, milestoneId: null });
+  const selectedProjectMilestoneId =
+    selectedProjectMilestone.projectId === selectedProjectId
+      ? selectedProjectMilestone.milestoneId
+      : null;
   const [projectDraft, setProjectDraft] = useState<ProjectInput | null>(null);
   const projectState = useDashboardProjects(
     currentUser.id,
@@ -135,6 +144,54 @@ export function AppShell({
         ),
     [projectState.projects],
   );
+  const selectedProject = selectedProjectId
+    ? projectState.projects.find((project) => project.id === selectedProjectId) ??
+      null
+    : null;
+  const hasUnassignedProjectTasks =
+    selectedProject?.tasks.some((task) => !task.milestoneId) ?? false;
+  const activeProjectMilestoneId =
+    selectedProjectMilestoneId === ""
+      ? hasUnassignedProjectTasks
+        ? ""
+        : null
+      : selectedProject?.milestones.some(
+            (milestone) => milestone.id === selectedProjectMilestoneId,
+          )
+        ? selectedProjectMilestoneId
+        : null;
+  const activeProjectMilestone = activeProjectMilestoneId
+    ? selectedProject?.milestones.find(
+        (milestone) => milestone.id === activeProjectMilestoneId,
+      ) ?? null
+    : null;
+  const projectTitleMilestone = activeProjectMilestoneId
+    ? activeProjectMilestone
+      ? {
+          title: activeProjectMilestone.title,
+          metadata: milestoneMetadataText(
+            activeProjectMilestone,
+            displayDescription(
+              activeProjectMilestone.objective,
+              activeProjectMilestone.title,
+              messages.projects.defaultDescriptions.milestone,
+            ),
+            {
+              dates: messages.forms.datePicker,
+              defaults: messages.projects.defaultDescriptions,
+              detail: messages.projects.detail,
+              duration: messages.projects.duration,
+              timeline: messages.projects.timeline,
+            },
+          ),
+        }
+      : null
+    : selectedProjectMilestoneId === "" && hasUnassignedProjectTasks
+      ? {
+          title: messages.projects.detail.noMilestoneTitle,
+          metadata: messages.projects.detail.noMilestoneDescription,
+        }
+      : null;
 
   useEffect(() => {
     function syncBrowserPathname() {
@@ -176,15 +233,20 @@ export function AppShell({
   }
 
   function showProjectsList() {
+    setSelectedProjectMilestone({ projectId: null, milestoneId: null });
     navigateToRoute(appPathForView("projects"));
   }
 
   function showProjectDetail(projectId: string) {
+    setSelectedProjectMilestone({ projectId, milestoneId: null });
     navigateToRoute(appPathForProject(projectId));
   }
 
-  function handleProjectEdit(project: ProjectView) {
-    setProjectDraft(projectToDraft(project));
+  function showProjectMilestoneDetail(milestoneId: string | null) {
+    setSelectedProjectMilestone({
+      projectId: selectedProjectId,
+      milestoneId,
+    });
   }
 
   function handleDeveloperImportComplete(target: DeveloperImportTarget) {
@@ -255,6 +317,13 @@ export function AppShell({
                 darkMode={darkMode}
                 projects={projectState.projects}
                 selectedProjectId={selectedProjectId}
+                detailLevel={
+                  selectedProjectId && activeProjectMilestoneId !== null
+                    ? "milestone"
+                    : "project"
+                }
+                milestoneTitle={projectTitleMilestone?.title ?? null}
+                milestoneMetadata={projectTitleMilestone?.metadata ?? null}
                 pinPending={
                   selectedProjectId
                     ? projectState.pendingProjectPinIds.includes(selectedProjectId)
@@ -262,14 +331,11 @@ export function AppShell({
                 }
                 onBackToList={showProjectsList}
                 onProjectSelect={showProjectDetail}
-                onProjectEdit={handleProjectEdit}
                 onPinProject={projectState.pinProjectFromPage}
                 onUnpinProject={projectState.unpinProjectFromPage}
                 messages={messages.projects.pageTitle}
-                detailMessages={messages.projects.detail}
                 timelineMessages={messages.projects.timeline}
                 durationMessages={messages.projects.duration}
-                defaultDescriptions={messages.projects.defaultDescriptions}
                 dateMessages={messages.forms.datePicker}
               />
             ) : (
@@ -303,6 +369,7 @@ export function AppShell({
               projectDraft={projectDraft}
               setProjectDraft={setProjectDraft}
               selectedProjectId={selectedProjectId}
+              selectedMilestoneId={activeProjectMilestoneId}
               pendingProjectPinIds={projectState.pendingProjectPinIds}
               onProjectSave={projectState.saveProjectFromPage}
               onProjectDelete={projectState.archiveProjectFromPage}
@@ -321,6 +388,7 @@ export function AppShell({
 
                 showProjectsList();
               }}
+              onMilestoneSelect={showProjectMilestoneDetail}
               messages={messages.projects}
               formMessages={messages.forms}
             />
