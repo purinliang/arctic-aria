@@ -1,6 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { englishDashboardMessages } from "../../messages/dashboard-messages.ts";
-import { localDateTimeParts } from "../settings/time-zones.ts";
+import {
+  addDaysToDateKey,
+  localDateTimeParts,
+} from "../settings/time-zones.ts";
 import {
   PostgresDiscordAccountRepository,
 } from "../../server/discord/discord-account-repository.ts";
@@ -58,6 +61,9 @@ type RoutineDataLoader = (userId: string) => Promise<{ routines: Routine[] }>;
 type MemoryDataLoader = (
   userId: string,
 ) => Promise<{ pinnedMemories: PinnedMemory[] }>;
+
+const dailyReviewHour = 2;
+const dailyReviewWindowMinutes = 2;
 
 export function createTodayReviewService({
   memoryDataLoader = defaultMemoryDataLoader,
@@ -213,18 +219,12 @@ function dailyReviewSchedule(local: {
   dateKey: string;
   hour: number;
   minute: number;
+  second: number;
 }) {
-  if (local.hour === 23 && local.minute >= 48) {
+  if (isWithinDailyReviewWindow(local)) {
     return {
       due: true,
-      date: local.dateKey,
-    };
-  }
-
-  if (local.hour === 0 && local.minute <= 12) {
-    return {
-      due: true,
-      date: previousDateKey(local.dateKey),
+      date: addDaysToDateKey(local.dateKey, -1),
     };
   }
 
@@ -234,12 +234,17 @@ function dailyReviewSchedule(local: {
   };
 }
 
-function previousDateKey(date: string) {
-  const previous = new Date(`${date}T00:00:00.000Z`);
+function isWithinDailyReviewWindow(local: {
+  hour: number;
+  minute: number;
+  second: number;
+}) {
+  const actualSeconds =
+    (local.hour * 60 + local.minute) * 60 + local.second;
+  const targetSeconds = dailyReviewHour * 60 * 60;
+  const windowSeconds = dailyReviewWindowMinutes * 60;
 
-  previous.setUTCDate(previous.getUTCDate() - 1);
-
-  return previous.toISOString().slice(0, 10);
+  return Math.abs(actualSeconds - targetSeconds) <= windowSeconds;
 }
 
 async function defaultProjectDataLoader(userId: string) {

@@ -1,7 +1,7 @@
 import { PostgresProjectRepository } from "./postgres-project-repository.ts";
 import {
   defaultResolvedTimeZone,
-  localDateKey,
+  localScheduledDateKey,
 } from "../../settings/time-zones.ts";
 import type {
   ImportProjectTreeInput,
@@ -34,7 +34,10 @@ export function createProjectService(options: ProjectServiceOptions = {}) {
 
       return projects.listDashboardTasks(
         userId,
-        localDateKey(occurredAt, timeZone),
+        localScheduledDateKey({
+          date: occurredAt,
+          timeZone,
+        }),
         occurredAt,
       );
     },

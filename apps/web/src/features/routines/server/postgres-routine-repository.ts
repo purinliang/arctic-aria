@@ -419,9 +419,11 @@ export class PostgresRoutineRepository implements RoutineRepository {
        WHERE routine_instances.status = 'pending'
          AND routine_instances.remind_at IS NOT NULL
          AND routine_instances.reminded_at IS NULL
-         AND routine_instances.remind_at <= $1::timestamptz
          AND routine_instances.remind_at >= (
            $1::timestamptz - ($2::int * interval '1 minute')
+         )
+         AND routine_instances.remind_at <= (
+           $1::timestamptz + ($2::int * interval '1 minute')
          )
          AND routines.deleted_at IS NULL
        ORDER BY routine_instances.remind_at, routines.title`,

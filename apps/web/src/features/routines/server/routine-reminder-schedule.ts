@@ -1,17 +1,18 @@
 import { createHash } from "node:crypto";
 import {
+  addDaysToDateKey,
   localDateKey,
   zonedDateTimeToUtcDate,
 } from "../../settings/time-zones.ts";
 import type { RoutineInstanceRecord, RoutineRecord } from "./routine-repository.ts";
 
 export const fallbackRoutineScheduledTime = "18:00";
+export const routineReminderCronIntervalMinutes = 15;
 export const routineReminderLeadMinutes = 30;
-export const routineReminderWindowMinutes = 25;
+export const routineReminderWindowMinutes = 2;
 export const routineReminderTextMaxLength = 2000;
 
 const msPerMinute = 60 * 1000;
-const msPerDay = 24 * 60 * 60 * 1000;
 const routineReminderDescriptionMaxLength = 240;
 
 export function resolveRoutineScheduledTime(routine: RoutineRecord) {
@@ -37,7 +38,9 @@ export function routineReminderAt({
     return null;
   }
 
-  return new Date(scheduledAt.getTime() - routineReminderLeadMinutes * msPerMinute);
+  return snapToCronInterval(
+    new Date(scheduledAt.getTime() - routineReminderLeadMinutes * msPerMinute),
+  );
 }
 
 export function routineReminderCandidateDates(
@@ -62,9 +65,9 @@ export function isRoutineReminderDueAt({
     return false;
   }
 
-  const elapsedMs = occurredAt.getTime() - remindAt.getTime();
+  const elapsedMs = Math.abs(occurredAt.getTime() - remindAt.getTime());
 
-  return elapsedMs >= 0 && elapsedMs <= windowMinutes * msPerMinute;
+  return elapsedMs <= windowMinutes * msPerMinute;
 }
 
 export function routineReminderNotificationBatches(
@@ -177,8 +180,8 @@ function scheduledTime(instance: RoutineInstanceRecord) {
   return instance.scheduledTime ?? "";
 }
 
-function addDaysToDateKey(dateKey: string, days: number) {
-  const date = new Date(`${dateKey}T00:00:00.000Z`);
+function snapToCronInterval(date: Date) {
+  const intervalMs = routineReminderCronIntervalMinutes * msPerMinute;
 
-  return new Date(date.getTime() + days * msPerDay).toISOString().slice(0, 10);
+  return new Date(Math.round(date.getTime() / intervalMs) * intervalMs);
 }

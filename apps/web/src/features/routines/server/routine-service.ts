@@ -1,5 +1,5 @@
 import { PostgresRoutineRepository } from "./postgres-routine-repository.ts";
-import { localDateKey } from "../../settings/time-zones.ts";
+import { localScheduledDateKey } from "../../settings/time-zones.ts";
 import type {
   RoutineInstanceRecord,
   RoutineRecord,
@@ -117,7 +117,10 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
     routine: RoutineRecord,
     occurredAt: Date,
   ) {
-    const scheduledDate = localDateKey(occurredAt, routine.rule.timezone);
+    const scheduledDate = localScheduledDateKey({
+      date: occurredAt,
+      timeZone: routine.rule.timezone,
+    });
 
     if (!shouldGenerateInstance(routine, scheduledDate)) {
       return null;
@@ -188,7 +191,10 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
       const scheduledDateByRoutineId = new Map<string, string>();
       const scheduledDates = new Set<string>();
       const routineCandidates: TodayRoutineCandidate[] = activeRoutines.map((routine) => {
-        const scheduledDate = localDateKey(occurredAt, routine.rule.timezone);
+        const scheduledDate = localScheduledDateKey({
+          date: occurredAt,
+          timeZone: routine.rule.timezone,
+        });
         const scheduledTime = resolveRoutineScheduledTime(routine);
 
         scheduledDateByRoutineId.set(routine.id, scheduledDate);

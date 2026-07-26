@@ -222,9 +222,9 @@ Popover content:
   patterns do not feel mechanical
 - use the current date and visible counts as a stable seed inside the selected
   tone; the summary should not change randomly during the same day
-- write summary copy as an end-of-day or midnight reflection. Do not use copy
-  that assumes the user still has evening time left or should make `today`
-  lighter.
+- write summary copy as an end-of-day reflection sent from the `02:00` local
+  snapshot. Do not use copy that assumes the user still has evening time left or
+  should make `today` lighter.
 
 Discord message text should still include Markdown-style sections because the
 message can be read outside the Today page:

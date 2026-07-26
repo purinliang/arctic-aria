@@ -61,7 +61,14 @@ test("lists pending routine instances by reminder window", async () => {
     windowMinutes: 25,
   });
 
-  assert.match(capturedQuery, /routine_instances\.remind_at <= \$1::timestamptz/);
+  assert.match(
+    capturedQuery,
+    /routine_instances\.remind_at >= \(\s+\$1::timestamptz - \(\$2::int \* interval '1 minute'\)\s+\)/,
+  );
+  assert.match(
+    capturedQuery,
+    /routine_instances\.remind_at <= \(\s+\$1::timestamptz \+ \(\$2::int \* interval '1 minute'\)\s+\)/,
+  );
   assert.match(capturedQuery, /routine_instances\.reminded_at IS NULL/);
   assert.match(capturedQuery, /routine_instances\.status = 'pending'/);
 });

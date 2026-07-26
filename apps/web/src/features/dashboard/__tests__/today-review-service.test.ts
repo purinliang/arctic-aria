@@ -187,14 +187,14 @@ test("uses friendly zero-count Today Review text", () => {
   );
 });
 
-test("scheduled Daily Review sends during local day-end window", async () => {
+test("scheduled Daily Review sends at the local 02:00 snapshot", async () => {
   const notifications: Array<{
     idempotencyKey: string;
     source: string;
     text: string;
   }> = [];
   const service = createTodayReviewService({
-    now: () => new Date("2026-07-18T13:48:00.000Z"),
+    now: () => new Date("2026-07-18T16:00:00.000Z"),
     notifier: {
       async sendUserNotification(input) {
         notifications.push(input);
@@ -245,7 +245,7 @@ test("scheduled Daily Review sends during local day-end window", async () => {
   );
 });
 
-test("scheduled Daily Review skips outside local day-end window", async () => {
+test("scheduled Daily Review skips outside the local 02:00 window", async () => {
   let loaderCalled = false;
   const service = createTodayReviewService({
     now: () => new Date("2026-07-18T13:30:00.000Z"),
@@ -327,14 +327,14 @@ test("scheduled Daily Review skips targets without a concrete timezone", async (
   assert.equal(loaderCalled, false);
 });
 
-test("scheduled Daily Review sends after midnight for the previous local day", async () => {
+test("scheduled Daily Review sends two minutes before 02:00 for the previous local day", async () => {
   const notifications: Array<{
     idempotencyKey: string;
     source: string;
     text: string;
   }> = [];
   const service = createTodayReviewService({
-    now: () => new Date("2026-07-18T14:12:00.000Z"),
+    now: () => new Date("2026-07-18T15:58:00.000Z"),
     notifier: {
       async sendUserNotification(input) {
         notifications.push(input);
@@ -384,10 +384,10 @@ test("scheduled Daily Review sends after midnight for the previous local day", a
   );
 });
 
-test("scheduled Daily Review skips after the post-midnight window", async () => {
+test("scheduled Daily Review skips after the local 02:00 window", async () => {
   let loaderCalled = false;
   const service = createTodayReviewService({
-    now: () => new Date("2026-07-18T14:13:00.000Z"),
+    now: () => new Date("2026-07-18T16:03:00.000Z"),
     notifier: {
       async sendUserNotification() {
         throw new Error("notification should not be sent");
