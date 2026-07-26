@@ -26,12 +26,10 @@ import type {
   UserPreferences,
 } from "@/features/settings/preferences";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
-import { TodayReviewPopover } from "@/features/dashboard/components/TodayReviewPopover";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
 import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardProjects";
 import { useDashboardRoutines } from "@/features/dashboard/hooks/useDashboardRoutines";
 import type { DashboardView } from "@/features/dashboard/types";
-import { sendTodayReviewDiscordMessage } from "@/features/dashboard/actions";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import { IdeasPage } from "@/features/ideas/components/IdeasPage";
 import { useIdeasPageData } from "@/features/ideas/hooks/useIdeasPageData";
@@ -66,7 +64,6 @@ export function AppShell({
   onNotificationDismiss,
   showErrorNotification,
   showSuccessNotification,
-  showTodayReviewSendAction,
 }: {
   currentUser: AuthUser;
   browserTimeZone: string;
@@ -88,7 +85,6 @@ export function AppShell({
   onNotificationDismiss: (notificationId: number) => void;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
-  showTodayReviewSendAction: boolean;
 }) {
   const initialPathname = usePathname();
   const [currentPathname, setCurrentPathname] = useState(
@@ -99,7 +95,6 @@ export function AppShell({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const selectedProjectId = pathnameRoute.projectId;
   const [projectDraft, setProjectDraft] = useState<ProjectInput | null>(null);
-  const [todayReviewPending, setTodayReviewPending] = useState(false);
   const projectState = useDashboardProjects(
     currentUser.id,
     showErrorNotification,
@@ -208,38 +203,6 @@ export function AppShell({
     navigateToRoute(appPathForView(view));
   }
 
-  async function handleTodayReviewSend() {
-    if (todayReviewPending) {
-      return;
-    }
-
-    setTodayReviewPending(true);
-
-    try {
-      const result = await sendTodayReviewDiscordMessage();
-
-      if (result.ok) {
-        showSuccessNotification(
-          messages.dashboard.review.results[result.code],
-          messages.dashboard.review.notifications.sent,
-        );
-        return;
-      }
-
-      showErrorNotification(
-        messages.dashboard.review.results[result.code] ?? result.message,
-        messages.dashboard.review.notifications.failed,
-      );
-    } catch {
-      showErrorNotification(
-        messages.dashboard.review.results.today_review_delivery_failed,
-        messages.dashboard.review.notifications.failed,
-      );
-    } finally {
-      setTodayReviewPending(false);
-    }
-  }
-
   const pageTitle =
     activeView === "dashboard"
       ? messages.appShell.pages.dashboard
@@ -327,18 +290,6 @@ export function AppShell({
                     </p>
                   ) : null}
                 </div>
-                {activeView === "dashboard" ? (
-                  <TodayReviewPopover
-                    darkMode={darkMode}
-                    pending={todayReviewPending}
-                    pinnedMemories={memoryState.pinnedMemories}
-                    routines={routineState.routines}
-                    showSendAction={showTodayReviewSendAction}
-                    tasks={projectState.tasks}
-                    messages={messages.dashboard.review}
-                    onSend={handleTodayReviewSend}
-                  />
-                ) : null}
               </div>
             )}
           </header>

@@ -2,6 +2,7 @@
 import { PinnedMemoriesPanel } from "@/features/memories/components/PinnedMemoriesPanel";
 import { ProjectTasksPanel } from "@/features/projects/components/ProjectTasksPanel";
 import { RoutinesPanel } from "@/features/routines/components/RoutinesPanel";
+import { TodayProgressPanel } from "./TodayProgressPanel";
 import type { DashboardMessages } from "@/messages/app-messages";
 import type { FormMessages } from "@/messages/app-messages";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
@@ -66,9 +67,6 @@ export function Dashboard({
             onTaskStatus={onTaskStatus}
             onTaskOpen={onTaskOpen}
           />
-        </div>
-
-        <aside className="grid content-start gap-4">
           <RoutinesPanel
             darkMode={darkMode}
             routines={routines}
@@ -78,6 +76,15 @@ export function Dashboard({
             timeFormatPreference={timeFormatPreference}
             onRoutineStatus={onRoutineStatus}
             onRoutineOpen={onRoutineOpen}
+          />
+        </div>
+
+        <aside className="grid content-start gap-4">
+          <TodayProgressPanel
+            darkMode={darkMode}
+            tasks={tasks}
+            routines={routines}
+            messages={messages.progress}
           />
 
           <PinnedMemoriesPanel

@@ -68,15 +68,14 @@ export const englishDashboardMessages = {
       shopping: "Shopping",
     },
   },
-  review: {
-    title: "Daily Review",
-    description: "A short daily recap.",
+  progress: {
+    title: "Progress",
+    description: "Trust Aria. Simply follow today's plan.",
     planSupport:
       "Your future plan remains safe and achievable: no day is overloaded, and every task can still be completed on time. If I don't remind you, there's no need to check it today.",
-    send: "Send",
-    sending: "Sending",
-    openSummary: "Open review summary",
-    closeSummary: "Close review summary",
+    progressLabel: "Today work progress and day progress",
+  },
+  review: {
     dailySummaryMessages: {
       fulfilled: [
         "Everything visible is complete. This day closed cleanly, with room for tomorrow.",
@@ -141,16 +140,6 @@ export const englishDashboardMessages = {
         "A light day is still a real day, even without checkmarks.",
         "There is room to decide what matters next without starting from pressure.",
       ],
-    },
-    notifications: {
-      sent: "Daily Review sent",
-      failed: "Daily Review not sent",
-    },
-    results: {
-      auth_required: "Please sign in again.",
-      today_review_delivery_failed: "Daily Review could not be sent to Discord.",
-      today_review_no_binding: "No active Discord binding.",
-      today_review_sent: "Check your Discord DM.",
     },
   },
   notifications: {
@@ -227,15 +216,14 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
       shopping: "购物",
     },
   },
-  review: {
-    title: "每日回顾",
-    description: "简单看一眼。",
+  progress: {
+    title: "进展",
+    description: "信任阿莉雅，只需按照今天的计划行动。",
     planSupport:
       "你的未来计划仍然安全可行：每天都不会超负荷，所有工作都能按时完成。如果我没有提醒你，就不必今天检查。",
-    send: "发送",
-    sending: "正在发送",
-    openSummary: "打开回顾摘要",
-    closeSummary: "关闭回顾摘要",
+    progressLabel: "今日工作进展和当天时间进度",
+  },
+  review: {
     dailySummaryMessages: {
       fulfilled: [
         "这一天眼前的事都收好了。",
@@ -300,16 +288,6 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
         "轻的一天也是一天。",
         "等真正重要的事出现，再放进来。",
       ],
-    },
-    notifications: {
-      sent: "每日回顾已发送",
-      failed: "每日回顾未发送",
-    },
-    results: {
-      auth_required: "请先重新登录。",
-      today_review_delivery_failed: "每日回顾无法发送到 Discord。",
-      today_review_no_binding: "没有有效的 Discord 绑定。",
-      today_review_sent: "请检查你的 Discord 私信。",
     },
   },
   notifications: {

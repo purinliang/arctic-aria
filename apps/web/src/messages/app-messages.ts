@@ -53,7 +53,7 @@ const englishMessages = {
       settings: "Settings",
     },
     pageDescriptions: {
-      dashboard: "Trust Aria. Simply follow today's plan.",
+      dashboard: "",
       ideas: "Capture thoughts for later review.",
       memories: "Keep experiences worth returning to.",
       routines: "Review repeatable checks for daily life.",
@@ -413,7 +413,7 @@ const simplifiedChineseMessages: AppMessages = {
       settings: "设置",
     },
     pageDescriptions: {
-      dashboard: "信任阿莉雅，只需按照今天的计划行动。",
+      dashboard: "",
       ideas: "先收好想法，之后再整理。",
       memories: "保存值得再次体验的事。",
       routines: "照看重复出现的日常。",

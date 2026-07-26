@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { englishDashboardMessages } from "../../messages/dashboard-messages.ts";
 import {
   addDaysToDateKey,
@@ -14,24 +13,8 @@ import { discordNotificationService } from "../discord/server/notification-servi
 import type { DiscordNotificationResult } from "../discord/server/notification-service.ts";
 import {
   buildTodayReviewText,
-  todayReviewDateKey,
 } from "./today-review-text.ts";
 import type { PinnedMemory, Routine, Task } from "./types.ts";
-
-export type TodayReviewActionResult =
-  | {
-      ok: true;
-      code: "today_review_sent";
-      message: string;
-    }
-  | {
-      ok: false;
-      code:
-        | "auth_required"
-        | "today_review_delivery_failed"
-        | "today_review_no_binding";
-      message: string;
-    };
 
 export type DailyReviewCronRunResult = {
   checked: number;
@@ -46,7 +29,7 @@ type TodayReviewNotifier = {
     userId: string;
     idempotencyKey: string;
     text: string;
-    source: "manual" | "scheduler";
+    source: "scheduler";
     metadata: Record<string, unknown>;
     logEventName: string;
   }): Promise<DiscordNotificationResult>;
@@ -61,6 +44,14 @@ type RoutineDataLoader = (userId: string) => Promise<{ routines: Routine[] }>;
 type MemoryDataLoader = (
   userId: string,
 ) => Promise<{ pinnedMemories: PinnedMemory[] }>;
+type DailyReviewSendResult =
+  | {
+      ok: true;
+    }
+  | {
+      ok: false;
+      code: "today_review_delivery_failed" | "today_review_no_binding";
+    };
 
 const dailyReviewHour = 2;
 const dailyReviewWindowMinutes = 2;
@@ -81,17 +72,6 @@ export function createTodayReviewService({
   routineDataLoader?: RoutineDataLoader;
 } = {}) {
   return {
-    async sendTodayReview(userId: string): Promise<TodayReviewActionResult> {
-      const dateKey = todayReviewDateKey(now());
-
-      return sendReview({
-        dateKey,
-        idempotencyKey: `today-review:${dateKey}:${randomUUID()}`,
-        source: "manual",
-        userId,
-      });
-    },
-
     async sendScheduledDailyReviews(): Promise<DailyReviewCronRunResult> {
       const occurredAt = now();
       const targets = await reviewTargets.listActiveDailyReviewTargets();
@@ -152,9 +132,9 @@ export function createTodayReviewService({
   }: {
     dateKey: string;
     idempotencyKey: string;
-    source: "manual" | "scheduler";
+    source: "scheduler";
     userId: string;
-  }): Promise<TodayReviewActionResult> {
+  }): Promise<DailyReviewSendResult> {
     const [projectData, routineData, memoryData] = await Promise.all([
       projectDataLoader(userId),
       routineDataLoader(userId),
@@ -186,8 +166,6 @@ export function createTodayReviewService({
     if (notification.ok) {
       return {
         ok: true,
-        code: "today_review_sent",
-        message: "Daily Review sent to Discord.",
       };
     }
 
@@ -195,14 +173,12 @@ export function createTodayReviewService({
       return {
         ok: false,
         code: "today_review_no_binding",
-        message: "No active Discord binding.",
       };
     }
 
     return {
       ok: false,
       code: "today_review_delivery_failed",
-      message: "Daily Review could not be sent to Discord.",
     };
   }
 }
