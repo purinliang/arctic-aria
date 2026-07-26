@@ -3,6 +3,7 @@ import type { ProjectDurationRange } from "@/features/projects/project-duration"
 export const englishProjectMessages = {
   pageTitle: {
     projects: "Projects",
+    description: "Track long-running goals and next steps.",
     closeSwitcher: "Close project switcher",
     pin: "Pin project",
     unpin: "Unpin project",
@@ -166,6 +167,7 @@ export type ProjectMessages = typeof englishProjectMessages;
 export const simplifiedChineseProjectMessages: ProjectMessages = {
   pageTitle: {
     projects: "项目",
+    description: "整理长期目标和下一步任务。",
     closeSwitcher: "关闭项目切换器",
     pin: "置顶项目",
     unpin: "取消置顶项目",

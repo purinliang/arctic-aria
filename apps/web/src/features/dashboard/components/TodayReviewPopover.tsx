@@ -100,6 +100,9 @@ export function TodayReviewPopover({
             >
               {summaryText}
             </DescriptionText>
+            <DescriptionText darkMode={darkMode} className="italic">
+              {messages.planSupport}
+            </DescriptionText>
             <HorizontalProgressBar
               primary={todayProgress}
               secondary={todayTimeProgress}

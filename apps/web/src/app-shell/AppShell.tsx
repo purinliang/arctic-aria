@@ -5,13 +5,16 @@ import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/button";
-import { secondaryButtonBorderColorClass } from "@/components/color";
+import {
+  secondaryButtonBorderColorClass,
+  secondaryTextColorClass,
+} from "@/components/color";
 import {
   NotificationStack,
   type NotificationItem,
 } from "@/components/notification";
-import { DescriptionText, LabelText } from "@/components/text";
 import { appShellClass } from "@/components/theme";
+import { cx } from "@/components/utils";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { AppMessages } from "@/messages/app-messages";
@@ -247,6 +250,10 @@ export function AppShell({
           : activeView === "memories"
             ? messages.appShell.pages.memories
             : messages.appShell.pages.settings;
+  const pageDescription = pageDescriptionForView(
+    activeView,
+    messages.appShell.pageDescriptions,
+  );
 
   return (
     <main className={`min-h-screen transition-colors ${appShellClass(darkMode)}`}>
@@ -304,19 +311,20 @@ export function AppShell({
               />
             ) : (
               <div className="col-start-2 flex min-w-0 flex-1 items-start justify-between gap-3">
-                <div className="min-w-0">
+                <div className="grid min-w-0 gap-1">
                   <h1 className="min-w-0 truncate text-2xl font-semibold tracking-normal sm:text-3xl">
                     {pageTitle}
                   </h1>
-                  {activeView === "dashboard" ? (
-                    <div className="mt-2 grid gap-1">
-                      <LabelText darkMode={darkMode} className="block text-base">
-                        {messages.appShell.todayPlanSubtitle}
-                      </LabelText>
-                      <DescriptionText darkMode={darkMode} className="italic">
-                        {messages.appShell.todayPlanSupport}
-                      </DescriptionText>
-                    </div>
+                  {pageDescription ? (
+                    <p
+                      className={cx(
+                        "min-w-0 truncate text-sm",
+                        secondaryTextColorClass,
+                      )}
+                      title={pageDescription}
+                    >
+                      {pageDescription}
+                    </p>
                   ) : null}
                 </div>
                 {activeView === "dashboard" ? (
@@ -475,4 +483,15 @@ export function AppShell({
       />
     </main>
   );
+}
+
+function pageDescriptionForView(
+  view: DashboardView,
+  descriptions: AppMessages["appShell"]["pageDescriptions"],
+) {
+  if (view === "projects") {
+    return null;
+  }
+
+  return descriptions[view];
 }

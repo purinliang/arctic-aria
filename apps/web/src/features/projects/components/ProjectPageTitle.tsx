@@ -60,9 +60,17 @@ export function ProjectPageTitle({
 
   if (!selectedProject) {
     return (
-      <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
-        {messages.projects}
-      </h1>
+      <div className="col-start-2 grid min-w-0 gap-1 sm:col-auto sm:flex-1">
+        <h1 className="min-w-0 truncate text-2xl font-semibold tracking-normal sm:text-3xl">
+          {messages.projects}
+        </h1>
+        <p
+          className={cx("min-w-0 truncate text-sm", secondaryTextColorClass)}
+          title={messages.description}
+        >
+          {messages.description}
+        </p>
+      </div>
     );
   }
 

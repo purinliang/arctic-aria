@@ -71,6 +71,8 @@ export const englishDashboardMessages = {
   review: {
     title: "Daily Review",
     description: "A short daily recap.",
+    planSupport:
+      "Your future plan remains safe and achievable: no day is overloaded, and every task can still be completed on time. If I don't remind you, there's no need to check it today.",
     send: "Send",
     sending: "Sending",
     openSummary: "Open review summary",
@@ -228,6 +230,8 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
   review: {
     title: "每日回顾",
     description: "简单看一眼。",
+    planSupport:
+      "你的未来计划仍然安全可行：每天都不会超负荷，所有工作都能按时完成。如果我没有提醒你，就不必今天检查。",
     send: "发送",
     sending: "正在发送",
     openSummary: "打开回顾摘要",
