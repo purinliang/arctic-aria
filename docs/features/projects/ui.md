@@ -223,12 +223,13 @@ tree and progress context.
 
 Breadcrumb behavior:
 
-- the page title bar, not the detail panel, shows `Projects / project name`
-- `Projects` in the page title bar returns to the project list page
-- on mobile, keep `Projects /` on the first title-bar row with the hamburger
-  and project actions, then place the project name switcher on a second row
-  aligned with the hamburger button
-- clicking or focusing the project name opens a menu-style project switcher
+- selected project pages show the current project or milestone title as the
+  main page title
+- the metadata row below the title shows `Projects / project name` with the
+  project switcher chevron
+- `Projects` in the metadata row returns to the project list page
+- clicking the project name in the metadata row returns to project-level detail
+- only the chevron button opens the menu-style project switcher
 - breadcrumb hover/focus effects should use non-layout effects, such as an
   outer shadow halo, and must not add visible padding that shifts alignment
   against normal page titles
@@ -242,6 +243,13 @@ Project title switcher:
 - the button text is the current project name
 - clicking the project name returns to project-level detail
 - only the `ChevronDown` button opens the project switcher menu
+- the chevron switcher is hidden whenever the page is in the compact stacked
+  split-layout mode, using the same `53rem` container breakpoint as the detail
+  panels
+- when visible, the project switcher menu opens below the chevron button with
+  its left edge aligned to the chevron
+- the project switcher menu width is capped at `24rem` and the available
+  viewport width
 - the menu lists available projects as buttons
 - the current project should be visually active
 - long project names should truncate in the title button without changing title
@@ -264,17 +272,18 @@ Detail page layout:
 - opening a project from the project list, sidebar pinned shortcut, or title
   switcher enters project-level detail first
 - project-level left panel: `Project Overview` card with project objective,
-  project progress bar, and milestone marker ticks/labels
+  project timeline line, project progress bar, and `Edit`
 - project-level right panel: `Milestones` with `Manage`
-- milestone-level title bar: `Projects / project name` is reduced to
-  description-level text; selected milestone title and metadata become the only
-  main page title and metadata line
+- milestone-level title bar: selected milestone title becomes the main page
+  title; `Projects / project name` remains the metadata row
 - milestone-level left panel: `Tasks` card for the selected milestone group
-- milestone-level right panel first card: `Project Overview`
+- milestone-level right panel first card: `Milestone Overview`
 - milestone-level right panel second card: `Milestones` with `Manage`
 - title action: icon-only `Pin` or `PinOff`
 - project overview card action: `Edit3` icon plus `Edit`
-- milestone add/edit actions live in a dedicated milestone manager dialog,
+- milestone overview card action: `Edit3` icon plus `Edit`, opening the
+  selected milestone editor
+- milestone add/edit actions also live in a dedicated milestone manager dialog,
   opened from the `Milestones` panel `Manage` action
 - project overview card shows objective text without an `Objective` label
 - project overview card uses the same icon as the main `Projects` navigation
@@ -285,8 +294,11 @@ Detail page layout:
 - project overview card shows a thin progress bar below the date line; the
   primary fill shows completed tasks over total tasks, and the secondary fill
   shows elapsed calendar progress only for deadline projects
-- project-level overview progress bar shows vertical milestone markers. Marker
-  labels are hover/focus tooltips to avoid overlap.
+- project overview card shows compact project task completion text below the
+  progress bar
+- milestone overview card uses the milestone icon, shows the selected milestone
+  objective, localized start/deadline or duration line, milestone task progress
+  bar, and compact milestone task completion text
 - if the saved objective is empty, show localized default objective copy derived
   from the project title; this fallback is render-only and is not persisted
 - overview start dates should display in localized date format, not raw
@@ -345,10 +357,13 @@ live in the right-panel switcher.
 
 Milestones are phase boundaries. Keep them lightweight.
 
-Milestone overview should show:
+Milestone detail should show:
 
-- title
-- one metadata line: deadline or expected duration, then objective
+- selected milestone title as the page title
+- milestone objective and localized start/deadline or duration line inside the
+  right-side `Milestone Overview` card
+- milestone task progress inside the `Milestone Overview` card
+- selected milestone edit action inside the `Milestone Overview` card
 
 Milestone switcher rows should show title plus compact task progress.
 

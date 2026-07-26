@@ -17,7 +17,6 @@ export function ProjectPageTitle({
   selectedProjectId,
   detailLevel,
   milestoneTitle,
-  milestoneMetadata,
   pinPending = false,
   onBackToList,
   onProjectSelect,
@@ -33,7 +32,6 @@ export function ProjectPageTitle({
   selectedProjectId: string | null;
   detailLevel: "project" | "milestone";
   milestoneTitle: string | null;
-  milestoneMetadata: string | null;
   pinPending?: boolean;
   onBackToList: () => void;
   onProjectSelect: (projectId: string) => void;
@@ -85,28 +83,32 @@ export function ProjectPageTitle({
     />
   );
   const isMilestoneDetail = detailLevel === "milestone";
-  const mobileBreadcrumbClass = isMilestoneDetail
-    ? "text-sm font-medium tracking-normal"
-    : "text-2xl font-semibold tracking-normal";
-  const mobileProjectTitleClass = isMilestoneDetail
-    ? "col-span-2 min-w-0 text-sm font-medium tracking-normal"
-    : "col-span-2 min-w-0 text-2xl font-semibold tracking-normal";
-  const desktopProjectTitleClass = isMilestoneDetail
-    ? "flex min-w-0 items-center gap-2 text-sm font-medium tracking-normal"
-    : "flex min-w-0 items-center gap-2 text-3xl font-semibold tracking-normal";
+  const titleText =
+    isMilestoneDetail && milestoneTitle ? milestoneTitle : selectedProject.title;
 
   return (
     <>
       <div className="contents sm:hidden">
-        <div className="col-start-2 flex min-w-0 items-center justify-between gap-2">
-          <div className={cx("flex min-w-0 items-center gap-2", mobileBreadcrumbClass)}>
-            <ProjectListButton
-              className={breadcrumbButtonClass}
-              label={messages.projects}
-              onBackToList={onBackToList}
-              onOpenChange={setOpen}
-            />
-            <span className={cx("shrink-0", secondaryTextColorClass)}>/</span>
+        <div className="col-start-2 flex min-w-0 items-start justify-between gap-2">
+          <div className="grid min-w-0 gap-1">
+            <h1 className="min-w-0 truncate text-2xl font-semibold tracking-normal">
+              {titleText}
+            </h1>
+            <div
+              className={cx(
+                "flex min-w-0 items-center gap-2 text-sm font-medium tracking-normal",
+                secondaryTextColorClass,
+              )}
+            >
+              <ProjectListButton
+                className={breadcrumbButtonClass}
+                label={messages.projects}
+                onBackToList={onBackToList}
+                onOpenChange={setOpen}
+              />
+              <span className="shrink-0">/</span>
+              {renderProjectSwitcher()}
+            </div>
           </div>
           <ProjectTitlePinAction
             darkMode={darkMode}
@@ -117,72 +119,28 @@ export function ProjectPageTitle({
             onUnpinProject={onUnpinProject}
           />
         </div>
-        <h1 className={mobileProjectTitleClass}>
-          {renderProjectSwitcher()}
-        </h1>
-        {isMilestoneDetail && milestoneTitle ? (
-          <div className="col-span-2 grid min-w-0 gap-1">
-            <h1 className="min-w-0 truncate text-2xl font-semibold tracking-normal">
-              {milestoneTitle}
-            </h1>
-            {milestoneMetadata ? (
-              <p
-                className={cx(
-                  "min-w-0 truncate text-sm",
-                  secondaryTextColorClass,
-                )}
-                title={milestoneMetadata}
-              >
-                {milestoneMetadata}
-              </p>
-            ) : null}
-          </div>
-        ) : null}
       </div>
 
       <div className="hidden min-w-0 flex-1 items-start gap-3 sm:flex">
         <div className="grid min-w-0 flex-1 gap-1">
-          {isMilestoneDetail ? (
-            <div className={desktopProjectTitleClass}>
-              <ProjectListButton
-                className={breadcrumbButtonClass}
-                label={messages.projects}
-                onBackToList={onBackToList}
-                onOpenChange={setOpen}
-              />
-              <span className={cx("shrink-0", secondaryTextColorClass)}>/</span>
-              {renderProjectSwitcher()}
-            </div>
-          ) : (
-            <h1 className={desktopProjectTitleClass}>
-              <ProjectListButton
-                className={breadcrumbButtonClass}
-                label={messages.projects}
-                onBackToList={onBackToList}
-                onOpenChange={setOpen}
-              />
-              <span className={cx("shrink-0", secondaryTextColorClass)}>/</span>
-              {renderProjectSwitcher()}
-            </h1>
-          )}
-          {isMilestoneDetail && milestoneTitle ? (
-            <div className="grid min-w-0 gap-1">
-              <h1 className="min-w-0 truncate text-3xl font-semibold tracking-normal">
-                {milestoneTitle}
-              </h1>
-              {milestoneMetadata ? (
-                <p
-                  className={cx(
-                    "min-w-0 truncate text-sm",
-                    secondaryTextColorClass,
-                  )}
-                  title={milestoneMetadata}
-                >
-                  {milestoneMetadata}
-                </p>
-              ) : null}
-            </div>
-          ) : null}
+          <h1 className="min-w-0 truncate text-3xl font-semibold tracking-normal">
+            {titleText}
+          </h1>
+          <div
+            className={cx(
+              "flex min-w-0 items-center gap-2 text-sm font-medium tracking-normal",
+              secondaryTextColorClass,
+            )}
+          >
+            <ProjectListButton
+              className={breadcrumbButtonClass}
+              label={messages.projects}
+              onBackToList={onBackToList}
+              onOpenChange={setOpen}
+            />
+            <span className="shrink-0">/</span>
+            {renderProjectSwitcher()}
+          </div>
         </div>
         <ProjectTitlePinAction
           darkMode={darkMode}
@@ -298,19 +256,19 @@ function ProjectSwitcher({
   onProjectTitleClick: () => void;
 }) {
   return (
-    <span className="relative block min-w-0 max-w-full flex-1">
-      <span className="flex w-full max-w-full min-w-0 items-center gap-1">
-        <button
-          className={cx(
-            "block min-w-0 flex-1 truncate rounded-sm text-left outline-none transition",
-            breadcrumbButtonClass,
-          )}
-          type="button"
-          title={selectedProject.title}
-          onClick={onProjectTitleClick}
-        >
-          {selectedProject.title}
-        </button>
+    <span className="inline-flex min-w-0 max-w-full items-center gap-1">
+      <button
+        className={cx(
+          "block min-w-0 max-w-full truncate rounded-sm text-left outline-none transition",
+          breadcrumbButtonClass,
+        )}
+        type="button"
+        title={selectedProject.title}
+        onClick={onProjectTitleClick}
+      >
+        {selectedProject.title}
+      </button>
+      <span className="aa-project-switcher-trigger relative hidden shrink-0">
         <button
           className={cx(
             "inline-flex shrink-0 items-center justify-center rounded-sm outline-none transition",
@@ -327,69 +285,69 @@ function ProjectSwitcher({
             aria-hidden="true"
           />
         </button>
-      </span>
 
-      {open ? (
-        <>
-          <button
-            className="fixed inset-0 z-20 cursor-default"
-            type="button"
-            aria-label={messages.closeSwitcher}
-            onClick={() => onOpenChange(false)}
-          />
-          <ScrollArea
-            className={cx(
-              "absolute left-0 z-30 mt-2 w-[min(520px,calc(100vw-2rem))] overflow-hidden rounded-md border p-1 text-sm shadow-xl",
-              panelColorClass,
-            )}
-            viewportClassName="max-h-[min(360px,60vh)] overflow-x-hidden"
-            contentClassName="grid"
-          >
-            {projects.map((project) => {
-              const active = project.id === selectedProject.id;
+        {open ? (
+          <>
+            <button
+              className="fixed inset-0 z-20 cursor-default"
+              type="button"
+              aria-label={messages.closeSwitcher}
+              onClick={() => onOpenChange(false)}
+            />
+            <ScrollArea
+              className={cx(
+                "absolute left-0 top-full z-30 mt-2 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-md border p-1 text-sm shadow-xl",
+                panelColorClass,
+              )}
+              viewportClassName="max-h-[min(360px,60vh)] overflow-x-hidden"
+              contentClassName="grid"
+            >
+              {projects.map((project) => {
+                const active = project.id === selectedProject.id;
 
-              return (
-                <button
-                  key={project.id}
-                  className={cx(
-                    "grid w-full gap-1 rounded-md px-3 py-2 text-left transition",
-                    active
-                      ? "bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)]"
-                      : "text-[var(--aa-primary-text)] hover:bg-[var(--aa-secondary-button-hover-bg)]",
-                  )}
-                  type="button"
-                  title={project.title}
-                  onClick={() => {
-                    onOpenChange(false);
-                    onProjectSelect(project.id);
-                  }}
-                >
-                  <span className="truncate font-semibold">
-                    {project.title}
-                  </span>
-                  <span
+                return (
+                  <button
+                    key={project.id}
                     className={cx(
-                      "truncate text-xs",
-                      active ? "" : secondaryTextColorClass,
+                      "grid w-full gap-1 rounded-md px-3 py-2 text-left transition",
+                      active
+                        ? "bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)]"
+                        : "text-[var(--aa-primary-text)] hover:bg-[var(--aa-secondary-button-hover-bg)]",
                     )}
+                    type="button"
+                    title={project.title}
+                    onClick={() => {
+                      onOpenChange(false);
+                      onProjectSelect(project.id);
+                    }}
                   >
-                    {projectTimelineText(
-                      project,
-                      timelineMessages,
-                      durationMessages,
-                      dateMessages,
-                    )}{" "}
-                    · {timelineMessages.progress(
-                      doneTaskCount(project),
-                      project.tasks.length,
-                    )}
-                  </span>
-                </button>
-              );
-            })}
-          </ScrollArea>
-        </>
-      ) : null}
+                    <span className="truncate font-semibold">
+                      {project.title}
+                    </span>
+                    <span
+                      className={cx(
+                        "truncate text-xs",
+                        active ? "" : secondaryTextColorClass,
+                      )}
+                    >
+                      {projectTimelineText(
+                        project,
+                        timelineMessages,
+                        durationMessages,
+                        dateMessages,
+                      )}{" "}
+                      · {timelineMessages.progress(
+                        doneTaskCount(project),
+                        project.tasks.length,
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+            </ScrollArea>
+          </>
+        ) : null}
+      </span>
     </span>
   );
 }

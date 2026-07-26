@@ -274,6 +274,9 @@ export function ProjectsPage({
             onEditProject={(project) => {
               setProjectDraft(projectToDraft(project));
             }}
+            onEditMilestone={(milestone) => {
+              setMilestoneDraft(milestoneToDraft(milestone));
+            }}
             onSelectMilestone={onMilestoneSelect}
             onManageMilestones={() =>
               setMilestoneManagerProjectId(selectedProject.id)

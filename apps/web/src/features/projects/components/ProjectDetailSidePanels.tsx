@@ -18,7 +18,6 @@ import { projectOverviewTimelineMetadata } from "@/features/projects/project-ove
 import type { ProjectView } from "@/features/projects/actions";
 import type { ProjectMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
-import { cx } from "@/components/utils";
 
 export type MilestoneChoice = {
   id: string;
@@ -96,7 +95,7 @@ export function ProjectOverviewPanel({
           </Button>
         }
       />
-      <div className="grid gap-2 px-4 py-4">
+      <div className="grid gap-3 px-4 py-4">
         <DescriptionText darkMode={darkMode}>
           {overviewObjective}
         </DescriptionText>
@@ -106,101 +105,72 @@ export function ProjectOverviewPanel({
         <HorizontalProgressBar
           primary={taskProgress}
           secondary={deadlineProgress}
+          className="h-2"
           ariaLabel={progressAriaLabel(taskProgress, deadlineProgress)}
         />
+        <SupportingText darkMode={darkMode} className="truncate">
+          {messages.timeline.progress(doneTasks, project.tasks.length)}
+        </SupportingText>
       </div>
     </Card>
   );
 }
 
-export function ProjectProgressPanel({
+export function MilestoneOverviewPanel({
   darkMode,
-  project,
+  pending,
+  choice,
   messages,
+  onEditMilestone,
 }: {
   darkMode: boolean;
-  project: ProjectView;
+  pending: boolean;
+  choice: MilestoneChoice;
   messages: ProjectDetailSidePanelMessages;
+  onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
 }) {
-  const doneTasks = doneTaskCount(project);
+  const milestone = choice.milestone;
   const taskProgress =
-    project.tasks.length > 0 ? doneTasks / project.tasks.length : 0;
-  const deadlineProgress = project.deadlineDate
-    ? dateRangeProgress(project.startDate, project.deadlineDate)
+    choice.taskCount > 0 ? choice.doneTaskCount / choice.taskCount : 0;
+  const deadlineProgress = milestone?.deadlineDate
+    ? dateRangeProgress(milestone.startDate, milestone.deadlineDate)
     : null;
-  const overviewObjective = displayDescription(
-    project.description,
-    project.title,
-    messages.defaults.project,
-  );
-  const timelineMetadata = projectOverviewTimelineMetadata(
-    project,
-    {
-      deadline: messages.detail.deadlineLabel,
-      expectedDuration: messages.detail.expectedDuration,
-      timeline: messages.detail.timeline,
-      openEnded: messages.timeline.openEnded,
-    },
-    messages.duration,
-    (value) => formatDate(value, messages.dates, ""),
-  );
-  const overviewTimeline = projectOverviewTimelineText(
-    project,
-    timelineMetadata.value,
-    messages.dates,
-  );
-  const milestoneMarkers = projectMilestoneProgressMarkers(project);
 
   return (
     <Card darkMode={darkMode}>
       <CardHeader
         darkMode={darkMode}
-        icon={<FolderKanban size={18} aria-hidden="true" />}
-        title={messages.detail.projectOverviewTitle}
-        description={messages.detail.projectOverviewDescription}
+        icon={<Flag size={18} aria-hidden="true" />}
+        title={messages.detail.milestoneOverviewTitle}
+        description={messages.detail.milestoneOverviewDescription}
+        action={
+          milestone ? (
+            <Button
+              darkMode={darkMode}
+              disabled={pending}
+              icon={<Edit3 size={15} aria-hidden="true" />}
+              onClick={() => onEditMilestone(milestone)}
+            >
+              {messages.detail.edit}
+            </Button>
+          ) : undefined
+        }
       />
       <div className="grid gap-3 px-4 py-4">
-        <DescriptionText darkMode={darkMode}>
-          {overviewObjective}
-        </DescriptionText>
+        <DescriptionText darkMode={darkMode}>{choice.description}</DescriptionText>
+        {milestone ? (
+          <SupportingText darkMode={darkMode} className="truncate">
+            {milestoneOverviewTimelineText(milestone, messages)}
+          </SupportingText>
+        ) : null}
+        <HorizontalProgressBar
+          primary={taskProgress}
+          secondary={deadlineProgress}
+          className="h-2"
+          ariaLabel={progressAriaLabel(taskProgress, deadlineProgress)}
+        />
         <SupportingText darkMode={darkMode} className="truncate">
-          {overviewTimeline}
-        </SupportingText>
-        <div className="grid gap-2">
-          <div className="relative pt-1">
-            <HorizontalProgressBar
-              primary={taskProgress}
-              secondary={deadlineProgress}
-              className="h-2"
-              ariaLabel={progressAriaLabel(taskProgress, deadlineProgress)}
-            />
-            {milestoneMarkers.map((marker) => (
-              <button
-                key={marker.id}
-                className="group absolute top-0 h-4 w-3 -translate-x-1/2 cursor-default rounded-sm outline-none"
-                style={{ left: `${marker.percent}%` }}
-                type="button"
-                aria-label={marker.title}
-              >
-                <span className="mx-auto block h-4 w-px rounded-full bg-[var(--aa-primary-text)]" />
-                <span
-                  className={cx(
-                    "pointer-events-none absolute top-5 z-10 hidden max-w-[10rem] truncate rounded-sm border bg-[var(--aa-panel-bg)] px-2 py-1 text-xs font-semibold text-[var(--aa-primary-text)] shadow-md group-hover:block group-focus-visible:block",
-                    marker.percent <= 8
-                      ? "left-0"
-                      : marker.percent >= 92
-                        ? "right-0"
-                        : "left-1/2 -translate-x-1/2",
-                  )}
-                >
-                  {marker.title}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-        <SupportingText darkMode={darkMode} className="truncate">
-          {messages.timeline.progress(doneTasks, project.tasks.length)}
+          {messages.timeline.progress(choice.doneTaskCount, choice.taskCount)}
         </SupportingText>
       </div>
     </Card>
@@ -348,6 +318,28 @@ export function milestoneMetadataText(
   return [milestoneTimelineText(milestone, messages), objective].join(" · ");
 }
 
+function milestoneOverviewTimelineText(
+  milestone: ProjectView["milestones"][number],
+  messages: ProjectDetailSidePanelMessages,
+) {
+  const timelineText = milestoneTimelineText(milestone, messages);
+  const startText = formatDate(
+    milestone.startDate,
+    messages.dates,
+    milestone.startDate,
+  );
+
+  if (milestone.deadlineDate) {
+    return `${startText} - ${formatDate(
+      milestone.deadlineDate,
+      messages.dates,
+      milestone.deadlineDate,
+    )}`;
+  }
+
+  return `${startText} · ${timelineText}`;
+}
+
 function projectOverviewTimelineText(
   project: ProjectView,
   timelineText: string,
@@ -381,53 +373,6 @@ function dateRangeProgress(startDate: string, deadlineDate: string) {
   }
 
   return (today - startDay) / (deadlineDay - startDay);
-}
-
-function projectMilestoneProgressMarkers(project: ProjectView) {
-  const projectStart = dateKeyToUtcDay(project.startDate);
-  const projectEnd = project.deadlineDate
-    ? dateKeyToUtcDay(project.deadlineDate)
-    : null;
-
-  return project.milestones
-    .map((milestone, index) => {
-      const progress =
-        projectStart !== null && projectEnd !== null && milestone.deadlineDate
-          ? positionInRange(
-              projectStart,
-              projectEnd,
-              dateKeyToUtcDay(milestone.deadlineDate),
-            )
-          : project.milestones.length > 1
-            ? index / (project.milestones.length - 1)
-            : 0.5;
-
-      return {
-        id: milestone.id,
-        percent: Math.round(clampFraction(progress) * 100),
-        title: milestone.title,
-      };
-    })
-    .sort(
-      (left, right) =>
-        left.percent - right.percent || left.title.localeCompare(right.title),
-    );
-}
-
-function positionInRange(
-  startDay: number,
-  endDay: number,
-  valueDay: number | null,
-) {
-  if (valueDay === null) {
-    return 1;
-  }
-
-  if (endDay <= startDay) {
-    return valueDay >= endDay ? 1 : 0;
-  }
-
-  return (valueDay - startDay) / (endDay - startDay);
 }
 
 function dateKeyToUtcDay(value: string) {

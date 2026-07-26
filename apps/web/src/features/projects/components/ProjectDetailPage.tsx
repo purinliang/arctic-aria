@@ -15,11 +15,11 @@ import {
   ProjectDetailTasksPanel,
 } from "./ProjectDetailTasksPanel";
 import {
+  MilestoneOverviewPanel,
   MilestoneSwitchPanel,
   type MilestoneChoice,
   type ProjectDetailSidePanelMessages,
   ProjectOverviewPanel,
-  ProjectProgressPanel,
 } from "./ProjectDetailSidePanels";
 
 export function ProjectDetailPage({
@@ -33,6 +33,7 @@ export function ProjectDetailPage({
   defaultDescriptions,
   dateMessages,
   onEditProject,
+  onEditMilestone,
   onSelectMilestone,
   onManageMilestones,
   onAddTask,
@@ -49,6 +50,7 @@ export function ProjectDetailPage({
   defaultDescriptions: ProjectMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
   onEditProject: (project: ProjectView) => void;
+  onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
   onSelectMilestone: (milestoneId: string | null) => void;
   onManageMilestones: () => void;
   onAddTask: (projectId: string, milestoneId?: string) => void;
@@ -79,6 +81,7 @@ export function ProjectDetailPage({
       defaultDescriptions={defaultDescriptions}
       dateMessages={dateMessages}
       onEditProject={onEditProject}
+      onEditMilestone={onEditMilestone}
       onSelectMilestone={onSelectMilestone}
       onManageMilestones={onManageMilestones}
       onAddTask={onAddTask}
@@ -99,6 +102,7 @@ function ProjectDetailContent({
   defaultDescriptions,
   dateMessages,
   onEditProject,
+  onEditMilestone,
   onSelectMilestone,
   onManageMilestones,
   onAddTask,
@@ -115,6 +119,7 @@ function ProjectDetailContent({
   defaultDescriptions: ProjectMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
   onEditProject: (project: ProjectView) => void;
+  onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
   onSelectMilestone: (milestoneId: string | null) => void;
   onManageMilestones: () => void;
   onAddTask: (projectId: string, milestoneId?: string) => void;
@@ -223,8 +228,10 @@ function ProjectDetailContent({
         {activeMilestoneId === null ? (
           <ProjectLevelDetailPage
             darkMode={darkMode}
+            pending={pending}
             project={project}
             sidePanelMessages={sidePanelMessages}
+            onEditProject={onEditProject}
           />
         ) : (
           <ProjectMilestoneDetailPage
@@ -243,13 +250,13 @@ function ProjectDetailContent({
         )}
 
         <aside className="grid content-start gap-4">
-          {activeMilestoneId !== null ? (
-            <ProjectOverviewPanel
+          {activeMilestoneId !== null && selectedChoice ? (
+            <MilestoneOverviewPanel
               darkMode={darkMode}
               pending={pending}
-              project={project}
+              choice={selectedChoice}
               messages={sidePanelMessages}
-              onEditProject={onEditProject}
+              onEditMilestone={onEditMilestone}
             />
           ) : null}
           <MilestoneSwitchPanel
@@ -269,19 +276,25 @@ function ProjectDetailContent({
 
 function ProjectLevelDetailPage({
   darkMode,
+  pending,
   project,
   sidePanelMessages,
+  onEditProject,
 }: {
   darkMode: boolean;
+  pending: boolean;
   project: ProjectView;
   sidePanelMessages: ProjectDetailSidePanelMessages;
+  onEditProject: (project: ProjectView) => void;
 }) {
   return (
     <div className="grid min-w-0 content-start gap-4">
-      <ProjectProgressPanel
+      <ProjectOverviewPanel
         darkMode={darkMode}
+        pending={pending}
         project={project}
         messages={sidePanelMessages}
+        onEditProject={onEditProject}
       />
     </div>
   );

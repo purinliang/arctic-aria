@@ -35,8 +35,6 @@ import { IdeasPage } from "@/features/ideas/components/IdeasPage";
 import { useIdeasPageData } from "@/features/ideas/hooks/useIdeasPageData";
 import { MemoriesPage } from "@/features/memories/components/MemoriesPage";
 import type { ProjectInput } from "@/features/projects/actions";
-import { displayDescription } from "@/components/default-description";
-import { milestoneMetadataText } from "@/features/projects/components/ProjectDetailSidePanels";
 import { ProjectPageTitle } from "@/features/projects/components/ProjectPageTitle";
 import { ProjectsPage } from "@/features/projects/components/ProjectsPage";
 import { RoutinesPage } from "@/features/routines/components/RoutinesPage";
@@ -165,32 +163,12 @@ export function AppShell({
         (milestone) => milestone.id === activeProjectMilestoneId,
       ) ?? null
     : null;
-  const projectTitleMilestone = activeProjectMilestoneId
+  const projectTitleMilestoneTitle = activeProjectMilestoneId
     ? activeProjectMilestone
-      ? {
-          title: activeProjectMilestone.title,
-          metadata: milestoneMetadataText(
-            activeProjectMilestone,
-            displayDescription(
-              activeProjectMilestone.objective,
-              activeProjectMilestone.title,
-              messages.projects.defaultDescriptions.milestone,
-            ),
-            {
-              dates: messages.forms.datePicker,
-              defaults: messages.projects.defaultDescriptions,
-              detail: messages.projects.detail,
-              duration: messages.projects.duration,
-              timeline: messages.projects.timeline,
-            },
-          ),
-        }
+      ? activeProjectMilestone.title
       : null
     : selectedProjectMilestoneId === "" && hasUnassignedProjectTasks
-      ? {
-          title: messages.projects.detail.noMilestoneTitle,
-          metadata: messages.projects.detail.noMilestoneDescription,
-        }
+      ? messages.projects.detail.noMilestoneTitle
       : null;
 
   useEffect(() => {
@@ -302,7 +280,7 @@ export function AppShell({
 
         <div className="mx-auto flex min-h-[100dvh] min-w-0 flex-1 flex-col gap-4 px-4 pb-12 pt-4 sm:px-6 sm:pb-16 lg:min-h-[110vh] lg:max-w-[1200px] lg:px-8 lg:pb-20">
           <header
-            className={`grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3 border-b pb-4 sm:flex sm:items-center ${secondaryButtonBorderColorClass}`}
+            className={`aa-workspace-header grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3 border-b pb-4 sm:flex sm:items-center ${secondaryButtonBorderColorClass}`}
           >
             <Button
               darkMode={darkMode}
@@ -322,8 +300,7 @@ export function AppShell({
                     ? "milestone"
                     : "project"
                 }
-                milestoneTitle={projectTitleMilestone?.title ?? null}
-                milestoneMetadata={projectTitleMilestone?.metadata ?? null}
+                milestoneTitle={projectTitleMilestoneTitle}
                 pinPending={
                   selectedProjectId
                     ? projectState.pendingProjectPinIds.includes(selectedProjectId)

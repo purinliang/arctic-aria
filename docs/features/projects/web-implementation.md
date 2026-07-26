@@ -188,20 +188,24 @@ must not navigate. The list page does not show task rows.
 
 Breadcrumb row:
 
-- layout: horizontal flex with wrapping
-- first item: `Projects`, which returns to the list page
-- divider: `/`
-- second item: project name switcher
-- mobile: keep the hamburger and `Projects /` on the first row, then place the
-  project name switcher on a second row aligned with the hamburger button
+- layout: vertical title plus metadata row
+- main title: project title on project-level detail, selected milestone title on
+  milestone-level detail
+- metadata row first item: `Projects`, which returns to the list page
+- metadata row divider: `/`
+- metadata row second item: project name plus chevron switcher
 - clicking the project name keeps the user on or returns the user to
   project-level detail and clears the selected milestone
 - clicking the `ChevronDown` button opens the project switcher menu
-- project-level title bar shows `Projects / project name` without project
-  metadata
-- milestone-level title bar reduces `Projects / project name` to
-  description-level text, then shows the selected milestone title as the main
-  title and its deadline/expected-duration plus objective as the metadata line
+- the chevron switcher is hidden whenever the page is in the compact stacked
+  split-layout mode, using the same `53rem` container breakpoint as the detail
+  panels
+- when visible, the project switcher menu opens below the chevron button with
+  its left edge aligned to the chevron
+- project switcher menu width is capped at `24rem` and the viewport width minus
+  page padding
+- project and milestone timeline metadata are shown in overview panels, not in
+  the page title bar
 - title action: icon-only outline `Pin` or `PinOff`, updating the sidebar
   shortcut state for the selected project
 
@@ -214,28 +218,28 @@ Project-level overview card:
 - body first line: objective text without an `Objective` label
 - body second line: `start date - deadline` for deadline projects, otherwise
   `start date · expected duration` or `start date · open-ended`
-- body progress: horizontal progress bar with primary task-completion fill,
-  secondary elapsed-calendar fill only for deadline projects, and vertical
-  milestone markers positioned along the bar
-- marker labels are shown only on hover/focus to avoid overlap and layout width
-  instability
+- header action: `Edit3` icon plus `Edit`
+- body progress: horizontal progress bar with primary task-completion fill and
+  secondary elapsed-calendar fill only for deadline projects
 - body final line: compact project task completion text
 
-Project overview card:
+Milestone overview card:
 
-- card title: `Project Overview`
+- card title: `Milestone Overview`
 - location: milestone-level right panel, above the milestone switcher
-- icon: same `FolderKanban` project icon used by the sidebar
-- description: short project-scope/progress hint
+- icon: `Flag`
+- description: short selected-phase/progress hint
 - header action: `Edit3` icon plus `Edit`
-- `Edit` opens the project editor dialog
-- body first line: objective text without an `Objective` label
-- body second line: `start date - deadline` for deadline projects, otherwise
-  `start date · expected duration` or `start date · open-ended`
+- `Edit` opens the selected milestone editor dialog; the `No milestone` group
+  has no edit action
+- body first line: milestone objective text without an `Objective` label
+- body second line: milestone `start date - deadline` for deadline milestones,
+  otherwise `start date · expected duration` or `start date · open-ended`
 - date values use localized display format, not raw `YYYY-MM-DD`
-- body third line: thin progress bar with primary task-completion fill and
-  secondary elapsed-calendar fill only for deadline projects
-- do not repeat the project title inside this card because the page title
+- body third line: thin progress bar with primary milestone task-completion
+  fill and secondary elapsed-calendar fill only for deadline milestones
+- body final line: compact milestone task completion text
+- do not repeat the milestone title inside this card because the page title
   already shows it
 - do not show colored status or priority tags
 
@@ -243,7 +247,7 @@ Milestone switcher card:
 
 - parent layout: vertical grid
 - location: right panel; on project-level detail it is the first right panel,
-  and on milestone-level detail it is below `Project Overview`
+  and on milestone-level detail it is below `Milestone Overview`
 - milestone parent component: shared `ListItem`
 - milestone header layout: horizontal flex with wrapping
 - milestone rows are jump controls, not edit controls
