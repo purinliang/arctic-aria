@@ -77,7 +77,8 @@ Panel content:
   milestone overview progress bars
 - primary progress fill uses the same weighted progress as Daily Review text
   selection: project tasks count as three units and routines count as one unit
-- secondary progress fill shows local day elapsed time
+- secondary progress fill shows elapsed time in the current scheduled local
+  day, using the shared `04:00` day boundary that Dashboard scheduling uses
 - one compact supporting line appears below the progress bar, using ` · ` to
   separate task and routine counts, such as
   `0/3 tasks done · 0/2 routines done`

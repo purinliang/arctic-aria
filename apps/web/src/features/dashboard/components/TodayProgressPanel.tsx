@@ -6,6 +6,7 @@ import { HorizontalProgressBar } from "@/components/horizontal-progress-bar";
 import { Panel } from "@/components/panel";
 import { DescriptionText, SupportingText } from "@/components/text";
 import { cx } from "@/components/utils";
+import { localScheduledDayProgress } from "@/features/settings/time-zones";
 import type { DashboardMessages } from "@/messages/app-messages";
 import { todayReviewCompletionProgress } from "../today-review-text";
 import type { Routine, Task } from "../types";
@@ -15,11 +16,13 @@ export function TodayProgressPanel({
   routines,
   tasks,
   messages,
+  resolvedTimeZone,
 }: {
   darkMode: boolean;
   routines: Routine[];
   tasks: Task[];
   messages: DashboardMessages["progress"];
+  resolvedTimeZone: string;
 }) {
   const doneTaskCount = tasks.filter((task) => task.status === "done").length;
   const openTaskCount = tasks.length - doneTaskCount;
@@ -33,7 +36,10 @@ export function TodayProgressPanel({
     doneRoutineCount,
     openRoutineCount,
   }).value;
-  const timeProgress = localDayProgress();
+  const timeProgress = localScheduledDayProgress({
+    date: new Date(),
+    timeZone: resolvedTimeZone,
+  });
 
   return (
     <Panel darkMode={darkMode}>
@@ -114,14 +120,4 @@ function progressCountText(
   emptyText: string,
 ) {
   return total > 0 ? formatter(done, total) : emptyText;
-}
-
-function localDayProgress(date = new Date()) {
-  const elapsedMilliseconds =
-    date.getHours() * 60 * 60 * 1000 +
-    date.getMinutes() * 60 * 1000 +
-    date.getSeconds() * 1000 +
-    date.getMilliseconds();
-
-  return elapsedMilliseconds / (24 * 60 * 60 * 1000);
 }

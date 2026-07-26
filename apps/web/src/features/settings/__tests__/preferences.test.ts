@@ -11,6 +11,9 @@ import {
   localCalendarParts,
   localDateKey,
   localDateTimeParts,
+  localScheduledDateKey,
+  localScheduledDayProgress,
+  localScheduledDayStartHour,
   readTimeZonePreference,
   resolveTimeZonePreference,
   selectableTimeZones,
@@ -84,6 +87,45 @@ test("timezone helpers derive local calendar dates", () => {
     weekday: 3,
   });
   assert.equal(localDateTimeParts(date, "not-a-timezone"), null);
+});
+
+test("timezone helpers use the shared scheduled day boundary", () => {
+  assert.equal(localScheduledDayStartHour, 4);
+  assert.equal(
+    localScheduledDateKey({
+      date: new Date("2026-07-21T17:30:00.000Z"),
+      timeZone: "Australia/Sydney",
+    }),
+    "2026-07-21",
+  );
+  assert.equal(
+    localScheduledDateKey({
+      date: new Date("2026-07-21T18:00:00.000Z"),
+      timeZone: "Australia/Sydney",
+    }),
+    "2026-07-22",
+  );
+  assert.equal(
+    localScheduledDayProgress({
+      date: new Date("2026-07-21T18:00:00.000Z"),
+      timeZone: "Australia/Sydney",
+    }),
+    0,
+  );
+  assert.equal(
+    localScheduledDayProgress({
+      date: new Date("2026-07-22T06:00:00.000Z"),
+      timeZone: "Australia/Sydney",
+    }),
+    0.5,
+  );
+  assert.equal(
+    localScheduledDayProgress({
+      date: new Date("2026-07-21T17:30:00.000Z"),
+      timeZone: "Australia/Sydney",
+    }),
+    23.5 / 24,
+  );
 });
 
 test("timezone selector keeps valid extra zones available", () => {

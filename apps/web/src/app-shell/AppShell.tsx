@@ -460,6 +460,7 @@ export function AppShell({
               messages={messages.dashboard}
               formMessages={messages.forms}
               timeFormatPreference={timeFormatPreference}
+              resolvedTimeZone={resolvedTimeZone}
               onRoutineOpen={() => {
                 handleViewChange("routines");
               }}
