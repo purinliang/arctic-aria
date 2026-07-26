@@ -70,10 +70,17 @@ export const englishDashboardMessages = {
   },
   progress: {
     title: "Progress",
-    description: "Trust Aria. Simply follow today's plan.",
+    description: "Track today's scheduled progress.",
+    planText: "Simply follow today's plan.",
+    planTooltipTitle: "Trust Aria.",
     planSupport:
       "Your future plan remains safe and achievable: no day is overloaded, and every task can still be completed on time. If Aria doesn't remind you, there's no need to check it today.",
     progressLabel: "Today work progress and day progress",
+    tasksDone: (done: number, total: number) => `${done}/${total} tasks done`,
+    routinesDone: (done: number, total: number) =>
+      `${done}/${total} routines done`,
+    noTasks: "No tasks",
+    noRoutines: "No routines",
   },
   review: {
     dailySummaryMessages: {
@@ -218,10 +225,16 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
   },
   progress: {
     title: "进展",
-    description: "信任阿莉雅，只需按照今天的计划行动。",
+    description: "查看今日计划进度。",
+    planText: "只需按照今日计划行动。",
+    planTooltipTitle: "信任阿莉雅。",
     planSupport:
       "你的未来计划仍然安全可行：每天都不会超负荷，所有工作都能按时完成。如果阿莉雅没有提醒你，就不必今天检查。",
     progressLabel: "今日工作进展和当天时间进度",
+    tasksDone: (done, total) => `任务 ${done}/${total} 已完成`,
+    routinesDone: (done, total) => `日常 ${done}/${total} 已完成`,
+    noTasks: "没有任务",
+    noRoutines: "没有日常",
   },
   review: {
     dailySummaryMessages: {

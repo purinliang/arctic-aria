@@ -66,16 +66,21 @@ Header:
 
 - icon: `ChartNoAxesColumnIncreasing`
 - title: `Progress`
-- description: short trust-and-follow guidance for today's plan
+- description: short copy describing today's scheduled progress
 
 Panel content:
 
-- one description-level paragraph explaining that future work remains safe and
-  the user does not need to check items that Arctic Aria did not surface today
-- one horizontal progress bar
+- one description-level text: `Simply follow today's plan.`
+- hovering or focusing that text shows a small popover with the longer
+  trust-and-plan guidance
+- one horizontal progress bar using the same `h-2` visual height as project and
+  milestone overview progress bars
 - primary progress fill uses the same weighted progress as Daily Review text
   selection: project tasks count as three units and routines count as one unit
 - secondary progress fill shows local day elapsed time
+- one compact supporting line appears below the progress bar, using ` · ` to
+  separate task and routine counts, such as
+  `0/3 tasks done · 0/2 routines done`
 - pinned memories do not affect the progress fill
 
 The Progress panel must not show the Daily Review summary sentence. Summary
