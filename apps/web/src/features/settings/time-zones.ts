@@ -124,6 +124,26 @@ export function localDateKey(date: Date, timeZone: string) {
   return localDateTimeParts(date, timeZone)?.dateKey ?? date.toISOString().slice(0, 10);
 }
 
+export function localScheduledDateKey({
+  date,
+  dayStartHour = 4,
+  timeZone,
+}: {
+  date: Date;
+  dayStartHour?: number;
+  timeZone: string;
+}) {
+  const parts = localDateTimeParts(date, timeZone);
+
+  if (!parts) {
+    return date.toISOString().slice(0, 10);
+  }
+
+  return parts.hour < dayStartHour
+    ? addDaysToDateKey(parts.dateKey, -1)
+    : parts.dateKey;
+}
+
 export function localCalendarParts(date: Date, timeZone: string) {
   const parts = localDateTimeParts(date, timeZone);
 
@@ -180,6 +200,14 @@ function dateTimeValues(parts: Intl.DateTimeFormatPart[]) {
       .filter((part) => part.type !== "literal")
       .map((part) => [part.type, part.value]),
   );
+}
+
+export function addDaysToDateKey(dateKey: string, days: number) {
+  const date = new Date(`${dateKey}T00:00:00.000Z`);
+
+  date.setUTCDate(date.getUTCDate() + days);
+
+  return date.toISOString().slice(0, 10);
 }
 
 export function zonedDateTimeToUtcDate({

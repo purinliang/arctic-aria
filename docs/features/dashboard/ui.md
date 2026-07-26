@@ -13,16 +13,15 @@ Feature-specific rules stay in their owning feature docs:
 The Dashboard is the daily operating surface. It should show what the user can
 act on today without turning into a management page.
 
-The Dashboard may display project tasks, routine instances, pinned memories,
-and a lightweight Daily Review title-bar action, but it must not redefine their
-product rules.
+The Dashboard may display project tasks, routine instances, progress guidance,
+and pinned memories, but it must not redefine their product rules.
 
 Current Dashboard scope:
 
 - today's selected project tasks
 - today's routine instances
+- progress guidance and a lightweight progress bar
 - pinned memories
-- Daily Review popover with a non-production manual Discord delivery test
 
 Deferred Dashboard scope:
 
@@ -43,8 +42,8 @@ Dashboard behavior. Shared shell behavior is documented in:
 Dashboard body layout:
 
 - parent layout: shared split layout
-- left column: `Tasks`
-- right column: stacked `Routines` and `Pinned Memories`
+- left column: stacked `Tasks` and `Routines`
+- right column: stacked `Progress` and `Pinned Memories`
 - desktop: left panel should be wider than the right panel through the shared
   split classes
 - mobile: panels stack vertically
@@ -54,18 +53,39 @@ Each Dashboard panel header should include a short friendly description, ideally
 5-7 English words and no more than 8 English words. The description should
 encourage action without adding instruction text or counts.
 
-The Dashboard should not show a top summary bar, duplicate progress visuals, or
-a timeline section in the current UI.
+The Dashboard should not show a top summary bar, Daily Review popover, duplicate
+progress visuals, or a timeline section in the current UI.
 
-## Daily Review Popover
+## Progress Panel
 
-Daily Review is opened from the Today page title bar, not shown as a Dashboard
-panel. The title-bar action opens an info popover using the shared floating
-popover view. The summary paragraph should clamp at two lines without forcing a
-two-line minimum. The progress bar uses the same weighted progress as Daily
-Review text selection: project tasks count as three units, routines count as
-one unit, and pinned memories do not affect the progress fill. The secondary
-fill shows local day elapsed time.
+The Progress panel is the first panel in the right column. It replaces the
+former Today subtitle and Daily Review popover so the Today page does not repeat
+the same planning guidance in multiple places.
+
+Header:
+
+- icon: `ChartNoAxesColumnIncreasing`
+- title: `Progress`
+- description: short copy describing today's scheduled progress
+
+Panel content:
+
+- one description-level text: `Simply follow today's plan.`
+- hovering or focusing that text shows a small popover with the longer
+  trust-and-plan guidance
+- one horizontal progress bar using the same `h-2` visual height as project and
+  milestone overview progress bars
+- primary progress fill uses the same weighted progress as Daily Review text
+  selection: project tasks count as three units and routines count as one unit
+- secondary progress fill shows local day elapsed time
+- one compact supporting line appears below the progress bar, using ` · ` to
+  separate task and routine counts, such as
+  `0/3 tasks done · 0/2 routines done`
+- pinned memories do not affect the progress fill
+
+The Progress panel must not show the Daily Review summary sentence. Summary
+copy such as `Tomorrow can begin with one quiet step...` is only for scheduled
+Discord Daily Review messages.
 
 ## Project-Owned Tasks Panel
 
@@ -180,9 +200,9 @@ clickable. Clicking the checkbox must not navigate.
 
 ## Daily Review Message
 
-Daily Review is a lightweight popover and sender, not a persisted review
-feature. It should send a short Markdown-style Discord message generated from
-the visible Today items:
+Daily Review is a scheduled Discord message, not a visible Today page panel,
+popover, or persisted review feature. It should send a short Markdown-style
+Discord message generated from the visible Today items:
 
 - done and undone project tasks
 - done and undone routine instances
@@ -191,26 +211,15 @@ the visible Today items:
 The first version should not add a `daily_reviews` table or a structured review
 editing workflow. Discord delivery history is enough for this version.
 
-Header:
-
-- title-bar action icon: `ClipboardCheck`
-- popover title: `Daily Review`
-- popover action: secondary `Send` button for the current manual Discord
-  delivery test path in local and preview environments only
-
 The Discord message heading should be `Daily Review for <date>`, because the
 message can be read outside the Today page and may arrive after the day ends.
 
-Hide the `Send` button in the real production environment. Production uses the
-Cloudflare scheduled Discord notification cron for Daily Review delivery.
-Settings `Send Test` remains available in production for explicit Discord
-diagnostics.
+Production uses the Cloudflare scheduled Discord notification cron for Daily
+Review delivery. Settings `Send Test` remains available in production for
+explicit Discord diagnostics.
 
-Popover content:
+Message content:
 
-- render only the generated summary sentence as description-level text
-- do not repeat the full task, routine, or pinned-memory lists inside the
-  Daily Review popover because those lists are already visible on the Today page
 - choose the summary tone from the visible state of tasks, routines, and pinned
   memories
 - calculate work progress from tasks and routines only. One task has weight
@@ -222,9 +231,9 @@ Popover content:
   patterns do not feel mechanical
 - use the current date and visible counts as a stable seed inside the selected
   tone; the summary should not change randomly during the same day
-- write summary copy as an end-of-day or midnight reflection. Do not use copy
-  that assumes the user still has evening time left or should make `today`
-  lighter.
+- write summary copy as an end-of-day reflection sent from the `02:00` local
+  snapshot. Do not use copy that assumes the user still has evening time left or
+  should make `today` lighter.
 
 Discord message text should still include Markdown-style sections because the
 message can be read outside the Today page:
@@ -241,9 +250,6 @@ message can be read outside the Today page:
   `- \`[ ]\` **Title**: Description`; use inline code for the checkbox marker
   so Discord renders it as fixed-width text. Omit the colon and description
   when the description is empty
-
-While sending, the action can show the shared pending button text. Success and
-failure results must use the shared notification stack.
 
 ## Empty States
 

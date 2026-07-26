@@ -5,12 +5,16 @@ import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/button";
-import { secondaryButtonBorderColorClass } from "@/components/color";
+import {
+  secondaryButtonBorderColorClass,
+  secondaryTextColorClass,
+} from "@/components/color";
 import {
   NotificationStack,
   type NotificationItem,
 } from "@/components/notification";
 import { appShellClass } from "@/components/theme";
+import { cx } from "@/components/utils";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { AppMessages } from "@/messages/app-messages";
@@ -22,20 +26,17 @@ import type {
   UserPreferences,
 } from "@/features/settings/preferences";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
-import { TodayReviewPopover } from "@/features/dashboard/components/TodayReviewPopover";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
 import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardProjects";
 import { useDashboardRoutines } from "@/features/dashboard/hooks/useDashboardRoutines";
 import type { DashboardView } from "@/features/dashboard/types";
-import { sendTodayReviewDiscordMessage } from "@/features/dashboard/actions";
 import type { AuthUser } from "@/features/auth/server/auth-service";
 import { IdeasPage } from "@/features/ideas/components/IdeasPage";
 import { useIdeasPageData } from "@/features/ideas/hooks/useIdeasPageData";
 import { MemoriesPage } from "@/features/memories/components/MemoriesPage";
-import type { ProjectInput, ProjectView } from "@/features/projects/actions";
+import type { ProjectInput } from "@/features/projects/actions";
 import { ProjectPageTitle } from "@/features/projects/components/ProjectPageTitle";
 import { ProjectsPage } from "@/features/projects/components/ProjectsPage";
-import { projectToDraft } from "@/features/projects/components/project-page-helpers";
 import { RoutinesPage } from "@/features/routines/components/RoutinesPage";
 import { SettingsPage } from "@/features/settings/components/SettingsPage";
 import { appPathForProject, appPathForView, appRouteFromPathname, browserPathname } from "./app-routes";
@@ -62,7 +63,6 @@ export function AppShell({
   onNotificationDismiss,
   showErrorNotification,
   showSuccessNotification,
-  showTodayReviewSendAction,
 }: {
   currentUser: AuthUser;
   browserTimeZone: string;
@@ -84,7 +84,6 @@ export function AppShell({
   onNotificationDismiss: (notificationId: number) => void;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
-  showTodayReviewSendAction: boolean;
 }) {
   const initialPathname = usePathname();
   const [currentPathname, setCurrentPathname] = useState(
@@ -94,8 +93,15 @@ export function AppShell({
   const activeView = pathnameRoute.view;
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const selectedProjectId = pathnameRoute.projectId;
+  const [selectedProjectMilestone, setSelectedProjectMilestone] = useState<{
+    projectId: string | null;
+    milestoneId: string | null;
+  }>({ projectId: null, milestoneId: null });
+  const selectedProjectMilestoneId =
+    selectedProjectMilestone.projectId === selectedProjectId
+      ? selectedProjectMilestone.milestoneId
+      : null;
   const [projectDraft, setProjectDraft] = useState<ProjectInput | null>(null);
-  const [todayReviewPending, setTodayReviewPending] = useState(false);
   const projectState = useDashboardProjects(
     currentUser.id,
     showErrorNotification,
@@ -136,6 +142,34 @@ export function AppShell({
         ),
     [projectState.projects],
   );
+  const selectedProject = selectedProjectId
+    ? projectState.projects.find((project) => project.id === selectedProjectId) ??
+      null
+    : null;
+  const hasUnassignedProjectTasks =
+    selectedProject?.tasks.some((task) => !task.milestoneId) ?? false;
+  const activeProjectMilestoneId =
+    selectedProjectMilestoneId === ""
+      ? hasUnassignedProjectTasks
+        ? ""
+        : null
+      : selectedProject?.milestones.some(
+            (milestone) => milestone.id === selectedProjectMilestoneId,
+          )
+        ? selectedProjectMilestoneId
+        : null;
+  const activeProjectMilestone = activeProjectMilestoneId
+    ? selectedProject?.milestones.find(
+        (milestone) => milestone.id === activeProjectMilestoneId,
+      ) ?? null
+    : null;
+  const projectTitleMilestoneTitle = activeProjectMilestoneId
+    ? activeProjectMilestone
+      ? activeProjectMilestone.title
+      : null
+    : selectedProjectMilestoneId === "" && hasUnassignedProjectTasks
+      ? messages.projects.detail.noMilestoneTitle
+      : null;
 
   useEffect(() => {
     function syncBrowserPathname() {
@@ -177,15 +211,20 @@ export function AppShell({
   }
 
   function showProjectsList() {
+    setSelectedProjectMilestone({ projectId: null, milestoneId: null });
     navigateToRoute(appPathForView("projects"));
   }
 
   function showProjectDetail(projectId: string) {
+    setSelectedProjectMilestone({ projectId, milestoneId: null });
     navigateToRoute(appPathForProject(projectId));
   }
 
-  function handleProjectEdit(project: ProjectView) {
-    setProjectDraft(projectToDraft(project));
+  function showProjectMilestoneDetail(milestoneId: string | null) {
+    setSelectedProjectMilestone({
+      projectId: selectedProjectId,
+      milestoneId,
+    });
   }
 
   function handleDeveloperImportComplete(target: DeveloperImportTarget) {
@@ -204,38 +243,6 @@ export function AppShell({
     navigateToRoute(appPathForView(view));
   }
 
-  async function handleTodayReviewSend() {
-    if (todayReviewPending) {
-      return;
-    }
-
-    setTodayReviewPending(true);
-
-    try {
-      const result = await sendTodayReviewDiscordMessage();
-
-      if (result.ok) {
-        showSuccessNotification(
-          messages.dashboard.review.results[result.code],
-          messages.dashboard.review.notifications.sent,
-        );
-        return;
-      }
-
-      showErrorNotification(
-        messages.dashboard.review.results[result.code] ?? result.message,
-        messages.dashboard.review.notifications.failed,
-      );
-    } catch {
-      showErrorNotification(
-        messages.dashboard.review.results.today_review_delivery_failed,
-        messages.dashboard.review.notifications.failed,
-      );
-    } finally {
-      setTodayReviewPending(false);
-    }
-  }
-
   const pageTitle =
     activeView === "dashboard"
       ? messages.appShell.pages.dashboard
@@ -246,6 +253,10 @@ export function AppShell({
           : activeView === "memories"
             ? messages.appShell.pages.memories
             : messages.appShell.pages.settings;
+  const pageDescription = pageDescriptionForView(
+    activeView,
+    messages.appShell.pageDescriptions,
+  );
 
   return (
     <main className={`min-h-screen transition-colors ${appShellClass(darkMode)}`}>
@@ -269,7 +280,7 @@ export function AppShell({
 
         <div className="mx-auto flex min-h-[100dvh] min-w-0 flex-1 flex-col gap-4 px-4 pb-12 pt-4 sm:px-6 sm:pb-16 lg:min-h-[110vh] lg:max-w-[1200px] lg:px-8 lg:pb-20">
           <header
-            className={`grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3 border-b pb-4 sm:flex sm:items-center ${secondaryButtonBorderColorClass}`}
+            className={`aa-workspace-header grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3 border-b pb-4 sm:flex sm:items-center ${secondaryButtonBorderColorClass}`}
           >
             <Button
               darkMode={darkMode}
@@ -284,6 +295,12 @@ export function AppShell({
                 darkMode={darkMode}
                 projects={projectState.projects}
                 selectedProjectId={selectedProjectId}
+                detailLevel={
+                  selectedProjectId && activeProjectMilestoneId !== null
+                    ? "milestone"
+                    : "project"
+                }
+                milestoneTitle={projectTitleMilestoneTitle}
                 pinPending={
                   selectedProjectId
                     ? projectState.pendingProjectPinIds.includes(selectedProjectId)
@@ -291,33 +308,31 @@ export function AppShell({
                 }
                 onBackToList={showProjectsList}
                 onProjectSelect={showProjectDetail}
-                onProjectEdit={handleProjectEdit}
                 onPinProject={projectState.pinProjectFromPage}
                 onUnpinProject={projectState.unpinProjectFromPage}
                 messages={messages.projects.pageTitle}
-                detailMessages={messages.projects.detail}
                 timelineMessages={messages.projects.timeline}
                 durationMessages={messages.projects.duration}
-                defaultDescriptions={messages.projects.defaultDescriptions}
                 dateMessages={messages.forms.datePicker}
               />
             ) : (
-              <div className="col-start-2 flex min-w-0 flex-1 items-center justify-between gap-3">
-                <h1 className="min-w-0 truncate text-2xl font-semibold tracking-normal sm:text-3xl">
-                  {pageTitle}
-                </h1>
-                {activeView === "dashboard" ? (
-                  <TodayReviewPopover
-                    darkMode={darkMode}
-                    pending={todayReviewPending}
-                    pinnedMemories={memoryState.pinnedMemories}
-                    routines={routineState.routines}
-                    showSendAction={showTodayReviewSendAction}
-                    tasks={projectState.tasks}
-                    messages={messages.dashboard.review}
-                    onSend={handleTodayReviewSend}
-                  />
-                ) : null}
+              <div className="col-start-2 flex min-w-0 flex-1 items-start justify-between gap-3">
+                <div className="grid min-w-0 gap-1">
+                  <h1 className="min-w-0 truncate text-2xl font-semibold tracking-normal sm:text-3xl">
+                    {pageTitle}
+                  </h1>
+                  {pageDescription ? (
+                    <p
+                      className={cx(
+                        "min-w-0 truncate text-sm",
+                        secondaryTextColorClass,
+                      )}
+                      title={pageDescription}
+                    >
+                      {pageDescription}
+                    </p>
+                  ) : null}
+                </div>
               </div>
             )}
           </header>
@@ -331,6 +346,7 @@ export function AppShell({
               projectDraft={projectDraft}
               setProjectDraft={setProjectDraft}
               selectedProjectId={selectedProjectId}
+              selectedMilestoneId={activeProjectMilestoneId}
               pendingProjectPinIds={projectState.pendingProjectPinIds}
               onProjectSave={projectState.saveProjectFromPage}
               onProjectDelete={projectState.archiveProjectFromPage}
@@ -349,6 +365,7 @@ export function AppShell({
 
                 showProjectsList();
               }}
+              onMilestoneSelect={showProjectMilestoneDetail}
               messages={messages.projects}
               formMessages={messages.forms}
             />
@@ -462,4 +479,15 @@ export function AppShell({
       />
     </main>
   );
+}
+
+function pageDescriptionForView(
+  view: DashboardView,
+  descriptions: AppMessages["appShell"]["pageDescriptions"],
+) {
+  if (view === "projects") {
+    return null;
+  }
+
+  return descriptions[view];
 }

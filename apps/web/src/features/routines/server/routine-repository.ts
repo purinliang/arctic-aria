@@ -417,6 +417,9 @@ export class InMemoryRoutineRepository implements RoutineRepository {
     const minRemindAt = new Date(
       input.occurredAt.getTime() - input.windowMinutes * 60 * 1000,
     );
+    const maxRemindAt = new Date(
+      input.occurredAt.getTime() + input.windowMinutes * 60 * 1000,
+    );
     const activeRoutineIds = new Set(
       this.routines
         .filter((routine) => routine.deletedAt === null)
@@ -429,7 +432,7 @@ export class InMemoryRoutineRepository implements RoutineRepository {
         instance.status === "pending" &&
         instance.remindAt !== null &&
         instance.remindedAt === null &&
-        instance.remindAt <= input.occurredAt &&
+        instance.remindAt <= maxRemindAt &&
         instance.remindAt >= minRemindAt,
     );
   }

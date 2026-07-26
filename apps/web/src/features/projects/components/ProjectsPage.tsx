@@ -25,6 +25,7 @@ import {
   emptyProjectDraft,
   emptyTaskDraft,
   milestoneToDraft,
+  projectToDraft,
   taskToDraft,
 } from "./project-page-helpers";
 
@@ -48,6 +49,7 @@ export function ProjectsPage({
   projectDraft,
   setProjectDraft,
   selectedProjectId,
+  selectedMilestoneId,
   pendingProjectPinIds,
   onProjectSave,
   onProjectDelete,
@@ -59,6 +61,7 @@ export function ProjectsPage({
   onTaskDelete,
   onTaskStatus,
   onProjectSelect,
+  onMilestoneSelect,
   messages,
   formMessages,
 }: {
@@ -69,6 +72,7 @@ export function ProjectsPage({
   projectDraft: ProjectInput | null;
   setProjectDraft: Dispatch<SetStateAction<ProjectInput | null>>;
   selectedProjectId: string | null;
+  selectedMilestoneId: string | null;
   pendingProjectPinIds: string[];
   onProjectSave: (input: ProjectInput) => ProjectResult;
   onProjectDelete: (projectId: string) => ProjectResult;
@@ -83,6 +87,7 @@ export function ProjectsPage({
     status: TaskStatus,
   ) => void;
   onProjectSelect: (projectId: string | null) => void;
+  onMilestoneSelect: (milestoneId: string | null) => void;
   messages: ProjectMessages;
   formMessages: FormMessages;
 }) {
@@ -260,11 +265,19 @@ export function ProjectsPage({
             darkMode={darkMode}
             pending={pending}
             project={selectedProject}
+            selectedMilestoneId={selectedMilestoneId}
             messages={messages.detail}
             timelineMessages={messages.timeline}
             durationMessages={messages.duration}
             defaultDescriptions={messages.defaultDescriptions}
             dateMessages={formMessages.datePicker}
+            onEditProject={(project) => {
+              setProjectDraft(projectToDraft(project));
+            }}
+            onEditMilestone={(milestone) => {
+              setMilestoneDraft(milestoneToDraft(milestone));
+            }}
+            onSelectMilestone={onMilestoneSelect}
             onManageMilestones={() =>
               setMilestoneManagerProjectId(selectedProject.id)
             }

@@ -1,5 +1,5 @@
 // Projects Page - Project Detail Page.
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { Panel } from "@/components/panel";
@@ -18,17 +18,23 @@ import {
   MilestoneOverviewPanel,
   MilestoneSwitchPanel,
   type MilestoneChoice,
+  type ProjectDetailSidePanelMessages,
+  ProjectOverviewPanel,
 } from "./ProjectDetailSidePanels";
 
 export function ProjectDetailPage({
   darkMode,
   pending,
   project,
+  selectedMilestoneId,
   messages,
   timelineMessages,
   durationMessages,
   defaultDescriptions,
   dateMessages,
+  onEditProject,
+  onEditMilestone,
+  onSelectMilestone,
   onManageMilestones,
   onAddTask,
   onEditTask,
@@ -37,11 +43,15 @@ export function ProjectDetailPage({
   darkMode: boolean;
   pending: boolean;
   project: ProjectView | null;
+  selectedMilestoneId: string | null;
   messages: ProjectMessages["detail"];
   timelineMessages: ProjectMessages["timeline"];
   durationMessages: ProjectMessages["duration"];
   defaultDescriptions: ProjectMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
+  onEditProject: (project: ProjectView) => void;
+  onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
+  onSelectMilestone: (milestoneId: string | null) => void;
   onManageMilestones: () => void;
   onAddTask: (projectId: string, milestoneId?: string) => void;
   onEditTask: (task: ProjectTaskView) => void;
@@ -64,11 +74,15 @@ export function ProjectDetailPage({
       darkMode={darkMode}
       pending={pending}
       project={project}
+      selectedMilestoneId={selectedMilestoneId}
       messages={messages}
       timelineMessages={timelineMessages}
       durationMessages={durationMessages}
       defaultDescriptions={defaultDescriptions}
       dateMessages={dateMessages}
+      onEditProject={onEditProject}
+      onEditMilestone={onEditMilestone}
+      onSelectMilestone={onSelectMilestone}
       onManageMilestones={onManageMilestones}
       onAddTask={onAddTask}
       onEditTask={onEditTask}
@@ -81,11 +95,15 @@ function ProjectDetailContent({
   darkMode,
   pending,
   project,
+  selectedMilestoneId,
   messages,
   timelineMessages,
   durationMessages,
   defaultDescriptions,
   dateMessages,
+  onEditProject,
+  onEditMilestone,
+  onSelectMilestone,
   onManageMilestones,
   onAddTask,
   onEditTask,
@@ -94,11 +112,15 @@ function ProjectDetailContent({
   darkMode: boolean;
   pending: boolean;
   project: ProjectView;
+  selectedMilestoneId: string | null;
   messages: ProjectMessages["detail"];
   timelineMessages: ProjectMessages["timeline"];
   durationMessages: ProjectMessages["duration"];
   defaultDescriptions: ProjectMessages["defaultDescriptions"];
   dateMessages: DatePickerMessages;
+  onEditProject: (project: ProjectView) => void;
+  onEditMilestone: (milestone: ProjectView["milestones"][number]) => void;
+  onSelectMilestone: (milestoneId: string | null) => void;
   onManageMilestones: () => void;
   onAddTask: (projectId: string, milestoneId?: string) => void;
   onEditTask: (task: ProjectTaskView) => void;
@@ -157,35 +179,31 @@ function ProjectDetailContent({
       unassignedTasks,
     ],
   );
-  const [requestedMilestoneId, setSelectedMilestoneId] = useState<
-    string | null
-  >(null);
-  const defaultMilestoneId = milestoneChoices[0]?.id ?? null;
-  const selectedMilestoneId = milestoneChoices.some(
-    (choice) => choice.id === requestedMilestoneId,
+  const activeMilestoneId = milestoneChoices.some(
+    (choice) => choice.id === selectedMilestoneId,
   )
-    ? requestedMilestoneId
-    : defaultMilestoneId;
+    ? selectedMilestoneId
+    : null;
 
   const selectedChoice = useMemo(
     () =>
-      milestoneChoices.find((choice) => choice.id === selectedMilestoneId) ??
+      milestoneChoices.find((choice) => choice.id === activeMilestoneId) ??
       null,
-    [milestoneChoices, selectedMilestoneId],
+    [activeMilestoneId, milestoneChoices],
   );
   const selectedMilestone = selectedChoice?.milestone ?? null;
   const selectedTasks = useMemo(
     () =>
-      selectedMilestoneId === null
+      activeMilestoneId === null
         ? []
         : [...project.tasks]
             .filter((task) =>
-              selectedMilestoneId === ""
+              activeMilestoneId === ""
                 ? !task.milestoneId
-                : task.milestoneId === selectedMilestoneId,
+                : task.milestoneId === activeMilestoneId,
             )
             .sort(compareDetailTasks),
-    [project.tasks, selectedMilestoneId],
+    [activeMilestoneId, project.tasks],
   );
   const sidePanelMessages = useMemo(
     () => ({
@@ -205,44 +223,124 @@ function ProjectDetailContent({
   );
 
   return (
-    <section className="grid gap-4">
-      <MilestoneOverviewPanel
-        darkMode={darkMode}
-        choice={selectedChoice}
-        messages={sidePanelMessages}
-      />
-      <div className="aa-split-container">
-        <div className="aa-split-panel gap-4">
-          <div className="grid min-w-0 content-start gap-4">
-            <ProjectDetailTasksPanel
-              darkMode={darkMode}
-              pending={pending}
-              tasks={selectedTasks}
-              messages={messages}
-              defaultDescriptions={defaultDescriptions}
-              dateMessages={dateMessages}
-              onAddTask={() =>
-                onAddTask(project.id, selectedMilestone?.id ?? undefined)
-              }
-              onEditTask={onEditTask}
-              onTaskStatus={onTaskStatus}
-            />
-          </div>
+    <div className="aa-split-container">
+      <div className="aa-split-panel gap-4">
+        {activeMilestoneId === null ? (
+          <ProjectLevelDetailPage
+            darkMode={darkMode}
+            pending={pending}
+            project={project}
+            sidePanelMessages={sidePanelMessages}
+            onEditProject={onEditProject}
+          />
+        ) : (
+          <ProjectMilestoneDetailPage
+            darkMode={darkMode}
+            pending={pending}
+            project={project}
+            selectedMilestone={selectedMilestone}
+            selectedTasks={selectedTasks}
+            messages={messages}
+            defaultDescriptions={defaultDescriptions}
+            dateMessages={dateMessages}
+            onAddTask={onAddTask}
+            onEditTask={onEditTask}
+            onTaskStatus={onTaskStatus}
+          />
+        )}
 
-          <aside className="grid content-start gap-4">
-            <MilestoneSwitchPanel
+        <aside className="grid content-start gap-4">
+          {activeMilestoneId !== null && selectedChoice ? (
+            <MilestoneOverviewPanel
               darkMode={darkMode}
               pending={pending}
-              choices={milestoneChoices}
-              selectedMilestoneId={selectedMilestoneId}
+              choice={selectedChoice}
               messages={sidePanelMessages}
-              onManageMilestones={onManageMilestones}
-              onSelectMilestone={setSelectedMilestoneId}
+              onEditMilestone={onEditMilestone}
             />
-          </aside>
-        </div>
+          ) : null}
+          <MilestoneSwitchPanel
+            darkMode={darkMode}
+            pending={pending}
+            choices={milestoneChoices}
+            selectedMilestoneId={activeMilestoneId}
+            messages={sidePanelMessages}
+            onManageMilestones={onManageMilestones}
+            onSelectMilestone={onSelectMilestone}
+          />
+        </aside>
       </div>
-    </section>
+    </div>
+  );
+}
+
+function ProjectLevelDetailPage({
+  darkMode,
+  pending,
+  project,
+  sidePanelMessages,
+  onEditProject,
+}: {
+  darkMode: boolean;
+  pending: boolean;
+  project: ProjectView;
+  sidePanelMessages: ProjectDetailSidePanelMessages;
+  onEditProject: (project: ProjectView) => void;
+}) {
+  return (
+    <div className="grid min-w-0 content-start gap-4">
+      <ProjectOverviewPanel
+        darkMode={darkMode}
+        pending={pending}
+        project={project}
+        messages={sidePanelMessages}
+        onEditProject={onEditProject}
+      />
+    </div>
+  );
+}
+
+function ProjectMilestoneDetailPage({
+  darkMode,
+  pending,
+  project,
+  selectedMilestone,
+  selectedTasks,
+  messages,
+  defaultDescriptions,
+  dateMessages,
+  onAddTask,
+  onEditTask,
+  onTaskStatus,
+}: {
+  darkMode: boolean;
+  pending: boolean;
+  project: ProjectView;
+  selectedMilestone: ProjectView["milestones"][number] | null;
+  selectedTasks: ProjectTaskView[];
+  messages: ProjectMessages["detail"];
+  defaultDescriptions: ProjectMessages["defaultDescriptions"];
+  dateMessages: DatePickerMessages;
+  onAddTask: (projectId: string, milestoneId?: string) => void;
+  onEditTask: (task: ProjectTaskView) => void;
+  onTaskStatus: (taskId: string, status: TaskStatus) => void;
+}) {
+  return (
+    <div className="grid min-w-0 content-start gap-4">
+      <ProjectDetailTasksPanel
+        darkMode={darkMode}
+        pending={pending}
+        tasks={selectedTasks}
+        messages={messages}
+        defaultDescriptions={defaultDescriptions}
+        dateMessages={dateMessages}
+        onAddTask={() =>
+          onAddTask(project.id, selectedMilestone?.id ?? undefined)
+        }
+        onEditTask={onEditTask}
+        onTaskStatus={onTaskStatus}
+      />
+    </div>
   );
 }
 

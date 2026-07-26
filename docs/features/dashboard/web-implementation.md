@@ -27,7 +27,7 @@ AppShell
   Dashboard
     ProjectTasksPanel
     RoutinesPanel
-    TodayReviewPopover
+    TodayProgressPanel
     PinnedMemoriesPanel
 ```
 
@@ -40,7 +40,8 @@ Feature ownership:
 - `features/memories` owns pinned memory data, memory commands, and
   `PinnedMemoriesPanel`
 - `features/dashboard` owns Dashboard composition, Dashboard hooks, shared
-  dashboard optimistic helpers, and Dashboard-level tests
+  dashboard optimistic helpers, `TodayProgressPanel`, Daily Review text
+  generation, and Dashboard-level tests
 
 The Dashboard hooks may use browser `localStorage` as a stale-while-refresh
 cache for signed-in users. After client hydration, cached project, routine, and
@@ -69,12 +70,10 @@ Current active commands:
 - mark a project task done
 - mark a routine completed or pending
 - mark a pinned memory completed or active
-- send the manual Daily Review Discord message
 
 The production scheduled Daily Review path is invoked by the Cloudflare cron
 worker through `/api/cron/discord-notifications`, which also runs routine
-reminders. The manual `Send` action uses the same review text builder and
-Discord notification service.
+reminders. Today no longer exposes a manual Daily Review send action.
 
 Feature management actions, such as add/edit/delete project, routine, memory,
 or category, belong to the feature pages and dialogs, not the Dashboard.
@@ -85,6 +84,7 @@ Dashboard composition:
 
 ```text
 apps/web/src/features/dashboard/components/Dashboard.tsx
+apps/web/src/features/dashboard/components/TodayProgressPanel.tsx
 ```
 
 Dashboard hooks and optimistic helpers:

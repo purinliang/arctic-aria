@@ -68,13 +68,21 @@ export const englishDashboardMessages = {
       shopping: "Shopping",
     },
   },
+  progress: {
+    title: "Progress",
+    description: "Track today's scheduled progress.",
+    planText: "Simply follow today's plan.",
+    planTooltipTitle: "Trust Aria.",
+    planSupport:
+      "Your future plan remains safe and achievable: no day is overloaded, and every task can still be completed on time. If Aria doesn't remind you, there's no need to check it today.",
+    progressLabel: "Today work progress and day progress",
+    tasksDone: (done: number, total: number) => `${done}/${total} tasks done`,
+    routinesDone: (done: number, total: number) =>
+      `${done}/${total} routines done`,
+    noTasks: "No tasks",
+    noRoutines: "No routines",
+  },
   review: {
-    title: "Daily Review",
-    description: "A short daily recap.",
-    send: "Send",
-    sending: "Sending",
-    openSummary: "Open review summary",
-    closeSummary: "Close review summary",
     dailySummaryMessages: {
       fulfilled: [
         "Everything visible is complete. This day closed cleanly, with room for tomorrow.",
@@ -139,16 +147,6 @@ export const englishDashboardMessages = {
         "A light day is still a real day, even without checkmarks.",
         "There is room to decide what matters next without starting from pressure.",
       ],
-    },
-    notifications: {
-      sent: "Daily Review sent",
-      failed: "Daily Review not sent",
-    },
-    results: {
-      auth_required: "Please sign in again.",
-      today_review_delivery_failed: "Daily Review could not be sent to Discord.",
-      today_review_no_binding: "No active Discord binding.",
-      today_review_sent: "Check your Discord DM.",
     },
   },
   notifications: {
@@ -225,13 +223,20 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
       shopping: "购物",
     },
   },
+  progress: {
+    title: "进展",
+    description: "查看今日计划进度。",
+    planText: "只需按照今日计划行动。",
+    planTooltipTitle: "信任阿莉雅。",
+    planSupport:
+      "你的未来计划仍然安全可行：每天都不会超负荷，所有工作都能按时完成。如果阿莉雅没有提醒你，就不必今天检查。",
+    progressLabel: "今日工作进展和当天时间进度",
+    tasksDone: (done, total) => `任务 ${done}/${total} 已完成`,
+    routinesDone: (done, total) => `日常 ${done}/${total} 已完成`,
+    noTasks: "没有任务",
+    noRoutines: "没有日常",
+  },
   review: {
-    title: "每日回顾",
-    description: "简单看一眼。",
-    send: "发送",
-    sending: "正在发送",
-    openSummary: "打开回顾摘要",
-    closeSummary: "关闭回顾摘要",
     dailySummaryMessages: {
       fulfilled: [
         "这一天眼前的事都收好了。",
@@ -296,16 +301,6 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
         "轻的一天也是一天。",
         "等真正重要的事出现，再放进来。",
       ],
-    },
-    notifications: {
-      sent: "每日回顾已发送",
-      failed: "每日回顾未发送",
-    },
-    results: {
-      auth_required: "请先重新登录。",
-      today_review_delivery_failed: "每日回顾无法发送到 Discord。",
-      today_review_no_binding: "没有有效的 Discord 绑定。",
-      today_review_sent: "请检查你的 Discord 私信。",
     },
   },
   notifications: {

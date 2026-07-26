@@ -54,11 +54,7 @@ import { AuthPage } from "./AuthPage";
 
 export type AuthMode = "login" | "register";
 
-export function AuthGate({
-  showTodayReviewSendAction,
-}: {
-  showTodayReviewSendAction: boolean;
-}) {
+export function AuthGate() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
   const [mode, setMode] = useState<AuthMode>("login");
@@ -259,7 +255,6 @@ export function AuthGate({
         onNotificationDismiss={dismissNotification}
         showErrorNotification={showErrorNotification}
         showSuccessNotification={showSuccessNotification}
-        showTodayReviewSendAction={showTodayReviewSendAction}
       />
     );
   }

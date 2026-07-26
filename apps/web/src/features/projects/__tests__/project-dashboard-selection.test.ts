@@ -220,3 +220,37 @@ test("dashboard task selection uses the user local day", async () => {
   assert.deepEqual(utcTasks.map((task) => task.id), []);
   assert.deepEqual(sydneyTasks.map((task) => task.id), ["local-today"]);
 });
+
+test("dashboard task selection keeps the previous local day before 04:00", async () => {
+  const repository = new InMemoryProjectRepository({
+    projects: [
+      project({
+        id: "project-1",
+        title: "Test project",
+        tasks: [
+          task({
+            id: "previous-scheduled-day",
+            title: "Previous scheduled day",
+            startDate: "2026-07-21",
+            deadlineDate: "2026-07-21",
+          }),
+          task({
+            id: "new-calendar-day",
+            title: "New calendar day",
+            startDate: "2026-07-22",
+            deadlineDate: "2026-07-22",
+            sortOrder: 1,
+          }),
+        ],
+      }),
+    ],
+  });
+  const service = createProjectService({
+    projects: repository,
+    now: () => new Date("2026-07-21T17:30:00.000Z"),
+  });
+
+  const tasks = await service.listDashboardTasks(userId, "Australia/Sydney");
+
+  assert.deepEqual(tasks.map((task) => task.id), ["previous-scheduled-day"]);
+});

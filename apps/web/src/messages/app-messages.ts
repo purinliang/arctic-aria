@@ -52,6 +52,13 @@ const englishMessages = {
       routines: "Routines",
       settings: "Settings",
     },
+    pageDescriptions: {
+      dashboard: "Focus on today's plan.",
+      ideas: "Capture thoughts for later review.",
+      memories: "Keep experiences worth returning to.",
+      routines: "Review repeatable checks for daily life.",
+      settings: "Manage preferences, bindings, and app information.",
+    },
     sidebar: {
       darkMode: "Dark mode",
       lightMode: "Light mode",
@@ -404,6 +411,13 @@ const simplifiedChineseMessages: AppMessages = {
       projects: "项目",
       routines: "日常",
       settings: "设置",
+    },
+    pageDescriptions: {
+      dashboard: "专注今天的计划。",
+      ideas: "先收好想法，之后再整理。",
+      memories: "保存值得再次体验的事。",
+      routines: "照看重复出现的日常。",
+      settings: "管理偏好、绑定和应用信息。",
     },
     sidebar: {
       darkMode: "深色模式",

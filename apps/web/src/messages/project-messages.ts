@@ -3,11 +3,10 @@ import type { ProjectDurationRange } from "@/features/projects/project-duration"
 export const englishProjectMessages = {
   pageTitle: {
     projects: "Projects",
+    description: "Track long-running goals and next steps.",
     closeSwitcher: "Close project switcher",
     pin: "Pin project",
     unpin: "Unpin project",
-    projectInfo: "Project information",
-    closeProjectInfo: "Close project information",
     edit: "Edit",
   },
   list: {
@@ -27,7 +26,9 @@ export const englishProjectMessages = {
     milestonesTitle: "Milestones",
     milestonesDescription: "Choose the phase to focus.",
     projectOverviewTitle: "Project Overview",
+    projectOverviewDescription: "Project scope and progress.",
     milestoneOverviewTitle: "Milestone Overview",
+    milestoneOverviewDescription: "Selected phase and progress.",
     new: "New",
     manage: "Manage",
     edit: "Edit",
@@ -166,11 +167,10 @@ export type ProjectMessages = typeof englishProjectMessages;
 export const simplifiedChineseProjectMessages: ProjectMessages = {
   pageTitle: {
     projects: "项目",
+    description: "整理长期目标和下一步任务。",
     closeSwitcher: "关闭项目切换器",
     pin: "置顶项目",
     unpin: "取消置顶项目",
-    projectInfo: "项目信息",
-    closeProjectInfo: "关闭项目信息",
     edit: "编辑",
   },
   list: {
@@ -190,7 +190,9 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
     milestonesTitle: "里程碑",
     milestonesDescription: "选择当前专注的阶段。",
     projectOverviewTitle: "项目概览",
+    projectOverviewDescription: "项目目标和进度。",
     milestoneOverviewTitle: "里程碑概览",
+    milestoneOverviewDescription: "当前阶段和进度。",
     new: "新建",
     manage: "管理",
     edit: "编辑",

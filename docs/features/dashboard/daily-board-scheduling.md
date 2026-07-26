@@ -66,8 +66,14 @@ Avoid `Push to tomorrow` in user-facing text. It is understandable, but
 - `routine_instances` are created when the Today page loads.
 - The cron path can also create or ensure a `routine_instance` when it thinks a
   reminder is due.
-- Reminder matching uses `routine_instances.remind_at` and a 25-minute due
-  window, not exact `HH:mm` matching against the routine definition.
+- Reminder matching uses `routine_instances.remind_at` and a two-minute due
+  window around the target timestamp, not exact `HH:mm` matching against the
+  routine definition. `remind_at` is snapped to the nearest 15-minute cron tick
+  so arbitrary preferred minutes still line up with Cloudflare's `*/15` run
+  cadence.
+- The Today scheduling day rolls forward at `04:00` local time. Before `04:00`,
+  Today still loads the previous local scheduled date so the `02:00` Daily
+  Review can snapshot the completed day.
 - Routines without `preferred_time` use the `18:00` local fallback.
 - Dashboard UI currently exposes checkbox completion/reopen behavior, but not
   `Later` or `Tomorrow`.
@@ -143,12 +149,12 @@ Target behavior:
 - If `preferred_time` is empty, use `18:00` local time as the fallback
   `scheduled_time`.
 - The first `remind_at` should be 30 minutes before the scheduled occurrence.
-  It is the exact timestamp cron uses for Discord delivery.
-- Cron should treat a reminder as due inside a 25-minute window after
-  `remind_at`. This keeps routine reminder scheduling tolerant of the
-  15-minute Cloudflare cron cadence.
-- Cron should send only when `remind_at <= now`, `reminded_at IS NULL`, and the
-  instance is still pending.
+  It is snapped to the nearest 15-minute cron tick and becomes the timestamp
+  cron uses for Discord delivery.
+- Cron should treat a reminder as due when the current cron time is within two
+  minutes before or after `remind_at`.
+- Cron should send only when `reminded_at IS NULL` and the instance is still
+  pending.
 - After a successful send, set `reminded_at = now`.
 - Later cron runs should stay silent until the user changes the instance, such
   as choosing `Later`.

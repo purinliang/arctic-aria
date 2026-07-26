@@ -142,6 +142,76 @@ test("merges due routine reminders for the same user", async () => {
   assert.equal(notifier.calls[0]?.metadata.routineCount, 2);
 });
 
+test("sends routine reminders when cron arrives two minutes early", async () => {
+  const repository = new InMemoryRoutineRepository({
+    routines: [
+      routine({
+        id: "routine-1",
+        title: "Morning check",
+      }),
+    ],
+  });
+  const notifier = createNotifierStub({ ok: true });
+  const service = createRoutineReminderService({
+    now: () => new Date("2026-07-12T09:28:00.000Z"),
+    notifier,
+    routines: repository,
+  });
+
+  const result = await service.sendDueRoutineReminders();
+
+  assert.deepEqual(result, {
+    checked: 1,
+    due: 1,
+    sent: 1,
+    skipped: 0,
+    failed: 0,
+  });
+  assert.equal(notifier.calls.length, 1);
+});
+
+test("snaps arbitrary-minute routine reminders to the nearest cron tick", async () => {
+  const repository = new InMemoryRoutineRepository({
+    routines: [
+      routine({
+        id: "routine-1",
+        title: "Odd minute check",
+        rule: {
+          id: "routine-1-rule",
+          routineId: "routine-1",
+          ruleType: "daily",
+          intervalValue: null,
+          weekdays: null,
+          dayOfMonth: null,
+          preferredTime: "10:07",
+          timezone: "UTC",
+          createdAt: new Date("2026-07-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-07-01T00:00:00.000Z"),
+        },
+      }),
+    ],
+  });
+  const notifier = createNotifierStub({ ok: true });
+  const service = createRoutineReminderService({
+    now: () => new Date("2026-07-12T09:30:00.000Z"),
+    notifier,
+    routines: repository,
+  });
+
+  const result = await service.sendDueRoutineReminders();
+
+  assert.deepEqual(result, {
+    checked: 1,
+    due: 1,
+    sent: 1,
+    skipped: 0,
+    failed: 0,
+  });
+  assert.deepEqual(notifier.calls[0]?.metadata.remindAts, [
+    "2026-07-12T09:30:00.000Z",
+  ]);
+});
+
 test("skips routine reminders before the reminder window opens", async () => {
   const repository = new InMemoryRoutineRepository({
     routines: [

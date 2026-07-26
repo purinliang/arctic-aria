@@ -348,12 +348,20 @@ input {
   container-type: inline-size;
 }
 
+.aa-workspace-header {
+  container-type: inline-size;
+}
+
 .aa-split-panel {
   display: grid;
   align-items: start;
 }
 
 @container (min-width: 53rem) {
+  .aa-project-switcher-trigger {
+    display: inline-flex;
+  }
+
   .aa-split-panel {
     grid-template-columns: minmax(0, 1fr) 20rem;
   }

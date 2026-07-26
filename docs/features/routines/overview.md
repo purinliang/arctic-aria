@@ -102,9 +102,11 @@ The same routine should not generate duplicate instances for the same
 
 For reminder delivery, the instance also stores `remind_at` and `reminded_at`.
 The first reminder is scheduled 30 minutes before the resolved local occurrence
-time. Cron may send inside a 25-minute window after `remind_at` so a 15-minute
-Cloudflare cadence does not need to hit the exact minute. If a routine has no
-preferred time, the resolved occurrence time is `18:00` local.
+time, then snapped to the nearest 15-minute cron tick. Cron may send when the
+current cron timestamp is within two minutes of `remind_at`. If a routine has no
+preferred time, the resolved occurrence time is `18:00` local. Routine instances
+used by Today roll to the next scheduled date at `04:00` local time, not
+midnight.
 
 `Busy` is not a routine instance status. It is a reminder response that snoozes
 or reschedules notification delivery. `reminding` is also not a routine

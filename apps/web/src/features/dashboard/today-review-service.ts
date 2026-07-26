@@ -1,6 +1,8 @@
-import { randomUUID } from "node:crypto";
 import { englishDashboardMessages } from "../../messages/dashboard-messages.ts";
-import { localDateTimeParts } from "../settings/time-zones.ts";
+import {
+  addDaysToDateKey,
+  localDateTimeParts,
+} from "../settings/time-zones.ts";
 import {
   PostgresDiscordAccountRepository,
 } from "../../server/discord/discord-account-repository.ts";
@@ -11,24 +13,8 @@ import { discordNotificationService } from "../discord/server/notification-servi
 import type { DiscordNotificationResult } from "../discord/server/notification-service.ts";
 import {
   buildTodayReviewText,
-  todayReviewDateKey,
 } from "./today-review-text.ts";
 import type { PinnedMemory, Routine, Task } from "./types.ts";
-
-export type TodayReviewActionResult =
-  | {
-      ok: true;
-      code: "today_review_sent";
-      message: string;
-    }
-  | {
-      ok: false;
-      code:
-        | "auth_required"
-        | "today_review_delivery_failed"
-        | "today_review_no_binding";
-      message: string;
-    };
 
 export type DailyReviewCronRunResult = {
   checked: number;
@@ -43,7 +29,7 @@ type TodayReviewNotifier = {
     userId: string;
     idempotencyKey: string;
     text: string;
-    source: "manual" | "scheduler";
+    source: "scheduler";
     metadata: Record<string, unknown>;
     logEventName: string;
   }): Promise<DiscordNotificationResult>;
@@ -58,6 +44,17 @@ type RoutineDataLoader = (userId: string) => Promise<{ routines: Routine[] }>;
 type MemoryDataLoader = (
   userId: string,
 ) => Promise<{ pinnedMemories: PinnedMemory[] }>;
+type DailyReviewSendResult =
+  | {
+      ok: true;
+    }
+  | {
+      ok: false;
+      code: "today_review_delivery_failed" | "today_review_no_binding";
+    };
+
+const dailyReviewHour = 2;
+const dailyReviewWindowMinutes = 2;
 
 export function createTodayReviewService({
   memoryDataLoader = defaultMemoryDataLoader,
@@ -75,17 +72,6 @@ export function createTodayReviewService({
   routineDataLoader?: RoutineDataLoader;
 } = {}) {
   return {
-    async sendTodayReview(userId: string): Promise<TodayReviewActionResult> {
-      const dateKey = todayReviewDateKey(now());
-
-      return sendReview({
-        dateKey,
-        idempotencyKey: `today-review:${dateKey}:${randomUUID()}`,
-        source: "manual",
-        userId,
-      });
-    },
-
     async sendScheduledDailyReviews(): Promise<DailyReviewCronRunResult> {
       const occurredAt = now();
       const targets = await reviewTargets.listActiveDailyReviewTargets();
@@ -146,9 +132,9 @@ export function createTodayReviewService({
   }: {
     dateKey: string;
     idempotencyKey: string;
-    source: "manual" | "scheduler";
+    source: "scheduler";
     userId: string;
-  }): Promise<TodayReviewActionResult> {
+  }): Promise<DailyReviewSendResult> {
     const [projectData, routineData, memoryData] = await Promise.all([
       projectDataLoader(userId),
       routineDataLoader(userId),
@@ -180,8 +166,6 @@ export function createTodayReviewService({
     if (notification.ok) {
       return {
         ok: true,
-        code: "today_review_sent",
-        message: "Daily Review sent to Discord.",
       };
     }
 
@@ -189,14 +173,12 @@ export function createTodayReviewService({
       return {
         ok: false,
         code: "today_review_no_binding",
-        message: "No active Discord binding.",
       };
     }
 
     return {
       ok: false,
       code: "today_review_delivery_failed",
-      message: "Daily Review could not be sent to Discord.",
     };
   }
 }
@@ -213,18 +195,12 @@ function dailyReviewSchedule(local: {
   dateKey: string;
   hour: number;
   minute: number;
+  second: number;
 }) {
-  if (local.hour === 23 && local.minute >= 48) {
+  if (isWithinDailyReviewWindow(local)) {
     return {
       due: true,
-      date: local.dateKey,
-    };
-  }
-
-  if (local.hour === 0 && local.minute <= 12) {
-    return {
-      due: true,
-      date: previousDateKey(local.dateKey),
+      date: addDaysToDateKey(local.dateKey, -1),
     };
   }
 
@@ -234,12 +210,17 @@ function dailyReviewSchedule(local: {
   };
 }
 
-function previousDateKey(date: string) {
-  const previous = new Date(`${date}T00:00:00.000Z`);
+function isWithinDailyReviewWindow(local: {
+  hour: number;
+  minute: number;
+  second: number;
+}) {
+  const actualSeconds =
+    (local.hour * 60 + local.minute) * 60 + local.second;
+  const targetSeconds = dailyReviewHour * 60 * 60;
+  const windowSeconds = dailyReviewWindowMinutes * 60;
 
-  previous.setUTCDate(previous.getUTCDate() - 1);
-
-  return previous.toISOString().slice(0, 10);
+  return Math.abs(actualSeconds - targetSeconds) <= windowSeconds;
 }
 
 async function defaultProjectDataLoader(userId: string) {

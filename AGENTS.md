@@ -390,6 +390,13 @@ amend directly when the developer explicitly asks for an amend.
   gh pr create --base main --head develop --title "Release vX.Y.Z: concise release outcome" --body "Plain release text paragraphs only."
   ```
 
+- Before automatically pushing `develop`, creating a release PR, or editing a
+  release PR, refresh `main` first. If the last confirmed `main` sync was more
+  than 12 hours ago, run a non-rewriting main update such as
+  `git fetch origin main` followed by `git switch main` and
+  `git pull --ff-only origin main`, then return to the working branch. If
+  `develop` and `main` have diverged in a way that needs a merge, ask the
+  developer before merging or rebasing.
 - Keep the main release merge commit title and body in the release record so
   future release messages stay consistent.
 - Release commit bodies should be useful in `git log`, but shorter than older
