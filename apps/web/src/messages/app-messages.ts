@@ -53,7 +53,7 @@ const englishMessages = {
       settings: "Settings",
     },
     pageDescriptions: {
-      dashboard: "",
+      dashboard: "Focus on today's plan.",
       ideas: "Capture thoughts for later review.",
       memories: "Keep experiences worth returning to.",
       routines: "Review repeatable checks for daily life.",
@@ -413,7 +413,7 @@ const simplifiedChineseMessages: AppMessages = {
       settings: "设置",
     },
     pageDescriptions: {
-      dashboard: "",
+      dashboard: "专注今天的计划。",
       ideas: "先收好想法，之后再整理。",
       memories: "保存值得再次体验的事。",
       routines: "照看重复出现的日常。",

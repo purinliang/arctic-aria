@@ -72,7 +72,7 @@ export const englishDashboardMessages = {
     title: "Progress",
     description: "Trust Aria. Simply follow today's plan.",
     planSupport:
-      "Your future plan remains safe and achievable: no day is overloaded, and every task can still be completed on time. If I don't remind you, there's no need to check it today.",
+      "Your future plan remains safe and achievable: no day is overloaded, and every task can still be completed on time. If Aria doesn't remind you, there's no need to check it today.",
     progressLabel: "Today work progress and day progress",
   },
   review: {
@@ -220,7 +220,7 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
     title: "进展",
     description: "信任阿莉雅，只需按照今天的计划行动。",
     planSupport:
-      "你的未来计划仍然安全可行：每天都不会超负荷，所有工作都能按时完成。如果我没有提醒你，就不必今天检查。",
+      "你的未来计划仍然安全可行：每天都不会超负荷，所有工作都能按时完成。如果阿莉雅没有提醒你，就不必今天检查。",
     progressLabel: "今日工作进展和当天时间进度",
   },
   review: {
