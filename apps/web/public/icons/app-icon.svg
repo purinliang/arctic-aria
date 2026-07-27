@@ -26,10 +26,10 @@
     <polygon
       id="primary-1"
       points="
-        0,-15
-        -3.181981,-18.181981
-        -3.181981,-27.181981
-        0,-24
+        1.590991,-15
+        -1.590991,-18.181981
+        -1.590991,-27.181981
+        1.590991,-24
       "
     />
 
@@ -40,10 +40,10 @@
     <polygon
       id="primary-2"
       points="
-        0,-27
-        -9.545942,-36.545942
-        -9.545942,-45.545942
-        0,-36
+        4.772971,-27
+        -4.772971,-36.545942
+        -4.772971,-45.545942
+        4.772971,-36
       "
     />
 
@@ -54,10 +54,10 @@
     <polygon
       id="primary-3"
       points="
-        0,-39
-        -9.545942,-48.545942
-        -9.545942,-57.545942
-        0,-48
+        4.772971,-39
+        -4.772971,-48.545942
+        -4.772971,-57.545942
+        4.772971,-48
       "
     />
 
@@ -100,11 +100,11 @@
     <use href="#primary-3" transform="rotate(300)" />
 
     <!-- 6 secondary arms -->
-    <use href="#secondary-arm" />
-    <use href="#secondary-arm" transform="rotate(60)" />
-    <use href="#secondary-arm" transform="rotate(120)" />
-    <use href="#secondary-arm" transform="rotate(180)" />
-    <use href="#secondary-arm" transform="rotate(240)" />
-    <use href="#secondary-arm" transform="rotate(300)" />
+    <use href="#secondary-arm" transform="rotate(7.5)" />
+    <use href="#secondary-arm" transform="rotate(67.5)" />
+    <use href="#secondary-arm" transform="rotate(127.5)" />
+    <use href="#secondary-arm" transform="rotate(187.5)" />
+    <use href="#secondary-arm" transform="rotate(247.5)" />
+    <use href="#secondary-arm" transform="rotate(307.5)" />
   </g>
 </svg>

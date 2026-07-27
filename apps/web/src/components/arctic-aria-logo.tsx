@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import Image from "next/image";
 import { cx } from "./utils";
 
 type ArcticAriaLogoVariant = "inline" | "sidebar";
@@ -23,7 +23,7 @@ export function ArcticAriaLogo({
     return (
       <div className={cx("min-w-0", className)}>
         <div className="flex items-center gap-2">
-          <Sparkles size={17} aria-hidden="true" />
+          <ArcticAriaIcon className="h-[18px] w-[18px]" />
           <span className="truncate text-sm font-semibold leading-none tracking-normal">
             {brandText}
           </span>
@@ -44,8 +44,23 @@ export function ArcticAriaLogo({
 
   return (
     <div className={cx("flex items-center justify-center gap-2", className)}>
-      <Sparkles size={22} aria-hidden="true" />
+      <ArcticAriaIcon className="h-8 w-8" />
       <h1 className="text-2xl font-semibold tracking-normal">{brandText}</h1>
     </div>
+  );
+}
+
+function ArcticAriaIcon({ className }: { className: string }) {
+  return (
+    <Image
+      src="/icons/app-icon.svg"
+      alt=""
+      aria-hidden="true"
+      width={32}
+      height={32}
+      unoptimized
+      draggable={false}
+      className={cx("shrink-0 select-none", className)}
+    />
   );
 }

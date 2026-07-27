@@ -10,7 +10,7 @@ and [data-model.md](data-model.md).
   page.
 - On mobile, use the small viewport height for the loading state so browser
   chrome does not make the page feel taller than the visible screen.
-- Use the same brand row as the login and sidebar surfaces: Sparkles icon plus
+- Use the same brand row as the login and sidebar surfaces: app icon plus
   the localized brand name.
 - Show a visible loading spinner and the text `Opening your workspace...` in
   one horizontal row below the brand row.
@@ -30,7 +30,7 @@ and [data-model.md](data-model.md).
   minimum height around `110vh` on desktop, with extra bottom padding so users
   can scroll the form and metadata closer to the visual center.
 - Show a centered brand row above the tabs as the first component. It should
-  include a Sparkles icon and the localized brand name.
+  include the app icon and the localized brand name.
 - Show a centered description below the brand row, such as `Your personal life
   assistant under the aurora.`
 - Do not show a separate light/dark theme button on the auth page. The signed

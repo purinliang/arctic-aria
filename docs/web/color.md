@@ -94,7 +94,8 @@ direct text entry.
 | `secondaryButtonDividerColorClass`, `secondaryButtonBorderColorClass` | Secondary button border |
 | `AppShell`, `appShellClass` | Page |
 | `Sidebar` | Panel |
-| `ArcticAriaLogo` | Inherits parent |
+| `ArcticAriaLogo` text | Inherits parent |
+| `ArcticAriaLogo` icon asset | Fixed app icon colors |
 | `LoadingLine` | Inherits parent |
 | `Panel` | Panel |
 | `Card` | Panel |

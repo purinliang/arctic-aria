@@ -77,7 +77,7 @@ documented in [theme.md](theme.md).
 
 ## Brand
 
-The sidebar shows a compact brand block at the top-left: first row Sparkles
+The sidebar shows a compact brand block at the top-left: first row app
 icon plus localized brand text, second row larger workspace label. In English
 the brand text is `Arctic Aria`; in Simplified Chinese it is `北极阿莉雅`. The
 brand block should stay aligned with the navigation menu item content and
