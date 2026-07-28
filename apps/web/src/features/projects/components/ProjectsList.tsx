@@ -167,7 +167,7 @@ function ProjectListItem({
       <ListItemActions>
         <Button
           darkMode={darkMode}
-          size="icon-sm"
+          size="icon"
           className="rounded-full"
           disabled={pinPending}
           aria-label={pinned ? messages.unpin : messages.pin}

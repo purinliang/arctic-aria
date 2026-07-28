@@ -163,7 +163,7 @@ function SidebarFrame({
             <Button
               darkMode={darkMode}
               tone="ghost"
-              size="icon-sm"
+              size="icon"
               className="-mr-4 border-0 shadow-none"
               aria-label={messages.closeNavigation}
               icon={<X size={18} aria-hidden="true" />}

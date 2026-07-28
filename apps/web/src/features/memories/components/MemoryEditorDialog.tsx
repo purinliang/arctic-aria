@@ -6,6 +6,10 @@ import type { Dispatch, SetStateAction } from "react";
 import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import { CrudEditorDialog } from "@/components/dialog";
 import {
+  formFieldClass,
+  textAreaMinHeightLgClass,
+} from "@/components/control-layout";
+import {
   ChoiceActionButton,
   SingleChoiceGroup,
 } from "@/components/forms/choice-group";
@@ -83,7 +87,7 @@ export function MemoryEditorDialog({
           }
         />
       </FieldLabel>
-      <div className="grid gap-1.5">
+      <div className={formFieldClass}>
         <LabelText darkMode={darkMode}>{messages.category}</LabelText>
         <SingleChoiceGroup
           darkMode={darkMode}
@@ -121,7 +125,7 @@ export function MemoryEditorDialog({
       <FieldLabel darkMode={darkMode} label={messages.description} optional>
         <TextArea
           darkMode={darkMode}
-          className="min-h-28"
+          className={textAreaMinHeightLgClass}
           value={memoryDraft.description}
           maxLength={2000}
           disabled={pending}

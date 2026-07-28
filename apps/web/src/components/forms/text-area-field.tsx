@@ -1,4 +1,5 @@
 import type { TextareaHTMLAttributes } from "react";
+import { textAreaMinHeightMdClass } from "../control-layout";
 import { formControlClass } from "./form-control-style";
 import { cx } from "../utils";
 
@@ -15,7 +16,8 @@ export function TextArea({
     <textarea
       className={cx(
         formControlClass(darkMode, hasError),
-        "h-auto min-h-24 resize-y py-2",
+        "h-auto resize-y py-2",
+        textAreaMinHeightMdClass,
         className,
       )}
       aria-invalid={hasError || undefined}

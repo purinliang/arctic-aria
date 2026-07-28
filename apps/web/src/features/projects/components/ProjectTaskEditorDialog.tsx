@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import { CrudEditorDialog } from "@/components/dialog";
 import { DatePickerField } from "@/components/forms/date-picker-field";
+import { FormGrid, FormSection } from "@/components/forms/form-layout";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { SelectInput } from "@/components/forms/selection-field";
 import { TextArea } from "@/components/forms/text-area-field";
@@ -57,6 +58,7 @@ export function ProjectTaskEditorDialog({
       onClose={onClose}
       onSubmit={onSubmit}
       onDelete={onDelete}
+      layout="sections"
     >
       <TaskBasics
         darkMode={darkMode}
@@ -95,7 +97,7 @@ function TaskBasics({
   setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
 }) {
   return (
-    <>
+    <FormSection>
       <FieldLabel darkMode={darkMode} label={messages.common.title}>
         <TextInput
           darkMode={darkMode}
@@ -111,7 +113,6 @@ function TaskBasics({
       <FieldLabel darkMode={darkMode} label={messages.common.description} optional>
         <TextArea
           darkMode={darkMode}
-          className="min-h-24"
           value={draft.description}
           maxLength={2000}
           disabled={pending}
@@ -124,7 +125,7 @@ function TaskBasics({
           }
         />
       </FieldLabel>
-    </>
+    </FormSection>
   );
 }
 
@@ -146,7 +147,7 @@ function TaskMeta({
   setDraft: Dispatch<SetStateAction<ProjectTaskInput>>;
 }) {
   return (
-    <>
+    <FormSection>
       <FieldLabel darkMode={darkMode} label={messages.task.milestone} optional>
         <SelectInput
           darkMode={darkMode}
@@ -167,7 +168,7 @@ function TaskMeta({
           }
         />
       </FieldLabel>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <FormGrid columns={2}>
         <FieldLabel darkMode={darkMode} label={messages.common.startDate} optional>
           <DatePickerField
             darkMode={darkMode}
@@ -198,7 +199,7 @@ function TaskMeta({
             }
           />
         </FieldLabel>
-      </div>
-    </>
+      </FormGrid>
+    </FormSection>
   );
 }

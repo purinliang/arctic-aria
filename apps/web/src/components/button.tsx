@@ -1,8 +1,14 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import {
+  buttonHeightLgClass,
+  buttonHeightMdClass,
+  buttonHeightSmClass,
+  iconButtonSizeClass,
+} from "./control-layout";
 import { cx } from "./utils";
 
 export type ButtonTone = "primary" | "secondary" | "ghost" | "success";
-export type ButtonSize = "xs" | "sm" | "md" | "icon-sm" | "field";
+export type ButtonSize = "sm" | "md" | "lg" | "icon";
 
 export function Button({
   darkMode,
@@ -44,23 +50,23 @@ export function Button({
 }
 
 function buttonSizeClass(size: ButtonSize) {
-  if (size === "xs") {
-    return "h-8 px-3 text-xs";
+  if (size === "sm") {
+    return cx(buttonHeightSmClass, "px-3 text-sm");
   }
 
   if (size === "md") {
-    return "h-11 px-4 text-sm";
+    return cx(buttonHeightMdClass, "px-3 text-sm");
   }
 
-  if (size === "icon-sm") {
-    return "h-9 w-9 px-0 text-xs";
+  if (size === "lg") {
+    return cx(buttonHeightLgClass, "px-4 text-sm");
   }
 
-  if (size === "field") {
-    return "h-11 px-4 text-sm";
+  if (size === "icon") {
+    return cx(iconButtonSizeClass, "px-0 text-xs");
   }
 
-  return "h-9 px-3 text-xs";
+  return cx(buttonHeightSmClass, "px-3 text-sm");
 }
 
 function buttonToneClass(

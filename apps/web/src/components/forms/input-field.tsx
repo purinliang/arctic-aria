@@ -2,6 +2,7 @@ import type {
   InputHTMLAttributes,
   ReactNode,
 } from "react";
+import { formFieldClass } from "../control-layout";
 import { formControlClass } from "./form-control-style";
 import { LabelText } from "../text";
 import { cx } from "../utils";
@@ -18,7 +19,7 @@ export function FieldLabel({
   children: ReactNode;
 }) {
   return (
-    <div className="relative grid gap-1.5">
+    <div className={formFieldClass}>
       <LabelText darkMode={darkMode}>
         {label}
         {optional ? (

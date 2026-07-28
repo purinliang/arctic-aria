@@ -1,8 +1,11 @@
 // Projects Page - Project Timeline Fields.
 import type { Dispatch, SetStateAction } from "react";
+import { formFieldClass } from "@/components/control-layout";
 import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { DatePickerField } from "@/components/forms/date-picker-field";
+import { FormSection } from "@/components/forms/form-layout";
 import { FieldLabel } from "@/components/forms/input-field";
+import { LabelText } from "@/components/text";
 import { SelectInput } from "@/components/forms/selection-field";
 import type {
   MilestoneInput,
@@ -29,7 +32,7 @@ export function ProjectTimelineFields({
   formMessages: FormMessages;
 }) {
   return (
-    <>
+    <FormSection>
       <StartDateField
         darkMode={darkMode}
         pending={pending}
@@ -72,7 +75,7 @@ export function ProjectTimelineFields({
           }))
         }
       />
-    </>
+    </FormSection>
   );
 }
 
@@ -94,7 +97,7 @@ export function MilestoneTimelineFields({
   formMessages: FormMessages;
 }) {
   return (
-    <>
+    <FormSection>
       <StartDateField
         darkMode={darkMode}
         pending={pending}
@@ -137,7 +140,7 @@ export function MilestoneTimelineFields({
           }))
         }
       />
-    </>
+    </FormSection>
   );
 }
 
@@ -155,8 +158,8 @@ function TimelineTypeField({
   onChange: (value: string) => void;
 }) {
   return (
-    <div className="grid gap-1.5">
-      <span className="text-xs font-semibold">{messages.common.timeline}</span>
+    <div className={formFieldClass}>
+      <LabelText darkMode={darkMode}>{messages.common.timeline}</LabelText>
       <SingleChoiceGroup
         darkMode={darkMode}
         disabled={pending}

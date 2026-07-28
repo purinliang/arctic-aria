@@ -5,6 +5,8 @@ import { FileInput, LoaderCircle } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
+import { templateInputMinHeightClass } from "@/components/control-layout";
+import { FormSection } from "@/components/forms/form-layout";
 import { FieldLabel } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { List, ListItem, ListItemSupportingText } from "@/components/list";
@@ -138,14 +140,14 @@ export function DeveloperImportToolPanel({
       />
       <List darkMode={darkMode}>
         <ListItem darkMode={darkMode} layout="block">
-          <div className="grid gap-3">
+          <FormSection>
             <FieldLabel
               darkMode={darkMode}
               label={messages.developerImport.inputLabel}
             >
               <TextArea
                 darkMode={darkMode}
-                className="min-h-56 font-mono text-sm leading-6"
+                className={`${templateInputMinHeightClass} font-mono text-sm leading-6`}
                 value={source}
                 placeholder={messages.developerImport.inputPlaceholder}
                 spellCheck={false}
@@ -201,7 +203,7 @@ export function DeveloperImportToolPanel({
                   : messages.developerImport.import}
               </Button>
             </div>
-          </div>
+          </FormSection>
         </ListItem>
         {result ? (
           <ListItem darkMode={darkMode} layout="block">

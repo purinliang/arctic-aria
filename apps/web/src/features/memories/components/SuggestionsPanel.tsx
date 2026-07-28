@@ -172,7 +172,7 @@ function SuggestionRow({
       <div className="shrink-0">
         <Button
           darkMode={darkMode}
-          size="icon-sm"
+          size="icon"
           className="rounded-full"
           disabled={pending}
           aria-label={pinned ? messages.cancelPin : messages.pin}

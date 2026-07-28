@@ -126,7 +126,7 @@ export function DatePickerField({
         <Button
           darkMode={darkMode}
           tone="ghost"
-          size="icon-sm"
+          size="icon"
           className="absolute right-1 top-1/2 -translate-y-1/2"
           aria-label={messages.clearDate}
           icon={<X className="h-3.5 w-3.5" />}
@@ -255,7 +255,7 @@ function PickerIconButton({
   darkMode: boolean;
 }) {
   return (
-    <Button darkMode={darkMode} tone="ghost" size="icon-sm" {...props}>
+    <Button darkMode={darkMode} tone="ghost" size="icon" {...props}>
       {children}
     </Button>
   );

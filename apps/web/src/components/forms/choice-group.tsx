@@ -1,7 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { buttonHeightSmClass } from "../control-layout";
 import { cx } from "../utils";
-
-type ChoiceGroupSize = "button" | "field";
 
 export type ChoiceOption = {
   value: string;
@@ -16,7 +15,6 @@ export function SingleChoiceGroup({
   value,
   onChange,
   disabled = false,
-  size = "button",
   className,
   children,
 }: {
@@ -25,7 +23,6 @@ export function SingleChoiceGroup({
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
-  size?: ChoiceGroupSize;
   className?: string;
   children?: ReactNode;
 }) {
@@ -39,7 +36,6 @@ export function SingleChoiceGroup({
             option={option}
             selected={option.value === value}
             disabled={disabled}
-            size={size}
             role="radio"
             aria-checked={option.value === value}
             onClick={() => onChange(option.value)}
@@ -57,7 +53,6 @@ export function MultipleChoiceGroup({
   values,
   onChange,
   disabled = false,
-  size = "button",
   className,
 }: {
   darkMode: boolean;
@@ -65,7 +60,6 @@ export function MultipleChoiceGroup({
   values: string[];
   onChange: (values: string[]) => void;
   disabled?: boolean;
-  size?: ChoiceGroupSize;
   className?: string;
 }) {
   const selectedValues = new Set(values);
@@ -82,7 +76,6 @@ export function MultipleChoiceGroup({
             option={option}
             selected={selected}
             disabled={disabled}
-            size={size}
             aria-pressed={selected}
             onClick={() => {
               onChange(
@@ -102,14 +95,12 @@ export function ChoiceActionButton({
   darkMode,
   option,
   disabled = false,
-  size = "button",
   className,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   darkMode: boolean;
   option: ChoiceOption;
   disabled?: boolean;
-  size?: ChoiceGroupSize;
 }) {
   return (
     <ChoiceButton
@@ -117,7 +108,6 @@ export function ChoiceActionButton({
       option={option}
       selected={false}
       disabled={disabled}
-      size={size}
       className={className}
       {...props}
     />
@@ -128,24 +118,24 @@ function ChoiceButton({
   darkMode,
   option,
   selected,
-  size,
   className,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   darkMode: boolean;
   option: ChoiceOption;
   selected: boolean;
-  size: ChoiceGroupSize;
 }) {
   void darkMode;
 
-  const compact = size === "button" && !option.description;
+  const compact = !option.description;
 
   return (
     <button
       className={cx(
         "inline-flex items-center gap-2 rounded-md border text-left font-semibold transition disabled:cursor-not-allowed",
-        compact ? "h-9 px-3 text-xs" : "min-h-11 px-3 py-2 text-sm",
+        compact
+          ? cx(buttonHeightSmClass, "px-3 text-sm")
+          : "min-h-[var(--aa-button-height-sm)] px-3 py-2 text-sm",
         selected
           ? "border-[var(--aa-primary-button-hover-bg)] bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)] disabled:border-[var(--aa-primary-button-disabled-bg)] disabled:bg-[var(--aa-primary-button-disabled-bg)] disabled:text-[var(--aa-primary-button-disabled-text)] disabled:hover:bg-[var(--aa-primary-button-disabled-bg)] disabled:hover:text-[var(--aa-primary-button-disabled-text)]"
           : "border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:border-[var(--aa-secondary-button-disabled-border)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:border-[var(--aa-secondary-button-disabled-border)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",

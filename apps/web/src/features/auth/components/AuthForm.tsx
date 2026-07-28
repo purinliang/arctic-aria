@@ -9,6 +9,11 @@ import {
   secondaryTextColorClass,
   secondaryButtonBorderColorClass,
 } from "@/components/color";
+import { fieldIconButtonSizeClass } from "@/components/control-layout";
+import {
+  FormActions,
+  FormFields,
+} from "@/components/forms/form-layout";
 import { PendingText } from "@/components/loading";
 import { SectionTitle } from "@/components/text";
 import type { AuthMode } from "./AuthGate";
@@ -113,8 +118,7 @@ export function AuthForm({
         <Button
           darkMode={darkMode}
           tone={mode === "login" ? "primary" : "ghost"}
-          size="md"
-          className="h-10"
+          size="sm"
           onClick={() => switchMode("login")}
         >
           {messages.form.signIn}
@@ -122,8 +126,7 @@ export function AuthForm({
         <Button
           darkMode={darkMode}
           tone={mode === "register" ? "primary" : "ghost"}
-          size="md"
-          className="h-10"
+          size="sm"
           onClick={() => switchMode("register")}
         >
           {messages.form.signUp}
@@ -131,7 +134,7 @@ export function AuthForm({
       </div>
 
       <form
-        className="grid gap-5"
+        className="grid"
         onSubmit={(event) => {
           event.preventDefault();
           onSubmit();
@@ -139,89 +142,56 @@ export function AuthForm({
       >
         <SectionTitle>{title}</SectionTitle>
 
-        <AuthTextField
-          darkMode={darkMode}
-          label={messages.fields.username}
-          value={mode === "register" ? registerInput.username : loginInput.username}
-          error={errors.username}
-          touched={Boolean(touched.username || showSubmitErrors)}
-          autoComplete="username"
-          onBlur={() => markTouched("username")}
-          onChange={(value) =>
-            mode === "register"
-              ? onRegisterChange("username", value)
-              : onLoginChange("username", value)
-          }
-        />
-
-        {mode === "register" ? (
+        <FormFields className="mt-5">
           <AuthTextField
             darkMode={darkMode}
-            label={messages.fields.displayName}
-            optional
-            value={registerInput.displayName}
-            error={errors.displayName}
-            touched={Boolean(touched.displayName || showSubmitErrors)}
-            autoComplete="name"
-            onBlur={() => markTouched("displayName")}
-            onChange={(value) => onRegisterChange("displayName", value)}
+            label={messages.fields.username}
+            value={
+              mode === "register" ? registerInput.username : loginInput.username
+            }
+            error={errors.username}
+            touched={Boolean(touched.username || showSubmitErrors)}
+            autoComplete="username"
+            onBlur={() => markTouched("username")}
+            onChange={(value) =>
+              mode === "register"
+                ? onRegisterChange("username", value)
+                : onLoginChange("username", value)
+            }
           />
-        ) : null}
 
-        <AuthTextField
-          darkMode={darkMode}
-          label={messages.fields.password}
-          value={
-            mode === "register" ? registerInput.password : loginInput.password
-          }
-          error={errors.password}
-          touched={Boolean(touched.password || showSubmitErrors)}
-          type={showPassword ? "text" : "password"}
-          autoComplete={mode === "register" ? "new-password" : "current-password"}
-          trailingButton={
-            <Button
+          {mode === "register" ? (
+            <AuthTextField
               darkMode={darkMode}
-              tone="ghost"
-              size="icon-sm"
-              className="h-8 w-8"
-              onClick={() => setShowPassword((current) => !current)}
-              aria-label={
-                showPassword
-                  ? messages.form.hidePassword
-                  : messages.form.showPassword
-              }
-              icon={
-                showPassword ? (
-                  <EyeOff size={18} aria-hidden="true" />
-                ) : (
-                  <Eye size={18} aria-hidden="true" />
-                )
-              }
+              label={messages.fields.displayName}
+              optional
+              value={registerInput.displayName}
+              error={errors.displayName}
+              touched={Boolean(touched.displayName || showSubmitErrors)}
+              autoComplete="name"
+              onBlur={() => markTouched("displayName")}
+              onChange={(value) => onRegisterChange("displayName", value)}
             />
-          }
-          onBlur={() => markTouched("password")}
-          onChange={(value) =>
-            mode === "register"
-              ? onRegisterChange("password", value)
-              : onLoginChange("password", value)
-          }
-        />
+          ) : null}
 
-        {mode === "register" ? (
           <AuthTextField
             darkMode={darkMode}
-            label={messages.fields.repeatPassword}
-            value={registerInput.repeatPassword}
-            error={errors.repeatPassword}
-            touched={Boolean(touched.repeatPassword || showSubmitErrors)}
+            label={messages.fields.password}
+            value={
+              mode === "register" ? registerInput.password : loginInput.password
+            }
+            error={errors.password}
+            touched={Boolean(touched.password || showSubmitErrors)}
             type={showPassword ? "text" : "password"}
-            autoComplete="new-password"
+            autoComplete={
+              mode === "register" ? "new-password" : "current-password"
+            }
             trailingButton={
               <Button
                 darkMode={darkMode}
                 tone="ghost"
-                size="icon-sm"
-                className="h-8 w-8"
+                size="icon"
+                className={fieldIconButtonSizeClass}
                 onClick={() => setShowPassword((current) => !current)}
                 aria-label={
                   showPassword
@@ -237,78 +207,119 @@ export function AuthForm({
                 }
               />
             }
-            onBlur={() => markTouched("repeatPassword")}
-            onChange={(value) => onRegisterChange("repeatPassword", value)}
+            onBlur={() => markTouched("password")}
+            onChange={(value) =>
+              mode === "register"
+                ? onRegisterChange("password", value)
+                : onLoginChange("password", value)
+            }
           />
-        ) : null}
 
-        <span
-          className="mt-1 block"
-          title={disabled && firstError ? errors[firstError] : undefined}
-        >
-          <Button
-            darkMode={darkMode}
-            tone="primary"
-            size="md"
-            className="w-full"
-            type="submit"
-            disabled={disabled}
-            icon={<ArrowRight size={17} aria-hidden="true" />}
-          >
-            <PendingText
-              active={pending}
-              idleText={buttonText}
-              pendingText={pendingButtonText}
+          {mode === "register" ? (
+            <AuthTextField
+              darkMode={darkMode}
+              label={messages.fields.repeatPassword}
+              value={registerInput.repeatPassword}
+              error={errors.repeatPassword}
+              touched={Boolean(touched.repeatPassword || showSubmitErrors)}
+              type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              trailingButton={
+                <Button
+                  darkMode={darkMode}
+                  tone="ghost"
+                  size="icon"
+                  className={fieldIconButtonSizeClass}
+                  onClick={() => setShowPassword((current) => !current)}
+                  aria-label={
+                    showPassword
+                      ? messages.form.hidePassword
+                      : messages.form.showPassword
+                  }
+                  icon={
+                    showPassword ? (
+                      <EyeOff size={18} aria-hidden="true" />
+                    ) : (
+                      <Eye size={18} aria-hidden="true" />
+                    )
+                  }
+                />
+              }
+              onBlur={() => markTouched("repeatPassword")}
+              onChange={(value) => onRegisterChange("repeatPassword", value)}
             />
-          </Button>
-        </span>
+          ) : null}
+        </FormFields>
 
-        {showFutureAuthActions && mode === "login" ? (
-          <>
-            <div
-              className={`grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm ${secondaryTextColorClass}`}
-            >
-              <span className={`h-px border-t ${secondaryButtonBorderColorClass}`} />
-              <span>{messages.form.or}</span>
-              <span className={`h-px border-t ${secondaryButtonBorderColorClass}`} />
-            </div>
-
+        <FormActions className="grid gap-[var(--aa-form-action-inner-gap)]">
+          <span
+            className="block"
+            title={disabled && firstError ? errors[firstError] : undefined}
+          >
             <Button
               darkMode={darkMode}
+              tone="primary"
               size="md"
-              icon={<GoogleIcon />}
-              onClick={onGoogleLogin}
+              className="w-full"
+              type="submit"
+              disabled={disabled}
+              icon={<ArrowRight size={17} aria-hidden="true" />}
             >
-              {messages.form.continueWithGoogle}
+              <PendingText
+                active={pending}
+                idleText={buttonText}
+                pendingText={pendingButtonText}
+              />
             </Button>
+          </span>
 
-            <p className={`text-center text-sm ${secondaryTextColorClass}`}>
-              {messages.form.forgotPassword}{" "}
+          {showFutureAuthActions && mode === "login" ? (
+            <>
+              <div
+                className={`grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm ${secondaryTextColorClass}`}
+              >
+                <span className={`h-px border-t ${secondaryButtonBorderColorClass}`} />
+                <span>{messages.form.or}</span>
+                <span className={`h-px border-t ${secondaryButtonBorderColorClass}`} />
+              </div>
+
               <Button
                 darkMode={darkMode}
-                tone="ghost"
-                size="xs"
-                className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"
-                onClick={onPasswordReset}
+                size="md"
+                icon={<GoogleIcon />}
+                onClick={onGoogleLogin}
               >
-                {messages.form.resetPassword}
+                {messages.form.continueWithGoogle}
               </Button>
-            </p>
-          </>
-        ) : null}
 
-        <p className={`text-center text-sm ${secondaryTextColorClass}`}>
-          {switchPrompt}{" "}
-          <Button
-            darkMode={darkMode}
-            tone="ghost"
-            size="xs"
-            className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"
-            onClick={() => switchMode(switchTarget)}
-          >
-            {switchLabel}
-          </Button>
-        </p>
+              <p className={`text-center text-sm ${secondaryTextColorClass}`}>
+                {messages.form.forgotPassword}{" "}
+                <Button
+                  darkMode={darkMode}
+                  tone="ghost"
+                  size="sm"
+                  className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"
+                  onClick={onPasswordReset}
+                >
+                  {messages.form.resetPassword}
+                </Button>
+              </p>
+            </>
+          ) : null}
+
+          <p className={`text-center text-sm ${secondaryTextColorClass}`}>
+            {switchPrompt}{" "}
+            <Button
+              darkMode={darkMode}
+              tone="ghost"
+              size="sm"
+              className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"
+              onClick={() => switchMode(switchTarget)}
+            >
+              {switchLabel}
+            </Button>
+          </p>
+        </FormActions>
       </form>
     </>
   );

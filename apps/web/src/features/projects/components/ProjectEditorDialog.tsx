@@ -2,6 +2,11 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import { CrudEditorDialog } from "@/components/dialog";
+import {
+  textAreaMinHeightLgClass,
+  textAreaMinHeightSmClass,
+} from "@/components/control-layout";
+import { FormSection } from "@/components/forms/form-layout";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import type {
@@ -62,35 +67,38 @@ export function ProjectEditorDialog({
       onClose={onClose}
       onSubmit={onSubmit}
       onDelete={onDelete}
+      layout="sections"
     >
-      <FieldLabel darkMode={darkMode} label={messages.common.title}>
-        <TextInput
-          darkMode={darkMode}
-          value={draft.title}
-          maxLength={120}
-          disabled={pending}
-          placeholder={messages.project.titlePlaceholder}
-          onChange={(event) =>
-            setDraft((current) => ({ ...current, title: event.target.value }))
-          }
-        />
-      </FieldLabel>
-      <FieldLabel darkMode={darkMode} label={messages.project.objective} optional>
-        <TextArea
-          darkMode={darkMode}
-          className="min-h-28"
-          value={draft.description}
-          maxLength={1000}
-          disabled={pending}
-          placeholder={objectivePlaceholder}
-          onChange={(event) =>
-            setDraft((current) => ({
-              ...current,
-              description: event.target.value,
-            }))
-          }
-        />
-      </FieldLabel>
+      <FormSection>
+        <FieldLabel darkMode={darkMode} label={messages.common.title}>
+          <TextInput
+            darkMode={darkMode}
+            value={draft.title}
+            maxLength={120}
+            disabled={pending}
+            placeholder={messages.project.titlePlaceholder}
+            onChange={(event) =>
+              setDraft((current) => ({ ...current, title: event.target.value }))
+            }
+          />
+        </FieldLabel>
+        <FieldLabel darkMode={darkMode} label={messages.project.objective} optional>
+          <TextArea
+            darkMode={darkMode}
+            className={textAreaMinHeightLgClass}
+            value={draft.description}
+            maxLength={1000}
+            disabled={pending}
+            placeholder={objectivePlaceholder}
+            onChange={(event) =>
+              setDraft((current) => ({
+                ...current,
+                description: event.target.value,
+              }))
+            }
+          />
+        </FieldLabel>
+      </FormSection>
       <ProjectTimelineFields
         darkMode={darkMode}
         pending={pending}
@@ -152,35 +160,38 @@ export function MilestoneEditorDialog({
       onClose={onClose}
       onSubmit={onSubmit}
       onDelete={onDelete}
+      layout="sections"
     >
-      <FieldLabel darkMode={darkMode} label={messages.common.title}>
-        <TextInput
-          darkMode={darkMode}
-          value={draft.title}
-          maxLength={120}
-          disabled={pending}
-          placeholder={messages.milestone.titlePlaceholder}
-          onChange={(event) =>
-            setDraft((current) => ({ ...current, title: event.target.value }))
-          }
-        />
-      </FieldLabel>
-      <FieldLabel darkMode={darkMode} label={messages.milestone.objective} optional>
-        <TextArea
-          darkMode={darkMode}
-          className="min-h-20"
-          value={draft.objective}
-          maxLength={500}
-          disabled={pending}
-          placeholder={objectivePlaceholder}
-          onChange={(event) =>
-            setDraft((current) => ({
-              ...current,
-              objective: event.target.value,
-            }))
-          }
-        />
-      </FieldLabel>
+      <FormSection>
+        <FieldLabel darkMode={darkMode} label={messages.common.title}>
+          <TextInput
+            darkMode={darkMode}
+            value={draft.title}
+            maxLength={120}
+            disabled={pending}
+            placeholder={messages.milestone.titlePlaceholder}
+            onChange={(event) =>
+              setDraft((current) => ({ ...current, title: event.target.value }))
+            }
+          />
+        </FieldLabel>
+        <FieldLabel darkMode={darkMode} label={messages.milestone.objective} optional>
+          <TextArea
+            darkMode={darkMode}
+            className={textAreaMinHeightSmClass}
+            value={draft.objective}
+            maxLength={500}
+            disabled={pending}
+            placeholder={objectivePlaceholder}
+            onChange={(event) =>
+              setDraft((current) => ({
+                ...current,
+                objective: event.target.value,
+              }))
+            }
+          />
+        </FieldLabel>
+      </FormSection>
       <MilestoneTimelineFields
         darkMode={darkMode}
         pending={pending}

@@ -2,6 +2,7 @@ export type TimeZonePreference = "system" | string;
 
 export const defaultTimeZonePreference: TimeZonePreference = "system";
 export const defaultResolvedTimeZone = "UTC";
+export const localScheduledDayStartHour = 4;
 
 const fallbackTimeZones = [
   "Australia/Sydney",
@@ -126,7 +127,7 @@ export function localDateKey(date: Date, timeZone: string) {
 
 export function localScheduledDateKey({
   date,
-  dayStartHour = 4,
+  dayStartHour = localScheduledDayStartHour,
   timeZone,
 }: {
   date: Date;
@@ -142,6 +143,25 @@ export function localScheduledDateKey({
   return parts.hour < dayStartHour
     ? addDaysToDateKey(parts.dateKey, -1)
     : parts.dateKey;
+}
+
+export function localScheduledDayProgress({
+  date,
+  dayStartHour = localScheduledDayStartHour,
+  timeZone,
+}: {
+  date: Date;
+  dayStartHour?: number;
+  timeZone: string;
+}) {
+  const parts = localDateTimeParts(date, timeZone);
+  const hour = parts?.hour ?? date.getHours();
+  const minute = parts?.minute ?? date.getMinutes();
+  const second = parts?.second ?? date.getSeconds();
+  const elapsedSeconds =
+    (((hour - dayStartHour + 24) % 24) * 60 + minute) * 60 + second;
+
+  return elapsedSeconds / (24 * 60 * 60);
 }
 
 export function localCalendarParts(date: Date, timeZone: string) {

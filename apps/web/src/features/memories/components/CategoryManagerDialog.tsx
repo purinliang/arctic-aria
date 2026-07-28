@@ -3,6 +3,7 @@ import { Edit3, Plus } from "lucide-react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { Button } from "@/components/button";
 import { secondaryButtonBorderColorClass } from "@/components/color";
+import { textAreaMinHeightSmClass } from "@/components/control-layout";
 import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import {
   CrudEditorDialog,
@@ -342,7 +343,7 @@ function CategoryFormDialog({
       <FieldLabel darkMode={darkMode} label={messages.description} optional>
         <TextArea
           darkMode={darkMode}
-          className="min-h-20"
+          className={textAreaMinHeightSmClass}
           value={categoryDraft.description}
           maxLength={500}
           disabled={pending}

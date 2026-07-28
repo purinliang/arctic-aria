@@ -169,7 +169,7 @@ function MemoryRow({
       <ListItemActions>
         <Button
           darkMode={darkMode}
-          size="icon-sm"
+          size="icon"
           className="rounded-full"
           disabled={pinPending}
           aria-label={memory.pinned ? messages.cancelPin : messages.pin}
@@ -190,7 +190,6 @@ function MemoryRow({
         />
         <Button
           darkMode={darkMode}
-          size="sm"
           icon={<Edit3 size={15} aria-hidden="true" />}
           onClick={onEdit}
         >

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Save, Trash2, X } from "lucide-react";
 import { Button } from "./button";
 import { panelColorClass } from "./color";
+import { FormActions, FormFields, FormSections } from "./forms/form-layout";
 import { PendingText } from "./loading";
 import { ScrollArea } from "./scroll-area";
 import { cx } from "./utils";
@@ -85,7 +86,7 @@ export function DialogHeader({
       <Button
         darkMode={darkMode}
         tone="ghost"
-        size="icon-sm"
+        size="icon"
         aria-label={closeLabel}
         icon={<X size={16} aria-hidden="true" />}
         onClick={onClose}
@@ -95,7 +96,7 @@ export function DialogHeader({
 }
 
 export function DialogActionRow({ children }: { children: ReactNode }) {
-  return <div className="mt-5 grid gap-2">{children}</div>;
+  return <FormActions grouped>{children}</FormActions>;
 }
 
 export function DialogPrimaryButton({
@@ -126,6 +127,7 @@ export function CrudEditorDialog({
   onClose,
   onSubmit,
   onDelete,
+  layout = "fields",
 }: {
   darkMode: boolean;
   pending: boolean;
@@ -140,7 +142,10 @@ export function CrudEditorDialog({
   onClose: () => void;
   onSubmit: () => void;
   onDelete?: () => void;
+  layout?: "fields" | "sections";
 }) {
+  const Body = layout === "sections" ? FormSections : FormFields;
+
   return (
     <DialogOverlay zIndex={zIndex}>
       <form
@@ -156,7 +161,7 @@ export function CrudEditorDialog({
             closeLabel={closeLabel}
             onClose={onClose}
           />
-          <div className="grid gap-3">{children}</div>
+          <Body>{children}</Body>
           <DialogActionRow>
             <DialogPrimaryButton
               darkMode={darkMode}

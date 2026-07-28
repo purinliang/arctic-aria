@@ -95,9 +95,19 @@ Buttons support:
 
 Feature pages should not define local button class helpers.
 
-Use button size `field` for inline form-row actions that must align with a
-standard input, select, date picker, or time picker height. Do not hand-code
-height classes locally for those actions.
+The default button size is `sm`, used for normal panel, header, list, and row
+actions. Main form actions, such as auth submit and CRUD save/delete buttons,
+use `md`. Keep the semantic size names even when their pixel values are close,
+so future design changes can tune button and form-control rhythm independently.
+
+Button size roles:
+
+- `sm`: normal buttons, panel-title actions, list-row actions, and choice-group
+  buttons
+- `md`: main form actions such as auth submit and CRUD save/delete actions, and
+  taller navigation/menu rows when a surface needs larger scan targets
+- `lg`: explicitly larger actions when a later design needs them
+- `icon`: square icon-only actions
 
 Create buttons in card or panel headers should use secondary styling and the
 label `New` when the header title already names the object being created, such
@@ -135,6 +145,23 @@ browser's native scrollbar in app-styled surfaces.
 `forms/input-field.tsx` owns the appearance of single-line text inputs and
 single-line password inputs.
 
+Form rhythm:
+
+- button heights: `sm` `36px`, `md` `40px`, `lg` `44px`
+- text inputs, select triggers, and date/time picker triggers: `40px`
+- icon-only buttons: `36px`
+- label-to-control gap: `4px`
+- normal field-group gap: `12px`
+- form section gap: `18px`
+- form actions should start `36px` after the field group
+- actions inside the action area use a `16px` gap
+- auth submit and CRUD save/delete buttons use the `40px` `md` height
+
+Use tight field groups for repeated simple inputs. Use larger form sections
+only when the form has meaningful groups, such as project basics versus
+timeline, task basics versus metadata, or routine basics versus schedule and
+recurrence.
+
 Input fields support:
 
 - labels
@@ -157,6 +184,11 @@ Selection inputs and date/time picker triggers are button-like form controls
 because they open another surface. They may use button-like hover treatment, but
 their focus state should still be expressed through the existing border, not an
 outside ring.
+
+Choice groups are action choices, not text-entry controls. They use normal
+`sm` button rhythm instead of text-input height. Selected color and border are
+enough to communicate state; do not add a check icon unless a future component
+variant explicitly needs one.
 
 Required-empty messages, such as `Username can't be empty.`, are submit/form
 logic. They should appear only after the user clicks the relevant confirm,
@@ -270,9 +302,11 @@ choices. Do not use passive label chips as selectable buttons. Selected choices
 should be indicated by color and border only; do not add a check icon to
 selected choices.
 
-Choice groups may use normal button height when they behave like filters or
-compact option buttons. They should use input-field height only when they are
-visually replacing a form input in a form row.
+Choice groups use normal button height when they behave like filters or simple
+option buttons. Descriptive secondary text may increase the row height, but the
+base rhythm should still come from the shared `sm` button height. Field labels
+above choice groups should use shared `LabelText`, the same as input, select,
+date picker, and time picker labels.
 
 ## Switch
 
@@ -412,8 +446,9 @@ decision or when the current workflow cannot safely continue.
 
 Dialog frames use the same `px-4 py-4` padding rhythm as notifications. Form
 dialogs should use the default dialog width so input fields, date pickers, and
-other long controls do not collapse into a narrow column. Small confirmation
-dialogs may use the `sm` size. Dialog overlays must provide enough top and
+other long controls do not collapse into a narrow column. Use larger section
+spacing only when a form has meaningful groups. Small confirmation dialogs may
+use the `sm` size. Dialog overlays must provide enough top and
 bottom viewport padding and must allow vertical scrolling when form content is
 taller than the viewport. Dialogs must not close when the user clicks the
 semi-transparent overlay; close only through explicit close, cancel, save,
@@ -423,7 +458,8 @@ primitives instead of hand-rolling fixed overlay containers.
 Add/edit form dialogs that save an entity and optionally delete it should use
 `CrudEditorDialog`. Feature code supplies the fields, draft state, validation,
 and action handlers; the shared dialog owns overlay, frame, header, full-width
-save action, save pending text, and optional delete action. Lower-level
+save action, save pending text, field or section grouping, form-action spacing,
+and optional delete action. Lower-level
 `DialogOverlay`, `DialogFrame`, `DialogHeader`, `DialogActionRow`, and
 `DialogPrimaryButton` remain available for dialogs that do not fit the standard
 CRUD form shape.

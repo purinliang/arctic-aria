@@ -32,6 +32,7 @@ export function Dashboard({
   messages,
   formMessages,
   timeFormatPreference,
+  resolvedTimeZone,
 }: {
   darkMode: boolean;
   tasks: Task[];
@@ -53,6 +54,7 @@ export function Dashboard({
   messages: DashboardMessages;
   formMessages: FormMessages;
   timeFormatPreference: TimeFormatPreference;
+  resolvedTimeZone: string;
 }) {
   return (
     <section className="aa-split-container">
@@ -85,6 +87,7 @@ export function Dashboard({
             tasks={tasks}
             routines={routines}
             messages={messages.progress}
+            resolvedTimeZone={resolvedTimeZone}
           />
 
           <PinnedMemoriesPanel

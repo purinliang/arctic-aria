@@ -184,6 +184,21 @@
   --aa-text-input-disabled-border: var(--gray-6);
   --aa-text-input-disabled-bg: var(--gray-2);
   --aa-text-input-disabled-text: var(--aa-gray-11-50);
+  --aa-button-height-sm: 36px;
+  --aa-button-height-md: 40px;
+  --aa-button-height-lg: 44px;
+  --aa-form-control-height: 40px;
+  --aa-icon-button-size: 36px;
+  --aa-field-icon-button-size: 32px;
+  --aa-field-label-gap: 4px;
+  --aa-field-group-gap: 12px;
+  --aa-form-section-gap: 18px;
+  --aa-form-action-gap: 36px;
+  --aa-form-action-inner-gap: 16px;
+  --aa-textarea-height-sm: 80px;
+  --aa-textarea-height-md: 96px;
+  --aa-textarea-height-lg: 112px;
+  --aa-template-input-height: 224px;
 }
 
 @supports (color: color(display-p3 1 1 1)) {

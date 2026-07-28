@@ -40,7 +40,7 @@ export default function NotFound() {
         </div>
 
         <Link
-          className="inline-flex h-11 items-center justify-center rounded-md border border-[var(--aa-primary-button-bg)] bg-[var(--aa-primary-button-bg)] px-4 text-sm font-semibold text-[var(--aa-primary-button-text)] transition hover:border-[var(--aa-primary-button-hover-bg)] hover:bg-[var(--aa-primary-button-hover-bg)]"
+          className="inline-flex h-[var(--aa-button-height-sm)] items-center justify-center rounded-md border border-[var(--aa-primary-button-bg)] bg-[var(--aa-primary-button-bg)] px-3 text-sm font-semibold text-[var(--aa-primary-button-text)] transition hover:border-[var(--aa-primary-button-hover-bg)] hover:bg-[var(--aa-primary-button-hover-bg)]"
           href="/"
         >
           <ArrowLeft className="mr-2" size={17} aria-hidden="true" />

@@ -201,7 +201,7 @@ export function ListFooterAction({
 }) {
   return (
     <div className="flex justify-end px-4 py-3">
-      <Button darkMode={darkMode} tone="ghost" size="sm" onClick={onClick}>
+      <Button darkMode={darkMode} tone="ghost" onClick={onClick}>
         {label}
       </Button>
     </div>

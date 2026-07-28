@@ -12,6 +12,6 @@ const inputFieldSourcePath = resolve(
 test("FieldLabel no longer wraps controls with a native <label> element", () => {
   return readFile(inputFieldSourcePath, "utf8").then((source) => {
     assert.equal(source.includes("<label"), false);
-    assert.equal(source.includes('className="relative grid gap-1.5"'), true);
+    assert.equal(source.includes("className={formFieldClass}"), true);
   });
 });
