@@ -196,6 +196,16 @@ Markdown may contain one or more `Project:` or `# Project:` blocks. A line with
 The importer fills missing optional start dates and timelines using the same
 project validation helpers as normal project actions.
 
+LLM-generated schedules should use realistic milestone sequencing. Do not start
+every milestone on the project start date unless the work truly runs in
+parallel. Milestone deadlines should usually progress one after another, with
+intentional overlap only when the work can realistically overlap.
+
+When a project depends on physical-world constraints or another person or
+organization, such as bookings, approvals, tests, documents, shipping, or
+waiting time, place those tasks and milestone deadlines early enough to leave a
+buffer before the final project deadline.
+
 LLM-generated duration text is forgiving. Exact values are preferred:
 `1_3_months`, `3_6_months`, `6_12_months`, and `1_3_years`. If the LLM returns
 plain language such as `4 months`, the parser maps it to the closest supported
