@@ -152,23 +152,26 @@ export async function importProjectTree(
      task_input AS (
        SELECT task_payload.milestone_ordinal, task_item.title,
          task_item.description, task_item.start_date, task_item.deadline_date,
-         task_payload.task_ordinal
+         task_item.estimated_duration_minutes, task_payload.task_ordinal
        FROM task_payload
        CROSS JOIN LATERAL jsonb_to_record(task_payload.value) AS task_item(
          title text,
          description text,
          start_date date,
-         deadline_date date
+         deadline_date date,
+         estimated_duration_minutes integer
        )
      ),
      task_insert AS (
        INSERT INTO project_tasks (
          user_id, project_id, milestone_id, title, description,
-         start_date, deadline_date, sort_order, created_at, updated_at
+         start_date, deadline_date, estimated_duration_minutes, sort_order,
+         created_at, updated_at
        )
        SELECT $1, project_insert.id, milestone_map.id, task_input.title,
          task_input.description, task_input.start_date, task_input.deadline_date,
-         task_input.task_ordinal - 1, $7::timestamptz, $7::timestamptz
+         task_input.estimated_duration_minutes, task_input.task_ordinal - 1,
+         $7::timestamptz, $7::timestamptz
        FROM task_input
        CROSS JOIN project_insert
        INNER JOIN milestone_map
@@ -253,6 +256,7 @@ function taskParams(input: SaveProjectTaskInput) {
     input.description,
     input.startDate,
     input.deadlineDate,
+    input.estimatedDurationMinutes,
     input.occurredAt,
     input.taskId ?? null,
   ];
@@ -267,6 +271,7 @@ function createTaskParams(input: SaveProjectTaskInput) {
     input.description,
     input.startDate,
     input.deadlineDate,
+    input.estimatedDurationMinutes,
     input.occurredAt,
   ];
 }
@@ -292,6 +297,7 @@ function importProjectTreeParams(input: ImportProjectTreeInput) {
           description: task.description,
           start_date: task.startDate,
           deadline_date: task.deadlineDate,
+          estimated_duration_minutes: task.estimatedDurationMinutes,
         })),
       })),
     ),
@@ -319,10 +325,11 @@ async function createTask(sql: Sql, input: SaveProjectTaskInput) {
   const rows = (await sql.query(
     `INSERT INTO project_tasks (
        user_id, project_id, milestone_id, title, description,
-       start_date, deadline_date, created_at, updated_at
+       start_date, deadline_date, estimated_duration_minutes, created_at,
+       updated_at
      )
      VALUES (
-       $1, $2, $3, $4, $5, $6, $7, $8, $8
+       $1, $2, $3, $4, $5, $6, $7, $8, $9, $9
      )
      RETURNING id`,
     createTaskParams(input),
@@ -335,8 +342,9 @@ async function updateTask(sql: Sql, input: SaveProjectTaskInput) {
   const rows = (await sql.query(
     `UPDATE project_tasks
      SET project_id = $2, milestone_id = $3, title = $4, description = $5,
-       start_date = $6, deadline_date = $7, updated_at = $8::timestamptz
-     WHERE user_id = $1 AND id = $9 AND deleted_at IS NULL
+       start_date = $6, deadline_date = $7, estimated_duration_minutes = $8,
+       updated_at = $9::timestamptz
+     WHERE user_id = $1 AND id = $10 AND deleted_at IS NULL
      RETURNING id`,
     taskParams(input),
   )) as Array<{ id: string }>;

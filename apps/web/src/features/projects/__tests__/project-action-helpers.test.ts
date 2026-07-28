@@ -223,13 +223,58 @@ test("task validation stores blank optional descriptions as null", () => {
     description: "   ",
     startDate: "2026-07-19",
     deadlineDate: "",
+    estimatedDurationMinutes: "",
   });
 
   assert.equal(validation.ok, true);
 
   if (validation.ok) {
     assert.equal(validation.description, null);
+    assert.equal(validation.estimatedDurationMinutes, null);
   }
+});
+
+test("task validation accepts optional estimated duration minutes", () => {
+  const validation = validateProjectTaskInput({
+    projectId: "project-1",
+    milestoneId: "",
+    title: "Prepare resume",
+    description: "",
+    startDate: "",
+    deadlineDate: "",
+    estimatedDurationMinutes: "45",
+  });
+
+  assert.equal(validation.ok, true);
+
+  if (validation.ok) {
+    assert.equal(validation.estimatedDurationMinutes, 45);
+  }
+});
+
+test("task validation rejects estimated durations over one day", () => {
+  assert.deepEqual(
+    validateProjectTaskInput({
+      projectId: "project-1",
+      milestoneId: "",
+      title: "Prepare resume",
+      description: "",
+      startDate: "",
+      deadlineDate: "",
+      estimatedDurationMinutes: "1441",
+    }),
+    {
+      ok: false,
+      message:
+        "Estimated duration must be a positive whole number up to 1440 minutes.",
+      code: "task_estimated_duration_invalid",
+      category: "invalid_parameter",
+      subject: "task",
+      field: "estimated_duration",
+      reason: "invalid_value",
+      limit: 1440,
+    },
+  );
 });
 
 test("task validation reports structured title failures", () => {

@@ -16,8 +16,9 @@ test("routine date-only fields preserve the local calendar date", () => {
     group_name: null,
     title: "Morning check",
     description: null,
-    first_start_date: dateOnlyValue,
+    start_date: dateOnlyValue,
     end_date: dateOnlyValue,
+    estimated_duration_minutes: 15,
     created_at: new Date("2026-07-22T00:00:00.000Z"),
     updated_at: new Date("2026-07-22T00:00:00.000Z"),
     deleted_at: null,
@@ -50,8 +51,9 @@ test("routine date-only fields preserve the local calendar date", () => {
     updated_at: new Date("2026-07-22T00:00:00.000Z"),
   } satisfies RoutineInstanceRow);
 
-  assert.equal(routine.firstStartDate, "2026-07-22");
+  assert.equal(routine.startDate, "2026-07-22");
   assert.equal(routine.endDate, "2026-07-22");
+  assert.equal(routine.estimatedDurationMinutes, 15);
   assert.equal(instance.scheduledDate, "2026-07-22");
   assert.equal(instance.movedFromDate, "2026-07-22");
 });

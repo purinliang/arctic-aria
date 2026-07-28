@@ -3,6 +3,7 @@ import {
   normalizeRoutineRecurrence,
   type RoutineRecurrenceOption,
 } from "./routine-recurrence.ts";
+import { validateOptionalEstimatedDurationMinutes } from "../estimated-duration.ts";
 import { readResolvedTimeZone } from "../settings/time-zones.ts";
 import type {
   RoutineRuleInput,
@@ -14,8 +15,9 @@ export type RoutineInput = {
   groupId?: string | null;
   title: string;
   description: string;
-  firstStartDate: string;
+  startDate: string;
   endDate?: string | null;
+  estimatedDurationMinutes?: string | null;
   ruleType: RoutineRuleType;
   recurrenceOption?: RoutineRecurrenceOption;
   intervalValue?: number | null;
@@ -38,8 +40,12 @@ export function validateRoutineInput(input: RoutineInput) {
   const groupId = input.groupId?.trim() || null;
   const title = input.title.trim();
   const description = input.description.trim();
-  const firstStartDate = input.firstStartDate.trim();
+  const startDate = input.startDate.trim();
   const endDate = input.endDate?.trim() || null;
+  const estimatedDuration = validateOptionalEstimatedDurationMinutes(
+    input.estimatedDurationMinutes,
+    "routine",
+  );
 
   if (title.length < 1) {
     return {
@@ -79,6 +85,10 @@ export function validateRoutineInput(input: RoutineInput) {
     };
   }
 
+  if (!estimatedDuration.ok) {
+    return estimatedDuration;
+  }
+
   if (groupId && !uuidPattern.test(groupId)) {
     return {
       ok: false as const,
@@ -91,24 +101,24 @@ export function validateRoutineInput(input: RoutineInput) {
     };
   }
 
-  if (!firstStartDate) {
+  if (!startDate) {
     return {
       ok: false as const,
-      message: "Choose a first start date.",
-      code: "routine_first_start_date_missing",
+      message: "Choose a start date.",
+      code: "routine_start_date_missing",
       category: "missing_parameter" as const,
-      field: "first_start_date",
+      field: "start_date",
       reason: "required" as const,
     };
   }
 
-  if (!isValidDateKey(firstStartDate)) {
+  if (!isValidDateKey(startDate)) {
     return {
       ok: false as const,
-      message: "First start date must be a real date in YYYY-MM-DD format.",
-      code: "routine_first_start_date_invalid",
+      message: "Start date must be a real date in YYYY-MM-DD format.",
+      code: "routine_start_date_invalid",
       category: "invalid_parameter" as const,
-      field: "first_start_date",
+      field: "start_date",
       reason: "invalid_format" as const,
     };
   }
@@ -124,7 +134,7 @@ export function validateRoutineInput(input: RoutineInput) {
     };
   }
 
-  if (endDate && endDate < firstStartDate) {
+  if (endDate && endDate < startDate) {
     return {
       ok: false as const,
       message: "End date cannot be before start date.",
@@ -159,7 +169,7 @@ export function validateRoutineInput(input: RoutineInput) {
 
   const rule = normalizeRule({
     ...input,
-    firstStartDate,
+    startDate,
     endDate,
   });
 
@@ -180,8 +190,9 @@ export function validateRoutineInput(input: RoutineInput) {
     groupId,
     title,
     description: description || null,
-    firstStartDate,
+    startDate,
     endDate,
+    estimatedDurationMinutes: estimatedDuration.value,
     rule,
   };
 }

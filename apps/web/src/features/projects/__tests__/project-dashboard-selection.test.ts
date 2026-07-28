@@ -44,6 +44,7 @@ function task(
     status: input.status ?? "todo",
     startDate: input.startDate ?? "2026-07-14",
     deadlineDate: input.deadlineDate ?? null,
+    estimatedDurationMinutes: input.estimatedDurationMinutes ?? null,
     sortOrder: input.sortOrder ?? 0,
     createdAt: input.createdAt ?? now,
     updatedAt: input.updatedAt ?? now,
@@ -182,6 +183,7 @@ test("dashboard task selection uses the due window only before scheduling", asyn
     description: "",
     startDate: "2026-07-14",
     deadlineDate: "2026-12-31",
+    estimatedDurationMinutes: null,
   });
   const secondLoad = await service.listDashboardTasks(userId);
 

@@ -244,6 +244,7 @@ export async function saveProjectTask(
       description: validation.description,
       startDate: validation.startDate,
       deadlineDate: validation.deadlineDate,
+      estimatedDurationMinutes: validation.estimatedDurationMinutes,
     });
 
     if (!saved) {

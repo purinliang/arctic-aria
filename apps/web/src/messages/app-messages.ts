@@ -321,14 +321,14 @@ const englishMessages = {
       deadline: "deadline",
       description: "description",
       end_date: "end date",
+      estimated_duration: "estimated duration",
       expected_duration: "expected duration",
-      first_start_date: "first start date",
+      start_date: "start date",
       group: "group",
       name: "name",
       objective: "objective",
       preferred_time: "preferred time",
       rule: "rule",
-      start_date: "start date",
       text: "text",
       timezone: "timezone",
       title: "title",
@@ -340,6 +340,10 @@ const englishMessages = {
       duplicateName: (subject: string) =>
         `A ${subject} with that name already exists.`,
       inUse: (subject: string) => `This ${subject} is still in use.`,
+      invalidDurationMinutes: (field: string, limit?: number) =>
+        limit === undefined
+          ? `${field} must be a positive whole number of minutes.`
+          : `${field} must be a positive whole number up to ${limit} minutes.`,
       invalidFormatDate: (field: string) =>
         `${field} must be a real date in YYYY-MM-DD format.`,
       invalidFormatTime: (field: string) =>
@@ -674,14 +678,14 @@ const simplifiedChineseMessages: AppMessages = {
       deadline: "截止日期",
       description: "描述",
       end_date: "结束日期",
+      estimated_duration: "预计用时",
       expected_duration: "预计持续时间",
-      first_start_date: "首次开始日期",
+      start_date: "开始日期",
       group: "分组",
       name: "名称",
       objective: "目标",
       preferred_time: "偏好时间",
       rule: "规则",
-      start_date: "开始日期",
       text: "内容",
       timezone: "时区",
       title: "标题",
@@ -692,6 +696,10 @@ const simplifiedChineseMessages: AppMessages = {
       chooseRequired: (field: string) => `请选择${field}。`,
       duplicateName: (subject: string) => `同名${subject}已存在。`,
       inUse: (subject: string) => `这个${subject}仍在使用中。`,
+      invalidDurationMinutes: (field: string, limit?: number) =>
+        limit === undefined
+          ? `${field}必须是正整数分钟数。`
+          : `${field}必须是 1-${limit} 分钟的正整数。`,
       invalidFormatDate: (field: string) =>
         `${field}必须是真实日期，格式为 YYYY-MM-DD。`,
       invalidFormatTime: (field: string) =>

@@ -51,14 +51,14 @@ const defaultNotificationMessages: NotificationMessages = {
     deadline: "deadline",
     description: "description",
     end_date: "end date",
+    estimated_duration: "estimated duration",
     expected_duration: "expected duration",
-    first_start_date: "first start date",
+    start_date: "start date",
     group: "group",
     name: "name",
     objective: "objective",
     preferred_time: "preferred time",
     rule: "rule",
-    start_date: "start date",
     text: "text",
     timezone: "timezone",
     title: "title",
@@ -70,6 +70,10 @@ const defaultNotificationMessages: NotificationMessages = {
     duplicateName: (subject: string) =>
       `A ${subject} with that name already exists.`,
     inUse: (subject: string) => `This ${subject} is still in use.`,
+    invalidDurationMinutes: (field: string, limit?: number) =>
+      limit === undefined
+        ? `${field} must be a positive whole number of minutes.`
+        : `${field} must be a positive whole number up to ${limit} minutes.`,
     invalidFormatDate: (field: string) =>
       `${field} must be a real date in YYYY-MM-DD format.`,
     invalidFormatTime: (field: string) => `${field} must use HH:MM format.`,

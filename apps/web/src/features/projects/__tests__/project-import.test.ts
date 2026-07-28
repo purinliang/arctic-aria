@@ -24,6 +24,7 @@ Duration: 1_3_months
 ### Tasks
 - Title: Prepare resume
   Description: Rewrite backend experience bullets.
+  Estimated duration minutes: 45
   Start date: 2026-07-22
   Deadline: 2026-07-30
 `);
@@ -54,6 +55,7 @@ Duration: 1_3_months
             {
               title: "Prepare resume",
               description: "Rewrite backend experience bullets.",
+              estimatedDurationMinutes: 45,
               startDate: "2026-07-22",
               deadlineDate: "2026-07-30",
             },
@@ -293,6 +295,7 @@ test("project import fills defaults and validates the typed object", () => {
               description: null,
               startDate: "2026-07-22",
               deadlineDate: null,
+              estimatedDurationMinutes: null,
             },
           ],
         },
@@ -379,6 +382,36 @@ Duration: 2 years
   assert.deepEqual(json.data.milestones[0].timeline, {
     type: "duration",
     durationRange: "1_3_years",
+  });
+});
+
+test("project import rejects task estimates over one day", () => {
+  const parsed = parseProjectJsonToDocument({
+    project: {
+      title: "Find a job",
+    },
+    milestones: [
+      {
+        title: "Applications",
+        tasks: [
+          {
+            title: "Prepare resume",
+            estimatedDurationMinutes: 1441,
+          },
+        ],
+      },
+    ],
+  });
+
+  assert.deepEqual(parsed, {
+    ok: false,
+    code: "project_import_invalid",
+    message:
+      "tasks[0].estimatedDurationMinutes must be a positive whole number up to 1440.",
+    category: "invalid_parameter",
+    subject: "project",
+    field: "tasks[0].estimatedDurationMinutes",
+    reason: "invalid_value",
   });
 });
 

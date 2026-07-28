@@ -81,7 +81,7 @@ export function DialogHeader({
   onClose: () => void;
 }) {
   return (
-    <div className="mb-4 flex items-center justify-between gap-3">
+    <div className="mb-[var(--aa-form-section-gap)] flex items-center justify-between gap-3">
       <h3 className="text-lg font-semibold leading-7">{title}</h3>
       <Button
         darkMode={darkMode}
@@ -235,7 +235,7 @@ export function ConfirmDialog({
         >
           {description}
         </p>
-        <div className="mt-4 flex flex-wrap justify-end gap-2">
+        <div className="mt-[var(--aa-form-section-gap)] flex flex-wrap justify-end gap-[var(--aa-form-action-inner-gap)]">
           <Button darkMode={darkMode} disabled={pending} onClick={onCancel}>
             {cancelText}
           </Button>

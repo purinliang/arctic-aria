@@ -187,8 +187,9 @@ Columns:
 - `group_id uuid REFERENCES routine_groups(id) ON DELETE SET NULL`
 - `title text NOT NULL`
 - `description text`
-- `first_start_date date NOT NULL`
+- `start_date date NOT NULL`
 - `end_date date`
+- `estimated_duration_minutes integer`
 - `created_at timestamptz NOT NULL`
 - `updated_at timestamptz NOT NULL`
 - `deleted_at timestamptz`
@@ -197,12 +198,13 @@ Important constraints:
 
 - title length: 1-120 characters
 - description length: at most 2000 characters
-- end date is null or not before first start date
+- end date is null or not before start date
+- estimated duration is null or 1-1440 minutes
 
 Indexes:
 
-- `(user_id, first_start_date)` where `deleted_at IS NULL`
-- `(user_id, group_id, first_start_date)` where `deleted_at IS NULL`
+- `(user_id, start_date)` where `deleted_at IS NULL`
+- `(user_id, group_id, start_date)` where `deleted_at IS NULL`
 
 ### `routine_groups`
 
@@ -399,6 +401,7 @@ Columns:
 - `description text`
 - `start_date date`
 - `deadline_date date`
+- `estimated_duration_minutes integer`
 - `sort_order integer NOT NULL DEFAULT 0`
 - `created_at timestamptz NOT NULL`
 - `updated_at timestamptz NOT NULL`
@@ -410,6 +413,7 @@ Important constraints:
 - title length: 1-120 characters
 - description length: at most 2000 characters
 - deadline date is null or not before start date
+- estimated duration is null or 1-1440 minutes
 
 Indexes:
 

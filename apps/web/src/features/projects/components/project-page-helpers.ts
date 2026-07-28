@@ -79,6 +79,7 @@ export function emptyTaskDraft(
     description: "",
     startDate: todayDate(),
     deadlineDate: "",
+    estimatedDurationMinutes: "",
   };
 }
 
@@ -91,5 +92,6 @@ export function taskToDraft(task: ProjectTaskView): ProjectTaskInput {
     description: task.description ?? "",
     startDate: task.startDate,
     deadlineDate: task.deadlineDate,
+    estimatedDurationMinutes: task.estimatedDurationMinutes,
   };
 }

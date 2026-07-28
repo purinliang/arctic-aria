@@ -45,6 +45,7 @@ export type MilestoneView = {
 export type ProjectTaskView = Task & {
   projectId: string;
   milestoneId: string;
+  estimatedDurationMinutes: string;
 };
 
 export type ProjectDashboardData = {
@@ -127,6 +128,7 @@ function toTaskView(task: ProjectTaskRecord): ProjectTaskView {
     status: task.status,
     startDate: task.startDate ?? "",
     deadlineDate: task.deadlineDate ?? "",
+    estimatedDurationMinutes: task.estimatedDurationMinutes?.toString() ?? "",
   };
 }
 

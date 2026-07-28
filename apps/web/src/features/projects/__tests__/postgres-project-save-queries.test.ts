@@ -49,6 +49,7 @@ const taskInput: SaveProjectTaskInput = {
   description: "",
   startDate: null,
   deadlineDate: null,
+  estimatedDurationMinutes: null,
   occurredAt,
 };
 
@@ -164,6 +165,7 @@ test("project tree import serializes tasks inside milestone payloads", async () 
             description: "Rewrite backend experience bullets.",
             startDate: "2026-07-22",
             deadlineDate: "2026-07-30",
+            estimatedDurationMinutes: 45,
           },
         ],
       },
@@ -193,6 +195,7 @@ test("project tree import serializes tasks inside milestone payloads", async () 
           description: "Rewrite backend experience bullets.",
           start_date: "2026-07-22",
           deadline_date: "2026-07-30",
+          estimated_duration_minutes: 45,
         },
       ],
     },

@@ -184,6 +184,7 @@ export class InMemoryProjectRepository implements ProjectRepository {
       status: existing?.status ?? "todo",
       startDate: input.startDate,
       deadlineDate: input.deadlineDate,
+      estimatedDurationMinutes: input.estimatedDurationMinutes,
       updatedAt: input.occurredAt,
       completedAt: existing?.completedAt ?? null,
       deletedAt: existing?.deletedAt ?? null,
@@ -233,6 +234,7 @@ export class InMemoryProjectRepository implements ProjectRepository {
           description: task.description,
           startDate: task.startDate,
           deadlineDate: task.deadlineDate,
+          estimatedDurationMinutes: task.estimatedDurationMinutes,
           occurredAt: input.occurredAt,
         });
 

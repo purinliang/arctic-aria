@@ -61,8 +61,8 @@ function matchesMonthlyByDate(routine: RoutineRecord, date: string) {
 
   return (
     target.getUTCDate() === targetDay &&
-    monthsBetween(date, routine.firstStartDate) >= 0 &&
-    monthsBetween(date, routine.firstStartDate) % intervalValue === 0
+    monthsBetween(date, routine.startDate) >= 0 &&
+    monthsBetween(date, routine.startDate) % intervalValue === 0
   );
 }
 
@@ -71,7 +71,7 @@ export function shouldGenerateInstance(routine: RoutineRecord, date: string) {
     return false;
   }
 
-  if (date < routine.firstStartDate) {
+  if (date < routine.startDate) {
     return false;
   }
 
@@ -79,10 +79,10 @@ export function shouldGenerateInstance(routine: RoutineRecord, date: string) {
     return false;
   }
 
-  const dayOffset = daysBetween(date, routine.firstStartDate);
+  const dayOffset = daysBetween(date, routine.startDate);
 
   if (routine.rule.ruleType === "once") {
-    return date === routine.firstStartDate;
+    return date === routine.startDate;
   }
 
   if (routine.rule.ruleType === "daily") {
@@ -304,8 +304,9 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
         groupId: string | null;
         title: string;
         description: string | null;
-        firstStartDate: string;
+        startDate: string;
         endDate: string | null;
+        estimatedDurationMinutes: number | null;
         rule: RoutineRuleInput;
       },
     ) {
@@ -318,8 +319,9 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
           groupId: input.groupId,
           title: input.title,
           description: input.description,
-          firstStartDate: input.firstStartDate,
+          startDate: input.startDate,
           endDate: input.endDate,
+          estimatedDurationMinutes: input.estimatedDurationMinutes,
           rule: input.rule,
           occurredAt,
         })
@@ -328,8 +330,9 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
           groupId: input.groupId,
           title: input.title,
           description: input.description,
-          firstStartDate: input.firstStartDate,
+          startDate: input.startDate,
           endDate: input.endDate,
+          estimatedDurationMinutes: input.estimatedDurationMinutes,
           rule: input.rule,
           occurredAt,
         });

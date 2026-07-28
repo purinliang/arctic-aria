@@ -2,6 +2,7 @@ import {
   routineRecurrenceOptions,
   type RoutineRecurrenceOption,
 } from "./routine-recurrence.ts";
+import { maxEstimatedDurationMinutes } from "../estimated-duration.ts";
 import type {
   RoutineImportBatchDocument,
   RoutineImportDocument,
@@ -12,8 +13,9 @@ import type {
 const knownFields = new Set([
   "description",
   "end date",
+  "estimated duration",
   "fixed interval days",
-  "first start date",
+  "start date",
   "preferred time",
   "recurrence",
   "repeat",
@@ -54,7 +56,15 @@ export function parseRoutineMarkdownToJson(
       return parsed;
     }
 
-    applyRoutineField(routine, parsed.data.field, parsed.data.value);
+    const result = applyRoutineField(
+      routine,
+      parsed.data.field,
+      parsed.data.value,
+    );
+
+    if (!result.ok) {
+      return result;
+    }
   }
 
   if (routines.length === 0) {
@@ -195,7 +205,8 @@ function parseRoutine(
   const unknown = unknownKeys(value, [
     "description",
     "endDate",
-    "firstStartDate",
+    "estimatedDurationMinutes",
+    "startDate",
     "fixedIntervalDays",
     "preferredTime",
     "recurrence",
@@ -219,12 +230,20 @@ function parseRoutine(
     return description;
   }
 
-  const firstStartDate = readOptionalString(
-    value.firstStartDate,
-    `${fieldPrefix}.firstStartDate`,
+  const estimatedDurationMinutes = readOptionalPositiveInteger(
+    value.estimatedDurationMinutes,
+    `${fieldPrefix}.estimatedDurationMinutes`,
   );
-  if (!firstStartDate.ok) {
-    return firstStartDate;
+  if (!estimatedDurationMinutes.ok) {
+    return estimatedDurationMinutes;
+  }
+
+  const startDate = readOptionalString(
+    value.startDate,
+    `${fieldPrefix}.startDate`,
+  );
+  if (!startDate.ok) {
+    return startDate;
   }
 
   const endDate = readOptionalString(value.endDate, `${fieldPrefix}.endDate`);
@@ -263,7 +282,8 @@ function parseRoutine(
     data: {
       title: title.data ?? "",
       description: description.data,
-      firstStartDate: firstStartDate.data,
+      estimatedDurationMinutes: estimatedDurationMinutes.data,
+      startDate: startDate.data,
       endDate: endDate.data,
       recurrence: recurrence.data,
       fixedIntervalDays: fixedIntervalDays.data,
@@ -304,13 +324,24 @@ function applyRoutineField(
   routine: RoutineImportRoutine,
   field: string,
   value: string,
-) {
+): RoutineImportResult<undefined> {
   if (field === "title") {
     routine.title = value;
   } else if (field === "description") {
     routine.description = value;
-  } else if (field === "first start date") {
-    routine.firstStartDate = value;
+  } else if (field === "estimated duration") {
+    const estimatedDuration = readMarkdownPositiveInteger(
+      value,
+      "routine.estimatedDurationMinutes",
+    );
+
+    if (!estimatedDuration.ok) {
+      return estimatedDuration;
+    }
+
+    routine.estimatedDurationMinutes = estimatedDuration.data;
+  } else if (field === "start date") {
+    routine.startDate = value;
   } else if (field === "end date") {
     routine.endDate = value;
   } else if (field === "repeat" || field === "recurrence") {
@@ -322,6 +353,8 @@ function applyRoutineField(
   } else if (field === "timezone") {
     routine.timezone = value;
   }
+
+  return { ok: true, data: undefined };
 }
 
 function readRecurrence(
@@ -376,13 +409,66 @@ function readOptionalNumber(
   return { ok: true, data: value };
 }
 
+function readOptionalPositiveInteger(
+  value: unknown,
+  field: string,
+): RoutineImportResult<number | undefined> {
+  if (value === undefined || value === null) {
+    return { ok: true, data: undefined };
+  }
+
+  if (
+    typeof value !== "number" ||
+    !Number.isSafeInteger(value) ||
+    value < 1 ||
+    value > maxEstimatedDurationMinutes
+  ) {
+    return invalid(
+      field,
+      `${field} must be a positive whole number up to ${maxEstimatedDurationMinutes}.`,
+    );
+  }
+
+  return { ok: true, data: value };
+}
+
+function readMarkdownPositiveInteger(
+  value: string,
+  field: string,
+): RoutineImportResult<number | undefined> {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return { ok: true, data: undefined };
+  }
+
+  if (!/^\d+$/.test(trimmed)) {
+    return invalid(
+      field,
+      `${field} must be a positive whole number up to ${maxEstimatedDurationMinutes}.`,
+    );
+  }
+
+  return readOptionalPositiveInteger(Number(trimmed), field);
+}
+
 function unknownKeys(value: Record<string, unknown>, allowed: string[]) {
   const allowedSet = new Set(allowed);
   return Object.keys(value).find((key) => !allowedSet.has(key)) ?? null;
 }
 
 function normalizeFieldName(value: string) {
-  return value.trim().toLowerCase().replace(/[-_]+/g, " ");
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/[()]/g, "")
+    .replace(/[-_]+/g, " ");
+
+  if (normalized === "estimated duration minutes") {
+    return "estimated duration";
+  }
+
+  return normalized;
 }
 
 function isSeparatorLine(value: string) {

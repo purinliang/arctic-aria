@@ -38,6 +38,7 @@ export type ProjectImportTask = {
   description?: string;
   startDate?: string;
   deadlineDate?: string;
+  estimatedDurationMinutes?: number | null;
 };
 
 export type ProjectImportResult<T> =
@@ -66,6 +67,7 @@ export type ProjectImportCommand = {
       description: string | null;
       startDate: string | null;
       deadlineDate: string | null;
+      estimatedDurationMinutes: number | null;
     }>;
   }>;
 };

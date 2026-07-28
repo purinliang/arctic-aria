@@ -158,7 +158,8 @@ It does not accept top-level tasks.
       "tasks": [
         {
           "title": "Prepare resume",
-          "description": "Rewrite backend experience bullets."
+          "description": "Rewrite backend experience bullets.",
+          "estimatedDurationMinutes": 45
         }
       ]
     }
@@ -180,7 +181,8 @@ Batch JSON is also accepted:
           "title": "Applications",
           "tasks": [
             {
-              "title": "Prepare resume"
+              "title": "Prepare resume",
+              "estimatedDurationMinutes": null
             }
           ]
         }
@@ -195,6 +197,10 @@ Markdown may contain one or more `Project:` or `# Project:` blocks. A line with
 
 The importer fills missing optional start dates and timelines using the same
 project validation helpers as normal project actions.
+
+Task `estimatedDurationMinutes` is optional. When present, it must be a whole
+number from 1 to 1440. Missing or empty values normalize to `null`; the importer
+does not apply a default estimate.
 
 LLM-generated schedules should use realistic milestone sequencing. Do not start
 every milestone on the project start date unless the work truly runs in
