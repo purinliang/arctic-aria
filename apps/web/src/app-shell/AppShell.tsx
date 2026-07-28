@@ -284,8 +284,8 @@ export function AppShell({
           >
             <Button
               darkMode={darkMode}
-              size="icon-sm"
-              className="h-10 w-10 xl:hidden"
+              size="icon"
+              className="h-[var(--aa-button-height-md)] w-[var(--aa-button-height-md)] xl:hidden"
               aria-label={messages.appShell.openNavigation}
               icon={<Menu size={20} aria-hidden="true" />}
               onClick={() => setSidebarOpen(true)}

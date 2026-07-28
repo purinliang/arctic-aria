@@ -3,10 +3,10 @@
 // Settings Page - Discord Bound Account Controls.
 import { Eye, EyeOff, LoaderCircle, Send, Unlink } from "lucide-react";
 import { Button } from "@/components/button";
+import { FormFieldStack } from "@/components/forms/form-layout";
 import { PasswordInput } from "@/components/forms/input-field";
 import { LabelText } from "@/components/text";
 import type { SettingsMessages } from "@/messages/app-messages";
-import { DiscordBindingRow } from "./DiscordBindingRow";
 
 export function DiscordBoundAccountControls({
   accountId,
@@ -28,39 +28,37 @@ export function DiscordBoundAccountControls({
   onUnbind: () => void;
 }) {
   return (
-    <div className="grid gap-1.5">
+    <FormFieldStack className="w-full sm:max-w-sm">
       <LabelText darkMode={darkMode}>{messages.discord.bound}</LabelText>
-      <DiscordBindingRow>
-        <span className="w-full min-w-[min(100%,18rem)] flex-1 sm:max-w-[26rem]">
-          <PasswordInput
-            darkMode={darkMode}
-            aria-label={messages.discord.boundAccountIdLabel}
-            className="font-mono tracking-[0.04em]"
-            disabled
-            visible={accountIdVisible}
-            value={accountId}
-            trailing={
-              <Button
-                darkMode={darkMode}
-                tone="ghost"
-                size="icon-sm"
-                aria-label={
-                  accountIdVisible
-                    ? messages.discord.hideAccountId
-                    : messages.discord.viewAccountId
-                }
-                icon={
-                  accountIdVisible ? (
-                    <EyeOff size={14} aria-hidden="true" />
-                  ) : (
-                    <Eye size={14} aria-hidden="true" />
-                  )
-                }
-                onClick={onToggleAccountId}
-              />
-            }
-          />
-        </span>
+      <div className="grid gap-2">
+        <PasswordInput
+          darkMode={darkMode}
+          aria-label={messages.discord.boundAccountIdLabel}
+          className="font-mono tracking-[0.04em]"
+          disabled
+          visible={accountIdVisible}
+          value={accountId}
+          trailing={
+            <Button
+              darkMode={darkMode}
+              tone="ghost"
+              size="icon"
+              aria-label={
+                accountIdVisible
+                  ? messages.discord.hideAccountId
+                  : messages.discord.viewAccountId
+              }
+              icon={
+                accountIdVisible ? (
+                  <EyeOff size={14} aria-hidden="true" />
+                ) : (
+                  <Eye size={14} aria-hidden="true" />
+                )
+              }
+              onClick={onToggleAccountId}
+            />
+          }
+        />
         <span className="flex shrink-0 items-center gap-2">
           <Button
             darkMode={darkMode}
@@ -72,7 +70,6 @@ export function DiscordBoundAccountControls({
             loadingIcon={
               <LoaderCircle className="animate-spin" size={14} aria-hidden="true" />
             }
-            size="field"
             onClick={onSendTestMessage}
           >
             {messages.discord.sendTest}
@@ -81,13 +78,12 @@ export function DiscordBoundAccountControls({
             darkMode={darkMode}
             disabled={action !== null}
             icon={<Unlink size={14} aria-hidden="true" />}
-            size="field"
             onClick={onUnbind}
           >
             {messages.discord.unbind}
           </Button>
         </span>
-      </DiscordBindingRow>
-    </div>
+      </div>
+    </FormFieldStack>
   );
 }

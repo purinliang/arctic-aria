@@ -179,7 +179,7 @@ function ProjectTitlePinAction({
   return (
     <Button
       darkMode={darkMode}
-      size="icon-sm"
+      size="icon"
       className="rounded-full"
       disabled={pinPending}
       aria-label={isPinned ? messages.unpin : messages.pin}

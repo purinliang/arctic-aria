@@ -2,7 +2,13 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import { CrudEditorDialog } from "@/components/dialog";
+import { formFieldClass } from "@/components/control-layout";
 import { DatePickerField } from "@/components/forms/date-picker-field";
+import {
+  FormFieldStack,
+  FormGrid,
+  FormSection,
+} from "@/components/forms/form-layout";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { TextArea } from "@/components/forms/text-area-field";
@@ -69,6 +75,7 @@ export function RoutineEditorDialog({
       onClose={onClose}
       onSubmit={onSubmit}
       onDelete={draft.id ? onDelete : undefined}
+      layout="sections"
     >
       <RoutineTextFields
         darkMode={darkMode}
@@ -125,7 +132,7 @@ function RoutineGroupField({
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
 }) {
   return (
-    <div className="grid gap-1.5">
+    <div className={formFieldClass}>
       <LabelText darkMode={darkMode}>{messages.editor.group}</LabelText>
       <SingleChoiceGroup
         darkMode={darkMode}
@@ -168,7 +175,7 @@ function RoutineTextFields({
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
 }) {
   return (
-    <>
+    <FormSection>
       <FieldLabel darkMode={darkMode} label={messages.title}>
         <TextInput
           darkMode={darkMode}
@@ -184,7 +191,6 @@ function RoutineTextFields({
       <FieldLabel darkMode={darkMode} label={messages.description} optional>
         <TextArea
           darkMode={darkMode}
-          className="min-h-24"
           value={draft.description}
           maxLength={2000}
           disabled={pending}
@@ -197,7 +203,7 @@ function RoutineTextFields({
           }
         />
       </FieldLabel>
-    </>
+    </FormSection>
   );
 }
 
@@ -259,8 +265,8 @@ function RoutineScheduleFields({
   }));
 
   return (
-    <div className="grid gap-3">
-      <div className="grid gap-3 sm:grid-cols-3">
+    <FormSection>
+      <FormGrid columns={3}>
         <FieldLabel darkMode={darkMode} label={messages.firstStartDate}>
           <DatePickerField
             darkMode={darkMode}
@@ -306,9 +312,9 @@ function RoutineScheduleFields({
             }
           />
         </FieldLabel>
-      </div>
+      </FormGrid>
       {multipleTimezonesEnabled ? (
-        <div className="grid gap-2">
+        <FormFieldStack>
           <FieldLabel darkMode={darkMode} label={messages.timezone}>
             <SelectInput
               darkMode={darkMode}
@@ -326,8 +332,8 @@ function RoutineScheduleFields({
           <SupportingText darkMode={darkMode}>
             {messages.timezoneHint}
           </SupportingText>
-        </div>
+        </FormFieldStack>
       ) : null}
-    </div>
+    </FormSection>
   );
 }

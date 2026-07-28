@@ -51,7 +51,10 @@ and [data-model.md](data-model.md).
   `Sign in`.
 - Below the tabs, stack the form vertically:
   - Show a title, such as `Create an account`.
+  - Group credential fields with the shared form field-group spacing.
   - Align field labels to the left.
+  - Keep field labels close to their controls through the shared form label
+    gap.
   - Align text boxes to the left.
   - Show an error bubble with a tail pointing from the related text box.
   - The error bubble can overlay other components and should not affect layout
@@ -65,6 +68,8 @@ and [data-model.md](data-model.md).
   - Apply the same field layout rules to every field.
 - The main button should say `Sign up` and include a right arrow icon to imply
   forward navigation.
+- Keep the main button visually separated from the credential fields by the
+  shared form-action gap. The button uses the shared `md` form-action height.
 - The main `Sign up` button should stay enabled regardless of typing or empty
   field errors, except while registration is submitting. Clicking it runs
   validation and shows the relevant error messages. This avoids disabled-button

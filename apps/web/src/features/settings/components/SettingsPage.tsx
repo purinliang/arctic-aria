@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import { CardHeader } from "@/components/card";
+import { FormFieldStack } from "@/components/forms/form-layout";
 import { SelectInput } from "@/components/forms/selection-field";
 import { FieldLabel } from "@/components/forms/input-field";
 import {
@@ -111,7 +112,7 @@ export function SettingsPage({
         />
         <List darkMode={darkMode}>
           <ListItem darkMode={darkMode} className="items-start">
-            <div className="grid w-full gap-2 sm:max-w-sm">
+            <FormFieldStack className="w-full sm:max-w-sm">
               <FieldLabel darkMode={darkMode} label={messages.themeLabel}>
                 <SelectInput
                   darkMode={darkMode}
@@ -125,10 +126,10 @@ export function SettingsPage({
                   }
                 />
               </FieldLabel>
-            </div>
+            </FormFieldStack>
           </ListItem>
           <ListItem darkMode={darkMode} className="items-start">
-            <div className="grid w-full gap-2 sm:max-w-sm">
+            <FormFieldStack className="w-full sm:max-w-sm">
               <FieldLabel darkMode={darkMode} label={messages.languageLabel}>
                 <SelectInput
                   darkMode={darkMode}
@@ -147,10 +148,10 @@ export function SettingsPage({
                   {messages.languageSupport}
                 </SupportingText>
               )}
-            </div>
+            </FormFieldStack>
           </ListItem>
           <ListItem darkMode={darkMode} className="items-start">
-            <div className="grid w-full gap-2 sm:max-w-sm">
+            <FormFieldStack className="w-full sm:max-w-sm">
               <FieldLabel darkMode={darkMode} label={messages.timeFormatLabel}>
                 <SelectInput
                   darkMode={darkMode}
@@ -164,10 +165,10 @@ export function SettingsPage({
                   }
                 />
               </FieldLabel>
-            </div>
+            </FormFieldStack>
           </ListItem>
           <ListItem darkMode={darkMode} className="items-start">
-            <div className="grid w-full gap-2 sm:max-w-sm">
+            <FormFieldStack className="w-full sm:max-w-sm">
               <FieldLabel darkMode={darkMode} label={messages.timeZoneLabel}>
                 <SelectInput
                   darkMode={darkMode}
@@ -177,7 +178,7 @@ export function SettingsPage({
                   onChange={() => undefined}
                 />
               </FieldLabel>
-            </div>
+            </FormFieldStack>
           </ListItem>
         </List>
       </Panel>

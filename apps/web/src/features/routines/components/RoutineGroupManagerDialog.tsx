@@ -3,6 +3,7 @@ import { Edit3, Plus } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
 import { secondaryButtonBorderColorClass } from "@/components/color";
+import { textAreaMinHeightMdClass } from "@/components/control-layout";
 import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import {
   CrudEditorDialog,
@@ -236,7 +237,7 @@ function RoutineGroupFormDialog({
       >
         <TextArea
           darkMode={darkMode}
-          className="min-h-24"
+          className={textAreaMinHeightMdClass}
           value={groupDraft.description}
           maxLength={500}
           disabled={pending}

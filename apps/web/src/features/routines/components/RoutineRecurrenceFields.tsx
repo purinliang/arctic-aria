@@ -1,6 +1,7 @@
 // Routines Page - Routine Recurrence Fields.
 import type { Dispatch, SetStateAction } from "react";
 import { formatDateKey } from "@/components/forms/date-format";
+import { FormSection } from "@/components/forms/form-layout";
 import { FieldLabel } from "@/components/forms/input-field";
 import { NumberInput } from "@/components/forms/number-field";
 import { SelectInput } from "@/components/forms/selection-field";
@@ -36,7 +37,7 @@ export function RoutineRecurrenceFields({
   const selectedOption = recurrenceOptionFromRule(draft);
 
   return (
-    <div className="grid gap-3">
+    <FormSection>
       <FieldLabel darkMode={darkMode} label={messages.editor.recurrence}>
         <SelectInput
           darkMode={darkMode}
@@ -84,7 +85,7 @@ export function RoutineRecurrenceFields({
         messages={messages}
         dateMessages={formMessages.datePicker}
       />
-    </div>
+    </FormSection>
   );
 }
 

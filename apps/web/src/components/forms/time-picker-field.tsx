@@ -124,7 +124,7 @@ export function TimePickerField({
         <Button
           darkMode={darkMode}
           tone="ghost"
-          size="icon-sm"
+          size="icon"
           className="absolute right-1 top-1/2 -translate-y-1/2"
           aria-label={messages.clear}
           icon={<X className="h-3.5 w-3.5" />}
