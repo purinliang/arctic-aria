@@ -55,7 +55,9 @@ Duration: 1_3_months
 <!-- Legal task fields: Title, Description, Start date, Deadline. -->
 <!-- Legal duration values: 1_3_months, 3_6_months, 6_12_months, 1_3_years. -->
 <!-- Each field is single-line "Field: value"; multiline values are not supported. -->
-<!-- Timeline is either duration with Duration, or deadline with Deadline. -->`,
+<!-- Timeline is either duration with Duration, or deadline with Deadline. -->
+<!-- Plan milestone dates as a realistic sequence. Do not start every milestone on the project start date unless the work truly runs in parallel. -->
+<!-- Put externally constrained work early enough to leave buffer for people, organizations, bookings, approvals, tests, documents, shipping, and waiting time. -->`,
   routines: `Routine: Morning walk
 
 Description: A short walk to start the day.
@@ -120,6 +122,8 @@ function developerImportInstructionFor(target: DeveloperImportTarget) {
       "Supported timeline types are duration and deadline.",
       "Supported duration values are 1_3_months, 3_6_months, 6_12_months, and 1_3_years.",
       "If my requirement uses another duration, choose the closest supported duration; if unclear, use 3_6_months.",
+      "Plan milestone start dates and deadlines as a realistic sequence. Do not put every milestone on the project start date unless the work truly runs in parallel.",
+      "When deadlines depend on physical-world constraints, other people, organizations, bookings, approvals, tests, documents, shipping, or waiting time, schedule those tasks and milestone deadlines early enough to leave buffer before the final project deadline.",
       "You may include multiple Project blocks in one document.",
     ].join("\n");
   }

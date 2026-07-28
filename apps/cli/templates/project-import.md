@@ -49,3 +49,5 @@ Duration: 1_3_months
 <!-- Legal duration values: 1_3_months, 3_6_months, 6_12_months, 1_3_years. -->
 <!-- Each field is single-line "Field: value"; multiline values are not supported. -->
 <!-- Timeline is either duration with Duration, or deadline with Deadline. -->
+<!-- Plan milestone dates as a realistic sequence. Do not start every milestone on the project start date unless the work truly runs in parallel. -->
+<!-- Put externally constrained work early enough to leave buffer for people, organizations, bookings, approvals, tests, documents, shipping, and waiting time. -->
