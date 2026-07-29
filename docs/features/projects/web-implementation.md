@@ -305,8 +305,8 @@ Dialog shell:
   full-width button stable and do not show a loading icon
 - existing milestone and task edit dialogs also show a full-width secondary
   `Delete` button below `Save`
-- existing project edit dialogs move `Delete` into the header ellipsis menu
-  beside `Template`; the footer stays focused on `Save`
+- existing project edit dialogs move `Delete` into the header ellipsis action
+  menu beside `Template`; the footer stays focused on `Save`
 - `Delete` opens shared `ConfirmDialog`; confirmation uses the standard primary
   button style, changes to static `Deleting...` while pending, avoids animated
   dots in the compact auto-width button, and deletes only after backend success

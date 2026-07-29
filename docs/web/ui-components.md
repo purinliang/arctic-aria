@@ -116,6 +116,13 @@ styling for these header create buttons. Use a more specific label, such as
 `New task`, only when the surrounding row or section does not already name the
 created object clearly.
 
+## Action Menu
+
+`action-menu.tsx` owns compact menu popovers opened by icon-only action
+buttons. Use it for command lists such as dialog header overflow actions. Action
+menus should not show a title inside the popup, and rows should stay text-only
+unless the menu has enough actions that icons materially improve scanning.
+
 ## Icon
 
 Use `lucide-react` icons for normal UI icons when a suitable icon exists.

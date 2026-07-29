@@ -1,7 +1,8 @@
 // Projects Page - Project Editor Dialog.
-import { FileText, MoreHorizontal, Trash2 } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
+import { ActionMenu, ActionMenuItem } from "@/components/action-menu";
 import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import { CrudEditorDialog } from "@/components/dialog";
 import { Button } from "@/components/button";
@@ -9,7 +10,6 @@ import {
   textAreaMinHeightLgClass,
   textAreaMinHeightSmClass,
 } from "@/components/control-layout";
-import { FloatingPopover, PopoverDismissLayer } from "@/components/floating-popover";
 import { FormSection } from "@/components/forms/form-layout";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
@@ -158,46 +158,34 @@ function ProjectEditorMenu({
         onClick={() => setOpen((current) => !current)}
       />
       {open ? (
-        <>
-          <PopoverDismissLayer
-            label={messages.template.close}
-            onDismiss={() => setOpen(false)}
-          />
-          <FloatingPopover
-            title={messages.template.menuLabel}
-            className="w-48 p-2"
-            bodyClassName="gap-1"
-          >
-            {onTemplate ? (
-              <Button
-                darkMode={darkMode}
-                tone="ghost"
-                className="w-full justify-start"
-                icon={<FileText size={14} aria-hidden="true" />}
-                onClick={() => {
-                  setOpen(false);
-                  onTemplate();
-                }}
-              >
-                {messages.template.menuLabel}
-              </Button>
-            ) : null}
-            {onDelete ? (
-              <Button
-                darkMode={darkMode}
-                tone="ghost"
-                className="w-full justify-start"
-                icon={<Trash2 size={14} aria-hidden="true" />}
-                onClick={() => {
-                  setOpen(false);
-                  onDelete();
-                }}
-              >
-                {messages.common.delete}
-              </Button>
-            ) : null}
-          </FloatingPopover>
-        </>
+        <ActionMenu
+          label={messages.template.menuAriaLabel}
+          closeLabel={messages.template.close}
+          onDismiss={() => setOpen(false)}
+        >
+          {onTemplate ? (
+            <ActionMenuItem
+              darkMode={darkMode}
+              onClick={() => {
+                setOpen(false);
+                onTemplate();
+              }}
+            >
+              {messages.template.menuLabel}
+            </ActionMenuItem>
+          ) : null}
+          {onDelete ? (
+            <ActionMenuItem
+              darkMode={darkMode}
+              onClick={() => {
+                setOpen(false);
+                onDelete();
+              }}
+            >
+              {messages.common.delete}
+            </ActionMenuItem>
+          ) : null}
+        </ActionMenu>
       ) : null}
     </div>
   );
