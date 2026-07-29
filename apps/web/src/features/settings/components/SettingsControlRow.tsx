@@ -70,7 +70,7 @@ export function SettingsControlValue({
   return (
     <span
       className={cx(
-        "block w-full min-w-0 truncate text-left text-base font-normal leading-5 text-[var(--aa-primary-text)] sm:text-right",
+        "block w-full min-w-0 truncate text-left text-base font-normal leading-6 text-[var(--aa-primary-text)] sm:text-right",
         className,
       )}
     >
