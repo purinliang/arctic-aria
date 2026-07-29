@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import {
-  secondaryButtonDividerColorClass,
+  listDividerColorClass,
   secondaryTextColorClass,
 } from "./color";
 import { Button } from "./button";
@@ -21,7 +21,7 @@ export function List({
     <div
       className={cx(
         "overflow-hidden rounded-b-md",
-        secondaryButtonDividerColorClass,
+        listDividerColorClass,
         className,
       )}
     >

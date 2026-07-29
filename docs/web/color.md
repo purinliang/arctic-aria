@@ -42,6 +42,7 @@ roles:
 | Page | `--aa-page-bg` | use text roles | n/a | n/a | n/a | n/a | n/a | n/a | n/a |
 | Panel | `--aa-panel-bg` | use text roles | use secondary button border | `--aa-panel-hover-bg` | n/a | n/a | n/a | n/a | n/a |
 | Panel header | `--aa-panel-header-bg` | use text roles | use secondary button border | n/a | n/a | n/a | n/a | n/a | n/a |
+| List divider | n/a | n/a | `--aa-list-divider-border` | n/a | n/a | n/a | n/a | n/a | n/a |
 | Primary button | `--aa-primary-button-bg` | `--aa-primary-button-text` | `--aa-primary-button-hover-bg` | `--aa-primary-button-hover-bg` | `--aa-primary-button-hover-text` | `--aa-primary-button-hover-bg` | `--aa-primary-button-disabled-bg` | `--aa-primary-button-disabled-text` | `--aa-primary-button-disabled-bg` |
 | Secondary button | `--aa-secondary-button-bg` | `--aa-secondary-button-text` | `--aa-secondary-button-border` | `--aa-secondary-button-hover-bg` | `--aa-secondary-button-hover-text` | `--aa-secondary-button-hover-border` | `--aa-secondary-button-disabled-bg` | `--aa-secondary-button-disabled-text` | `--aa-secondary-button-disabled-border` |
 | Text input | `--aa-text-input-bg` | `--aa-text-input-text` | `--aa-text-input-border` | `--aa-text-input-hover-bg` | `--aa-text-input-hover-text` | `--aa-text-input-hover-border` | `--aa-text-input-disabled-bg` | `--aa-text-input-disabled-text` | `--aa-text-input-disabled-border` |
@@ -91,7 +92,8 @@ direct text entry.
 | `formButtonControlClass` | Secondary button-like input control |
 | `toneClass`, `statusMessageClass` | Status tone exception |
 | `secondaryTextColorClass` | Secondary text |
-| `secondaryButtonDividerColorClass`, `secondaryButtonBorderColorClass` | Secondary button border |
+| `listDividerColorClass` | List divider |
+| `secondaryButtonBorderColorClass` | Secondary button border |
 | `AppShell`, `appShellClass` | Page |
 | `Sidebar` | Panel |
 | `ArcticAriaLogo` | Inherits parent |
@@ -157,6 +159,9 @@ direct text entry.
   roles, unless the row is actually a button.
 - `--aa-panel-hover-bg` must stay visually weaker than
   `--aa-panel-header-bg` in both light and dark mode.
+- `--aa-list-divider-border` must stay visually weaker than
+  `--aa-secondary-button-border`, which is the current strong panel and control
+  outline color.
 - Project title breadcrumb hover uses panel hover roles because it behaves like
   a title affordance rather than a normal product button.
 
@@ -174,6 +179,8 @@ direct text entry.
   disabled treatment.
 - Disabled input controls should keep a visible secondary border while using
   disabled secondary background and text tokens.
+- List row dividers must use `--aa-list-divider-border`, not the stronger
+  secondary button or panel outline border.
 - Do not create a new color role for every component.
 - Selected, active, checked, and current states should reuse primary or
   secondary button roles unless a future design explicitly adds a separate

@@ -392,6 +392,10 @@ rows are compact, while the first row keeps the larger top padding and the last
 row keeps the larger bottom padding automatically. Feature rows should not
 hand-code first/last padding.
 
+List dividers use the weaker list-divider border role, not the stronger panel
+outline border. Panel borders should remain visually stronger than dividers
+between rows.
+
 For normal title, main-content, and supporting-metadata rows, use
 `ListItemContent` with its `title`, `main`, and `support` slots. Use
 `ListItemTitle`, `ListItemDescription`, and `ListItemSupportingText` inside

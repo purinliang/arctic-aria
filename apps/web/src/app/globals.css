@@ -154,6 +154,7 @@
   --aa-panel-bg: var(--aa-gray-1-25);
   --aa-panel-hover-bg: var(--gray-2);
   --aa-panel-header-bg: var(--aa-gray-2-25);
+  --aa-list-divider-border: var(--gray-5);
   --aa-primary-text: var(--gray-12);
   --aa-secondary-text: var(--gray-11);
   --aa-primary-button-bg: var(--blue-9);
