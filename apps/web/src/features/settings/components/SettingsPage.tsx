@@ -2,7 +2,7 @@
 
 // Settings Page.
 import { Info, LoaderCircle, LogOut, Settings, UserRound } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import {
   shouldShowExpectedDatabaseVersion,
@@ -25,16 +25,12 @@ import type {
   TimeFormatPreference,
   UserPreferences,
 } from "@/features/settings/preferences";
-import { formatTimeZoneOffset } from "@/features/settings/time-zones";
 import type {
   NotificationMessages,
   SettingsMessages,
   VersionStatusMessages,
 } from "@/messages/app-messages";
-import type {
-  LanguagePreference,
-  SupportedLanguage,
-} from "@/messages/languages";
+import type { LanguagePreference } from "@/messages/languages";
 import { DiscordBindingSettings } from "./DiscordBindingSettings";
 import { DiscordIcon } from "./DiscordIcon";
 import { SettingsControlRow, SettingsControlValue } from "./SettingsControlRow";
@@ -44,7 +40,6 @@ export function SettingsPage({
   currentUserId,
   currentUserIsAdmin,
   currentUsername,
-  browserTimeZone,
   darkMode,
   languagePreference,
   logoutPending,
@@ -56,7 +51,6 @@ export function SettingsPage({
   onPreferenceOpenAttempt,
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
-  resolvedLanguage,
   showErrorNotification,
   showSuccessNotification,
   themePreference,
@@ -68,7 +62,6 @@ export function SettingsPage({
   currentUserId: string;
   currentUserIsAdmin: boolean;
   currentUsername: string;
-  browserTimeZone: string;
   darkMode: boolean;
   languagePreference: LanguagePreference;
   logoutPending: boolean;
@@ -80,7 +73,6 @@ export function SettingsPage({
   onPreferenceOpenAttempt: (preference: keyof UserPreferences) => boolean;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
-  resolvedLanguage: SupportedLanguage;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
   themePreference: ThemePreference;
@@ -102,14 +94,7 @@ export function SettingsPage({
     { value: "12h", label: messages.timeFormatOptions.twelveHour },
     { value: "24h", label: messages.timeFormatOptions.twentyFourHour },
   ];
-  const timeZoneOptions = buildTimeZoneOptions({
-    browserTimeZone,
-    messages,
-  });
-  const timeZoneSupport = messages.timeZoneSystemDescription(
-    browserTimeZone,
-    formatTimeZoneOffset(browserTimeZone),
-  );
+  const timeZoneOptions = buildTimeZoneOptions(messages);
   const [developerModeEnabled, setDeveloperModeEnabled] = useState(false);
   const showDeveloperTools = currentUserIsAdmin && developerModeEnabled;
 
@@ -147,24 +132,18 @@ export function SettingsPage({
             title={messages.languageLabel}
             support={messages.languageDescription}
             control={
-              <SettingsSelectControl
-                support={
-                  resolvedLanguage === "en" ? null : messages.languageSupport
+              <SelectInput
+                darkMode={darkMode}
+                aria-label={messages.languageLabel}
+                value={languagePreference}
+                options={languageOptions}
+                onChange={(value) =>
+                  onLanguagePreferenceChange(value as LanguagePreference)
                 }
-              >
-                <SelectInput
-                  darkMode={darkMode}
-                  aria-label={messages.languageLabel}
-                  value={languagePreference}
-                  options={languageOptions}
-                  onChange={(value) =>
-                    onLanguagePreferenceChange(value as LanguagePreference)
-                  }
-                  onOpenAttempt={() =>
-                    onPreferenceOpenAttempt("languagePreference")
-                  }
-                />
-              </SettingsSelectControl>
+                onOpenAttempt={() =>
+                  onPreferenceOpenAttempt("languagePreference")
+                }
+              />
             }
           />
           <SettingsControlRow
@@ -191,16 +170,14 @@ export function SettingsPage({
             title={messages.timeZoneLabel}
             support={messages.timeZoneDescription}
             control={
-              <SettingsSelectControl support={timeZoneSupport}>
-                <SelectInput
-                  darkMode={darkMode}
-                  aria-label={messages.timeZoneLabel}
-                  value="system"
-                  options={timeZoneOptions}
-                  disabled
-                  onChange={() => undefined}
-                />
-              </SettingsSelectControl>
+              <SelectInput
+                darkMode={darkMode}
+                aria-label={messages.timeZoneLabel}
+                value="system"
+                options={timeZoneOptions}
+                disabled
+                onChange={() => undefined}
+              />
             }
           />
         </List>
@@ -331,42 +308,13 @@ export function SettingsPage({
   );
 }
 
-function buildTimeZoneOptions({
-  browserTimeZone,
-  messages,
-}: {
-  browserTimeZone: string;
-  messages: SettingsMessages;
-}) {
+function buildTimeZoneOptions(messages: SettingsMessages) {
   return [
     {
       value: "system",
       label: messages.timeZoneOptions.system,
-      description: messages.timeZoneSystemDescription(
-        browserTimeZone,
-        formatTimeZoneOffset(browserTimeZone),
-      ),
     },
   ];
-}
-
-function SettingsSelectControl({
-  children,
-  support,
-}: {
-  children: ReactNode;
-  support?: ReactNode;
-}) {
-  return (
-    <div className="grid w-full gap-1">
-      {children}
-      {support ? (
-        <ListItemSupportingText className="block px-0.5">
-          {support}
-        </ListItemSupportingText>
-      ) : null}
-    </div>
-  );
 }
 
 function HiddenDatabaseVersionRow({

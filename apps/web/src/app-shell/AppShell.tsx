@@ -18,7 +18,7 @@ import { cx } from "@/components/utils";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { AppMessages } from "@/messages/app-messages";
-import type { LanguagePreference, SupportedLanguage } from "@/messages/languages";
+import type { LanguagePreference } from "@/messages/languages";
 import { refreshAfterDeveloperImport } from "@/features/developer/import-refresh";
 import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
 import type {
@@ -44,7 +44,6 @@ import { Sidebar } from "./Sidebar";
 
 export function AppShell({
   currentUser,
-  browserTimeZone,
   darkMode,
   languagePreference,
   messages,
@@ -52,7 +51,6 @@ export function AppShell({
   onPreferenceOpenAttempt,
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
-  resolvedLanguage,
   resolvedTimeZone,
   themePreference,
   timeFormatPreference,
@@ -65,7 +63,6 @@ export function AppShell({
   showSuccessNotification,
 }: {
   currentUser: AuthUser;
-  browserTimeZone: string;
   darkMode: boolean;
   languagePreference: LanguagePreference;
   messages: AppMessages;
@@ -73,7 +70,6 @@ export function AppShell({
   onPreferenceOpenAttempt: (preference: keyof UserPreferences) => boolean;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
-  resolvedLanguage: SupportedLanguage;
   resolvedTimeZone: string;
   themePreference: ThemePreference;
   timeFormatPreference: TimeFormatPreference;
@@ -425,8 +421,6 @@ export function AppShell({
               darkMode={darkMode}
               languagePreference={languagePreference}
               logoutPending={logoutPending}
-              browserTimeZone={browserTimeZone}
-              resolvedLanguage={resolvedLanguage}
               messages={messages.settings}
               notificationMessages={messages.notifications}
               themePreference={themePreference}

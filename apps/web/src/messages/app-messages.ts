@@ -183,7 +183,7 @@ const englishMessages = {
       refreshStatusDescription: "Try loading the Discord status again.",
       refreshStatusTitle: "Refresh status",
       sendTest: "Send Test Message",
-      testMessageDescription: "Check whether Arctic Aria can send you a DM.",
+      testMessageDescription: "Check whether Aria can send you a DM.",
       testMessageTitle: "Direct messages",
       title: "Discord",
       unbind: "Disconnect",
@@ -271,7 +271,6 @@ const englishMessages = {
       simplifiedChinese: "简体中文",
       system: "Use system setting",
     },
-    languageSupport: "Some translations are incomplete and machine translated.",
     notifications: {
       preferencesLoadFailed: "Settings unavailable",
       preferencesSaveFailed: "Settings not saved",
@@ -299,8 +298,6 @@ const englishMessages = {
     },
     timeZoneLabel: "Timezone",
     timeZoneDescription: "Used for local-day scheduling and reminders.",
-    timeZoneSystemDescription: (timeZone: string, offset: string) =>
-      `Browser timezone: ${timeZone} · ${offset}`,
     timeZoneOptions: {
       system: "Use system setting",
     },
@@ -508,7 +505,7 @@ const simplifiedChineseMessages: AppMessages = {
     accountTitle: "账户",
     appInformationDescription: "版本和开发工具。",
     appInformationTitle: "关于",
-    displayNameDescription: "在 Arctic Aria 中显示。",
+    displayNameDescription: "在北极阿莉雅中显示。",
     displayNameTitle: "显示名称",
     discord: {
       bindInstructionActive:
@@ -536,7 +533,7 @@ const simplifiedChineseMessages: AppMessages = {
       connectionStatusTitle: "绑定状态",
       connectionUnknown: "未知",
       confirmUnbindDescription:
-        "这会解除 Discord 与此 Arctic Aria 账户的绑定。之后可以使用新代码再次绑定。",
+        "这会解除 Discord 与此北极阿莉雅账户的绑定。之后可以使用新代码再次绑定。",
       confirmUnbindTitle: "解绑 Discord？",
       copyCode: "复制代码",
       description: "绑定状态和私信测试。",
@@ -567,7 +564,7 @@ const simplifiedChineseMessages: AppMessages = {
       refreshStatusDescription: "重新加载 Discord 状态。",
       refreshStatusTitle: "刷新状态",
       sendTest: "发送测试消息",
-      testMessageDescription: "确认 Arctic Aria 可以给你发送私信。",
+      testMessageDescription: "确认阿莉雅可以给你发送私信。",
       testMessageTitle: "Discord 私信",
       title: "Discord",
       unbind: "解绑",
@@ -653,7 +650,6 @@ const simplifiedChineseMessages: AppMessages = {
       simplifiedChinese: "简体中文",
       system: "使用系统设置",
     },
-    languageSupport: "部分翻译尚未完成，且由机器翻译。",
     notifications: {
       preferencesLoadFailed: "设置不可用",
       preferencesSaveFailed: "设置未保存",
@@ -680,8 +676,6 @@ const simplifiedChineseMessages: AppMessages = {
     },
     timeZoneLabel: "时区",
     timeZoneDescription: "用于本地日期安排和提醒。",
-    timeZoneSystemDescription: (timeZone, offset) =>
-      `浏览器时区：${timeZone} · ${offset}`,
     timeZoneOptions: {
       system: "使用系统设置",
     },
