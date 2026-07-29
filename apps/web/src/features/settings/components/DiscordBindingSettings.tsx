@@ -58,9 +58,12 @@ export function DiscordBindingSettings({
       initialCache?.pendingBindingCode ?? null,
     );
   const [discordLoading, setDiscordLoading] = useState(!initialCache);
+  const [cacheReady, setCacheReady] = useState(initialCache !== null);
   const [discordAction, setDiscordAction] = useState<DiscordAction | null>(null);
   const [confirmUnbindOpen, setConfirmUnbindOpen] = useState(false);
   const [bindingStatusFailed, setBindingStatusFailed] = useState(false);
+  const cacheReadyRef = useRef(cacheReady);
+  const localActionVersionRef = useRef(0);
   const messagesRef = useRef(messages);
   const pendingBindingCodeRef = useRef(pendingBindingCode);
   const showErrorNotificationRef = useRef(showErrorNotification);
@@ -77,6 +80,10 @@ export function DiscordBindingSettings({
   }, [messages]);
 
   useEffect(() => {
+    cacheReadyRef.current = cacheReady;
+  }, [cacheReady]);
+
+  useEffect(() => {
     pendingBindingCodeRef.current = pendingBindingCode;
   }, [pendingBindingCode]);
 
@@ -85,15 +92,32 @@ export function DiscordBindingSettings({
   }, [showErrorNotification]);
 
   const refreshDiscordBinding = useCallback(
-    async (showFailure = true) => {
+    async (
+      showFailure = true,
+      {
+        showLoading = true,
+      }: {
+        showLoading?: boolean;
+      } = {},
+    ) => {
       const activeMessages = messagesRef.current;
       const activeShowErrorNotification = showErrorNotificationRef.current;
+      const refreshLocalActionVersion = localActionVersionRef.current;
 
-      setDiscordLoading(true);
-      setDiscordAction("load");
+      if (showLoading) {
+        setDiscordLoading(true);
+        setDiscordAction("load");
+      }
 
       try {
         const result = await getDiscordBinding();
+
+        if (
+          !showLoading &&
+          refreshLocalActionVersion !== localActionVersionRef.current
+        ) {
+          return false;
+        }
 
         if (result.ok) {
           const nextPendingBindingCode = result.binding
@@ -103,6 +127,7 @@ export function DiscordBindingSettings({
           setDiscordBinding(result.binding);
           setPendingBindingCode(nextPendingBindingCode);
           setBindingStatusFailed(false);
+          setCacheReady(true);
           writeDiscordBindingCache(currentUserId, {
             binding: result.binding,
             pendingBindingCode: nextPendingBindingCode,
@@ -111,7 +136,9 @@ export function DiscordBindingSettings({
           return true;
         }
 
-        setBindingStatusFailed(true);
+        if (showFailure || !cacheReadyRef.current) {
+          setBindingStatusFailed(true);
+        }
 
         if (showFailure) {
           notifyActionFailure({
@@ -125,7 +152,9 @@ export function DiscordBindingSettings({
 
         return false;
       } catch {
-        setBindingStatusFailed(true);
+        if (showFailure || !cacheReadyRef.current) {
+          setBindingStatusFailed(true);
+        }
 
         if (showFailure) {
           showActionTransportFailure({
@@ -137,26 +166,25 @@ export function DiscordBindingSettings({
 
         return false;
       } finally {
-        setDiscordLoading(false);
-        setDiscordAction(null);
+        if (showLoading) {
+          setDiscordLoading(false);
+          setDiscordAction(null);
+        }
       }
     },
     [currentUserId, notificationMessages],
   );
 
   useEffect(() => {
-    if (initialCache) {
-      return;
-    }
-
     const timeoutId = window.setTimeout(() => {
-      void refreshDiscordBinding(false);
+      void refreshDiscordBinding(false, { showLoading: !initialCache });
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
   }, [initialCache, refreshDiscordBinding]);
 
   async function handleCreateCode() {
+    localActionVersionRef.current += 1;
     setDiscordAction("bind");
 
     try {
@@ -199,6 +227,7 @@ export function DiscordBindingSettings({
   }
 
   async function handleCancelCode() {
+    localActionVersionRef.current += 1;
     setDiscordAction("cancel");
 
     try {
@@ -237,6 +266,7 @@ export function DiscordBindingSettings({
   }
 
   async function handleUnbind() {
+    localActionVersionRef.current += 1;
     setDiscordAction("unbind");
 
     try {

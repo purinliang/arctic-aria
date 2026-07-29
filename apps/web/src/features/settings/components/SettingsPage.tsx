@@ -246,6 +246,7 @@ export function SettingsPage({
         />
         <List darkMode={darkMode}>
           <DiscordBindingSettings
+            key={currentUserId}
             currentUserId={currentUserId}
             darkMode={darkMode}
             messages={messages}
