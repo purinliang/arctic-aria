@@ -2,7 +2,7 @@
 
 // Settings Page.
 import { Info, LoaderCircle, LogOut, Settings, UserRound } from "lucide-react";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import {
   shouldShowExpectedDatabaseVersion,
@@ -145,30 +145,26 @@ export function SettingsPage({
           <SettingsControlRow
             darkMode={darkMode}
             title={messages.languageLabel}
-            support={
-              <>
-                {messages.languageDescription}
-                {resolvedLanguage === "en" ? null : (
-                  <>
-                    <br />
-                    {messages.languageSupport}
-                  </>
-                )}
-              </>
-            }
+            support={messages.languageDescription}
             control={
-              <SelectInput
-                darkMode={darkMode}
-                aria-label={messages.languageLabel}
-                value={languagePreference}
-                options={languageOptions}
-                onChange={(value) =>
-                  onLanguagePreferenceChange(value as LanguagePreference)
+              <SettingsSelectControl
+                support={
+                  resolvedLanguage === "en" ? null : messages.languageSupport
                 }
-                onOpenAttempt={() =>
-                  onPreferenceOpenAttempt("languagePreference")
-                }
-              />
+              >
+                <SelectInput
+                  darkMode={darkMode}
+                  aria-label={messages.languageLabel}
+                  value={languagePreference}
+                  options={languageOptions}
+                  onChange={(value) =>
+                    onLanguagePreferenceChange(value as LanguagePreference)
+                  }
+                  onOpenAttempt={() =>
+                    onPreferenceOpenAttempt("languagePreference")
+                  }
+                />
+              </SettingsSelectControl>
             }
           />
           <SettingsControlRow
@@ -193,16 +189,18 @@ export function SettingsPage({
           <SettingsControlRow
             darkMode={darkMode}
             title={messages.timeZoneLabel}
-            support={timeZoneSupport}
+            support={messages.timeZoneDescription}
             control={
-              <SelectInput
-                darkMode={darkMode}
-                aria-label={messages.timeZoneLabel}
-                value="system"
-                options={timeZoneOptions}
-                disabled
-                onChange={() => undefined}
-              />
+              <SettingsSelectControl support={timeZoneSupport}>
+                <SelectInput
+                  darkMode={darkMode}
+                  aria-label={messages.timeZoneLabel}
+                  value="system"
+                  options={timeZoneOptions}
+                  disabled
+                  onChange={() => undefined}
+                />
+              </SettingsSelectControl>
             }
           />
         </List>
@@ -350,6 +348,25 @@ function buildTimeZoneOptions({
       ),
     },
   ];
+}
+
+function SettingsSelectControl({
+  children,
+  support,
+}: {
+  children: ReactNode;
+  support?: ReactNode;
+}) {
+  return (
+    <div className="grid w-full gap-1">
+      {children}
+      {support ? (
+        <ListItemSupportingText className="block px-0.5">
+          {support}
+        </ListItemSupportingText>
+      ) : null}
+    </div>
+  );
 }
 
 function HiddenDatabaseVersionRow({

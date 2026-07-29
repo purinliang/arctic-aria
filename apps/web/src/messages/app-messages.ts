@@ -298,8 +298,7 @@ const englishMessages = {
       twentyFourHour: "24-hour",
     },
     timeZoneLabel: "Timezone",
-    timeZoneDescription: (timeZone: string, offset: string) =>
-      `${timeZone} · ${offset}`,
+    timeZoneDescription: "Used for local-day scheduling and reminders.",
     timeZoneSystemDescription: (timeZone: string, offset: string) =>
       `Browser timezone: ${timeZone} · ${offset}`,
     timeZoneOptions: {
@@ -680,7 +679,7 @@ const simplifiedChineseMessages: AppMessages = {
       twentyFourHour: "24 小时制",
     },
     timeZoneLabel: "时区",
-    timeZoneDescription: (timeZone, offset) => `${timeZone} · ${offset}`,
+    timeZoneDescription: "用于本地日期安排和提醒。",
     timeZoneSystemDescription: (timeZone, offset) =>
       `浏览器时区：${timeZone} · ${offset}`,
     timeZoneOptions: {
