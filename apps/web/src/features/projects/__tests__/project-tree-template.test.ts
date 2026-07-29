@@ -438,6 +438,68 @@ duration: 1_3_months
   });
 });
 
+test("project tree template edit preview includes created task rows", () => {
+  const currentProject = projectRecord({
+    milestones: [milestoneRecord({ id: "milestone-1" })],
+  });
+  const parsed = parseProjectTreeTemplateMarkdown(`# Project Tree Template
+## Project
+project_id: project-1
+op: update
+title: Find a job
+objective: Land a backend role.
+start_date: 2026-07-29
+timeline: duration
+duration: 3_6_months
+
+## Top-level Tasks
+- task_id:
+  op: create
+  title: New top task
+
+## Milestones
+### Milestone: Applications
+milestone_id: milestone-1
+op: update
+title: Applications
+objective:
+start_date: 2026-07-29
+timeline: duration
+duration: 1_3_months
+
+#### Tasks
+- task_id:
+  op: create
+  title: New milestone task
+`);
+
+  assert.equal(parsed.ok, true);
+
+  if (!parsed.ok) {
+    return;
+  }
+
+  const normalized = normalizeProjectTreeTemplateDocument({
+    document: parsed.data,
+    currentProject,
+    createId: () => "",
+  });
+
+  assert.equal(normalized.ok, true);
+
+  if (!normalized.ok) {
+    return;
+  }
+
+  assert.deepEqual(
+    normalized.data.preview.items
+      .filter((item) => item.operation === "create")
+      .map((item) => item.title),
+    ["New top task", "New milestone task"],
+  );
+  assert.equal(normalized.data.preview.counts.create, 2);
+});
+
 test("project tree template apply updates, creates, moves, deletes, and preserves rows", async () => {
   const service = createProjectService({
     projects: new InMemoryProjectRepository({

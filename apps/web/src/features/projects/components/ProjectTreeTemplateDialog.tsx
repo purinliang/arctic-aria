@@ -18,6 +18,7 @@ import {
   ListItem,
   ListItemTitle,
 } from "@/components/list";
+import { ScrollArea } from "@/components/scroll-area";
 import { SupportingText } from "@/components/text";
 import { PendingText } from "@/components/loading";
 import { cx } from "@/components/utils";
@@ -143,7 +144,7 @@ export function ProjectTreeTemplateDialog({
           messages={messages}
           onChange={setActiveTab}
         />
-        <FormSections className="min-h-0 flex-1 grid-rows-[minmax(0,1fr)]">
+        <FormSections className={templateBodyClass}>
           {activeTab === "edit" ? (
             <FormSection className="min-h-0 grid-rows-[minmax(0,1fr)_auto]">
               <TextArea
@@ -230,7 +231,9 @@ const emptyProjectTemplateDraft: ProjectInput = {
 };
 const templateDialogClass =
   "flex h-[min(46rem,calc(100vh-4rem))] min-h-[34rem] flex-col overflow-hidden";
-const templatePanelFillClass = "h-full min-h-[20rem]";
+const templateBodyClass =
+  "min-h-0 flex-1 grid-rows-[minmax(0,1fr)] overflow-hidden";
+const templatePanelFillClass = "h-full min-h-0";
 
 function TemplateTabs({
   darkMode,
@@ -317,38 +320,49 @@ function TemplatePreview({
           </SupportingText>
         ) : null}
       </div>
-      <List darkMode={darkMode} className="min-h-0 overflow-auto">
-        {preview.items.map((item, index) => {
-          const depth = previewItemDepth(item);
+      <ScrollArea
+        className="relative h-full min-h-0 overflow-hidden"
+        viewportClassName="h-full overflow-x-hidden"
+        contentClassName="min-w-0"
+        refreshKey={`${preview.items.length}-${preview.ignoredFieldCount}`}
+      >
+        <List darkMode={darkMode}>
+          {preview.items.map((item, index) => {
+            const depth = previewItemDepth(item);
 
-          return (
-            <ListItem
-              darkMode={darkMode}
-              key={`${item.subject}-${index}`}
-              className="min-w-0 items-center py-2"
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-2">
-                <span
-                  className={cx("block shrink-0", previewIndentClass(depth))}
-                  aria-hidden="true"
-                />
-                <span className="shrink-0 text-sm font-semibold leading-5 text-[var(--aa-secondary-text)]">
-                  {messages.subjects[item.subject]}:
-                </span>
-                <ListItemTitle className="min-w-0 flex-1" size="compact" truncate>
-                  {item.title}
-                </ListItemTitle>
-                <OperationBadge
-                  darkMode={darkMode}
-                  operation={item.operation}
-                  label={messages.operations[item.operation]}
-                  text={messages.operationBadges[item.operation]}
-                />
-              </div>
-            </ListItem>
-          );
-        })}
-      </List>
+            return (
+              <ListItem
+                darkMode={darkMode}
+                key={`${item.subject}-${index}`}
+                className="min-w-0 items-center py-2"
+              >
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <span
+                    className={cx("block shrink-0", previewIndentClass(depth))}
+                    aria-hidden="true"
+                  />
+                  <span className="shrink-0 text-sm font-semibold leading-5 text-[var(--aa-secondary-text)]">
+                    {messages.subjects[item.subject]}:
+                  </span>
+                  <ListItemTitle
+                    className="min-w-0 flex-1"
+                    size="compact"
+                    truncate
+                  >
+                    {item.title}
+                  </ListItemTitle>
+                  <OperationBadge
+                    darkMode={darkMode}
+                    operation={item.operation}
+                    label={messages.operations[item.operation]}
+                    text={messages.operationBadges[item.operation]}
+                  />
+                </div>
+              </ListItem>
+            );
+          })}
+        </List>
+      </ScrollArea>
     </FormSection>
   );
 }
