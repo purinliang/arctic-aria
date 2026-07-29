@@ -88,6 +88,7 @@ function normalizeMilestoneTasks(
       description: validation.description,
       startDate: validation.startDate,
       deadlineDate: validation.deadlineDate,
+      estimatedDurationMinutes: validation.estimatedDurationMinutes,
     });
   }
 
@@ -131,6 +132,7 @@ function taskImportToInput(task: ProjectImportTask, today: string): ProjectTaskI
     description: task.description ?? "",
     startDate: task.startDate ?? today,
     deadlineDate: task.deadlineDate ?? "",
+    estimatedDurationMinutes: task.estimatedDurationMinutes?.toString() ?? "",
   };
 }
 

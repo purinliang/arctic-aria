@@ -3,6 +3,7 @@ import {
   isValidProjectDate,
   validateRequiredProjectDate,
 } from "./project-date-validation.ts";
+import { validateOptionalEstimatedDurationMinutes } from "../estimated-duration.ts";
 import type {
   ProjectDurationRange,
   ProjectTimelineType,
@@ -42,6 +43,7 @@ export type ProjectTaskInput = {
   description: string;
   startDate: string;
   deadlineDate: string;
+  estimatedDurationMinutes?: string | null;
 };
 
 export type ProjectActionResult<T> =
@@ -282,6 +284,10 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
   const milestoneId = input.milestoneId.trim() || null;
   const startDate = input.startDate.trim() || null;
   const deadlineDate = input.deadlineDate.trim() || null;
+  const estimatedDuration = validateOptionalEstimatedDurationMinutes(
+    input.estimatedDurationMinutes,
+    "task",
+  );
 
   if (title.length < 1) {
     return {
@@ -321,6 +327,10 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
     };
   }
 
+  if (!estimatedDuration.ok) {
+    return estimatedDuration;
+  }
+
   if (startDate && !validateDate(startDate)) {
     return invalidParameter({
       message: "Start date must be a real date in YYYY-MM-DD format.",
@@ -357,6 +367,7 @@ export function validateProjectTaskInput(input: ProjectTaskInput) {
     description: description || null,
     startDate,
     deadlineDate,
+    estimatedDurationMinutes: estimatedDuration.value,
   };
 }
 

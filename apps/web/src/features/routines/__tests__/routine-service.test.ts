@@ -18,8 +18,9 @@ function routine(input: Partial<RoutineRecord> & Pick<RoutineRecord, "id" | "tit
     groupName: input.groupName ?? null,
     title: input.title,
     description: input.description ?? `${input.title} description`,
-    firstStartDate: input.firstStartDate ?? "2026-07-01",
+    startDate: input.startDate ?? "2026-07-01",
     endDate: input.endDate ?? null,
+    estimatedDurationMinutes: input.estimatedDurationMinutes ?? null,
     createdAt: input.createdAt ?? new Date("2026-07-01T00:00:00.000Z"),
     updatedAt: input.updatedAt ?? new Date("2026-07-01T00:00:00.000Z"),
     deletedAt: input.deletedAt ?? null,
@@ -64,13 +65,13 @@ test("generates today's daily routine instance", async () => {
   );
 });
 
-test("generates a once routine only on the first start date", async () => {
+test("generates a once routine only on the start date", async () => {
   const repository = new InMemoryRoutineRepository({
     routines: [
       routine({
         id: "routine-1",
         title: "One-time check",
-        firstStartDate: "2026-07-12",
+        startDate: "2026-07-12",
         rule: {
           id: "routine-1-rule",
           routineId: "routine-1",
@@ -111,7 +112,7 @@ test("generates today's routine instance using the routine timezone", async () =
       routine({
         id: "routine-1",
         title: "Local morning check",
-        firstStartDate: "2026-07-22",
+        startDate: "2026-07-22",
         rule: {
           id: "routine-1-rule",
           routineId: "routine-1",
@@ -150,7 +151,7 @@ test("keeps routine instances on the previous scheduled day before 04:00", async
       routine({
         id: "routine-1",
         title: "Previous scheduled day",
-        firstStartDate: "2026-07-21",
+        startDate: "2026-07-21",
         rule: {
           id: "routine-1-rule",
           routineId: "routine-1",
@@ -167,7 +168,7 @@ test("keeps routine instances on the previous scheduled day before 04:00", async
       routine({
         id: "routine-2",
         title: "New calendar day",
-        firstStartDate: "2026-07-22",
+        startDate: "2026-07-22",
         rule: {
           id: "routine-2-rule",
           routineId: "routine-2",
@@ -208,8 +209,9 @@ test("saving a routine creates today's instance immediately", async () => {
     groupId: null,
     title: "New morning check",
     description: "New morning check description",
-    firstStartDate: "2026-07-12",
+    startDate: "2026-07-12",
     endDate: null,
+    estimatedDurationMinutes: null,
     rule: {
       ruleType: "daily",
       intervalValue: null,
@@ -236,7 +238,7 @@ test("monthly by date supports yearly renewal intervals", async () => {
       routine({
         id: "routine-1",
         title: "Yearly bill",
-        firstStartDate: "2025-07-12",
+        startDate: "2025-07-12",
         rule: {
           id: "routine-1-rule",
           routineId: "routine-1",

@@ -65,7 +65,7 @@ export function ProjectMilestoneManagerDialog({
           closeLabel={messages.closeMilestoneManager}
           onClose={onClose}
         />
-        <section className="grid gap-2">
+        <section className="grid gap-[var(--aa-field-label-gap)]">
           <div className="flex items-center gap-3">
             <SectionTitle>{messages.milestonesTitle}</SectionTitle>
             <Button

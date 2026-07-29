@@ -188,7 +188,7 @@ export class PostgresRoutineRepository implements RoutineRepository {
         SELECT id
         FROM routine_groups
         WHERE user_id = $1
-          AND id = $13::uuid
+          AND id = $14::uuid
           AND deleted_at IS NULL
         LIMIT 1
       ),
@@ -198,12 +198,13 @@ export class PostgresRoutineRepository implements RoutineRepository {
           group_id,
           title,
           description,
-          first_start_date,
+          start_date,
           end_date,
+          estimated_duration_minutes,
           created_at,
           updated_at
         )
-        VALUES ($1, (SELECT id FROM valid_group), $2, $3, $4, $5, $12, $12)
+        VALUES ($1, (SELECT id FROM valid_group), $2, $3, $4, $5, $13, $12, $12)
         RETURNING *
       ),
       inserted_rule AS (
@@ -237,7 +238,7 @@ export class PostgresRoutineRepository implements RoutineRepository {
         SELECT id
         FROM routine_groups
         WHERE user_id = $1
-          AND id = $13::uuid
+          AND id = $14::uuid
           AND deleted_at IS NULL
         LIMIT 1
       ),
@@ -246,15 +247,16 @@ export class PostgresRoutineRepository implements RoutineRepository {
         SET
           title = $2,
           description = $3,
-          first_start_date = $4,
+          start_date = $4,
           end_date = $5,
+          estimated_duration_minutes = $13,
           updated_at = $12,
           group_id = CASE
-            WHEN $13::uuid IS NULL THEN NULL
+            WHEN $14::uuid IS NULL THEN NULL
             ELSE (SELECT id FROM valid_group)
           END
         WHERE user_id = $1
-          AND id = $14
+          AND id = $15
           AND deleted_at IS NULL
         RETURNING *
       ),
@@ -275,11 +277,11 @@ export class PostgresRoutineRepository implements RoutineRepository {
       updated_pending_instances AS (
         UPDATE routine_instances
         SET
-          scheduled_time = COALESCE($10::time, $15::time),
+          scheduled_time = COALESCE($10::time, $16::time),
           remind_at = (
             (
               routine_instances.scheduled_date::timestamp
-              + COALESCE($10::time, $15::time)
+              + COALESCE($10::time, $16::time)
             ) AT TIME ZONE $11
           ) - interval '30 minutes',
           reminded_at = NULL,

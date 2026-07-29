@@ -20,6 +20,7 @@ type ParameterFailureMessages = {
   chooseRequired?: (field: string) => string;
   duplicateName?: (subject: string) => string;
   inUse?: (subject: string) => string;
+  invalidDurationMinutes?: (field: string, limit?: number) => string;
   invalidFormatDate?: (field: string) => string;
   invalidFormatTime?: (field: string) => string;
   invalidValue?: (field: string) => string;
@@ -41,7 +42,7 @@ export type ActionFailureNotificationMessages = {
 
 type FieldDisplay = {
   article?: "a" | "an";
-  format?: "date" | "time";
+  format?: "date" | "duration_minutes" | "time";
   label: string;
   requiredVerb?: "choose" | "enter" | "select";
   subjectPrefix?: boolean;
@@ -90,10 +91,16 @@ const fieldDisplays: Record<string, FieldDisplay> = {
     label: "expected duration",
     requiredVerb: "choose",
   },
-  first_start_date: {
+  estimated_duration: {
+    article: "an",
+    format: "duration_minutes",
+    label: "estimated duration",
+    requiredVerb: "enter",
+  },
+  start_date: {
     article: "a",
     format: "date",
-    label: "first start date",
+    label: "start date",
     requiredVerb: "select",
   },
   group: {
@@ -119,12 +126,6 @@ const fieldDisplays: Record<string, FieldDisplay> = {
   rule: {
     label: "rule",
     subjectPrefix: true,
-  },
-  start_date: {
-    article: "a",
-    format: "date",
-    label: "start date",
-    requiredVerb: "select",
   },
   text: {
     label: "text",
@@ -240,6 +241,13 @@ export function structuredActionFailureMessage(
   if (result.reason === "invalid_format") {
     const format = fieldDisplay(result.field).format;
 
+    if (format === "duration_minutes") {
+      return parameterMessages?.invalidDurationMinutes?.(
+        field,
+        result.limit,
+      ) ?? durationMinutesMessage(field, result.limit);
+    }
+
     if (format === "date") {
       return parameterMessages?.invalidFormatDate?.(field) ??
         `${field} must be a real date in YYYY-MM-DD format.`;
@@ -279,6 +287,14 @@ export function structuredActionFailureMessage(
       subject,
       result.limit,
     ) ?? limitReachedMessage(action, subject, result.limit);
+  }
+
+  if (
+    result.reason === "invalid_value" &&
+    fieldDisplay(result.field).format === "duration_minutes"
+  ) {
+    return parameterMessages?.invalidDurationMinutes?.(field, result.limit) ??
+      durationMinutesMessage(field, result.limit);
   }
 
   return parameterMessages?.invalidValue?.(field) ?? `${field} is invalid.`;
@@ -354,6 +370,12 @@ function tooShortMessage(field: string, limit: number | undefined) {
   return limit === undefined
     ? `${field} is too short.`
     : `${field} must be at least ${limit} characters.`;
+}
+
+function durationMinutesMessage(field: string, limit: number | undefined) {
+  return limit === undefined
+    ? `${field} must be a positive whole number of minutes.`
+    : `${field} must be a positive whole number up to ${limit} minutes.`;
 }
 
 function limitReachedMessage(

@@ -49,8 +49,9 @@ export type RoutineDefinition = {
   groupName: string | null;
   title: string;
   description: string | null;
-  firstStartDate: string;
+  startDate: string;
   endDate: string | null;
+  estimatedDurationMinutes: number | null;
   ruleType: RoutineRuleType;
   intervalValue: number | null;
   weekdays: number[] | null;

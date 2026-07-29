@@ -21,12 +21,14 @@
         {
           "title": "Prepare resume",
           "description": "Rewrite backend experience bullets.",
+          "estimatedDurationMinutes": 45,
           "startDate": "2026-07-22",
           "deadlineDate": "2026-07-30"
         },
         {
           "title": "Apply to first role",
           "description": "Send one careful application.",
+          "estimatedDurationMinutes": 30,
           "startDate": "2026-07-23",
           "deadlineDate": "2026-08-01"
         }
@@ -44,6 +46,7 @@
         {
           "title": "Practice system design",
           "description": "Review one system design topic.",
+          "estimatedDurationMinutes": 60,
           "startDate": "2026-08-01",
           "deadlineDate": "2026-08-07"
         }

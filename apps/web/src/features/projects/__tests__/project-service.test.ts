@@ -78,6 +78,7 @@ test("importing a project tree creates milestones and linked tasks", async () =>
             description: "Rewrite backend experience bullets.",
             startDate: "2026-07-22",
             deadlineDate: "2026-07-30",
+            estimatedDurationMinutes: null,
           },
         ],
       },
@@ -114,6 +115,7 @@ test("saving a task can omit a milestone", async () => {
     description: "Rewrite backend experience bullets.",
     startDate: "2026-07-14",
     deadlineDate: "2026-07-16",
+    estimatedDurationMinutes: null,
   });
   const projects = await service.listProjects(userId);
 
@@ -152,6 +154,7 @@ test("saving a task can place it under an explicit milestone", async () => {
     description: "Rewrite backend experience bullets.",
     startDate: "2026-07-14",
     deadlineDate: "2026-07-16",
+    estimatedDurationMinutes: null,
   });
   const projects = await service.listProjects(userId);
 
@@ -189,6 +192,7 @@ test("archiving a milestone keeps its tasks without a milestone", async () => {
     description: "Rewrite backend experience bullets.",
     startDate: "2026-07-14",
     deadlineDate: "2026-07-16",
+    estimatedDurationMinutes: null,
   });
 
   const archived = await service.archiveMilestone(userId, milestoneId ?? "");
@@ -221,6 +225,7 @@ test("archiving a task removes it from normal project views", async () => {
     description: "Rewrite backend experience bullets.",
     startDate: "2026-07-14",
     deadlineDate: "2026-07-16",
+    estimatedDurationMinutes: null,
   });
   const taskId = (await service.listProjects(userId))[0].tasks[0].id;
 

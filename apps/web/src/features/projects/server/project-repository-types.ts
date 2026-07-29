@@ -17,6 +17,7 @@ export type ProjectTaskRecord = {
   status: ProjectTaskStatus;
   startDate: string | null;
   deadlineDate: string | null;
+  estimatedDurationMinutes: number | null;
   sortOrder: number;
   createdAt: Date;
   updatedAt: Date;
@@ -90,6 +91,7 @@ export type SaveProjectTaskInput = {
   description: string | null;
   startDate: string | null;
   deadlineDate: string | null;
+  estimatedDurationMinutes: number | null;
   occurredAt: Date;
 };
 

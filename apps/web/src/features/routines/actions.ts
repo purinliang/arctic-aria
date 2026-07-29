@@ -101,8 +101,9 @@ function toRoutineDefinition(routine: RoutineRecord): RoutineDefinition {
     groupName: routine.groupName,
     title: routine.title,
     description: routine.description,
-    firstStartDate: routine.firstStartDate,
+    startDate: routine.startDate,
     endDate: routine.endDate,
+    estimatedDurationMinutes: routine.estimatedDurationMinutes,
     ruleType: routine.rule.ruleType,
     intervalValue: routine.rule.intervalValue,
     weekdays: routine.rule.weekdays,
@@ -192,8 +193,9 @@ export async function saveRoutine(
       groupId: validation.groupId,
       title: validation.title,
       description: validation.description,
-      firstStartDate: validation.firstStartDate,
+      startDate: validation.startDate,
       endDate: validation.endDate,
+      estimatedDurationMinutes: validation.estimatedDurationMinutes,
       rule: validation.rule,
     });
 

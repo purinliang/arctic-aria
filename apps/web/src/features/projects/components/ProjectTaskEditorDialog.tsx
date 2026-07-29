@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import { CrudEditorDialog } from "@/components/dialog";
 import { DatePickerField } from "@/components/forms/date-picker-field";
+import { EstimatedDurationMinutesField } from "@/components/forms/estimated-duration-field";
 import { FormGrid, FormSection } from "@/components/forms/form-layout";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { SelectInput } from "@/components/forms/selection-field";
@@ -199,6 +200,19 @@ function TaskMeta({
             }
           />
         </FieldLabel>
+        <EstimatedDurationMinutesField
+          darkMode={darkMode}
+          value={draft.estimatedDurationMinutes ?? ""}
+          disabled={pending}
+          label={messages.task.estimatedDuration}
+          placeholder={messages.task.estimatedDurationPlaceholder}
+          onChange={(estimatedDurationMinutes) =>
+            setDraft((current) => ({
+              ...current,
+              estimatedDurationMinutes,
+            }))
+          }
+        />
       </FormGrid>
     </FormSection>
   );

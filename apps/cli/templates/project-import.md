@@ -16,11 +16,13 @@ Duration: 1_3_months
 
 - Title: Prepare resume
   Description: Rewrite backend experience bullets.
+  Estimated duration minutes: 45
   Start date: 2026-07-22
   Deadline: 2026-07-30
 
 - Title: Apply to first role
   Description: Send one careful application.
+  Estimated duration minutes: 30
   Start date: 2026-07-23
   Deadline: 2026-08-01
 
@@ -35,6 +37,7 @@ Duration: 1_3_months
 
 - Title: Practice system design
   Description: Review one system design topic.
+  Estimated duration minutes: 60
   Start date: 2026-08-01
   Deadline: 2026-08-07
 
@@ -45,7 +48,8 @@ Duration: 1_3_months
 <!-- Project import rules: one Project block creates one project. Repeat the Project heading to import multiple projects. Keep tasks nested under the milestone they belong to. -->
 <!-- Legal project fields: Objective, Start date, Timeline, Duration, Deadline. -->
 <!-- Legal milestone fields: Objective, Start date, Timeline, Duration, Deadline. -->
-<!-- Legal task fields: Title, Description, Start date, Deadline. -->
+<!-- Legal task fields: Title, Description, Estimated duration minutes, Start date, Deadline. -->
+<!-- Estimated duration minutes is optional and must be a whole number from 1 to 1440. Leave it empty if the estimate is unknown. -->
 <!-- Legal duration values: 1_3_months, 3_6_months, 6_12_months, 1_3_years. -->
 <!-- Each field is single-line "Field: value"; multiline values are not supported. -->
 <!-- Timeline is either duration with Duration, or deadline with Deadline. -->

@@ -142,7 +142,7 @@ export function AuthForm({
       >
         <SectionTitle>{title}</SectionTitle>
 
-        <FormFields className="mt-5">
+        <FormFields className="mt-[var(--aa-form-section-gap)]">
           <AuthTextField
             darkMode={darkMode}
             label={messages.fields.username}
