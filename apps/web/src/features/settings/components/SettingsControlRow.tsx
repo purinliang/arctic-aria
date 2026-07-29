@@ -30,6 +30,7 @@ export function SettingsControlRow({
       )}
     >
       <ListItemContent
+        className="grid gap-0.5"
         title={
           <ListItemTitle
             weight="normal"
