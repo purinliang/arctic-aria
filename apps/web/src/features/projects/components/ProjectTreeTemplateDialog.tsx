@@ -398,10 +398,10 @@ function TemplatePreview({
       <div className="grid min-w-0 gap-1">
         <SupportingText darkMode={darkMode}>
           {messages.previewCounts(
-            preview.counts.create,
-            preview.counts.update,
-            preview.counts.delete,
-            preview.counts.preserve,
+            previewCount(preview.counts.create),
+            previewCount(preview.counts.update),
+            previewCount(preview.counts.delete),
+            previewCount(preview.counts.preserve),
           )}
         </SupportingText>
         {preview.ignoredFieldCount > 0 ? (
@@ -458,6 +458,10 @@ function TemplatePreview({
 }
 
 const templatePreviewSectionClass = "h-full min-h-0 overflow-hidden";
+
+function previewCount(value: number | undefined) {
+  return value ?? 0;
+}
 
 function OperationBadge({
   darkMode,
