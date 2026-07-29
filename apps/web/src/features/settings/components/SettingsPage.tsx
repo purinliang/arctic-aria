@@ -1,13 +1,14 @@
 "use client";
 
 // Settings Page.
-import { Info, Settings } from "lucide-react";
+import { Info, LoaderCircle, LogOut, Settings, UserRound } from "lucide-react";
 import { useState } from "react";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import {
   shouldShowExpectedDatabaseVersion,
   type DatabaseVersionStatus,
 } from "@/components/app-metadata";
+import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { SelectInput } from "@/components/forms/selection-field";
 import {
@@ -15,6 +16,7 @@ import {
   ListItemSupportingText,
   ListItemTitle,
 } from "@/components/list";
+import { PendingText } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { Switch } from "@/components/switch";
 import { DeveloperToolsPanel } from "@/features/performance/components/DeveloperToolsPanel";
@@ -38,15 +40,19 @@ import { DiscordIcon } from "./DiscordIcon";
 import { SettingsControlRow, SettingsControlValue } from "./SettingsControlRow";
 
 export function SettingsPage({
+  currentUserDisplayName,
   currentUserId,
   currentUserIsAdmin,
+  currentUsername,
   browserTimeZone,
   darkMode,
   languagePreference,
+  logoutPending,
   messages,
   notificationMessages,
   onDeveloperImportComplete,
   onLanguagePreferenceChange,
+  onLogout,
   onPreferenceOpenAttempt,
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
@@ -58,15 +64,19 @@ export function SettingsPage({
   versionMessages,
   versionStatus,
 }: {
+  currentUserDisplayName: string;
   currentUserId: string;
   currentUserIsAdmin: boolean;
+  currentUsername: string;
   browserTimeZone: string;
   darkMode: boolean;
   languagePreference: LanguagePreference;
+  logoutPending: boolean;
   messages: SettingsMessages;
   notificationMessages: NotificationMessages;
   onDeveloperImportComplete: (target: DeveloperImportTarget) => void;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
+  onLogout: () => void;
   onPreferenceOpenAttempt: (preference: keyof UserPreferences) => boolean;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
@@ -193,6 +203,61 @@ export function SettingsPage({
                 disabled
                 onChange={() => undefined}
               />
+            }
+          />
+        </List>
+      </Panel>
+      <Panel darkMode={darkMode} className="min-w-0">
+        <CardHeader
+          darkMode={darkMode}
+          icon={<UserRound size={18} aria-hidden="true" />}
+          title={messages.accountTitle}
+          description={messages.accountDescription}
+        />
+        <List darkMode={darkMode}>
+          <SettingsControlRow
+            darkMode={darkMode}
+            title={messages.usernameTitle}
+            support={messages.usernameDescription}
+            control={
+              <SettingsControlValue>{currentUsername}</SettingsControlValue>
+            }
+          />
+          <SettingsControlRow
+            darkMode={darkMode}
+            title={messages.displayNameTitle}
+            support={messages.displayNameDescription}
+            control={
+              <SettingsControlValue>
+                {currentUserDisplayName}
+              </SettingsControlValue>
+            }
+          />
+          <SettingsControlRow
+            darkMode={darkMode}
+            title={messages.signOutTitle}
+            support={messages.signOutDescription}
+            control={
+              <Button
+                darkMode={darkMode}
+                disabled={logoutPending}
+                icon={<LogOut size={14} aria-hidden="true" />}
+                loading={logoutPending}
+                loadingIcon={
+                  <LoaderCircle
+                    className="animate-spin"
+                    size={14}
+                    aria-hidden="true"
+                  />
+                }
+                onClick={onLogout}
+              >
+                <PendingText
+                  active={logoutPending}
+                  idleText={messages.signOut}
+                  pendingText={messages.signingOut}
+                />
+              </Button>
             }
           />
         </List>

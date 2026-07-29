@@ -59,12 +59,6 @@ const englishMessages = {
       routines: "Review repeatable checks for daily life.",
       settings: "Manage preferences, bindings, and app information.",
     },
-    sidebar: {
-      darkMode: "Dark mode",
-      lightMode: "Light mode",
-      signOut: "Sign out",
-      signingOut: "Signing out",
-    },
   },
   auth: {
     brandName: "Arctic Aria",
@@ -121,8 +115,12 @@ const englishMessages = {
   },
   settings: {
     description: "Theme, language, and app information.",
+    accountDescription: "Current profile and sign-out.",
+    accountTitle: "Account",
     appInformationDescription: "Version and development tools.",
     appInformationTitle: "About",
+    displayNameDescription: "Shown inside Arctic Aria.",
+    displayNameTitle: "Display name",
     discord: {
       bindInstructionActive:
         "Copy {code}, then run {command} in Discord. {status}",
@@ -192,6 +190,12 @@ const englishMessages = {
       unbindDescription: "Stop Discord idea capture and direct messages.",
       unbindTitle: "Disconnect Discord",
     },
+    signOut: "Sign out",
+    signOutDescription: "Leave this browser session.",
+    signOutTitle: "Sign out",
+    signingOut: "Signing out",
+    usernameDescription: "Used to sign in.",
+    usernameTitle: "Username",
     developerImport: {
       ambiguousInputMessage:
         "Paste either project templates or routine templates, not both.",
@@ -446,12 +450,6 @@ const simplifiedChineseMessages: AppMessages = {
       routines: "照看重复出现的日常。",
       settings: "管理偏好、绑定和应用信息。",
     },
-    sidebar: {
-      darkMode: "深色模式",
-      lightMode: "浅色模式",
-      signOut: "退出登录",
-      signingOut: "正在退出登录",
-    },
   },
   auth: {
     brandName: "北极阿莉雅",
@@ -507,8 +505,12 @@ const simplifiedChineseMessages: AppMessages = {
   },
   settings: {
     description: "主题、语言和应用信息。",
+    accountDescription: "当前资料和退出登录。",
+    accountTitle: "账户",
     appInformationDescription: "版本和开发工具。",
     appInformationTitle: "关于",
+    displayNameDescription: "在 Arctic Aria 中显示。",
+    displayNameTitle: "显示名称",
     discord: {
       bindInstructionActive:
         "复制 {code}，然后在 Discord 中运行 {command}。{status}",
@@ -573,6 +575,12 @@ const simplifiedChineseMessages: AppMessages = {
       unbindDescription: "停止 Discord 想法捕捉和私信消息。",
       unbindTitle: "解绑 Discord",
     },
+    signOut: "退出登录",
+    signOutDescription: "结束当前浏览器会话。",
+    signOutTitle: "退出登录",
+    signingOut: "正在退出登录",
+    usernameDescription: "用于登录。",
+    usernameTitle: "用户名",
     developerImport: {
       ambiguousInputMessage: "请只粘贴项目模板或日常模板，不要混在一起。",
       copyProjectTemplate: "复制项目模板",

@@ -1,7 +1,7 @@
 "use client";
 
 // Settings Page - Discord Binding Code Status.
-import { Copy } from "lucide-react";
+import { Copy, LoaderCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import type { SettingsMessages } from "@/messages/app-messages";
@@ -96,7 +96,15 @@ export function DiscordBindingCodeStatus({
           <Button
             darkMode={darkMode}
             disabled={action !== null && action !== "cancel"}
+            icon={<X size={14} aria-hidden="true" />}
             loading={action === "cancel"}
+            loadingIcon={
+              <LoaderCircle
+                className="animate-spin"
+                size={14}
+                aria-hidden="true"
+              />
+            }
             onClick={onCancel}
           >
             {messages.discord.cancel}

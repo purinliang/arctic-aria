@@ -5,16 +5,12 @@ import {
   LayoutDashboard,
   Lightbulb,
   FolderKanban,
-  LogOut,
-  Moon,
   Settings,
-  Sun,
   X,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { ArcticAriaLogo } from "@/components/arctic-aria-logo";
 import { Button } from "@/components/button";
-import { PendingText } from "@/components/loading";
 import { ScrollArea } from "@/components/scroll-area";
 import type { DashboardView } from "@/features/dashboard/types";
 import type { AppShellMessages } from "@/messages/app-messages";
@@ -32,12 +28,9 @@ export function Sidebar({
   selectedProjectId,
   pinnedProjects,
   messages,
-  logoutPending,
   onClose,
   onViewChange,
   onProjectShortcut,
-  onThemeChange,
-  onLogout,
 }: {
   open: boolean;
   darkMode: boolean;
@@ -45,12 +38,9 @@ export function Sidebar({
   selectedProjectId: string | null;
   pinnedProjects: SidebarPinnedProject[];
   messages: AppShellMessages;
-  logoutPending: boolean;
   onClose: () => void;
   onViewChange: (view: DashboardView) => void;
   onProjectShortcut: (projectId: string) => void;
-  onThemeChange: (darkMode: boolean) => void;
-  onLogout: () => void;
 }) {
   function selectView(view: DashboardView) {
     onViewChange(view);
@@ -76,7 +66,6 @@ export function Sidebar({
         <SidebarFrame
           darkMode={darkMode}
           open={open}
-          logoutPending={logoutPending}
           activeView={activeView}
           selectedProjectId={selectedProjectId}
           pinnedProjects={pinnedProjects}
@@ -85,15 +74,12 @@ export function Sidebar({
           onClose={onClose}
           onSelectView={selectView}
           onProjectShortcut={onProjectShortcut}
-          onThemeChange={onThemeChange}
-          onLogout={onLogout}
         />
       </div>
 
       <SidebarFrame
         darkMode={darkMode}
         open
-        logoutPending={logoutPending}
         activeView={activeView}
         selectedProjectId={selectedProjectId}
         pinnedProjects={pinnedProjects}
@@ -101,8 +87,6 @@ export function Sidebar({
         onClose={onClose}
         onSelectView={selectView}
         onProjectShortcut={onProjectShortcut}
-        onThemeChange={onThemeChange}
-        onLogout={onLogout}
       />
     </>
   );
@@ -111,7 +95,6 @@ export function Sidebar({
 function SidebarFrame({
   darkMode,
   open,
-  logoutPending,
   activeView,
   selectedProjectId,
   pinnedProjects,
@@ -120,12 +103,9 @@ function SidebarFrame({
   onClose,
   onSelectView,
   onProjectShortcut,
-  onThemeChange,
-  onLogout,
 }: {
   darkMode: boolean;
   open: boolean;
-  logoutPending: boolean;
   activeView: DashboardView;
   selectedProjectId: string | null;
   pinnedProjects: SidebarPinnedProject[];
@@ -134,8 +114,6 @@ function SidebarFrame({
   onClose: () => void;
   onSelectView: (view: DashboardView) => void;
   onProjectShortcut: (projectId: string) => void;
-  onThemeChange: (darkMode: boolean) => void;
-  onLogout: () => void;
 }) {
   return (
     <aside
@@ -231,38 +209,6 @@ function SidebarFrame({
             darkMode={darkMode}
             onClick={() => onSelectView("settings")}
           />
-          <div className="my-2 border-t border-[var(--aa-secondary-button-border)]" aria-hidden="true" />
-          <SidebarItem
-            icon={
-              darkMode ? (
-                <Moon size={18} aria-hidden="true" />
-              ) : (
-                <Sun size={18} aria-hidden="true" />
-              )
-            }
-            label={
-              darkMode ? messages.sidebar.darkMode : messages.sidebar.lightMode
-            }
-            darkMode={darkMode}
-            onClick={() => onThemeChange(!darkMode)}
-          />
-          <SidebarItem
-            icon={<LogOut size={18} aria-hidden="true" />}
-            label={
-              logoutPending
-                ? (
-                    <PendingText
-                      active
-                      idleText={messages.sidebar.signOut}
-                      pendingText={messages.sidebar.signingOut}
-                    />
-                  )
-                : messages.sidebar.signOut
-            }
-            darkMode={darkMode}
-            disabled={logoutPending}
-            onClick={onLogout}
-          />
         </nav>
       </ScrollArea>
     </aside>
@@ -298,7 +244,7 @@ function SidebarItem({
       tone="ghost"
       active={active}
       size="md-lg"
-      className="w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md"
+      className="w-full min-w-0 justify-start overflow-hidden rounded-none text-left"
       disabled={disabled}
       icon={itemIcon}
       onClick={onClick}
