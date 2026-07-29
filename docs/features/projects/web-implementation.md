@@ -153,12 +153,13 @@ ProjectsPage
 The project list and project detail are separate user-visible pages. Do not use
 a permanent side-by-side list/detail grid for this flow.
 
-`ProjectTreeTemplateDialog` uses a tall fixed dialog frame with an internal
-scrolling Template tab and Preview tab. Preview rows use the shared list item
-component and render as `Project: title`, indented `Milestone: title`, and
-further-indented `Task: title`, with operation chips after the truncated title.
-Rows whose parsed editable fields match the existing stored row show a neutral
-`Preserve` chip instead of an update chip.
+`ProjectTreeTemplateDialog` delegates the shared copy, parse, preview, save,
+height, tab, notification, and scrollbar behavior to `TemplateEditorDialog`.
+Project-specific preview rows use the shared list item component and render as
+`Project: title`, indented `Milestone: title`, and further-indented `Task:
+title`, with operation chips after the truncated title. Rows whose parsed
+editable fields match the existing stored row show a neutral `Preserve` chip
+instead of an update chip.
 
 ### Project List Layout
 
@@ -328,7 +329,8 @@ Project Template:
 - uses Template and Preview tabs so input and preview are not displayed at the
   same time
 - both Template and Preview tabs use fixed-height scrollable bodies
-- the Preview tab is disabled until the current template has parsed
+- clicking the Preview tab parses the current template when needed, matching the
+  footer Preview action
 - the Template tab footer shows `Copy` and primary `Preview` side by side
 - `Preview` validates without writing and shows a human preview summary
 - create-mode parse does not allocate persistent ids

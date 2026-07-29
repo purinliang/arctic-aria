@@ -25,9 +25,13 @@ project tree.
 - The template dialog uses tabs: Template input and Preview are not shown at
   the same time.
 - Template and Preview tab bodies use fixed-height internal scrolling.
-- The Preview tab is disabled until the current template has parsed.
+- Clicking the Preview tab parses the current template when needed, matching the
+  footer Preview action.
 - The Template tab has Copy and primary Preview actions. Save is shown only on the
   Preview tab.
+- The dialog shell uses the shared `TemplateEditorDialog` component so routine
+  and event templates can reuse the same copy, parse, preview, save, height, tab,
+  notification, and scrollbar behavior later.
 - Preview rows render as `Project: title`, `Milestone: title`, and `Task: title`
   with fixed-width indentation for tree depth and truncated titles.
 - Preview rows use full-word operation chips. Existing update rows whose editable
@@ -69,6 +73,10 @@ project tree.
 - Keep the bottom Project edit action row as Save only.
 - Add authenticated project server actions for parsing and saving project
   tree templates.
+- Project template parsing and saving are normal authenticated server actions.
+  They are not under `/api/developer/*` and do not require administrator status.
+- The previous developer import API/UI has been removed. The only remaining
+  `/api/developer/*` route is the administrator-only performance latency route.
 - Use current project, milestone, and task validation helpers for all field
   validation.
 - Add ownership checks for every non-empty project, milestone, and task id.
