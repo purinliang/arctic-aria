@@ -225,6 +225,7 @@ The dialog should include actions for:
 
 - Save
 - Delete
+- Template, in the header action menu
 
 Successful save closes the dialog and refreshes visible routine data
 immediately from the backend response; do not require a manual reload. Failed
@@ -242,6 +243,40 @@ Delete behavior:
   routine from normal views.
 - Failed delete keeps the edit dialog open and shows the backend message
   through the shared notification stack.
+
+## Routine Template
+
+The Add Routine and Edit Routine dialogs expose `Template` from the header
+action menu. The normal editor remains the primary form; the template dialog is
+for creating or editing one or more routine definitions from Markdown.
+
+Template behavior:
+
+- use the shared `TemplateEditorDialog`
+- show Template and Preview tabs instead of showing input and preview together
+- keep the input and preview bodies fixed-height and internally scrollable
+- copy the Markdown template from the Template tab
+- parse from the primary `Preview` button or by clicking the Preview tab
+- show `Save` only on the Preview tab after the current input has been parsed
+- close the template dialog and routine editor only after a successful save
+- keep both dialogs open after validation or persistence failure and show the
+  shared notification
+
+Template rows use one `## Routine` section per routine. Fields are ordered as
+`id`, `op`, then the routine editor field order: `title`, `description`,
+`group_id`, `start_date`, `end_date`, `preferred_time`,
+`estimated_duration_minutes`, `recurrence`, `fixed_interval_days`, and
+`timezone`.
+
+In Add Routine mode, every row must use `op: create` and leave `id` empty. In
+Edit Routine mode, the current routine row must keep the matching `id`, and
+additional create rows may leave `id` empty. Existing update rows whose
+editable values match the stored routine render as `Preserve`.
+
+Routine templates may assign only existing routine groups. Blank `group_id`
+means Default/no group. The generated template lists available `group_id`
+values as `id: name` lines, tells the LLM not to invent group ids, and does not
+support creating, editing, or deleting groups inside the routine template.
 
 ## Status Text
 

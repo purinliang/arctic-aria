@@ -1,5 +1,9 @@
 // Events Page - Event Editor Dialog.
+import { MoreHorizontal } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
+import { useState } from "react";
+import { ActionMenu, ActionMenuItem } from "@/components/action-menu";
+import { Button } from "@/components/button";
 import { CrudEditorDialog } from "@/components/dialog";
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import { FormGrid, FormSection } from "@/components/forms/form-layout";
@@ -22,6 +26,7 @@ export function EventEditorDialog({
   onClose,
   onSubmit,
   onDelete,
+  onTemplate,
 }: {
   darkMode: boolean;
   pending: boolean;
@@ -33,7 +38,8 @@ export function EventEditorDialog({
   setDraft: Dispatch<SetStateAction<EventInput>>;
   onClose: () => void;
   onSubmit: () => void;
-  onDelete: () => void;
+  onDelete?: () => void;
+  onTemplate?: () => void;
 }) {
   return (
     <CrudEditorDialog
@@ -44,7 +50,18 @@ export function EventEditorDialog({
       closeLabel={messages.editor.close}
       saveText={messages.editor.save}
       savingText={messages.editor.saving}
-      deleteText={draft.id ? messages.editor.delete : undefined}
+      deleteText={draft.id && !onTemplate ? messages.editor.delete : undefined}
+      headerActions={
+        onTemplate || onDelete ? (
+          <EventEditorMenu
+            darkMode={darkMode}
+            disabled={pending}
+            messages={messages.editor}
+            onTemplate={onTemplate}
+            onDelete={onDelete}
+          />
+        ) : undefined
+      }
       onClose={onClose}
       onSubmit={onSubmit}
       onDelete={draft.id ? onDelete : undefined}
@@ -74,6 +91,68 @@ export function EventEditorDialog({
         setDraft={setDraft}
       />
     </CrudEditorDialog>
+  );
+}
+
+function EventEditorMenu({
+  darkMode,
+  disabled,
+  messages,
+  onTemplate,
+  onDelete,
+}: {
+  darkMode: boolean;
+  disabled: boolean;
+  messages: EventMessages["editor"];
+  onTemplate?: () => void;
+  onDelete?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <Button
+        darkMode={darkMode}
+        tone="ghost"
+        size="icon"
+        disabled={disabled}
+        aria-label={messages.template.menuAriaLabel}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        icon={<MoreHorizontal size={16} aria-hidden="true" />}
+        onClick={() => setOpen((current) => !current)}
+      />
+      {open ? (
+        <ActionMenu
+          label={messages.template.menuAriaLabel}
+          closeLabel={messages.template.close}
+          onDismiss={() => setOpen(false)}
+        >
+          {onTemplate ? (
+            <ActionMenuItem
+              darkMode={darkMode}
+              onClick={() => {
+                setOpen(false);
+                onTemplate();
+              }}
+            >
+              {messages.template.menuLabel}
+            </ActionMenuItem>
+          ) : null}
+          {onDelete ? (
+            <ActionMenuItem
+              darkMode={darkMode}
+              onClick={() => {
+                setOpen(false);
+                onDelete();
+              }}
+            >
+              {messages.delete}
+            </ActionMenuItem>
+          ) : null}
+        </ActionMenu>
+      ) : null}
+    </div>
   );
 }
 

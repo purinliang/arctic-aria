@@ -241,7 +241,9 @@ async function defaultProjectDataLoader(userId: string) {
 }
 
 async function defaultRoutineDataLoader(userId: string) {
-  const { loadRoutineDashboardData } = await import("../routines/actions.ts");
+  const { loadRoutineDashboardData } = await import(
+    "../routines/routine-dashboard-data.ts"
+  );
 
   return loadRoutineDashboardData(userId);
 }

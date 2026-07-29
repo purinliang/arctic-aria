@@ -158,7 +158,6 @@ function ProjectTemplatePreview({
                   <OperationBadge
                     darkMode={darkMode}
                     operation={item.operation}
-                    label={messages.operations[item.operation]}
                     text={messages.operationBadges[item.operation]}
                   />
                 </div>
@@ -178,12 +177,10 @@ function previewCount(value: number | undefined) {
 function OperationBadge({
   darkMode,
   operation,
-  label,
   text,
 }: {
   darkMode: boolean;
   operation: ProjectTreeTemplateParseData["preview"]["items"][number]["operation"];
-  label: string;
   text: string;
 }) {
   return (
@@ -192,7 +189,7 @@ function OperationBadge({
         "inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded border px-1.5 text-[11px] font-semibold",
         toneClass(darkMode, operationTone(operation)),
       )}
-      aria-label={label}
+      aria-label={text}
     >
       {text}
     </span>

@@ -117,15 +117,19 @@ export function AppShell({
   const routineState = useDashboardRoutines(
     currentUser.id,
     showErrorNotification,
+    showInfoNotification,
     messages.dashboard.notifications,
     messages.routines.results,
+    messages.routines.editor.template,
     messages.notifications,
   );
   const eventState = useDashboardEvents(
     currentUser.id,
     showErrorNotification,
+    showInfoNotification,
     messages.dashboard.notifications,
     messages.events.results,
+    messages.events.editor.template,
     messages.notifications,
   );
   const memoryState = useDashboardMemories(
@@ -387,6 +391,8 @@ export function AppShell({
               pending={routineState.routineActionPending}
               onRoutineSave={routineState.saveRoutineFromPage}
               onRoutineDelete={routineState.deleteRoutineFromPage}
+              onRoutineTemplateParse={routineState.parseRoutineTemplateFromPage}
+              onRoutineTemplateApply={routineState.applyRoutineTemplateFromPage}
               onRoutineGroupSave={routineState.saveRoutineGroupFromPage}
               onRoutineGroupDelete={routineState.deleteRoutineGroupFromPage}
               messages={messages.routines}
@@ -394,6 +400,8 @@ export function AppShell({
               timeFormatPreference={timeFormatPreference}
               multipleTimezonesEnabled={false}
               resolvedTimeZone={resolvedTimeZone}
+              showErrorNotification={showErrorNotification}
+              showSuccessNotification={showSuccessNotification}
             />
           ) : activeView === "events" ? (
             <EventsPage
@@ -403,10 +411,14 @@ export function AppShell({
               pending={eventState.eventActionPending}
               onEventSave={eventState.saveEventFromPage}
               onEventDelete={eventState.deleteEventFromPage}
+              onEventTemplateParse={eventState.parseEventTemplateFromPage}
+              onEventTemplateApply={eventState.applyEventTemplateFromPage}
               messages={messages.events}
               formMessages={messages.forms}
               timeFormatPreference={timeFormatPreference}
               resolvedTimeZone={resolvedTimeZone}
+              showErrorNotification={showErrorNotification}
+              showSuccessNotification={showSuccessNotification}
             />
           ) : activeView === "ideas" ? (
             <IdeasPage

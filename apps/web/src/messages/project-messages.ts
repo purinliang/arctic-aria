@@ -143,12 +143,6 @@ export const englishProjectMessages = {
         title: string,
         location: string | null,
       ) => `${operation} ${subject}: ${title}${location ? ` · ${location}` : ""}`,
-      operations: {
-        create: "Create",
-        update: "Update",
-        delete: "Delete",
-        preserve: "Preserve",
-      },
       operationBadges: {
         create: "Create",
         update: "Update",
@@ -359,12 +353,6 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
       ignoredFields: (count) => `${count} 个不支持的模板字段已被忽略。`,
       previewItem: (operation, subject, title, location) =>
         `${operation}${subject}：${title}${location ? ` · ${location}` : ""}`,
-      operations: {
-        create: "创建",
-        update: "更新",
-        delete: "删除",
-        preserve: "保留",
-      },
       operationBadges: {
         create: "创建",
         update: "更新",
