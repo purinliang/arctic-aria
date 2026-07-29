@@ -1,6 +1,6 @@
 // Projects Page - Project Tree Template Dialog.
 import { ClipboardCopy, FileText, Save } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/button";
 import { toneClass } from "@/components/color";
 import type { Tone } from "@/components/color";
@@ -12,7 +12,7 @@ import {
   DialogPrimaryButton,
 } from "@/components/dialog";
 import { FormSection, FormSections } from "@/components/forms/form-layout";
-import { TextArea } from "@/components/forms/text-area-field";
+import { formControlClass } from "@/components/forms/form-control-style";
 import {
   List,
   ListItem,
@@ -147,19 +147,14 @@ export function ProjectTreeTemplateDialog({
         <FormSections className={templateBodyClass}>
           {activeTab === "edit" ? (
             <FormSection className="min-h-0 grid-rows-[minmax(0,1fr)_auto]">
-              <TextArea
+              <TemplateSourceEditor
                 darkMode={darkMode}
-                aria-label={messages.editTab}
-                className={cx(
-                  templatePanelFillClass,
-                  "overflow-auto font-mono text-sm leading-6",
-                )}
-                value={source}
                 disabled={busy}
+                label={messages.editTab}
                 placeholder={messages.inputPlaceholder}
-                spellCheck={false}
-                onChange={(event) => {
-                  setSource(event.target.value);
+                source={source}
+                onChange={(value) => {
+                  setSource(value);
                   setPreview(null);
                   setParsedSource("");
                   setActiveTab("edit");
@@ -235,6 +230,72 @@ const templateBodyClass =
   "min-h-0 flex-1 grid-rows-[minmax(0,1fr)] overflow-hidden";
 const templatePanelFillClass = "h-full min-h-0";
 
+function TemplateSourceEditor({
+  darkMode,
+  disabled,
+  label,
+  placeholder,
+  source,
+  onChange,
+}: {
+  darkMode: boolean;
+  disabled: boolean;
+  label: string;
+  placeholder: string;
+  source: string;
+  onChange: (source: string) => void;
+}) {
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useLayoutEffect(() => {
+    const textArea = textAreaRef.current;
+
+    if (!textArea) {
+      return;
+    }
+
+    textArea.style.height = "auto";
+    textArea.style.height = `${textArea.scrollHeight}px`;
+  }, [source]);
+
+  return (
+    <ScrollArea
+      className={cx(
+        templatePanelFillClass,
+        "relative overflow-hidden",
+        formControlClass(
+          darkMode,
+          false,
+          cx(
+            "!h-full !min-h-0 !px-0 focus-within:shadow-[inset_0_0_0_1px_var(--aa-text-input-focus-border)]",
+            disabled
+              ? "border-[var(--aa-text-input-disabled-border)] bg-[var(--aa-text-input-disabled-bg)] hover:border-[var(--aa-text-input-disabled-border)] hover:bg-[var(--aa-text-input-disabled-bg)]"
+              : null,
+          ),
+        ),
+      )}
+      viewportClassName="h-full overflow-x-hidden"
+      contentClassName="min-h-full"
+      refreshKey={source.length}
+    >
+      <textarea
+        ref={textAreaRef}
+        aria-label={label}
+        className={cx(
+          "block min-h-full w-full resize-none overflow-hidden border-0 bg-transparent px-3 py-2 font-mono text-sm leading-6 outline-none",
+          "text-[var(--aa-text-input-text)] placeholder:text-[var(--aa-text-input-placeholder-text)]",
+          "disabled:cursor-not-allowed disabled:text-[var(--aa-text-input-disabled-text)] disabled:placeholder:text-[var(--aa-text-input-disabled-text)]",
+        )}
+        value={source}
+        disabled={disabled}
+        placeholder={placeholder}
+        spellCheck={false}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </ScrollArea>
+  );
+}
+
 function TemplateTabs({
   darkMode,
   activeTab,
@@ -290,10 +351,16 @@ function TemplatePreview({
 }) {
   if (!preview) {
     return (
-      <FormSection className={cx(templatePanelFillClass, "overflow-auto")}>
-        <SupportingText darkMode={darkMode}>
-          {messages.previewEmpty}
-        </SupportingText>
+      <FormSection className={cx(templatePanelFillClass, "overflow-hidden")}>
+        <ScrollArea
+          className="relative h-full min-h-0 overflow-hidden"
+          viewportClassName="h-full overflow-x-hidden"
+          contentClassName="min-w-0"
+        >
+          <SupportingText darkMode={darkMode}>
+            {messages.previewEmpty}
+          </SupportingText>
+        </ScrollArea>
       </FormSection>
     );
   }
