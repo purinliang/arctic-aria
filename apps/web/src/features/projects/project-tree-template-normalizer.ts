@@ -85,7 +85,9 @@ function normalizeUpdateProjectTreeTemplateDocument({
   const previewItems: ProjectTreeTemplatePreviewItem[] = [
     {
       subject: "project",
-      operation: "update",
+      operation: projectCommandPreserved(project.data, currentProject)
+        ? "preserve"
+        : "update",
       title: project.data.title,
       location: null,
     },
@@ -376,4 +378,18 @@ function requireCreateOperation(
     ok: true,
     data: undefined,
   };
+}
+
+function projectCommandPreserved(
+  command: Omit<ApplyProjectTreeTemplateInput["project"], "userId" | "occurredAt">,
+  existing: ProjectRecord,
+) {
+  return (
+    command.projectId === existing.id &&
+    command.title === existing.title &&
+    command.objective === existing.objective &&
+    command.startDate === existing.startDate &&
+    command.deadlineDate === existing.deadlineDate &&
+    command.expectedDurationDays === existing.expectedDurationDays
+  );
 }

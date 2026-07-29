@@ -125,8 +125,13 @@ export const englishProjectMessages = {
       applying: "Saving...",
       previewTitle: "Preview",
       previewEmpty: "Parse the template to preview changes.",
-      previewCounts: (create: number, update: number, deleteCount: number) =>
-        `${create} create · ${update} update · ${deleteCount} delete`,
+      previewCounts: (
+        create: number,
+        update: number,
+        deleteCount: number,
+        preserve: number,
+      ) =>
+        `${create} create · ${update} update · ${deleteCount} delete · ${preserve} preserve`,
       ignoredFieldsTitle: "Template parsed with warnings",
       ignoredFields: (count: number) =>
         count === 1
@@ -142,16 +147,18 @@ export const englishProjectMessages = {
         create: "Create",
         update: "Update",
         delete: "Delete",
+        preserve: "Preserve",
       },
       operationBadges: {
-        create: "C",
-        update: "U",
-        delete: "D",
+        create: "Create",
+        update: "Update",
+        delete: "Delete",
+        preserve: "Preserve",
       },
       subjects: {
-        project: "project",
-        milestone: "milestone",
-        task: "task",
+        project: "Project",
+        milestone: "Milestone",
+        task: "Task",
       },
     },
     milestone: {
@@ -346,8 +353,8 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
       applying: "正在保存...",
       previewTitle: "预览",
       previewEmpty: "先解析模板以预览更改。",
-      previewCounts: (create, update, deleteCount) =>
-        `${create} 个创建 · ${update} 个更新 · ${deleteCount} 个删除`,
+      previewCounts: (create, update, deleteCount, preserve) =>
+        `${create} 个创建 · ${update} 个更新 · ${deleteCount} 个删除 · ${preserve} 个保留`,
       ignoredFieldsTitle: "模板解析有提醒",
       ignoredFields: (count) => `${count} 个不支持的模板字段已被忽略。`,
       previewItem: (operation, subject, title, location) =>
@@ -356,11 +363,13 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
         create: "创建",
         update: "更新",
         delete: "删除",
+        preserve: "保留",
       },
       operationBadges: {
-        create: "C",
-        update: "U",
-        delete: "D",
+        create: "创建",
+        update: "更新",
+        delete: "删除",
+        preserve: "保留",
       },
       subjects: {
         project: "项目",

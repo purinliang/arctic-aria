@@ -102,8 +102,18 @@ export function DialogHeader({
   );
 }
 
-export function DialogActionRow({ children }: { children: ReactNode }) {
-  return <FormActions grouped>{children}</FormActions>;
+export function DialogActionRow({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <FormActions grouped className={className}>
+      {children}
+    </FormActions>
+  );
 }
 
 export function DialogPrimaryButton({

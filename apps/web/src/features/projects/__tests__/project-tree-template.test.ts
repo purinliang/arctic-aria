@@ -208,6 +208,7 @@ duration: 1_3_months
     create: 4,
     update: 0,
     delete: 0,
+    preserve: 0,
   });
 
   const ids = [
@@ -359,6 +360,82 @@ duration: 3_6_months
       assert.equal(normalized.code, "project_template_project_mismatch");
     }
   }
+});
+
+test("project tree template preview marks unchanged update rows as preserve", () => {
+  const task = taskRecord({
+    id: "task-1",
+    milestoneId: "milestone-1",
+    milestoneTitle: "Applications",
+  });
+  const currentProject = projectRecord({
+    milestones: [
+      milestoneRecord({
+        id: "milestone-1",
+        tasks: [task],
+      }),
+    ],
+    tasks: [task],
+  });
+  const parsed = parseProjectTreeTemplateMarkdown(`# Project Tree Template
+## Project
+project_id: project-1
+op: update
+title: Find a job
+objective: Land a backend role.
+start_date: 2026-07-29
+timeline: duration
+duration: 3_6_months
+
+## Top-level Tasks
+
+## Milestones
+### Milestone: Applications
+milestone_id: milestone-1
+op: update
+title: Applications
+objective:
+start_date: 2026-07-29
+timeline: duration
+duration: 1_3_months
+
+#### Tasks
+- task_id: task-1
+  op: update
+  title: Prepare resume
+  description:
+  start_date:
+  deadline:
+  estimated_duration_minutes:
+`);
+
+  assert.equal(parsed.ok, true);
+
+  if (!parsed.ok) {
+    return;
+  }
+
+  const normalized = normalizeProjectTreeTemplateDocument({
+    document: parsed.data,
+    currentProject,
+  });
+
+  assert.equal(normalized.ok, true);
+
+  if (!normalized.ok) {
+    return;
+  }
+
+  assert.deepEqual(
+    normalized.data.preview.items.map((item) => item.operation),
+    ["preserve", "preserve", "preserve"],
+  );
+  assert.deepEqual(normalized.data.preview.counts, {
+    create: 0,
+    update: 0,
+    delete: 0,
+    preserve: 3,
+  });
 });
 
 test("project tree template apply updates, creates, moves, deletes, and preserves rows", async () => {

@@ -2,6 +2,9 @@ import type { ActionFailureResult } from "../../messages/action-result.ts";
 import type { ProjectDurationRange } from "./project-duration.ts";
 
 export type ProjectTreeTemplateOperation = "create" | "update" | "delete";
+export type ProjectTreeTemplatePreviewOperation =
+  | ProjectTreeTemplateOperation
+  | "preserve";
 
 export type ProjectTreeTemplateProjectDraft = {
   projectId: string;
@@ -52,7 +55,7 @@ export type ProjectTreeTemplateResult<T> =
 
 export type ProjectTreeTemplatePreviewItem = {
   subject: "project" | "milestone" | "task";
-  operation: ProjectTreeTemplateOperation;
+  operation: ProjectTreeTemplatePreviewOperation;
   title: string;
   location: string | null;
 };
@@ -60,7 +63,7 @@ export type ProjectTreeTemplatePreviewItem = {
 export type ProjectTreeTemplatePreview = {
   projectTitle: string;
   items: ProjectTreeTemplatePreviewItem[];
-  counts: Record<ProjectTreeTemplateOperation, number>;
+  counts: Record<ProjectTreeTemplatePreviewOperation, number>;
   ignoredFieldCount: number;
 };
 

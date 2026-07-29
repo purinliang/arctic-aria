@@ -141,7 +141,20 @@ export function normalizeProjectTreeTemplateMilestone({
       },
       preview: {
         subject: "milestone",
-        operation,
+        operation:
+          operation === "update" &&
+          milestoneCommandPreserved(
+            {
+              title: validation.title,
+              objective: validation.objective,
+              startDate: validation.startDate,
+              deadlineDate: validation.deadlineDate,
+              expectedDurationDays: validation.expectedDurationDays,
+            },
+            milestoneById.get(resolvedMilestoneId),
+          )
+            ? "preserve"
+            : operation,
         title: validation.title,
         location: null,
       },
@@ -254,10 +267,74 @@ export function normalizeProjectTreeTemplateTask({
       },
       preview: {
         subject: "task",
-        operation,
+        operation:
+          operation === "update" &&
+          taskCommandPreserved(
+            {
+              milestoneId,
+              title: validation.title,
+              description: validation.description,
+              startDate: validation.startDate,
+              deadlineDate: validation.deadlineDate,
+              estimatedDurationMinutes: validation.estimatedDurationMinutes,
+            },
+            taskById.get(resolvedTaskId),
+          )
+            ? "preserve"
+            : operation,
         title: validation.title,
         location,
       },
     },
   };
+}
+
+function milestoneCommandPreserved(
+  command: Pick<
+    ProjectTreeTemplateMilestoneInput & { operation: "update" },
+    | "title"
+    | "objective"
+    | "startDate"
+    | "deadlineDate"
+    | "expectedDurationDays"
+  >,
+  existing: ProjectRecord["milestones"][number] | undefined,
+) {
+  if (!existing) {
+    return false;
+  }
+
+  return (
+    command.title === existing.title &&
+    command.objective === existing.objective &&
+    command.startDate === existing.startDate &&
+    command.deadlineDate === existing.deadlineDate &&
+    command.expectedDurationDays === existing.expectedDurationDays
+  );
+}
+
+function taskCommandPreserved(
+  command: Pick<
+    ProjectTreeTemplateTaskInput & { operation: "update" },
+    | "milestoneId"
+    | "title"
+    | "description"
+    | "startDate"
+    | "deadlineDate"
+    | "estimatedDurationMinutes"
+  >,
+  existing: ProjectRecord["tasks"][number] | undefined,
+) {
+  if (!existing) {
+    return false;
+  }
+
+  return (
+    command.milestoneId === existing.milestoneId &&
+    command.title === existing.title &&
+    command.description === existing.description &&
+    command.startDate === existing.startDate &&
+    command.deadlineDate === existing.deadlineDate &&
+    command.estimatedDurationMinutes === existing.estimatedDurationMinutes
+  );
 }

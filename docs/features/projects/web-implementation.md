@@ -153,6 +153,13 @@ ProjectsPage
 The project list and project detail are separate user-visible pages. Do not use
 a permanent side-by-side list/detail grid for this flow.
 
+`ProjectTreeTemplateDialog` uses a tall fixed dialog frame with an internal
+scrolling Template tab and Preview tab. Preview rows use the shared list item
+component and render as `Project: title`, indented `Milestone: title`, and
+further-indented `Task: title`, with operation chips after the truncated title.
+Rows whose parsed editable fields match the existing stored row show a neutral
+`Preserve` chip instead of an update chip.
+
 ### Project List Layout
 
 `ProjectsList` is the first Projects page. It uses one shared `Panel`.

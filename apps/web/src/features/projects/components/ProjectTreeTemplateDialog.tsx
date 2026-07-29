@@ -129,7 +129,7 @@ export function ProjectTreeTemplateDialog({
 
   return (
     <DialogOverlay zIndex="z-[60]">
-      <DialogFrame darkMode={darkMode} size="lg">
+      <DialogFrame darkMode={darkMode} size="lg" className={templateDialogClass}>
         <DialogHeader
           darkMode={darkMode}
           title={messages.title}
@@ -143,15 +143,15 @@ export function ProjectTreeTemplateDialog({
           messages={messages}
           onChange={setActiveTab}
         />
-        <FormSections>
+        <FormSections className="min-h-0 flex-1 grid-rows-[minmax(0,1fr)]">
           {activeTab === "edit" ? (
-            <FormSection>
+            <FormSection className="min-h-0 grid-rows-[minmax(0,1fr)_auto]">
               <TextArea
                 darkMode={darkMode}
                 aria-label={messages.editTab}
                 className={cx(
-                  templatePanelHeightClass,
-                  "resize-none overflow-auto font-mono text-sm leading-6",
+                  templatePanelFillClass,
+                  "overflow-auto font-mono text-sm leading-6",
                 )}
                 value={source}
                 disabled={busy}
@@ -177,7 +177,7 @@ export function ProjectTreeTemplateDialog({
           )}
         </FormSections>
         {activeTab === "edit" ? (
-          <DialogActionRow>
+          <DialogActionRow className="grid-cols-2">
             <Button
               darkMode={darkMode}
               size="md"
@@ -228,7 +228,9 @@ const emptyProjectTemplateDraft: ProjectInput = {
   deadlineDate: "",
   durationRange: "3_6_months",
 };
-const templatePanelHeightClass = "h-[32rem] max-h-[calc(100vh-18rem)]";
+const templateDialogClass =
+  "flex h-[min(46rem,calc(100vh-4rem))] min-h-[34rem] flex-col overflow-hidden";
+const templatePanelFillClass = "h-full min-h-[20rem]";
 
 function TemplateTabs({
   darkMode,
@@ -285,7 +287,7 @@ function TemplatePreview({
 }) {
   if (!preview) {
     return (
-      <FormSection className={cx(templatePanelHeightClass, "overflow-auto")}>
+      <FormSection className={cx(templatePanelFillClass, "overflow-auto")}>
         <SupportingText darkMode={darkMode}>
           {messages.previewEmpty}
         </SupportingText>
@@ -296,7 +298,7 @@ function TemplatePreview({
   return (
     <FormSection
       className={cx(
-        templatePanelHeightClass,
+        templatePanelFillClass,
         "grid-rows-[auto_minmax(0,1fr)] overflow-hidden",
       )}
     >
@@ -306,6 +308,7 @@ function TemplatePreview({
             preview.counts.create,
             preview.counts.update,
             preview.counts.delete,
+            preview.counts.preserve,
           )}
         </SupportingText>
         {preview.ignoredFieldCount > 0 ? (
@@ -322,21 +325,25 @@ function TemplatePreview({
             <ListItem
               darkMode={darkMode}
               key={`${item.subject}-${index}`}
-              className={cx(
-                "min-w-0 items-center py-2",
-                previewIndentClass(depth),
-              )}
+              className="min-w-0 items-center py-2"
             >
               <div className="flex min-w-0 flex-1 items-center gap-2">
+                <span
+                  className={cx("block shrink-0", previewIndentClass(depth))}
+                  aria-hidden="true"
+                />
+                <span className="shrink-0 text-sm font-semibold leading-5 text-[var(--aa-secondary-text)]">
+                  {messages.subjects[item.subject]}:
+                </span>
+                <ListItemTitle className="min-w-0 flex-1" size="compact" truncate>
+                  {item.title}
+                </ListItemTitle>
                 <OperationBadge
                   darkMode={darkMode}
                   operation={item.operation}
                   label={messages.operations[item.operation]}
                   text={messages.operationBadges[item.operation]}
                 />
-                <ListItemTitle className="min-w-0" size="compact" truncate>
-                  {item.title}
-                </ListItemTitle>
               </div>
             </ListItem>
           );
@@ -381,6 +388,10 @@ function operationTone(
     return "red";
   }
 
+  if (operation === "preserve") {
+    return "neutral";
+  }
+
   return "blue";
 }
 
@@ -400,12 +411,12 @@ function previewItemDepth(
 
 function previewIndentClass(depth: number) {
   if (depth >= 2) {
-    return "pl-12";
+    return "w-12";
   }
 
   if (depth === 1) {
-    return "pl-8";
+    return "w-6";
   }
 
-  return "";
+  return "w-0";
 }

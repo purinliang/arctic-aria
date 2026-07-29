@@ -28,7 +28,10 @@ project tree.
 - The Preview tab is disabled until the current template has parsed.
 - The Template tab has Copy and primary Preview actions. Save is shown only on the
   Preview tab.
-- Preview rows use compact operation chips and indentation for tree depth.
+- Preview rows render as `Project: title`, `Milestone: title`, and `Task: title`
+  with fixed-width indentation for tree depth and truncated titles.
+- Preview rows use full-word operation chips. Existing update rows whose editable
+  fields match the stored item are shown as neutral `Preserve` rows.
 - Unsupported extra fields are ignored, counted, and reported after parse.
 - The workflow is available to normal signed-in users, not only developer mode.
 - Existing developer import APIs and UI are removed instead of kept as hidden
