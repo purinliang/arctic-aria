@@ -101,17 +101,20 @@ export function ListItemTitle({
   className,
   size = "default",
   truncate = false,
+  weight = "semibold",
 }: {
   children: ReactNode;
   className?: string;
   size?: "default" | "compact";
   truncate?: boolean;
+  weight?: "normal" | "semibold";
 }) {
   return (
     <span
       className={cx(
-        "block min-w-0 font-semibold leading-5",
+        "block min-w-0 leading-5",
         size === "compact" ? "text-sm" : "text-base",
+        weight === "normal" ? "font-normal" : "font-semibold",
         truncate ? "truncate" : undefined,
         className,
       )}

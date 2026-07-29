@@ -31,7 +31,10 @@ export function SettingsControlRow({
     >
       <ListItemContent
         title={
-          <ListItemTitle className="font-normal text-[var(--aa-primary-text)]">
+          <ListItemTitle
+            weight="normal"
+            className="text-[var(--aa-primary-text)]"
+          >
             {title}
           </ListItemTitle>
         }
