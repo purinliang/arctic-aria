@@ -83,8 +83,7 @@ export function EventsPage({
   const [templateTarget, setTemplateTarget] =
     useState<EventTemplateTarget | null>(null);
   const [dialogAction, setDialogAction] = useState<DialogAction>(null);
-  const [eventFilter, setEventFilter] =
-    useState<EventTimeFilter>("upcoming");
+  const [eventFilter, setEventFilter] = useState<EventTimeFilter>("all");
   const groupedEvents = useMemo(
     () =>
       splitEventsByCurrentTime({
