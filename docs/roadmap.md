@@ -34,6 +34,9 @@ Current release candidate on `develop`: `v0.12.1`.
   cases such as empty title, invalid date format, or title too long.
 - Review broader shared-scroll behavior for pages, dialogs, and popovers where
   overflow is visible to the user.
+- Define separate border color tokens for strong panel outlines and weaker
+  list-item dividers. Keep the current strong border design for panels, and use
+  a softer divider color between list rows.
 
 ## Feature Review Discipline
 
