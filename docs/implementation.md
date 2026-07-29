@@ -95,6 +95,7 @@ arctic-aria/
 |       |   |   |-- performance/
 |       |   |   |-- projects/
 |       |   |   |-- routines/
+|       |   |   |-- events/
 |       |   |   `-- settings/
 |       |   `-- server/
 |       |       |-- database/
@@ -130,6 +131,7 @@ to Today:
 - `/projects` shows the Projects list
 - `/projects/<project-id>` shows one Project detail page
 - `/routines` shows Routines
+- `/events` shows Events
 - `/memories` shows Memories
 - `/ideas` shows Ideas
 - `/settings` shows Settings
@@ -139,7 +141,7 @@ path segment form above.
 
 Workspace path refresh support is implemented with rewrites in
 `apps/web/next.config.ts`. `/today`, `/projects`, `/projects/<project-id>`,
-`/routines`, `/memories`, `/ideas`, and `/settings` rewrite to the static `/`
+`/routines`, `/events`, `/memories`, `/ideas`, and `/settings` rewrite to the static `/`
 app page. This avoids separate route files and avoids making the workspace a
 dynamic catch-all route.
 
@@ -195,7 +197,7 @@ Feature folders own:
 - focused tests
 
 Dashboard composition can import feature-owned panels, but it should not own the
-business rules for projects, routines, or memories.
+business rules for projects, routines, events, or memories.
 
 `apps/web/src/server/database` owns shared database connection helpers. Feature
 repositories should import the database client; UI components should not.
@@ -216,6 +218,7 @@ Current feature implementation docs:
 - [features/memories/web-implementation.md](features/memories/web-implementation.md)
 - [features/projects/web-implementation.md](features/projects/web-implementation.md)
 - [features/routines/web-implementation.md](features/routines/web-implementation.md)
+- [features/events/web-implementation.md](features/events/web-implementation.md)
 - [features/ideas/web-implementation.md](features/ideas/web-implementation.md)
 
 Current feature data-model docs:
@@ -225,6 +228,7 @@ Current feature data-model docs:
 - [features/memories/data-model.md](features/memories/data-model.md)
 - [features/projects/data-model.md](features/projects/data-model.md)
 - [features/routines/data-model.md](features/routines/data-model.md)
+- [features/events/data-model.md](features/events/data-model.md)
 - [features/ideas/data-model.md](features/ideas/data-model.md)
 
 Integration docs:
@@ -277,6 +281,8 @@ Feature page and panel entry points:
 - `apps/web/src/features/projects/components/ProjectDetailPage.tsx`
 - `apps/web/src/features/routines/components/RoutinesPage.tsx`
 - `apps/web/src/features/routines/components/RoutinesPanel.tsx`
+- `apps/web/src/features/events/components/EventsPage.tsx`
+- `apps/web/src/features/events/components/EventsPanel.tsx`
 - `apps/web/src/features/memories/components/MemoriesPage.tsx`
 - `apps/web/src/features/memories/components/PinnedMemoriesPanel.tsx`
 - `apps/web/src/features/ideas/components/IdeasPage.tsx`

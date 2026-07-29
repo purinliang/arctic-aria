@@ -20,6 +20,7 @@ type ParameterFailureMessages = {
   chooseRequired?: (field: string) => string;
   duplicateName?: (subject: string) => string;
   inUse?: (subject: string) => string;
+  invalidDurationHours?: (field: string, limit?: number) => string;
   invalidDurationMinutes?: (field: string, limit?: number) => string;
   invalidFormatDate?: (field: string) => string;
   invalidFormatTime?: (field: string) => string;
@@ -42,7 +43,7 @@ export type ActionFailureNotificationMessages = {
 
 type FieldDisplay = {
   article?: "a" | "an";
-  format?: "date" | "duration_minutes" | "time";
+  format?: "date" | "duration_hours" | "duration_minutes" | "time";
   label: string;
   requiredVerb?: "choose" | "enter" | "select";
   subjectPrefix?: boolean;
@@ -97,6 +98,12 @@ const fieldDisplays: Record<string, FieldDisplay> = {
     label: "estimated duration",
     requiredVerb: "enter",
   },
+  estimated_duration_hours: {
+    article: "an",
+    format: "duration_hours",
+    label: "estimated duration",
+    requiredVerb: "enter",
+  },
   start_date: {
     article: "a",
     format: "date",
@@ -132,6 +139,12 @@ const fieldDisplays: Record<string, FieldDisplay> = {
     requiredVerb: "enter",
     subjectPrefix: true,
   },
+  time: {
+    article: "a",
+    format: "time",
+    label: "time",
+    requiredVerb: "select",
+  },
   timezone: {
     article: "a",
     label: "timezone",
@@ -142,11 +155,17 @@ const fieldDisplays: Record<string, FieldDisplay> = {
     requiredVerb: "enter",
     subjectPrefix: true,
   },
+  location: {
+    label: "location",
+    requiredVerb: "enter",
+    subjectPrefix: true,
+  },
 };
 
 const subjectFallbacks: Record<ActionFailureSubject, string> = {
   category: "Category",
   discord: "Discord",
+  event: "Event",
   group: "Group",
   idea: "Idea",
   memory: "Memory",
@@ -248,6 +267,11 @@ export function structuredActionFailureMessage(
       ) ?? durationMinutesMessage(field, result.limit);
     }
 
+    if (format === "duration_hours") {
+      return parameterMessages?.invalidDurationHours?.(field, result.limit) ??
+        durationHoursMessage(field, result.limit);
+    }
+
     if (format === "date") {
       return parameterMessages?.invalidFormatDate?.(field) ??
         `${field} must be a real date in YYYY-MM-DD format.`;
@@ -295,6 +319,14 @@ export function structuredActionFailureMessage(
   ) {
     return parameterMessages?.invalidDurationMinutes?.(field, result.limit) ??
       durationMinutesMessage(field, result.limit);
+  }
+
+  if (
+    result.reason === "invalid_value" &&
+    fieldDisplay(result.field).format === "duration_hours"
+  ) {
+    return parameterMessages?.invalidDurationHours?.(field, result.limit) ??
+      durationHoursMessage(field, result.limit);
   }
 
   return parameterMessages?.invalidValue?.(field) ?? `${field} is invalid.`;
@@ -376,6 +408,12 @@ function durationMinutesMessage(field: string, limit: number | undefined) {
   return limit === undefined
     ? `${field} must be a positive whole number of minutes.`
     : `${field} must be a positive whole number up to ${limit} minutes.`;
+}
+
+function durationHoursMessage(field: string, limit: number | undefined) {
+  return limit === undefined
+    ? `${field} must be a positive number of hours.`
+    : `${field} must be a positive number up to ${limit} hours.`;
 }
 
 function limitReachedMessage(

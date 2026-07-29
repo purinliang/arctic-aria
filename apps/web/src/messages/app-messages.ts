@@ -8,6 +8,10 @@ import {
   simplifiedChineseFormMessages,
 } from "./form-messages";
 import {
+  englishEventMessages,
+  simplifiedChineseEventMessages,
+} from "./event-messages";
+import {
   englishIdeaMessages,
   simplifiedChineseIdeaMessages,
 } from "./idea-messages";
@@ -28,6 +32,7 @@ export type AppMessages = typeof englishMessages;
 export type AppShellMessages = AppMessages["appShell"];
 export type AuthMessages = AppMessages["auth"];
 export type DashboardMessages = AppMessages["dashboard"];
+export type EventMessages = AppMessages["events"];
 export type FormMessages = AppMessages["forms"];
 export type IdeaMessages = AppMessages["ideas"];
 export type MemoryMessages = AppMessages["memories"];
@@ -46,6 +51,7 @@ const englishMessages = {
     workspace: "Workspace",
     pages: {
       dashboard: "Today",
+      events: "Events",
       ideas: "Ideas",
       memories: "Memories",
       projects: "Projects",
@@ -54,6 +60,7 @@ const englishMessages = {
     },
     pageDescriptions: {
       dashboard: "Focus on today's plan.",
+      events: "Keep one-time plans visible.",
       ideas: "Capture thoughts for later review.",
       memories: "Keep experiences worth returning to.",
       routines: "Review repeatable checks for daily life.",
@@ -326,6 +333,7 @@ const englishMessages = {
     subjectWords: {
       category: "Category",
       discord: "Discord",
+      event: "Event",
       group: "Group",
       idea: "Idea",
       memory: "Memory",
@@ -345,6 +353,7 @@ const englishMessages = {
       description: "description",
       end_date: "end date",
       estimated_duration: "estimated duration",
+      estimated_duration_hours: "estimated duration",
       expected_duration: "expected duration",
       start_date: "start date",
       group: "group",
@@ -353,8 +362,10 @@ const englishMessages = {
       preferred_time: "preferred time",
       rule: "rule",
       text: "text",
+      time: "time",
       timezone: "timezone",
       title: "title",
+      location: "location",
     },
     parameterFailureMessages: {
       beforeStart: (field: string, startField: string) =>
@@ -363,6 +374,10 @@ const englishMessages = {
       duplicateName: (subject: string) =>
         `A ${subject} with that name already exists.`,
       inUse: (subject: string) => `This ${subject} is still in use.`,
+      invalidDurationHours: (field: string, limit?: number) =>
+        limit === undefined
+          ? `${field} must be a positive number of hours.`
+          : `${field} must be a positive number up to ${limit} hours.`,
       invalidDurationMinutes: (field: string, limit?: number) =>
         limit === undefined
           ? `${field} must be a positive whole number of minutes.`
@@ -409,6 +424,7 @@ const englishMessages = {
     dismiss: "Dismiss notification",
   },
   dashboard: englishDashboardMessages,
+  events: englishEventMessages,
   forms: englishFormMessages,
   ideas: englishIdeaMessages,
   memories: englishMemoryMessages,
@@ -433,6 +449,7 @@ const simplifiedChineseMessages: AppMessages = {
     workspace: "工作区",
     pages: {
       dashboard: "今日",
+      events: "事件",
       ideas: "想法",
       memories: "回忆",
       projects: "项目",
@@ -441,6 +458,7 @@ const simplifiedChineseMessages: AppMessages = {
     },
     pageDescriptions: {
       dashboard: "专注今天的计划。",
+      events: "查看一次性的计划。",
       ideas: "先收好想法，之后再整理。",
       memories: "保存值得再次体验的事。",
       routines: "照看重复出现的日常。",
@@ -704,6 +722,7 @@ const simplifiedChineseMessages: AppMessages = {
     subjectWords: {
       category: "分类",
       discord: "Discord",
+      event: "事件",
       group: "分组",
       idea: "想法",
       memory: "回忆",
@@ -723,6 +742,7 @@ const simplifiedChineseMessages: AppMessages = {
       description: "描述",
       end_date: "结束日期",
       estimated_duration: "预计用时",
+      estimated_duration_hours: "预计用时",
       expected_duration: "预计持续时间",
       start_date: "开始日期",
       group: "分组",
@@ -731,8 +751,10 @@ const simplifiedChineseMessages: AppMessages = {
       preferred_time: "偏好时间",
       rule: "规则",
       text: "内容",
+      time: "时间",
       timezone: "时区",
       title: "标题",
+      location: "地点",
     },
     parameterFailureMessages: {
       beforeStart: (field: string, startField: string) =>
@@ -740,6 +762,10 @@ const simplifiedChineseMessages: AppMessages = {
       chooseRequired: (field: string) => `请选择${field}。`,
       duplicateName: (subject: string) => `同名${subject}已存在。`,
       inUse: (subject: string) => `这个${subject}仍在使用中。`,
+      invalidDurationHours: (field: string, limit?: number) =>
+        limit === undefined
+          ? `${field}必须是正数小时数。`
+          : `${field}必须是大于 0 且不超过 ${limit} 的小时数。`,
       invalidDurationMinutes: (field: string, limit?: number) =>
         limit === undefined
           ? `${field}必须是正整数分钟数。`
@@ -784,6 +810,7 @@ const simplifiedChineseMessages: AppMessages = {
     dismiss: "关闭通知",
   },
   dashboard: simplifiedChineseDashboardMessages,
+  events: simplifiedChineseEventMessages,
   forms: simplifiedChineseFormMessages,
   ideas: simplifiedChineseIdeaMessages,
   memories: simplifiedChineseMemoryMessages,

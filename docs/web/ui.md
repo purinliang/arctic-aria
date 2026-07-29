@@ -76,4 +76,5 @@ For interactions, document:
 - [../features/dashboard/ui.md](../features/dashboard/ui.md)
 - [../features/projects/ui.md](../features/projects/ui.md)
 - [../features/routines/ui.md](../features/routines/ui.md)
+- [../features/events/ui.md](../features/events/ui.md)
 - [../features/memories/ui.md](../features/memories/ui.md)

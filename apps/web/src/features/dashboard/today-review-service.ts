@@ -14,7 +14,7 @@ import type { DiscordNotificationResult } from "../discord/server/notification-s
 import {
   buildTodayReviewText,
 } from "./today-review-text.ts";
-import type { PinnedMemory, Routine, Task } from "./types.ts";
+import type { PinnedMemory, Routine, ScheduledEvent, Task } from "./types.ts";
 
 export type DailyReviewCronRunResult = {
   checked: number;
@@ -41,6 +41,10 @@ type DailyReviewTargetRepository = {
 
 type ProjectDataLoader = (userId: string) => Promise<{ tasks: Task[] }>;
 type RoutineDataLoader = (userId: string) => Promise<{ routines: Routine[] }>;
+type EventDataLoader = (
+  userId: string,
+  dateKey: string,
+) => Promise<{ events: ScheduledEvent[] }>;
 type MemoryDataLoader = (
   userId: string,
 ) => Promise<{ pinnedMemories: PinnedMemory[] }>;
@@ -57,6 +61,7 @@ const dailyReviewHour = 2;
 const dailyReviewWindowMinutes = 2;
 
 export function createTodayReviewService({
+  eventDataLoader = defaultEventDataLoader,
   memoryDataLoader = defaultMemoryDataLoader,
   now = () => new Date(),
   notifier = discordNotificationService,
@@ -64,6 +69,7 @@ export function createTodayReviewService({
   reviewTargets = new PostgresDiscordAccountRepository(),
   routineDataLoader = defaultRoutineDataLoader,
 }: {
+  eventDataLoader?: EventDataLoader;
   memoryDataLoader?: MemoryDataLoader;
   now?: () => Date;
   notifier?: TodayReviewNotifier;
@@ -135,13 +141,15 @@ export function createTodayReviewService({
     source: "scheduler";
     userId: string;
   }): Promise<DailyReviewSendResult> {
-    const [projectData, routineData, memoryData] = await Promise.all([
+    const [projectData, routineData, eventData, memoryData] = await Promise.all([
       projectDataLoader(userId),
       routineDataLoader(userId),
+      eventDataLoader(userId, dateKey),
       memoryDataLoader(userId),
     ]);
     const text = buildTodayReviewText({
       dateKey,
+      events: eventData.events,
       memories: memoryData.pinnedMemories,
       routines: routineData.routines,
       summaryMessages: englishDashboardMessages.review.dailySummaryMessages,
@@ -156,6 +164,7 @@ export function createTodayReviewService({
         feature: "dashboard",
         action: "daily-review",
         dateKey,
+        eventCount: eventData.events.length,
         taskCount: projectData.tasks.length,
         routineCount: routineData.routines.length,
         pinnedMemoryCount: memoryData.pinnedMemories.length,
@@ -235,6 +244,12 @@ async function defaultRoutineDataLoader(userId: string) {
   const { loadRoutineDashboardData } = await import("../routines/actions.ts");
 
   return loadRoutineDashboardData(userId);
+}
+
+async function defaultEventDataLoader(userId: string, dateKey: string) {
+  const { loadEventsForDateData } = await import("../events/actions.ts");
+
+  return loadEventsForDateData(userId, dateKey);
 }
 
 async function defaultMemoryDataLoader(userId: string) {

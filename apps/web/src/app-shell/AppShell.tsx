@@ -26,6 +26,8 @@ import type {
   UserPreferences,
 } from "@/features/settings/preferences";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
+import { EventsPage } from "@/features/events/components/EventsPage";
+import { useDashboardEvents } from "@/features/events/hooks/useDashboardEvents";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
 import { useDashboardProjects } from "@/features/dashboard/hooks/useDashboardProjects";
 import { useDashboardRoutines } from "@/features/dashboard/hooks/useDashboardRoutines";
@@ -39,7 +41,12 @@ import { ProjectPageTitle } from "@/features/projects/components/ProjectPageTitl
 import { ProjectsPage } from "@/features/projects/components/ProjectsPage";
 import { RoutinesPage } from "@/features/routines/components/RoutinesPage";
 import { SettingsPage } from "@/features/settings/components/SettingsPage";
-import { appPathForProject, appPathForView, appRouteFromPathname, browserPathname } from "./app-routes";
+import {
+  appPathForProject,
+  appPathForView,
+  appRouteFromPathname,
+  browserPathname,
+} from "./app-routes";
 import { Sidebar } from "./Sidebar";
 
 export function AppShell({
@@ -112,6 +119,13 @@ export function AppShell({
     messages.routines.results,
     messages.notifications,
   );
+  const eventState = useDashboardEvents(
+    currentUser.id,
+    showErrorNotification,
+    messages.dashboard.notifications,
+    messages.events.results,
+    messages.notifications,
+  );
   const memoryState = useDashboardMemories(
     currentUser.id,
     showErrorNotification,
@@ -120,6 +134,7 @@ export function AppShell({
     messages.notifications,
   );
   const { refreshProjectData } = projectState;
+  const { refreshEventData } = eventState;
   const { refreshMemoryData } = memoryState;
   const { refreshRoutineData } = routineState;
   const ideaState = useIdeasPageData(
@@ -182,6 +197,7 @@ export function AppShell({
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       void refreshProjectData();
+      void refreshEventData();
       void refreshMemoryData();
       void refreshRoutineData();
       void refreshIdeaData();
@@ -190,6 +206,7 @@ export function AppShell({
     return () => window.clearTimeout(timeoutId);
   }, [
     currentUser.id,
+    refreshEventData,
     refreshIdeaData,
     refreshMemoryData,
     refreshProjectData,
@@ -244,6 +261,8 @@ export function AppShell({
       ? messages.appShell.pages.dashboard
       : activeView === "routines"
         ? messages.appShell.pages.routines
+        : activeView === "events"
+          ? messages.appShell.pages.events
         : activeView === "ideas"
           ? messages.appShell.pages.ideas
           : activeView === "memories"
@@ -377,6 +396,19 @@ export function AppShell({
               multipleTimezonesEnabled={false}
               resolvedTimeZone={resolvedTimeZone}
             />
+          ) : activeView === "events" ? (
+            <EventsPage
+              darkMode={darkMode}
+              events={eventState.events}
+              loading={eventState.eventLoading}
+              pending={eventState.eventActionPending}
+              onEventSave={eventState.saveEventFromPage}
+              onEventDelete={eventState.deleteEventFromPage}
+              messages={messages.events}
+              formMessages={messages.forms}
+              timeFormatPreference={timeFormatPreference}
+              resolvedTimeZone={resolvedTimeZone}
+            />
           ) : activeView === "ideas" ? (
             <IdeasPage
               darkMode={darkMode}
@@ -443,6 +475,8 @@ export function AppShell({
               taskLoading={projectState.projectLoading}
               routines={routineState.routines}
               routineLoading={routineState.routineLoading}
+              events={eventState.todayEvents}
+              eventLoading={eventState.eventLoading}
               pinnedMemories={memoryState.pinnedMemories}
               memoryLoading={memoryState.memoryLoading}
               onTaskStatus={projectState.updateTaskFromDashboard}
@@ -450,6 +484,9 @@ export function AppShell({
               onMemoryDone={memoryState.markMemoryDone}
               onMemoryCancelDone={memoryState.cancelMemoryDone}
               onTaskOpen={showProjectDetail}
+              onEventOpen={() => {
+                handleViewChange("events");
+              }}
               messages={messages.dashboard}
               formMessages={messages.forms}
               timeFormatPreference={timeFormatPreference}

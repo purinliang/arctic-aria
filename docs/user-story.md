@@ -14,13 +14,13 @@ your head.
 
 You might also forget small but important things:
 
-- routines that repeat quietly in the background
+- events and routines that appear quietly in the background
 - ideas that appear when you are away from your desk
 - personal experiences you enjoyed and want to revisit
 - daily progress that was real, but easy to dismiss
 
 Arctic Aria should turn those scattered pieces into a calmer workspace: one
-place for projects, routines, memories, ideas, and later review.
+place for projects, routines, events, memories, ideas, and later review.
 
 ## Account And Workspace
 
@@ -28,7 +28,7 @@ Status: implemented.
 
 You can create an Arctic Aria account, sign in, stay signed in with a session
 cookie, and sign out. After signing in, you enter the main workspace with a
-sidebar, Today page, Projects, Routines, Memories, Ideas, and Settings.
+sidebar, Today page, Projects, Routines, Events, Memories, Ideas, and Settings.
 
 Settings currently let you choose theme mode, language, time format, Discord
 binding, and app information. Simplified Chinese is available, but some
@@ -91,6 +91,25 @@ In progress:
 
 - reminder response buttons such as Later or Move to tomorrow
 - suggestions to adjust a routine after repeated misses
+
+## Events
+
+Status: implemented for one-time scheduled items.
+
+You might have appointments, bookings, meetings, or other plans that happen
+once at a fixed date and time. Arctic Aria lets you create Events with a title,
+optional description, date, time, estimated duration, and location.
+
+You can:
+
+- create, edit, and delete Events
+- see upcoming and past Events on the Events page
+- see today's Events on Today
+- open the Events page from a Today Event row
+- see Events in the Daily Review message
+
+Events do not become checkboxes. They cannot be completed or moved, and they do
+not change Today progress.
 
 ## Memories
 

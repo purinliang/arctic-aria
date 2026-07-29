@@ -3,8 +3,10 @@
 import type { ProjectDashboardData } from "@/features/projects/actions";
 import type { RoutineDashboardData } from "@/features/routines/actions";
 import type { MemoryDashboardData } from "@/features/memories/actions";
+import type { EventDashboardData } from "@/features/events/actions";
 
 export type DashboardBrowserCacheData = {
+  events: EventDashboardData;
   projects: ProjectDashboardData;
   routines: RoutineDashboardData;
   memories: MemoryDashboardData;
@@ -162,6 +164,13 @@ function hasExpectedDataShape(
     return (
       Array.isArray(candidate.routines) &&
       Array.isArray(candidate.routineDefinitions)
+    );
+  }
+
+  if (section === "events") {
+    return (
+      Array.isArray(candidate.events) &&
+      Array.isArray(candidate.todayEvents)
     );
   }
 

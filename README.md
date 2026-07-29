@@ -1,7 +1,7 @@
 # Arctic Aria
 
 Arctic Aria is a personal life assistant for turning messy daily life into a
-clear plan. It focuses on planning, tasks, routines, reminders, ideas, daily
+clear plan. It focuses on planning, tasks, routines, events, reminders, ideas, daily
 review, and memories.
 
 The project is important because the hard part is often not doing one task. The
@@ -28,7 +28,7 @@ not a medical, therapy, or mental health treatment product.
 
 Arctic Aria is organized around features and supporting services:
 
-- Features: auth, settings, projects, routines, memories, dashboard, ideas,
+- Features: auth, settings, projects, routines, events, memories, dashboard, ideas,
   Daily Review delivery, and future broader reviews.
 - Apps: web dashboard for full control, Discord integration hosted by the web
   app for quick idea capture and messages, and CLI tooling for local developer

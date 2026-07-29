@@ -6,6 +6,7 @@ import {
   readDashboardBrowserCacheSection,
   writeDashboardBrowserCacheSection,
 } from "../dashboard-browser-cache.ts";
+import type { EventDashboardData } from "../../features/events/actions.ts";
 import type { ProjectDashboardData } from "../../features/projects/actions.ts";
 
 class MemoryStorage {
@@ -59,6 +60,23 @@ const projectData: ProjectDashboardData = {
   ],
 };
 
+const eventData: EventDashboardData = {
+  events: [
+    {
+      id: "event-one",
+      title: "Test event",
+      description: "Test event description",
+      eventDate: "2026-07-18",
+      eventTime: "09:30",
+      estimatedDurationHours: 1.5,
+      location: "Office",
+      createdAt: "2026-07-01T00:00:00.000Z",
+      updatedAt: "2026-07-01T00:00:00.000Z",
+    },
+  ],
+  todayEvents: [],
+};
+
 test("dashboard browser cache is keyed by user and section", () => {
   const storage = new MemoryStorage();
 
@@ -79,6 +97,21 @@ test("dashboard browser cache is keyed by user and section", () => {
   );
   assert.equal(
     readDashboardBrowserCacheSection("user-two", "projects", storage),
+    null,
+  );
+});
+
+test("dashboard browser cache stores events independently", () => {
+  const storage = new MemoryStorage();
+
+  writeDashboardBrowserCacheSection("user-one", "events", eventData, storage);
+
+  assert.deepEqual(
+    readDashboardBrowserCacheSection("user-one", "events", storage),
+    eventData,
+  );
+  assert.equal(
+    readDashboardBrowserCacheSection("user-one", "projects", storage),
     null,
   );
 });

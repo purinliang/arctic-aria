@@ -2,6 +2,7 @@
 import {
   Album,
   Bell,
+  CalendarDays,
   LayoutDashboard,
   Lightbulb,
   FolderKanban,
@@ -187,6 +188,13 @@ function SidebarFrame({
             active={activeView === "routines"}
             darkMode={darkMode}
             onClick={() => onSelectView("routines")}
+          />
+          <SidebarItem
+            icon={<CalendarDays size={18} aria-hidden="true" />}
+            label={messages.pages.events}
+            active={activeView === "events"}
+            darkMode={darkMode}
+            onClick={() => onSelectView("events")}
           />
           <SidebarItem
             icon={<Album size={18} aria-hidden="true" />}

@@ -74,8 +74,8 @@ reminder delivery.
 
 Current Chinese translation covers global surfaces: auth loading, login,
 registration, placeholder auth actions, sidebar/page titles, Settings rows, and
-version labels. Feature-heavy pages such as Projects, Routines, Memories, and
-Dashboard remain separate translation slices.
+version labels. Feature-heavy pages such as Projects, Routines, Events,
+Memories, and Dashboard remain separate translation slices.
 
 Version metadata rows:
 

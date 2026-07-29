@@ -9,6 +9,7 @@ The current Dashboard is database-backed for active user-facing panels:
 
 - project tasks from the Projects feature
 - routine instances from the Routines feature
+- today events from the Events feature
 - pinned memories from the Memories feature
 
 The Dashboard component is a thin composition layer. It should not own project,
@@ -23,11 +24,13 @@ feature-aware hooks:
 AppShell
   useDashboardProjects
   useDashboardRoutines
+  useDashboardEvents
   useDashboardMemories
   Dashboard
     ProjectTasksPanel
     RoutinesPanel
     TodayProgressPanel
+    EventsPanel
     PinnedMemoriesPanel
 ```
 
@@ -37,6 +40,8 @@ Feature ownership:
   `ProjectTasksPanel`
 - `features/routines` owns routine instance data, routine commands, and
   `RoutinesPanel`
+- `features/events` owns Event data, Event commands, the Events page, and
+  `EventsPanel`
 - `features/memories` owns pinned memory data, memory commands, and
   `PinnedMemoriesPanel`
 - `features/dashboard` owns Dashboard composition, Dashboard hooks, shared
@@ -44,9 +49,9 @@ Feature ownership:
   generation, and Dashboard-level tests
 
 The Dashboard hooks may use browser `localStorage` as a stale-while-refresh
-cache for signed-in users. After client hydration, cached project, routine, and
-memory data can populate the Dashboard and pinned-project sidebar shortcuts
-before the backend responds. Live backend data remains authoritative and
+cache for signed-in users. After client hydration, cached project, routine,
+event, and memory data can populate the Dashboard and pinned-project sidebar
+shortcuts before the backend responds. Live backend data remains authoritative and
 replaces the cached snapshot after refresh. If the backend refresh fails, the
 cached content should stay visible and the failure should appear through the
 shared notification stack.
@@ -54,7 +59,7 @@ shared notification stack.
 Dashboard browser cache rules:
 
 - key cached sections by Arctic Aria user id and section name
-- keep separate sections for projects, routines, and memories
+- keep separate sections for projects, routines, events, and memories
 - validate a small schema envelope before reading cached data
 - remove malformed cached data instead of rendering it
 - never use browser cache as the source of truth for saves, deletes, or
@@ -75,8 +80,9 @@ The production scheduled Daily Review path is invoked by the Cloudflare cron
 worker through `/api/cron/discord-notifications`, which also runs routine
 reminders. Today no longer exposes a manual Daily Review send action.
 
-Feature management actions, such as add/edit/delete project, routine, memory,
-or category, belong to the feature pages and dialogs, not the Dashboard.
+Feature management actions, such as add/edit/delete project, routine, event,
+memory, or category, belong to the feature pages and dialogs, not the
+Dashboard.
 
 ## Code Locations
 
@@ -92,6 +98,7 @@ Dashboard hooks and optimistic helpers:
 ```text
 apps/web/src/features/dashboard/hooks/useDashboardProjects.ts
 apps/web/src/features/dashboard/hooks/useDashboardRoutines.ts
+apps/web/src/features/events/hooks/useDashboardEvents.ts
 apps/web/src/features/dashboard/hooks/useDashboardMemories.ts
 apps/web/src/features/dashboard/optimistic-updates.ts
 ```
@@ -101,6 +108,7 @@ Feature-owned Dashboard panels:
 ```text
 apps/web/src/features/projects/components/ProjectTasksPanel.tsx
 apps/web/src/features/routines/components/RoutinesPanel.tsx
+apps/web/src/features/events/components/EventsPanel.tsx
 apps/web/src/features/memories/components/PinnedMemoriesPanel.tsx
 ```
 
@@ -111,6 +119,7 @@ database-backed feature data through the hooks above.
 
 - [../projects/web-implementation.md](../projects/web-implementation.md)
 - [../routines/web-implementation.md](../routines/web-implementation.md)
+- [../events/web-implementation.md](../events/web-implementation.md)
 - [../memories/web-implementation.md](../memories/web-implementation.md)
 
 ## Verification

@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
       { source: "/projects", destination: "/" },
       { source: "/projects/:projectId", destination: "/" },
       { source: "/routines", destination: "/" },
+      { source: "/events", destination: "/" },
       { source: "/memories", destination: "/" },
       { source: "/ideas", destination: "/" },
       { source: "/settings", destination: "/" },

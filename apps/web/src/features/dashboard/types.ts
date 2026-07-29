@@ -2,6 +2,7 @@ export type TaskStatus = "todo" | "done";
 
 export type DashboardView =
   | "dashboard"
+  | "events"
   | "ideas"
   | "projects"
   | "routines"
@@ -64,6 +65,18 @@ export type RoutineGroupOption = {
   id: string;
   name: string;
   description: string | null;
+};
+
+export type ScheduledEvent = {
+  id: string;
+  title: string;
+  description: string | null;
+  eventDate: string;
+  eventTime: string;
+  estimatedDurationHours: number | null;
+  location: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type MemoryCategory = string;
