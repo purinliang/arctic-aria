@@ -16,15 +16,19 @@ The current web app implements a Settings page opened from the sidebar
 that appear only after an administrator enables developer mode:
 
 - `Preferences`: persisted display, language, and time preferences
-- `Discord Binding`: Discord account binding controls
-- `About`: product name, visible app version, collapsed database-version
-  metadata, and the administrator-only developer-mode switch
+- `Discord`: Discord connection status, connection code flow, direct-message
+  test, and disconnect controls
+- `About`: visible app version, collapsed database-version metadata, and the
+  administrator-only developer-mode switch
 - `Developer Tools`: administrator-only diagnostics and internal import tools,
   shown only while developer mode is enabled
 
 Settings rows use a consistent structure: title and supporting text on the
-left, one control area on the right. On narrow screens the control wraps below
-the title/supporting text.
+left, one 320px control/value area on the right for tablet and desktop widths.
+On mobile the control wraps below the title/supporting text.
+Static values in that right-side area, such as `Connected` or the app version,
+use normal title-size text with quiet weight and right alignment on non-mobile
+widths.
 
 Implemented user preferences:
 
@@ -80,10 +84,9 @@ Version metadata rows:
   users
 
 This is a normal authenticated `About` surface. Normal signed-in users see the
-product name, product slogan, and current app version. The visible version row
-is labelled `Version`; exact release tags show only the release version, such
-as `v0.5.0`, while develop, feature, fix, and hotfix branch builds append the
-commit hash.
+current app version. The visible version row is labelled `Version`; exact
+release tags show only the release version, such as `v0.5.0`, while develop,
+feature, fix, and hotfix branch builds append the commit hash.
 
 The database version row remains mounted in the DOM so the developer can
 inspect it through browser developer tools when debugging deployment or
@@ -138,45 +141,50 @@ for one Arctic Aria user. The binding connects an Arctic Aria user to one
 Discord account so the Discord integration can accept `/idea` and later send direct
 messages to that user.
 
-Settings shows Discord controls inside a separate `Discord Binding` panel.
-The panel description is short and names the area: binding status and test
-messages.
+Settings shows Discord controls inside a separate `Discord` panel. The panel
+description is short and names the area: connection status and direct-message
+tests.
+
+The code and data model still use binding terminology because the Discord slash
+command is `/bind`, binding codes are short-lived database records, and the
+persistent relationship is a Discord account binding. The user-facing Settings
+UI should use `connect`, `connected`, `disconnect`, and `disconnected` except
+when naming the short-lived `Binding code`.
 
 Unbound state:
 
-- show a `Binding status` row
-- show `Checking binding status...` while the initial status load is pending
-- show `Binding status unavailable.` and a `Check Again` action if the status
-  check fails
-- show `No bound account.` after loading when no active binding exists and no
-  binding code is pending
-- show a secondary `Bind` button
-- keep the button in the right-side control area
+- show a `Connection status` row with the right-side value `Disconnected`
+- show a separate `Connect Discord` row with a secondary `Connect` button
+- show only the `Connection status` row with value `Checking` while the initial
+  status load is pending
+- show `Unknown` and a separate `Refresh status` row with `Check Again` if the
+  status check fails
 
 Pending code state:
 
+- show `Connection status` with the right-side value `Connecting`
 - show a `Binding code` row
-- show the one-time code as part of the exact Discord slash command
-- show a single instruction sentence such as `Send /bind code:R8A3-Y6LL-KV3Q
-  to Arctic Aria in Discord in 15 minutes.`
+- show the one-time code by itself in inline monospace command style
+- show a single instruction sentence such as `Copy R8A3-Y6LL-KV3Q, then run
+  /bind code:<code> in Discord. Expires in 15 minutes.`
 - show `Expired` in red when the code expires
-- show the exact Discord slash command in monospace inline command style, such
-  as `/bind code:R8A3-Y6LL-KV3Q`
-- show only `Cancel` in the row control area; do not show a normal `Check
-  Again` action for pending codes
+- show a right-side `Copy code` action that copies only the raw code, not the
+  full slash command
+- show a separate `Cancel connection` row with `Cancel`; do not show a normal
+  `Check Again` action for pending codes
 - successful `/bind` completion should update the open web app through a future
   server notification/event-bus channel and show a web notification; do not
   depend on the user manually checking again as the normal success path
 
 Bound state:
 
-- show one `Bound account` row with the bound Discord account id in a disabled
-  shared password input and an icon-only view/hide button inside the input
-- show one `Test message` row with `Send Test`
-- show one `Unbind` row with `Unbind`
+- show a `Connection status` row with the right-side value `Connected`
+- do not show the bound Discord account id in normal Settings UI
+- show one `Direct messages` row with `Send Test Message`
+- show one `Disconnect Discord` row with `Disconnect`
 - keep exactly one right-side control area per row
 
-Unbind:
+Disconnect:
 
 - asks for confirmation
 - marks the Discord binding as revoked

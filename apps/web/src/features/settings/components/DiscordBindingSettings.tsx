@@ -1,7 +1,7 @@
 "use client";
 
 // Settings Page - Discord Binding Settings.
-import { Link, LoaderCircle, Send, Unlink } from "lucide-react";
+import { Link, LoaderCircle, MessageCircle, Unlink } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   notifyActionFailure,
@@ -17,9 +17,8 @@ import {
   readDiscordBindingCache,
   writeDiscordBindingCache,
 } from "../discord-binding-cache";
-import { DiscordBoundAccountControls } from "./DiscordBoundAccountControls";
 import { DiscordBindingCodeStatus } from "./DiscordBindingCodeStatus";
-import { SettingsControlRow } from "./SettingsControlRow";
+import { SettingsControlRow, SettingsControlValue } from "./SettingsControlRow";
 import {
   cancelDiscordBindingCode,
   createDiscordBindingCode,
@@ -61,15 +60,16 @@ export function DiscordBindingSettings({
   const [discordLoading, setDiscordLoading] = useState(!initialCache);
   const [discordAction, setDiscordAction] = useState<DiscordAction | null>(null);
   const [confirmUnbindOpen, setConfirmUnbindOpen] = useState(false);
-  const [accountIdVisible, setAccountIdVisible] = useState(false);
   const [bindingStatusFailed, setBindingStatusFailed] = useState(false);
   const messagesRef = useRef(messages);
   const pendingBindingCodeRef = useRef(pendingBindingCode);
   const showErrorNotificationRef = useRef(showErrorNotification);
-  const discordStatusSupport = getDiscordStatusSupport({
+  const discordStatusText = getDiscordStatusText({
     bindingStatusFailed,
+    discordBinding,
     discordLoading,
     messages,
+    pendingBindingCode,
   });
 
   useEffect(() => {
@@ -309,25 +309,32 @@ export function DiscordBindingSettings({
 
   return (
     <>
-      {discordBinding ? (
+      <SettingsControlRow
+        darkMode={darkMode}
+        title={messages.discord.connectionStatusTitle}
+        support={messages.discord.connectionStatusDescription}
+        control={
+          <SettingsControlValue className="tabular-nums">
+            {discordStatusText}
+          </SettingsControlValue>
+        }
+      />
+      {discordLoading ? null : bindingStatusFailed ? (
+        <SettingsControlRow
+          darkMode={darkMode}
+          title={messages.discord.refreshStatusTitle}
+          support={messages.discord.refreshStatusDescription}
+          control={
+            <CheckAgainButton
+              darkMode={darkMode}
+              loading={discordAction === "load"}
+              label={messages.discord.checkAgain}
+              onClick={handleCheckAgain}
+            />
+          }
+        />
+      ) : discordBinding ? (
         <>
-          <SettingsControlRow
-            darkMode={darkMode}
-            title={messages.discord.bound}
-            support={messages.discord.boundAccountDescription}
-            controlWidth="field"
-            control={
-              <DiscordBoundAccountControls
-                accountId={discordBinding.discordUserId}
-                accountIdVisible={accountIdVisible}
-                darkMode={darkMode}
-                messages={messages}
-                onToggleAccountId={() =>
-                  setAccountIdVisible((visible) => !visible)
-                }
-              />
-            }
-          />
           <SettingsControlRow
             darkMode={darkMode}
             title={messages.discord.testMessageTitle}
@@ -338,7 +345,7 @@ export function DiscordBindingSettings({
                 disabled={discordAction !== null}
                 icon={
                   discordAction === "test" ? undefined : (
-                    <Send size={14} aria-hidden="true" />
+                    <MessageCircle size={14} aria-hidden="true" />
                   )
                 }
                 loading={discordAction === "test"}
@@ -374,30 +381,16 @@ export function DiscordBindingSettings({
       ) : !pendingBindingCode ? (
         <SettingsControlRow
           darkMode={darkMode}
-          title={messages.discord.bindingTitle}
-          support={discordStatusSupport}
+          title={messages.discord.connectTitle}
+          support={messages.discord.connectDescription}
           control={
-            discordLoading ? (
-              <CheckingButton
-                darkMode={darkMode}
-                label={messages.discord.checkingAction}
-              />
-            ) : bindingStatusFailed ? (
-              <CheckAgainButton
-                darkMode={darkMode}
-                loading={discordAction === "load"}
-                label={messages.discord.checkAgain}
-                onClick={handleCheckAgain}
-              />
-            ) : (
-              <BindButton
-                darkMode={darkMode}
-                disabled={discordLoading}
-                loading={discordAction === "bind"}
-                label={messages.discord.bind}
-                onClick={handleCreateCode}
-              />
-            )
+            <ConnectButton
+              darkMode={darkMode}
+              disabled={discordLoading}
+              loading={discordAction === "bind"}
+              label={messages.discord.connect}
+              onClick={handleCreateCode}
+            />
           }
         />
       ) : (
@@ -408,6 +401,8 @@ export function DiscordBindingSettings({
           expiresAt={pendingBindingCode.expiresAt}
           messages={messages}
           onCancel={handleCancelCode}
+          showErrorNotification={showErrorNotification}
+          showSuccessNotification={showSuccessNotification}
         />
       )}
       {confirmUnbindOpen ? (
@@ -428,48 +423,39 @@ export function DiscordBindingSettings({
   );
 }
 
-function getDiscordStatusSupport({
+function getDiscordStatusText({
   bindingStatusFailed,
+  discordBinding,
   discordLoading,
   messages,
+  pendingBindingCode,
 }: {
   bindingStatusFailed: boolean;
+  discordBinding: DiscordBindingView | null;
   discordLoading: boolean;
   messages: SettingsMessages;
+  pendingBindingCode: PendingBindingCode | null;
 }) {
   if (discordLoading) {
-    return messages.discord.checking;
+    return messages.discord.connectionChecking;
   }
 
   if (bindingStatusFailed) {
-    return messages.discord.checkFailed;
+    return messages.discord.connectionUnknown;
   }
 
-  return messages.discord.notConnected;
+  if (discordBinding) {
+    return messages.discord.connectionConnected;
+  }
+
+  if (pendingBindingCode) {
+    return messages.discord.connectionConnecting;
+  }
+
+  return messages.discord.connectionDisconnected;
 }
 
-function CheckingButton({
-  darkMode,
-  label,
-}: {
-  darkMode: boolean;
-  label: string;
-}) {
-  return (
-    <Button
-      darkMode={darkMode}
-      disabled
-      loading
-      loadingIcon={
-        <LoaderCircle className="animate-spin" size={14} aria-hidden="true" />
-      }
-    >
-      {label}
-    </Button>
-  );
-}
-
-function BindButton({
+function ConnectButton({
   darkMode,
   disabled,
   label,

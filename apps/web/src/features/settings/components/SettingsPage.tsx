@@ -12,8 +12,6 @@ import { CardHeader } from "@/components/card";
 import { SelectInput } from "@/components/forms/selection-field";
 import {
   List,
-  ListItem,
-  ListItemContent,
   ListItemSupportingText,
   ListItemTitle,
 } from "@/components/list";
@@ -37,7 +35,7 @@ import type {
 } from "@/messages/languages";
 import { DiscordBindingSettings } from "./DiscordBindingSettings";
 import { DiscordIcon } from "./DiscordIcon";
-import { SettingsControlRow } from "./SettingsControlRow";
+import { SettingsControlRow, SettingsControlValue } from "./SettingsControlRow";
 
 export function SettingsPage({
   currentUserId,
@@ -119,7 +117,6 @@ export function SettingsPage({
             darkMode={darkMode}
             title={messages.themeLabel}
             support={messages.themeDescription}
-            controlWidth="field"
             control={
               <SelectInput
                 darkMode={darkMode}
@@ -149,7 +146,6 @@ export function SettingsPage({
                 )}
               </>
             }
-            controlWidth="field"
             control={
               <SelectInput
                 darkMode={darkMode}
@@ -169,7 +165,6 @@ export function SettingsPage({
             darkMode={darkMode}
             title={messages.timeFormatLabel}
             support={messages.timeFormatDescription}
-            controlWidth="field"
             control={
               <SelectInput
                 darkMode={darkMode}
@@ -189,7 +184,6 @@ export function SettingsPage({
             darkMode={darkMode}
             title={messages.timeZoneLabel}
             support={timeZoneSupport}
-            controlWidth="field"
             control={
               <SelectInput
                 darkMode={darkMode}
@@ -229,24 +223,14 @@ export function SettingsPage({
           description={messages.appInformationDescription}
         />
         <List darkMode={darkMode}>
-          <ListItem darkMode={darkMode}>
-            <ListItemContent
-              title={<ListItemTitle>{messages.productName}</ListItemTitle>}
-              support={
-                <ListItemSupportingText>
-                  {messages.productDescription}
-                </ListItemSupportingText>
-              }
-            />
-          </ListItem>
           <SettingsControlRow
             darkMode={darkMode}
             title={messages.versionTitle}
             support={messages.versionDescription}
             control={
-              <ListItemSupportingText className="tabular-nums">
+              <SettingsControlValue className="tabular-nums">
                 {versionStatus.appVersionText}
-              </ListItemSupportingText>
+              </SettingsControlValue>
             }
           />
           <HiddenDatabaseVersionRow

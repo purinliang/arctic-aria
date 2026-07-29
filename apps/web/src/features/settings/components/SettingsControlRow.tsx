@@ -8,30 +8,29 @@ import {
 } from "@/components/list";
 import { cx } from "@/components/utils";
 
-type SettingsControlWidth = "auto" | "field";
-
 export function SettingsControlRow({
   darkMode,
   title,
   support,
   control,
-  controlWidth = "auto",
   className,
 }: {
   darkMode: boolean;
   title: ReactNode;
   support?: ReactNode;
   control?: ReactNode;
-  controlWidth?: SettingsControlWidth;
   className?: string;
 }) {
   return (
     <ListItem
       darkMode={darkMode}
-      className={cx("flex-wrap items-center sm:flex-nowrap", className)}
+      className={cx(
+        "grid grid-cols-1 items-stretch sm:grid-cols-[minmax(0,1fr)_20rem]",
+        className,
+      )}
     >
       <ListItemContent
-        title={<ListItemTitle>{title}</ListItemTitle>}
+        title={<ListItemTitle size="compact">{title}</ListItemTitle>}
         support={
           support ? (
             <ListItemSupportingText className="block">
@@ -43,13 +42,31 @@ export function SettingsControlRow({
       {control ? (
         <div
           className={cx(
-            "flex w-full shrink-0 items-center justify-start sm:justify-end",
-            controlWidth === "field" ? "sm:w-80" : "sm:w-auto",
+            "flex min-h-full w-full items-center justify-start sm:justify-end",
           )}
         >
           {control}
         </div>
       ) : null}
     </ListItem>
+  );
+}
+
+export function SettingsControlValue({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cx(
+        "block w-full min-w-0 truncate text-left text-base font-normal leading-5 text-[var(--aa-primary-text)] sm:text-right",
+        className,
+      )}
+    >
+      {children}
+    </span>
   );
 }

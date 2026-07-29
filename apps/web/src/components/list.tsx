@@ -99,16 +99,19 @@ export function ListItemContent({
 export function ListItemTitle({
   children,
   className,
+  size = "default",
   truncate = false,
 }: {
   children: ReactNode;
   className?: string;
+  size?: "default" | "compact";
   truncate?: boolean;
 }) {
   return (
     <span
       className={cx(
-        "block min-w-0 text-base font-semibold leading-5",
+        "block min-w-0 font-semibold leading-5",
+        size === "compact" ? "text-sm" : "text-base",
         truncate ? "truncate" : undefined,
         className,
       )}
