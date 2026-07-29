@@ -23,7 +23,10 @@ test("developer import prompts wrap templates with llm instructions", () => {
 
   assert.match(prompt, /According to the following template/);
   assert.match(prompt, /Supported duration values/);
+  assert.match(prompt, /realistic sequence/);
+  assert.match(prompt, /physical-world constraints/);
   assert.match(prompt, /# Project: Find a job/);
+  assert.match(prompt, /Do not start every milestone on the project start date/);
   assert.match(prompt, /My requirement is:\n$/);
 
   const routinePrompt = developerImportPromptFor("routines");

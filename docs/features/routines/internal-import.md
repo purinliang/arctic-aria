@@ -77,7 +77,8 @@ Expected success shape:
   "routine": {
     "title": "...",
     "description": null,
-    "firstStartDate": "YYYY-MM-DD",
+    "estimatedDurationMinutes": null,
+    "startDate": "YYYY-MM-DD",
     "endDate": null,
     "rule": {}
   }
@@ -130,3 +131,7 @@ Legal recurrence values are:
 
 `fixedIntervalDays` is only meaningful when recurrence is `fixed_days`. The
 normalizer uses the same validation helper as the routine editor.
+
+Routine `estimatedDurationMinutes` is optional. When present, it must be a whole
+number from 1 to 1440. Missing or empty values normalize to `null`; the importer
+does not apply a default estimate.

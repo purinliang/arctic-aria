@@ -53,6 +53,7 @@ test("project date-only fields preserve the local calendar date", () => {
     status: "todo",
     start_date: dateOnlyValue,
     deadline_date: dateOnlyValue,
+    estimated_duration_minutes: 45,
     sort_order: 0,
     created_at: timestamp,
     updated_at: timestamp,
@@ -66,4 +67,5 @@ test("project date-only fields preserve the local calendar date", () => {
   assert.equal(milestone.deadlineDate, "2026-07-22");
   assert.equal(task.startDate, "2026-07-22");
   assert.equal(task.deadlineDate, "2026-07-22");
+  assert.equal(task.estimatedDurationMinutes, 45);
 });

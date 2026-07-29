@@ -38,20 +38,20 @@ export function CardHeader({
   return (
     <div
       className={cx(
-        "grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 rounded-t-md border-b px-4 py-3",
+        "grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 rounded-t-md border-b px-4 py-2",
         panelHeaderColorClass,
         className,
       )}
     >
       <div className="min-w-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-[var(--aa-panel-header-icon-gap)]">
           {icon ? (
             <span className="inline-flex text-current">{icon}</span>
           ) : null}
-          <h2 className="text-base font-semibold">{title}</h2>
+          <h2 className="text-base font-semibold leading-5">{title}</h2>
         </div>
         {description ? (
-          <p className={cx("mt-1 text-sm", secondaryTextColorClass)}>
+          <p className={cx("mt-0.5 text-xs leading-4", secondaryTextColorClass)}>
             {description}
           </p>
         ) : null}

@@ -12,13 +12,23 @@ Settings should include personal configuration that affects how the product
 behaves for one user.
 
 The current web app implements a Settings page opened from the sidebar
-`Settings` item. It is organized into normal user cards plus an administrator
-diagnostic card when the signed-in account is an administrator:
+`Settings` item. It is organized into normal user panels plus developer panels
+that appear only after an administrator enables developer mode:
 
 - `Preferences`: persisted display, language, and time preferences
-- `Discord Binding`: Discord account binding controls
-- `About`: visible app version and collapsed database-version metadata
-- `Developer Tools`: administrator-only diagnostics, currently latency testing
+- `Discord`: Discord connection status, connection code flow, direct-message
+  test, and disconnect controls
+- `About`: visible app version, collapsed database-version metadata, and the
+  administrator-only developer-mode switch
+- `Developer Tools`: administrator-only diagnostics and internal import tools,
+  shown only while developer mode is enabled
+
+Settings rows use a consistent structure: title and supporting text on the
+left, one 320px control/value area on the right for tablet and desktop widths.
+On mobile the control wraps below the title/supporting text.
+Static values in that right-side area, such as `Connected` or the app version,
+use normal title-size text with quiet weight and right alignment on non-mobile
+widths.
 
 Implemented user preferences:
 
@@ -64,8 +74,8 @@ reminder delivery.
 
 Current Chinese translation covers global surfaces: auth loading, login,
 registration, placeholder auth actions, sidebar/page titles, Settings rows, and
-version labels. Feature-heavy pages such as Projects, Routines, Memories, and
-Dashboard remain separate translation slices.
+version labels. Feature-heavy pages such as Projects, Routines, Events,
+Memories, and Dashboard remain separate translation slices.
 
 Version metadata rows:
 
@@ -73,22 +83,15 @@ Version metadata rows:
 - actual database version, rendered in markup but visually collapsed for normal
   users
 
-This is a normal authenticated `About` surface. Normal signed-in users
-see only the app version. The database version row remains mounted in the DOM so
-the developer can inspect it through browser developer tools when debugging
-deployment or migration state.
+This is a normal authenticated `About` surface. Normal signed-in users see the
+current app version. The visible version row is labelled `Version`; exact
+release tags show only the release version, such as `v0.5.0`, while develop,
+feature, fix, and hotfix branch builds append the commit hash.
 
-The visible card description should describe only the app version, not database
-status, because database metadata is collapsed for normal users.
-
-The `About` card should show version rows:
-
-- `App Version`: current build version. Exact release tags show only the
-  release version, such as `v0.5.0`; develop, feature, fix, and hotfix branch
-  builds append the commit hash.
-- `Database Version`: the compact schema-history hash derived from applied
-  migration filenames and file checksums. This row is visually collapsed by
-  default, regardless of build type or alignment state.
+The database version row remains mounted in the DOM so the developer can
+inspect it through browser developer tools when debugging deployment or
+migration state. It is visually collapsed by default, regardless of build type
+or alignment state.
 
 Do not show migration filenames in the user-facing Settings UI. Do not add
 developer-account-specific display rules for version metadata. If a future
@@ -97,22 +100,26 @@ explicit role or environment rule rather than a hard-coded account name.
 
 ## Developer Tools
 
-Progress: implemented for administrator latency diagnostics
+Progress: implemented for administrator latency diagnostics and internal import
 
-The `Developer Tools` card appears only when the signed-in session has
-`isAdmin = true`. It is not a user-controlled developer-mode switch. Backend
-developer APIs must also verify the signed session and reject non-admin users.
+The `Developer mode` row appears only when the signed-in session has
+`isAdmin = true`. Enabling it shows internal developer panels below About.
+Backend developer APIs must also verify the signed session and reject non-admin
+users.
 
 Current behavior:
 
-- show `Only visible to administrators.`
-- show one `Test Latency` button with a speed/gauge icon
+- show developer panels only after the administrator enables developer mode
+- show a latency panel with one row for latency samples and right-aligned
+  controls
 - run 30 sequential samples against `/api/developer/performance/latency`
 - show min, p10, p50, p90, max, and average timing
 - show `Frontend-Backend RTT` and `Backend-Database RTT`
 - allow copying a Markdown report
 - also print the latest report table to the browser console for quick debugging
 - do not persist latency reports in the database
+- show an internal template-import panel for administrator project and routine
+  imports
 
 The latency route performs one lightweight database query per request. The
 frontend repeats the request so the report measures real browser request
@@ -134,51 +141,50 @@ for one Arctic Aria user. The binding connects an Arctic Aria user to one
 Discord account so the Discord integration can accept `/idea` and later send direct
 messages to that user.
 
-Settings shows Discord controls inside a separate `Discord Binding` card.
+Settings shows Discord controls inside a separate `Discord` panel. The panel
+description is short and names the area: connection status and direct-message
+tests.
+
+The code and data model still use binding terminology because the Discord slash
+command is `/bind`, binding codes are short-lived database records, and the
+persistent relationship is a Discord account binding. The user-facing Settings
+UI should use `connect`, `connected`, `disconnect`, and `disconnected` except
+when naming the short-lived `Binding code`.
 
 Unbound state:
 
-- show `Discord`
-- show supporting text explaining that Discord can receive ideas and send
-  messages
-- show `Checking binding status...` while the initial status load is pending
-- show `Binding status unavailable.` and a `Check Again` action if the status
-  check fails
-- show `No bound account.` after loading when no active binding exists and no
-  binding code is pending
-- show a secondary `Bind` button
-- use the same normal list-row and button rhythm as the checking and pending
-  code states
+- show a `Connection status` row with the right-side value `Disconnected`
+- show a separate `Connect Discord` row with a secondary `Connect` button
+- show only the `Connection status` row with value `Checking` while the initial
+  status load is pending
+- show `Unknown` and a separate `Refresh status` row with `Check Again` if the
+  status check fails
 
 Pending code state:
 
-- show the one-time code as part of the exact Discord slash command
-- show a single instruction sentence such as `Send /bind code:R8A3-Y6LL-KV3Q
-  to Arctic Aria in Discord in 15 minutes.`
+- show `Connection status` with the right-side value `Connecting`
+- show a `Binding code` row
+- show the one-time code by itself in inline monospace command style
+- show a single instruction sentence such as `Copy R8A3-Y6LL-KV3Q, then run
+  /bind code:<code> in Discord. Expires in 15 minutes.`
 - show `Expired` in red when the code expires
-- show the exact Discord slash command in monospace inline command style, such
-  as `/bind code:R8A3-Y6LL-KV3Q`
-- show only `Cancel` immediately after the instruction when width allows; do
-  not push it to the far right and do not show a normal `Check Again` action
-  for pending codes
-- use the same normal list-row and button rhythm as the checking and unbound
-  states
+- show a right-side `Copy code` action that copies only the raw code, not the
+  full slash command
+- show a separate `Cancel connection` row with `Cancel`; do not show a normal
+  `Check Again` action for pending codes
 - successful `/bind` completion should update the open web app through a future
   server notification/event-bus channel and show a web notification; do not
   depend on the user manually checking again as the normal success path
 
 Bound state:
 
-- show `Bound account` as the field label
-- show the bound Discord account id in a disabled shared password input
-- show an icon-only view/hide button inside the password input
-- show `Send Test` to send a simple Discord DM directly from the web server to
-  the bound Discord account
-- show `Unbind` in the same horizontal row when width allows
-- use the same normal list-row and button rhythm as checking, unbound, and
-  pending code states
+- show a `Connection status` row with the right-side value `Connected`
+- do not show the bound Discord account id in normal Settings UI
+- show one `Direct messages` row with `Send Test Message`
+- show one `Disconnect Discord` row with `Disconnect`
+- keep exactly one right-side control area per row
 
-Unbind:
+Disconnect:
 
 - asks for confirmation
 - marks the Discord binding as revoked

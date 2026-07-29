@@ -47,18 +47,18 @@ New ideas start as `untriaged`.
 Future triage can:
 
 - keep the idea as a note
-- convert it into a project, task, routine, memory, or review note
+- convert it into a project, task, routine, event, memory, or review note
 - archive it when it is no longer useful
 
 Conversion rules belong to the target feature. Ideas should record the
-conversion target, but they should not duplicate project, routine, memory, or
-review rules.
+conversion target, but they should not duplicate project, routine, event,
+memory, or review rules.
 
 ## Discord Relationship
 
 The first Discord workflow uses `/idea text:<raw text>`. The Discord integration
 is only an app surface for capture. It should call an Ideas command or service
-and should not write project, routine, memory, or review tables directly.
+and should not write project, routine, event, memory, or review tables directly.
 
 The first Discord workflow should use command chat only. Normal direct messages
 are not captured until a later design explicitly defines free-text DM behavior.

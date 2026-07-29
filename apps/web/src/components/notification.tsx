@@ -33,6 +33,7 @@ const defaultNotificationMessages: NotificationMessages = {
   subjectWords: {
     category: "Category",
     discord: "Discord",
+    event: "Event",
     group: "Group",
     idea: "Idea",
     memory: "Memory",
@@ -51,15 +52,18 @@ const defaultNotificationMessages: NotificationMessages = {
     deadline: "deadline",
     description: "description",
     end_date: "end date",
+    estimated_duration: "estimated duration",
+    estimated_duration_hours: "estimated duration",
     expected_duration: "expected duration",
-    first_start_date: "first start date",
+    start_date: "start date",
     group: "group",
+    location: "location",
     name: "name",
     objective: "objective",
     preferred_time: "preferred time",
     rule: "rule",
-    start_date: "start date",
     text: "text",
+    time: "time",
     timezone: "timezone",
     title: "title",
   },
@@ -70,6 +74,14 @@ const defaultNotificationMessages: NotificationMessages = {
     duplicateName: (subject: string) =>
       `A ${subject} with that name already exists.`,
     inUse: (subject: string) => `This ${subject} is still in use.`,
+    invalidDurationHours: (field: string, limit?: number) =>
+      limit === undefined
+        ? `${field} must be a positive number of hours.`
+        : `${field} must be a positive number up to ${limit} hours.`,
+    invalidDurationMinutes: (field: string, limit?: number) =>
+      limit === undefined
+        ? `${field} must be a positive whole number of minutes.`
+        : `${field} must be a positive whole number up to ${limit} minutes.`,
     invalidFormatDate: (field: string) =>
       `${field} must be a real date in YYYY-MM-DD format.`,
     invalidFormatTime: (field: string) => `${field} must use HH:MM format.`,

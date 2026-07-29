@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import {
-  secondaryButtonDividerColorClass,
+  listDividerColorClass,
   secondaryTextColorClass,
 } from "./color";
 import { Button } from "./button";
@@ -21,7 +21,7 @@ export function List({
     <div
       className={cx(
         "overflow-hidden rounded-b-md",
-        secondaryButtonDividerColorClass,
+        listDividerColorClass,
         className,
       )}
     >
@@ -99,16 +99,22 @@ export function ListItemContent({
 export function ListItemTitle({
   children,
   className,
+  size = "default",
   truncate = false,
+  weight = "semibold",
 }: {
   children: ReactNode;
   className?: string;
+  size?: "default" | "compact";
   truncate?: boolean;
+  weight?: "normal" | "semibold";
 }) {
   return (
     <span
       className={cx(
-        "block min-w-0 text-base font-semibold leading-6",
+        "block min-w-0 leading-5",
+        size === "compact" ? "text-sm" : "text-base",
+        weight === "normal" ? "font-normal" : "font-semibold",
         truncate ? "truncate" : undefined,
         className,
       )}
@@ -144,7 +150,7 @@ export function ListItemSupportingText({
   tone?: ListItemTextTone;
 }) {
   return (
-    <span className={cx("text-xs leading-5", listItemTextToneClass(tone), className)}>
+    <span className={cx("text-xs leading-4", listItemTextToneClass(tone), className)}>
       {children}
     </span>
   );
@@ -184,7 +190,7 @@ export function ListItemActions({
   className?: string;
 }) {
   return (
-    <div className={cx("my-2 flex shrink-0 items-center gap-2", className)}>
+    <div className={cx("flex shrink-0 items-center gap-2 self-center", className)}>
       {children}
     </div>
   );

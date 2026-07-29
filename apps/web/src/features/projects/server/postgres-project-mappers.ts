@@ -49,6 +49,7 @@ export type ProjectTaskRow = {
   status: ProjectTaskStatus;
   start_date: Date | string | null;
   deadline_date: Date | string | null;
+  estimated_duration_minutes: number | null;
   sort_order: number;
   created_at: Date | string;
   updated_at: Date | string;
@@ -72,6 +73,7 @@ export const projectTaskSelect = `
     END AS status,
     project_tasks.start_date,
     project_tasks.deadline_date,
+    project_tasks.estimated_duration_minutes,
     project_tasks.sort_order,
     project_tasks.created_at,
     project_tasks.updated_at,
@@ -133,6 +135,7 @@ export function mapProjectTask(row: ProjectTaskRow): ProjectTaskRecord {
     status: row.status,
     startDate: toDateString(row.start_date),
     deadlineDate: toDateString(row.deadline_date),
+    estimatedDurationMinutes: row.estimated_duration_minutes,
     sortOrder: row.sort_order,
     createdAt: toDate(row.created_at),
     updatedAt: toDate(row.updated_at),

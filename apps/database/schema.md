@@ -1,7 +1,7 @@
 # Current Database Schema
 
 This is a human-readable schema snapshot after
-`0026_create_routine_groups.sql`.
+`0032_drop_event_estimated_duration_minutes.sql`.
 
 Source of truth:
 
@@ -187,8 +187,9 @@ Columns:
 - `group_id uuid REFERENCES routine_groups(id) ON DELETE SET NULL`
 - `title text NOT NULL`
 - `description text`
-- `first_start_date date NOT NULL`
+- `start_date date NOT NULL`
 - `end_date date`
+- `estimated_duration_minutes integer`
 - `created_at timestamptz NOT NULL`
 - `updated_at timestamptz NOT NULL`
 - `deleted_at timestamptz`
@@ -197,12 +198,13 @@ Important constraints:
 
 - title length: 1-120 characters
 - description length: at most 2000 characters
-- end date is null or not before first start date
+- end date is null or not before start date
+- estimated duration is null or 1-1440 minutes
 
 Indexes:
 
-- `(user_id, first_start_date)` where `deleted_at IS NULL`
-- `(user_id, group_id, first_start_date)` where `deleted_at IS NULL`
+- `(user_id, start_date)` where `deleted_at IS NULL`
+- `(user_id, group_id, start_date)` where `deleted_at IS NULL`
 
 ### `routine_groups`
 
@@ -316,6 +318,37 @@ Indexes:
 
 - `(user_id, target_type, target_id, occurred_at DESC)`
 
+## Events
+
+### `events`
+
+One-time scheduled items. Event delete is a soft delete through `deleted_at`.
+
+Columns:
+
+- `id uuid PRIMARY KEY`
+- `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
+- `title text NOT NULL`
+- `description text`
+- `event_date date NOT NULL`
+- `event_time time NOT NULL`
+- `estimated_duration_hours numeric(5,2)`
+- `location text`
+- `created_at timestamptz NOT NULL`
+- `updated_at timestamptz NOT NULL`
+- `deleted_at timestamptz`
+
+Important constraints:
+
+- title length: 1-120 characters after trim
+- description length: at most 2000 characters
+- estimated duration is null or a positive value up to 24 hours
+- location length: at most 500 characters
+
+Indexes:
+
+- `(user_id, event_date, event_time, created_at)` where `deleted_at IS NULL`
+
 ## Projects
 
 ### `projects`
@@ -399,6 +432,7 @@ Columns:
 - `description text`
 - `start_date date`
 - `deadline_date date`
+- `estimated_duration_minutes integer`
 - `sort_order integer NOT NULL DEFAULT 0`
 - `created_at timestamptz NOT NULL`
 - `updated_at timestamptz NOT NULL`
@@ -410,6 +444,7 @@ Important constraints:
 - title length: 1-120 characters
 - description length: at most 2000 characters
 - deadline date is null or not before start date
+- estimated duration is null or 1-1440 minutes
 
 Indexes:
 

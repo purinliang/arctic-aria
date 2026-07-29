@@ -121,6 +121,8 @@ export const englishProjectMessages = {
       titlePlaceholder: "Task title",
       milestone: "Milestone",
       noMilestone: "No milestone",
+      estimatedDuration: "Estimated duration",
+      estimatedDurationPlaceholder: "Minutes",
     },
   },
   confirm: {
@@ -151,6 +153,8 @@ export const englishProjectMessages = {
     milestone_objective_invalid: "Milestone objective must be 500 characters or fewer.",
     task_title_invalid: "Task title must be 1-120 characters.",
     task_description_invalid: "Task description must be 2000 characters or fewer.",
+    task_estimated_duration_invalid:
+      "Estimated duration must be 1-1440 minutes.",
     project_dates_invalid: "Dates must be real calendar dates in YYYY-MM-DD format.",
     project_not_found: "Project was not found.",
     project_or_milestone_not_found: "Project or milestone was not found.",
@@ -285,6 +289,8 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
       titlePlaceholder: "任务标题",
       milestone: "里程碑",
       noMilestone: "无里程碑",
+      estimatedDuration: "预计用时",
+      estimatedDurationPlaceholder: "分钟",
     },
   },
   confirm: {
@@ -314,6 +320,7 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
     milestone_objective_invalid: "里程碑目标必须不超过 500 个字符。",
     task_title_invalid: "任务标题必须为 1-120 个字符。",
     task_description_invalid: "任务描述必须不超过 2000 个字符。",
+    task_estimated_duration_invalid: "预计用时必须为 1-1440 分钟。",
     project_dates_invalid: "日期必须是真实日历日期，格式为 YYYY-MM-DD。",
     project_not_found: "没有找到项目。",
     project_or_milestone_not_found: "没有找到项目或里程碑。",

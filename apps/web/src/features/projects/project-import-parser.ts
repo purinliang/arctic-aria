@@ -8,6 +8,7 @@ import type {
 } from "./project-import-types.ts";
 import { coerceProjectDurationRange } from "./project-duration.ts";
 import type { ProjectDurationRange } from "./project-duration.ts";
+import { maxEstimatedDurationMinutes } from "../estimated-duration.ts";
 
 type MutableProject = ProjectImportDocument["project"];
 type Section =
@@ -27,6 +28,7 @@ const knownFields = new Set([
   "deadline",
   "description",
   "duration",
+  "estimated duration",
   "objective",
   "start date",
   "timeline",
@@ -50,7 +52,13 @@ const milestoneFields = new Set([
   "title",
 ]);
 
-const taskFields = new Set(["deadline", "description", "start date", "title"]);
+const taskFields = new Set([
+  "deadline",
+  "description",
+  "estimated duration",
+  "start date",
+  "title",
+]);
 
 export function parseProjectMarkdownToJson(
   markdown: string,
@@ -180,7 +188,15 @@ export function parseProjectMarkdownToJson(
         );
       }
 
-      applyTaskField(currentTask, parsed.data.field, parsed.data.value);
+      const result = applyTaskField(
+        currentTask,
+        parsed.data.field,
+        parsed.data.value,
+      );
+
+      if (!result.ok) {
+        return result;
+      }
       continue;
     }
 
@@ -490,6 +506,7 @@ function parseTasks(
     const unknown = unknownKeys(item, [
       "deadlineDate",
       "description",
+      "estimatedDurationMinutes",
       "startDate",
       "title",
     ]);
@@ -523,11 +540,20 @@ function parseTasks(
       return deadlineDate;
     }
 
+    const estimatedDurationMinutes = readOptionalPositiveInteger(
+      item.estimatedDurationMinutes,
+      `tasks[${index}].estimatedDurationMinutes`,
+    );
+    if (!estimatedDurationMinutes.ok) {
+      return estimatedDurationMinutes;
+    }
+
     tasks.push({
       title: title.data ?? "",
       description: description.data,
       startDate: startDate.data,
       deadlineDate: deadlineDate.data,
+      estimatedDurationMinutes: estimatedDurationMinutes.data,
     });
   }
 
@@ -694,7 +720,11 @@ function applyMilestoneField(
   return { ok: true, data: undefined };
 }
 
-function applyTaskField(task: ProjectImportTask, field: string, value: string) {
+function applyTaskField(
+  task: ProjectImportTask,
+  field: string,
+  value: string,
+): ProjectImportResult<undefined> {
   if (field === "title") {
     task.title = value;
   } else if (field === "description") {
@@ -703,7 +733,20 @@ function applyTaskField(task: ProjectImportTask, field: string, value: string) {
     task.startDate = value;
   } else if (field === "deadline") {
     task.deadlineDate = value;
+  } else if (field === "estimated duration") {
+    const estimatedDuration = readMarkdownPositiveInteger(
+      value,
+      "task.estimatedDurationMinutes",
+    );
+
+    if (!estimatedDuration.ok) {
+      return estimatedDuration;
+    }
+
+    task.estimatedDurationMinutes = estimatedDuration.data;
   }
+
+  return { ok: true, data: undefined };
 }
 
 function readMarkdownTimeline(
@@ -750,13 +793,63 @@ function readOptionalString(
   return { ok: true, data: value };
 }
 
+function readOptionalPositiveInteger(
+  value: unknown,
+  field: string,
+): ProjectImportResult<number | undefined> {
+  if (value === undefined || value === null) {
+    return { ok: true, data: undefined };
+  }
+
+  if (
+    typeof value !== "number" ||
+    !Number.isSafeInteger(value) ||
+    value < 1 ||
+    value > maxEstimatedDurationMinutes
+  ) {
+    return invalid(
+      field,
+      `${field} must be a positive whole number up to ${maxEstimatedDurationMinutes}.`,
+    );
+  }
+
+  return { ok: true, data: value };
+}
+
+function readMarkdownPositiveInteger(
+  value: string,
+  field: string,
+): ProjectImportResult<number | undefined> {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return { ok: true, data: undefined };
+  }
+
+  if (!/^\d+$/.test(trimmed)) {
+    return invalid(field, `${field} must be a positive whole number.`);
+  }
+
+  return readOptionalPositiveInteger(Number(trimmed), field);
+}
+
 function unknownKeys(value: Record<string, unknown>, allowed: string[]) {
   const allowedSet = new Set(allowed);
   return Object.keys(value).find((key) => !allowedSet.has(key)) ?? null;
 }
 
 function normalizeFieldName(value: string) {
-  return value.trim().toLowerCase().replace(/[-_]+/g, " ");
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/[()]/g, "")
+    .replace(/[-_]+/g, " ");
+
+  if (normalized === "estimated duration minutes") {
+    return "estimated duration";
+  }
+
+  return normalized;
 }
 
 function isSeparatorLine(value: string) {

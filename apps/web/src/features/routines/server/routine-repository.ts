@@ -29,8 +29,9 @@ export type RoutineRecord = {
   groupName: string | null;
   title: string;
   description: string | null;
-  firstStartDate: string;
+  startDate: string;
   endDate: string | null;
+  estimatedDurationMinutes: number | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -81,8 +82,9 @@ export type SaveRoutineInput = {
   groupId: string | null;
   title: string;
   description: string | null;
-  firstStartDate: string;
+  startDate: string;
   endDate: string | null;
+  estimatedDurationMinutes: number | null;
   rule: RoutineRuleInput;
   occurredAt: Date;
 };
@@ -276,8 +278,9 @@ export class InMemoryRoutineRepository implements RoutineRepository {
       groupName: group?.name ?? null,
       title: input.title,
       description: input.description,
-      firstStartDate: input.firstStartDate,
+      startDate: input.startDate,
       endDate: input.endDate,
+      estimatedDurationMinutes: input.estimatedDurationMinutes,
       createdAt: input.occurredAt,
       updatedAt: input.occurredAt,
       deletedAt: null,
@@ -308,6 +311,7 @@ export class InMemoryRoutineRepository implements RoutineRepository {
 
     routine.title = input.title;
     routine.description = input.description;
+    routine.estimatedDurationMinutes = input.estimatedDurationMinutes;
     const group = input.groupId
       ? this.groups.find(
           (current) =>
@@ -319,7 +323,7 @@ export class InMemoryRoutineRepository implements RoutineRepository {
 
     routine.groupId = group?.id ?? null;
     routine.groupName = group?.name ?? null;
-    routine.firstStartDate = input.firstStartDate;
+    routine.startDate = input.startDate;
     routine.endDate = input.endDate;
     routine.updatedAt = input.occurredAt;
     routine.rule = {

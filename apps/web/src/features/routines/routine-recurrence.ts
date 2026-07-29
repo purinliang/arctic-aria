@@ -11,7 +11,7 @@ export type RoutineRecurrenceOption =
   | "fixed_days";
 
 export type RoutineRecurrenceDraft = {
-  firstStartDate: string;
+  startDate: string;
   endDate?: string | null;
   ruleType: RoutineRuleType;
   recurrenceOption?: RoutineRecurrenceOption;
@@ -83,8 +83,8 @@ export function applyRecurrenceOption<T extends RoutineRecurrenceDraft>(
   draft: T,
   option: RoutineRecurrenceOption,
 ): T {
-  const weekday = weekdayFromDateKey(draft.firstStartDate);
-  const dayOfMonth = dayOfMonthFromDateKey(draft.firstStartDate);
+  const weekday = weekdayFromDateKey(draft.startDate);
+  const dayOfMonth = dayOfMonthFromDateKey(draft.startDate);
 
   if (option === "once") {
     return {
@@ -187,12 +187,12 @@ export function normalizeRoutineRecurrenceDraft<T extends RoutineRecurrenceDraft
 export function normalizeRoutineRecurrence(
   draft: RoutineRecurrenceDraft,
 ): NormalizedRoutineRule | null {
-  if (!isValidDateKey(draft.firstStartDate)) {
+  if (!isValidDateKey(draft.startDate)) {
     return null;
   }
 
-  const weekday = weekdayFromDateKey(draft.firstStartDate);
-  const dayOfMonth = dayOfMonthFromDateKey(draft.firstStartDate);
+  const weekday = weekdayFromDateKey(draft.startDate);
+  const dayOfMonth = dayOfMonthFromDateKey(draft.startDate);
 
   if (weekday === null || dayOfMonth === null) {
     return null;
@@ -272,7 +272,7 @@ export function previewRoutineDateKeys(
   draft: RoutineRecurrenceDraft,
   limit = 3,
 ) {
-  if (!isValidDateKey(draft.firstStartDate)) {
+  if (!isValidDateKey(draft.startDate)) {
     return { dates: [] as string[], continues: false };
   }
 
@@ -286,7 +286,7 @@ export function previewRoutineDateKeys(
 
   if (rule.ruleType === "once") {
     return {
-      dates: endDate && draft.firstStartDate > endDate ? [] : [draft.firstStartDate],
+      dates: endDate && draft.startDate > endDate ? [] : [draft.startDate],
       continues: false,
     };
   }
@@ -295,7 +295,7 @@ export function previewRoutineDateKeys(
   let offset = 0;
 
   while (dates.length < limit + 1 && offset < 1000) {
-    const nextDate = nextDateKey(draft.firstStartDate, rule, offset);
+    const nextDate = nextDateKey(draft.startDate, rule, offset);
 
     if (endDate && nextDate > endDate) {
       break;
@@ -331,27 +331,27 @@ function noDetailRule(
 }
 
 function nextDateKey(
-  firstStartDate: string,
+  startDate: string,
   rule: NormalizedRoutineRule,
   offset: number,
 ) {
   if (rule.ruleType === "daily") {
-    return addDays(firstStartDate, offset);
+    return addDays(startDate, offset);
   }
 
   if (rule.ruleType === "weekly") {
-    return addDays(firstStartDate, offset * 7);
+    return addDays(startDate, offset * 7);
   }
 
   if (rule.ruleType === "bi_weekly") {
-    return addDays(firstStartDate, offset * 14);
+    return addDays(startDate, offset * 14);
   }
 
   if (rule.ruleType === "monthly_by_date") {
-    return addMonths(firstStartDate, offset * (rule.intervalValue ?? 1));
+    return addMonths(startDate, offset * (rule.intervalValue ?? 1));
   }
 
-  return addDays(firstStartDate, offset * (rule.intervalValue ?? 90));
+  return addDays(startDate, offset * (rule.intervalValue ?? 90));
 }
 
 function addDays(value: string, days: number) {

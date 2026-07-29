@@ -1,6 +1,7 @@
 import { formatDateKey } from "../../components/forms/date-format.ts";
+import { formatTimeDisplay } from "../../components/forms/time-display.ts";
 import { englishFormMessages } from "../../messages/form-messages.ts";
-import type { PinnedMemory, Routine, Task } from "./types.ts";
+import type { PinnedMemory, Routine, ScheduledEvent, Task } from "./types.ts";
 
 export type TodayReviewSummaryTone =
   | "fulfilled"
@@ -31,12 +32,14 @@ const routineProgressWeight = 1;
 
 export function buildTodayReviewText({
   dateKey = todayReviewDateKey(),
+  events = [],
   memories,
   routines,
   summaryMessages = fallbackTodayReviewSummaryMessages,
   tasks,
 }: {
   dateKey?: string;
+  events?: ScheduledEvent[];
   memories: PinnedMemory[];
   routines: Routine[];
   summaryMessages?: TodayReviewSummaryMessages;
@@ -100,6 +103,8 @@ export function buildTodayReviewText({
       })),
       "No routines were due today.",
     ),
+    "### Events",
+    eventList(events, "No events were scheduled today."),
     "### Pinned Memories",
     checkboxList(
       memories.map((memory) => ({
@@ -313,6 +318,36 @@ function checkboxList(
       }
 
       return `- ${checkbox} **${title}**: ${markdownText(description)}`;
+    })
+    .join("\n");
+}
+
+function eventList(events: ScheduledEvent[], emptyText: string) {
+  if (events.length === 0) {
+    return emptyText;
+  }
+
+  return events
+    .map((event) => {
+      const title = markdownText(event.title);
+      const details = [
+        event.description?.trim().replace(/\s+/g, " "),
+        `Time: ${
+          formatTimeDisplay(
+            event.eventTime,
+            englishFormMessages.timePicker,
+            "12h",
+          ) || event.eventTime
+        }`,
+        event.estimatedDurationHours
+          ? `Estimated duration: ${event.estimatedDurationHours} ${
+              event.estimatedDurationHours === 1 ? "hour" : "hours"
+            }`
+          : null,
+        event.location ? `Location: ${event.location}` : null,
+      ].filter((detail): detail is string => Boolean(detail));
+
+      return `- **${title}**: ${details.map(markdownText).join(" · ")}`;
     })
     .join("\n");
 }

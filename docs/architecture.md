@@ -13,6 +13,7 @@ Arctic Aria
 |   |-- Settings
 |   |-- Projects
 |   |-- Routines
+|   |-- Events
 |   |-- Memories
 |   |-- Dashboard
 |   |-- Ideas
@@ -38,7 +39,7 @@ services provide storage now and can later provide cache, dataflow, scheduling,
 and external adapters.
 
 Currently implemented product features are Auth, Settings, Projects, Routines,
-Memories, Dashboard, Ideas, administrator Performance diagnostics, and the
+Events, Memories, Dashboard, Ideas, administrator Performance diagnostics, and the
 feature-level scheduling needed for Today and Discord notifications. The
 Discord integration is hosted by the Next.js web app and supports account
 binding, `/idea` capture, outbound test messages, routine reminders, and Daily
@@ -138,6 +139,19 @@ Detailed docs:
 - [features/routines/ui.md](features/routines/ui.md)
 - [features/routines/web-implementation.md](features/routines/web-implementation.md)
 
+### Events
+
+Events are one-time scheduled items such as appointments, meetings, booked
+activities, and other fixed plans. An Event is not a project task and not a
+routine instance.
+
+Detailed docs:
+
+- [features/events/overview.md](features/events/overview.md)
+- [features/events/data-model.md](features/events/data-model.md)
+- [features/events/ui.md](features/events/ui.md)
+- [features/events/web-implementation.md](features/events/web-implementation.md)
+
 ### Memories
 
 Memories store repeatable personal experiences that the user may want to
@@ -155,7 +169,7 @@ Detailed docs:
 ### Dashboard
 
 The dashboard is the daily operating surface. It combines selected data from
-Projects, Routines, Memories, and future Reviews, but it should not redefine
+Projects, Routines, Events, Memories, and future Reviews, but it should not redefine
 those feature rules.
 
 Detailed docs:

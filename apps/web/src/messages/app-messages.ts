@@ -8,6 +8,10 @@ import {
   simplifiedChineseFormMessages,
 } from "./form-messages";
 import {
+  englishEventMessages,
+  simplifiedChineseEventMessages,
+} from "./event-messages";
+import {
   englishIdeaMessages,
   simplifiedChineseIdeaMessages,
 } from "./idea-messages";
@@ -28,6 +32,7 @@ export type AppMessages = typeof englishMessages;
 export type AppShellMessages = AppMessages["appShell"];
 export type AuthMessages = AppMessages["auth"];
 export type DashboardMessages = AppMessages["dashboard"];
+export type EventMessages = AppMessages["events"];
 export type FormMessages = AppMessages["forms"];
 export type IdeaMessages = AppMessages["ideas"];
 export type MemoryMessages = AppMessages["memories"];
@@ -46,6 +51,7 @@ const englishMessages = {
     workspace: "Workspace",
     pages: {
       dashboard: "Today",
+      events: "Events",
       ideas: "Ideas",
       memories: "Memories",
       projects: "Projects",
@@ -54,16 +60,11 @@ const englishMessages = {
     },
     pageDescriptions: {
       dashboard: "Focus on today's plan.",
+      events: "Keep one-time plans visible.",
       ideas: "Capture thoughts for later review.",
       memories: "Keep experiences worth returning to.",
       routines: "Review repeatable checks for daily life.",
       settings: "Manage preferences, bindings, and app information.",
-    },
-    sidebar: {
-      darkMode: "Dark mode",
-      lightMode: "Light mode",
-      signOut: "Sign out",
-      signingOut: "Signing out",
     },
   },
   auth: {
@@ -121,38 +122,54 @@ const englishMessages = {
   },
   settings: {
     description: "Theme, language, and app information.",
-    appInformationDescription: "Current app version.",
+    accountDescription: "Current profile and sign-out.",
+    accountTitle: "Account",
+    appInformationDescription: "Version and development tools.",
     appInformationTitle: "About",
+    displayNameDescription: "Shown inside Arctic Aria.",
+    displayNameTitle: "Display name",
     discord: {
-      bind: "Bind",
       bindInstructionActive:
-        "Send {command} to Arctic Aria in Discord in {status}.",
+        "Copy {code}, then run {command} in Discord. {status}",
       bindInstructionExpired:
-        "Send {command} to Arctic Aria in Discord. {status}",
-      bound: "Bound account",
-      boundAccountId: (accountId: string) => `Bound Account ID: ${accountId}`,
-      boundAccountIdLabel: "Bound Account ID",
+        "{code} has expired. Create a new code to connect Discord.",
+      bindingCodeTitle: "Binding code",
       cancel: "Cancel",
+      cancelConnectionDescription:
+        "Stop this pending connection and create a new code later.",
+      cancelConnectionTitle: "Cancel connection",
       checkAgain: "Check Again",
-      checkFailed: "Binding status unavailable.",
-      checking: "Checking binding status...",
-      closeUnbindConfirmation: "Close Discord disconnect confirmation",
+      codeCopiedMessage: "Binding code copied.",
+      codeCopiedTitle: "Code copied",
+      codeCopyFailedMessage: "Binding code could not be copied.",
+      codeCopyFailedTitle: "Code not copied",
+      closeUnbindConfirmation: "Close Discord unbind confirmation",
+      connect: "Connect",
+      connectDescription: "Create a short-lived code and finish in Discord.",
+      connectTitle: "Connect Discord",
+      connectionChecking: "Checking",
+      connectionConnected: "Connected",
+      connectionConnecting: "Connecting",
+      connectionDisconnected: "Disconnected",
+      connectionStatusDescription: "Current Discord connection state.",
+      connectionStatusTitle: "Connection status",
+      connectionUnknown: "Unknown",
       confirmUnbindDescription:
-        "This unbinds Discord from this Arctic Aria account. You can bind it again later with a new code.",
-      confirmUnbindTitle: "Unbind Discord?",
-      description:
-        "Bind Discord so Arctic Aria can receive ideas from you and send messages to you.",
+        "This disconnects Discord from this Arctic Aria account. You can connect it again later with a new code.",
+      confirmUnbindTitle: "Disconnect Discord?",
+      copyCode: "Copy code",
+      description: "Connection status and direct-message tests.",
       bindCodeRemaining: (minutes: number) =>
-        minutes === 1 ? "1 minute" : `${minutes} minutes`,
-      expired: "Expired",
+        minutes === 1
+          ? "Expires in 1 minute."
+          : `Expires in ${minutes} minutes.`,
+      expired: "Expired.",
       genericError: "Discord settings could not be updated.",
-      hideAccountId: "Hide",
       label: "Discord",
-      notConnected: "No bound account.",
       notifications: {
-        codeCanceled: "Connection code canceled",
+        codeCanceled: "Binding code canceled",
         codeCancelFailed: "Code not canceled",
-        codeCreated: "Connection code created",
+        codeCreated: "Binding code created",
         codeCreateFailed: "Code not created",
         loadFailed: "Discord unavailable",
         testFailed: "Test message not sent",
@@ -167,14 +184,25 @@ const englishMessages = {
           "Use the code in Discord to connect your account.",
         settings_discord_test_no_binding: "No active Discord binding.",
         settings_discord_test_sent: "Check your Discord DM.",
-        settings_discord_unbound: "Discord unbound.",
+        settings_discord_unbound: "Discord disconnected.",
         settings_unauthorized: "Sign in before changing settings.",
       },
-      sendTest: "Send Test",
-      title: "Discord Binding",
-      unbind: "Unbind",
-      viewAccountId: "View",
+      refreshStatusDescription: "Try loading the Discord status again.",
+      refreshStatusTitle: "Refresh status",
+      sendTest: "Send Test Message",
+      testMessageDescription: "Check whether Aria can send you a DM.",
+      testMessageTitle: "Direct messages",
+      title: "Discord",
+      unbind: "Disconnect",
+      unbindDescription: "Stop Discord idea capture and direct messages.",
+      unbindTitle: "Disconnect Discord",
     },
+    signOut: "Sign out",
+    signOutDescription: "Leave this browser session.",
+    signOutTitle: "Sign out",
+    signingOut: "Signing out",
+    usernameDescription: "Used to sign in.",
+    usernameTitle: "Username",
     developerImport: {
       ambiguousInputMessage:
         "Paste either project templates or routine templates, not both.",
@@ -212,6 +240,7 @@ const englishMessages = {
       lastRun: (sampleCount: number, measuredAt: string) =>
         `Last run: ${sampleCount} samples · ${measuredAt}`,
       latencyActionDescription: "Run 30 samples and show compact statistics.",
+      latencyActionTitle: "Latency samples",
       latencyDescription:
         "Test latency between frontend, server, and database.",
       latencyTitle: "Latency Test",
@@ -240,15 +269,15 @@ const englishMessages = {
       testLatency: "Test Latency",
       testing: "Testing...",
     },
-    developerModeDescription: "Show developer tools in Settings.",
-    developerModeTitle: "Developer Mode",
+    developerModeDescription: "Show internal development tools.",
+    developerModeTitle: "Developer mode",
+    languageDescription: "Choose the interface language.",
     languageLabel: "Language",
     languageOptions: {
       english: "English",
       simplifiedChinese: "简体中文",
       system: "Use system setting",
     },
-    languageSupport: "Some translations are incomplete and machine translated.",
     notifications: {
       preferencesLoadFailed: "Settings unavailable",
       preferencesSaveFailed: "Settings not saved",
@@ -261,25 +290,26 @@ const englishMessages = {
     },
     preferencesDescription: "Display, language, and time preferences.",
     preferencesTitle: "Preferences",
+    themeDescription: "Choose the workspace color mode.",
     themeLabel: "Theme",
     themeOptions: {
       dark: "Dark",
       light: "Light",
       system: "Use system setting",
     },
+    timeFormatDescription: "Choose how times are displayed.",
     timeFormatLabel: "Time format",
     timeFormatOptions: {
       twelveHour: "12-hour",
       twentyFourHour: "24-hour",
     },
     timeZoneLabel: "Timezone",
-    timeZoneDescription: (timeZone: string, offset: string) =>
-      `${timeZone} · ${offset}`,
-    timeZoneSystemDescription: (timeZone: string, offset: string) =>
-      `Browser timezone: ${timeZone} · ${offset}`,
+    timeZoneDescription: "Used for local-day scheduling and reminders.",
     timeZoneOptions: {
       system: "Use system setting",
     },
+    versionDescription: "Current app version.",
+    versionTitle: "Version",
     multipleTimezonesLabel: "Use multiple timezones",
     multipleTimezonesDescription:
       "For overseas meetings or routines coordinated with people in another timezone.",
@@ -303,6 +333,7 @@ const englishMessages = {
     subjectWords: {
       category: "Category",
       discord: "Discord",
+      event: "Event",
       group: "Group",
       idea: "Idea",
       memory: "Memory",
@@ -321,17 +352,20 @@ const englishMessages = {
       deadline: "deadline",
       description: "description",
       end_date: "end date",
+      estimated_duration: "estimated duration",
+      estimated_duration_hours: "estimated duration",
       expected_duration: "expected duration",
-      first_start_date: "first start date",
+      start_date: "start date",
       group: "group",
       name: "name",
       objective: "objective",
       preferred_time: "preferred time",
       rule: "rule",
-      start_date: "start date",
       text: "text",
+      time: "time",
       timezone: "timezone",
       title: "title",
+      location: "location",
     },
     parameterFailureMessages: {
       beforeStart: (field: string, startField: string) =>
@@ -340,6 +374,14 @@ const englishMessages = {
       duplicateName: (subject: string) =>
         `A ${subject} with that name already exists.`,
       inUse: (subject: string) => `This ${subject} is still in use.`,
+      invalidDurationHours: (field: string, limit?: number) =>
+        limit === undefined
+          ? `${field} must be a positive number of hours.`
+          : `${field} must be a positive number up to ${limit} hours.`,
+      invalidDurationMinutes: (field: string, limit?: number) =>
+        limit === undefined
+          ? `${field} must be a positive whole number of minutes.`
+          : `${field} must be a positive whole number up to ${limit} minutes.`,
       invalidFormatDate: (field: string) =>
         `${field} must be a real date in YYYY-MM-DD format.`,
       invalidFormatTime: (field: string) =>
@@ -382,6 +424,7 @@ const englishMessages = {
     dismiss: "Dismiss notification",
   },
   dashboard: englishDashboardMessages,
+  events: englishEventMessages,
   forms: englishFormMessages,
   ideas: englishIdeaMessages,
   memories: englishMemoryMessages,
@@ -406,6 +449,7 @@ const simplifiedChineseMessages: AppMessages = {
     workspace: "工作区",
     pages: {
       dashboard: "今日",
+      events: "事件",
       ideas: "想法",
       memories: "回忆",
       projects: "项目",
@@ -414,16 +458,11 @@ const simplifiedChineseMessages: AppMessages = {
     },
     pageDescriptions: {
       dashboard: "专注今天的计划。",
+      events: "查看一次性的计划。",
       ideas: "先收好想法，之后再整理。",
       memories: "保存值得再次体验的事。",
       routines: "照看重复出现的日常。",
       settings: "管理偏好、绑定和应用信息。",
-    },
-    sidebar: {
-      darkMode: "深色模式",
-      lightMode: "浅色模式",
-      signOut: "退出登录",
-      signingOut: "正在退出登录",
     },
   },
   auth: {
@@ -480,58 +519,82 @@ const simplifiedChineseMessages: AppMessages = {
   },
   settings: {
     description: "主题、语言和应用信息。",
-    appInformationDescription: "当前应用版本。",
+    accountDescription: "当前资料和退出登录。",
+    accountTitle: "账户",
+    appInformationDescription: "版本和开发工具。",
     appInformationTitle: "关于",
+    displayNameDescription: "在北极阿莉雅中显示。",
+    displayNameTitle: "显示名称",
     discord: {
-      bind: "绑定",
       bindInstructionActive:
-        "在 Discord 中向 Arctic Aria 发送 {command}，请在 {status}内完成。",
+        "复制 {code}，然后在 Discord 中运行 {command}。{status}",
       bindInstructionExpired:
-        "在 Discord 中向 Arctic Aria 发送 {command}。 {status}",
-      bound: "已绑定账户",
-      boundAccountId: (accountId: string) => `已绑定账户 ID：${accountId}`,
-      boundAccountIdLabel: "已绑定账户 ID",
+        "{code} 已过期。请重新创建代码来绑定 Discord。",
+      bindingCodeTitle: "绑定代码",
       cancel: "取消",
+      cancelConnectionDescription: "取消这次绑定，之后可以重新创建代码。",
+      cancelConnectionTitle: "取消绑定",
       checkAgain: "重新检查",
-      checkFailed: "绑定状态不可用。",
-      checking: "正在检查绑定状态...",
-      closeUnbindConfirmation: "关闭 Discord 断开确认",
+      codeCopiedMessage: "绑定代码已复制。",
+      codeCopiedTitle: "代码已复制",
+      codeCopyFailedMessage: "无法复制绑定代码。",
+      codeCopyFailedTitle: "代码未复制",
+      closeUnbindConfirmation: "关闭 Discord 解绑确认",
+      connect: "绑定",
+      connectDescription: "创建一个临时代码，然后在 Discord 中完成绑定。",
+      connectTitle: "绑定 Discord",
+      connectionChecking: "检查中",
+      connectionConnected: "已绑定",
+      connectionConnecting: "绑定中",
+      connectionDisconnected: "未绑定",
+      connectionStatusDescription: "当前 Discord 绑定状态。",
+      connectionStatusTitle: "绑定状态",
+      connectionUnknown: "未知",
       confirmUnbindDescription:
-        "这会解除 Discord 与此 Arctic Aria 账户的绑定。之后可以使用新代码再次绑定。",
+        "这会解除 Discord 与此北极阿莉雅账户的绑定。之后可以使用新代码再次绑定。",
       confirmUnbindTitle: "解绑 Discord？",
-      description:
-        "绑定 Discord 后，Arctic Aria 可以接收你的想法并向你发送消息。",
-      bindCodeRemaining: (minutes: number) => `${minutes} 分钟`,
-      expired: "已过期",
+      copyCode: "复制代码",
+      description: "绑定状态和私信测试。",
+      bindCodeRemaining: (minutes: number) => `${minutes} 分钟后过期。`,
+      expired: "已过期。",
       genericError: "Discord 设置无法更新。",
-      hideAccountId: "隐藏",
       label: "Discord",
-      notConnected: "没有绑定账户。",
       notifications: {
-        codeCanceled: "连接代码已取消",
+        codeCanceled: "绑定代码已取消",
         codeCancelFailed: "代码未取消",
-        codeCreated: "连接代码已创建",
+        codeCreated: "绑定代码已创建",
         codeCreateFailed: "代码未创建",
         loadFailed: "Discord 不可用",
         testFailed: "测试消息未发送",
         testSent: "测试消息已发送",
-        unbound: "Discord 已断开",
-        unbindFailed: "Discord 未断开",
+        unbound: "Discord 已解绑",
+        unbindFailed: "Discord 未解绑",
       },
       results: {
         settings_discord_binding_loaded: "Discord 绑定已加载。",
         settings_discord_code_canceled: "Discord 绑定代码已取消。",
-        settings_discord_code_created: "请在 Discord 中使用此代码连接账户。",
+        settings_discord_code_created: "请在 Discord 中使用此代码绑定账户。",
         settings_discord_test_no_binding: "没有有效的 Discord 绑定。",
         settings_discord_test_sent: "请检查你的 Discord 私信。",
         settings_discord_unbound: "Discord 已解绑。",
         settings_unauthorized: "请先登录再更改设置。",
       },
-      sendTest: "发送测试",
-      title: "Discord 绑定",
+      refreshStatusDescription: "重新加载 Discord 状态。",
+      refreshStatusTitle: "刷新状态",
+      sendTest: "发送测试消息",
+      testMessageDescription: "确认阿莉雅可以给你发送私信。",
+      testMessageTitle: "Discord 私信",
+      title: "Discord",
       unbind: "解绑",
-      viewAccountId: "查看",
+      unbindDescription: "停止 Discord 想法捕捉和私信消息。",
+      unbindTitle: "解绑 Discord",
     },
+    signOut: "退出登录",
+    signOutDescription: "结束当前浏览器会话。",
+    signOutTitle: "退出登录",
+    signingOut: "正在退出登录",
+    usernameDescription: "用于登录。",
+    usernameTitle: "用户名",
     developerImport: {
       ambiguousInputMessage: "请只粘贴项目模板或日常模板，不要混在一起。",
       copyProjectTemplate: "复制项目模板",
@@ -568,6 +631,7 @@ const simplifiedChineseMessages: AppMessages = {
       lastRun: (sampleCount, measuredAt) =>
         `上次运行：${sampleCount} 次采样 · ${measuredAt}`,
       latencyActionDescription: "运行 30 次采样并显示简要统计。",
+      latencyActionTitle: "延迟采样",
       latencyDescription: "测试前端、服务器与数据库之间的延迟。",
       latencyTitle: "延迟测试",
       markdownTitle: (sampleCount, measuredAt) =>
@@ -595,15 +659,15 @@ const simplifiedChineseMessages: AppMessages = {
       testLatency: "测试延迟",
       testing: "正在测试...",
     },
-    developerModeDescription: "在设置中显示开发者工具。",
+    developerModeDescription: "显示内部开发工具。",
     developerModeTitle: "开发者模式",
+    languageDescription: "选择界面语言。",
     languageLabel: "语言",
     languageOptions: {
       english: "English",
       simplifiedChinese: "简体中文",
       system: "使用系统设置",
     },
-    languageSupport: "部分翻译尚未完成，且由机器翻译。",
     notifications: {
       preferencesLoadFailed: "设置不可用",
       preferencesSaveFailed: "设置未保存",
@@ -615,24 +679,26 @@ const simplifiedChineseMessages: AppMessages = {
     },
     preferencesDescription: "显示、语言和时间偏好。",
     preferencesTitle: "偏好设置",
+    themeDescription: "选择工作区的颜色模式。",
     themeLabel: "主题",
     themeOptions: {
       dark: "深色",
       light: "浅色",
       system: "使用系统设置",
     },
+    timeFormatDescription: "选择时间的显示方式。",
     timeFormatLabel: "时间格式",
     timeFormatOptions: {
       twelveHour: "12 小时制",
       twentyFourHour: "24 小时制",
     },
     timeZoneLabel: "时区",
-    timeZoneDescription: (timeZone, offset) => `${timeZone} · ${offset}`,
-    timeZoneSystemDescription: (timeZone, offset) =>
-      `浏览器时区：${timeZone} · ${offset}`,
+    timeZoneDescription: "用于本地日期安排和提醒。",
     timeZoneOptions: {
       system: "使用系统设置",
     },
+    versionDescription: "当前应用版本。",
+    versionTitle: "版本",
     multipleTimezonesLabel: "使用多个时区",
     multipleTimezonesDescription:
       "适合海外会议，或需要和不同时区的人一起安排的日常。",
@@ -656,6 +722,7 @@ const simplifiedChineseMessages: AppMessages = {
     subjectWords: {
       category: "分类",
       discord: "Discord",
+      event: "事件",
       group: "分组",
       idea: "想法",
       memory: "回忆",
@@ -674,17 +741,20 @@ const simplifiedChineseMessages: AppMessages = {
       deadline: "截止日期",
       description: "描述",
       end_date: "结束日期",
+      estimated_duration: "预计用时",
+      estimated_duration_hours: "预计用时",
       expected_duration: "预计持续时间",
-      first_start_date: "首次开始日期",
+      start_date: "开始日期",
       group: "分组",
       name: "名称",
       objective: "目标",
       preferred_time: "偏好时间",
       rule: "规则",
-      start_date: "开始日期",
       text: "内容",
+      time: "时间",
       timezone: "时区",
       title: "标题",
+      location: "地点",
     },
     parameterFailureMessages: {
       beforeStart: (field: string, startField: string) =>
@@ -692,6 +762,14 @@ const simplifiedChineseMessages: AppMessages = {
       chooseRequired: (field: string) => `请选择${field}。`,
       duplicateName: (subject: string) => `同名${subject}已存在。`,
       inUse: (subject: string) => `这个${subject}仍在使用中。`,
+      invalidDurationHours: (field: string, limit?: number) =>
+        limit === undefined
+          ? `${field}必须是正数小时数。`
+          : `${field}必须是大于 0 且不超过 ${limit} 的小时数。`,
+      invalidDurationMinutes: (field: string, limit?: number) =>
+        limit === undefined
+          ? `${field}必须是正整数分钟数。`
+          : `${field}必须是 1-${limit} 分钟的正整数。`,
       invalidFormatDate: (field: string) =>
         `${field}必须是真实日期，格式为 YYYY-MM-DD。`,
       invalidFormatTime: (field: string) =>
@@ -732,6 +810,7 @@ const simplifiedChineseMessages: AppMessages = {
     dismiss: "关闭通知",
   },
   dashboard: simplifiedChineseDashboardMessages,
+  events: simplifiedChineseEventMessages,
   forms: simplifiedChineseFormMessages,
   ideas: simplifiedChineseIdeaMessages,
   memories: simplifiedChineseMemoryMessages,

@@ -4,6 +4,7 @@ import { useDefaultDescriptionPlaceholder } from "@/components/default-descripti
 import { CrudEditorDialog } from "@/components/dialog";
 import { formFieldClass } from "@/components/control-layout";
 import { DatePickerField } from "@/components/forms/date-picker-field";
+import { EstimatedDurationMinutesField } from "@/components/forms/estimated-duration-field";
 import {
   FormFieldStack,
   FormGrid,
@@ -85,6 +86,47 @@ export function RoutineEditorDialog({
         descriptionPlaceholder={descriptionPlaceholder}
         setDraft={setDraft}
       />
+      <RoutineMetadataFields
+        darkMode={darkMode}
+        pending={pending}
+        draft={draft}
+        groups={groups}
+        messages={messages}
+        formMessages={formMessages}
+        timeFormatPreference={timeFormatPreference}
+        multipleTimezonesEnabled={multipleTimezonesEnabled}
+        resolvedTimeZone={resolvedTimeZone}
+        setDraft={setDraft}
+      />
+    </CrudEditorDialog>
+  );
+}
+
+function RoutineMetadataFields({
+  darkMode,
+  pending,
+  draft,
+  groups,
+  messages,
+  formMessages,
+  timeFormatPreference,
+  multipleTimezonesEnabled,
+  resolvedTimeZone,
+  setDraft,
+}: {
+  darkMode: boolean;
+  pending: boolean;
+  draft: RoutineInput;
+  groups: RoutineGroupOption[];
+  messages: RoutineMessages;
+  formMessages: FormMessages;
+  timeFormatPreference: TimeFormatPreference;
+  multipleTimezonesEnabled: boolean;
+  resolvedTimeZone: string;
+  setDraft: Dispatch<SetStateAction<RoutineInput>>;
+}) {
+  return (
+    <FormSection>
       <RoutineGroupField
         darkMode={darkMode}
         pending={pending}
@@ -112,7 +154,7 @@ export function RoutineEditorDialog({
         formMessages={formMessages}
         setDraft={setDraft}
       />
-    </CrudEditorDialog>
+    </FormSection>
   );
 }
 
@@ -266,19 +308,19 @@ function RoutineScheduleFields({
 
   return (
     <FormSection>
-      <FormGrid columns={3}>
-        <FieldLabel darkMode={darkMode} label={messages.firstStartDate}>
+      <FormGrid columns={2}>
+        <FieldLabel darkMode={darkMode} label={messages.startDate}>
           <DatePickerField
             darkMode={darkMode}
             placeholder={messages.selectFirstDate}
             messages={formMessages.datePicker}
-            value={draft.firstStartDate}
+            value={draft.startDate}
             disabled={pending}
-            onChange={(firstStartDate) =>
+            onChange={(startDate) =>
               setDraft((current) =>
                 normalizeRoutineRecurrenceDraft({
                   ...current,
-                  firstStartDate,
+                  startDate,
                 }),
               )
             }
@@ -296,6 +338,8 @@ function RoutineScheduleFields({
             }
           />
         </FieldLabel>
+      </FormGrid>
+      <FormGrid columns={2}>
         <FieldLabel darkMode={darkMode} label={messages.preferredTime}>
           <TimePickerField
             darkMode={darkMode}
@@ -312,6 +356,19 @@ function RoutineScheduleFields({
             }
           />
         </FieldLabel>
+        <EstimatedDurationMinutesField
+          darkMode={darkMode}
+          value={draft.estimatedDurationMinutes ?? ""}
+          disabled={pending}
+          label={messages.estimatedDuration}
+          placeholder={messages.estimatedDurationPlaceholder}
+          onChange={(estimatedDurationMinutes) =>
+            setDraft((current) => ({
+              ...current,
+              estimatedDurationMinutes,
+            }))
+          }
+        />
       </FormGrid>
       {multipleTimezonesEnabled ? (
         <FormFieldStack>

@@ -23,11 +23,13 @@ Duration: 1_3_months
 
 - Title: Prepare resume
   Description: Rewrite backend experience bullets.
+  Estimated duration minutes: 45
   Start date: 2026-07-22
   Deadline: 2026-07-30
 
 - Title: Apply to first role
   Description: Send one careful application.
+  Estimated duration minutes: 30
   Start date: 2026-07-23
   Deadline: 2026-08-01
 
@@ -42,6 +44,7 @@ Duration: 1_3_months
 
 - Title: Practice system design
   Description: Review one system design topic.
+  Estimated duration minutes: 60
   Start date: 2026-08-01
   Deadline: 2026-08-07
 
@@ -52,14 +55,18 @@ Duration: 1_3_months
 <!-- Project import rules: one Project block creates one project. Repeat the Project heading to import multiple projects. Keep tasks nested under the milestone they belong to. -->
 <!-- Legal project fields: Objective, Start date, Timeline, Duration, Deadline. -->
 <!-- Legal milestone fields: Objective, Start date, Timeline, Duration, Deadline. -->
-<!-- Legal task fields: Title, Description, Start date, Deadline. -->
+<!-- Legal task fields: Title, Description, Estimated duration minutes, Start date, Deadline. -->
+<!-- Estimated duration minutes is optional and must be a whole number from 1 to 1440. Leave it empty if the estimate is unknown. -->
 <!-- Legal duration values: 1_3_months, 3_6_months, 6_12_months, 1_3_years. -->
 <!-- Each field is single-line "Field: value"; multiline values are not supported. -->
-<!-- Timeline is either duration with Duration, or deadline with Deadline. -->`,
+<!-- Timeline is either duration with Duration, or deadline with Deadline. -->
+<!-- Plan milestone dates as a realistic sequence. Do not start every milestone on the project start date unless the work truly runs in parallel. -->
+<!-- Put externally constrained work early enough to leave buffer for people, organizations, bookings, approvals, tests, documents, shipping, and waiting time. -->`,
   routines: `Routine: Morning walk
 
 Description: A short walk to start the day.
-First start date: 2026-07-22
+Estimated duration minutes: 15
+Start date: 2026-07-22
 End date:
 Repeat: once
 Fixed interval days:
@@ -71,7 +78,8 @@ Timezone: Australia/Melbourne
 Routine: Evening reset
 
 Description: Clear small loose ends before tomorrow.
-First start date: 2026-07-22
+Estimated duration minutes: 15
+Start date: 2026-07-22
 End date:
 Repeat: daily
 Fixed interval days:
@@ -79,7 +87,8 @@ Preferred time: 21:30
 Timezone: Australia/Melbourne
 
 <!-- Routine import rules: one Routine block creates one routine. Repeat the Routine heading to import multiple routines. -->
-<!-- Legal fields: Description, First start date, End date, Repeat, Fixed interval days, Preferred time, Timezone. -->
+<!-- Legal fields: Description, Estimated duration minutes, Start date, End date, Repeat, Fixed interval days, Preferred time, Timezone. -->
+<!-- Estimated duration minutes is optional and must be a whole number from 1 to 1440. Leave it empty if the estimate is unknown. -->
 <!-- Repeat is once, daily, weekly, monthly, yearly, every_14_days, every_30_days, or fixed_days. -->
 <!-- Fixed interval days is only used when Repeat is fixed_days. Examples: 1 = daily, 2 = every 2 days, 7 = weekly. -->
 <!-- Each field is single-line "Field: value"; multiline values are not supported. -->`,
@@ -120,6 +129,9 @@ function developerImportInstructionFor(target: DeveloperImportTarget) {
       "Supported timeline types are duration and deadline.",
       "Supported duration values are 1_3_months, 3_6_months, 6_12_months, and 1_3_years.",
       "If my requirement uses another duration, choose the closest supported duration; if unclear, use 3_6_months.",
+      "Task estimated duration is optional. Use Estimated duration minutes only when there is a clear 1-1440 minute estimate.",
+      "Plan milestone start dates and deadlines as a realistic sequence. Do not put every milestone on the project start date unless the work truly runs in parallel.",
+      "When deadlines depend on physical-world constraints, other people, organizations, bookings, approvals, tests, documents, shipping, or waiting time, schedule those tasks and milestone deadlines early enough to leave buffer before the final project deadline.",
       "You may include multiple Project blocks in one document.",
     ].join("\n");
   }
@@ -128,6 +140,7 @@ function developerImportInstructionFor(target: DeveloperImportTarget) {
     "According to the following template, parse my requirement into the same Arctic Aria routine import Markdown.",
     "Return only the filled import document.",
     "Supported repeat values are once, daily, weekly, monthly, yearly, every_14_days, every_30_days, and fixed_days.",
+    "Routine estimated duration is optional. Use Estimated duration minutes only when there is a clear 1-1440 minute estimate.",
     "If fixed_days is used, include Fixed interval days; for example 1 means daily, 2 means every 2 days, and 7 means weekly. Otherwise leave Fixed interval days empty.",
     "You may include multiple Routine blocks in one document.",
   ].join("\n");

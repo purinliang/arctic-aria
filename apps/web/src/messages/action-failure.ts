@@ -20,6 +20,8 @@ type ParameterFailureMessages = {
   chooseRequired?: (field: string) => string;
   duplicateName?: (subject: string) => string;
   inUse?: (subject: string) => string;
+  invalidDurationHours?: (field: string, limit?: number) => string;
+  invalidDurationMinutes?: (field: string, limit?: number) => string;
   invalidFormatDate?: (field: string) => string;
   invalidFormatTime?: (field: string) => string;
   invalidValue?: (field: string) => string;
@@ -41,7 +43,7 @@ export type ActionFailureNotificationMessages = {
 
 type FieldDisplay = {
   article?: "a" | "an";
-  format?: "date" | "time";
+  format?: "date" | "duration_hours" | "duration_minutes" | "time";
   label: string;
   requiredVerb?: "choose" | "enter" | "select";
   subjectPrefix?: boolean;
@@ -90,10 +92,22 @@ const fieldDisplays: Record<string, FieldDisplay> = {
     label: "expected duration",
     requiredVerb: "choose",
   },
-  first_start_date: {
+  estimated_duration: {
+    article: "an",
+    format: "duration_minutes",
+    label: "estimated duration",
+    requiredVerb: "enter",
+  },
+  estimated_duration_hours: {
+    article: "an",
+    format: "duration_hours",
+    label: "estimated duration",
+    requiredVerb: "enter",
+  },
+  start_date: {
     article: "a",
     format: "date",
-    label: "first start date",
+    label: "start date",
     requiredVerb: "select",
   },
   group: {
@@ -120,16 +134,16 @@ const fieldDisplays: Record<string, FieldDisplay> = {
     label: "rule",
     subjectPrefix: true,
   },
-  start_date: {
-    article: "a",
-    format: "date",
-    label: "start date",
-    requiredVerb: "select",
-  },
   text: {
     label: "text",
     requiredVerb: "enter",
     subjectPrefix: true,
+  },
+  time: {
+    article: "a",
+    format: "time",
+    label: "time",
+    requiredVerb: "select",
   },
   timezone: {
     article: "a",
@@ -141,11 +155,17 @@ const fieldDisplays: Record<string, FieldDisplay> = {
     requiredVerb: "enter",
     subjectPrefix: true,
   },
+  location: {
+    label: "location",
+    requiredVerb: "enter",
+    subjectPrefix: true,
+  },
 };
 
 const subjectFallbacks: Record<ActionFailureSubject, string> = {
   category: "Category",
   discord: "Discord",
+  event: "Event",
   group: "Group",
   idea: "Idea",
   memory: "Memory",
@@ -240,6 +260,18 @@ export function structuredActionFailureMessage(
   if (result.reason === "invalid_format") {
     const format = fieldDisplay(result.field).format;
 
+    if (format === "duration_minutes") {
+      return parameterMessages?.invalidDurationMinutes?.(
+        field,
+        result.limit,
+      ) ?? durationMinutesMessage(field, result.limit);
+    }
+
+    if (format === "duration_hours") {
+      return parameterMessages?.invalidDurationHours?.(field, result.limit) ??
+        durationHoursMessage(field, result.limit);
+    }
+
     if (format === "date") {
       return parameterMessages?.invalidFormatDate?.(field) ??
         `${field} must be a real date in YYYY-MM-DD format.`;
@@ -279,6 +311,22 @@ export function structuredActionFailureMessage(
       subject,
       result.limit,
     ) ?? limitReachedMessage(action, subject, result.limit);
+  }
+
+  if (
+    result.reason === "invalid_value" &&
+    fieldDisplay(result.field).format === "duration_minutes"
+  ) {
+    return parameterMessages?.invalidDurationMinutes?.(field, result.limit) ??
+      durationMinutesMessage(field, result.limit);
+  }
+
+  if (
+    result.reason === "invalid_value" &&
+    fieldDisplay(result.field).format === "duration_hours"
+  ) {
+    return parameterMessages?.invalidDurationHours?.(field, result.limit) ??
+      durationHoursMessage(field, result.limit);
   }
 
   return parameterMessages?.invalidValue?.(field) ?? `${field} is invalid.`;
@@ -354,6 +402,18 @@ function tooShortMessage(field: string, limit: number | undefined) {
   return limit === undefined
     ? `${field} is too short.`
     : `${field} must be at least ${limit} characters.`;
+}
+
+function durationMinutesMessage(field: string, limit: number | undefined) {
+  return limit === undefined
+    ? `${field} must be a positive whole number of minutes.`
+    : `${field} must be a positive whole number up to ${limit} minutes.`;
+}
+
+function durationHoursMessage(field: string, limit: number | undefined) {
+  return limit === undefined
+    ? `${field} must be a positive number of hours.`
+    : `${field} must be a positive number up to ${limit} hours.`;
 }
 
 function limitReachedMessage(

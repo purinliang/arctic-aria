@@ -83,7 +83,7 @@ export function CategoryManagerDialog({
             closeLabel={messages.closeEditor}
             onClose={onCloseEditor}
           />
-          <div className="grid gap-5">
+          <div className="grid gap-[var(--aa-form-section-gap)]">
             <CategorySection
               title={messages.customSection}
               action={
@@ -166,7 +166,7 @@ function CategorySection({
   children: ReactNode;
 }) {
   return (
-    <section className="grid gap-2">
+    <section className="grid gap-[var(--aa-field-label-gap)]">
       <div className="flex items-center gap-3">
         <SectionTitle>{title}</SectionTitle>
         {action ? <div className="shrink-0">{action}</div> : null}

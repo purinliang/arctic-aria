@@ -15,7 +15,7 @@ The current web implementation supports database-backed routine testing:
 - add, edit, and delete routine definitions
 - add, edit, delete, and filter by routine groups
 - choose start-date anchored recurrence rules
-- choose a preferred time, first start date, and optional end date
+- choose a preferred time, start date, and optional end date
 - show today's routine instances on Today
 - mark a Today routine instance completed
 - reopen a completed Today routine instance
@@ -84,7 +84,7 @@ Fields:
 - optional description
 - group
 - fixed day interval only when the fixed-days option is selected
-- first start date
+- start date
 - end date
 - preferred time
 - repeat rule

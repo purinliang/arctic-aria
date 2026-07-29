@@ -121,21 +121,11 @@ function RoutineRow({
         <ListItemContent
           grow={false}
           title={
-            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
-              <ListItemTitle truncate>
-                <ListItemTitleButton onClick={onOpen}>
-                  {routine.title}
-                </ListItemTitleButton>
-              </ListItemTitle>
-              <ListItemSupportingText className="whitespace-nowrap">
-                {routineTimeText(
-                  routine,
-                  messages,
-                  timeMessages,
-                  timeFormatPreference,
-                )}
-              </ListItemSupportingText>
-            </div>
+            <ListItemTitle truncate>
+              <ListItemTitleButton onClick={onOpen}>
+                {routine.title}
+              </ListItemTitleButton>
+            </ListItemTitle>
           }
           main={
             <ListItemDescription className="line-clamp-2">
@@ -148,7 +138,38 @@ function RoutineRow({
           }
         />
       </div>
+      <RoutineRowMeta
+        routine={routine}
+        messages={messages}
+        timeMessages={timeMessages}
+        timeFormatPreference={timeFormatPreference}
+      />
     </ListItem>
+  );
+}
+
+function RoutineRowMeta({
+  routine,
+  messages,
+  timeMessages,
+  timeFormatPreference,
+}: {
+  routine: Routine;
+  messages: DashboardMessages["routines"];
+  timeMessages: TimePickerMessages;
+  timeFormatPreference: TimeFormatPreference;
+}) {
+  return (
+    <div className="grid min-w-20 shrink-0 justify-items-end text-right">
+      <ListItemSupportingText className="whitespace-nowrap">
+        {routineTimeText(
+          routine,
+          messages,
+          timeMessages,
+          timeFormatPreference,
+        )}
+      </ListItemSupportingText>
+    </div>
   );
 }
 

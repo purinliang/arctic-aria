@@ -111,6 +111,19 @@ test("builds Today Review text from dashboard items", () => {
         streakText: "",
       },
     ],
+    events: [
+      {
+        id: "event-1",
+        title: "Visa appointment",
+        description: "Bring documents.",
+        eventDate: "2026-07-18",
+        eventTime: "09:30",
+        estimatedDurationHours: 1.25,
+        location: "Office",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        updatedAt: "2026-07-01T00:00:00.000Z",
+      },
+    ],
     memories: [
       {
         id: "pinned-memory-2",
@@ -151,6 +164,8 @@ test("builds Today Review text from dashboard items", () => {
       "- `[ ]` **Write notes**: Prepare tomorrow's notes.",
       "### Routines",
       "- `[x]` **Evening cleanup**: Reset the desk.",
+      "### Events",
+      "- **Visa appointment**: Bring documents. · Time: 9:30 AM · Estimated duration: 1.25 hours · Location: Office",
       "### Pinned Memories",
       "- `[x]` **Soup place**: A calm dinner spot.",
       "- `[ ]` **Quiet book**",
@@ -181,6 +196,8 @@ test("uses friendly zero-count Today Review text", () => {
       "No tasks were selected today.",
       "### Routines",
       "No routines were due today.",
+      "### Events",
+      "No events were scheduled today.",
       "### Pinned Memories",
       "No pinned memories yet.",
     ].join("\n"),
@@ -190,6 +207,7 @@ test("uses friendly zero-count Today Review text", () => {
 test("scheduled Daily Review sends at the local 02:00 snapshot", async () => {
   const notifications: Array<{
     idempotencyKey: string;
+    metadata: Record<string, unknown>;
     source: string;
     text: string;
   }> = [];
@@ -220,6 +238,21 @@ test("scheduled Daily Review sends at the local 02:00 snapshot", async () => {
       routineDefinitions: [],
       routines: [],
     }),
+    eventDataLoader: async () => ({
+      events: [
+        {
+          id: "event-1",
+          title: "Visa appointment",
+          description: null,
+          eventDate: "2026-07-18",
+          eventTime: "09:30",
+          estimatedDurationHours: null,
+          location: null,
+          createdAt: "2026-07-01T00:00:00.000Z",
+          updatedAt: "2026-07-01T00:00:00.000Z",
+        },
+      ],
+    }),
     memoryDataLoader: async () => ({
       categories: [],
       memoryRecords: [],
@@ -238,6 +271,7 @@ test("scheduled Daily Review sends at the local 02:00 snapshot", async () => {
   });
   assert.equal(notifications.length, 1);
   assert.equal(notifications[0]?.idempotencyKey, "daily-review:2026-07-18");
+  assert.equal(notifications[0]?.metadata.eventCount, 1);
   assert.equal(notifications[0]?.source, "scheduler");
   assert.match(
     notifications[0]?.text ?? "",
@@ -359,6 +393,9 @@ test("scheduled Daily Review sends two minutes before 02:00 for the previous loc
     routineDataLoader: async () => ({
       routineDefinitions: [],
       routines: [],
+    }),
+    eventDataLoader: async () => ({
+      events: [],
     }),
     memoryDataLoader: async () => ({
       categories: [],

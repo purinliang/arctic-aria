@@ -18,8 +18,9 @@ export type RoutineRow = {
   group_name: string | null;
   title: string;
   description: string | null;
-  first_start_date: Date | string;
+  start_date: Date | string;
   end_date: Date | string | null;
+  estimated_duration_minutes: number | null;
   created_at: Date | string;
   updated_at: Date | string;
   deleted_at: Date | string | null;
@@ -71,8 +72,9 @@ export const routineSelect = `
     routine_groups.name AS group_name,
     routines.title,
     routines.description,
-    routines.first_start_date,
+    routines.start_date,
     routines.end_date,
+    routines.estimated_duration_minutes,
     routines.created_at,
     routines.updated_at,
     routines.deleted_at,
@@ -135,8 +137,9 @@ export function mapRoutine(row: RoutineRow): RoutineRecord {
     groupName: row.group_name,
     title: row.title,
     description: row.description,
-    firstStartDate: toDateString(row.first_start_date),
+    startDate: toDateString(row.start_date),
     endDate: row.end_date ? toDateString(row.end_date) : null,
+    estimatedDurationMinutes: row.estimated_duration_minutes,
     createdAt: toDate(row.created_at),
     updatedAt: toDate(row.updated_at),
     deletedAt: toNullableDate(row.deleted_at),
@@ -186,7 +189,7 @@ export function routineParams(input: SaveRoutineInput) {
     input.userId,
     input.title,
     input.description,
-    input.firstStartDate,
+    input.startDate,
     input.endDate,
     input.rule.ruleType,
     input.rule.intervalValue,
@@ -195,6 +198,7 @@ export function routineParams(input: SaveRoutineInput) {
     input.rule.preferredTime,
     input.rule.timezone,
     input.occurredAt,
+    input.estimatedDurationMinutes,
     input.groupId,
   ];
 }
@@ -208,8 +212,9 @@ export function routineSelectFromCtes(routineCte: string, ruleCte: string) {
       routine_groups.name AS group_name,
       ${routineCte}.title,
       ${routineCte}.description,
-      ${routineCte}.first_start_date,
+      ${routineCte}.start_date,
       ${routineCte}.end_date,
+      ${routineCte}.estimated_duration_minutes,
       ${routineCte}.created_at,
       ${routineCte}.updated_at,
       ${routineCte}.deleted_at,

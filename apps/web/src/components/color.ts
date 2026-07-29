@@ -20,8 +20,8 @@ export const panelHeaderColorClass =
 
 export const secondaryTextColorClass = "text-[var(--aa-secondary-text)]";
 
-export const secondaryButtonDividerColorClass =
-  "divide-y divide-[var(--aa-secondary-button-border)]";
+export const listDividerColorClass =
+  "divide-y divide-[var(--aa-list-divider-border)]";
 
 export const secondaryButtonBorderColorClass =
   "border-[var(--aa-secondary-button-border)]";

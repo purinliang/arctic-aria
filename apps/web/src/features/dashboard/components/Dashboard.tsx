@@ -1,4 +1,5 @@
 // Dashboard Page.
+import { EventsPanel } from "@/features/events/components/EventsPanel";
 import { PinnedMemoriesPanel } from "@/features/memories/components/PinnedMemoriesPanel";
 import { ProjectTasksPanel } from "@/features/projects/components/ProjectTasksPanel";
 import { RoutinesPanel } from "@/features/routines/components/RoutinesPanel";
@@ -10,6 +11,7 @@ import type {
   PinnedMemory,
   Routine,
   RoutineStatus,
+  ScheduledEvent,
   Task,
   TaskStatus,
 } from "../types";
@@ -20,6 +22,8 @@ export function Dashboard({
   taskLoading,
   routines,
   routineLoading,
+  events,
+  eventLoading,
   pinnedMemories,
   memoryLoading,
   onTaskStatus,
@@ -27,6 +31,7 @@ export function Dashboard({
   onMemoryDone,
   onMemoryCancelDone,
   onTaskOpen,
+  onEventOpen,
   onRoutineOpen,
   onMemoryOpen,
   messages,
@@ -39,6 +44,8 @@ export function Dashboard({
   taskLoading: boolean;
   routines: Routine[];
   routineLoading: boolean;
+  events: ScheduledEvent[];
+  eventLoading: boolean;
   pinnedMemories: PinnedMemory[];
   memoryLoading: boolean;
   onTaskStatus: (
@@ -49,6 +56,7 @@ export function Dashboard({
   onMemoryDone: (pinnedMemoryId: string) => void;
   onMemoryCancelDone: (pinnedMemoryId: string) => void;
   onTaskOpen: (projectId: string) => void;
+  onEventOpen: () => void;
   onRoutineOpen: () => void;
   onMemoryOpen: () => void;
   messages: DashboardMessages;
@@ -88,6 +96,16 @@ export function Dashboard({
             routines={routines}
             messages={messages.progress}
             resolvedTimeZone={resolvedTimeZone}
+          />
+
+          <EventsPanel
+            darkMode={darkMode}
+            events={events}
+            loading={eventLoading}
+            messages={messages.events}
+            timeMessages={formMessages.timePicker}
+            timeFormatPreference={timeFormatPreference}
+            onEventOpen={onEventOpen}
           />
 
           <PinnedMemoriesPanel

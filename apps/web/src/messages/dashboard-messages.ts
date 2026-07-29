@@ -42,6 +42,15 @@ export const englishDashboardMessages = {
       "A regular reminder for everyday maintenance.",
     ],
   },
+  events: {
+    title: "Events",
+    description: "Keep fixed plans visible.",
+    loading: "Loading events...",
+    empty: "No events scheduled today.",
+    noDescription: "No description.",
+    open: "Open events",
+    openEvent: (title: string) => `Open event ${title}`,
+  },
   pinnedMemories: {
     title: "Pinned Memories",
     description: "Keep good options nearby.",
@@ -150,6 +159,7 @@ export const englishDashboardMessages = {
     },
   },
   notifications: {
+    eventsUnavailable: "Events unavailable",
     projectsUnavailable: "Projects unavailable",
     routinesUnavailable: "Routines unavailable",
     memoriesUnavailable: "Memories unavailable",
@@ -196,6 +206,15 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
       "让节奏保持稳定的小动作。",
       "适合日常维护的定期提醒。",
     ],
+  },
+  events: {
+    title: "事件",
+    description: "看见固定计划。",
+    loading: "正在加载事件...",
+    empty: "今天没有安排事件。",
+    noDescription: "暂无描述。",
+    open: "打开事件",
+    openEvent: (title) => `打开事件 ${title}`,
   },
   pinnedMemories: {
     title: "置顶回忆",
@@ -304,6 +323,7 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
     },
   },
   notifications: {
+    eventsUnavailable: "事件不可用",
     projectsUnavailable: "项目不可用",
     routinesUnavailable: "日常不可用",
     memoriesUnavailable: "回忆不可用",

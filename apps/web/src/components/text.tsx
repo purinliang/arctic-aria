@@ -39,7 +39,7 @@ export function DescriptionText({
   void darkMode;
 
   return (
-    <p className={cx("text-sm leading-6", secondaryTextColorClass, className)}>
+    <p className={cx("text-sm leading-5", secondaryTextColorClass, className)}>
       {children}
     </p>
   );
@@ -59,7 +59,7 @@ export function LabelText({
   return (
     <span
       className={cx(
-        "text-left text-sm font-semibold leading-6",
+        "text-left text-sm font-semibold leading-5",
         "text-[var(--aa-primary-text)]",
         className,
       )}
@@ -78,7 +78,7 @@ export function SupportingText({
   className?: string;
 }) {
   return (
-    <span className={cx("text-xs leading-5", secondaryTextColorClass, className)}>
+    <span className={cx("text-xs leading-4", secondaryTextColorClass, className)}>
       {children}
     </span>
   );

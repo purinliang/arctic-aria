@@ -248,7 +248,7 @@ all migration rows.
 Minimum verification after copy:
 
 - Sign in locally against the destination database.
-- Open Today, Projects, Routines, Memories, Ideas, and Settings.
+- Open Today, Projects, Routines, Events, Memories, Ideas, and Settings.
 - Confirm the Settings app/database version line is not reporting schema drift.
 - Send a Discord test message only if the destination environment intentionally
   uses the same Discord account binding data.

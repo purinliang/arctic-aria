@@ -154,7 +154,7 @@ Fields:
 - title
 - optional description
 - group
-- first start date
+- start date
 - end date
 - preferred time
 - repeat rule
@@ -167,21 +167,21 @@ cron expression UI.
 
 The routine editor should keep recurrence choices ordered by likely usefulness:
 
-- `Once`: show only on the first start date. This is the default for a new
+- `Once`: show only on the start date. This is the default for a new
   routine.
-- `Daily`: every day from the first start date.
-- `Weekly`: every 7 days from the first start date. Do not show a weekday
+- `Daily`: every day from the start date.
+- `Weekly`: every 7 days from the start date. Do not show a weekday
   multi-select.
-- `Monthly`: every month on the day implied by the first start date. This is
+- `Monthly`: every month on the day implied by the start date. This is
   typical for bills and renewal checks.
-- `Yearly`: every year on the date implied by the first start date.
-- `Every 14 days`: every 14 days from the first start date.
-- `Every 30 days`: every 30 days from the first start date.
+- `Yearly`: every year on the date implied by the start date.
+- `Every 14 days`: every 14 days from the start date.
+- `Every 30 days`: every 30 days from the start date.
 - `Fixed interval`: repeat after an explicit number of days. While editing this
   field, keep the fixed-interval choice stable even if the current value equals
   a preset such as 30.
 
-The first start date and end date should be enough for most schedules. Keep the
+The start date and end date should be enough for most schedules. Keep the
 visible field labels short; do not append technical qualifiers such as
 `optional` or `inclusive` to routine field labels.
 
@@ -194,7 +194,7 @@ instead of a hand-translated timezone catalog. Routine dates remain plain dates
 for now.
 
 After the repeat-rule control, show a short preview of the next generated dates
-when the first start date is valid. The preview should show the first three
+when the start date is valid. The preview should show the first three
 occurrences that fit before the inclusive end date, with weekday names, for
 example: `Jul 16, 2026 Thu`, `Jul 23, 2026 Thu`, `Jul 30, 2026 Thu`, `and so
 on...`. If the end date stops the schedule before three dates, show only the

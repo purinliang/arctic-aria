@@ -154,6 +154,7 @@
   --aa-panel-bg: var(--aa-gray-1-25);
   --aa-panel-hover-bg: var(--gray-2);
   --aa-panel-header-bg: var(--aa-gray-2-25);
+  --aa-list-divider-border: var(--gray-3);
   --aa-primary-text: var(--gray-12);
   --aa-secondary-text: var(--gray-11);
   --aa-primary-button-bg: var(--blue-9);
@@ -186,10 +187,12 @@
   --aa-text-input-disabled-text: var(--aa-gray-11-50);
   --aa-button-height-sm: 36px;
   --aa-button-height-md: 40px;
+  --aa-button-height-md-lg: 44px;
   --aa-button-height-lg: 44px;
   --aa-form-control-height: 40px;
   --aa-icon-button-size: 36px;
   --aa-field-icon-button-size: 32px;
+  --aa-panel-header-icon-gap: 6px;
   --aa-field-label-gap: 4px;
   --aa-field-group-gap: 12px;
   --aa-form-section-gap: 18px;

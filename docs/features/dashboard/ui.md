@@ -6,6 +6,7 @@ Feature-specific rules stay in their owning feature docs:
 
 - Projects: [../projects/ui.md](../projects/ui.md)
 - Routines: [../routines/ui.md](../routines/ui.md)
+- Events: [../events/ui.md](../events/ui.md)
 - Memories: [../memories/ui.md](../memories/ui.md)
 
 ## Purpose
@@ -43,7 +44,7 @@ Dashboard body layout:
 
 - parent layout: shared split layout
 - left column: stacked `Tasks` and `Routines`
-- right column: stacked `Progress` and `Pinned Memories`
+- right column: stacked `Progress`, `Events`, and `Pinned Memories`
 - desktop: left panel should be wider than the right panel through the shared
   split classes
 - mobile: panels stack vertically
@@ -144,9 +145,10 @@ Routine row layout:
 
 - parent surface: shared list item
 - left: completion checkbox
-- right: title and scheduled time on the first row, then description
+- middle: title, then description
+- right: scheduled time as a direct row child, separate from the title content,
+  aligned to the upper-right
 - title is underlined and opens the Routines page
-- scheduled time is right-aligned beside the title
 - description is visible and clamps at two lines
 - do not show `Due today`; every routine instance on the Today page is due
   today
@@ -161,6 +163,33 @@ notification stack.
 Clicking the underlined title opens the Routines page. The whole row is not
 clickable. Clicking the checkbox only changes completion state and must not
 navigate.
+
+## Events Panel
+
+The Events panel shows Events for the current personal board date.
+
+Header:
+
+- icon: `CalendarDays`
+- title: `Events`
+- description: short copy reminding the user about fixed plans
+
+Event row layout:
+
+- parent surface: shared list item
+- title is underlined and opens the Events page
+- right metadata is a direct child of the shared list item, separate from the
+  title content
+- time is shown at the top of that right metadata area and aligned right
+- location, when present, is shown directly below the time and aligned right
+- description is visible and clamps at two lines
+- estimated duration is not shown in the Today Events panel
+
+Event rows should not expand or collapse. Do not show completion checkboxes,
+done/undone controls, edit actions, `Busy`, `Skip`, `Later`, or
+`Move to tomorrow` buttons in the Dashboard UI.
+
+Events do not affect the Progress panel count line or progress bar.
 
 ## Pinned Memories Panel
 
@@ -207,6 +236,7 @@ Discord message generated from the visible Today items:
 
 - done and undone project tasks
 - done and undone routine instances
+- today events
 - pinned memories
 
 The first version should not add a `daily_reviews` table or a structured review
@@ -222,7 +252,7 @@ explicit Discord diagnostics.
 Message content:
 
 - choose the summary tone from the visible state of tasks, routines, and pinned
-  memories
+  memories; Events are listed but do not affect tone
 - calculate work progress from tasks and routines only. One task has weight
   `3`; one routine has weight `1`
 - divide work progress into buckets: `100%`, `80%+`, `50%+`, `20%+`, and
@@ -245,8 +275,9 @@ message can be read outside the Today page:
   paragraph immediately below the heading. Handle zero, singular, and plural
   counts without awkward wording such as `completed no tasks`
 - keep exactly one empty line between that summary paragraph and `### Tasks`
-- show `Tasks`, `Routines`, and `Pinned Memories` sections as checkbox-like
-  lists, with no empty lines between those sections
+- show `Tasks`, `Routines`, `Events`, and `Pinned Memories` sections, with no
+  empty lines between those sections
+- Event rows are plain bullet items, not checkbox rows
 - list each item as `- \`[x]\` **Title**: Description` or
   `- \`[ ]\` **Title**: Description`; use inline code for the checkbox marker
   so Discord renders it as fixed-width text. Omit the colon and description
@@ -258,4 +289,5 @@ Use concise empty states:
 
 - tasks: `A clear slate for today. Choose one project task when you are ready.`
 - routines: `No routines are due today. Keep the day light.`
+- events: `No events scheduled today.`
 - pinned memories: `No pinned memories yet.`

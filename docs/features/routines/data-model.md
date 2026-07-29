@@ -16,11 +16,11 @@ Backend validation should check:
 - optional routine group id is blank or a valid group owned by the same user
 - routine group name is required and 1-80 characters
 - routine group description is optional and 500 characters or fewer
-- first start date is a valid date
-- optional end date is blank or not before first start date
+- start date is a valid date
+- optional end date is blank or not before start date
 - recurrence rule type is supported
-- weekly rules derive one weekday from first start date
-- monthly rules derive day of month from first start date
+- weekly rules derive one weekday from start date
+- monthly rules derive day of month from start date
 - fixed day interval values are positive integers when used
 - preferred time uses `HH:mm` when provided
 - timezone is a valid IANA timezone when a routine is saved
@@ -34,7 +34,7 @@ Database constraints should protect:
 - one routine instance per routine/date/time combination
 - allowed routine instance statuses
 - reminder timestamps on routine instances
-- end date not before first start date
+- end date not before start date
 - positive interval values when present
 - valid day-of-month range when present
 - timezone is present as a non-empty text value
@@ -72,7 +72,7 @@ Current fields:
 - `group_id`
 - `title`
 - `description`
-- `first_start_date`
+- `start_date`
 - `end_date`
 - `created_at`
 - `updated_at`
@@ -136,12 +136,12 @@ Current fields:
 
 Supported rule types:
 
-- `once`, shown only on the first start date
+- `once`, shown only on the start date
 - `daily`
-- `weekly`, anchored to first start date weekday
-- `monthly_by_date`, anchored to first start date day; an interval of 12 is the
+- `weekly`, anchored to start date weekday
+- `monthly_by_date`, anchored to start date day; an interval of 12 is the
   yearly preset
-- `bi_weekly`, anchored to first start date
+- `bi_weekly`, anchored to start date
 - `day_interval`, used by the every-30-days preset and the fixed interval
   option
 

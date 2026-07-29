@@ -6,7 +6,8 @@ import type { RoutineRuleInput } from "./server/routine-repository.ts";
 export type RoutineImportRoutine = {
   title: string;
   description?: string;
-  firstStartDate?: string;
+  estimatedDurationMinutes?: number | null;
+  startDate?: string;
   endDate?: string;
   recurrence?: RoutineRecurrenceOption;
   fixedIntervalDays?: number;
@@ -33,7 +34,8 @@ export type RoutineImportCommand = {
   groupId: string | null;
   title: string;
   description: string | null;
-  firstStartDate: string;
+  estimatedDurationMinutes: number | null;
+  startDate: string;
   endDate: string | null;
   rule: RoutineRuleInput;
 };
