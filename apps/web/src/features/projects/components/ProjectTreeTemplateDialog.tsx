@@ -12,14 +12,13 @@ import {
   DialogPrimaryButton,
 } from "@/components/dialog";
 import { FormSection, FormSections } from "@/components/forms/form-layout";
-import { FieldLabel } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import {
   List,
   ListItem,
   ListItemTitle,
 } from "@/components/list";
-import { LabelText, SupportingText } from "@/components/text";
+import { SupportingText } from "@/components/text";
 import { PendingText } from "@/components/loading";
 import { cx } from "@/components/utils";
 import type {
@@ -147,25 +146,24 @@ export function ProjectTreeTemplateDialog({
         <FormSections>
           {activeTab === "edit" ? (
             <FormSection>
-              <FieldLabel darkMode={darkMode} label={messages.inputLabel}>
-                <TextArea
-                  darkMode={darkMode}
-                  className={cx(
-                    templatePanelHeightClass,
-                    "resize-none overflow-auto font-mono text-sm leading-6",
-                  )}
-                  value={source}
-                  disabled={busy}
-                  placeholder={messages.inputPlaceholder}
-                  spellCheck={false}
-                  onChange={(event) => {
-                    setSource(event.target.value);
-                    setPreview(null);
-                    setParsedSource("");
-                    setActiveTab("edit");
-                  }}
-                />
-              </FieldLabel>
+              <TextArea
+                darkMode={darkMode}
+                aria-label={messages.editTab}
+                className={cx(
+                  templatePanelHeightClass,
+                  "resize-none overflow-auto font-mono text-sm leading-6",
+                )}
+                value={source}
+                disabled={busy}
+                placeholder={messages.inputPlaceholder}
+                spellCheck={false}
+                onChange={(event) => {
+                  setSource(event.target.value);
+                  setPreview(null);
+                  setParsedSource("");
+                  setActiveTab("edit");
+                }}
+              />
               {copyStatus ? (
                 <SupportingText darkMode={darkMode}>{copyStatus}</SupportingText>
               ) : null}
@@ -288,7 +286,6 @@ function TemplatePreview({
   if (!preview) {
     return (
       <FormSection className={cx(templatePanelHeightClass, "overflow-auto")}>
-        <LabelText darkMode={darkMode}>{messages.previewTitle}</LabelText>
         <SupportingText darkMode={darkMode}>
           {messages.previewEmpty}
         </SupportingText>
@@ -304,7 +301,6 @@ function TemplatePreview({
       )}
     >
       <div className="grid min-w-0 gap-1">
-        <LabelText darkMode={darkMode}>{messages.previewTitle}</LabelText>
         <SupportingText darkMode={darkMode}>
           {messages.previewCounts(
             preview.counts.create,
