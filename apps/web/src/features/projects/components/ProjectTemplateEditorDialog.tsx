@@ -1,4 +1,4 @@
-// Projects Page - Project Tree Template Dialog.
+// Projects Page - Project Template Editor Dialog.
 import { useMemo } from "react";
 import { toneClass } from "@/components/color";
 import type { Tone } from "@/components/color";
@@ -24,7 +24,7 @@ import type { ProjectMessages } from "@/messages/app-messages";
 
 type TemplateMode = "create" | "update";
 
-export function ProjectTreeTemplateDialog({
+export function ProjectTemplateEditorDialog({
   darkMode,
   pending,
   mode,
@@ -79,7 +79,7 @@ export function ProjectTreeTemplateDialog({
       }}
       onApply={(source) => onApply(projectId, source)}
       renderPreview={(preview) => (
-        <ProjectTreeTemplatePreview
+        <ProjectTemplatePreview
           darkMode={darkMode}
           messages={messages}
           preview={preview}
@@ -98,7 +98,7 @@ const emptyProjectTemplateDraft: ProjectInput = {
   durationRange: "3_6_months",
 };
 
-function ProjectTreeTemplatePreview({
+function ProjectTemplatePreview({
   darkMode,
   messages,
   preview,

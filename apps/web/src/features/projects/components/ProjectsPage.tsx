@@ -21,7 +21,7 @@ import {
 import { ProjectMilestoneManagerDialog } from "./ProjectMilestoneManagerDialog";
 import { ProjectsList } from "./ProjectsList";
 import { ProjectTaskEditorDialog } from "./ProjectTaskEditorDialog";
-import { ProjectTreeTemplateDialog } from "./ProjectTreeTemplateDialog";
+import { ProjectTemplateEditorDialog } from "./ProjectTemplateEditorDialog";
 import {
   emptyMilestoneDraft,
   emptyProjectDraft,
@@ -412,7 +412,7 @@ export function ProjectsPage({
       ) : null}
 
       {templateTarget && (templateTarget.mode === "create" || templateProject) ? (
-        <ProjectTreeTemplateDialog
+        <ProjectTemplateEditorDialog
           key={
             templateTarget.mode === "update"
               ? templateTarget.projectId

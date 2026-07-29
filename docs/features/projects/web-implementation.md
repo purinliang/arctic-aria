@@ -145,7 +145,7 @@ ProjectsPage
   ProjectsList, when no project is selected for detail view
   ProjectDetailPage, when a project is selected for detail view
   ProjectEditorDialog, when adding or editing a project
-  ProjectTreeTemplateDialog, when editing a project tree from a template
+  ProjectTemplateEditorDialog, when editing a project tree from a template
   MilestoneEditorDialog, when adding or editing a milestone
   ProjectTaskEditorDialog, when adding or editing a task
 ```
@@ -153,7 +153,7 @@ ProjectsPage
 The project list and project detail are separate user-visible pages. Do not use
 a permanent side-by-side list/detail grid for this flow.
 
-`ProjectTreeTemplateDialog` delegates the shared copy, parse, preview, save,
+`ProjectTemplateEditorDialog` delegates the shared copy, parse, preview, save,
 height, tab, notification, and scrollbar behavior to `TemplateEditorDialog`.
 Project-specific preview rows use the shared list item component and render as
 `Project: title`, indented `Milestone: title`, and further-indented `Task:
