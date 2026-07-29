@@ -1,12 +1,14 @@
 export { InMemoryProjectRepository } from "./in-memory-project-repository.ts";
 export type {
-  ImportProjectTreeInput,
+  ApplyProjectTreeTemplateInput,
   ProjectMilestoneRecord,
   ProjectPinResult,
   ProjectRecord,
   ProjectRepository,
   ProjectTaskRecord,
   ProjectTaskStatus,
+  ProjectTreeTemplateMilestoneInput,
+  ProjectTreeTemplateTaskInput,
   SaveMilestoneInput,
   SaveProjectInput,
   SaveProjectTaskInput,

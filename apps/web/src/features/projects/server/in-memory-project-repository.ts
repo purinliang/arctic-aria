@@ -1,5 +1,5 @@
 import type {
-  ImportProjectTreeInput,
+  ApplyProjectTreeTemplateInput,
   ProjectPinResult,
   ProjectRecord,
   ProjectRepository,
@@ -198,53 +198,150 @@ export class InMemoryProjectRepository implements ProjectRepository {
     return true;
   }
 
-  async importProjectTree(input: ImportProjectTreeInput) {
-    const projectId = await this.saveProject({
-      userId: input.userId,
-      ...input.project,
-      occurredAt: input.occurredAt,
-    });
+  async applyProjectTreeTemplate(input: ApplyProjectTreeTemplateInput) {
+    const project = this.findProject(input.userId, input.project.projectId);
 
-    if (!projectId) {
-      return null;
+    if (!project) {
+      return false;
     }
 
+    Object.assign(project, {
+      title: input.project.title,
+      objective: input.project.objective,
+      startDate: input.project.startDate,
+      deadlineDate: input.project.deadlineDate,
+      expectedDurationDays: input.project.expectedDurationDays,
+      updatedAt: input.occurredAt,
+    });
+    project.tasks = project.tasks.map((task) => ({
+      ...task,
+      projectTitle: input.project.title,
+    }));
+
     for (const milestone of input.milestones) {
-      const milestoneId = await this.saveMilestone({
-        userId: input.userId,
-        projectId,
+      if (milestone.operation === "create") {
+        project.milestones.push({
+          id: milestone.milestoneId,
+          userId: input.userId,
+          projectId: project.id,
+          title: milestone.title,
+          objective: milestone.objective,
+          sortOrder: nextMilestoneSortOrder(project),
+          startDate: milestone.startDate,
+          deadlineDate: milestone.deadlineDate,
+          expectedDurationDays: milestone.expectedDurationDays,
+          createdAt: input.occurredAt,
+          updatedAt: input.occurredAt,
+          completedAt: null,
+          deletedAt: null,
+          tasks: [],
+        });
+        continue;
+      }
+
+      const existing = project.milestones.find(
+        (current) =>
+          current.id === milestone.milestoneId &&
+          current.deletedAt === null,
+      );
+
+      if (!existing) {
+        return false;
+      }
+
+      if (milestone.operation === "delete") {
+        existing.deletedAt = input.occurredAt;
+        existing.updatedAt = input.occurredAt;
+        project.tasks = project.tasks.map((task) =>
+          task.milestoneId === existing.id
+            ? { ...task, milestoneId: null, milestoneTitle: "" }
+            : task,
+        );
+        continue;
+      }
+
+      Object.assign(existing, {
         title: milestone.title,
         objective: milestone.objective,
         startDate: milestone.startDate,
         deadlineDate: milestone.deadlineDate,
         expectedDurationDays: milestone.expectedDurationDays,
-        occurredAt: input.occurredAt,
+        updatedAt: input.occurredAt,
       });
-
-      if (!milestoneId) {
-        return null;
-      }
-
-      for (const task of milestone.tasks) {
-        const saved = await this.saveTask({
-          userId: input.userId,
-          projectId,
-          milestoneId,
-          title: task.title,
-          description: task.description,
-          startDate: task.startDate,
-          deadlineDate: task.deadlineDate,
-          estimatedDurationMinutes: task.estimatedDurationMinutes,
-          occurredAt: input.occurredAt,
-        });
-
-        if (!saved) {
-          return null;
-        }
-      }
+      project.tasks = project.tasks.map((task) =>
+        task.milestoneId === existing.id
+          ? { ...task, milestoneTitle: milestone.title }
+          : task,
+      );
     }
 
-    return projectId;
+    for (const task of input.tasks) {
+      if (task.operation === "delete") {
+        const existing = project.tasks.find(
+          (current) => current.id === task.taskId && current.deletedAt === null,
+        );
+
+        if (!existing) {
+          return false;
+        }
+
+        existing.deletedAt = input.occurredAt;
+        existing.updatedAt = input.occurredAt;
+        continue;
+      }
+
+      const milestone = task.milestoneId
+        ? project.milestones.find(
+            (current) =>
+              current.id === task.milestoneId && current.deletedAt === null,
+          ) ?? null
+        : null;
+
+      if (task.milestoneId && !milestone) {
+        return false;
+      }
+
+      const existing =
+        task.operation === "update"
+          ? project.tasks.find(
+              (current) => current.id === task.taskId && current.deletedAt === null,
+            )
+          : null;
+
+      if (task.operation === "update" && !existing) {
+        return false;
+      }
+
+      const nextTask: ProjectTaskRecord = {
+        ...(existing ?? {
+          id: task.taskId,
+          userId: input.userId,
+          projectId: project.id,
+          projectTitle: project.title,
+          status: "todo" as const,
+          sortOrder: nextTaskSortOrder(project, task.milestoneId),
+          createdAt: input.occurredAt,
+          completedAt: null,
+          deletedAt: null,
+        }),
+        milestoneId: milestone?.id ?? null,
+        milestoneTitle: milestone?.title ?? "",
+        title: task.title,
+        description: task.description,
+        startDate: task.startDate,
+        deadlineDate: task.deadlineDate,
+        estimatedDurationMinutes: task.estimatedDurationMinutes,
+        updatedAt: input.occurredAt,
+      };
+
+      project.tasks = [
+        ...project.tasks.filter((current) => current.id !== task.taskId),
+        nextTask,
+      ];
+    }
+
+    syncMilestoneTasks(project);
+    return true;
   }
 
   async archiveProject(input: {
@@ -398,4 +495,33 @@ export class InMemoryProjectRepository implements ProjectRepository {
       .flatMap((project) => project.tasks)
       .find((task) => task.id === taskId && task.deletedAt === null);
   }
+}
+
+function nextMilestoneSortOrder(project: ProjectRecord) {
+  return (
+    Math.max(
+      -1,
+      ...project.milestones
+        .filter((milestone) => milestone.deletedAt === null)
+        .map((milestone) => milestone.sortOrder),
+    ) + 1
+  );
+}
+
+function nextTaskSortOrder(
+  project: ProjectRecord,
+  milestoneId: string | null,
+) {
+  return (
+    Math.max(
+      -1,
+      ...project.tasks
+        .filter(
+          (task) =>
+            task.deletedAt === null &&
+            (task.milestoneId ?? null) === (milestoneId ?? null),
+        )
+        .map((task) => task.sortOrder),
+    ) + 1
+  );
 }

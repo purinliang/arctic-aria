@@ -36,7 +36,7 @@ export function DialogFrame({
   children,
 }: {
   darkMode: boolean;
-  size?: "md" | "sm";
+  size?: "lg" | "md" | "sm";
   padding?: "md" | "none";
   className?: string;
   children: ReactNode;
@@ -55,7 +55,7 @@ export function DialogFrame({
 
 export function dialogFrameClass(
   darkMode: boolean,
-  size: "md" | "sm" = "md",
+  size: "lg" | "md" | "sm" = "md",
   padding: "md" | "none" = "md",
 ) {
   return cx(
@@ -64,7 +64,9 @@ export function dialogFrameClass(
     padding === "md" ? "p-4" : "",
     size === "sm"
       ? "w-[min(calc(100vw-2rem),28rem)]"
-      : "w-[min(calc(100vw-2rem),46rem)]",
+      : size === "lg"
+        ? "w-[min(calc(100vw-2rem),64rem)]"
+        : "w-[min(calc(100vw-2rem),46rem)]",
     panelColorClass,
   );
 }
@@ -72,25 +74,30 @@ export function dialogFrameClass(
 export function DialogHeader({
   darkMode,
   title,
+  actions,
   closeLabel,
   onClose,
 }: {
   darkMode: boolean;
   title: string;
+  actions?: ReactNode;
   closeLabel: string;
   onClose: () => void;
 }) {
   return (
     <div className="mb-[var(--aa-form-section-gap)] flex items-center justify-between gap-3">
       <h3 className="text-lg font-semibold leading-7">{title}</h3>
-      <Button
-        darkMode={darkMode}
-        tone="ghost"
-        size="icon"
-        aria-label={closeLabel}
-        icon={<X size={16} aria-hidden="true" />}
-        onClick={onClose}
-      />
+      <div className="flex shrink-0 items-center gap-1">
+        {actions}
+        <Button
+          darkMode={darkMode}
+          tone="ghost"
+          size="icon"
+          aria-label={closeLabel}
+          icon={<X size={16} aria-hidden="true" />}
+          onClick={onClose}
+        />
+      </div>
     </div>
   );
 }
@@ -122,6 +129,7 @@ export function CrudEditorDialog({
   saveText,
   savingText,
   deleteText,
+  headerActions,
   zIndex,
   children,
   onClose,
@@ -137,6 +145,7 @@ export function CrudEditorDialog({
   saveText: string;
   savingText: string;
   deleteText?: string;
+  headerActions?: ReactNode;
   zIndex?: "z-50" | "z-[60]";
   children: ReactNode;
   onClose: () => void;
@@ -158,6 +167,7 @@ export function CrudEditorDialog({
           <DialogHeader
             darkMode={darkMode}
             title={title}
+            actions={headerActions}
             closeLabel={closeLabel}
             onClose={onClose}
           />

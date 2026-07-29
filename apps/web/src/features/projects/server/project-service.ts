@@ -4,7 +4,7 @@ import {
   localScheduledDateKey,
 } from "../../settings/time-zones.ts";
 import type {
-  ImportProjectTreeInput,
+  ApplyProjectTreeTemplateInput,
   ProjectRepository,
   ProjectTaskStatus,
   SaveMilestoneInput,
@@ -75,11 +75,11 @@ export function createProjectService(options: ProjectServiceOptions = {}) {
       });
     },
 
-    async importProjectTree(
+    async applyProjectTreeTemplate(
       userId: string,
-      input: Omit<ImportProjectTreeInput, "userId" | "occurredAt">,
+      input: Omit<ApplyProjectTreeTemplateInput, "userId" | "occurredAt">,
     ) {
-      return projects.importProjectTree({
+      return projects.applyProjectTreeTemplate({
         ...input,
         userId,
         occurredAt: now(),

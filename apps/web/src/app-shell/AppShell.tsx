@@ -19,8 +19,6 @@ import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { AppMessages } from "@/messages/app-messages";
 import type { LanguagePreference } from "@/messages/languages";
-import { refreshAfterDeveloperImport } from "@/features/developer/import-refresh";
-import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
 import type {
   TimeFormatPreference,
   UserPreferences,
@@ -240,13 +238,6 @@ export function AppShell({
     });
   }
 
-  function handleDeveloperImportComplete(target: DeveloperImportTarget) {
-    void refreshAfterDeveloperImport(target, {
-      refreshProjectData,
-      refreshRoutineData,
-    });
-  }
-
   function handleViewChange(view: DashboardView) {
     if (view === "projects") {
       showProjectsList();
@@ -360,6 +351,8 @@ export function AppShell({
               pendingProjectPinIds={projectState.pendingProjectPinIds}
               onProjectSave={projectState.saveProjectFromPage}
               onProjectDelete={projectState.archiveProjectFromPage}
+              onProjectTemplateParse={projectState.parseProjectTreeTemplateFromPage}
+              onProjectTemplateApply={projectState.applyProjectTreeTemplateFromPage}
               onProjectPin={projectState.pinProjectFromPage}
               onProjectUnpin={projectState.unpinProjectFromPage}
               onMilestoneSave={projectState.saveMilestoneFromPage}
@@ -458,7 +451,6 @@ export function AppShell({
               themePreference={themePreference}
               versionMessages={messages.versionStatus}
               versionStatus={versionStatus}
-              onDeveloperImportComplete={handleDeveloperImportComplete}
               onLanguagePreferenceChange={onLanguagePreferenceChange}
               onPreferenceOpenAttempt={onPreferenceOpenAttempt}
               onThemePreferenceChange={onThemePreferenceChange}

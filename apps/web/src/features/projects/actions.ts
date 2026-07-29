@@ -13,9 +13,15 @@ import {
   validateProjectInput,
   validateProjectTaskInput,
 } from "./project-action-helpers";
+import { normalizeProjectTreeTemplateDocument } from "./project-tree-template-normalizer";
+import { parseProjectTreeTemplateMarkdown } from "./project-tree-template-parser";
 import { projectService } from "./server/project-service";
 import { loadProjectDashboardData } from "./project-view-models";
 import type { ProjectTaskStatus } from "./server/project-repository";
+import type {
+  NormalizedProjectTreeTemplate,
+} from "./project-tree-template-normalizer";
+import type { ProjectTreeTemplatePreview } from "./project-tree-template-types";
 import type {
   MilestoneInput,
   ProjectActionResult,
@@ -38,6 +44,9 @@ export type {
 } from "./project-view-models";
 
 type ProjectCommandResult = ProjectActionResult<null>;
+export type ProjectTreeTemplateParseData = {
+  preview: ProjectTreeTemplatePreview;
+};
 
 function projectDatabaseResult<T>(error: unknown): ProjectActionResult<T> {
   return {
@@ -265,6 +274,76 @@ export async function saveProjectTask(
   }
 }
 
+export async function parseProjectTreeTemplate(
+  projectId: string,
+  source: string,
+): Promise<ProjectActionResult<ProjectTreeTemplateParseData>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  try {
+    const prepared = await prepareProjectTreeTemplate(user.id, projectId, source);
+
+    if (!prepared.ok) {
+      return prepared;
+    }
+
+    return {
+      ok: true,
+      data: {
+        preview: prepared.data.preview,
+      },
+    };
+  } catch (error) {
+    return projectDatabaseResult(error);
+  }
+}
+
+export async function applyProjectTreeTemplate(
+  projectId: string,
+  source: string,
+): Promise<ProjectActionResult<ProjectDashboardData>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  try {
+    const prepared = await prepareProjectTreeTemplate(user.id, projectId, source);
+
+    if (!prepared.ok) {
+      return prepared;
+    }
+
+    const applied = await projectService.applyProjectTreeTemplate(
+      user.id,
+      prepared.data.command,
+    );
+
+    if (!applied) {
+      return {
+        ok: false,
+        message: "Project template could not be applied.",
+        code: "project_template_apply_failed",
+        category: "database_update",
+        action: "update",
+        subject: "project",
+      };
+    }
+
+    return {
+      ok: true,
+      data: await loadProjectDashboardData(user.id),
+    };
+  } catch (error) {
+    return projectDatabaseResult(error);
+  }
+}
+
 export async function archiveProject(
   projectId: string,
 ): Promise<ProjectActionResult<ProjectDashboardData>> {
@@ -400,4 +479,50 @@ export async function updateProjectTaskStatus(
     "Task was not found.",
     "task_not_found",
   );
+}
+
+async function prepareProjectTreeTemplate(
+  userId: string,
+  projectId: string,
+  source: string,
+): Promise<ProjectActionResult<NormalizedProjectTreeTemplate>> {
+  const trimmedProjectId = projectId.trim();
+  const trimmedSource = source.trim();
+
+  if (!trimmedSource) {
+    return {
+      ok: false,
+      message: "Paste a project tree template first.",
+      code: "project_template_missing",
+      category: "missing_parameter",
+      subject: "project",
+      field: "template",
+      reason: "required",
+    };
+  }
+
+  const currentProject = (await projectService.listProjects(userId)).find(
+    (project) => project.id === trimmedProjectId,
+  );
+
+  if (!currentProject) {
+    return {
+      ok: false,
+      message: "Project was not found.",
+      code: "project_not_found",
+      category: "not_found",
+      subject: "project",
+    };
+  }
+
+  const parsed = parseProjectTreeTemplateMarkdown(trimmedSource);
+
+  if (!parsed.ok) {
+    return parsed;
+  }
+
+  return normalizeProjectTreeTemplateDocument({
+    document: parsed.data,
+    currentProject,
+  });
 }

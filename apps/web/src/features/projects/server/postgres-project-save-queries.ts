@@ -1,6 +1,5 @@
 import type { NeonQueryFunction } from "@neondatabase/serverless";
 import type {
-  ImportProjectTreeInput,
   SaveMilestoneInput,
   SaveProjectInput,
   SaveProjectTaskInput,
@@ -90,102 +89,6 @@ export async function saveTask(sql: Sql, input: SaveProjectTaskInput) {
   return true;
 }
 
-export async function importProjectTree(
-  sql: Sql,
-  input: ImportProjectTreeInput,
-) {
-  const rows = (await sql.query(
-    `WITH project_insert AS (
-       INSERT INTO projects (
-         user_id, title, objective, start_date, deadline_date,
-         expected_duration_days, created_at, updated_at
-       )
-       VALUES ($1, $2, $3, $4, $5, $6, $7::timestamptz, $7::timestamptz)
-       RETURNING id
-     ),
-     milestone_payload AS (
-       SELECT payload.value, payload.ordinal
-       FROM jsonb_array_elements($8::jsonb) WITH ORDINALITY AS payload(value, ordinal)
-     ),
-     milestone_input AS (
-       SELECT milestone_payload.ordinal, item.title, item.objective,
-         item.start_date, item.deadline_date, item.expected_duration_days,
-         item.tasks
-       FROM milestone_payload
-       CROSS JOIN LATERAL jsonb_to_record(milestone_payload.value) AS item(
-         title text,
-         objective text,
-         start_date date,
-         deadline_date date,
-         expected_duration_days integer,
-         tasks jsonb
-       )
-     ),
-     milestone_insert AS (
-       INSERT INTO project_milestones (
-         user_id, project_id, title, objective, start_date, deadline_date,
-         expected_duration_days, sort_order, created_at, updated_at
-       )
-       SELECT $1, project_insert.id, milestone_input.title,
-         milestone_input.objective, milestone_input.start_date,
-         milestone_input.deadline_date, milestone_input.expected_duration_days,
-         milestone_input.ordinal - 1, $7::timestamptz, $7::timestamptz
-       FROM milestone_input
-       CROSS JOIN project_insert
-       ORDER BY milestone_input.ordinal
-       RETURNING id, sort_order
-     ),
-     milestone_map AS (
-       SELECT milestone_input.ordinal, milestone_insert.id
-       FROM milestone_input
-       INNER JOIN milestone_insert
-         ON milestone_insert.sort_order = milestone_input.ordinal - 1
-     ),
-     task_payload AS (
-       SELECT milestone_input.ordinal AS milestone_ordinal,
-         payload.value, payload.ordinal AS task_ordinal
-       FROM milestone_input
-       CROSS JOIN LATERAL jsonb_array_elements(
-         COALESCE(milestone_input.tasks, '[]'::jsonb)
-       ) WITH ORDINALITY AS payload(value, ordinal)
-     ),
-     task_input AS (
-       SELECT task_payload.milestone_ordinal, task_item.title,
-         task_item.description, task_item.start_date, task_item.deadline_date,
-         task_item.estimated_duration_minutes, task_payload.task_ordinal
-       FROM task_payload
-       CROSS JOIN LATERAL jsonb_to_record(task_payload.value) AS task_item(
-         title text,
-         description text,
-         start_date date,
-         deadline_date date,
-         estimated_duration_minutes integer
-       )
-     ),
-     task_insert AS (
-       INSERT INTO project_tasks (
-         user_id, project_id, milestone_id, title, description,
-         start_date, deadline_date, estimated_duration_minutes, sort_order,
-         created_at, updated_at
-       )
-       SELECT $1, project_insert.id, milestone_map.id, task_input.title,
-         task_input.description, task_input.start_date, task_input.deadline_date,
-         task_input.estimated_duration_minutes, task_input.task_ordinal - 1,
-         $7::timestamptz, $7::timestamptz
-       FROM task_input
-       CROSS JOIN project_insert
-       INNER JOIN milestone_map
-         ON milestone_map.ordinal = task_input.milestone_ordinal
-       ORDER BY task_input.milestone_ordinal, task_input.task_ordinal
-       RETURNING id
-     )
-     SELECT id FROM project_insert`,
-    importProjectTreeParams(input),
-  )) as Array<{ id: string }>;
-
-  return rows[0]?.id ?? null;
-}
-
 function normalizeTaskInput(
   input: SaveProjectTaskInput,
 ): SaveProjectTaskInput {
@@ -273,34 +176,6 @@ function createTaskParams(input: SaveProjectTaskInput) {
     input.deadlineDate,
     input.estimatedDurationMinutes,
     input.occurredAt,
-  ];
-}
-
-function importProjectTreeParams(input: ImportProjectTreeInput) {
-  return [
-    input.userId,
-    input.project.title,
-    input.project.objective,
-    input.project.startDate,
-    input.project.deadlineDate,
-    input.project.expectedDurationDays,
-    input.occurredAt,
-    JSON.stringify(
-      input.milestones.map((milestone) => ({
-        title: milestone.title,
-        objective: milestone.objective,
-        start_date: milestone.startDate,
-        deadline_date: milestone.deadlineDate,
-        expected_duration_days: milestone.expectedDurationDays,
-        tasks: milestone.tasks.map((task) => ({
-          title: task.title,
-          description: task.description,
-          start_date: task.startDate,
-          deadline_date: task.deadlineDate,
-          estimated_duration_minutes: task.estimatedDurationMinutes,
-        })),
-      })),
-    ),
   ];
 }
 

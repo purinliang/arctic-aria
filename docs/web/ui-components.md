@@ -453,12 +453,19 @@ Dialog frames use the same `px-4 py-4` padding rhythm as notifications. Form
 dialogs should use the default dialog width so input fields, date pickers, and
 other long controls do not collapse into a narrow column. Use larger section
 spacing only when a form has meaningful groups. Small confirmation dialogs may
-use the `sm` size. Dialog overlays must provide enough top and
+use the `sm` size. Wide workflow dialogs that need side-by-side editing and
+preview, such as Project Tree Template, may use the `lg` size. Dialog overlays
+must provide enough top and
 bottom viewport padding and must allow vertical scrolling when form content is
 taller than the viewport. Dialogs must not close when the user clicks the
 semi-transparent overlay; close only through explicit close, cancel, save,
 delete, or confirmation controls. Feature dialogs should use shared dialog
 primitives instead of hand-rolling fixed overlay containers.
+
+Dialog headers may include a compact action slot immediately left of the close
+button. Use it for secondary dialog-level menus such as template tools or
+less-frequent destructive actions. Keep the close button as the rightmost
+control.
 
 Add/edit form dialogs that save an entity and optionally delete it should use
 `CrudEditorDialog`. Feature code supplies the fields, draft state, validation,

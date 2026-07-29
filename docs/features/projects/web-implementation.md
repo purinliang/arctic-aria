@@ -145,6 +145,7 @@ ProjectsPage
   ProjectsList, when no project is selected for detail view
   ProjectDetailPage, when a project is selected for detail view
   ProjectEditorDialog, when adding or editing a project
+  ProjectTreeTemplateDialog, when editing a project tree from a template
   MilestoneEditorDialog, when adding or editing a milestone
   ProjectTaskEditorDialog, when adding or editing a task
 ```
@@ -302,11 +303,28 @@ Dialog shell:
 - save icon: `Save`
 - save pending label: animated `Saving.`, `Saving..`, and `Saving...`; keep the
   full-width button stable and do not show a loading icon
-- existing project, milestone, and task edit dialogs also show a full-width
-  secondary `Delete` button below `Save`
+- existing milestone and task edit dialogs also show a full-width secondary
+  `Delete` button below `Save`
+- existing project edit dialogs move `Delete` into the header ellipsis menu
+  beside `Template`; the footer stays focused on `Save`
 - `Delete` opens shared `ConfirmDialog`; confirmation uses the standard primary
   button style, changes to static `Deleting...` while pending, avoids animated
   dots in the compact auto-width button, and deletes only after backend success
+
+Project Tree Template:
+
+- available only from existing project edit dialogs
+- opened from the project editor header ellipsis menu as `Template`
+- uses a wide `DialogFrame`
+- copies a Markdown template that includes the LLM instructions
+- accepts pasted filled Markdown in a monospace textarea
+- `Parse` validates without writing and shows a human preview summary
+- no JSON preview is shown
+- `Apply` is enabled only after parsing the current textarea content
+- successful apply refreshes Projects data and closes both the template dialog
+  and the project editor
+- failed parse or apply keeps the dialog open and reports through the shared
+  notification stack
 
 Project field order:
 

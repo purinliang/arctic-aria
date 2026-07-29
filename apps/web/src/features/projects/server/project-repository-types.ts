@@ -95,21 +95,37 @@ export type SaveProjectTaskInput = {
   occurredAt: Date;
 };
 
-export type ImportProjectTreeInput = {
+export type ProjectTreeTemplateOperation = "create" | "update" | "delete";
+
+export type ApplyProjectTreeTemplateInput = {
   userId: string;
-  project: Omit<SaveProjectInput, "projectId" | "userId" | "occurredAt">;
-  milestones: Array<
-    Omit<SaveMilestoneInput, "milestoneId" | "projectId" | "userId" | "occurredAt"> & {
-      tasks: Array<
-        Omit<
-          SaveProjectTaskInput,
-          "milestoneId" | "projectId" | "taskId" | "userId" | "occurredAt"
-        >
-      >;
-    }
-  >;
+  project: Omit<SaveProjectInput, "userId" | "occurredAt"> & {
+    projectId: string;
+  };
+  milestones: ProjectTreeTemplateMilestoneInput[];
+  tasks: ProjectTreeTemplateTaskInput[];
   occurredAt: Date;
 };
+
+export type ProjectTreeTemplateMilestoneInput =
+  | ({
+      operation: "create" | "update";
+      milestoneId: string;
+    } & Omit<SaveMilestoneInput, "userId" | "projectId" | "occurredAt">)
+  | {
+      operation: "delete";
+      milestoneId: string;
+    };
+
+export type ProjectTreeTemplateTaskInput =
+  | ({
+      operation: "create" | "update";
+      taskId: string;
+    } & Omit<SaveProjectTaskInput, "userId" | "projectId" | "occurredAt">)
+  | {
+      operation: "delete";
+      taskId: string;
+    };
 
 export type ProjectRepository = {
   listProjects(userId: string): Promise<ProjectRecord[]>;
@@ -121,7 +137,9 @@ export type ProjectRepository = {
   saveProject(input: SaveProjectInput): Promise<string | null>;
   saveMilestone(input: SaveMilestoneInput): Promise<string | null>;
   saveTask(input: SaveProjectTaskInput): Promise<boolean>;
-  importProjectTree(input: ImportProjectTreeInput): Promise<string | null>;
+  applyProjectTreeTemplate(
+    input: ApplyProjectTreeTemplateInput,
+  ): Promise<boolean>;
   archiveProject(input: {
     userId: string;
     projectId: string;

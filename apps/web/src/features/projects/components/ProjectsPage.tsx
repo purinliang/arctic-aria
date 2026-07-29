@@ -8,6 +8,7 @@ import type {
   MilestoneInput,
   ProjectInput,
   ProjectTaskInput,
+  ProjectTreeTemplateParseData,
   ProjectTaskView,
   ProjectView,
 } from "@/features/projects/actions";
@@ -20,6 +21,7 @@ import {
 import { ProjectMilestoneManagerDialog } from "./ProjectMilestoneManagerDialog";
 import { ProjectsList } from "./ProjectsList";
 import { ProjectTaskEditorDialog } from "./ProjectTaskEditorDialog";
+import { ProjectTreeTemplateDialog } from "./ProjectTreeTemplateDialog";
 import {
   emptyMilestoneDraft,
   emptyProjectDraft,
@@ -53,6 +55,8 @@ export function ProjectsPage({
   pendingProjectPinIds,
   onProjectSave,
   onProjectDelete,
+  onProjectTemplateParse,
+  onProjectTemplateApply,
   onProjectPin,
   onProjectUnpin,
   onMilestoneSave,
@@ -76,6 +80,11 @@ export function ProjectsPage({
   pendingProjectPinIds: string[];
   onProjectSave: (input: ProjectInput) => ProjectResult;
   onProjectDelete: (projectId: string) => ProjectResult;
+  onProjectTemplateParse: (
+    projectId: string,
+    source: string,
+  ) => Promise<ProjectTreeTemplateParseData | null>;
+  onProjectTemplateApply: (projectId: string, source: string) => ProjectResult;
   onProjectPin: (projectId: string) => void;
   onProjectUnpin: (projectId: string) => void;
   onMilestoneSave: (input: MilestoneInput) => ProjectResult;
@@ -98,6 +107,7 @@ export function ProjectsPage({
     string | null
   >(null);
   const [taskDraft, setTaskDraft] = useState<ProjectTaskInput | null>(null);
+  const [templateProjectId, setTemplateProjectId] = useState<string | null>(null);
   const [confirmationTarget, setConfirmationTarget] =
     useState<ConfirmationTarget | null>(null);
   const [dialogAction, setDialogAction] = useState<DialogAction>(null);
@@ -111,6 +121,9 @@ export function ProjectsPage({
   const milestoneManagerOpen = selectedProject
     ? milestoneManagerProjectId === selectedProject.id
     : false;
+  const templateProject = templateProjectId
+    ? projects.find((project) => project.id === templateProjectId) ?? null
+    : null;
 
   useEffect(() => {
     if (selectedProjectId && !loading && !selectedProject) {
@@ -123,6 +136,7 @@ export function ProjectsPage({
       setProjectDraft(null);
       setMilestoneDraft(null);
       setTaskDraft(null);
+      setTemplateProjectId(null);
       setConfirmationTarget(null);
     }
   }
@@ -130,6 +144,12 @@ export function ProjectsPage({
   function closeMilestoneManager() {
     if (!pending && dialogAction === null) {
       setMilestoneManagerProjectId(null);
+    }
+  }
+
+  function closeProjectTemplate() {
+    if (!pending && dialogAction === null) {
+      setTemplateProjectId(null);
     }
   }
 
@@ -249,6 +269,17 @@ export function ProjectsPage({
     }
   }
 
+  async function applyProjectTemplate(projectId: string, source: string) {
+    const applied = await onProjectTemplateApply(projectId, source);
+
+    if (applied) {
+      setTemplateProjectId(null);
+      setProjectDraft(null);
+    }
+
+    return applied;
+  }
+
   function hasDialogAction(type: DialogEntityType) {
     return dialogAction?.type === type;
   }
@@ -354,6 +385,24 @@ export function ProjectsPage({
                   })
               : undefined
           }
+          onTemplate={
+            projectDraft.id
+              ? () => setTemplateProjectId(projectDraft.id ?? null)
+              : undefined
+          }
+        />
+      ) : null}
+
+      {templateProject ? (
+        <ProjectTreeTemplateDialog
+          key={templateProject.id}
+          darkMode={darkMode}
+          pending={pending}
+          project={templateProject}
+          messages={messages.editor.template}
+          onClose={closeProjectTemplate}
+          onParse={onProjectTemplateParse}
+          onApply={applyProjectTemplate}
         />
       ) : null}
 

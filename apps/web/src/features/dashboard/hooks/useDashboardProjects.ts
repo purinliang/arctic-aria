@@ -8,11 +8,13 @@ import {
   runNotifiedServerAction,
 } from "@/app-shell/action-notifications";
 import {
+  applyProjectTreeTemplate,
   archiveMilestone,
   archiveProject,
   archiveProjectTask,
   getProjectDashboardData,
   pinProject,
+  parseProjectTreeTemplate,
   saveMilestone,
   saveProject,
   saveProjectTask,
@@ -23,6 +25,7 @@ import {
   type ProjectDashboardData,
   type ProjectInput,
   type ProjectTaskInput,
+  type ProjectTreeTemplateParseData,
   type ProjectView,
 } from "@/features/projects/actions";
 import { projectTaskProgressText } from "@/features/projects/project-progress";
@@ -174,6 +177,36 @@ export function useDashboardProjects(
     }
   }
 
+  async function parseProjectTreeTemplateFromPage(
+    projectId: string,
+    source: string,
+  ): Promise<ProjectTreeTemplateParseData | null> {
+    const actionResult = await runNotifiedServerAction({
+      action: () => parseProjectTreeTemplate(projectId, source),
+      messages: notificationMessages,
+      showErrorNotification,
+    });
+
+    if (!actionResult.ok) {
+      return null;
+    }
+
+    const result = actionResult.value;
+
+    if (!result.ok) {
+      notifyActionFailure({
+        result,
+        resultMessages,
+        fallbackTitle: actionFailedTitle("update", "project"),
+        notificationMessages,
+        showErrorNotification,
+      });
+      return null;
+    }
+
+    return result.data;
+  }
+
   async function updateProjectPinFromPage(
     projectId: string,
     action: ProjectDataAction,
@@ -322,6 +355,12 @@ export function useDashboardProjects(
       runProjectManagementAction(
         () => saveProject(input),
         actionFailedTitle("save", "project"),
+      ),
+    parseProjectTreeTemplateFromPage,
+    applyProjectTreeTemplateFromPage: (projectId: string, source: string) =>
+      runProjectManagementAction(
+        () => applyProjectTreeTemplate(projectId, source),
+        actionFailedTitle("update", "project"),
       ),
     archiveProjectFromPage: (projectId: string) =>
       runProjectManagementAction(

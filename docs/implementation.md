@@ -14,8 +14,8 @@ The implemented runtime apps are the Next.js web app in `apps/web` and the
 Cloudflare cron scheduler in `apps/cron`. Discord is implemented as HTTP routes
 inside the web app, not as a separate process. Database migrations live under
 `apps/database` and are run by the web app migration script. `apps/cli` exists
-as a templates-only developer surface for future local import workflows; it has
-no active runtime commands yet.
+as a reserved developer surface for future local workflows; it has no active
+runtime commands yet.
 
 Use this file as a code map. Current product status and future requirements
 belong in [README.md](../README.md), [roadmap.md](roadmap.md), and feature
@@ -61,7 +61,6 @@ workspace yet.
 arctic-aria/
 |-- apps/
 |   |-- cli/
-|   |   |-- templates/
 |   |   `-- package.json
 |   |
 |   |-- cron/
@@ -202,9 +201,9 @@ business rules for projects, routines, events, or memories.
 `apps/web/src/server/database` owns shared database connection helpers. Feature
 repositories should import the database client; UI components should not.
 
-`apps/cli` currently owns only import templates and ignored local data
-placeholders. The implemented import parser and import endpoints live in the
-web app's administrator Developer Tools flow, not in a standalone CLI command.
+`apps/cli` currently owns only package metadata and ignored local data
+placeholders. There are no active CLI import commands, parsers, or web import
+endpoints.
 
 ## Implementation References
 
