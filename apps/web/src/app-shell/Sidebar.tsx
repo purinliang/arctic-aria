@@ -297,7 +297,7 @@ function SidebarItem({
       darkMode={darkMode}
       tone="ghost"
       active={active}
-      size="md"
+      size="md-lg"
       className="w-full min-w-0 justify-start overflow-hidden rounded-none text-left first:rounded-t-md last:rounded-b-md"
       disabled={disabled}
       icon={itemIcon}

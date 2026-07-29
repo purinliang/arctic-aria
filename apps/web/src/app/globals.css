@@ -186,10 +186,12 @@
   --aa-text-input-disabled-text: var(--aa-gray-11-50);
   --aa-button-height-sm: 36px;
   --aa-button-height-md: 40px;
+  --aa-button-height-md-lg: 44px;
   --aa-button-height-lg: 44px;
   --aa-form-control-height: 40px;
   --aa-icon-button-size: 36px;
   --aa-field-icon-button-size: 32px;
+  --aa-panel-header-icon-gap: 6px;
   --aa-field-label-gap: 4px;
   --aa-field-group-gap: 12px;
   --aa-form-section-gap: 18px;
