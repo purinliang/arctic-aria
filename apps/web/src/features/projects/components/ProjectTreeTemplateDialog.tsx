@@ -240,7 +240,7 @@ const emptyProjectTemplateDraft: ProjectInput = {
   durationRange: "3_6_months",
 };
 const templateDialogClass =
-  "flex h-[min(46rem,calc(100vh-4rem))] min-h-[34rem] flex-col overflow-hidden";
+  "flex h-[46rem] min-h-[34rem] flex-col overflow-hidden";
 const templateBodyClass =
   "h-full min-h-0 flex-1 grid-rows-[minmax(0,1fr)] overflow-hidden";
 const templateEditSectionClass =
