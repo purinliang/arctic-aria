@@ -9,15 +9,10 @@ import {
   secondaryTextColorClass,
 } from "@/components/color";
 import { CardHeader } from "@/components/card";
-import {
-  List,
-  ListItem,
-  ListItemContent,
-  ListItemSupportingText,
-  ListItemTitle,
-} from "@/components/list";
+import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { SupportingText } from "@/components/text";
+import { SettingsControlRow } from "@/features/settings/components/SettingsControlRow";
 import type { SettingsMessages } from "@/messages/app-messages";
 import {
   latencyReportMarkdown,
@@ -97,47 +92,39 @@ export function DeveloperToolsPanel({
         description={messages.developerTools.latencyDescription}
       />
       <List darkMode={darkMode}>
-        <ListItem darkMode={darkMode} className="items-center">
-          <ListItemContent
-            className="self-center"
-            title={
-              <ListItemTitle>
-                {messages.developerTools.latencyActionTitle}
-              </ListItemTitle>
-            }
-            support={
-              <ListItemSupportingText className="block">
-                {messages.developerTools.latencyActionDescription}
-              </ListItemSupportingText>
-            }
-          />
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-            <Button
-              darkMode={darkMode}
-              loading={pending}
-              loadingIcon={
-                <LoaderCircle
-                  className="animate-spin"
-                  size={14}
-                  aria-hidden="true"
-                />
-              }
-              onClick={handleTestLatency}
-            >
-              {pending
-                ? messages.developerTools.testing
-                : messages.developerTools.testLatency}
-            </Button>
-            {report ? (
+        <SettingsControlRow
+          darkMode={darkMode}
+          title={messages.developerTools.latencyActionTitle}
+          support={messages.developerTools.latencyActionDescription}
+          control={
+            <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
               <Button
                 darkMode={darkMode}
-                onClick={handleCopyMarkdown}
+                loading={pending}
+                loadingIcon={
+                  <LoaderCircle
+                    className="animate-spin"
+                    size={14}
+                    aria-hidden="true"
+                  />
+                }
+                onClick={handleTestLatency}
               >
-                {messages.developerTools.copyMarkdown}
+                {pending
+                  ? messages.developerTools.testing
+                  : messages.developerTools.testLatency}
               </Button>
-            ) : null}
-          </div>
-        </ListItem>
+              {report ? (
+                <Button
+                  darkMode={darkMode}
+                  onClick={handleCopyMarkdown}
+                >
+                  {messages.developerTools.copyMarkdown}
+                </Button>
+              ) : null}
+            </div>
+          }
+        />
         {report ? (
           <ListItem darkMode={darkMode} layout="block">
             <LatencyReportView
