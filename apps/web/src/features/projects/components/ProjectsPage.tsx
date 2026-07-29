@@ -77,6 +77,8 @@ export function ProjectsPage({
   onMilestoneSelect,
   messages,
   formMessages,
+  showErrorNotification,
+  showSuccessNotification,
 }: {
   darkMode: boolean;
   projects: ProjectView[];
@@ -108,6 +110,8 @@ export function ProjectsPage({
   onMilestoneSelect: (milestoneId: string | null) => void;
   messages: ProjectMessages;
   formMessages: FormMessages;
+  showErrorNotification: (message: string, title?: string) => void;
+  showSuccessNotification: (message: string, title?: string) => void;
 }) {
   const [milestoneDraft, setMilestoneDraft] = useState<MilestoneInput | null>(
     null,
@@ -420,6 +424,8 @@ export function ProjectsPage({
           project={templateTarget.mode === "update" ? templateProject : null}
           draft={templateTarget.mode === "create" ? templateTarget.draft : null}
           messages={messages.editor.template}
+          showErrorNotification={showErrorNotification}
+          showSuccessNotification={showSuccessNotification}
           onClose={closeProjectTemplate}
           onParse={onProjectTemplateParse}
           onApply={applyProjectTemplate}

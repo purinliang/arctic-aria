@@ -44,6 +44,8 @@ export function ProjectTreeTemplateDialog({
   project,
   draft,
   messages,
+  showErrorNotification,
+  showSuccessNotification,
   onClose,
   onParse,
   onApply,
@@ -54,6 +56,8 @@ export function ProjectTreeTemplateDialog({
   project: ProjectView | null;
   draft: ProjectInput | null;
   messages: ProjectMessages["editor"]["template"];
+  showErrorNotification: (message: string, title?: string) => void;
+  showSuccessNotification: (message: string, title?: string) => void;
   onClose: () => void;
   onParse: (
     projectId: string | null,
@@ -75,7 +79,6 @@ export function ProjectTreeTemplateDialog({
   const [parsedSource, setParsedSource] = useState("");
   const [preview, setPreview] =
     useState<ProjectTreeTemplateParseData["preview"] | null>(null);
-  const [copyStatus, setCopyStatus] = useState("");
   const [action, setAction] = useState<TemplateAction | null>(null);
   const [activeTab, setActiveTab] = useState<TemplateTab>("edit");
   const busy = pending || action !== null;
@@ -84,9 +87,9 @@ export function ProjectTreeTemplateDialog({
   async function copyTemplate() {
     try {
       await navigator.clipboard.writeText(template);
-      setCopyStatus(messages.copied);
+      showSuccessNotification(messages.copied);
     } catch {
-      setCopyStatus(messages.copyFailed);
+      showErrorNotification(messages.copyFailed);
     }
   }
 
@@ -175,9 +178,6 @@ export function ProjectTreeTemplateDialog({
                   setActiveTab("edit");
                 }}
               />
-              {copyStatus ? (
-                <SupportingText darkMode={darkMode}>{copyStatus}</SupportingText>
-              ) : null}
             </FormSection>
           ) : (
             <TemplatePreview

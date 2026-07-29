@@ -375,6 +375,8 @@ export function AppShell({
               onMilestoneSelect={showProjectMilestoneDetail}
               messages={messages.projects}
               formMessages={messages.forms}
+              showErrorNotification={showErrorNotification}
+              showSuccessNotification={showSuccessNotification}
             />
           ) : activeView === "routines" ? (
             <RoutinesPage
