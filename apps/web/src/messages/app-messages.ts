@@ -525,7 +525,7 @@ const simplifiedChineseMessages: AppMessages = {
       codeCopyFailedTitle: "代码未复制",
       closeUnbindConfirmation: "关闭 Discord 解绑确认",
       connect: "绑定",
-      connectDescription: "创建一个短期代码，然后在 Discord 中完成绑定。",
+      connectDescription: "创建一个临时代码，然后在 Discord 中完成绑定。",
       connectTitle: "绑定 Discord",
       connectionChecking: "检查中",
       connectionConnected: "已连接",
