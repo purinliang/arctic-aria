@@ -15,16 +15,21 @@ export function DialogOverlay({
   children: ReactNode;
 }) {
   return (
-    <ScrollArea
-      className={cx(
-        "fixed inset-0 bg-black/65",
-        zIndex,
-      )}
-      viewportClassName="h-full px-4 py-8 sm:py-10"
-      contentClassName="grid min-h-full place-items-center"
-    >
-      {children}
-    </ScrollArea>
+    <div className={cx("aa-dialog-overlay fixed inset-0 cursor-default", zIndex)}>
+      <div
+        className="aa-dialog-backdrop absolute inset-0 bg-black/65"
+        aria-hidden="true"
+      />
+      <ScrollArea
+        className="aa-dialog-scroll-layer absolute inset-0 z-10 min-h-0 cursor-default overflow-hidden"
+        viewportClassName="h-full cursor-default px-4 py-8 sm:py-10"
+        contentClassName="grid min-h-full cursor-default place-items-center"
+      >
+        <div className="aa-dialog-content cursor-default">
+          {children}
+        </div>
+      </ScrollArea>
+    </div>
   );
 }
 
@@ -43,7 +48,11 @@ export function DialogFrame({
 }) {
   return (
     <section
-      className={cx(dialogFrameClass(darkMode, size, padding), className)}
+      className={cx(
+        "aa-dialog-frame cursor-default",
+        dialogFrameClass(darkMode, size, padding),
+        className,
+      )}
       style={{
         backgroundColor: "var(--aa-panel-bg)",
       }}

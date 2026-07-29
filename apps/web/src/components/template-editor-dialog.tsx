@@ -284,7 +284,7 @@ function TemplateSourceEditor({
         ref={textAreaRef}
         aria-label={label}
         className={cx(
-          "block min-h-full w-full resize-none overflow-hidden border-0 bg-transparent px-3 py-2 font-mono text-sm leading-6 outline-none",
+          "block min-h-full w-full cursor-text resize-none overflow-hidden border-0 bg-transparent px-3 py-2 font-mono text-sm leading-6 outline-none",
           "text-[var(--aa-text-input-text)] caret-[var(--aa-text-input-text)] placeholder:text-[var(--aa-text-input-placeholder-text)]",
           "disabled:cursor-not-allowed disabled:text-[var(--aa-text-input-disabled-text)] disabled:placeholder:text-[var(--aa-text-input-disabled-text)]",
         )}

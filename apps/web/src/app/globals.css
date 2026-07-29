@@ -358,8 +358,26 @@ body::before {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
+}
+
+.aa-dialog-backdrop,
+.aa-dialog-content,
+.aa-dialog-frame {
+  cursor: default;
+}
+
+.aa-dialog-content input,
+.aa-dialog-content textarea,
+.aa-dialog-content [contenteditable="true"] {
+  cursor: text;
+}
+
+.aa-dialog-content button:not(:disabled),
+.aa-dialog-content [role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
 }
 
 .aa-split-container {

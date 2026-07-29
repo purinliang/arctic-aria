@@ -35,7 +35,7 @@ export function Button({
   return (
     <button
       className={cx(
-        "inline-flex shrink-0 items-center justify-center gap-2 rounded-md font-semibold transition disabled:cursor-not-allowed",
+        "inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md font-semibold transition disabled:cursor-not-allowed",
         buttonSizeClass(size),
         buttonToneClass(darkMode, tone, active),
         className,
