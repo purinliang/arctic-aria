@@ -30,7 +30,11 @@ export function SettingsControlRow({
       )}
     >
       <ListItemContent
-        title={<ListItemTitle size="compact">{title}</ListItemTitle>}
+        title={
+          <ListItemTitle className="font-normal text-[var(--aa-primary-text)]">
+            {title}
+          </ListItemTitle>
+        }
         support={
           support ? (
             <ListItemSupportingText className="block">
