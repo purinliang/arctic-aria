@@ -40,6 +40,8 @@ project tree.
   and it must match the current project.
 - Milestone rows use `milestone_id`.
 - Task rows use `task_id`.
+- Generated template fields are ordered as id, `op`, then the fields in the
+  matching input dialog order.
 - Child rows use `op: create`, `op: update`, or `op: delete`.
 - `create` rows must omit the id or leave it empty.
 - `update` and `delete` rows require the matching existing id.

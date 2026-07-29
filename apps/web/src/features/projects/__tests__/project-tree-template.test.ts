@@ -124,6 +124,33 @@ test("project tree template serializer round trips escaped multiline text", () =
   assert.equal(parsed.data.project.objective, "Line one\nLine two");
 });
 
+test("project template serializer orders fields as id op then dialog fields", () => {
+  const template = projectTreeTemplateForProject(projectView({
+    tasks: [
+      {
+        id: "task-1",
+        projectId: "project-1",
+        projectTitle: "Find a job",
+        milestoneId: null,
+        milestoneTitle: "",
+        title: "Prepare resume",
+        description: "Rewrite bullets.",
+        status: "todo",
+        startDate: "2026-07-29",
+        deadlineDate: "2026-08-02",
+        estimatedDurationMinutes: "45",
+      },
+    ],
+  }));
+  const projectIndex = template.indexOf("project_id: project-1\nop: update\ntitle:");
+  const taskIndex = template.indexOf(
+    "- task_id: task-1\n  op: update\n  title: Prepare resume\n  description:",
+  );
+
+  assert.notEqual(projectIndex, -1);
+  assert.notEqual(taskIndex, -1);
+});
+
 test("project tree template create mode accepts blank ids", async () => {
   const parsed = parseProjectTreeTemplateMarkdown(`# Project Tree Template
 ## Project

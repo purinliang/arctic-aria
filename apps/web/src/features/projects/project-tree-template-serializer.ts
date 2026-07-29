@@ -28,8 +28,8 @@ export function projectTreeTemplateForNewProject(draft: ProjectInput) {
     "duration: 3_6_months",
     "",
     "## Top-level Tasks",
-    "- op: create",
-    "  task_id:",
+    "- task_id:",
+    "  op: create",
     "  title: Prepare resume",
     "  description: Rewrite backend experience bullets.",
     "  start_date: 2026-07-29",
@@ -48,8 +48,8 @@ export function projectTreeTemplateForNewProject(draft: ProjectInput) {
     "duration: 1_3_months",
     "",
     "#### Tasks",
-    "- op: create",
-    "  task_id:",
+    "- task_id:",
+    "  op: create",
     "  title: Submit one application",
     "  description:",
     "  start_date: 2026-07-30",
@@ -130,8 +130,8 @@ function taskLines(tasks: ProjectTaskView[]) {
   }
 
   return tasks.flatMap((task) => [
-    "- op: update",
-    `  task_id: ${task.id}`,
+    `- task_id: ${task.id}`,
+    "  op: update",
     `  title: ${fieldValue(task.title)}`,
     `  description: ${fieldValue(task.description ?? "")}`,
     `  start_date: ${task.startDate}`,
