@@ -24,7 +24,9 @@ project tree.
 - The preview is a human summary, not JSON.
 - The template dialog uses tabs: Template input and Preview are not shown at
   the same time.
-- The Template tab has Copy and Parse actions. Save is shown only on the
+- Template and Preview tab bodies use fixed-height internal scrolling.
+- The Preview tab is disabled until the current template has parsed.
+- The Template tab has Copy and primary Preview actions. Save is shown only on the
   Preview tab.
 - Preview rows use compact operation chips and indentation for tree depth.
 - Unsupported extra fields are ignored, counted, and reported after parse.

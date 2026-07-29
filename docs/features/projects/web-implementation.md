@@ -320,8 +320,10 @@ Project Template:
 - accepts pasted filled Markdown in a monospace textarea
 - uses Template and Preview tabs so input and preview are not displayed at the
   same time
-- the Template tab footer shows `Copy` and `Parse` side by side
-- `Parse` validates without writing and shows a human preview summary
+- both Template and Preview tabs use fixed-height scrollable bodies
+- the Preview tab is disabled until the current template has parsed
+- the Template tab footer shows `Copy` and primary `Preview` side by side
+- `Preview` validates without writing and shows a human preview summary
 - create-mode parse does not allocate persistent ids
 - unsupported extra fields are ignored, counted, and reported without blocking
   Save

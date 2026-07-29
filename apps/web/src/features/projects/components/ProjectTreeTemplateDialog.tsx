@@ -11,7 +11,6 @@ import {
   DialogOverlay,
   DialogPrimaryButton,
 } from "@/components/dialog";
-import { templateInputMinHeightClass } from "@/components/control-layout";
 import { FormSection, FormSections } from "@/components/forms/form-layout";
 import { FieldLabel } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
@@ -141,6 +140,7 @@ export function ProjectTreeTemplateDialog({
         <TemplateTabs
           darkMode={darkMode}
           activeTab={activeTab}
+          previewDisabled={!hasFreshPreview}
           messages={messages}
           onChange={setActiveTab}
         />
@@ -150,7 +150,10 @@ export function ProjectTreeTemplateDialog({
               <FieldLabel darkMode={darkMode} label={messages.inputLabel}>
                 <TextArea
                   darkMode={darkMode}
-                  className={`${templateInputMinHeightClass} font-mono text-sm leading-6`}
+                  className={cx(
+                    templatePanelHeightClass,
+                    "resize-none overflow-auto font-mono text-sm leading-6",
+                  )}
                   value={source}
                   disabled={busy}
                   placeholder={messages.inputPlaceholder}
@@ -187,7 +190,7 @@ export function ProjectTreeTemplateDialog({
             >
               {messages.copyTemplate}
             </Button>
-            <Button
+            <DialogPrimaryButton
               darkMode={darkMode}
               size="md"
               disabled={busy}
@@ -196,7 +199,7 @@ export function ProjectTreeTemplateDialog({
               onClick={() => void parseTemplate()}
             >
               {action === "parse" ? messages.parsing : messages.parse}
-            </Button>
+            </DialogPrimaryButton>
           </DialogActionRow>
         ) : (
           <DialogActionRow>
@@ -227,15 +230,18 @@ const emptyProjectTemplateDraft: ProjectInput = {
   deadlineDate: "",
   durationRange: "3_6_months",
 };
+const templatePanelHeightClass = "h-[32rem] max-h-[calc(100vh-18rem)]";
 
 function TemplateTabs({
   darkMode,
   activeTab,
+  previewDisabled,
   messages,
   onChange,
 }: {
   darkMode: boolean;
   activeTab: TemplateTab;
+  previewDisabled: boolean;
   messages: ProjectMessages["editor"]["template"];
   onChange: (tab: TemplateTab) => void;
 }) {
@@ -261,6 +267,7 @@ function TemplateTabs({
         size="md"
         role="tab"
         aria-selected={activeTab === "preview"}
+        disabled={previewDisabled}
         onClick={() => onChange("preview")}
       >
         {messages.previewTab}
@@ -280,7 +287,7 @@ function TemplatePreview({
 }) {
   if (!preview) {
     return (
-      <FormSection>
+      <FormSection className={cx(templatePanelHeightClass, "overflow-auto")}>
         <LabelText darkMode={darkMode}>{messages.previewTitle}</LabelText>
         <SupportingText darkMode={darkMode}>
           {messages.previewEmpty}
@@ -290,7 +297,12 @@ function TemplatePreview({
   }
 
   return (
-    <FormSection>
+    <FormSection
+      className={cx(
+        templatePanelHeightClass,
+        "grid-rows-[auto_minmax(0,1fr)] overflow-hidden",
+      )}
+    >
       <div className="grid min-w-0 gap-1">
         <LabelText darkMode={darkMode}>{messages.previewTitle}</LabelText>
         <SupportingText darkMode={darkMode}>
@@ -306,7 +318,7 @@ function TemplatePreview({
           </SupportingText>
         ) : null}
       </div>
-      <List darkMode={darkMode} className="max-h-[28rem] overflow-auto">
+      <List darkMode={darkMode} className="min-h-0 overflow-auto">
         {preview.items.map((item, index) => {
           const depth = previewItemDepth(item);
 
