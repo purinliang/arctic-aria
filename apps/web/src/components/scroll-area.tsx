@@ -1,7 +1,12 @@
 "use client";
 
 import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
-import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
+import type {
+  CSSProperties,
+  HTMLAttributes,
+  PointerEvent as ReactPointerEvent,
+  ReactNode,
+} from "react";
 import { cx } from "./utils";
 
 type ScrollbarMode = "visible" | "auto-hide";
@@ -19,6 +24,18 @@ const hiddenScrollbarState: ScrollbarState = {
   thumbHeight: 0,
   thumbTop: 0,
 };
+
+type ScrollbarDragState = {
+  pointerId: number;
+  startY: number;
+  startScrollTop: number;
+  maxScrollTop: number;
+  maxThumbTop: number;
+};
+
+const scrollbarTrackPadding = 8;
+const scrollbarMinThumbHeight = 32;
+const scrollbarHideDelayMs = 900;
 
 type ScrollAreaProps = Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -52,9 +69,18 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
     const viewportRef = useRef<HTMLDivElement | null>(null);
     const contentRef = useRef<HTMLDivElement | null>(null);
     const hideTimer = useRef<number | null>(null);
+    const dragState = useRef<ScrollbarDragState | null>(null);
+    const [dragging, setDragging] = useState(false);
     const [scrollbarState, setScrollbarState] = useState<ScrollbarState>(
       hiddenScrollbarState,
     );
+
+    const clearHideTimer = useCallback(() => {
+      if (hideTimer.current !== null) {
+        window.clearTimeout(hideTimer.current);
+        hideTimer.current = null;
+      }
+    }, []);
 
     const updateScrollbarState = useCallback(
       (visible: boolean) => {
@@ -72,13 +98,12 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
           return;
         }
 
-        const trackPadding = 8;
         const trackHeight = Math.max(
           0,
-          viewport.clientHeight - trackPadding * 2,
+          viewport.clientHeight - scrollbarTrackPadding * 2,
         );
         const thumbHeight = Math.max(
-          32,
+          scrollbarMinThumbHeight,
           Math.round(
             (viewport.clientHeight / viewport.scrollHeight) * trackHeight,
           ),
@@ -86,7 +111,7 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
         const maxScrollTop = viewport.scrollHeight - viewport.clientHeight;
         const maxThumbTop = Math.max(0, trackHeight - thumbHeight);
         const thumbTop =
-          trackPadding +
+          scrollbarTrackPadding +
           (maxScrollTop > 0
             ? (viewport.scrollTop / maxScrollTop) * maxThumbTop
             : 0);
@@ -100,6 +125,18 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
       },
       [],
     );
+
+    const scheduleAutoHide = useCallback(() => {
+      if (scrollbar === "visible") {
+        return;
+      }
+
+      clearHideTimer();
+
+      hideTimer.current = window.setTimeout(() => {
+        updateScrollbarState(false);
+      }, scrollbarHideDelayMs);
+    }, [clearHideTimer, scrollbar, updateScrollbarState]);
 
     useEffect(() => {
       updateScrollbarState(false);
@@ -128,14 +165,12 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
       }
 
       return () => {
-        if (hideTimer.current !== null) {
-          window.clearTimeout(hideTimer.current);
-        }
+        clearHideTimer();
 
         window.removeEventListener("resize", handleResize);
         resizeObserver?.disconnect();
       };
-    }, [refreshKey, scrollbar, updateScrollbarState]);
+    }, [clearHideTimer, refreshKey, scrollbar, updateScrollbarState]);
 
     function handleScroll() {
       updateScrollbarState(true);
@@ -144,14 +179,98 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
         return;
       }
 
-      if (hideTimer.current !== null) {
-        window.clearTimeout(hideTimer.current);
+      scheduleAutoHide();
+    }
+
+    function handleThumbPointerDown(
+      event: ReactPointerEvent<HTMLSpanElement>,
+    ) {
+      if (event.button !== 0) {
+        return;
       }
 
-      hideTimer.current = window.setTimeout(() => {
-        updateScrollbarState(false);
-      }, 900);
+      const viewport = viewportRef.current;
+
+      if (!viewport) {
+        return;
+      }
+
+      const maxScrollTop = viewport.scrollHeight - viewport.clientHeight;
+      const trackHeight = Math.max(
+        0,
+        viewport.clientHeight - scrollbarTrackPadding * 2,
+      );
+      const maxThumbTop = Math.max(
+        0,
+        trackHeight - scrollbarState.thumbHeight,
+      );
+
+      if (maxScrollTop <= 0 || maxThumbTop <= 0) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      clearHideTimer();
+      event.currentTarget.setPointerCapture(event.pointerId);
+      dragState.current = {
+        pointerId: event.pointerId,
+        startY: event.clientY,
+        startScrollTop: viewport.scrollTop,
+        maxScrollTop,
+        maxThumbTop,
+      };
+      setDragging(true);
+      updateScrollbarState(true);
     }
+
+    function handleThumbPointerMove(
+      event: ReactPointerEvent<HTMLSpanElement>,
+    ) {
+      const activeDrag = dragState.current;
+
+      if (!activeDrag || activeDrag.pointerId !== event.pointerId) {
+        return;
+      }
+
+      const viewport = viewportRef.current;
+
+      if (!viewport) {
+        return;
+      }
+
+      event.preventDefault();
+      const dragOffset = event.clientY - activeDrag.startY;
+      const nextScrollTop =
+        activeDrag.startScrollTop +
+        (dragOffset / activeDrag.maxThumbTop) * activeDrag.maxScrollTop;
+
+      viewport.scrollTop = Math.min(
+        activeDrag.maxScrollTop,
+        Math.max(0, nextScrollTop),
+      );
+      updateScrollbarState(true);
+    }
+
+    function handleThumbPointerEnd(event: ReactPointerEvent<HTMLSpanElement>) {
+      const activeDrag = dragState.current;
+
+      if (!activeDrag || activeDrag.pointerId !== event.pointerId) {
+        return;
+      }
+
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+
+      dragState.current = null;
+      setDragging(false);
+      updateScrollbarState(true);
+      scheduleAutoHide();
+    }
+
+    const thumbVisible =
+      scrollbar === "visible" || scrollbarState.visible || dragging;
 
     return (
       <div ref={ref} className={cx("min-h-0", className)} {...props}>
@@ -173,18 +292,29 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
         {scrollbarState.canScroll ? (
           <span
             className={cx(
-              "pointer-events-none absolute right-1 top-0 block w-[3px] rounded-full bg-[var(--aa-secondary-button-hover-bg)] transition-opacity duration-200",
-              scrollbar === "visible" || scrollbarState.visible
-                ? "opacity-100"
-                : "opacity-0",
-              thumbClassName,
+              "absolute right-0 top-0 flex w-4 cursor-grab touch-none justify-end pr-1 transition-opacity duration-200 active:cursor-grabbing",
+              thumbVisible
+                ? "pointer-events-auto opacity-100"
+                : "pointer-events-none opacity-0",
+              dragging ? "cursor-grabbing" : null,
             )}
             style={{
               height: scrollbarState.thumbHeight,
               transform: `translateY(${scrollbarState.thumbTop}px)`,
             }}
-            aria-hidden="true"
-          />
+            onPointerDown={handleThumbPointerDown}
+            onPointerMove={handleThumbPointerMove}
+            onPointerUp={handleThumbPointerEnd}
+            onPointerCancel={handleThumbPointerEnd}
+          >
+            <span
+              className={cx(
+                "pointer-events-none block h-full w-[5px] rounded-full bg-[var(--aa-secondary-button-hover-bg)]",
+                thumbClassName,
+              )}
+              aria-hidden="true"
+            />
+          </span>
         ) : null}
       </div>
     );
