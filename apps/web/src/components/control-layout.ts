@@ -1,5 +1,6 @@
 export const buttonHeightSmClass = "h-[var(--aa-button-height-sm)]";
 export const buttonHeightMdClass = "h-[var(--aa-button-height-md)]";
+export const buttonHeightMdLgClass = "h-[var(--aa-button-height-md-lg)]";
 export const buttonHeightLgClass = "h-[var(--aa-button-height-lg)]";
 export const iconButtonSizeClass =
   "h-[var(--aa-icon-button-size)] w-[var(--aa-icon-button-size)]";

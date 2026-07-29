@@ -18,7 +18,7 @@ import { cx } from "@/components/utils";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { AppMessages } from "@/messages/app-messages";
-import type { LanguagePreference, SupportedLanguage } from "@/messages/languages";
+import type { LanguagePreference } from "@/messages/languages";
 import { refreshAfterDeveloperImport } from "@/features/developer/import-refresh";
 import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
 import type {
@@ -44,7 +44,6 @@ import { Sidebar } from "./Sidebar";
 
 export function AppShell({
   currentUser,
-  browserTimeZone,
   darkMode,
   languagePreference,
   messages,
@@ -52,7 +51,6 @@ export function AppShell({
   onPreferenceOpenAttempt,
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
-  resolvedLanguage,
   resolvedTimeZone,
   themePreference,
   timeFormatPreference,
@@ -65,7 +63,6 @@ export function AppShell({
   showSuccessNotification,
 }: {
   currentUser: AuthUser;
-  browserTimeZone: string;
   darkMode: boolean;
   languagePreference: LanguagePreference;
   messages: AppMessages;
@@ -73,7 +70,6 @@ export function AppShell({
   onPreferenceOpenAttempt: (preference: keyof UserPreferences) => boolean;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
-  resolvedLanguage: SupportedLanguage;
   resolvedTimeZone: string;
   themePreference: ThemePreference;
   timeFormatPreference: TimeFormatPreference;
@@ -268,14 +264,9 @@ export function AppShell({
           selectedProjectId={selectedProjectId}
           pinnedProjects={pinnedProjects}
           messages={messages.appShell}
-          logoutPending={logoutPending}
           onClose={() => setSidebarOpen(false)}
           onViewChange={handleViewChange}
           onProjectShortcut={showProjectDetail}
-          onThemeChange={(nextDarkMode) =>
-            onThemePreferenceChange(nextDarkMode ? "dark" : "light")
-          }
-          onLogout={onLogout}
         />
 
         <div className="mx-auto flex min-h-[100dvh] min-w-0 flex-1 flex-col gap-4 px-4 pb-12 pt-4 sm:px-6 sm:pb-16 lg:min-h-[110vh] lg:max-w-[1200px] lg:px-8 lg:pb-20">
@@ -423,12 +414,13 @@ export function AppShell({
             />
           ) : activeView === "settings" ? (
             <SettingsPage
+              currentUserDisplayName={currentUser.displayName}
               currentUserId={currentUser.id}
               currentUserIsAdmin={currentUser.isAdmin}
+              currentUsername={currentUser.username}
               darkMode={darkMode}
               languagePreference={languagePreference}
-              browserTimeZone={browserTimeZone}
-              resolvedLanguage={resolvedLanguage}
+              logoutPending={logoutPending}
               messages={messages.settings}
               notificationMessages={messages.notifications}
               themePreference={themePreference}
@@ -439,6 +431,7 @@ export function AppShell({
               onPreferenceOpenAttempt={onPreferenceOpenAttempt}
               onThemePreferenceChange={onThemePreferenceChange}
               onTimeFormatPreferenceChange={onTimeFormatPreferenceChange}
+              onLogout={onLogout}
               showErrorNotification={showErrorNotification}
               showSuccessNotification={showSuccessNotification}
               timeFormatPreference={timeFormatPreference}

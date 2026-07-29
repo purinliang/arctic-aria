@@ -193,7 +193,7 @@ export function SelectInput({
   }, [open, scrollSelectedOptionIntoView, updatePopoverStyle]);
 
   return (
-    <div ref={rootRef} className="relative min-w-0">
+    <div ref={rootRef} className="relative w-full min-w-0">
       <button
         className={cx(
           formButtonControlClass(darkMode, hasError),

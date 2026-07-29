@@ -363,9 +363,10 @@ header components for the same shape. Header action placement, including the
 top and right inset for buttons, belongs to `CardHeader`; feature code should
 only pass the action component.
 
-Card and panel headers should use `px-4 py-3`, a bottom border, and a subtle
-header background that differs from the content surface. The tighter vertical
-padding keeps dashboard and management cards compact.
+Card and panel headers should use compact `px-4 py-2` spacing, a bottom border,
+and a subtle header background that differs from the content surface. Header
+descriptions use supporting-text weight because they explain the title rather
+than acting as body copy.
 
 Header icons should use the same foreground color as the header title. Do not
 style header icons as muted/supporting text; muted color is reserved for

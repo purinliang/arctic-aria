@@ -13,7 +13,8 @@ import {
   List,
   ListItem,
   ListItemContent,
-  ListItemDescription,
+  ListItemSupportingText,
+  ListItemTitle,
 } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { SupportingText } from "@/components/text";
@@ -104,10 +105,15 @@ export function DeveloperToolsPanel({
           <ListItem darkMode={darkMode} className="items-center">
             <ListItemContent
               className="self-center"
-              main={
-                <ListItemDescription className="block">
+              title={
+                <ListItemTitle>
+                  {messages.developerTools.latencyActionTitle}
+                </ListItemTitle>
+              }
+              support={
+                <ListItemSupportingText className="block">
                   {messages.developerTools.latencyActionDescription}
-                </ListItemDescription>
+                </ListItemSupportingText>
               }
             />
             <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">

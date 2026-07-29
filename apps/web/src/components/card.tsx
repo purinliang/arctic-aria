@@ -44,14 +44,14 @@ export function CardHeader({
       )}
     >
       <div className="min-w-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-[var(--aa-panel-header-icon-gap)]">
           {icon ? (
             <span className="inline-flex text-current">{icon}</span>
           ) : null}
           <h2 className="text-base font-semibold leading-5">{title}</h2>
         </div>
         {description ? (
-          <p className={cx("mt-0.5 text-sm leading-5", secondaryTextColorClass)}>
+          <p className={cx("mt-0.5 text-xs leading-4", secondaryTextColorClass)}>
             {description}
           </p>
         ) : null}

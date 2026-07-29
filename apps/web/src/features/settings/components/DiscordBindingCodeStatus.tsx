@@ -1,12 +1,12 @@
 "use client";
 
 // Settings Page - Discord Binding Code Status.
+import { Copy, LoaderCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
-import { ListItemDescription } from "@/components/list";
 import type { SettingsMessages } from "@/messages/app-messages";
 import { discordBindingCodeExpiryMinutes } from "../discord-binding-config";
-import { DiscordBindingRow } from "./DiscordBindingRow";
+import { SettingsControlRow } from "./SettingsControlRow";
 
 export function DiscordBindingCodeStatus({
   action,
@@ -15,6 +15,8 @@ export function DiscordBindingCodeStatus({
   expiresAt,
   messages,
   onCancel,
+  showErrorNotification,
+  showSuccessNotification,
 }: {
   action: "bind" | "cancel" | "load" | "unbind" | null;
   code: string;
@@ -22,6 +24,8 @@ export function DiscordBindingCodeStatus({
   expiresAt: string;
   messages: SettingsMessages;
   onCancel: () => void;
+  showErrorNotification: (message: string, title?: string) => void;
+  showSuccessNotification: (message: string, title?: string) => void;
 }) {
   const [currentTime, setCurrentTime] = useState<number | null>(null);
   const expired = isBindingCodeExpired(expiresAt, currentTime);
@@ -45,36 +49,81 @@ export function DiscordBindingCodeStatus({
     };
   }, []);
 
+  async function handleCopyCode() {
+    try {
+      await navigator.clipboard.writeText(code);
+      showSuccessNotification(
+        messages.discord.codeCopiedMessage,
+        messages.discord.codeCopiedTitle,
+      );
+    } catch {
+      showErrorNotification(
+        messages.discord.codeCopyFailedMessage,
+        messages.discord.codeCopyFailedTitle,
+      );
+    }
+  }
+
   return (
-    <DiscordBindingRow>
-      <ListItemDescription className="min-w-0 max-w-full">
-        {renderBindInstruction({
-          command: `/bind code:${code}`,
+    <>
+      <SettingsControlRow
+        darkMode={darkMode}
+        title={messages.discord.bindingCodeTitle}
+        support={renderBindInstruction({
+          code,
+          command: "/bind code:<code>",
           darkMode,
           statusText: expired ? messages.discord.expired : remainingText,
           statusTone: expired ? "expired" : "normal",
           template: instructionTemplate,
         })}
-      </ListItemDescription>
-      <Button
+        control={
+          <Button
+            darkMode={darkMode}
+            disabled={expired || action !== null}
+            icon={<Copy size={14} aria-hidden="true" />}
+            onClick={() => void handleCopyCode()}
+          >
+            {messages.discord.copyCode}
+          </Button>
+        }
+      />
+      <SettingsControlRow
         darkMode={darkMode}
-        disabled={action !== null && action !== "cancel"}
-        loading={action === "cancel"}
-        onClick={onCancel}
-      >
-        {messages.discord.cancel}
-      </Button>
-    </DiscordBindingRow>
+        title={messages.discord.cancelConnectionTitle}
+        support={messages.discord.cancelConnectionDescription}
+        control={
+          <Button
+            darkMode={darkMode}
+            disabled={action !== null && action !== "cancel"}
+            icon={<X size={14} aria-hidden="true" />}
+            loading={action === "cancel"}
+            loadingIcon={
+              <LoaderCircle
+                className="animate-spin"
+                size={14}
+                aria-hidden="true"
+              />
+            }
+            onClick={onCancel}
+          >
+            {messages.discord.cancel}
+          </Button>
+        }
+      />
+    </>
   );
 }
 
 function renderBindInstruction({
+  code,
   command,
   darkMode,
   statusText,
   statusTone,
   template,
 }: {
+  code: string;
   command: string;
   darkMode: boolean;
   statusText: string | null;
@@ -83,8 +132,9 @@ function renderBindInstruction({
 }) {
   return (
     <span className="inline">
-      {template.split(/(\{command\}|\{status\})/).map((part, index) =>
+      {template.split(/(\{code\}|\{command\}|\{status\})/).map((part, index) =>
         renderInstructionPart({
+          code,
           command,
           darkMode,
           index,
@@ -98,6 +148,7 @@ function renderBindInstruction({
 }
 
 function renderInstructionPart({
+  code,
   command,
   darkMode,
   index,
@@ -105,6 +156,7 @@ function renderInstructionPart({
   statusText,
   statusTone,
 }: {
+  code: string;
   command: string;
   darkMode: boolean;
   index: number;
@@ -112,6 +164,17 @@ function renderInstructionPart({
   statusText: string | null;
   statusTone: "expired" | "normal";
 }) {
+  if (part === "{code}") {
+    return (
+      <code
+        key={index}
+        className="whitespace-nowrap rounded border border-[var(--aa-secondary-button-border)] bg-[var(--aa-panel-header-bg)] px-1.5 py-0.5 font-mono text-xs font-semibold text-[var(--aa-primary-text)]"
+      >
+        {code}
+      </code>
+    );
+  }
+
   if (part === "{command}") {
     return (
       <code

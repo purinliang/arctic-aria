@@ -230,10 +230,8 @@ export function AuthGate() {
     return (
       <AppShell
         currentUser={currentUser}
-        browserTimeZone={browserDefaults.timeZone}
         darkMode={darkMode}
         languagePreference={languagePreference}
-        resolvedLanguage={resolvedLanguage}
         resolvedTimeZone={resolvedTimeZone}
         messages={messages}
         themePreference={themePreference}

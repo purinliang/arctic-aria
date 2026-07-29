@@ -100,7 +100,7 @@ export function createDiscordBindingService(
         return {
           ok: false,
           code: "settings_discord_code_create_failed",
-          message: "Discord connection code could not be created.",
+          message: "Discord binding code could not be created.",
           category: "database_update",
           action: "add",
           subject: "discord",
@@ -121,7 +121,7 @@ export function createDiscordBindingService(
         return {
           ok: false,
           code: "settings_discord_unbind_failed",
-          message: "Discord account could not be disconnected.",
+          message: "Discord account could not be unbound.",
           category: "database_update",
           action: "delete",
           subject: "discord",
@@ -145,7 +145,7 @@ export function createDiscordBindingService(
         return {
           ok: false,
           code: "settings_discord_code_cancel_failed",
-          message: "Discord connection code could not be canceled.",
+          message: "Discord binding code could not be canceled.",
           category: "database_update",
           action: "delete",
           subject: "discord",

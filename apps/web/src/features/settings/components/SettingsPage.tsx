@@ -1,58 +1,56 @@
 "use client";
 
 // Settings Page.
-import { Info, Settings } from "lucide-react";
+import { Info, LoaderCircle, LogOut, Settings, UserRound } from "lucide-react";
 import { useState } from "react";
 import type { ThemePreference } from "@/app-shell/app-preferences";
-import type { DatabaseVersionStatus } from "@/components/app-metadata";
+import {
+  shouldShowExpectedDatabaseVersion,
+  type DatabaseVersionStatus,
+} from "@/components/app-metadata";
+import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
-import { FormFieldStack } from "@/components/forms/form-layout";
 import { SelectInput } from "@/components/forms/selection-field";
-import { FieldLabel } from "@/components/forms/input-field";
 import {
   List,
-  ListItem,
-  ListItemContent,
-  ListItemDescription,
+  ListItemSupportingText,
   ListItemTitle,
 } from "@/components/list";
+import { PendingText } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { Switch } from "@/components/switch";
-import { SupportingText } from "@/components/text";
-import { VersionStatusRows } from "@/components/version-status";
 import { DeveloperToolsPanel } from "@/features/performance/components/DeveloperToolsPanel";
 import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
 import type {
   TimeFormatPreference,
   UserPreferences,
 } from "@/features/settings/preferences";
-import { formatTimeZoneOffset } from "@/features/settings/time-zones";
 import type {
   NotificationMessages,
   SettingsMessages,
   VersionStatusMessages,
 } from "@/messages/app-messages";
-import type {
-  LanguagePreference,
-  SupportedLanguage,
-} from "@/messages/languages";
+import type { LanguagePreference } from "@/messages/languages";
 import { DiscordBindingSettings } from "./DiscordBindingSettings";
 import { DiscordIcon } from "./DiscordIcon";
+import { SettingsControlRow, SettingsControlValue } from "./SettingsControlRow";
 
 export function SettingsPage({
+  currentUserDisplayName,
   currentUserId,
   currentUserIsAdmin,
-  browserTimeZone,
+  currentUsername,
   darkMode,
   languagePreference,
+  logoutPending,
   messages,
   notificationMessages,
   onDeveloperImportComplete,
   onLanguagePreferenceChange,
+  onLogout,
   onPreferenceOpenAttempt,
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
-  resolvedLanguage,
   showErrorNotification,
   showSuccessNotification,
   themePreference,
@@ -60,19 +58,21 @@ export function SettingsPage({
   versionMessages,
   versionStatus,
 }: {
+  currentUserDisplayName: string;
   currentUserId: string;
   currentUserIsAdmin: boolean;
-  browserTimeZone: string;
+  currentUsername: string;
   darkMode: boolean;
   languagePreference: LanguagePreference;
+  logoutPending: boolean;
   messages: SettingsMessages;
   notificationMessages: NotificationMessages;
   onDeveloperImportComplete: (target: DeveloperImportTarget) => void;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
+  onLogout: () => void;
   onPreferenceOpenAttempt: (preference: keyof UserPreferences) => boolean;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
-  resolvedLanguage: SupportedLanguage;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
   themePreference: ThemePreference;
@@ -94,10 +94,7 @@ export function SettingsPage({
     { value: "12h", label: messages.timeFormatOptions.twelveHour },
     { value: "24h", label: messages.timeFormatOptions.twentyFourHour },
   ];
-  const timeZoneOptions = buildTimeZoneOptions({
-    browserTimeZone,
-    messages,
-  });
+  const timeZoneOptions = buildTimeZoneOptions(messages);
   const [developerModeEnabled, setDeveloperModeEnabled] = useState(false);
   const showDeveloperTools = currentUserIsAdmin && developerModeEnabled;
 
@@ -111,75 +108,133 @@ export function SettingsPage({
           description={messages.preferencesDescription}
         />
         <List darkMode={darkMode}>
-          <ListItem darkMode={darkMode} className="items-start">
-            <FormFieldStack className="w-full sm:max-w-sm">
-              <FieldLabel darkMode={darkMode} label={messages.themeLabel}>
-                <SelectInput
-                  darkMode={darkMode}
-                  value={themePreference}
-                  options={themeOptions}
-                  onChange={(value) =>
-                    onThemePreferenceChange(value as ThemePreference)
-                  }
-                  onOpenAttempt={() =>
-                    onPreferenceOpenAttempt("themePreference")
-                  }
+          <SettingsControlRow
+            darkMode={darkMode}
+            title={messages.themeLabel}
+            support={messages.themeDescription}
+            control={
+              <SelectInput
+                darkMode={darkMode}
+                aria-label={messages.themeLabel}
+                value={themePreference}
+                options={themeOptions}
+                onChange={(value) =>
+                  onThemePreferenceChange(value as ThemePreference)
+                }
+                onOpenAttempt={() =>
+                  onPreferenceOpenAttempt("themePreference")
+                }
+              />
+            }
+          />
+          <SettingsControlRow
+            darkMode={darkMode}
+            title={messages.languageLabel}
+            support={messages.languageDescription}
+            control={
+              <SelectInput
+                darkMode={darkMode}
+                aria-label={messages.languageLabel}
+                value={languagePreference}
+                options={languageOptions}
+                onChange={(value) =>
+                  onLanguagePreferenceChange(value as LanguagePreference)
+                }
+                onOpenAttempt={() =>
+                  onPreferenceOpenAttempt("languagePreference")
+                }
+              />
+            }
+          />
+          <SettingsControlRow
+            darkMode={darkMode}
+            title={messages.timeFormatLabel}
+            support={messages.timeFormatDescription}
+            control={
+              <SelectInput
+                darkMode={darkMode}
+                aria-label={messages.timeFormatLabel}
+                value={timeFormatPreference}
+                options={timeFormatOptions}
+                onChange={(value) =>
+                  onTimeFormatPreferenceChange(value as TimeFormatPreference)
+                }
+                onOpenAttempt={() =>
+                  onPreferenceOpenAttempt("timeFormatPreference")
+                }
+              />
+            }
+          />
+          <SettingsControlRow
+            darkMode={darkMode}
+            title={messages.timeZoneLabel}
+            support={messages.timeZoneDescription}
+            control={
+              <SelectInput
+                darkMode={darkMode}
+                aria-label={messages.timeZoneLabel}
+                value="system"
+                options={timeZoneOptions}
+                disabled
+                onChange={() => undefined}
+              />
+            }
+          />
+        </List>
+      </Panel>
+      <Panel darkMode={darkMode} className="min-w-0">
+        <CardHeader
+          darkMode={darkMode}
+          icon={<UserRound size={18} aria-hidden="true" />}
+          title={messages.accountTitle}
+          description={messages.accountDescription}
+        />
+        <List darkMode={darkMode}>
+          <SettingsControlRow
+            darkMode={darkMode}
+            title={messages.usernameTitle}
+            support={messages.usernameDescription}
+            control={
+              <SettingsControlValue>{currentUsername}</SettingsControlValue>
+            }
+          />
+          <SettingsControlRow
+            darkMode={darkMode}
+            title={messages.displayNameTitle}
+            support={messages.displayNameDescription}
+            control={
+              <SettingsControlValue>
+                {currentUserDisplayName}
+              </SettingsControlValue>
+            }
+          />
+          <SettingsControlRow
+            darkMode={darkMode}
+            title={messages.signOutTitle}
+            support={messages.signOutDescription}
+            control={
+              <Button
+                darkMode={darkMode}
+                disabled={logoutPending}
+                icon={<LogOut size={14} aria-hidden="true" />}
+                loading={logoutPending}
+                loadingIcon={
+                  <LoaderCircle
+                    className="animate-spin"
+                    size={14}
+                    aria-hidden="true"
+                  />
+                }
+                onClick={onLogout}
+              >
+                <PendingText
+                  active={logoutPending}
+                  idleText={messages.signOut}
+                  pendingText={messages.signingOut}
                 />
-              </FieldLabel>
-            </FormFieldStack>
-          </ListItem>
-          <ListItem darkMode={darkMode} className="items-start">
-            <FormFieldStack className="w-full sm:max-w-sm">
-              <FieldLabel darkMode={darkMode} label={messages.languageLabel}>
-                <SelectInput
-                  darkMode={darkMode}
-                  value={languagePreference}
-                  options={languageOptions}
-                  onChange={(value) =>
-                    onLanguagePreferenceChange(value as LanguagePreference)
-                  }
-                  onOpenAttempt={() =>
-                    onPreferenceOpenAttempt("languagePreference")
-                  }
-                />
-              </FieldLabel>
-              {resolvedLanguage === "en" ? null : (
-                <SupportingText darkMode={darkMode}>
-                  {messages.languageSupport}
-                </SupportingText>
-              )}
-            </FormFieldStack>
-          </ListItem>
-          <ListItem darkMode={darkMode} className="items-start">
-            <FormFieldStack className="w-full sm:max-w-sm">
-              <FieldLabel darkMode={darkMode} label={messages.timeFormatLabel}>
-                <SelectInput
-                  darkMode={darkMode}
-                  value={timeFormatPreference}
-                  options={timeFormatOptions}
-                  onChange={(value) =>
-                    onTimeFormatPreferenceChange(value as TimeFormatPreference)
-                  }
-                  onOpenAttempt={() =>
-                    onPreferenceOpenAttempt("timeFormatPreference")
-                  }
-                />
-              </FieldLabel>
-            </FormFieldStack>
-          </ListItem>
-          <ListItem darkMode={darkMode} className="items-start">
-            <FormFieldStack className="w-full sm:max-w-sm">
-              <FieldLabel darkMode={darkMode} label={messages.timeZoneLabel}>
-                <SelectInput
-                  darkMode={darkMode}
-                  value="system"
-                  options={timeZoneOptions}
-                  disabled
-                  onChange={() => undefined}
-                />
-              </FieldLabel>
-            </FormFieldStack>
-          </ListItem>
+              </Button>
+            }
+          />
         </List>
       </Panel>
       <Panel darkMode={darkMode} className="min-w-0">
@@ -208,36 +263,35 @@ export function SettingsPage({
           description={messages.appInformationDescription}
         />
         <List darkMode={darkMode}>
-          <ListItem darkMode={darkMode} className="items-start">
-            <div className="min-w-0 flex-1">
-              <VersionStatusRows
-                darkMode={darkMode}
-                messages={versionMessages}
-                status={versionStatus}
-              />
-            </div>
-          </ListItem>
+          <SettingsControlRow
+            darkMode={darkMode}
+            title={messages.versionTitle}
+            support={messages.versionDescription}
+            control={
+              <SettingsControlValue className="tabular-nums">
+                {versionStatus.appVersionText}
+              </SettingsControlValue>
+            }
+          />
+          <HiddenDatabaseVersionRow
+            darkMode={darkMode}
+            messages={versionMessages}
+            status={versionStatus}
+          />
           {currentUserIsAdmin ? (
-            <ListItem darkMode={darkMode} className="items-center">
-              <ListItemContent
-                title={
-                  <ListItemTitle>{messages.developerModeTitle}</ListItemTitle>
-                }
-                main={
-                  <ListItemDescription>
-                    {messages.developerModeDescription}
-                  </ListItemDescription>
-                }
-              />
-              <div className="flex shrink-0 self-center">
+            <SettingsControlRow
+              darkMode={darkMode}
+              title={messages.developerModeTitle}
+              support={messages.developerModeDescription}
+              control={
                 <Switch
                   checked={developerModeEnabled}
                   darkMode={darkMode}
                   label={messages.developerModeTitle}
                   onChange={setDeveloperModeEnabled}
                 />
-              </div>
-            </ListItem>
+              }
+            />
           ) : null}
         </List>
       </Panel>
@@ -254,21 +308,69 @@ export function SettingsPage({
   );
 }
 
-function buildTimeZoneOptions({
-  browserTimeZone,
-  messages,
-}: {
-  browserTimeZone: string;
-  messages: SettingsMessages;
-}) {
+function buildTimeZoneOptions(messages: SettingsMessages) {
   return [
     {
       value: "system",
       label: messages.timeZoneOptions.system,
-      description: messages.timeZoneSystemDescription(
-        browserTimeZone,
-        formatTimeZoneOffset(browserTimeZone),
-      ),
     },
   ];
+}
+
+function HiddenDatabaseVersionRow({
+  darkMode,
+  messages,
+  status,
+}: {
+  darkMode: boolean;
+  messages: VersionStatusMessages;
+  status: DatabaseVersionStatus;
+}) {
+  return (
+    <div
+      className="hidden"
+      aria-hidden="true"
+      data-version-row="database"
+    >
+      <ListItemTitle>{messages.databaseVersion}</ListItemTitle>
+      <ListItemSupportingText className="tabular-nums">
+        {status.actualDatabaseVersionText}
+        <DatabaseVersionMessage
+          darkMode={darkMode}
+          messages={messages}
+          status={status}
+        />
+      </ListItemSupportingText>
+    </div>
+  );
+}
+
+function DatabaseVersionMessage({
+  darkMode,
+  messages,
+  status,
+}: {
+  darkMode: boolean;
+  messages: VersionStatusMessages;
+  status: DatabaseVersionStatus;
+}) {
+  if (!status.aligned) {
+    return (
+      <span className={darkMode ? "text-red-300" : "text-red-600"}>
+        {" "}
+        ({status.message})
+      </span>
+    );
+  }
+
+  if (!shouldShowExpectedDatabaseVersion(status)) {
+    return null;
+  }
+
+  return (
+    <span>
+      {" "}
+      ({messages.expected} {status.expectedDatabaseVersionText})
+    </span>
+  );
 }
