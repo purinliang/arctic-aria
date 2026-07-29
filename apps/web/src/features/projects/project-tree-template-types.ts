@@ -40,6 +40,7 @@ export type ProjectTreeTemplateDocument = {
   project: ProjectTreeTemplateProjectDraft;
   topLevelTasks: ProjectTreeTemplateTaskDraft[];
   milestones: ProjectTreeTemplateMilestoneDraft[];
+  ignoredFieldCount: number;
 };
 
 export type ProjectTreeTemplateResult<T> =
@@ -60,6 +61,7 @@ export type ProjectTreeTemplatePreview = {
   projectTitle: string;
   items: ProjectTreeTemplatePreviewItem[];
   counts: Record<ProjectTreeTemplateOperation, number>;
+  ignoredFieldCount: number;
 };
 
 export type ProjectTreeTemplateTimelineDraft = {

@@ -338,7 +338,7 @@ export async function applyProjectTreeTemplate(
         message:
           prepared.data.mode === "create"
             ? "Project template could not be created."
-            : "Project template could not be applied.",
+            : "Project template could not be saved.",
         code:
           prepared.data.mode === "create"
             ? "project_template_create_failed"
@@ -509,7 +509,7 @@ async function prepareProjectTreeTemplate(
   if (!trimmedSource) {
     return {
       ok: false,
-      message: "Paste a project tree template first.",
+      message: "Paste a project template first.",
       code: "project_template_missing",
       category: "missing_parameter",
       subject: "project",

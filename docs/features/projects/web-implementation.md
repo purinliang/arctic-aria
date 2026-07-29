@@ -311,7 +311,7 @@ Dialog shell:
   button style, changes to static `Deleting...` while pending, avoids animated
   dots in the compact auto-width button, and deletes only after backend success
 
-Project Tree Template:
+Project Template:
 
 - available from project add and edit dialogs
 - opened from the project editor header ellipsis menu as `Template`
@@ -323,14 +323,16 @@ Project Tree Template:
 - the Template tab footer shows `Copy` and `Parse` side by side
 - `Parse` validates without writing and shows a human preview summary
 - create-mode parse does not allocate persistent ids
+- unsupported extra fields are ignored, counted, and reported without blocking
+  Save
 - no JSON preview is shown
 - preview rows use compact operation chips and indentation for nested rows; row
   titles are single-line and truncate
-- `Apply` appears only on the Preview tab and is enabled only after parsing the
+- `Save` appears only on the Preview tab and is enabled only after parsing the
   current textarea content
-- successful apply refreshes Projects data and closes both the template dialog
+- successful save refreshes Projects data and closes both the template dialog
   and the project editor
-- failed parse or apply keeps the dialog open and reports through the shared
+- failed parse or save keeps the dialog open and reports through the shared
   notification stack
 
 Project field order:

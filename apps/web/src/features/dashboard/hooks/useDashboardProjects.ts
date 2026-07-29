@@ -48,8 +48,10 @@ type ProjectDataAction = () => Promise<
 export function useDashboardProjects(
   userId: string,
   showErrorNotification: (message: string, title?: string) => void,
+  showInfoNotification: (message: string, title?: string) => void,
   messages?: DashboardMessages["notifications"],
   resultMessages?: ProjectMessages["results"],
+  templateMessages?: ProjectMessages["editor"]["template"],
   notificationMessages?: NotificationMessages,
 ) {
   const [tasks, setTasks] = useState<ProjectDashboardData["tasks"]>([]);
@@ -202,6 +204,14 @@ export function useDashboardProjects(
         showErrorNotification,
       });
       return null;
+    }
+
+    if (result.data.preview.ignoredFieldCount > 0) {
+      showInfoNotification(
+        templateMessages?.ignoredFields(result.data.preview.ignoredFieldCount) ??
+          `${result.data.preview.ignoredFieldCount} template fields were ignored.`,
+        templateMessages?.ignoredFieldsTitle ?? "Template parsed with warnings",
+      );
     }
 
     return result.data;

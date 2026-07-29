@@ -86,14 +86,11 @@ export function parseProjectTreeTemplateMarkdown(
     const field = parseProjectTreeTemplateField(trimmed, lineNumber);
 
     if (!field.ok) {
-      return field;
+      ignoreTemplateField(state);
+      continue;
     }
 
-    const assigned = assignField(state, field.data.name, field.data.value);
-
-    if (!assigned.ok) {
-      return assigned;
-    }
+    assignField(state, field.data.name, field.data.value);
   }
 
   commitTask(state);
@@ -118,6 +115,7 @@ function emptyDocument(): ProjectTreeTemplateDocument {
     },
     topLevelTasks: [],
     milestones: [],
+    ignoredFieldCount: 0,
   };
 }
 
@@ -241,9 +239,7 @@ function handleTaskBullet(
 
   if (field.ok) {
     if (!assignTaskField(task, field.data.name, field.data.value)) {
-      return invalidProjectTreeTemplateParse(
-        `Unknown task field "${field.data.name}".`,
-      );
+      ignoreTemplateField(state);
     }
   } else {
     task.title = itemText;
@@ -271,28 +267,29 @@ function assignField(
   state: ParserState,
   name: string,
   value: string,
-): ProjectTreeTemplateResult<undefined> {
+): void {
   if (state.currentTask) {
-    return assignTaskField(state.currentTask, name, value)
-      ? ok()
-      : invalidProjectTreeTemplateParse(`Unknown task field "${name}".`);
+    if (!assignTaskField(state.currentTask, name, value)) {
+      ignoreTemplateField(state);
+    }
+    return;
   }
 
   if (state.section === "project") {
-    return assignProjectField(state.document.project, name, value)
-      ? ok()
-      : invalidProjectTreeTemplateParse(`Unknown project field "${name}".`);
+    if (!assignProjectField(state.document.project, name, value)) {
+      ignoreTemplateField(state);
+    }
+    return;
   }
 
   if (state.currentMilestone) {
-    return assignMilestoneField(state.currentMilestone, name, value)
-      ? ok()
-      : invalidProjectTreeTemplateParse(`Unknown milestone field "${name}".`);
+    if (!assignMilestoneField(state.currentMilestone, name, value)) {
+      ignoreTemplateField(state);
+    }
+    return;
   }
 
-  return invalidProjectTreeTemplateParse(
-    `Field "${name}" must be inside a Project or Milestone section.`,
-  );
+  ignoreTemplateField(state);
 }
 
 function assignProjectField(
@@ -385,4 +382,8 @@ function ok(): ProjectTreeTemplateResult<undefined> {
     ok: true,
     data: undefined,
   };
+}
+
+function ignoreTemplateField(state: ParserState) {
+  state.document.ignoredFieldCount += 1;
 }

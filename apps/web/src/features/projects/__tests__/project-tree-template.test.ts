@@ -66,6 +66,49 @@ deadline: 2026-08-29
   assert.equal(parsed.data.milestones[0].tasks[0].operation, "create");
 });
 
+test("project template parser ignores unsupported extra fields", () => {
+  const parsed = parseProjectTreeTemplateMarkdown(`# Project Template
+## Project
+project_id:
+op: create
+title: Learn Japanese
+objective: Pass the N3 exam.
+start_date: 2026-07-29
+timeline: duration
+duration: 6_12_months
+priority: high
+
+## Top-level Tasks
+- op: create
+  task_id:
+  title: Buy textbook
+  color: blue
+  this line is an unsupported note
+`);
+
+  assert.equal(parsed.ok, true);
+
+  if (!parsed.ok) {
+    return;
+  }
+
+  assert.equal(parsed.data.ignoredFieldCount, 3);
+
+  const normalized = normalizeProjectTreeTemplateDocument({
+    document: parsed.data,
+    createId: () => "",
+  });
+
+  assert.equal(normalized.ok, true);
+
+  if (!normalized.ok) {
+    return;
+  }
+
+  assert.equal(normalized.data.preview.ignoredFieldCount, 3);
+  assert.equal(normalized.data.preview.items[1].title, "Buy textbook");
+});
+
 test("project tree template serializer round trips escaped multiline text", () => {
   const template = projectTreeTemplateForProject(projectView({
     description: "Line one\nLine two",

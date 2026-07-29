@@ -176,6 +176,7 @@ function normalizeUpdateProjectTreeTemplateDocument({
         projectTitle: project.data.title,
         items: previewItems,
         counts: countProjectTreeTemplatePreviewOperations(previewItems),
+        ignoredFieldCount: document.ignoredFieldCount,
       },
     },
   };
@@ -346,6 +347,7 @@ function normalizeCreateProjectTreeTemplateDocument({
         projectTitle: project.data.title,
         items: previewItems,
         counts: countProjectTreeTemplatePreviewOperations(previewItems),
+        ignoredFieldCount: document.ignoredFieldCount,
       },
     },
   };

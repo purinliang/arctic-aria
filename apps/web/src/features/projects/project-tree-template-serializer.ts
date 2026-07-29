@@ -4,7 +4,7 @@ import type { ProjectTaskView, ProjectView } from "./project-view-models.ts";
 
 export function projectTreeTemplateForNewProject(draft: ProjectInput) {
   return [
-    "# Project Tree Template",
+    "# Project Template",
     "",
     "<!--",
     "Create one Arctic Aria project tree from the user's request.",
@@ -50,7 +50,7 @@ export function projectTreeTemplateForNewProject(draft: ProjectInput) {
     "#### Tasks",
     "- op: create",
     "  task_id:",
-    "  title: Apply to one role",
+    "  title: Submit one application",
     "  description:",
     "  start_date: 2026-07-30",
     "  deadline: 2026-08-03",
@@ -77,10 +77,10 @@ export function projectTreeTemplateForNewProject(draft: ProjectInput) {
 
 export function projectTreeTemplateForProject(project: ProjectView) {
   return [
-    "# Project Tree Template",
+    "# Project Template",
     "",
     "<!--",
-    "Fill this Arctic Aria project tree template and return only the filled Markdown.",
+    "Fill this Arctic Aria project template and return only the filled Markdown.",
     "Keep project_id, milestone_id, and task_id values unchanged for update/delete rows.",
     "Use op: create for new milestones or tasks and leave their id field empty.",
     "Use op: update for existing milestones or tasks you want to edit.",

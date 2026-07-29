@@ -65,6 +65,7 @@ export function AppShell({
   onLogout,
   onNotificationDismiss,
   showErrorNotification,
+  showInfoNotification,
   showSuccessNotification,
 }: {
   currentUser: AuthUser;
@@ -84,6 +85,7 @@ export function AppShell({
   onLogout: () => void;
   onNotificationDismiss: (notificationId: number) => void;
   showErrorNotification: (message: string, title?: string) => void;
+  showInfoNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
 }) {
   const initialPathname = usePathname();
@@ -106,8 +108,10 @@ export function AppShell({
   const projectState = useDashboardProjects(
     currentUser.id,
     showErrorNotification,
+    showInfoNotification,
     messages.dashboard.notifications,
     messages.projects.results,
+    messages.projects.editor.template,
     messages.notifications,
   );
   const routineState = useDashboardRoutines(

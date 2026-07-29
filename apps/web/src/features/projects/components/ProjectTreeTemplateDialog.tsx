@@ -300,6 +300,11 @@ function TemplatePreview({
             preview.counts.delete,
           )}
         </SupportingText>
+        {preview.ignoredFieldCount > 0 ? (
+          <SupportingText darkMode={darkMode}>
+            {messages.ignoredFields(preview.ignoredFieldCount)}
+          </SupportingText>
+        ) : null}
       </div>
       <List darkMode={darkMode} className="max-h-[28rem] overflow-auto">
         {preview.items.map((item, index) => {

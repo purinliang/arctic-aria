@@ -1,4 +1,4 @@
-# Project Tree Template Plan
+# Project Template Plan
 
 This document records the reviewed plan for the first user-facing project tree
 template workflow. It is an implementation checklist, not released behavior
@@ -6,11 +6,12 @@ yet.
 
 ## Summary
 
-Add a public Project Tree Template workflow for project-level create and edit.
+Add a public Project Template workflow for project-level create and edit.
 The normal Project editor stays focused on project metadata. A header ellipsis
-menu opens a separate wide template dialog where the user can copy a Markdown
-template with embedded LLM instructions, paste the filled template back, parse
-it, review a human summary, and apply the create/update to the project tree.
+menu opens a separate wide Project Template dialog where the user can copy a
+Markdown template with embedded LLM instructions, paste the filled template
+back, parse it, review a human summary, and save the create/update to the
+project tree.
 
 ## Key Decisions
 
@@ -23,9 +24,10 @@ it, review a human summary, and apply the create/update to the project tree.
 - The preview is a human summary, not JSON.
 - The template dialog uses tabs: Template input and Preview are not shown at
   the same time.
-- The Template tab has Copy and Parse actions. Apply is shown only on the
+- The Template tab has Copy and Parse actions. Save is shown only on the
   Preview tab.
 - Preview rows use compact operation chips and indentation for tree depth.
+- Unsupported extra fields are ignored, counted, and reported after parse.
 - The workflow is available to normal signed-in users, not only developer mode.
 - Existing developer import APIs and UI are removed instead of kept as hidden
   long-term import behavior.
@@ -58,15 +60,15 @@ it, review a human summary, and apply the create/update to the project tree.
 - In Project edit mode, the ellipsis menu contains Template and Delete.
 - In Project add mode, the ellipsis menu contains Template.
 - Keep the bottom Project edit action row as Save only.
-- Add authenticated project server actions for parsing and applying project
+- Add authenticated project server actions for parsing and saving project
   tree templates.
 - Use current project, milestone, and task validation helpers for all field
   validation.
 - Add ownership checks for every non-empty project, milestone, and task id.
 - Parse add-mode templates without generating persistent ids. Generate ids only
-  in the apply write path.
-- Apply tree changes in one guarded database statement.
-- Refresh Projects dashboard data after a successful apply.
+  in the save write path.
+- Save tree changes in one guarded database statement.
+- Refresh Projects dashboard data after a successful save.
 
 ## Test Plan
 
@@ -76,6 +78,6 @@ it, review a human summary, and apply the create/update to the project tree.
 - Service/action tests cover update, create, delete, omitted-row preservation,
   ownership rejection, cross-project rejection, and same-project task moves.
 - UI tests cover the Project edit ellipsis menu, Template dialog open/copy,
-  parse preview, apply refresh, and Delete confirmation from the menu.
+  parse preview, save refresh, and Delete confirmation from the menu.
 - Run focused project tests plus `git diff --check`, `pnpm --dir apps/web test`,
   `pnpm --dir apps/web lint`, and `pnpm --dir apps/web build`.
