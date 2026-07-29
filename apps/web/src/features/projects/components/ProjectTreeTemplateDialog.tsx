@@ -2,6 +2,8 @@
 import { ClipboardCopy, FileText, Save } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/button";
+import { toneClass } from "@/components/color";
+import type { Tone } from "@/components/color";
 import {
   DialogActionRow,
   DialogFrame,
@@ -16,24 +18,32 @@ import { TextArea } from "@/components/forms/text-area-field";
 import {
   List,
   ListItem,
-  ListItemContent,
   ListItemTitle,
 } from "@/components/list";
-import { DescriptionText, LabelText, SupportingText } from "@/components/text";
+import { LabelText, SupportingText } from "@/components/text";
 import { PendingText } from "@/components/loading";
+import { cx } from "@/components/utils";
 import type {
+  ProjectInput,
   ProjectTreeTemplateParseData,
   ProjectView,
 } from "@/features/projects/actions";
-import { projectTreeTemplateForProject } from "@/features/projects/project-tree-template-serializer";
+import {
+  projectTreeTemplateForNewProject,
+  projectTreeTemplateForProject,
+} from "@/features/projects/project-tree-template-serializer";
 import type { ProjectMessages } from "@/messages/app-messages";
 
 type TemplateAction = "parse" | "apply";
+type TemplateMode = "create" | "update";
+type TemplateTab = "edit" | "preview";
 
 export function ProjectTreeTemplateDialog({
   darkMode,
   pending,
+  mode,
   project,
+  draft,
   messages,
   onClose,
   onParse,
@@ -41,22 +51,34 @@ export function ProjectTreeTemplateDialog({
 }: {
   darkMode: boolean;
   pending: boolean;
-  project: ProjectView;
+  mode: TemplateMode;
+  project: ProjectView | null;
+  draft: ProjectInput | null;
   messages: ProjectMessages["editor"]["template"];
   onClose: () => void;
   onParse: (
-    projectId: string,
+    projectId: string | null,
     source: string,
   ) => Promise<ProjectTreeTemplateParseData | null>;
-  onApply: (projectId: string, source: string) => Promise<boolean>;
+  onApply: (projectId: string | null, source: string) => Promise<boolean>;
 }) {
-  const template = useMemo(() => projectTreeTemplateForProject(project), [project]);
+  const template = useMemo(
+    () =>
+      mode === "create"
+        ? projectTreeTemplateForNewProject(draft ?? emptyProjectTemplateDraft)
+        : project
+          ? projectTreeTemplateForProject(project)
+          : "",
+    [draft, mode, project],
+  );
+  const projectId = mode === "update" ? project?.id ?? null : null;
   const [source, setSource] = useState(template);
   const [parsedSource, setParsedSource] = useState("");
   const [preview, setPreview] =
     useState<ProjectTreeTemplateParseData["preview"] | null>(null);
   const [copyStatus, setCopyStatus] = useState("");
   const [action, setAction] = useState<TemplateAction | null>(null);
+  const [activeTab, setActiveTab] = useState<TemplateTab>("edit");
   const busy = pending || action !== null;
   const hasFreshPreview = Boolean(preview && parsedSource === source);
 
@@ -77,7 +99,7 @@ export function ProjectTreeTemplateDialog({
     setAction("parse");
 
     try {
-      const result = await onParse(project.id, source);
+      const result = await onParse(projectId, source);
 
       if (!result) {
         setParsedSource("");
@@ -87,6 +109,7 @@ export function ProjectTreeTemplateDialog({
 
       setParsedSource(source);
       setPreview(result.preview);
+      setActiveTab("preview");
     } finally {
       setAction(null);
     }
@@ -100,7 +123,7 @@ export function ProjectTreeTemplateDialog({
     setAction("apply");
 
     try {
-      await onApply(project.id, source);
+      await onApply(projectId, source);
     } finally {
       setAction(null);
     }
@@ -115,8 +138,14 @@ export function ProjectTreeTemplateDialog({
           closeLabel={messages.close}
           onClose={onClose}
         />
+        <TemplateTabs
+          darkMode={darkMode}
+          activeTab={activeTab}
+          messages={messages}
+          onChange={setActiveTab}
+        />
         <FormSections>
-          <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+          {activeTab === "edit" ? (
             <FormSection>
               <FieldLabel darkMode={darkMode} label={messages.inputLabel}>
                 <TextArea
@@ -130,6 +159,7 @@ export function ProjectTreeTemplateDialog({
                     setSource(event.target.value);
                     setPreview(null);
                     setParsedSource("");
+                    setActiveTab("edit");
                   }}
                 />
               </FieldLabel>
@@ -137,49 +167,105 @@ export function ProjectTreeTemplateDialog({
                 <SupportingText darkMode={darkMode}>{copyStatus}</SupportingText>
               ) : null}
             </FormSection>
+          ) : (
             <TemplatePreview
               darkMode={darkMode}
               messages={messages}
               preview={preview}
             />
-          </div>
+          )}
         </FormSections>
-        <DialogActionRow>
-          <Button
-            darkMode={darkMode}
-            size="md"
-            disabled={busy}
-            className="w-full"
-            icon={<ClipboardCopy size={14} aria-hidden="true" />}
-            onClick={() => void copyTemplate()}
-          >
-            {messages.copyTemplate}
-          </Button>
-          <Button
-            darkMode={darkMode}
-            size="md"
-            disabled={busy}
-            className="w-full"
-            icon={<FileText size={14} aria-hidden="true" />}
-            onClick={() => void parseTemplate()}
-          >
-            {action === "parse" ? messages.parsing : messages.parse}
-          </Button>
-          <DialogPrimaryButton
-            darkMode={darkMode}
-            disabled={busy || !hasFreshPreview}
-            icon={<Save size={14} aria-hidden="true" />}
-            onClick={() => void applyTemplate()}
-          >
-            <PendingText
-              active={action === "apply"}
-              idleText={messages.apply}
-              pendingText={messages.applying}
-            />
-          </DialogPrimaryButton>
-        </DialogActionRow>
+        {activeTab === "edit" ? (
+          <DialogActionRow>
+            <Button
+              darkMode={darkMode}
+              size="md"
+              disabled={busy}
+              className="w-full"
+              icon={<ClipboardCopy size={14} aria-hidden="true" />}
+              onClick={() => void copyTemplate()}
+            >
+              {messages.copyTemplate}
+            </Button>
+            <Button
+              darkMode={darkMode}
+              size="md"
+              disabled={busy}
+              className="w-full"
+              icon={<FileText size={14} aria-hidden="true" />}
+              onClick={() => void parseTemplate()}
+            >
+              {action === "parse" ? messages.parsing : messages.parse}
+            </Button>
+          </DialogActionRow>
+        ) : (
+          <DialogActionRow>
+            <DialogPrimaryButton
+              darkMode={darkMode}
+              disabled={busy || !hasFreshPreview}
+              icon={<Save size={14} aria-hidden="true" />}
+              onClick={() => void applyTemplate()}
+            >
+              <PendingText
+                active={action === "apply"}
+                idleText={messages.apply}
+                pendingText={messages.applying}
+              />
+            </DialogPrimaryButton>
+          </DialogActionRow>
+        )}
       </DialogFrame>
     </DialogOverlay>
+  );
+}
+
+const emptyProjectTemplateDraft: ProjectInput = {
+  title: "",
+  description: "",
+  startDate: "",
+  timelineType: "duration",
+  deadlineDate: "",
+  durationRange: "3_6_months",
+};
+
+function TemplateTabs({
+  darkMode,
+  activeTab,
+  messages,
+  onChange,
+}: {
+  darkMode: boolean;
+  activeTab: TemplateTab;
+  messages: ProjectMessages["editor"]["template"];
+  onChange: (tab: TemplateTab) => void;
+}) {
+  return (
+    <div
+      className="mb-4 grid grid-cols-2 gap-2"
+      role="tablist"
+      aria-label={messages.title}
+    >
+      <Button
+        darkMode={darkMode}
+        active={activeTab === "edit"}
+        size="md"
+        role="tab"
+        aria-selected={activeTab === "edit"}
+        onClick={() => onChange("edit")}
+      >
+        {messages.editTab}
+      </Button>
+      <Button
+        darkMode={darkMode}
+        active={activeTab === "preview"}
+        size="md"
+        role="tab"
+        aria-selected={activeTab === "preview"}
+        onClick={() => onChange("preview")}
+      >
+        {messages.previewTab}
+      </Button>
+    </div>
   );
 }
 
@@ -194,17 +280,17 @@ function TemplatePreview({
 }) {
   if (!preview) {
     return (
-      <section className="grid content-start gap-2">
+      <FormSection>
         <LabelText darkMode={darkMode}>{messages.previewTitle}</LabelText>
-        <DescriptionText darkMode={darkMode}>
+        <SupportingText darkMode={darkMode}>
           {messages.previewEmpty}
-        </DescriptionText>
-      </section>
+        </SupportingText>
+      </FormSection>
     );
   }
 
   return (
-    <section className="grid min-w-0 content-start gap-2">
+    <FormSection>
       <div className="grid min-w-0 gap-1">
         <LabelText darkMode={darkMode}>{messages.previewTitle}</LabelText>
         <SupportingText darkMode={darkMode}>
@@ -216,23 +302,97 @@ function TemplatePreview({
         </SupportingText>
       </div>
       <List darkMode={darkMode} className="max-h-[28rem] overflow-auto">
-        {preview.items.map((item, index) => (
-          <ListItem darkMode={darkMode} key={`${item.subject}-${index}`}>
-            <ListItemContent
-              title={
-                <ListItemTitle size="compact">
-                  {messages.previewItem(
-                    messages.operations[item.operation],
-                    messages.subjects[item.subject],
-                    item.title,
-                    item.location,
-                  )}
+        {preview.items.map((item, index) => {
+          const depth = previewItemDepth(item);
+
+          return (
+            <ListItem
+              darkMode={darkMode}
+              key={`${item.subject}-${index}`}
+              className={cx(
+                "min-w-0 items-center py-2",
+                previewIndentClass(depth),
+              )}
+            >
+              <div className="flex min-w-0 flex-1 items-center gap-2">
+                <OperationBadge
+                  darkMode={darkMode}
+                  operation={item.operation}
+                  label={messages.operations[item.operation]}
+                  text={messages.operationBadges[item.operation]}
+                />
+                <ListItemTitle className="min-w-0" size="compact" truncate>
+                  {item.title}
                 </ListItemTitle>
-              }
-            />
-          </ListItem>
-        ))}
+              </div>
+            </ListItem>
+          );
+        })}
       </List>
-    </section>
+    </FormSection>
   );
+}
+
+function OperationBadge({
+  darkMode,
+  operation,
+  label,
+  text,
+}: {
+  darkMode: boolean;
+  operation: ProjectTreeTemplateParseData["preview"]["items"][number]["operation"];
+  label: string;
+  text: string;
+}) {
+  return (
+    <span
+      className={cx(
+        "inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded border px-1.5 text-[11px] font-semibold",
+        toneClass(darkMode, operationTone(operation)),
+      )}
+      aria-label={label}
+    >
+      {text}
+    </span>
+  );
+}
+
+function operationTone(
+  operation: ProjectTreeTemplateParseData["preview"]["items"][number]["operation"],
+): Tone {
+  if (operation === "create") {
+    return "emerald";
+  }
+
+  if (operation === "delete") {
+    return "red";
+  }
+
+  return "blue";
+}
+
+function previewItemDepth(
+  item: ProjectTreeTemplateParseData["preview"]["items"][number],
+) {
+  if (item.subject === "project") {
+    return 0;
+  }
+
+  if (item.subject === "milestone") {
+    return 1;
+  }
+
+  return item.location && item.location !== "No milestone" ? 2 : 1;
+}
+
+function previewIndentClass(depth: number) {
+  if (depth >= 2) {
+    return "pl-12";
+  }
+
+  if (depth === 1) {
+    return "pl-8";
+  }
+
+  return "";
 }

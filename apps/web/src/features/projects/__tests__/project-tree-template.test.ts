@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { parseProjectTreeTemplateMarkdown } from "../project-tree-template-parser.ts";
 import { normalizeProjectTreeTemplateDocument } from "../project-tree-template-normalizer.ts";
-import { projectTreeTemplateForProject } from "../project-tree-template-serializer.ts";
+import {
+  projectTreeTemplateForNewProject,
+  projectTreeTemplateForProject,
+} from "../project-tree-template-serializer.ts";
 import { InMemoryProjectRepository } from "../server/project-repository.ts";
 import { createProjectService } from "../server/project-service.ts";
 import type {
@@ -76,6 +79,159 @@ test("project tree template serializer round trips escaped multiline text", () =
   }
 
   assert.equal(parsed.data.project.objective, "Line one\nLine two");
+});
+
+test("project tree template create mode accepts blank ids", async () => {
+  const parsed = parseProjectTreeTemplateMarkdown(`# Project Tree Template
+## Project
+project_id:
+op: create
+title: Learn Japanese
+objective: Pass the N3 exam.
+start_date: 2026-07-29
+timeline: duration
+duration: 6_12_months
+
+## Top-level Tasks
+- op: create
+  task_id:
+  title: Buy textbook
+  estimated_duration_minutes: 30
+
+## Milestones
+### Milestone: Foundation
+milestone_id:
+op: create
+title: Foundation
+objective: Build daily study basics.
+start_date: 2026-07-29
+timeline: duration
+duration: 1_3_months
+
+#### Tasks
+- op: create
+  task_id:
+  title: Review kana
+  deadline: 2026-08-05
+`);
+
+  assert.equal(parsed.ok, true);
+
+  if (!parsed.ok) {
+    return;
+  }
+
+  const previewOnly = normalizeProjectTreeTemplateDocument({
+    document: parsed.data,
+    createId: () => "",
+  });
+
+  assert.equal(previewOnly.ok, true);
+
+  if (!previewOnly.ok) {
+    return;
+  }
+
+  assert.equal(previewOnly.data.mode, "create");
+  assert.equal(previewOnly.data.command.project.projectId, "");
+  assert.deepEqual(previewOnly.data.preview.counts, {
+    create: 4,
+    update: 0,
+    delete: 0,
+  });
+
+  const ids = [
+    "project-new",
+    "task-top",
+    "milestone-new",
+    "task-foundation",
+  ];
+  const normalized = normalizeProjectTreeTemplateDocument({
+    document: parsed.data,
+    createId: () => ids.shift() ?? "",
+  });
+
+  assert.equal(normalized.ok, true);
+
+  if (!normalized.ok || normalized.data.mode !== "create") {
+    return;
+  }
+
+  const service = createProjectService({
+    projects: new InMemoryProjectRepository(),
+    now: () => now,
+  });
+  const projectId = await service.createProjectTreeTemplate(
+    userId,
+    normalized.data.command,
+  );
+  const [project] = await service.listProjects(userId);
+
+  assert.equal(projectId, "project-new");
+  assert.equal(project.title, "Learn Japanese");
+  assert.equal(project.milestones[0].id, "milestone-new");
+  assert.equal(project.tasks.find((task) => task.id === "task-top")?.milestoneId, null);
+  assert.equal(
+    project.tasks.find((task) => task.id === "task-foundation")?.milestoneId,
+    "milestone-new",
+  );
+});
+
+test("project tree template create mode rejects edit operations", () => {
+  const parsed = parseProjectTreeTemplateMarkdown(`# Project Tree Template
+## Project
+project_id:
+op: create
+title: Learn Japanese
+start_date: 2026-07-29
+timeline: duration
+duration: 6_12_months
+
+## Top-level Tasks
+- op: update
+  task_id:
+  title: Existing task
+`);
+
+  assert.equal(parsed.ok, true);
+
+  if (!parsed.ok) {
+    return;
+  }
+
+  const normalized = normalizeProjectTreeTemplateDocument({
+    document: parsed.data,
+    createId: () => "",
+  });
+
+  assert.equal(normalized.ok, false);
+  if (!normalized.ok) {
+    assert.equal(normalized.code, "project_template_invalid");
+    assert.match(normalized.message, /only use op: create/);
+  }
+});
+
+test("project tree template create serializer uses blank ids", () => {
+  const template = projectTreeTemplateForNewProject({
+    title: "Move home",
+    description: "Find a rental and move.",
+    startDate: "2026-07-29",
+    timelineType: "deadline",
+    deadlineDate: "2026-08-29",
+    durationRange: "3_6_months",
+  });
+  const parsed = parseProjectTreeTemplateMarkdown(template);
+
+  assert.equal(parsed.ok, true);
+
+  if (!parsed.ok) {
+    return;
+  }
+
+  assert.equal(parsed.data.project.projectId, "");
+  assert.equal(parsed.data.project.operation, "create");
+  assert.equal(parsed.data.project.title, "Move home");
+  assert.equal(parsed.data.project.deadlineDate, "2026-08-29");
 });
 
 test("project tree template normalization rejects invalid ids and operations", () => {
@@ -254,7 +410,7 @@ test("project tree template apply updates, creates, moves, deletes, and preserve
   assert.equal(project.tasks.find((task) => task.id === "task-3")?.milestoneId, "milestone-2");
 });
 
-test("project tree template apply deletes milestone and detaches omitted tasks", async () => {
+test("project tree template apply deletes milestone and its tasks", async () => {
   const service = createProjectService({
     projects: new InMemoryProjectRepository({
       projects: [
@@ -289,7 +445,7 @@ test("project tree template apply deletes milestone and detaches omitted tasks",
 
   assert.equal(applied, true);
   assert.equal(project.milestones.length, 0);
-  assert.equal(project.tasks[0].milestoneId, null);
+  assert.equal(project.tasks.length, 0);
 });
 
 function projectRecord(input: Partial<ProjectRecord>): ProjectRecord {

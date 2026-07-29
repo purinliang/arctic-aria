@@ -42,6 +42,15 @@ type DialogAction = {
   type: DialogEntityType;
   action: "save" | "delete";
 } | null;
+type ProjectTemplateTarget =
+  | {
+      mode: "create";
+      draft: ProjectInput;
+    }
+  | {
+      mode: "update";
+      projectId: string;
+    };
 
 export function ProjectsPage({
   darkMode,
@@ -81,10 +90,10 @@ export function ProjectsPage({
   onProjectSave: (input: ProjectInput) => ProjectResult;
   onProjectDelete: (projectId: string) => ProjectResult;
   onProjectTemplateParse: (
-    projectId: string,
+    projectId: string | null,
     source: string,
   ) => Promise<ProjectTreeTemplateParseData | null>;
-  onProjectTemplateApply: (projectId: string, source: string) => ProjectResult;
+  onProjectTemplateApply: (projectId: string | null, source: string) => ProjectResult;
   onProjectPin: (projectId: string) => void;
   onProjectUnpin: (projectId: string) => void;
   onMilestoneSave: (input: MilestoneInput) => ProjectResult;
@@ -107,7 +116,8 @@ export function ProjectsPage({
     string | null
   >(null);
   const [taskDraft, setTaskDraft] = useState<ProjectTaskInput | null>(null);
-  const [templateProjectId, setTemplateProjectId] = useState<string | null>(null);
+  const [templateTarget, setTemplateTarget] =
+    useState<ProjectTemplateTarget | null>(null);
   const [confirmationTarget, setConfirmationTarget] =
     useState<ConfirmationTarget | null>(null);
   const [dialogAction, setDialogAction] = useState<DialogAction>(null);
@@ -121,8 +131,9 @@ export function ProjectsPage({
   const milestoneManagerOpen = selectedProject
     ? milestoneManagerProjectId === selectedProject.id
     : false;
-  const templateProject = templateProjectId
-    ? projects.find((project) => project.id === templateProjectId) ?? null
+  const templateProject =
+    templateTarget?.mode === "update"
+      ? projects.find((project) => project.id === templateTarget.projectId) ?? null
     : null;
 
   useEffect(() => {
@@ -136,7 +147,7 @@ export function ProjectsPage({
       setProjectDraft(null);
       setMilestoneDraft(null);
       setTaskDraft(null);
-      setTemplateProjectId(null);
+      setTemplateTarget(null);
       setConfirmationTarget(null);
     }
   }
@@ -149,7 +160,7 @@ export function ProjectsPage({
 
   function closeProjectTemplate() {
     if (!pending && dialogAction === null) {
-      setTemplateProjectId(null);
+      setTemplateTarget(null);
     }
   }
 
@@ -269,11 +280,11 @@ export function ProjectsPage({
     }
   }
 
-  async function applyProjectTemplate(projectId: string, source: string) {
+  async function applyProjectTemplate(projectId: string | null, source: string) {
     const applied = await onProjectTemplateApply(projectId, source);
 
     if (applied) {
-      setTemplateProjectId(null);
+      setTemplateTarget(null);
       setProjectDraft(null);
     }
 
@@ -386,19 +397,28 @@ export function ProjectsPage({
               : undefined
           }
           onTemplate={
-            projectDraft.id
-              ? () => setTemplateProjectId(projectDraft.id ?? null)
-              : undefined
+            () =>
+              setTemplateTarget(
+                projectDraft.id
+                  ? { mode: "update", projectId: projectDraft.id }
+                  : { mode: "create", draft: projectDraft },
+              )
           }
         />
       ) : null}
 
-      {templateProject ? (
+      {templateTarget && (templateTarget.mode === "create" || templateProject) ? (
         <ProjectTreeTemplateDialog
-          key={templateProject.id}
+          key={
+            templateTarget.mode === "update"
+              ? templateTarget.projectId
+              : "create"
+          }
           darkMode={darkMode}
           pending={pending}
-          project={templateProject}
+          mode={templateTarget.mode}
+          project={templateTarget.mode === "update" ? templateProject : null}
+          draft={templateTarget.mode === "create" ? templateTarget.draft : null}
           messages={messages.editor.template}
           onClose={closeProjectTemplate}
           onParse={onProjectTemplateParse}

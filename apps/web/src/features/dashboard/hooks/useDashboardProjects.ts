@@ -178,7 +178,7 @@ export function useDashboardProjects(
   }
 
   async function parseProjectTreeTemplateFromPage(
-    projectId: string,
+    projectId: string | null,
     source: string,
   ): Promise<ProjectTreeTemplateParseData | null> {
     const actionResult = await runNotifiedServerAction({
@@ -197,7 +197,7 @@ export function useDashboardProjects(
       notifyActionFailure({
         result,
         resultMessages,
-        fallbackTitle: actionFailedTitle("update", "project"),
+        fallbackTitle: actionFailedTitle(projectId ? "update" : "save", "project"),
         notificationMessages,
         showErrorNotification,
       });
@@ -357,10 +357,10 @@ export function useDashboardProjects(
         actionFailedTitle("save", "project"),
       ),
     parseProjectTreeTemplateFromPage,
-    applyProjectTreeTemplateFromPage: (projectId: string, source: string) =>
+    applyProjectTreeTemplateFromPage: (projectId: string | null, source: string) =>
       runProjectManagementAction(
         () => applyProjectTreeTemplate(projectId, source),
-        actionFailedTitle("update", "project"),
+        actionFailedTitle(projectId ? "update" : "save", "project"),
       ),
     archiveProjectFromPage: (projectId: string) =>
       runProjectManagementAction(

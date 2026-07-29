@@ -275,7 +275,7 @@ export async function saveProjectTask(
 }
 
 export async function parseProjectTreeTemplate(
-  projectId: string,
+  projectId: string | null,
   source: string,
 ): Promise<ProjectActionResult<ProjectTreeTemplateParseData>> {
   const user = await getCurrentUser();
@@ -285,7 +285,9 @@ export async function parseProjectTreeTemplate(
   }
 
   try {
-    const prepared = await prepareProjectTreeTemplate(user.id, projectId, source);
+    const prepared = await prepareProjectTreeTemplate(user.id, projectId, source, {
+      createId: () => "",
+    });
 
     if (!prepared.ok) {
       return prepared;
@@ -303,7 +305,7 @@ export async function parseProjectTreeTemplate(
 }
 
 export async function applyProjectTreeTemplate(
-  projectId: string,
+  projectId: string | null,
   source: string,
 ): Promise<ProjectActionResult<ProjectDashboardData>> {
   const user = await getCurrentUser();
@@ -319,18 +321,30 @@ export async function applyProjectTreeTemplate(
       return prepared;
     }
 
-    const applied = await projectService.applyProjectTreeTemplate(
-      user.id,
-      prepared.data.command,
-    );
+    const applied =
+      prepared.data.mode === "create"
+        ? await projectService.createProjectTreeTemplate(
+            user.id,
+            prepared.data.command,
+          )
+        : await projectService.applyProjectTreeTemplate(
+            user.id,
+            prepared.data.command,
+          );
 
     if (!applied) {
       return {
         ok: false,
-        message: "Project template could not be applied.",
-        code: "project_template_apply_failed",
+        message:
+          prepared.data.mode === "create"
+            ? "Project template could not be created."
+            : "Project template could not be applied.",
+        code:
+          prepared.data.mode === "create"
+            ? "project_template_create_failed"
+            : "project_template_apply_failed",
         category: "database_update",
-        action: "update",
+        action: prepared.data.mode === "create" ? "save" : "update",
         subject: "project",
       };
     }
@@ -483,10 +497,13 @@ export async function updateProjectTaskStatus(
 
 async function prepareProjectTreeTemplate(
   userId: string,
-  projectId: string,
+  projectId: string | null,
   source: string,
+  options: {
+    createId?: () => string;
+  } = {},
 ): Promise<ProjectActionResult<NormalizedProjectTreeTemplate>> {
-  const trimmedProjectId = projectId.trim();
+  const trimmedProjectId = projectId?.trim() ?? "";
   const trimmedSource = source.trim();
 
   if (!trimmedSource) {
@@ -501,11 +518,13 @@ async function prepareProjectTreeTemplate(
     };
   }
 
-  const currentProject = (await projectService.listProjects(userId)).find(
-    (project) => project.id === trimmedProjectId,
-  );
+  const currentProject = trimmedProjectId
+    ? (await projectService.listProjects(userId)).find(
+        (project) => project.id === trimmedProjectId,
+      ) ?? null
+    : null;
 
-  if (!currentProject) {
+  if (trimmedProjectId && !currentProject) {
     return {
       ok: false,
       message: "Project was not found.",
@@ -524,5 +543,6 @@ async function prepareProjectTreeTemplate(
   return normalizeProjectTreeTemplateDocument({
     document: parsed.data,
     currentProject,
+    createId: options.createId,
   });
 }

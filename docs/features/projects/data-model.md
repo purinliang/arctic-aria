@@ -56,8 +56,7 @@ Current rules:
   sidebar shortcuts, and scheduler candidates show only rows where
   `deleted_at IS NULL`
 - deleting a project clears its `sidebar_pin_order`
-- deleting a milestone detaches its visible tasks by setting their
-  `milestone_id` to `NULL`
+- deleting a milestone soft-deletes its visible tasks
 - deleting a task hides it from normal project and Today views
 - hard delete is not a user-facing command for project data
 

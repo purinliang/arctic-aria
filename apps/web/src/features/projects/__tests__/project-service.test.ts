@@ -120,7 +120,7 @@ test("saving a task can place it under an explicit milestone", async () => {
   assert.equal(projects[0].milestones[0].tasks[0].title, "Prepare resume");
 });
 
-test("archiving a milestone keeps its tasks without a milestone", async () => {
+test("archiving a milestone archives its tasks", async () => {
   const repository = new InMemoryProjectRepository();
   const service = createProjectService({
     projects: repository,
@@ -156,9 +156,7 @@ test("archiving a milestone keeps its tasks without a milestone", async () => {
 
   assert.equal(archived, true);
   assert.equal(projects[0].milestones.length, 0);
-  assert.equal(projects[0].tasks.length, 1);
-  assert.equal(projects[0].tasks[0].milestoneId, null);
-  assert.equal(projects[0].tasks[0].milestoneTitle, "");
+  assert.equal(projects[0].tasks.length, 0);
 });
 
 test("archiving a task removes it from normal project views", async () => {

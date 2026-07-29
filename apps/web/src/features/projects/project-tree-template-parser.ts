@@ -98,12 +98,6 @@ export function parseProjectTreeTemplateMarkdown(
 
   commitTask(state);
 
-  if (!state.document.project.projectId.trim()) {
-    return invalidProjectTreeTemplateParse(
-      "Project template must include project_id.",
-    );
-  }
-
   return {
     ok: true,
     data: state.document,

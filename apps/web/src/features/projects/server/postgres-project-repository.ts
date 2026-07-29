@@ -17,9 +17,13 @@ import {
 import {
   applyProjectTreeTemplate,
 } from "./postgres-project-template-queries.ts";
+import {
+  createProjectTreeTemplate,
+} from "./postgres-project-template-create-queries.ts";
 import { listPostgresDashboardTasks } from "./postgres-project-dashboard-queries.ts";
 import type {
   ApplyProjectTreeTemplateInput,
+  CreateProjectTreeTemplateInput,
   ProjectPinResult,
   ProjectRepository,
   ProjectTaskStatus,
@@ -71,6 +75,10 @@ export class PostgresProjectRepository implements ProjectRepository {
 
   applyProjectTreeTemplate(input: ApplyProjectTreeTemplateInput) {
     return applyProjectTreeTemplate(this.getSql(), input);
+  }
+
+  createProjectTreeTemplate(input: CreateProjectTreeTemplateInput) {
+    return createProjectTreeTemplate(this.getSql(), input);
   }
 
   async archiveProject(input: {
@@ -184,12 +192,13 @@ export class PostgresProjectRepository implements ProjectRepository {
            AND deleted_at IS NULL
          RETURNING id
        ),
-       detached_tasks AS (
+       deleted_tasks AS (
          UPDATE project_tasks
-         SET milestone_id = NULL,
+         SET deleted_at = $3::timestamptz,
              updated_at = $3::timestamptz
          WHERE user_id = $1
            AND milestone_id IN (SELECT id FROM deleted_milestone)
+           AND deleted_at IS NULL
          RETURNING id
        )
        SELECT id FROM deleted_milestone`,

@@ -6,6 +6,7 @@ import { validateProjectInput } from "./project-action-helpers.ts";
 import type { ProjectInput } from "./project-action-helpers.ts";
 import type {
   ApplyProjectTreeTemplateInput,
+  CreateProjectTreeTemplateInput,
   ProjectRecord,
 } from "./server/project-repository.ts";
 import type {
@@ -58,6 +59,50 @@ export function normalizeProjectTreeTemplateProject(
     ok: true,
     data: {
       projectId: currentProject.id,
+      title: validation.title,
+      objective: validation.objective,
+      startDate: validation.startDate,
+      deadlineDate: validation.deadlineDate,
+      expectedDurationDays: validation.expectedDurationDays,
+    },
+  };
+}
+
+export function normalizeProjectTreeTemplateCreateProject(
+  document: ProjectTreeTemplateDocument,
+  createId: () => string,
+): ProjectTreeTemplateResult<
+  Omit<CreateProjectTreeTemplateInput["project"], "userId" | "occurredAt">
+> {
+  const project = document.project;
+
+  if (project.projectId.trim()) {
+    return invalidProjectTreeTemplate(
+      "Create project templates must leave project_id empty.",
+    );
+  }
+
+  if (normalizeProjectTreeTemplateOperation(project.operation) !== "create") {
+    return invalidProjectTreeTemplate("Root project must use op: create.");
+  }
+
+  const input: ProjectInput = {
+    id: undefined,
+    title: project.title,
+    description: project.objective,
+    startDate: project.startDate,
+    ...projectTreeTemplateTimelineInput(project),
+  };
+  const validation = validateProjectInput(input);
+
+  if (!validation.ok) {
+    return validation;
+  }
+
+  return {
+    ok: true,
+    data: {
+      projectId: createId(),
       title: validation.title,
       objective: validation.objective,
       startDate: validation.startDate,

@@ -313,14 +313,21 @@ Dialog shell:
 
 Project Tree Template:
 
-- available only from existing project edit dialogs
+- available from project add and edit dialogs
 - opened from the project editor header ellipsis menu as `Template`
 - uses a wide `DialogFrame`
 - copies a Markdown template that includes the LLM instructions
 - accepts pasted filled Markdown in a monospace textarea
+- uses Template and Preview tabs so input and preview are not displayed at the
+  same time
+- the Template tab footer shows `Copy` and `Parse` side by side
 - `Parse` validates without writing and shows a human preview summary
+- create-mode parse does not allocate persistent ids
 - no JSON preview is shown
-- `Apply` is enabled only after parsing the current textarea content
+- preview rows use compact operation chips and indentation for nested rows; row
+  titles are single-line and truncate
+- `Apply` appears only on the Preview tab and is enabled only after parsing the
+  current textarea content
 - successful apply refreshes Projects data and closes both the template dialog
   and the project editor
 - failed parse or apply keeps the dialog open and reports through the shared

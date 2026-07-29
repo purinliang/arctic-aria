@@ -196,21 +196,15 @@ export async function applyProjectTreeTemplate(
          AND task_input.operation = 'delete'
        RETURNING project_tasks.id
      ),
-     milestone_task_detach AS (
+     milestone_task_delete AS (
        UPDATE project_tasks
-       SET milestone_id = NULL,
+       SET deleted_at = $8::timestamptz,
          updated_at = $8::timestamptz
        FROM milestone_delete
        WHERE project_tasks.user_id = $1
          AND project_tasks.project_id = $2
          AND project_tasks.milestone_id = milestone_delete.id
          AND project_tasks.deleted_at IS NULL
-         AND NOT EXISTS (
-           SELECT 1
-           FROM task_input
-           WHERE task_input.operation IN ('update', 'delete')
-             AND task_input.task_id = project_tasks.id
-         )
        RETURNING project_tasks.id
      ),
      task_create_input AS (

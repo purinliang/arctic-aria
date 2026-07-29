@@ -5,6 +5,7 @@ import {
 } from "../../settings/time-zones.ts";
 import type {
   ApplyProjectTreeTemplateInput,
+  CreateProjectTreeTemplateInput,
   ProjectRepository,
   ProjectTaskStatus,
   SaveMilestoneInput,
@@ -80,6 +81,17 @@ export function createProjectService(options: ProjectServiceOptions = {}) {
       input: Omit<ApplyProjectTreeTemplateInput, "userId" | "occurredAt">,
     ) {
       return projects.applyProjectTreeTemplate({
+        ...input,
+        userId,
+        occurredAt: now(),
+      });
+    },
+
+    async createProjectTreeTemplate(
+      userId: string,
+      input: Omit<CreateProjectTreeTemplateInput, "userId" | "occurredAt">,
+    ) {
+      return projects.createProjectTreeTemplate({
         ...input,
         userId,
         occurredAt: now(),

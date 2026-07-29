@@ -107,6 +107,16 @@ export type ApplyProjectTreeTemplateInput = {
   occurredAt: Date;
 };
 
+export type CreateProjectTreeTemplateInput = {
+  userId: string;
+  project: Omit<SaveProjectInput, "userId" | "projectId" | "occurredAt"> & {
+    projectId: string;
+  };
+  milestones: ProjectTreeTemplateCreateMilestoneInput[];
+  tasks: ProjectTreeTemplateCreateTaskInput[];
+  occurredAt: Date;
+};
+
 export type ProjectTreeTemplateMilestoneInput =
   | ({
       operation: "create" | "update";
@@ -127,6 +137,21 @@ export type ProjectTreeTemplateTaskInput =
       taskId: string;
     };
 
+export type ProjectTreeTemplateCreateMilestoneInput = {
+  milestoneId: string;
+} & Omit<
+  SaveMilestoneInput,
+  "userId" | "projectId" | "milestoneId" | "occurredAt"
+>;
+
+export type ProjectTreeTemplateCreateTaskInput = {
+  taskId: string;
+  milestoneId: string | null;
+} & Omit<
+  SaveProjectTaskInput,
+  "userId" | "projectId" | "taskId" | "occurredAt" | "milestoneId"
+>;
+
 export type ProjectRepository = {
   listProjects(userId: string): Promise<ProjectRecord[]>;
   listDashboardTasks(
@@ -140,6 +165,9 @@ export type ProjectRepository = {
   applyProjectTreeTemplate(
     input: ApplyProjectTreeTemplateInput,
   ): Promise<boolean>;
+  createProjectTreeTemplate(
+    input: CreateProjectTreeTemplateInput,
+  ): Promise<string | null>;
   archiveProject(input: {
     userId: string;
     projectId: string;

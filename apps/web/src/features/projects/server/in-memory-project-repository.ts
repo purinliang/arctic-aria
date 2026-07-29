@@ -1,5 +1,6 @@
 import type {
   ApplyProjectTreeTemplateInput,
+  CreateProjectTreeTemplateInput,
   ProjectPinResult,
   ProjectRecord,
   ProjectRepository,
@@ -253,8 +254,12 @@ export class InMemoryProjectRepository implements ProjectRepository {
         existing.deletedAt = input.occurredAt;
         existing.updatedAt = input.occurredAt;
         project.tasks = project.tasks.map((task) =>
-          task.milestoneId === existing.id
-            ? { ...task, milestoneId: null, milestoneTitle: "" }
+          task.milestoneId === existing.id && task.deletedAt === null
+            ? {
+                ...task,
+                deletedAt: input.occurredAt,
+                updatedAt: input.occurredAt,
+              }
             : task,
         );
         continue;
@@ -278,15 +283,17 @@ export class InMemoryProjectRepository implements ProjectRepository {
     for (const task of input.tasks) {
       if (task.operation === "delete") {
         const existing = project.tasks.find(
-          (current) => current.id === task.taskId && current.deletedAt === null,
+          (current) => current.id === task.taskId,
         );
 
         if (!existing) {
           return false;
         }
 
-        existing.deletedAt = input.occurredAt;
-        existing.updatedAt = input.occurredAt;
+        if (existing.deletedAt === null) {
+          existing.deletedAt = input.occurredAt;
+          existing.updatedAt = input.occurredAt;
+        }
         continue;
       }
 
@@ -342,6 +349,108 @@ export class InMemoryProjectRepository implements ProjectRepository {
 
     syncMilestoneTasks(project);
     return true;
+  }
+
+  async createProjectTreeTemplate(input: CreateProjectTreeTemplateInput) {
+    if (
+      !input.project.projectId ||
+      this.projects.some((project) => project.id === input.project.projectId)
+    ) {
+      return null;
+    }
+
+    const milestoneIds = new Set<string>();
+    const taskIds = new Set<string>();
+
+    for (const milestone of input.milestones) {
+      if (!milestone.milestoneId || milestoneIds.has(milestone.milestoneId)) {
+        return null;
+      }
+
+      milestoneIds.add(milestone.milestoneId);
+    }
+
+    for (const task of input.tasks) {
+      if (
+        !task.taskId ||
+        taskIds.has(task.taskId) ||
+        (task.milestoneId && !milestoneIds.has(task.milestoneId))
+      ) {
+        return null;
+      }
+
+      taskIds.add(task.taskId);
+    }
+
+    const milestones = input.milestones.map((milestone, index) => ({
+      id: milestone.milestoneId,
+      userId: input.userId,
+      projectId: input.project.projectId,
+      title: milestone.title,
+      objective: milestone.objective,
+      sortOrder: index,
+      startDate: milestone.startDate,
+      deadlineDate: milestone.deadlineDate,
+      expectedDurationDays: milestone.expectedDurationDays,
+      createdAt: input.occurredAt,
+      updatedAt: input.occurredAt,
+      completedAt: null,
+      deletedAt: null,
+      tasks: [],
+    }));
+    const milestoneById = new Map(
+      milestones.map((milestone) => [milestone.id, milestone]),
+    );
+    const taskSortOrders = new Map<string, number>();
+    const tasks = input.tasks.map((task) => {
+      const milestone = task.milestoneId
+        ? milestoneById.get(task.milestoneId) ?? null
+        : null;
+      const groupKey = task.milestoneId ?? "";
+      const sortOrder = taskSortOrders.get(groupKey) ?? 0;
+
+      taskSortOrders.set(groupKey, sortOrder + 1);
+
+      return {
+        id: task.taskId,
+        userId: input.userId,
+        projectId: input.project.projectId,
+        projectTitle: input.project.title,
+        milestoneId: milestone?.id ?? null,
+        milestoneTitle: milestone?.title ?? "",
+        title: task.title,
+        description: task.description,
+        status: "todo" as const,
+        startDate: task.startDate,
+        deadlineDate: task.deadlineDate,
+        estimatedDurationMinutes: task.estimatedDurationMinutes,
+        sortOrder,
+        createdAt: input.occurredAt,
+        updatedAt: input.occurredAt,
+        completedAt: null,
+        deletedAt: null,
+      };
+    });
+    const project: ProjectRecord = {
+      id: input.project.projectId,
+      userId: input.userId,
+      title: input.project.title,
+      objective: input.project.objective,
+      startDate: input.project.startDate,
+      deadlineDate: input.project.deadlineDate,
+      expectedDurationDays: input.project.expectedDurationDays,
+      sidebarPinOrder: null,
+      createdAt: input.occurredAt,
+      updatedAt: input.occurredAt,
+      completedAt: null,
+      deletedAt: null,
+      tasks,
+      milestones,
+    };
+
+    syncMilestoneTasks(project);
+    this.projects.push(project);
+    return project.id;
   }
 
   async archiveProject(input: {
@@ -410,8 +519,12 @@ export class InMemoryProjectRepository implements ProjectRepository {
     milestone.deletedAt = input.occurredAt;
     milestone.updatedAt = input.occurredAt;
     project.tasks = project.tasks.map((task) =>
-      task.milestoneId === milestone.id
-        ? { ...task, milestoneId: null, milestoneTitle: "" }
+      task.milestoneId === milestone.id && task.deletedAt === null
+        ? {
+            ...task,
+            deletedAt: input.occurredAt,
+            updatedAt: input.occurredAt,
+          }
         : task,
     );
     syncMilestoneTasks(project);
