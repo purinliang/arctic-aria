@@ -20,7 +20,6 @@ import { PendingText } from "@/components/loading";
 import { Panel } from "@/components/panel";
 import { Switch } from "@/components/switch";
 import { DeveloperToolsPanel } from "@/features/performance/components/DeveloperToolsPanel";
-import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
 import type {
   TimeFormatPreference,
   UserPreferences,
@@ -45,7 +44,6 @@ export function SettingsPage({
   logoutPending,
   messages,
   notificationMessages,
-  onDeveloperImportComplete,
   onLanguagePreferenceChange,
   onLogout,
   onPreferenceOpenAttempt,
@@ -67,7 +65,6 @@ export function SettingsPage({
   logoutPending: boolean;
   messages: SettingsMessages;
   notificationMessages: NotificationMessages;
-  onDeveloperImportComplete: (target: DeveloperImportTarget) => void;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
   onLogout: () => void;
   onPreferenceOpenAttempt: (preference: keyof UserPreferences) => boolean;
@@ -300,7 +297,6 @@ export function SettingsPage({
         <DeveloperToolsPanel
           darkMode={darkMode}
           messages={messages}
-          onDeveloperImportComplete={onDeveloperImportComplete}
           showErrorNotification={showErrorNotification}
           showSuccessNotification={showSuccessNotification}
         />

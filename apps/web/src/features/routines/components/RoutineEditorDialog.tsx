@@ -1,5 +1,9 @@
 // Routines Page - Routine Editor Dialog.
+import { MoreHorizontal } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
+import { useState } from "react";
+import { ActionMenu, ActionMenuItem } from "@/components/action-menu";
+import { Button } from "@/components/button";
 import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import { CrudEditorDialog } from "@/components/dialog";
 import { formFieldClass } from "@/components/control-layout";
@@ -42,6 +46,7 @@ export function RoutineEditorDialog({
   onClose,
   onSubmit,
   onDelete,
+  onTemplate,
 }: {
   darkMode: boolean;
   pending: boolean;
@@ -56,7 +61,8 @@ export function RoutineEditorDialog({
   setDraft: Dispatch<SetStateAction<RoutineInput>>;
   onClose: () => void;
   onSubmit: () => void;
-  onDelete: () => void;
+  onDelete?: () => void;
+  onTemplate?: () => void;
 }) {
   const descriptionPlaceholder = useDefaultDescriptionPlaceholder(
     messages.defaultDescriptions,
@@ -72,7 +78,18 @@ export function RoutineEditorDialog({
       closeLabel={messages.editor.close}
       saveText={messages.editor.save}
       savingText={messages.editor.saving}
-      deleteText={draft.id ? messages.editor.delete : undefined}
+      deleteText={draft.id && !onTemplate ? messages.editor.delete : undefined}
+      headerActions={
+        onTemplate || onDelete ? (
+          <RoutineEditorMenu
+            darkMode={darkMode}
+            disabled={pending}
+            messages={messages.editor}
+            onTemplate={onTemplate}
+            onDelete={onDelete}
+          />
+        ) : undefined
+      }
       onClose={onClose}
       onSubmit={onSubmit}
       onDelete={draft.id ? onDelete : undefined}
@@ -99,6 +116,68 @@ export function RoutineEditorDialog({
         setDraft={setDraft}
       />
     </CrudEditorDialog>
+  );
+}
+
+function RoutineEditorMenu({
+  darkMode,
+  disabled,
+  messages,
+  onTemplate,
+  onDelete,
+}: {
+  darkMode: boolean;
+  disabled: boolean;
+  messages: RoutineMessages["editor"];
+  onTemplate?: () => void;
+  onDelete?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <Button
+        darkMode={darkMode}
+        tone="ghost"
+        size="icon"
+        disabled={disabled}
+        aria-label={messages.template.menuAriaLabel}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        icon={<MoreHorizontal size={16} aria-hidden="true" />}
+        onClick={() => setOpen((current) => !current)}
+      />
+      {open ? (
+        <ActionMenu
+          label={messages.template.menuAriaLabel}
+          closeLabel={messages.template.close}
+          onDismiss={() => setOpen(false)}
+        >
+          {onTemplate ? (
+            <ActionMenuItem
+              darkMode={darkMode}
+              onClick={() => {
+                setOpen(false);
+                onTemplate();
+              }}
+            >
+              {messages.template.menuLabel}
+            </ActionMenuItem>
+          ) : null}
+          {onDelete ? (
+            <ActionMenuItem
+              darkMode={darkMode}
+              onClick={() => {
+                setOpen(false);
+                onDelete();
+              }}
+            >
+              {messages.delete}
+            </ActionMenuItem>
+          ) : null}
+        </ActionMenu>
+      ) : null}
+    </div>
   );
 }
 

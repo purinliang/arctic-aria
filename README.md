@@ -31,8 +31,8 @@ Arctic Aria is organized around features and supporting services:
 - Features: auth, settings, projects, routines, events, memories, dashboard, ideas,
   Daily Review delivery, and future broader reviews.
 - Apps: web dashboard for full control, Discord integration hosted by the web
-  app for quick idea capture and messages, and CLI tooling for local developer
-  import workflows.
+  app for quick idea capture and messages, and CLI tooling reserved for future
+  local developer workflows.
 - Infrastructure: Neon PostgreSQL for persistence and a Cloudflare cron worker
   for scheduled web-route invocation, with future cache, richer background job,
   dataflow, and external service adapters added only when needed.

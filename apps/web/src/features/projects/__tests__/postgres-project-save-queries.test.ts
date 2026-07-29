@@ -1,13 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  importProjectTree,
   saveMilestone,
   saveProject,
   saveTask,
 } from "../server/postgres-project-save-queries.ts";
 import type {
-  ImportProjectTreeInput,
   SaveMilestoneInput,
   SaveProjectInput,
   SaveProjectTaskInput,
@@ -138,68 +136,6 @@ test("task creation trims blank milestone ids before insert", async () => {
   );
 
   assert.equal(insert?.params[2], null);
-  assertQueriesUseContiguousParams(records);
-});
-
-test("project tree import serializes tasks inside milestone payloads", async () => {
-  const { records, sql } = createSqlStub();
-  const input: ImportProjectTreeInput = {
-    userId: "user-1",
-    project: {
-      title: "Find a job",
-      objective: "Land a backend role.",
-      startDate: "2026-07-22",
-      deadlineDate: null,
-      expectedDurationDays: 180,
-    },
-    milestones: [
-      {
-        title: "Applications",
-        objective: "Submit strong applications.",
-        startDate: "2026-07-22",
-        deadlineDate: null,
-        expectedDurationDays: 90,
-        tasks: [
-          {
-            title: "Prepare resume",
-            description: "Rewrite backend experience bullets.",
-            startDate: "2026-07-22",
-            deadlineDate: "2026-07-30",
-            estimatedDurationMinutes: 45,
-          },
-        ],
-      },
-    ],
-    occurredAt,
-  };
-
-  assert.equal(await importProjectTree(sql, input), "project-1");
-
-  const insert = records.find((record) =>
-    record.text.includes("WITH project_insert AS"),
-  );
-  assert.ok(insert);
-  assert.equal(insert.params.length, 8);
-  assert.match(insert.text, /jsonb_array_elements\(\$8::jsonb\) WITH ORDINALITY/);
-  assert.doesNotMatch(insert.text, /jsonb_to_recordset[\s\S]*WITH ORDINALITY/);
-  assert.deepEqual(JSON.parse(String(insert.params[7])), [
-    {
-      title: "Applications",
-      objective: "Submit strong applications.",
-      start_date: "2026-07-22",
-      deadline_date: null,
-      expected_duration_days: 90,
-      tasks: [
-        {
-          title: "Prepare resume",
-          description: "Rewrite backend experience bullets.",
-          start_date: "2026-07-22",
-          deadline_date: "2026-07-30",
-          estimated_duration_minutes: 45,
-        },
-      ],
-    },
-  ]);
   assertQueriesUseContiguousParams(records);
 });
 

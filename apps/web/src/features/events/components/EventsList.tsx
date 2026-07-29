@@ -58,7 +58,7 @@ export function EventsList({
       <EventSection
         darkMode={darkMode}
         label={messages.page.upcoming}
-        showLabel={filter === "all"}
+        showLabel={false}
         events={upcomingEvents}
         pending={pending}
         messages={messages}

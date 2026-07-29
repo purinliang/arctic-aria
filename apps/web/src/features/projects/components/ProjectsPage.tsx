@@ -8,6 +8,7 @@ import type {
   MilestoneInput,
   ProjectInput,
   ProjectTaskInput,
+  ProjectTreeTemplateParseData,
   ProjectTaskView,
   ProjectView,
 } from "@/features/projects/actions";
@@ -20,6 +21,7 @@ import {
 import { ProjectMilestoneManagerDialog } from "./ProjectMilestoneManagerDialog";
 import { ProjectsList } from "./ProjectsList";
 import { ProjectTaskEditorDialog } from "./ProjectTaskEditorDialog";
+import { ProjectTemplateEditorDialog } from "./ProjectTemplateEditorDialog";
 import {
   emptyMilestoneDraft,
   emptyProjectDraft,
@@ -40,6 +42,15 @@ type DialogAction = {
   type: DialogEntityType;
   action: "save" | "delete";
 } | null;
+type ProjectTemplateTarget =
+  | {
+      mode: "create";
+      draft: ProjectInput;
+    }
+  | {
+      mode: "update";
+      projectId: string;
+    };
 
 export function ProjectsPage({
   darkMode,
@@ -53,6 +64,8 @@ export function ProjectsPage({
   pendingProjectPinIds,
   onProjectSave,
   onProjectDelete,
+  onProjectTemplateParse,
+  onProjectTemplateApply,
   onProjectPin,
   onProjectUnpin,
   onMilestoneSave,
@@ -64,6 +77,8 @@ export function ProjectsPage({
   onMilestoneSelect,
   messages,
   formMessages,
+  showErrorNotification,
+  showSuccessNotification,
 }: {
   darkMode: boolean;
   projects: ProjectView[];
@@ -76,6 +91,11 @@ export function ProjectsPage({
   pendingProjectPinIds: string[];
   onProjectSave: (input: ProjectInput) => ProjectResult;
   onProjectDelete: (projectId: string) => ProjectResult;
+  onProjectTemplateParse: (
+    projectId: string | null,
+    source: string,
+  ) => Promise<ProjectTreeTemplateParseData | null>;
+  onProjectTemplateApply: (projectId: string | null, source: string) => ProjectResult;
   onProjectPin: (projectId: string) => void;
   onProjectUnpin: (projectId: string) => void;
   onMilestoneSave: (input: MilestoneInput) => ProjectResult;
@@ -90,6 +110,8 @@ export function ProjectsPage({
   onMilestoneSelect: (milestoneId: string | null) => void;
   messages: ProjectMessages;
   formMessages: FormMessages;
+  showErrorNotification: (message: string, title?: string) => void;
+  showSuccessNotification: (message: string, title?: string) => void;
 }) {
   const [milestoneDraft, setMilestoneDraft] = useState<MilestoneInput | null>(
     null,
@@ -98,6 +120,8 @@ export function ProjectsPage({
     string | null
   >(null);
   const [taskDraft, setTaskDraft] = useState<ProjectTaskInput | null>(null);
+  const [templateTarget, setTemplateTarget] =
+    useState<ProjectTemplateTarget | null>(null);
   const [confirmationTarget, setConfirmationTarget] =
     useState<ConfirmationTarget | null>(null);
   const [dialogAction, setDialogAction] = useState<DialogAction>(null);
@@ -111,6 +135,10 @@ export function ProjectsPage({
   const milestoneManagerOpen = selectedProject
     ? milestoneManagerProjectId === selectedProject.id
     : false;
+  const templateProject =
+    templateTarget?.mode === "update"
+      ? projects.find((project) => project.id === templateTarget.projectId) ?? null
+    : null;
 
   useEffect(() => {
     if (selectedProjectId && !loading && !selectedProject) {
@@ -123,6 +151,7 @@ export function ProjectsPage({
       setProjectDraft(null);
       setMilestoneDraft(null);
       setTaskDraft(null);
+      setTemplateTarget(null);
       setConfirmationTarget(null);
     }
   }
@@ -130,6 +159,12 @@ export function ProjectsPage({
   function closeMilestoneManager() {
     if (!pending && dialogAction === null) {
       setMilestoneManagerProjectId(null);
+    }
+  }
+
+  function closeProjectTemplate() {
+    if (!pending && dialogAction === null) {
+      setTemplateTarget(null);
     }
   }
 
@@ -249,6 +284,17 @@ export function ProjectsPage({
     }
   }
 
+  async function applyProjectTemplate(projectId: string | null, source: string) {
+    const applied = await onProjectTemplateApply(projectId, source);
+
+    if (applied) {
+      setTemplateTarget(null);
+      setProjectDraft(null);
+    }
+
+    return applied;
+  }
+
   function hasDialogAction(type: DialogEntityType) {
     return dialogAction?.type === type;
   }
@@ -354,6 +400,35 @@ export function ProjectsPage({
                   })
               : undefined
           }
+          onTemplate={
+            () =>
+              setTemplateTarget(
+                projectDraft.id
+                  ? { mode: "update", projectId: projectDraft.id }
+                  : { mode: "create", draft: projectDraft },
+              )
+          }
+        />
+      ) : null}
+
+      {templateTarget && (templateTarget.mode === "create" || templateProject) ? (
+        <ProjectTemplateEditorDialog
+          key={
+            templateTarget.mode === "update"
+              ? templateTarget.projectId
+              : "create"
+          }
+          darkMode={darkMode}
+          pending={pending}
+          mode={templateTarget.mode}
+          project={templateTarget.mode === "update" ? templateProject : null}
+          draft={templateTarget.mode === "create" ? templateTarget.draft : null}
+          messages={messages.editor.template}
+          showErrorNotification={showErrorNotification}
+          showSuccessNotification={showSuccessNotification}
+          onClose={closeProjectTemplate}
+          onParse={onProjectTemplateParse}
+          onApply={applyProjectTemplate}
         />
       ) : null}
 

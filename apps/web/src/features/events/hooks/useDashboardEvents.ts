@@ -8,12 +8,15 @@ import {
   runNotifiedServerAction,
 } from "@/app-shell/action-notifications";
 import {
+  applyEventTemplate,
   deleteEvent,
   getEventDashboardData,
+  parseEventTemplate,
   saveEvent,
   type EventActionResult,
   type EventDashboardData,
   type EventInput,
+  type EventTemplateParseData,
 } from "@/features/events/actions";
 import type {
   DashboardMessages,
@@ -27,8 +30,10 @@ type EventDataAction = () => Promise<EventActionResult<EventDashboardData>>;
 export function useDashboardEvents(
   userId: string,
   showErrorNotification: (message: string, title?: string) => void,
+  showInfoNotification?: (message: string, title?: string) => void,
   messages?: DashboardMessages["notifications"],
   resultMessages?: EventMessages["results"],
+  templateMessages?: EventMessages["editor"]["template"],
   notificationMessages?: NotificationMessages,
 ) {
   const [events, setEvents] = useState<ScheduledEvent[]>([]);
@@ -168,6 +173,44 @@ export function useDashboardEvents(
     }
   }
 
+  async function parseEventTemplateFromPage(
+    eventId: string | null,
+    source: string,
+  ): Promise<EventTemplateParseData | null> {
+    const actionResult = await runNotifiedServerAction({
+      action: () => parseEventTemplate(eventId, source),
+      messages: notificationMessages,
+      showErrorNotification,
+    });
+
+    if (!actionResult.ok) {
+      return null;
+    }
+
+    const result = actionResult.value;
+
+    if (!result.ok) {
+      notifyActionFailure({
+        result,
+        resultMessages,
+        fallbackTitle: actionFailedTitle(eventId ? "update" : "save", "event"),
+        notificationMessages,
+        showErrorNotification,
+      });
+      return null;
+    }
+
+    if (result.data.preview.ignoredFieldCount > 0) {
+      showInfoNotification?.(
+        templateMessages?.ignoredFields(result.data.preview.ignoredFieldCount) ??
+          `${result.data.preview.ignoredFieldCount} template fields were ignored.`,
+        templateMessages?.ignoredFieldsTitle ?? "Template parsed with warnings",
+      );
+    }
+
+    return result.data;
+  }
+
   return {
     events,
     todayEvents,
@@ -183,6 +226,12 @@ export function useDashboardEvents(
       runEventManagementAction(
         () => deleteEvent(eventId),
         actionFailedTitle("delete", "event"),
+      ),
+    parseEventTemplateFromPage,
+    applyEventTemplateFromPage: (eventId: string | null, source: string) =>
+      runEventManagementAction(
+        () => applyEventTemplate(eventId, source),
+        actionFailedTitle(eventId ? "update" : "save", "event"),
       ),
   };
 }

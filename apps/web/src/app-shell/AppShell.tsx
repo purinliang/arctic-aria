@@ -19,8 +19,6 @@ import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { AppMessages } from "@/messages/app-messages";
 import type { LanguagePreference } from "@/messages/languages";
-import { refreshAfterDeveloperImport } from "@/features/developer/import-refresh";
-import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
 import type {
   TimeFormatPreference,
   UserPreferences,
@@ -67,6 +65,7 @@ export function AppShell({
   onLogout,
   onNotificationDismiss,
   showErrorNotification,
+  showInfoNotification,
   showSuccessNotification,
 }: {
   currentUser: AuthUser;
@@ -86,6 +85,7 @@ export function AppShell({
   onLogout: () => void;
   onNotificationDismiss: (notificationId: number) => void;
   showErrorNotification: (message: string, title?: string) => void;
+  showInfoNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
 }) {
   const initialPathname = usePathname();
@@ -108,22 +108,28 @@ export function AppShell({
   const projectState = useDashboardProjects(
     currentUser.id,
     showErrorNotification,
+    showInfoNotification,
     messages.dashboard.notifications,
     messages.projects.results,
+    messages.projects.editor.template,
     messages.notifications,
   );
   const routineState = useDashboardRoutines(
     currentUser.id,
     showErrorNotification,
+    showInfoNotification,
     messages.dashboard.notifications,
     messages.routines.results,
+    messages.routines.editor.template,
     messages.notifications,
   );
   const eventState = useDashboardEvents(
     currentUser.id,
     showErrorNotification,
+    showInfoNotification,
     messages.dashboard.notifications,
     messages.events.results,
+    messages.events.editor.template,
     messages.notifications,
   );
   const memoryState = useDashboardMemories(
@@ -240,13 +246,6 @@ export function AppShell({
     });
   }
 
-  function handleDeveloperImportComplete(target: DeveloperImportTarget) {
-    void refreshAfterDeveloperImport(target, {
-      refreshProjectData,
-      refreshRoutineData,
-    });
-  }
-
   function handleViewChange(view: DashboardView) {
     if (view === "projects") {
       showProjectsList();
@@ -360,6 +359,8 @@ export function AppShell({
               pendingProjectPinIds={projectState.pendingProjectPinIds}
               onProjectSave={projectState.saveProjectFromPage}
               onProjectDelete={projectState.archiveProjectFromPage}
+              onProjectTemplateParse={projectState.parseProjectTreeTemplateFromPage}
+              onProjectTemplateApply={projectState.applyProjectTreeTemplateFromPage}
               onProjectPin={projectState.pinProjectFromPage}
               onProjectUnpin={projectState.unpinProjectFromPage}
               onMilestoneSave={projectState.saveMilestoneFromPage}
@@ -378,6 +379,8 @@ export function AppShell({
               onMilestoneSelect={showProjectMilestoneDetail}
               messages={messages.projects}
               formMessages={messages.forms}
+              showErrorNotification={showErrorNotification}
+              showSuccessNotification={showSuccessNotification}
             />
           ) : activeView === "routines" ? (
             <RoutinesPage
@@ -388,6 +391,8 @@ export function AppShell({
               pending={routineState.routineActionPending}
               onRoutineSave={routineState.saveRoutineFromPage}
               onRoutineDelete={routineState.deleteRoutineFromPage}
+              onRoutineTemplateParse={routineState.parseRoutineTemplateFromPage}
+              onRoutineTemplateApply={routineState.applyRoutineTemplateFromPage}
               onRoutineGroupSave={routineState.saveRoutineGroupFromPage}
               onRoutineGroupDelete={routineState.deleteRoutineGroupFromPage}
               messages={messages.routines}
@@ -395,6 +400,8 @@ export function AppShell({
               timeFormatPreference={timeFormatPreference}
               multipleTimezonesEnabled={false}
               resolvedTimeZone={resolvedTimeZone}
+              showErrorNotification={showErrorNotification}
+              showSuccessNotification={showSuccessNotification}
             />
           ) : activeView === "events" ? (
             <EventsPage
@@ -404,10 +411,14 @@ export function AppShell({
               pending={eventState.eventActionPending}
               onEventSave={eventState.saveEventFromPage}
               onEventDelete={eventState.deleteEventFromPage}
+              onEventTemplateParse={eventState.parseEventTemplateFromPage}
+              onEventTemplateApply={eventState.applyEventTemplateFromPage}
               messages={messages.events}
               formMessages={messages.forms}
               timeFormatPreference={timeFormatPreference}
               resolvedTimeZone={resolvedTimeZone}
+              showErrorNotification={showErrorNotification}
+              showSuccessNotification={showSuccessNotification}
             />
           ) : activeView === "ideas" ? (
             <IdeasPage
@@ -458,7 +469,6 @@ export function AppShell({
               themePreference={themePreference}
               versionMessages={messages.versionStatus}
               versionStatus={versionStatus}
-              onDeveloperImportComplete={handleDeveloperImportComplete}
               onLanguagePreferenceChange={onLanguagePreferenceChange}
               onPreferenceOpenAttempt={onPreferenceOpenAttempt}
               onThemePreferenceChange={onThemePreferenceChange}

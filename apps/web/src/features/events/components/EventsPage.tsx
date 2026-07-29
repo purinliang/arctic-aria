@@ -6,11 +6,15 @@ import { CardHeader } from "@/components/card";
 import { ConfirmDialog } from "@/components/dialog";
 import { Panel } from "@/components/panel";
 import type { ScheduledEvent } from "@/features/dashboard/types";
-import type { EventInput } from "@/features/events/actions";
+import type {
+  EventInput,
+  EventTemplateParseData,
+} from "@/features/events/actions";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { EventMessages, FormMessages } from "@/messages/app-messages";
 import { EventEditorDialog } from "./EventEditorDialog";
 import { EventFiltersPanel } from "./EventFiltersPanel";
+import { EventTemplateEditorDialog } from "./EventTemplateEditorDialog";
 import { EventsList } from "./EventsList";
 import {
   emptyEventDraft,
@@ -26,6 +30,15 @@ type ConfirmationTarget = {
   title: string;
 };
 type DialogAction = "save" | "delete" | null;
+type EventTemplateTarget =
+  | {
+      mode: "create";
+      draft: EventInput;
+    }
+  | {
+      mode: "update";
+      eventId: string;
+    };
 
 export function EventsPage({
   darkMode,
@@ -38,6 +51,10 @@ export function EventsPage({
   resolvedTimeZone,
   onEventSave,
   onEventDelete,
+  onEventTemplateParse,
+  onEventTemplateApply,
+  showErrorNotification,
+  showSuccessNotification,
 }: {
   darkMode: boolean;
   events: ScheduledEvent[];
@@ -49,6 +66,13 @@ export function EventsPage({
   resolvedTimeZone: string;
   onEventSave: (input: EventInput) => EventResult;
   onEventDelete: (eventId: string) => EventResult;
+  onEventTemplateParse: (
+    eventId: string | null,
+    source: string,
+  ) => Promise<EventTemplateParseData | null>;
+  onEventTemplateApply: (eventId: string | null, source: string) => EventResult;
+  showErrorNotification: (message: string, title?: string) => void;
+  showSuccessNotification: (message: string, title?: string) => void;
 }) {
   const [editorOpen, setEditorOpen] = useState(false);
   const [draft, setDraft] = useState<EventInput>(() =>
@@ -56,9 +80,10 @@ export function EventsPage({
   );
   const [confirmationTarget, setConfirmationTarget] =
     useState<ConfirmationTarget | null>(null);
+  const [templateTarget, setTemplateTarget] =
+    useState<EventTemplateTarget | null>(null);
   const [dialogAction, setDialogAction] = useState<DialogAction>(null);
-  const [eventFilter, setEventFilter] =
-    useState<EventTimeFilter>("upcoming");
+  const [eventFilter, setEventFilter] = useState<EventTimeFilter>("all");
   const groupedEvents = useMemo(
     () =>
       splitEventsByCurrentTime({
@@ -71,11 +96,22 @@ export function EventsPage({
     () => filterEventGroups(groupedEvents, eventFilter),
     [eventFilter, groupedEvents],
   );
+  const templateEvent =
+    templateTarget?.mode === "update"
+      ? events.find((event) => event.id === templateTarget.eventId) ?? null
+      : null;
 
   function closeEditor() {
     if (!pending && dialogAction === null) {
       setEditorOpen(false);
+      setTemplateTarget(null);
       setDraft(emptyEventDraft(resolvedTimeZone));
+    }
+  }
+
+  function closeEventTemplate() {
+    if (!pending && dialogAction === null) {
+      setTemplateTarget(null);
     }
   }
 
@@ -122,6 +158,29 @@ export function EventsPage({
     } finally {
       setDialogAction(null);
     }
+  }
+
+  function openDeleteConfirmation() {
+    if (!draft.id) {
+      return;
+    }
+
+    setConfirmationTarget({
+      id: draft.id,
+      title: draft.title || messages.confirm.fallback,
+    });
+  }
+
+  async function applyEventTemplate(eventId: string | null, source: string) {
+    const applied = await onEventTemplateApply(eventId, source);
+
+    if (applied) {
+      setTemplateTarget(null);
+      setEditorOpen(false);
+      setDraft(emptyEventDraft(resolvedTimeZone));
+    }
+
+    return applied;
   }
 
   return (
@@ -175,14 +234,35 @@ export function EventsPage({
           timeFormatPreference={timeFormatPreference}
           onClose={closeEditor}
           onSubmit={() => void submitEvent()}
-          onDelete={() =>
-            draft.id
-              ? setConfirmationTarget({
-                  id: draft.id,
-                  title: draft.title || messages.confirm.fallback,
-                })
-              : undefined
+          onDelete={draft.id ? openDeleteConfirmation : undefined}
+          onTemplate={() =>
+            setTemplateTarget(
+              draft.id
+                ? { mode: "update", eventId: draft.id }
+                : { mode: "create", draft },
+            )
           }
+        />
+      ) : null}
+
+      {templateTarget && (templateTarget.mode === "create" || templateEvent) ? (
+        <EventTemplateEditorDialog
+          key={
+            templateTarget.mode === "update"
+              ? templateTarget.eventId
+              : "create"
+          }
+          darkMode={darkMode}
+          pending={pending}
+          mode={templateTarget.mode}
+          event={templateTarget.mode === "update" ? templateEvent : null}
+          draft={templateTarget.mode === "create" ? templateTarget.draft : null}
+          messages={messages.editor.template}
+          showErrorNotification={showErrorNotification}
+          showSuccessNotification={showSuccessNotification}
+          onClose={closeEventTemplate}
+          onParse={onEventTemplateParse}
+          onApply={applyEventTemplate}
         />
       ) : null}
 

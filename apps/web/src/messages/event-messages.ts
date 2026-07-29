@@ -30,6 +30,42 @@ export const englishEventMessages = {
     save: "Save",
     saving: "Saving",
     delete: "Delete",
+    template: {
+      menuLabel: "Template",
+      menuAriaLabel: "Event editor actions",
+      title: "Event Template",
+      close: "Close event template",
+      editTab: "Template",
+      previewTab: "Preview",
+      copyTemplate: "Copy",
+      copied: "Template copied.",
+      copyFailed: "Template could not be copied.",
+      inputPlaceholder: "Paste the filled event template here.",
+      parse: "Preview",
+      parsing: "Previewing...",
+      apply: "Save",
+      applying: "Saving...",
+      previewEmpty: "Parse the template to preview changes.",
+      previewCounts: (
+        create: number,
+        update: number,
+        deleteCount: number,
+        preserve: number,
+      ) =>
+        `${create} create · ${update} update · ${deleteCount} delete · ${preserve} preserve`,
+      ignoredFieldsTitle: "Template parsed with warnings",
+      ignoredFields: (count: number) =>
+        count === 1
+          ? "1 unsupported template field was ignored."
+          : `${count} unsupported template fields were ignored.`,
+      subject: "Event",
+      operationBadges: {
+        create: "Create",
+        update: "Update",
+        delete: "Delete",
+        preserve: "Preserve",
+      },
+    },
   },
   metadata: {
     durationHours: (hours: number) =>
@@ -66,6 +102,10 @@ export const englishEventMessages = {
       "Estimated duration must be a positive number up to 24 hours.",
     event_location_invalid: "Event location must be 500 characters or fewer.",
     event_not_found: "Event was not found.",
+    event_template_invalid: "Event template is invalid.",
+    event_template_missing: "Paste an event template first.",
+    event_template_target_mismatch:
+      "Template event does not match this event.",
   },
 };
 
@@ -103,6 +143,34 @@ export const simplifiedChineseEventMessages: EventMessages = {
     save: "保存",
     saving: "正在保存",
     delete: "删除",
+    template: {
+      menuLabel: "模板",
+      menuAriaLabel: "事件编辑操作",
+      title: "事件模板",
+      close: "关闭事件模板",
+      editTab: "模板",
+      previewTab: "预览",
+      copyTemplate: "复制",
+      copied: "模板已复制。",
+      copyFailed: "模板无法复制。",
+      inputPlaceholder: "在这里粘贴填写后的事件模板。",
+      parse: "预览",
+      parsing: "正在预览...",
+      apply: "保存",
+      applying: "正在保存...",
+      previewEmpty: "先解析模板以预览更改。",
+      previewCounts: (create, update, deleteCount, preserve) =>
+        `${create} 个创建 · ${update} 个更新 · ${deleteCount} 个删除 · ${preserve} 个保留`,
+      ignoredFieldsTitle: "模板解析有提醒",
+      ignoredFields: (count) => `${count} 个不支持的模板字段已被忽略。`,
+      subject: "事件",
+      operationBadges: {
+        create: "创建",
+        update: "更新",
+        delete: "删除",
+        preserve: "保留",
+      },
+    },
   },
   metadata: {
     durationHours: (hours) => `${hours} 小时`,
@@ -134,5 +202,8 @@ export const simplifiedChineseEventMessages: EventMessages = {
     event_estimated_duration_invalid: "预计用时必须为大于 0 且不超过 24 的小时数。",
     event_location_invalid: "事件地点必须不超过 500 个字符。",
     event_not_found: "没有找到事件。",
+    event_template_invalid: "事件模板无效。",
+    event_template_missing: "请先粘贴事件模板。",
+    event_template_target_mismatch: "模板中的事件与当前事件不一致。",
   },
 };

@@ -71,6 +71,42 @@ export const englishRoutineMessages = {
     save: "Save",
     saving: "Saving",
     delete: "Delete",
+    template: {
+      menuLabel: "Template",
+      menuAriaLabel: "Routine editor actions",
+      title: "Routine Template",
+      close: "Close routine template",
+      editTab: "Template",
+      previewTab: "Preview",
+      copyTemplate: "Copy",
+      copied: "Template copied.",
+      copyFailed: "Template could not be copied.",
+      inputPlaceholder: "Paste the filled routine template here.",
+      parse: "Preview",
+      parsing: "Previewing...",
+      apply: "Save",
+      applying: "Saving...",
+      previewEmpty: "Parse the template to preview changes.",
+      previewCounts: (
+        create: number,
+        update: number,
+        deleteCount: number,
+        preserve: number,
+      ) =>
+        `${create} create · ${update} update · ${deleteCount} delete · ${preserve} preserve`,
+      ignoredFieldsTitle: "Template parsed with warnings",
+      ignoredFields: (count: number) =>
+        count === 1
+          ? "1 unsupported template field was ignored."
+          : `${count} unsupported template fields were ignored.`,
+      subject: "Routine",
+      operationBadges: {
+        create: "Create",
+        update: "Update",
+        delete: "Delete",
+        preserve: "Preserve",
+      },
+    },
   },
   recurrenceOptions: {
     once: "Once",
@@ -163,6 +199,10 @@ export const englishRoutineMessages = {
     routine_group_invalid: "Choose a valid routine group.",
     routine_group_name_invalid: "Routine group name must be 1-80 characters.",
     routine_group_not_found: "Routine group was not found.",
+    routine_template_invalid: "Routine template is invalid.",
+    routine_template_missing: "Paste a routine template first.",
+    routine_template_target_mismatch:
+      "Template routine does not match this routine.",
   },
 };
 
@@ -237,6 +277,34 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     save: "保存",
     saving: "正在保存",
     delete: "删除",
+    template: {
+      menuLabel: "模板",
+      menuAriaLabel: "日常编辑操作",
+      title: "日常模板",
+      close: "关闭日常模板",
+      editTab: "模板",
+      previewTab: "预览",
+      copyTemplate: "复制",
+      copied: "模板已复制。",
+      copyFailed: "模板无法复制。",
+      inputPlaceholder: "在这里粘贴填写后的日常模板。",
+      parse: "预览",
+      parsing: "正在预览...",
+      apply: "保存",
+      applying: "正在保存...",
+      previewEmpty: "先解析模板以预览更改。",
+      previewCounts: (create, update, deleteCount, preserve) =>
+        `${create} 个创建 · ${update} 个更新 · ${deleteCount} 个删除 · ${preserve} 个保留`,
+      ignoredFieldsTitle: "模板解析有提醒",
+      ignoredFields: (count) => `${count} 个不支持的模板字段已被忽略。`,
+      subject: "日常",
+      operationBadges: {
+        create: "创建",
+        update: "更新",
+        delete: "删除",
+        preserve: "保留",
+      },
+    },
   },
   recurrenceOptions: {
     once: "一次",
@@ -323,5 +391,8 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     routine_group_invalid: "请选择有效的日常分组。",
     routine_group_name_invalid: "日常分组名称必须为 1-80 个字符。",
     routine_group_not_found: "没有找到日常分组。",
+    routine_template_invalid: "日常模板无效。",
+    routine_template_missing: "请先粘贴日常模板。",
+    routine_template_target_mismatch: "模板中的日常与当前日常不一致。",
   },
 };

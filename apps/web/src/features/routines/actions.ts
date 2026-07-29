@@ -5,14 +5,9 @@ import type {
   Routine,
   RoutineDefinition,
   RoutineGroupOption,
-  RoutineStatus,
 } from "@/features/dashboard/types";
 import { routineService } from "./server/routine-service";
-import type {
-  RoutineInstanceRecord,
-  RoutineGroupRecord,
-  RoutineRecord,
-} from "./server/routine-repository";
+import { loadRoutineDashboardData } from "./routine-dashboard-data";
 import {
   validateRoutineGroupInput,
   validateRoutineInput,
@@ -21,12 +16,18 @@ import type {
   RoutineGroupInput,
   RoutineInput,
 } from "./routine-action-helpers";
+import {
+  applyRoutineTemplateCommands,
+  prepareRoutineTemplateForUser,
+} from "./routine-template-actions";
+import type { RoutineTemplateParseData } from "./routine-template-types";
 import type { ActionFailureResult } from "../../messages/action-result.ts";
 
 export type {
   RoutineGroupInput,
   RoutineInput,
 } from "./routine-action-helpers";
+export type { RoutineTemplateParseData } from "./routine-template-types";
 
 export type RoutineDashboardData = {
   routines: Routine[];
@@ -79,62 +80,6 @@ function isDatabaseUniqueViolation(error: unknown) {
     "code" in error &&
     error.code === "23505"
   );
-}
-
-function toRoutineInstance(instance: RoutineInstanceRecord): Routine {
-  return {
-    id: instance.id,
-    routineId: instance.routineId,
-    title: instance.title,
-    description: instance.description,
-    scheduledTime: instance.scheduledTime ?? "Flexible",
-    status: instance.status,
-    reminderState: "idle",
-    streakText: instance.status === "pending" ? "Due today" : "Answered today",
-  };
-}
-
-function toRoutineDefinition(routine: RoutineRecord): RoutineDefinition {
-  return {
-    id: routine.id,
-    groupId: routine.groupId,
-    groupName: routine.groupName,
-    title: routine.title,
-    description: routine.description,
-    startDate: routine.startDate,
-    endDate: routine.endDate,
-    estimatedDurationMinutes: routine.estimatedDurationMinutes,
-    ruleType: routine.rule.ruleType,
-    intervalValue: routine.rule.intervalValue,
-    weekdays: routine.rule.weekdays,
-    dayOfMonth: routine.rule.dayOfMonth,
-    preferredTime: routine.rule.preferredTime,
-    timezone: routine.rule.timezone,
-  };
-}
-
-function toRoutineGroupOption(group: RoutineGroupRecord): RoutineGroupOption {
-  return {
-    id: group.id,
-    name: group.name,
-    description: group.description,
-  };
-}
-
-export async function loadRoutineDashboardData(
-  userId: string,
-): Promise<RoutineDashboardData> {
-  const [routineDefinitions, routines, routineGroups] = await Promise.all([
-    routineService.listRoutineDefinitions(userId),
-    routineService.listTodayRoutineInstances(userId),
-    routineService.listRoutineGroups(userId),
-  ]);
-
-  return {
-    routines: routines.map(toRoutineInstance),
-    routineDefinitions: routineDefinitions.map(toRoutineDefinition),
-    routineGroups: routineGroups.map(toRoutineGroupOption),
-  };
 }
 
 export async function getRoutineDashboardData(): Promise<
@@ -207,6 +152,74 @@ export async function saveRoutine(
         category: "not_found",
         subject: "routine",
       };
+    }
+
+    return {
+      ok: true,
+      data: await loadRoutineDashboardData(user.id),
+    };
+  } catch {
+    return databaseResult();
+  }
+}
+
+export async function parseRoutineTemplate(
+  routineId: string | null,
+  source: string,
+): Promise<RoutineActionResult<RoutineTemplateParseData>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  try {
+    const prepared = await prepareRoutineTemplateForUser(
+      user.id,
+      routineId,
+      source,
+    );
+
+    if (!prepared.ok) {
+      return prepared;
+    }
+
+    return {
+      ok: true,
+      data: {
+        preview: prepared.data.preview,
+      },
+    };
+  } catch {
+    return databaseResult();
+  }
+}
+
+export async function applyRoutineTemplate(
+  routineId: string | null,
+  source: string,
+): Promise<RoutineActionResult<RoutineDashboardData>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  try {
+    const prepared = await prepareRoutineTemplateForUser(
+      user.id,
+      routineId,
+      source,
+    );
+
+    if (!prepared.ok) {
+      return prepared;
+    }
+
+    const applied = await applyRoutineTemplateCommands(user.id, prepared.data);
+
+    if (!applied.ok) {
+      return applied;
     }
 
     return {
@@ -323,61 +336,6 @@ export async function deleteRoutine(
         ok: false,
         message: "Routine was not found.",
         code: "routine_not_found",
-        category: "not_found",
-        subject: "routine",
-      };
-    }
-
-    return {
-      ok: true,
-      data: await loadRoutineDashboardData(user.id),
-    };
-  } catch {
-    return databaseResult();
-  }
-}
-
-export async function completeRoutineInstance(
-  instanceId: string,
-): Promise<RoutineActionResult<RoutineDashboardData>> {
-  return updateRoutineInstance(instanceId, "completed");
-}
-
-export async function skipRoutineInstance(
-  instanceId: string,
-): Promise<RoutineActionResult<RoutineDashboardData>> {
-  return updateRoutineInstance(instanceId, "skipped");
-}
-
-export async function reopenRoutineInstance(
-  instanceId: string,
-): Promise<RoutineActionResult<RoutineDashboardData>> {
-  return updateRoutineInstance(instanceId, "pending");
-}
-
-async function updateRoutineInstance(
-  instanceId: string,
-  status: RoutineStatus,
-): Promise<RoutineActionResult<RoutineDashboardData>> {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    return unauthorizedResult();
-  }
-
-  try {
-    const instance =
-      status === "completed"
-        ? await routineService.completeRoutineInstance(user.id, instanceId)
-        : status === "skipped"
-          ? await routineService.skipRoutineInstance(user.id, instanceId)
-          : await routineService.reopenRoutineInstance(user.id, instanceId);
-
-    if (!instance) {
-      return {
-        ok: false,
-        message: "Routine instance was not found.",
-        code: "routine_instance_not_found",
         category: "not_found",
         subject: "routine",
       };

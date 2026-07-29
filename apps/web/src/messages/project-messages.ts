@@ -107,6 +107,54 @@ export const englishProjectMessages = {
       titlePlaceholder: "Project title",
       objective: "Objective",
     },
+    template: {
+      menuLabel: "Template",
+      menuAriaLabel: "Project editor actions",
+      title: "Project Template",
+      close: "Close project template",
+      editTab: "Template",
+      previewTab: "Preview",
+      copyTemplate: "Copy",
+      copied: "Template copied.",
+      copyFailed: "Template could not be copied.",
+      inputLabel: "Filled template",
+      inputPlaceholder: "Paste the filled project template here.",
+      parse: "Preview",
+      parsing: "Previewing...",
+      apply: "Save",
+      applying: "Saving...",
+      previewTitle: "Preview",
+      previewEmpty: "Parse the template to preview changes.",
+      previewCounts: (
+        create: number,
+        update: number,
+        deleteCount: number,
+        preserve: number,
+      ) =>
+        `${create} create · ${update} update · ${deleteCount} delete · ${preserve} preserve`,
+      ignoredFieldsTitle: "Template parsed with warnings",
+      ignoredFields: (count: number) =>
+        count === 1
+          ? "1 unsupported template field was ignored."
+          : `${count} unsupported template fields were ignored.`,
+      previewItem: (
+        operation: string,
+        subject: string,
+        title: string,
+        location: string | null,
+      ) => `${operation} ${subject}: ${title}${location ? ` · ${location}` : ""}`,
+      operationBadges: {
+        create: "Create",
+        update: "Update",
+        delete: "Delete",
+        preserve: "Preserve",
+      },
+      subjects: {
+        project: "Project",
+        milestone: "Milestone",
+        task: "Task",
+      },
+    },
     milestone: {
       add: "Add milestone",
       edit: "Edit milestone",
@@ -163,6 +211,12 @@ export const englishProjectMessages = {
     task_not_found: "Task was not found.",
     project_pin_limit: "You can pin up to 3 projects.",
     project_sidebar_pin_conflict: "Pinned projects changed. Refresh and try again.",
+    project_template_apply_failed: "Project template could not be saved.",
+    project_template_create_failed: "Project template could not be saved.",
+    project_template_invalid: "Project template is invalid.",
+    project_template_missing: "Paste a project template first.",
+    project_template_project_mismatch:
+      "Template project does not match this project.",
   },
 };
 
@@ -275,6 +329,42 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
       titlePlaceholder: "项目标题",
       objective: "目标",
     },
+    template: {
+      menuLabel: "模板",
+      menuAriaLabel: "项目编辑操作",
+      title: "项目模板",
+      close: "关闭项目模板",
+      editTab: "模板",
+      previewTab: "预览",
+      copyTemplate: "复制",
+      copied: "模板已复制。",
+      copyFailed: "模板无法复制。",
+      inputLabel: "填写后的模板",
+      inputPlaceholder: "在这里粘贴填写后的项目模板。",
+      parse: "预览",
+      parsing: "正在预览...",
+      apply: "保存",
+      applying: "正在保存...",
+      previewTitle: "预览",
+      previewEmpty: "先解析模板以预览更改。",
+      previewCounts: (create, update, deleteCount, preserve) =>
+        `${create} 个创建 · ${update} 个更新 · ${deleteCount} 个删除 · ${preserve} 个保留`,
+      ignoredFieldsTitle: "模板解析有提醒",
+      ignoredFields: (count) => `${count} 个不支持的模板字段已被忽略。`,
+      previewItem: (operation, subject, title, location) =>
+        `${operation}${subject}：${title}${location ? ` · ${location}` : ""}`,
+      operationBadges: {
+        create: "创建",
+        update: "更新",
+        delete: "删除",
+        preserve: "保留",
+      },
+      subjects: {
+        project: "项目",
+        milestone: "里程碑",
+        task: "任务",
+      },
+    },
     milestone: {
       add: "添加里程碑",
       edit: "编辑里程碑",
@@ -329,5 +419,10 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
     task_not_found: "没有找到任务。",
     project_pin_limit: "最多只能置顶 3 个项目。",
     project_sidebar_pin_conflict: "置顶项目已变化。请刷新后重试。",
+    project_template_apply_failed: "项目模板无法保存。",
+    project_template_create_failed: "项目模板无法保存。",
+    project_template_invalid: "项目模板无效。",
+    project_template_missing: "请先粘贴项目模板。",
+    project_template_project_mismatch: "模板中的项目与当前项目不一致。",
   },
 };

@@ -15,16 +15,21 @@ export function DialogOverlay({
   children: ReactNode;
 }) {
   return (
-    <ScrollArea
-      className={cx(
-        "fixed inset-0 bg-black/65",
-        zIndex,
-      )}
-      viewportClassName="h-full px-4 py-8 sm:py-10"
-      contentClassName="grid min-h-full place-items-center"
-    >
-      {children}
-    </ScrollArea>
+    <div className={cx("aa-dialog-overlay fixed inset-0 cursor-default", zIndex)}>
+      <div
+        className="aa-dialog-backdrop absolute inset-0 bg-black/65"
+        aria-hidden="true"
+      />
+      <ScrollArea
+        className="aa-dialog-scroll-layer absolute inset-0 z-10 min-h-0 cursor-default overflow-hidden"
+        viewportClassName="h-full cursor-default px-4 py-8 sm:py-10"
+        contentClassName="grid min-h-full cursor-default place-items-center"
+      >
+        <div className="aa-dialog-content cursor-default">
+          {children}
+        </div>
+      </ScrollArea>
+    </div>
   );
 }
 
@@ -36,14 +41,18 @@ export function DialogFrame({
   children,
 }: {
   darkMode: boolean;
-  size?: "md" | "sm";
+  size?: "lg" | "md" | "sm";
   padding?: "md" | "none";
   className?: string;
   children: ReactNode;
 }) {
   return (
     <section
-      className={cx(dialogFrameClass(darkMode, size, padding), className)}
+      className={cx(
+        "aa-dialog-frame cursor-default",
+        dialogFrameClass(darkMode, size, padding),
+        className,
+      )}
       style={{
         backgroundColor: "var(--aa-panel-bg)",
       }}
@@ -55,7 +64,7 @@ export function DialogFrame({
 
 export function dialogFrameClass(
   darkMode: boolean,
-  size: "md" | "sm" = "md",
+  size: "lg" | "md" | "sm" = "md",
   padding: "md" | "none" = "md",
 ) {
   return cx(
@@ -64,7 +73,9 @@ export function dialogFrameClass(
     padding === "md" ? "p-4" : "",
     size === "sm"
       ? "w-[min(calc(100vw-2rem),28rem)]"
-      : "w-[min(calc(100vw-2rem),46rem)]",
+      : size === "lg"
+        ? "w-[min(calc(100vw-2rem),64rem)]"
+        : "w-[min(calc(100vw-2rem),46rem)]",
     panelColorClass,
   );
 }
@@ -72,31 +83,46 @@ export function dialogFrameClass(
 export function DialogHeader({
   darkMode,
   title,
+  actions,
   closeLabel,
   onClose,
 }: {
   darkMode: boolean;
   title: string;
+  actions?: ReactNode;
   closeLabel: string;
   onClose: () => void;
 }) {
   return (
     <div className="mb-[var(--aa-form-section-gap)] flex items-center justify-between gap-3">
       <h3 className="text-lg font-semibold leading-7">{title}</h3>
-      <Button
-        darkMode={darkMode}
-        tone="ghost"
-        size="icon"
-        aria-label={closeLabel}
-        icon={<X size={16} aria-hidden="true" />}
-        onClick={onClose}
-      />
+      <div className="flex shrink-0 items-center gap-1">
+        {actions}
+        <Button
+          darkMode={darkMode}
+          tone="ghost"
+          size="icon"
+          aria-label={closeLabel}
+          icon={<X size={16} aria-hidden="true" />}
+          onClick={onClose}
+        />
+      </div>
     </div>
   );
 }
 
-export function DialogActionRow({ children }: { children: ReactNode }) {
-  return <FormActions grouped>{children}</FormActions>;
+export function DialogActionRow({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <FormActions grouped className={className}>
+      {children}
+    </FormActions>
+  );
 }
 
 export function DialogPrimaryButton({
@@ -122,6 +148,7 @@ export function CrudEditorDialog({
   saveText,
   savingText,
   deleteText,
+  headerActions,
   zIndex,
   children,
   onClose,
@@ -137,6 +164,7 @@ export function CrudEditorDialog({
   saveText: string;
   savingText: string;
   deleteText?: string;
+  headerActions?: ReactNode;
   zIndex?: "z-50" | "z-[60]";
   children: ReactNode;
   onClose: () => void;
@@ -158,6 +186,7 @@ export function CrudEditorDialog({
           <DialogHeader
             darkMode={darkMode}
             title={title}
+            actions={headerActions}
             closeLabel={closeLabel}
             onClose={onClose}
           />

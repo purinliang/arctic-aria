@@ -407,8 +407,10 @@ Task actions:
 
 Delete behavior:
 
-- project, milestone, and task edit dialogs should show a `Delete` action below
-  the full-width `Save` button
+- milestone and task edit dialogs should show a `Delete` action below the
+  full-width `Save` button
+- existing project edit dialogs should show `Delete` in the header ellipsis
+  action menu beside `Template`, leaving `Save` as the only footer action
 - clicking `Delete` opens a confirmation dialog before changing data
 - the confirm button uses standard primary button styling and is labeled
   `Delete`

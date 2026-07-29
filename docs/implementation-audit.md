@@ -87,26 +87,6 @@ from the current data model and UI expectations.
 
 ## Possible Risks
 
-### Developer Import Refresh Depends On Client Cache Invalidation
-
-Evidence:
-
-- `apps/web/src/features/developer/components/DeveloperImportToolPanel.tsx`
-- `apps/web/src/features/projects/server/project-import-service.ts`
-- `apps/web/src/features/routines/server/routine-import-service.ts`
-
-Developer imports create projects, milestones, tasks, routines, and routine
-instances through protected APIs. The web client is responsible for refreshing
-visible workspace data after a successful import. If a future import path is
-added outside the current Settings panel, it must explicitly refresh or expire
-the affected browser cache keys.
-
-User-visible consequence: imported data can appear missing until refresh if a
-new import surface forgets cache invalidation.
-
-Safer future behavior: centralize post-import cache refresh rules or return
-enough mutation metadata for the app shell to invalidate affected feature data.
-
 ### Today Selection And Reminder Rules Depend On Stored Resolved Timezone
 
 Evidence:

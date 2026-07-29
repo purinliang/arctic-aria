@@ -8,19 +8,24 @@ import {
   runNotifiedServerAction,
 } from "@/app-shell/action-notifications";
 import {
-  completeRoutineInstance,
+  applyRoutineTemplate,
   deleteRoutineGroup,
   deleteRoutine,
   getRoutineDashboardData,
-  reopenRoutineInstance,
+  parseRoutineTemplate,
   saveRoutineGroup,
   saveRoutine,
-  skipRoutineInstance,
   type RoutineActionResult,
   type RoutineDashboardData,
   type RoutineGroupInput,
   type RoutineInput,
+  type RoutineTemplateParseData,
 } from "@/features/routines/actions";
+import {
+  completeRoutineInstance,
+  reopenRoutineInstance,
+  skipRoutineInstance,
+} from "@/features/routines/routine-instance-actions";
 import type {
   DashboardMessages,
   NotificationMessages,
@@ -44,8 +49,10 @@ type RoutineDataAction = () => Promise<
 export function useDashboardRoutines(
   userId: string,
   showErrorNotification: (message: string, title?: string) => void,
+  showInfoNotification?: (message: string, title?: string) => void,
   messages?: DashboardMessages["notifications"],
   resultMessages?: RoutineMessages["results"],
+  templateMessages?: RoutineMessages["editor"]["template"],
   notificationMessages?: NotificationMessages,
 ) {
   const [routines, setRoutines] = useState<Routine[]>([]);
@@ -252,6 +259,47 @@ export function useDashboardRoutines(
     }
   }
 
+  async function parseRoutineTemplateFromPage(
+    routineId: string | null,
+    source: string,
+  ): Promise<RoutineTemplateParseData | null> {
+    const actionResult = await runNotifiedServerAction({
+      action: () => parseRoutineTemplate(routineId, source),
+      messages: notificationMessages,
+      showErrorNotification,
+    });
+
+    if (!actionResult.ok) {
+      return null;
+    }
+
+    const result = actionResult.value;
+
+    if (!result.ok) {
+      notifyActionFailure({
+        result,
+        resultMessages,
+        fallbackTitle: actionFailedTitle(
+          routineId ? "update" : "save",
+          "routine",
+        ),
+        notificationMessages,
+        showErrorNotification,
+      });
+      return null;
+    }
+
+    if (result.data.preview.ignoredFieldCount > 0) {
+      showInfoNotification?.(
+        templateMessages?.ignoredFields(result.data.preview.ignoredFieldCount) ??
+          `${result.data.preview.ignoredFieldCount} template fields were ignored.`,
+        templateMessages?.ignoredFieldsTitle ?? "Template parsed with warnings",
+      );
+    }
+
+    return result.data;
+  }
+
   function updateRoutine(routineId: string, status: RoutineStatus) {
     let previousRoutines = routines;
     const requestVersion =
@@ -306,6 +354,12 @@ export function useDashboardRoutines(
       runRoutineManagementAction(
         () => deleteRoutine(routineId),
         actionFailedTitle("delete", "routine"),
+      ),
+    parseRoutineTemplateFromPage,
+    applyRoutineTemplateFromPage: (routineId: string | null, source: string) =>
+      runRoutineManagementAction(
+        () => applyRoutineTemplate(routineId, source),
+        actionFailedTitle(routineId ? "update" : "save", "routine"),
       ),
     saveRoutineGroupFromPage: (input: RoutineGroupInput) =>
       runRoutineManagementAction(

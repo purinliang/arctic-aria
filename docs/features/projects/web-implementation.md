@@ -145,12 +145,21 @@ ProjectsPage
   ProjectsList, when no project is selected for detail view
   ProjectDetailPage, when a project is selected for detail view
   ProjectEditorDialog, when adding or editing a project
+  ProjectTemplateEditorDialog, when editing a project tree from a template
   MilestoneEditorDialog, when adding or editing a milestone
   ProjectTaskEditorDialog, when adding or editing a task
 ```
 
 The project list and project detail are separate user-visible pages. Do not use
 a permanent side-by-side list/detail grid for this flow.
+
+`ProjectTemplateEditorDialog` delegates the shared copy, parse, preview, save,
+height, tab, notification, and scrollbar behavior to `TemplateEditorDialog`.
+Project-specific preview rows use the shared list item component and render as
+`Project: title`, indented `Milestone: title`, and further-indented `Task:
+title`, with operation chips after the truncated title. Rows whose parsed
+editable fields match the existing stored row show a neutral `Preserve` chip
+instead of an update chip.
 
 ### Project List Layout
 
@@ -302,11 +311,40 @@ Dialog shell:
 - save icon: `Save`
 - save pending label: animated `Saving.`, `Saving..`, and `Saving...`; keep the
   full-width button stable and do not show a loading icon
-- existing project, milestone, and task edit dialogs also show a full-width
-  secondary `Delete` button below `Save`
+- existing milestone and task edit dialogs also show a full-width secondary
+  `Delete` button below `Save`
+- existing project edit dialogs move `Delete` into the header ellipsis action
+  menu beside `Template`; the footer stays focused on `Save`
 - `Delete` opens shared `ConfirmDialog`; confirmation uses the standard primary
   button style, changes to static `Deleting...` while pending, avoids animated
   dots in the compact auto-width button, and deletes only after backend success
+
+Project Template:
+
+- available from project add and edit dialogs
+- opened from the project editor header ellipsis menu as `Template`
+- uses a wide `DialogFrame`
+- copies a Markdown template that includes the LLM instructions
+- accepts pasted filled Markdown in a monospace textarea
+- uses Template and Preview tabs so input and preview are not displayed at the
+  same time
+- both Template and Preview tabs use fixed-height scrollable bodies
+- clicking the Preview tab parses the current template when needed, matching the
+  footer Preview action
+- the Template tab footer shows `Copy` and primary `Preview` side by side
+- `Preview` validates without writing and shows a human preview summary
+- create-mode parse does not allocate persistent ids
+- unsupported extra fields are ignored, counted, and reported without blocking
+  Save
+- no JSON preview is shown
+- preview rows use compact operation chips and indentation for nested rows; row
+  titles are single-line and truncate
+- `Save` appears only on the Preview tab and is enabled only after parsing the
+  current textarea content
+- successful save refreshes Projects data and closes both the template dialog
+  and the project editor
+- failed parse or save keeps the dialog open and reports through the shared
+  notification stack
 
 Project field order:
 

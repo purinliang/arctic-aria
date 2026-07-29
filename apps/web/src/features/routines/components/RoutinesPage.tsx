@@ -12,6 +12,7 @@ import type {
 import type {
   RoutineGroupInput,
   RoutineInput,
+  RoutineTemplateParseData,
 } from "@/features/routines/actions";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { FormMessages, RoutineMessages } from "@/messages/app-messages";
@@ -19,6 +20,7 @@ import { RoutineEditorDialog } from "./RoutineEditorDialog";
 import { RoutineGroupManagerDialog } from "./RoutineGroupManagerDialog";
 import { RoutineGroupsPanel } from "./RoutineGroupsPanel";
 import { RoutinesList } from "./RoutinesList";
+import { RoutineTemplateEditorDialog } from "./RoutineTemplateEditorDialog";
 import {
   emptyDraft,
   filterRoutinesByGroup,
@@ -35,6 +37,15 @@ type ConfirmationTarget = {
   title: string;
 };
 type DialogAction = "save" | "delete" | null;
+type RoutineTemplateTarget =
+  | {
+      mode: "create";
+      draft: RoutineInput;
+    }
+  | {
+      mode: "update";
+      routineId: string;
+    };
 const emptyGroupDraft: RoutineGroupInput = {
   name: "",
   description: "",
@@ -53,8 +64,12 @@ export function RoutinesPage({
   resolvedTimeZone,
   onRoutineSave,
   onRoutineDelete,
+  onRoutineTemplateParse,
+  onRoutineTemplateApply,
   onRoutineGroupSave,
   onRoutineGroupDelete,
+  showErrorNotification,
+  showSuccessNotification,
 }: {
   darkMode: boolean;
   routines: RoutineDefinition[];
@@ -68,8 +83,18 @@ export function RoutinesPage({
   resolvedTimeZone: string;
   onRoutineSave: (input: RoutineInput) => RoutineResult;
   onRoutineDelete: (routineId: string) => RoutineResult;
+  onRoutineTemplateParse: (
+    routineId: string | null,
+    source: string,
+  ) => Promise<RoutineTemplateParseData | null>;
+  onRoutineTemplateApply: (
+    routineId: string | null,
+    source: string,
+  ) => RoutineResult;
   onRoutineGroupSave: (input: RoutineGroupInput) => RoutineGroupResult;
   onRoutineGroupDelete: (groupId: string) => RoutineGroupResult;
+  showErrorNotification: (message: string, title?: string) => void;
+  showSuccessNotification: (message: string, title?: string) => void;
 }) {
   const sortedGroups = useMemo(
     () => sortRoutineGroups(routineGroups),
@@ -86,6 +111,8 @@ export function RoutinesPage({
     useState<RoutineGroupInput>(emptyGroupDraft);
   const [confirmationTarget, setConfirmationTarget] =
     useState<ConfirmationTarget | null>(null);
+  const [templateTarget, setTemplateTarget] =
+    useState<RoutineTemplateTarget | null>(null);
   const [dialogAction, setDialogAction] = useState<DialogAction>(null);
   const activeGroupFilter =
     groupFilter === "All" ||
@@ -94,6 +121,11 @@ export function RoutinesPage({
       ? groupFilter
       : "All";
   const visibleRoutines = filterRoutinesByGroup(routines, activeGroupFilter);
+  const templateRoutine =
+    templateTarget?.mode === "update"
+      ? routines.find((routine) => routine.id === templateTarget.routineId) ??
+        null
+      : null;
 
   function selectedGroupId() {
     return sortedGroups.some((group) => group.id === activeGroupFilter)
@@ -104,7 +136,14 @@ export function RoutinesPage({
   function closeEditor() {
     if (!pending && dialogAction === null) {
       setEditorOpen(false);
+      setTemplateTarget(null);
       setDraft(emptyDraft(resolvedTimeZone));
+    }
+  }
+
+  function closeRoutineTemplate() {
+    if (!pending && dialogAction === null) {
+      setTemplateTarget(null);
     }
   }
 
@@ -208,6 +247,30 @@ export function RoutinesPage({
     }
   }
 
+  function openRoutineDeleteConfirmation() {
+    if (!draft.id) {
+      return;
+    }
+
+    setConfirmationTarget({
+      type: "routine",
+      id: draft.id,
+      title: draft.title || messages.confirm.fallback,
+    });
+  }
+
+  async function applyRoutineTemplate(routineId: string | null, source: string) {
+    const applied = await onRoutineTemplateApply(routineId, source);
+
+    if (applied) {
+      setTemplateTarget(null);
+      setEditorOpen(false);
+      setDraft(emptyDraft(resolvedTimeZone));
+    }
+
+    return applied;
+  }
+
   return (
     <>
       <section className="aa-split-container">
@@ -264,15 +327,36 @@ export function RoutinesPage({
           resolvedTimeZone={resolvedTimeZone}
           onClose={closeEditor}
           onSubmit={() => void submitRoutine()}
-          onDelete={() =>
-            draft.id
-              ? setConfirmationTarget({
-                  type: "routine",
-                  id: draft.id,
-                  title: draft.title || messages.confirm.fallback,
-                })
-              : undefined
+          onDelete={draft.id ? openRoutineDeleteConfirmation : undefined}
+          onTemplate={() =>
+            setTemplateTarget(
+              draft.id
+                ? { mode: "update", routineId: draft.id }
+                : { mode: "create", draft },
+            )
           }
+        />
+      ) : null}
+
+      {templateTarget && (templateTarget.mode === "create" || templateRoutine) ? (
+        <RoutineTemplateEditorDialog
+          key={
+            templateTarget.mode === "update"
+              ? templateTarget.routineId
+              : "create"
+          }
+          darkMode={darkMode}
+          pending={pending}
+          mode={templateTarget.mode}
+          routine={templateTarget.mode === "update" ? templateRoutine : null}
+          draft={templateTarget.mode === "create" ? templateTarget.draft : null}
+          groups={sortedGroups}
+          messages={messages.editor.template}
+          showErrorNotification={showErrorNotification}
+          showSuccessNotification={showSuccessNotification}
+          onClose={closeRoutineTemplate}
+          onParse={onRoutineTemplateParse}
+          onApply={applyRoutineTemplate}
         />
       ) : null}
 

@@ -9,17 +9,10 @@ import {
   secondaryTextColorClass,
 } from "@/components/color";
 import { CardHeader } from "@/components/card";
-import {
-  List,
-  ListItem,
-  ListItemContent,
-  ListItemSupportingText,
-  ListItemTitle,
-} from "@/components/list";
+import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { SupportingText } from "@/components/text";
-import { DeveloperImportToolPanel } from "@/features/developer/components/DeveloperImportToolPanel";
-import type { DeveloperImportTarget } from "@/features/developer/import-template-prompts";
+import { SettingsControlRow } from "@/features/settings/components/SettingsControlRow";
 import type { SettingsMessages } from "@/messages/app-messages";
 import {
   latencyReportMarkdown,
@@ -39,13 +32,11 @@ const metricKeys: LatencyMetricKey[] = [
 export function DeveloperToolsPanel({
   darkMode,
   messages,
-  onDeveloperImportComplete,
   showErrorNotification,
   showSuccessNotification,
 }: {
   darkMode: boolean;
   messages: SettingsMessages;
-  onDeveloperImportComplete: (target: DeveloperImportTarget) => void;
   showErrorNotification: (message: string, title?: string) => void;
   showSuccessNotification: (message: string, title?: string) => void;
 }) {
@@ -93,29 +84,19 @@ export function DeveloperToolsPanel({
   }
 
   return (
-    <>
-      <Panel darkMode={darkMode} className="min-w-0">
-        <CardHeader
+    <Panel darkMode={darkMode} className="min-w-0">
+      <CardHeader
+        darkMode={darkMode}
+        icon={<Gauge size={18} aria-hidden="true" />}
+        title={messages.developerTools.latencyTitle}
+        description={messages.developerTools.latencyDescription}
+      />
+      <List darkMode={darkMode}>
+        <SettingsControlRow
           darkMode={darkMode}
-          icon={<Gauge size={18} aria-hidden="true" />}
-          title={messages.developerTools.latencyTitle}
-          description={messages.developerTools.latencyDescription}
-        />
-        <List darkMode={darkMode}>
-          <ListItem darkMode={darkMode} className="items-center">
-            <ListItemContent
-              className="self-center"
-              title={
-                <ListItemTitle>
-                  {messages.developerTools.latencyActionTitle}
-                </ListItemTitle>
-              }
-              support={
-                <ListItemSupportingText className="block">
-                  {messages.developerTools.latencyActionDescription}
-                </ListItemSupportingText>
-              }
-            />
+          title={messages.developerTools.latencyActionTitle}
+          support={messages.developerTools.latencyActionDescription}
+          control={
             <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
               <Button
                 darkMode={darkMode}
@@ -142,26 +123,19 @@ export function DeveloperToolsPanel({
                 </Button>
               ) : null}
             </div>
+          }
+        />
+        {report ? (
+          <ListItem darkMode={darkMode} layout="block">
+            <LatencyReportView
+              darkMode={darkMode}
+              messages={messages}
+              report={report}
+            />
           </ListItem>
-          {report ? (
-            <ListItem darkMode={darkMode} layout="block">
-              <LatencyReportView
-                darkMode={darkMode}
-                messages={messages}
-                report={report}
-              />
-            </ListItem>
-          ) : null}
-        </List>
-      </Panel>
-      <DeveloperImportToolPanel
-        darkMode={darkMode}
-        messages={messages}
-        onImportComplete={onDeveloperImportComplete}
-        showErrorNotification={showErrorNotification}
-        showSuccessNotification={showSuccessNotification}
-      />
-    </>
+        ) : null}
+      </List>
+    </Panel>
   );
 }
 

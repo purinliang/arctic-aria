@@ -14,6 +14,7 @@ The current web implementation supports database-backed routine testing:
 - load today's routine instances from Neon
 - add, edit, and delete routine definitions
 - add, edit, delete, and filter by routine groups
+- parse and save routine templates from the add/edit dialog header menu
 - choose start-date anchored recurrence rules
 - choose a preferred time, start date, and optional end date
 - show today's routine instances on Today
@@ -39,6 +40,7 @@ The page should show:
 - `Manage` action in the Groups panel header
 - edit action on each routine row
 - add/edit routine dialog
+- routine template dialog
 - group manager dialog
 - delete confirmation dialog when deleting an existing routine
 
@@ -104,6 +106,44 @@ fallback in the database.
 Delete is also blocking and requires confirmation before the backend command is
 sent.
 
+## Routine Template
+
+`RoutineTemplateEditorDialog` reuses the shared `TemplateEditorDialog` used by
+Project Template. Routine-specific code supplies the Markdown serializer,
+server parse/save actions, and flat preview rows. The preview list uses shared
+list rows, fixed-height `ScrollArea`, truncated titles, and full-word operation
+badges for `Create`, `Update`, `Delete`, and `Preserve`.
+
+Routine template parsing lives in feature-owned pure modules so Node tests can
+exercise it without rendering the app shell:
+
+```text
+apps/web/src/features/template-parser.ts
+apps/web/src/features/routines/routine-template-serializer.ts
+apps/web/src/features/routines/routine-template-normalizer.ts
+apps/web/src/features/routines/routine-template-draft.ts
+apps/web/src/features/routines/routine-template-types.ts
+```
+
+The server actions `parseRoutineTemplate` and `applyRoutineTemplate` are normal
+authenticated user actions, not developer-only routes. They load the signed-in
+user's current routines, routine groups, and resolved timezone before
+normalizing the template.
+
+Template save behavior:
+
+- create rows insert routines
+- update rows save the matched routine
+- delete rows soft-delete the matched routine
+- preserve rows are skipped
+- unknown routine ids return `routine_not_found`
+- unknown non-empty `group_id` values return `routine_group_not_found`
+- blank `group_id` saves the routine without a group
+
+The generated template lists available routine group ids and names. Group
+creation is intentionally not part of routine templates; users should create
+groups from the existing Manage Groups dialog before assigning them by id.
+
 ## Code Locations
 
 Routine web UI:
@@ -112,6 +152,7 @@ Routine web UI:
 apps/web/src/features/routines/components/RoutinesPage.tsx
 apps/web/src/features/routines/components/RoutinesList.tsx
 apps/web/src/features/routines/components/RoutineEditorDialog.tsx
+apps/web/src/features/routines/components/RoutineTemplateEditorDialog.tsx
 apps/web/src/features/routines/components/RoutineGroupManagerDialog.tsx
 apps/web/src/features/routines/components/RoutineGroupsPanel.tsx
 apps/web/src/features/routines/components/RoutineRecurrenceFields.tsx
@@ -124,6 +165,8 @@ Routine server actions:
 
 ```text
 apps/web/src/features/routines/actions.ts
+apps/web/src/features/routines/routine-template-actions.ts
+apps/web/src/features/routines/routine-instance-actions.ts
 ```
 
 Routine backend:
@@ -156,6 +199,7 @@ apps/web/src/features/routines/__tests__/postgres-routine-repository.test.ts
 apps/web/src/features/routines/__tests__/routine-recurrence.test.ts
 apps/web/src/features/routines/__tests__/routine-reminder-service.test.ts
 apps/web/src/features/routines/__tests__/routine-service.test.ts
+apps/web/src/features/routines/__tests__/routine-template.test.ts
 ```
 
 ## Verification

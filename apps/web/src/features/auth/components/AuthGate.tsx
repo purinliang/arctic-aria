@@ -252,6 +252,7 @@ export function AuthGate() {
         onLogout={() => void handleLogout()}
         onNotificationDismiss={dismissNotification}
         showErrorNotification={showErrorNotification}
+        showInfoNotification={showInfoNotification}
         showSuccessNotification={showSuccessNotification}
       />
     );

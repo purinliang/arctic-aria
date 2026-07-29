@@ -8,11 +8,13 @@ import {
   runNotifiedServerAction,
 } from "@/app-shell/action-notifications";
 import {
+  applyProjectTreeTemplate,
   archiveMilestone,
   archiveProject,
   archiveProjectTask,
   getProjectDashboardData,
   pinProject,
+  parseProjectTreeTemplate,
   saveMilestone,
   saveProject,
   saveProjectTask,
@@ -23,6 +25,7 @@ import {
   type ProjectDashboardData,
   type ProjectInput,
   type ProjectTaskInput,
+  type ProjectTreeTemplateParseData,
   type ProjectView,
 } from "@/features/projects/actions";
 import { projectTaskProgressText } from "@/features/projects/project-progress";
@@ -45,8 +48,10 @@ type ProjectDataAction = () => Promise<
 export function useDashboardProjects(
   userId: string,
   showErrorNotification: (message: string, title?: string) => void,
+  showInfoNotification: (message: string, title?: string) => void,
   messages?: DashboardMessages["notifications"],
   resultMessages?: ProjectMessages["results"],
+  templateMessages?: ProjectMessages["editor"]["template"],
   notificationMessages?: NotificationMessages,
 ) {
   const [tasks, setTasks] = useState<ProjectDashboardData["tasks"]>([]);
@@ -172,6 +177,44 @@ export function useDashboardProjects(
     } finally {
       setProjectActionPending(false);
     }
+  }
+
+  async function parseProjectTreeTemplateFromPage(
+    projectId: string | null,
+    source: string,
+  ): Promise<ProjectTreeTemplateParseData | null> {
+    const actionResult = await runNotifiedServerAction({
+      action: () => parseProjectTreeTemplate(projectId, source),
+      messages: notificationMessages,
+      showErrorNotification,
+    });
+
+    if (!actionResult.ok) {
+      return null;
+    }
+
+    const result = actionResult.value;
+
+    if (!result.ok) {
+      notifyActionFailure({
+        result,
+        resultMessages,
+        fallbackTitle: actionFailedTitle(projectId ? "update" : "save", "project"),
+        notificationMessages,
+        showErrorNotification,
+      });
+      return null;
+    }
+
+    if (result.data.preview.ignoredFieldCount > 0) {
+      showInfoNotification(
+        templateMessages?.ignoredFields(result.data.preview.ignoredFieldCount) ??
+          `${result.data.preview.ignoredFieldCount} template fields were ignored.`,
+        templateMessages?.ignoredFieldsTitle ?? "Template parsed with warnings",
+      );
+    }
+
+    return result.data;
   }
 
   async function updateProjectPinFromPage(
@@ -322,6 +365,12 @@ export function useDashboardProjects(
       runProjectManagementAction(
         () => saveProject(input),
         actionFailedTitle("save", "project"),
+      ),
+    parseProjectTreeTemplateFromPage,
+    applyProjectTreeTemplateFromPage: (projectId: string | null, source: string) =>
+      runProjectManagementAction(
+        () => applyProjectTreeTemplate(projectId, source),
+        actionFailedTitle(projectId ? "update" : "save", "project"),
       ),
     archiveProjectFromPage: (projectId: string) =>
       runProjectManagementAction(
