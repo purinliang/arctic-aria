@@ -335,16 +335,13 @@ export async function applyProjectTreeTemplate(
     if (!applied) {
       return {
         ok: false,
-        message:
-          prepared.data.mode === "create"
-            ? "Project template could not be created."
-            : "Project template could not be saved.",
+        message: "Project template could not be saved.",
         code:
           prepared.data.mode === "create"
             ? "project_template_create_failed"
             : "project_template_apply_failed",
         category: "database_update",
-        action: prepared.data.mode === "create" ? "save" : "update",
+        action: "save",
         subject: "project",
       };
     }

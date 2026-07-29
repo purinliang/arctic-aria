@@ -218,7 +218,7 @@ export const englishProjectMessages = {
     project_pin_limit: "You can pin up to 3 projects.",
     project_sidebar_pin_conflict: "Pinned projects changed. Refresh and try again.",
     project_template_apply_failed: "Project template could not be saved.",
-    project_template_create_failed: "Project template could not be created.",
+    project_template_create_failed: "Project template could not be saved.",
     project_template_invalid: "Project template is invalid.",
     project_template_missing: "Paste a project template first.",
     project_template_project_mismatch:
@@ -432,7 +432,7 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
     project_pin_limit: "最多只能置顶 3 个项目。",
     project_sidebar_pin_conflict: "置顶项目已变化。请刷新后重试。",
     project_template_apply_failed: "项目模板无法保存。",
-    project_template_create_failed: "项目模板无法创建。",
+    project_template_create_failed: "项目模板无法保存。",
     project_template_invalid: "项目模板无效。",
     project_template_missing: "请先粘贴项目模板。",
     project_template_project_mismatch: "模板中的项目与当前项目不一致。",
