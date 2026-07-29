@@ -8,7 +8,7 @@ export function formControlClass(
   className?: string,
 ) {
   return cx(
-    "aa-text-input-control w-full rounded-md border px-3 text-sm shadow-sm outline-none transition focus:shadow-[inset_0_0_0_1px_var(--aa-text-input-focus-border)] disabled:cursor-not-allowed disabled:opacity-100 disabled:shadow-none",
+    "aa-text-input-control w-full rounded-md border px-3 text-sm caret-[var(--aa-text-input-text)] shadow-sm outline-none transition focus:shadow-[inset_0_0_0_1px_var(--aa-text-input-focus-border)] disabled:cursor-not-allowed disabled:opacity-100 disabled:shadow-none",
     formControlHeightClass,
     textInputControlColorClass(darkMode, hasError),
     "hover:border-[var(--aa-text-input-hover-border)] hover:bg-[var(--aa-text-input-hover-bg)] hover:text-[var(--aa-text-input-hover-text)] placeholder:text-[var(--aa-text-input-placeholder-text)]",
