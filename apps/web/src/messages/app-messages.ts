@@ -121,7 +121,7 @@ const englishMessages = {
   },
   settings: {
     description: "Theme, language, and app information.",
-    appInformationDescription: "Current app version.",
+    appInformationDescription: "Product name and version.",
     appInformationTitle: "About",
     discord: {
       bind: "Bind",
@@ -131,17 +131,21 @@ const englishMessages = {
         "Send {command} to Arctic Aria in Discord. {status}",
       bound: "Bound account",
       boundAccountId: (accountId: string) => `Bound Account ID: ${accountId}`,
+      boundAccountDescription:
+        "Discord account bound to this Arctic Aria account.",
       boundAccountIdLabel: "Bound Account ID",
+      bindingCodeTitle: "Binding code",
+      bindingTitle: "Binding status",
       cancel: "Cancel",
       checkAgain: "Check Again",
       checkFailed: "Binding status unavailable.",
+      checkingAction: "Checking",
       checking: "Checking binding status...",
-      closeUnbindConfirmation: "Close Discord disconnect confirmation",
+      closeUnbindConfirmation: "Close Discord unbind confirmation",
       confirmUnbindDescription:
         "This unbinds Discord from this Arctic Aria account. You can bind it again later with a new code.",
       confirmUnbindTitle: "Unbind Discord?",
-      description:
-        "Bind Discord so Arctic Aria can receive ideas from you and send messages to you.",
+      description: "Binding status and test messages.",
       bindCodeRemaining: (minutes: number) =>
         minutes === 1 ? "1 minute" : `${minutes} minutes`,
       expired: "Expired",
@@ -157,22 +161,26 @@ const englishMessages = {
         loadFailed: "Discord unavailable",
         testFailed: "Test message not sent",
         testSent: "Test message sent",
-        unbound: "Discord disconnected",
-        unbindFailed: "Discord not disconnected",
+        unbound: "Discord unbound",
+        unbindFailed: "Discord not unbound",
       },
       results: {
         settings_discord_binding_loaded: "Discord binding loaded.",
         settings_discord_code_canceled: "Discord binding code canceled.",
         settings_discord_code_created:
-          "Use the code in Discord to connect your account.",
+          "Use the code in Discord to bind your account.",
         settings_discord_test_no_binding: "No active Discord binding.",
         settings_discord_test_sent: "Check your Discord DM.",
         settings_discord_unbound: "Discord unbound.",
         settings_unauthorized: "Sign in before changing settings.",
       },
       sendTest: "Send Test",
+      testMessageDescription: "Send a Discord DM to verify delivery.",
+      testMessageTitle: "Test message",
       title: "Discord Binding",
       unbind: "Unbind",
+      unbindDescription: "Remove the current Discord binding.",
+      unbindTitle: "Unbind",
       viewAccountId: "View",
     },
     developerImport: {
@@ -212,6 +220,7 @@ const englishMessages = {
       lastRun: (sampleCount: number, measuredAt: string) =>
         `Last run: ${sampleCount} samples · ${measuredAt}`,
       latencyActionDescription: "Run 30 samples and show compact statistics.",
+      latencyActionTitle: "Latency samples",
       latencyDescription:
         "Test latency between frontend, server, and database.",
       latencyTitle: "Latency Test",
@@ -240,8 +249,9 @@ const englishMessages = {
       testLatency: "Test Latency",
       testing: "Testing...",
     },
-    developerModeDescription: "Show developer tools in Settings.",
-    developerModeTitle: "Developer Mode",
+    developerModeDescription: "Show internal development tools.",
+    developerModeTitle: "Developer mode",
+    languageDescription: "Choose the interface language.",
     languageLabel: "Language",
     languageOptions: {
       english: "English",
@@ -261,12 +271,16 @@ const englishMessages = {
     },
     preferencesDescription: "Display, language, and time preferences.",
     preferencesTitle: "Preferences",
+    productDescription: "Your personal life assistant under the aurora.",
+    productName: "北极阿莉雅",
+    themeDescription: "Choose the workspace color mode.",
     themeLabel: "Theme",
     themeOptions: {
       dark: "Dark",
       light: "Light",
       system: "Use system setting",
     },
+    timeFormatDescription: "Choose how times are displayed.",
     timeFormatLabel: "Time format",
     timeFormatOptions: {
       twelveHour: "12-hour",
@@ -280,6 +294,8 @@ const englishMessages = {
     timeZoneOptions: {
       system: "Use system setting",
     },
+    versionDescription: "Current app version.",
+    versionTitle: "Version",
     multipleTimezonesLabel: "Use multiple timezones",
     multipleTimezonesDescription:
       "For overseas meetings or routines coordinated with people in another timezone.",
@@ -484,7 +500,7 @@ const simplifiedChineseMessages: AppMessages = {
   },
   settings: {
     description: "主题、语言和应用信息。",
-    appInformationDescription: "当前应用版本。",
+    appInformationDescription: "产品名称和版本。",
     appInformationTitle: "关于",
     discord: {
       bind: "绑定",
@@ -494,17 +510,20 @@ const simplifiedChineseMessages: AppMessages = {
         "在 Discord 中向 Arctic Aria 发送 {command}。 {status}",
       bound: "已绑定账户",
       boundAccountId: (accountId: string) => `已绑定账户 ID：${accountId}`,
+      boundAccountDescription: "当前 Arctic Aria 账户绑定的 Discord 账户。",
       boundAccountIdLabel: "已绑定账户 ID",
+      bindingCodeTitle: "绑定代码",
+      bindingTitle: "绑定状态",
       cancel: "取消",
       checkAgain: "重新检查",
       checkFailed: "绑定状态不可用。",
+      checkingAction: "检查中",
       checking: "正在检查绑定状态...",
-      closeUnbindConfirmation: "关闭 Discord 断开确认",
+      closeUnbindConfirmation: "关闭 Discord 解绑确认",
       confirmUnbindDescription:
         "这会解除 Discord 与此 Arctic Aria 账户的绑定。之后可以使用新代码再次绑定。",
       confirmUnbindTitle: "解绑 Discord？",
-      description:
-        "绑定 Discord 后，Arctic Aria 可以接收你的想法并向你发送消息。",
+      description: "绑定状态和测试消息。",
       bindCodeRemaining: (minutes: number) => `${minutes} 分钟`,
       expired: "已过期",
       genericError: "Discord 设置无法更新。",
@@ -519,8 +538,8 @@ const simplifiedChineseMessages: AppMessages = {
         loadFailed: "Discord 不可用",
         testFailed: "测试消息未发送",
         testSent: "测试消息已发送",
-        unbound: "Discord 已断开",
-        unbindFailed: "Discord 未断开",
+        unbound: "Discord 已解绑",
+        unbindFailed: "Discord 未解绑",
       },
       results: {
         settings_discord_binding_loaded: "Discord 绑定已加载。",
@@ -532,8 +551,12 @@ const simplifiedChineseMessages: AppMessages = {
         settings_unauthorized: "请先登录再更改设置。",
       },
       sendTest: "发送测试",
+      testMessageDescription: "发送一条 Discord 私信，确认消息可达。",
+      testMessageTitle: "测试消息",
       title: "Discord 绑定",
       unbind: "解绑",
+      unbindDescription: "移除当前 Discord 绑定。",
+      unbindTitle: "解绑",
       viewAccountId: "查看",
     },
     developerImport: {
@@ -572,6 +595,7 @@ const simplifiedChineseMessages: AppMessages = {
       lastRun: (sampleCount, measuredAt) =>
         `上次运行：${sampleCount} 次采样 · ${measuredAt}`,
       latencyActionDescription: "运行 30 次采样并显示简要统计。",
+      latencyActionTitle: "延迟采样",
       latencyDescription: "测试前端、服务器与数据库之间的延迟。",
       latencyTitle: "延迟测试",
       markdownTitle: (sampleCount, measuredAt) =>
@@ -599,8 +623,9 @@ const simplifiedChineseMessages: AppMessages = {
       testLatency: "测试延迟",
       testing: "正在测试...",
     },
-    developerModeDescription: "在设置中显示开发者工具。",
+    developerModeDescription: "显示内部开发工具。",
     developerModeTitle: "开发者模式",
+    languageDescription: "选择界面语言。",
     languageLabel: "语言",
     languageOptions: {
       english: "English",
@@ -619,12 +644,16 @@ const simplifiedChineseMessages: AppMessages = {
     },
     preferencesDescription: "显示、语言和时间偏好。",
     preferencesTitle: "偏好设置",
+    productDescription: "极光下的个人生活助手。",
+    productName: "Arctic Aria",
+    themeDescription: "选择工作区的颜色模式。",
     themeLabel: "主题",
     themeOptions: {
       dark: "深色",
       light: "浅色",
       system: "使用系统设置",
     },
+    timeFormatDescription: "选择时间的显示方式。",
     timeFormatLabel: "时间格式",
     timeFormatOptions: {
       twelveHour: "12 小时制",
@@ -637,6 +666,8 @@ const simplifiedChineseMessages: AppMessages = {
     timeZoneOptions: {
       system: "使用系统设置",
     },
+    versionDescription: "当前应用版本。",
+    versionTitle: "版本",
     multipleTimezonesLabel: "使用多个时区",
     multipleTimezonesDescription:
       "适合海外会议，或需要和不同时区的人一起安排的日常。",

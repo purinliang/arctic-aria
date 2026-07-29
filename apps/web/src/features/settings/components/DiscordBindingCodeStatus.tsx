@@ -3,10 +3,9 @@
 // Settings Page - Discord Binding Code Status.
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
-import { ListItemDescription } from "@/components/list";
 import type { SettingsMessages } from "@/messages/app-messages";
 import { discordBindingCodeExpiryMinutes } from "../discord-binding-config";
-import { DiscordBindingRow } from "./DiscordBindingRow";
+import { SettingsControlRow } from "./SettingsControlRow";
 
 export function DiscordBindingCodeStatus({
   action,
@@ -46,25 +45,27 @@ export function DiscordBindingCodeStatus({
   }, []);
 
   return (
-    <DiscordBindingRow>
-      <ListItemDescription className="min-w-0 max-w-full">
-        {renderBindInstruction({
-          command: `/bind code:${code}`,
-          darkMode,
-          statusText: expired ? messages.discord.expired : remainingText,
-          statusTone: expired ? "expired" : "normal",
-          template: instructionTemplate,
-        })}
-      </ListItemDescription>
-      <Button
-        darkMode={darkMode}
-        disabled={action !== null && action !== "cancel"}
-        loading={action === "cancel"}
-        onClick={onCancel}
-      >
-        {messages.discord.cancel}
-      </Button>
-    </DiscordBindingRow>
+    <SettingsControlRow
+      darkMode={darkMode}
+      title={messages.discord.bindingCodeTitle}
+      support={renderBindInstruction({
+        command: `/bind code:${code}`,
+        darkMode,
+        statusText: expired ? messages.discord.expired : remainingText,
+        statusTone: expired ? "expired" : "normal",
+        template: instructionTemplate,
+      })}
+      control={
+        <Button
+          darkMode={darkMode}
+          disabled={action !== null && action !== "cancel"}
+          loading={action === "cancel"}
+          onClick={onCancel}
+        >
+          {messages.discord.cancel}
+        </Button>
+      }
+    />
   );
 }
 
