@@ -176,10 +176,10 @@
   --aa-text-input-text: var(--gray-12);
   --aa-text-input-placeholder-text: var(--gray-11);
   --aa-text-input-border: var(--gray-7);
-  --aa-text-input-hover-bg: var(--aa-text-input-bg);
+  --aa-text-input-hover-bg: var(--aa-secondary-button-hover-bg);
   --aa-text-input-hover-text: var(--aa-text-input-text);
   --aa-text-input-hover-border: var(--gray-8);
-  --aa-text-input-focus-bg: var(--aa-text-input-bg);
+  --aa-text-input-focus-bg: var(--aa-text-input-hover-bg);
   --aa-text-input-focus-text: var(--aa-text-input-text);
   --aa-text-input-focus-border: var(--aa-primary-button-bg);
   --aa-text-input-disabled-border: var(--gray-6);

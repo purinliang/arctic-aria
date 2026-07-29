@@ -270,6 +270,8 @@ function TemplateSourceEditor({
           false,
           cx(
             "!h-full !min-h-0 !px-0 focus-within:shadow-[inset_0_0_0_1px_var(--aa-text-input-focus-border)]",
+            "focus-within:border-[var(--aa-text-input-focus-border)] focus-within:bg-[var(--aa-text-input-focus-bg)] focus-within:text-[var(--aa-text-input-focus-text)]",
+            "focus-within:hover:border-[var(--aa-text-input-hover-border)] focus-within:hover:bg-[var(--aa-text-input-hover-bg)] focus-within:hover:text-[var(--aa-text-input-hover-text)]",
             disabled
               ? "border-[var(--aa-text-input-disabled-border)] bg-[var(--aa-text-input-disabled-bg)] hover:border-[var(--aa-text-input-disabled-border)] hover:bg-[var(--aa-text-input-disabled-bg)]"
               : null,

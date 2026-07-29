@@ -12,6 +12,7 @@ export function formControlClass(
     formControlHeightClass,
     textInputControlColorClass(darkMode, hasError),
     "hover:border-[var(--aa-text-input-hover-border)] hover:bg-[var(--aa-text-input-hover-bg)] hover:text-[var(--aa-text-input-hover-text)] placeholder:text-[var(--aa-text-input-placeholder-text)]",
+    "focus:hover:border-[var(--aa-text-input-hover-border)] focus:hover:bg-[var(--aa-text-input-hover-bg)] focus:hover:text-[var(--aa-text-input-hover-text)]",
     "disabled:border-[var(--aa-text-input-disabled-border)] disabled:bg-[var(--aa-text-input-disabled-bg)] disabled:text-[var(--aa-text-input-disabled-text)] disabled:placeholder:text-[var(--aa-text-input-disabled-text)] disabled:hover:border-[var(--aa-text-input-disabled-border)] disabled:hover:bg-[var(--aa-text-input-disabled-bg)] disabled:hover:text-[var(--aa-text-input-disabled-text)]",
     className,
   );
