@@ -128,6 +128,19 @@ export function ProjectTreeTemplateDialog({
     }
   }
 
+  async function openPreview() {
+    if (action) {
+      return;
+    }
+
+    if (hasFreshPreview) {
+      setActiveTab("preview");
+      return;
+    }
+
+    await parseTemplate();
+  }
+
   return (
     <DialogOverlay zIndex="z-[60]">
       <DialogFrame darkMode={darkMode} size="lg" className={templateDialogClass}>
@@ -140,13 +153,15 @@ export function ProjectTreeTemplateDialog({
         <TemplateTabs
           darkMode={darkMode}
           activeTab={activeTab}
-          previewDisabled={!hasFreshPreview}
+          disabled={busy}
+          parsing={action === "parse"}
           messages={messages}
-          onChange={setActiveTab}
+          onEdit={() => setActiveTab("edit")}
+          onPreview={() => void openPreview()}
         />
         <FormSections className={templateBodyClass}>
           {activeTab === "edit" ? (
-            <FormSection className="min-h-0 grid-rows-[minmax(0,1fr)_auto]">
+            <FormSection className={templateEditSectionClass}>
               <TemplateSourceEditor
                 darkMode={darkMode}
                 disabled={busy}
@@ -227,7 +242,9 @@ const emptyProjectTemplateDraft: ProjectInput = {
 const templateDialogClass =
   "flex h-[min(46rem,calc(100vh-4rem))] min-h-[34rem] flex-col overflow-hidden";
 const templateBodyClass =
-  "min-h-0 flex-1 grid-rows-[minmax(0,1fr)] overflow-hidden";
+  "h-full min-h-0 flex-1 grid-rows-[minmax(0,1fr)] overflow-hidden";
+const templateEditSectionClass =
+  "h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] overflow-hidden";
 const templatePanelFillClass = "h-full min-h-0";
 
 function TemplateSourceEditor({
@@ -299,15 +316,19 @@ function TemplateSourceEditor({
 function TemplateTabs({
   darkMode,
   activeTab,
-  previewDisabled,
+  disabled,
+  parsing,
   messages,
-  onChange,
+  onEdit,
+  onPreview,
 }: {
   darkMode: boolean;
   activeTab: TemplateTab;
-  previewDisabled: boolean;
+  disabled: boolean;
+  parsing: boolean;
   messages: ProjectMessages["editor"]["template"];
-  onChange: (tab: TemplateTab) => void;
+  onEdit: () => void;
+  onPreview: () => void;
 }) {
   return (
     <div
@@ -321,7 +342,8 @@ function TemplateTabs({
         size="md"
         role="tab"
         aria-selected={activeTab === "edit"}
-        onClick={() => onChange("edit")}
+        disabled={disabled}
+        onClick={onEdit}
       >
         {messages.editTab}
       </Button>
@@ -331,10 +353,11 @@ function TemplateTabs({
         size="md"
         role="tab"
         aria-selected={activeTab === "preview"}
-        disabled={previewDisabled}
-        onClick={() => onChange("preview")}
+        aria-busy={parsing || undefined}
+        disabled={disabled}
+        onClick={onPreview}
       >
-        {messages.previewTab}
+        {parsing ? messages.parsing : messages.previewTab}
       </Button>
     </div>
   );
@@ -351,7 +374,7 @@ function TemplatePreview({
 }) {
   if (!preview) {
     return (
-      <FormSection className={cx(templatePanelFillClass, "overflow-hidden")}>
+      <FormSection className={templatePreviewSectionClass}>
         <ScrollArea
           className="relative h-full min-h-0 overflow-hidden"
           viewportClassName="h-full overflow-x-hidden"
@@ -368,7 +391,7 @@ function TemplatePreview({
   return (
     <FormSection
       className={cx(
-        templatePanelFillClass,
+        templatePreviewSectionClass,
         "grid-rows-[auto_minmax(0,1fr)] overflow-hidden",
       )}
     >
@@ -433,6 +456,8 @@ function TemplatePreview({
     </FormSection>
   );
 }
+
+const templatePreviewSectionClass = "h-full min-h-0 overflow-hidden";
 
 function OperationBadge({
   darkMode,
