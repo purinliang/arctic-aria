@@ -1,12 +1,11 @@
-// Settings Page - Settings Control Row.
 import type { ReactNode } from "react";
 import {
   ListItem,
   ListItemContent,
   ListItemSupportingText,
   ListItemTitle,
-} from "@/components/list";
-import { cx } from "@/components/utils";
+} from "./list";
+import { cx } from "./utils";
 
 export function SettingsControlRow({
   darkMode,
@@ -48,11 +47,7 @@ export function SettingsControlRow({
         }
       />
       {control ? (
-        <div
-          className={cx(
-            "flex min-h-full w-full items-center justify-start sm:justify-end",
-          )}
-        >
+        <div className="flex min-h-full w-full items-center justify-start sm:justify-end">
           {control}
         </div>
       ) : null}

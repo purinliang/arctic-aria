@@ -134,15 +134,21 @@ to Today:
 - `/memories` shows Memories
 - `/ideas` shows Ideas
 - `/settings` shows Settings
+- `/design` shows the administrator-only Design component review page when
+  Developer mode is enabled
+
+The `Design` page can temporarily preview theme and language through the same
+browser-local preference path the app already uses. Those preview changes are
+local-only and restore to the previous browser values when leaving `Design`.
 
 Do not add `/project?id=<id>` routing. Project detail routing should use the
 path segment form above.
 
 Workspace path refresh support is implemented with rewrites in
 `apps/web/next.config.ts`. `/today`, `/projects`, `/projects/<project-id>`,
-`/routines`, `/events`, `/memories`, `/ideas`, and `/settings` rewrite to the static `/`
-app page. This avoids separate route files and avoids making the workspace a
-dynamic catch-all route.
+`/routines`, `/events`, `/memories`, `/ideas`, `/settings`, and `/design`
+rewrite to the static `/` app page. This avoids separate route files and avoids
+making the workspace a dynamic catch-all route.
 
 Inside the authenticated workspace, navigation uses the browser History API
 instead of `next/navigation` router pushes. This preserves refresh-safe paths
@@ -168,6 +174,7 @@ belongs to the whole authenticated web surface.
 - panel
 - dialog
 - list
+- settings-style control row
 - notification
 - text styles
 - colors and theme helpers

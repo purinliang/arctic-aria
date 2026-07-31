@@ -1,0 +1,228 @@
+// Design Page - Color.
+import { Card } from "@/components/card";
+import { toneClass, type Tone } from "@/components/color";
+import {
+  List,
+  ListItem,
+  ListItemContent,
+  ListItemDescription,
+  ListItemTitle,
+} from "@/components/list";
+import type { DesignMessages } from "@/messages/design-messages";
+import { cx } from "@/components/utils";
+
+type BackgroundTokenKey = keyof DesignMessages["colors"]["tokens"];
+type BackgroundTokenState = "default" | "hover" | "disabled";
+
+const backgroundStates: BackgroundTokenState[] = [
+  "default",
+  "hover",
+  "disabled",
+] as const;
+
+const backgroundTokenGroups: {
+  key: BackgroundTokenKey;
+  values: Partial<Record<BackgroundTokenState, string>>;
+}[] = [
+  {
+    key: "page",
+    values: {
+      default: "var(--aa-page-bg)",
+    },
+  },
+  {
+    key: "panel",
+    values: {
+      default: "var(--aa-panel-bg)",
+      hover: "var(--aa-panel-hover-bg)",
+    },
+  },
+  {
+    key: "panelHeader",
+    values: {
+      default: "var(--aa-panel-header-bg)",
+    },
+  },
+  {
+    key: "primaryButton",
+    values: {
+      default: "var(--aa-primary-button-bg)",
+      hover: "var(--aa-primary-button-hover-bg)",
+      disabled: "var(--aa-primary-button-disabled-bg)",
+    },
+  },
+  {
+    key: "secondaryButton",
+    values: {
+      default: "var(--aa-secondary-button-bg)",
+      hover: "var(--aa-secondary-button-hover-bg)",
+      disabled: "var(--aa-secondary-button-disabled-bg)",
+    },
+  },
+  {
+    key: "textInput",
+    values: {
+      default: "var(--aa-text-input-bg)",
+      hover: "var(--aa-text-input-hover-bg)",
+      disabled: "var(--aa-text-input-disabled-bg)",
+    },
+  },
+];
+
+const semanticToneGroups: Tone[] = ["neutral", "blue", "emerald", "red"];
+
+export function DesignColorPage({
+  darkMode,
+  messages,
+}: {
+  darkMode: boolean;
+  messages: DesignMessages["colors"];
+}) {
+  return (
+    <List darkMode={darkMode} className="rounded-md">
+      <ListItem darkMode={darkMode} layout="block">
+        <ListItemContent
+          title={<ListItemTitle>{messages.paletteTitle}</ListItemTitle>}
+          main={
+            <ListItemDescription>
+              {messages.paletteDescription}
+            </ListItemDescription>
+          }
+        />
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          {backgroundTokenGroups.map((tokenGroup) => (
+            <BackgroundTokenCard
+              key={tokenGroup.key}
+              darkMode={darkMode}
+              label={messages.tokens[tokenGroup.key]}
+              stateLabels={messages.states}
+              unavailableLabel={messages.unavailable}
+              values={tokenGroup.values}
+            />
+          ))}
+        </div>
+      </ListItem>
+      <ListItem darkMode={darkMode} layout="block">
+        <ListItemContent
+          title={<ListItemTitle>{messages.semanticTitle}</ListItemTitle>}
+          main={
+            <ListItemDescription>
+              {messages.semanticDescription}
+            </ListItemDescription>
+          }
+        />
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {semanticToneGroups.map((tone) => (
+            <SemanticToneCard
+              key={tone}
+              darkMode={darkMode}
+              label={messages.semanticTones[tone].label}
+              tone={tone}
+              usage={messages.semanticTones[tone].usage}
+            />
+          ))}
+        </div>
+      </ListItem>
+    </List>
+  );
+}
+
+function BackgroundTokenCard({
+  darkMode,
+  label,
+  stateLabels,
+  unavailableLabel,
+  values,
+}: {
+  darkMode: boolean;
+  label: string;
+  stateLabels: DesignMessages["colors"]["states"];
+  unavailableLabel: string;
+  values: Partial<Record<BackgroundTokenState, string>>;
+}) {
+  return (
+    <Card darkMode={darkMode} className="overflow-hidden">
+      <div className="grid gap-2 px-3 py-2.5">
+        <ListItemTitle size="compact">{label}</ListItemTitle>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {backgroundStates.map((state) => (
+            <BackgroundTokenSwatch
+              key={state}
+              label={stateLabels[state]}
+              unavailableLabel={unavailableLabel}
+              value={values[state]}
+            />
+          ))}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function BackgroundTokenSwatch({
+  label,
+  unavailableLabel,
+  value,
+}: {
+  label: string;
+  unavailableLabel: string;
+  value?: string;
+}) {
+  return (
+    <div className="grid min-w-0 gap-1">
+      <div className="text-xs font-semibold text-[var(--aa-secondary-text)]">
+        {label}
+      </div>
+      <div
+        className={cx(
+          "h-12 rounded-md border border-[var(--aa-secondary-button-border)]",
+          value ? undefined : "grid place-items-center border-dashed",
+        )}
+        style={value ? { background: value } : undefined}
+      >
+        {value ? null : (
+          <span className="text-xs text-[var(--aa-secondary-text)]">
+            {unavailableLabel}
+          </span>
+        )}
+      </div>
+      <code className="truncate text-xs text-[var(--aa-secondary-text)]">
+        {value ? formatCssToken(value) : unavailableLabel}
+      </code>
+    </div>
+  );
+}
+
+function formatCssToken(value: string) {
+  return value.replace("var(", "").replace(")", "");
+}
+
+function SemanticToneCard({
+  darkMode,
+  label,
+  tone,
+  usage,
+}: {
+  darkMode: boolean;
+  label: string;
+  tone: Tone;
+  usage: string;
+}) {
+  return (
+    <Card darkMode={darkMode}>
+      <div className="grid gap-2 px-3 py-2.5">
+        <span
+          className={cx(
+            "inline-flex h-6 w-fit shrink-0 items-center rounded border px-2 text-xs font-semibold",
+            toneClass(darkMode, tone),
+          )}
+        >
+          {label}
+        </span>
+        <p className="text-sm leading-5 text-[var(--aa-secondary-text)]">
+          {usage}
+        </p>
+      </div>
+    </Card>
+  );
+}

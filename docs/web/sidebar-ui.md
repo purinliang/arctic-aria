@@ -59,7 +59,7 @@ project shortcut uses the active state when that project detail page is open.
 ## Sidebar Actions
 
 Theme mode and sign out are not a separate bottom list. They appear in the same
-sidebar list after Settings, below a separator line:
+sidebar list after the final page item, below a separator line:
 
 - separator line
 - Theme mode menu item

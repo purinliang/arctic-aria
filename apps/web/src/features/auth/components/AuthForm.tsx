@@ -5,7 +5,6 @@ import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/button";
 import {
-  panelHoverContainerColorClass,
   secondaryTextColorClass,
   secondaryButtonBorderColorClass,
 } from "@/components/color";
@@ -15,6 +14,7 @@ import {
   FormFields,
 } from "@/components/forms/form-layout";
 import { PendingText } from "@/components/loading";
+import { Tabs } from "@/components/tabs";
 import { SectionTitle } from "@/components/text";
 import type { AuthMode } from "./AuthGate";
 import {
@@ -112,26 +112,18 @@ export function AuthForm({
 
   return (
     <>
-      <div
-        className={`mb-6 grid grid-cols-2 rounded-md border p-1 ${panelHoverContainerColorClass}`}
-      >
-        <Button
-          darkMode={darkMode}
-          tone={mode === "login" ? "primary" : "ghost"}
-          size="sm"
-          onClick={() => switchMode("login")}
-        >
-          {messages.form.signIn}
-        </Button>
-        <Button
-          darkMode={darkMode}
-          tone={mode === "register" ? "primary" : "ghost"}
-          size="sm"
-          onClick={() => switchMode("register")}
-        >
-          {messages.form.signUp}
-        </Button>
-      </div>
+      <Tabs
+        ariaLabel={`${messages.form.signIn} / ${messages.form.signUp}`}
+        darkMode={darkMode}
+        fill
+        className="mb-6"
+        options={[
+          { value: "login", label: messages.form.signIn },
+          { value: "register", label: messages.form.signUp },
+        ]}
+        value={mode}
+        onChange={(value) => switchMode(readAuthMode(value))}
+      />
 
       <form
         className="grid"
@@ -323,4 +315,8 @@ export function AuthForm({
       </form>
     </>
   );
+}
+
+function readAuthMode(value: string): AuthMode {
+  return value === "register" ? "register" : "login";
 }

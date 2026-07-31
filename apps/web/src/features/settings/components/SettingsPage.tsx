@@ -2,7 +2,6 @@
 
 // Settings Page.
 import { Info, LoaderCircle, LogOut, Settings, UserRound } from "lucide-react";
-import { useState } from "react";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import {
   shouldShowExpectedDatabaseVersion,
@@ -18,6 +17,10 @@ import {
 } from "@/components/list";
 import { PendingText } from "@/components/loading";
 import { Panel } from "@/components/panel";
+import {
+  SettingsControlRow,
+  SettingsControlValue,
+} from "@/components/settings-control-row";
 import { Switch } from "@/components/switch";
 import { DeveloperToolsPanel } from "@/features/performance/components/DeveloperToolsPanel";
 import type {
@@ -32,7 +35,6 @@ import type {
 import type { LanguagePreference } from "@/messages/languages";
 import { DiscordBindingSettings } from "./DiscordBindingSettings";
 import { DiscordIcon } from "./DiscordIcon";
-import { SettingsControlRow, SettingsControlValue } from "./SettingsControlRow";
 
 export function SettingsPage({
   currentUserDisplayName,
@@ -40,11 +42,13 @@ export function SettingsPage({
   currentUserIsAdmin,
   currentUsername,
   darkMode,
+  developerModeEnabled,
   languagePreference,
   logoutPending,
   messages,
   notificationMessages,
   onLanguagePreferenceChange,
+  onDeveloperModeChange,
   onLogout,
   onPreferenceOpenAttempt,
   onThemePreferenceChange,
@@ -61,10 +65,12 @@ export function SettingsPage({
   currentUserIsAdmin: boolean;
   currentUsername: string;
   darkMode: boolean;
+  developerModeEnabled: boolean;
   languagePreference: LanguagePreference;
   logoutPending: boolean;
   messages: SettingsMessages;
   notificationMessages: NotificationMessages;
+  onDeveloperModeChange: (enabled: boolean) => void;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
   onLogout: () => void;
   onPreferenceOpenAttempt: (preference: keyof UserPreferences) => boolean;
@@ -92,7 +98,6 @@ export function SettingsPage({
     { value: "24h", label: messages.timeFormatOptions.twentyFourHour },
   ];
   const timeZoneOptions = buildTimeZoneOptions(messages);
-  const [developerModeEnabled, setDeveloperModeEnabled] = useState(false);
   const showDeveloperTools = currentUserIsAdmin && developerModeEnabled;
 
   return (
@@ -286,7 +291,7 @@ export function SettingsPage({
                   checked={developerModeEnabled}
                   darkMode={darkMode}
                   label={messages.developerModeTitle}
-                  onChange={setDeveloperModeEnabled}
+                  onChange={onDeveloperModeChange}
                 />
               }
             />

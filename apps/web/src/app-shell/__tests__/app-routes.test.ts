@@ -27,6 +27,10 @@ test("app routes map major pages", () => {
     view: "routines",
     projectId: null,
   });
+  assert.deepEqual(appRouteFromPathname("/design"), {
+    view: "design",
+    projectId: null,
+  });
   assert.deepEqual(appRouteFromPathname("/events"), {
     view: "events",
     projectId: null,
@@ -69,6 +73,7 @@ test("app route path builders use stable page paths", () => {
   assert.equal(appPathForView("memories"), "/memories");
   assert.equal(appPathForView("ideas"), "/ideas");
   assert.equal(appPathForView("settings"), "/settings");
+  assert.equal(appPathForView("design"), "/design");
 });
 
 test("app route support check accepts only implemented workspace paths", () => {
@@ -81,6 +86,7 @@ test("app route support check accepts only implemented workspace paths", () => {
   assert.equal(isSupportedAppPathname("/memories"), true);
   assert.equal(isSupportedAppPathname("/ideas"), true);
   assert.equal(isSupportedAppPathname("/settings"), true);
+  assert.equal(isSupportedAppPathname("/design"), true);
   assert.equal(isSupportedAppPathname("/projects/project-one/extra"), false);
   assert.equal(isSupportedAppPathname("/unknown"), false);
 });

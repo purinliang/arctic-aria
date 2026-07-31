@@ -111,7 +111,6 @@ direct text entry.
 | `Button` with `tone="secondary"` | Secondary button |
 | `Button` icon/menu utility presentation | Secondary button |
 | `Button` with `tone="ghost"` | Secondary button (borderless) |
-| `Button` with `tone="success"` | Status tone exception |
 | Sidebar root | Panel header |
 | `SidebarItem` | Secondary button |
 | Active `SidebarItem` | Primary button |
@@ -152,8 +151,10 @@ direct text entry.
 ## Exceptions
 
 - Status, validation, and notification tones may use semantic status palettes.
-  Supported status tones are neutral, amber, blue, cyan, emerald, indigo, lime,
-  orange, pink, and red. The default status tone is neutral.
+  Supported status tones are neutral, blue, emerald, and red. The default
+  status tone is neutral. Current production usage is neutral for
+  preserve/default status, blue for information/update, emerald for
+  success/create, and red for error/delete.
 - Modal backdrops may use overlay colors instead of panel roles.
 - Panel list hover states should use `--aa-panel-hover-bg`, not button hover
   roles, unless the row is actually a button.

@@ -28,7 +28,7 @@ Use it for:
 - muted text colors
 - section borders
 - dividers
-- reusable semantic tones such as blue, amber, cyan, emerald, neutral, and red
+- reusable semantic tones, currently neutral, blue, emerald, and red
 
 Do not hard-code repeated color combinations in feature pages.
 
@@ -87,8 +87,7 @@ Buttons support:
 
 - primary actions
 - secondary actions
-- ghost/icon actions
-- success actions
+- ghost, or borderless, icon and utility actions
 - text, icon, or text plus icon
 - loading state
 - disabled state
@@ -324,6 +323,28 @@ build one-off toggle switches inside feature pages.
 
 Do not use a switch in the sidebar theme row. Sidebar actions should use the
 same menu-item button style as navigation items.
+
+## Tabs
+
+`tabs.tsx` owns tabbed page switching controls.
+
+Use it when a page contains several peer review surfaces inside the same route,
+such as the developer-only Design page. Tabs are page-local state, not sidebar
+navigation, and should switch content without changing the browser path unless
+a feature explicitly needs route-backed tabs.
+
+Tabs use the same inset rounded background first used by the auth
+login/register selector. Use normal `sm` button height unless a feature has a
+documented reason for taller tabs.
+
+## Settings Control Row
+
+`settings-control-row.tsx` owns setting-style control rows that pair label and
+supporting text on the left with one control or value area on the right.
+
+Use it for settings-like configuration rows wherever they appear, including
+Settings itself and developer-only review surfaces such as Design. The component
+is shared because the row pattern is not owned by the Settings feature.
 
 ## Loading
 

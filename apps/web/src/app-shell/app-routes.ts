@@ -6,6 +6,7 @@ export type AppRouteState = {
 };
 
 const viewPaths: Record<Exclude<DashboardView, "dashboard">, string> = {
+  design: "/design",
   events: "/events",
   ideas: "/ideas",
   memories: "/memories",

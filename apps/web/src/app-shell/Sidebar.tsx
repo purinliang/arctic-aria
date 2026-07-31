@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   Lightbulb,
   FolderKanban,
+  Palette,
   Settings,
   X,
 } from "lucide-react";
@@ -28,6 +29,7 @@ export function Sidebar({
   activeView,
   selectedProjectId,
   pinnedProjects,
+  showDesignPage,
   messages,
   onClose,
   onViewChange,
@@ -38,6 +40,7 @@ export function Sidebar({
   activeView: DashboardView;
   selectedProjectId: string | null;
   pinnedProjects: SidebarPinnedProject[];
+  showDesignPage: boolean;
   messages: AppShellMessages;
   onClose: () => void;
   onViewChange: (view: DashboardView) => void;
@@ -70,6 +73,7 @@ export function Sidebar({
           activeView={activeView}
           selectedProjectId={selectedProjectId}
           pinnedProjects={pinnedProjects}
+          showDesignPage={showDesignPage}
           messages={messages}
           mobile
           onClose={onClose}
@@ -84,6 +88,7 @@ export function Sidebar({
         activeView={activeView}
         selectedProjectId={selectedProjectId}
         pinnedProjects={pinnedProjects}
+        showDesignPage={showDesignPage}
         messages={messages}
         onClose={onClose}
         onSelectView={selectView}
@@ -99,6 +104,7 @@ function SidebarFrame({
   activeView,
   selectedProjectId,
   pinnedProjects,
+  showDesignPage,
   messages,
   mobile = false,
   onClose,
@@ -110,6 +116,7 @@ function SidebarFrame({
   activeView: DashboardView;
   selectedProjectId: string | null;
   pinnedProjects: SidebarPinnedProject[];
+  showDesignPage: boolean;
   messages: AppShellMessages;
   mobile?: boolean;
   onClose: () => void;
@@ -128,7 +135,7 @@ function SidebarFrame({
     >
       <ScrollArea
         className="relative flex-1"
-        refreshKey={`${open}-${pinnedProjects.length}-${messages.workspace}`}
+        refreshKey={`${open}-${pinnedProjects.length}-${showDesignPage}-${messages.workspace}`}
         scrollbar="auto-hide"
         viewportClassName="h-full overscroll-contain p-4"
       >
@@ -217,6 +224,15 @@ function SidebarFrame({
             darkMode={darkMode}
             onClick={() => onSelectView("settings")}
           />
+          {showDesignPage ? (
+            <SidebarItem
+              icon={<Palette size={18} aria-hidden="true" />}
+              label={messages.pages.design}
+              active={activeView === "design"}
+              darkMode={darkMode}
+              onClick={() => onSelectView("design")}
+            />
+          ) : null}
         </nav>
       </ScrollArea>
     </aside>

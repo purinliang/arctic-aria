@@ -18,12 +18,16 @@ import { cx } from "@/components/utils";
 import type { DatabaseVersionStatus } from "@/components/app-metadata";
 import type { ThemePreference } from "@/app-shell/app-preferences";
 import type { AppMessages } from "@/messages/app-messages";
-import type { LanguagePreference } from "@/messages/languages";
+import type {
+  LanguagePreference,
+  SupportedLanguage,
+} from "@/messages/languages";
 import type {
   TimeFormatPreference,
   UserPreferences,
 } from "@/features/settings/preferences";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
+import { DesignPage } from "@/features/design/components/DesignPage";
 import { EventsPage } from "@/features/events/components/EventsPage";
 import { useDashboardEvents } from "@/features/events/hooks/useDashboardEvents";
 import { useDashboardMemories } from "@/features/dashboard/hooks/useDashboardMemories";
@@ -45,6 +49,10 @@ import {
   appRouteFromPathname,
   browserPathname,
 } from "./app-routes";
+import {
+  readStoredDeveloperModeEnabled,
+  writeStoredDeveloperModeEnabled,
+} from "./developer-mode";
 import { Sidebar } from "./Sidebar";
 
 export function AppShell({
@@ -53,9 +61,12 @@ export function AppShell({
   languagePreference,
   messages,
   onLanguagePreferenceChange,
+  onLocalLanguagePreferenceChange,
+  onLocalThemePreferenceChange,
   onPreferenceOpenAttempt,
   onThemePreferenceChange,
   onTimeFormatPreferenceChange,
+  resolvedLanguage,
   resolvedTimeZone,
   themePreference,
   timeFormatPreference,
@@ -73,9 +84,12 @@ export function AppShell({
   languagePreference: LanguagePreference;
   messages: AppMessages;
   onLanguagePreferenceChange: (preference: LanguagePreference) => void;
+  onLocalLanguagePreferenceChange: (preference: LanguagePreference) => void;
+  onLocalThemePreferenceChange: (preference: ThemePreference) => void;
   onPreferenceOpenAttempt: (preference: keyof UserPreferences) => boolean;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onTimeFormatPreferenceChange: (preference: TimeFormatPreference) => void;
+  resolvedLanguage: SupportedLanguage;
   resolvedTimeZone: string;
   themePreference: ThemePreference;
   timeFormatPreference: TimeFormatPreference;
@@ -94,6 +108,12 @@ export function AppShell({
   );
   const pathnameRoute = appRouteFromPathname(currentPathname);
   const activeView = pathnameRoute.view;
+  const [developerModeEnabled, setDeveloperModeEnabled] = useState(
+    readStoredDeveloperModeEnabled,
+  );
+  const showDesignPage = currentUser.isAdmin && developerModeEnabled;
+  const activeWorkspaceView =
+    activeView === "design" && !showDesignPage ? "settings" : activeView;
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const selectedProjectId = pathnameRoute.projectId;
   const [selectedProjectMilestone, setSelectedProjectMilestone] = useState<{
@@ -201,6 +221,25 @@ export function AppShell({
   }, [initialPathname]);
 
   useEffect(() => {
+    if (activeView !== "design" || showDesignPage) {
+      return;
+    }
+
+    const settingsPath = appPathForView("settings");
+    const timeoutId = window.setTimeout(() => {
+      window.history.replaceState(
+        { arcticAriaPath: settingsPath },
+        "",
+        settingsPath,
+      );
+      setCurrentPathname(settingsPath);
+      setSidebarOpen(false);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [activeView, showDesignPage]);
+
+  useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       void refreshProjectData();
       void refreshEventData();
@@ -255,20 +294,17 @@ export function AppShell({
     navigateToRoute(appPathForView(view));
   }
 
-  const pageTitle =
-    activeView === "dashboard"
-      ? messages.appShell.pages.dashboard
-      : activeView === "routines"
-        ? messages.appShell.pages.routines
-        : activeView === "events"
-          ? messages.appShell.pages.events
-        : activeView === "ideas"
-          ? messages.appShell.pages.ideas
-          : activeView === "memories"
-            ? messages.appShell.pages.memories
-            : messages.appShell.pages.settings;
+  function handleDeveloperModeChange(enabled: boolean) {
+    setDeveloperModeEnabled(enabled);
+    writeStoredDeveloperModeEnabled(enabled);
+  }
+
+  const pageTitle = pageTitleForView(
+    activeWorkspaceView,
+    messages.appShell.pages,
+  );
   const pageDescription = pageDescriptionForView(
-    activeView,
+    activeWorkspaceView,
     messages.appShell.pageDescriptions,
   );
 
@@ -278,9 +314,10 @@ export function AppShell({
         <Sidebar
           open={sidebarOpen}
           darkMode={darkMode}
-          activeView={activeView}
+          activeView={activeWorkspaceView}
           selectedProjectId={selectedProjectId}
           pinnedProjects={pinnedProjects}
+          showDesignPage={showDesignPage}
           messages={messages.appShell}
           onClose={() => setSidebarOpen(false)}
           onViewChange={handleViewChange}
@@ -299,7 +336,7 @@ export function AppShell({
               icon={<Menu size={20} aria-hidden="true" />}
               onClick={() => setSidebarOpen(true)}
             />
-            {activeView === "projects" ? (
+            {activeWorkspaceView === "projects" ? (
               <ProjectPageTitle
                 darkMode={darkMode}
                 projects={projectState.projects}
@@ -346,7 +383,7 @@ export function AppShell({
             )}
           </header>
 
-          {activeView === "projects" ? (
+          {activeWorkspaceView === "projects" ? (
             <ProjectsPage
               darkMode={darkMode}
               projects={projectState.projects}
@@ -382,7 +419,7 @@ export function AppShell({
               showErrorNotification={showErrorNotification}
               showSuccessNotification={showSuccessNotification}
             />
-          ) : activeView === "routines" ? (
+          ) : activeWorkspaceView === "routines" ? (
             <RoutinesPage
               darkMode={darkMode}
               routines={routineState.routineDefinitions}
@@ -403,7 +440,7 @@ export function AppShell({
               showErrorNotification={showErrorNotification}
               showSuccessNotification={showSuccessNotification}
             />
-          ) : activeView === "events" ? (
+          ) : activeWorkspaceView === "events" ? (
             <EventsPage
               darkMode={darkMode}
               events={eventState.events}
@@ -420,7 +457,7 @@ export function AppShell({
               showErrorNotification={showErrorNotification}
               showSuccessNotification={showSuccessNotification}
             />
-          ) : activeView === "ideas" ? (
+          ) : activeWorkspaceView === "ideas" ? (
             <IdeasPage
               darkMode={darkMode}
               ideas={ideaState.ideas}
@@ -431,7 +468,7 @@ export function AppShell({
               onIdeaSave={ideaState.saveIdeaFromPage}
               onIdeaDelete={ideaState.deleteIdeaFromPage}
             />
-          ) : activeView === "memories" ? (
+          ) : activeWorkspaceView === "memories" ? (
             <MemoriesPage
               darkMode={darkMode}
               categories={memoryState.memoryCategories}
@@ -455,13 +492,14 @@ export function AppShell({
               messages={messages.memories}
               formMessages={messages.forms}
             />
-          ) : activeView === "settings" ? (
+          ) : activeWorkspaceView === "settings" ? (
             <SettingsPage
               currentUserDisplayName={currentUser.displayName}
               currentUserId={currentUser.id}
               currentUserIsAdmin={currentUser.isAdmin}
               currentUsername={currentUser.username}
               darkMode={darkMode}
+              developerModeEnabled={developerModeEnabled}
               languagePreference={languagePreference}
               logoutPending={logoutPending}
               messages={messages.settings}
@@ -469,6 +507,7 @@ export function AppShell({
               themePreference={themePreference}
               versionMessages={messages.versionStatus}
               versionStatus={versionStatus}
+              onDeveloperModeChange={handleDeveloperModeChange}
               onLanguagePreferenceChange={onLanguagePreferenceChange}
               onPreferenceOpenAttempt={onPreferenceOpenAttempt}
               onThemePreferenceChange={onThemePreferenceChange}
@@ -477,6 +516,15 @@ export function AppShell({
               showErrorNotification={showErrorNotification}
               showSuccessNotification={showSuccessNotification}
               timeFormatPreference={timeFormatPreference}
+            />
+          ) : activeWorkspaceView === "design" ? (
+            <DesignPage
+              darkMode={darkMode}
+              languagePreference={languagePreference}
+              resolvedLanguage={resolvedLanguage}
+              themePreference={themePreference}
+              onLanguagePreferenceChange={onLocalLanguagePreferenceChange}
+              onThemePreferenceChange={onLocalThemePreferenceChange}
             />
           ) : (
             <Dashboard
@@ -520,6 +568,13 @@ export function AppShell({
       />
     </main>
   );
+}
+
+function pageTitleForView(
+  view: DashboardView,
+  pages: AppMessages["appShell"]["pages"],
+) {
+  return pages[view];
 }
 
 function pageDescriptionForView(
