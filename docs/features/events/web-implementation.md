@@ -9,15 +9,19 @@ rules are defined in [overview.md](overview.md), data rules are defined in
 
 The current web implementation supports database-backed Events:
 
-- load all non-deleted Events
-- load today's Events for the current local board date
+- load non-deleted Event definitions
+- load generated Event instances
+- load today's Event instances for the current local board date
 - add, edit, and soft-delete Events
+- add, edit, delete, and filter by Event Groups
+- choose `once`, `daily`, or `weekly` recurrence
 - parse and save Event templates from the add/edit dialog header menu
-- filter the Events page by `All`, `Upcoming`, or `Past`
+- filter Event instances by `All`, `Recent`, `Future`, or `Past`
 - show today's Events as display-only rows on Today
 - include Events in scheduled Daily Review text and metadata
 
-The current version does not send Discord Event reminders.
+The current version does not send Discord Event reminders and does not expose
+Event instance reschedule, cancel, or location override actions in the UI.
 
 ## Data Flow
 
@@ -25,9 +29,15 @@ The current version does not send Discord Event reminders.
 `useDashboardEvents`. The hook uses the shared dashboard browser cache with
 stale-while-refresh behavior.
 
-Successful save or delete actions refresh the cached Event page data and Today
-Event rows from the backend response. Failed save or delete actions keep dialogs
-open and show a shared notification.
+Successful definition, group, or delete actions refresh cached Event
+definitions, generated Event instances, Today Event rows, and Event Groups from
+the backend response. Failed actions keep dialogs open and show a shared
+notification.
+
+Event page and Today loads lazily ensure up to the next three upcoming
+instances per active Event definition from the user's current board date.
+Saving an Event definition removes future uncustomized scheduled instances for
+that definition and regenerates the next three instances.
 
 ## Event Template
 
@@ -49,7 +59,7 @@ apps/web/src/features/events/event-template-types.ts
 
 The server actions `parseEventTemplate` and `applyEventTemplate` are normal
 authenticated user actions, not developer-only routes. They load the signed-in
-user's current non-deleted Events before normalizing the template.
+user's current non-deleted Event definitions before normalizing the template.
 
 Template save behavior:
 
@@ -58,6 +68,9 @@ Template save behavior:
 - delete rows soft-delete the matched Event
 - preserve rows are skipped
 - unknown Event ids return `event_not_found`
+- create rows use a `once` rule in the user's resolved timezone
+- update rows preserve the matched Event's group, end date, recurrence rule,
+  and timezone
 
 ## Code Locations
 
@@ -68,6 +81,9 @@ apps/web/src/features/events/components/EventsPage.tsx
 apps/web/src/features/events/components/EventsList.tsx
 apps/web/src/features/events/components/EventFiltersPanel.tsx
 apps/web/src/features/events/components/EventEditorDialog.tsx
+apps/web/src/features/events/components/EventGroupsPanel.tsx
+apps/web/src/features/events/components/EventGroupManagerDialog.tsx
+apps/web/src/features/events/components/EventInstancesList.tsx
 apps/web/src/features/events/components/EventTemplateEditorDialog.tsx
 apps/web/src/features/events/components/EventsPanel.tsx
 apps/web/src/features/events/components/event-page-helpers.ts
@@ -93,6 +109,7 @@ Database migration:
 apps/database/migrations/0030_create_events.sql
 apps/database/migrations/0031_events_estimated_duration_hours.sql
 apps/database/migrations/0032_drop_event_estimated_duration_minutes.sql
+apps/database/migrations/0034_create_event_instances.sql
 ```
 
 Focused tests:

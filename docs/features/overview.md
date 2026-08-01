@@ -14,6 +14,8 @@ The current feature model supports:
 - milestones and tasks with status-derived progress
 - recurring routines
 - generated routine instances
+- fixed Event definitions
+- generated Event instances
 - user settings
 - Today selections
 - quick idea capture
@@ -37,6 +39,8 @@ Detailed feature docs:
 - Project and task persistence: [projects/data-model.md](projects/data-model.md)
 - Routine rules: [routines/overview.md](routines/overview.md)
 - Routine persistence: [routines/data-model.md](routines/data-model.md)
+- Event rules: [events/overview.md](events/overview.md)
+- Event persistence: [events/data-model.md](events/data-model.md)
 - Memory rules: [memories/overview.md](memories/overview.md)
 - Memory persistence: [memories/data-model.md](memories/data-model.md)
 - Ideas rules: [ideas/overview.md](ideas/overview.md)
@@ -225,9 +229,39 @@ Routine instance statuses:
 `Later` and `Move to tomorrow` are planned reminder responses. They are not
 implemented UI actions yet.
 
-The routine feature may generate routine instances ahead of time or lazily when the
-scheduler prepares a daily plan. The same routine should not generate duplicate
-instances for the same scheduled date and scheduled time.
+Routine page, Today, and reminder loads ensure at most the next 3 upcoming
+routine instances per active routine. The same routine should not generate
+duplicate instances for the same scheduled date and scheduled time.
+
+## Events
+
+An Event is a fixed externally constrained plan. It is not a project task and
+not a routine instance.
+
+`events` store Event definitions:
+
+- user id
+- optional group id
+- title
+- description
+- start date
+- optional end date, inclusive
+- estimated duration
+- default location
+- created and updated timestamps
+- deleted timestamp, if soft-deleted
+
+`event_groups` store optional user-owned folders for related Event definitions,
+such as school tutorials, student lessons, customer meetings, or weekly
+reports. Deleting a group sets `deleted_at` and leaves linked Events ungrouped.
+
+`event_rules` store exactly one recurrence rule per Event definition. The first
+supported rule types are `once`, `daily`, and `weekly`.
+
+`event_instances` store generated appointments. Event page and Today loads
+ensure at most the next 3 upcoming Event instances per active Event definition.
+Event instances can later support cancel, reschedule, and location override
+without changing the whole Event definition.
 
 ## Today Selections
 
@@ -244,6 +278,9 @@ Project tasks use `project_task_daily_selections`:
 
 Routine rows use `routine_instances`, because routines are recurring
 definitions with concrete occurrences.
+
+Event rows use `event_instances`, because Events are fixed definitions with
+concrete appointments.
 
 ## Ideas
 
@@ -303,24 +340,29 @@ Detailed behavior and table attributes are documented in
 
 ## Completion Events
 
-Completion events are immutable history records used by review logic.
+Completion history records are immutable work-history rows used by review
+logic. Project tasks and routine instances use separate tables so Calendar
+Events are not confused with work completion history.
 
-Planned direction: replace the shared `completion_events` table with separate
-project task and routine completion history tables. Calendar Events should not
-use completion history tables. See
-[events/recurrence-plan.md](events/recurrence-plan.md).
-
-`completion_events` should store:
+`project_task_completion_events` stores:
 
 - user id
-- target type: `task` or `routine_instance`
-- target id
-- event type, such as `completed`, `reopened`, `blocked`, `unblocked`, or
-  `skipped`
+- task id
+- event type: `completed`, `reopened`, `blocked`, or `unblocked`
+- previous and new completed weight
 - occurred at timestamp
 - source, such as web, Discord, scheduler, or agent
 
-State tables store the latest state. Completion events store what happened.
+`routine_completion_events` stores:
+
+- user id
+- routine instance id
+- event type: `completed`, `skipped`, or `reopened`
+- occurred at timestamp
+- source, such as web, Discord, scheduler, or agent
+
+State tables store the latest state. Completion history stores what happened.
+Calendar Events do not write to these tables.
 
 ## Reminder Jobs
 

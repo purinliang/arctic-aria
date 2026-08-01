@@ -8,8 +8,10 @@ import { CrudEditorDialog } from "@/components/dialog";
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import { FormGrid, FormSection } from "@/components/forms/form-layout";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
+import { SelectInput } from "@/components/forms/selection-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { TimePickerField } from "@/components/forms/time-picker-field";
+import type { EventGroupOption } from "@/features/dashboard/types";
 import type { EventInput } from "@/features/events/actions";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { EventMessages, FormMessages } from "@/messages/app-messages";
@@ -19,6 +21,7 @@ export function EventEditorDialog({
   pending,
   saving,
   draft,
+  groups,
   messages,
   formMessages,
   timeFormatPreference,
@@ -32,6 +35,7 @@ export function EventEditorDialog({
   pending: boolean;
   saving: boolean;
   draft: EventInput;
+  groups: EventGroupOption[];
   messages: EventMessages;
   formMessages: FormMessages;
   timeFormatPreference: TimeFormatPreference;
@@ -71,7 +75,9 @@ export function EventEditorDialog({
         darkMode={darkMode}
         pending={pending}
         draft={draft}
+        groups={groups}
         messages={messages.editor}
+        groupMessages={messages.groups}
         setDraft={setDraft}
       />
       <EventScheduleFields
@@ -79,6 +85,7 @@ export function EventEditorDialog({
         pending={pending}
         draft={draft}
         messages={messages.editor}
+        recurrenceMessages={messages}
         formMessages={formMessages}
         timeFormatPreference={timeFormatPreference}
         setDraft={setDraft}
@@ -160,17 +167,44 @@ function EventTextFields({
   darkMode,
   pending,
   draft,
+  groups,
   messages,
+  groupMessages,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: EventInput;
+  groups: EventGroupOption[];
   messages: EventMessages["editor"];
+  groupMessages: EventMessages["groups"];
   setDraft: Dispatch<SetStateAction<EventInput>>;
 }) {
   return (
     <FormSection>
+      <FieldLabel darkMode={darkMode} label={messages.group}>
+        <SelectInput
+          darkMode={darkMode}
+          value={draft.groupId || "none"}
+          disabled={pending}
+          options={[
+            {
+              value: "none",
+              label: groupMessages.noGroup,
+            },
+            ...groups.map((group) => ({
+              value: group.id,
+              label: group.name,
+            })),
+          ]}
+          onChange={(groupId) =>
+            setDraft((current) => ({
+              ...current,
+              groupId: groupId === "none" ? null : groupId,
+            }))
+          }
+        />
+      </FieldLabel>
       <FieldLabel darkMode={darkMode} label={messages.title}>
         <TextInput
           darkMode={darkMode}
@@ -206,6 +240,7 @@ function EventScheduleFields({
   pending,
   draft,
   messages,
+  recurrenceMessages,
   formMessages,
   timeFormatPreference,
   setDraft,
@@ -214,6 +249,7 @@ function EventScheduleFields({
   pending: boolean;
   draft: EventInput;
   messages: EventMessages["editor"];
+  recurrenceMessages: EventMessages;
   formMessages: FormMessages;
   timeFormatPreference: TimeFormatPreference;
   setDraft: Dispatch<SetStateAction<EventInput>>;
@@ -233,6 +269,19 @@ function EventScheduleFields({
             }
           />
         </FieldLabel>
+        <FieldLabel darkMode={darkMode} label={messages.endDate} optional>
+          <DatePickerField
+            darkMode={darkMode}
+            placeholder={messages.selectEndDate}
+            messages={formMessages.datePicker}
+            value={draft.endDate ?? ""}
+            min={draft.eventDate || undefined}
+            disabled={pending}
+            onChange={(endDate) =>
+              setDraft((current) => ({ ...current, endDate }))
+            }
+          />
+        </FieldLabel>
         <FieldLabel darkMode={darkMode} label={messages.time}>
           <TimePickerField
             darkMode={darkMode}
@@ -244,6 +293,33 @@ function EventScheduleFields({
             allowClear={false}
             onChange={(eventTime) =>
               setDraft((current) => ({ ...current, eventTime }))
+            }
+          />
+        </FieldLabel>
+        <FieldLabel darkMode={darkMode} label={messages.recurrence}>
+          <SelectInput
+            darkMode={darkMode}
+            value={draft.ruleType || "once"}
+            disabled={pending}
+            options={[
+              {
+                value: "once",
+                label: recurrenceMessages.recurrenceOptions.once,
+                description: recurrenceMessages.recurrenceDescriptions.once,
+              },
+              {
+                value: "daily",
+                label: recurrenceMessages.recurrenceOptions.daily,
+                description: recurrenceMessages.recurrenceDescriptions.daily,
+              },
+              {
+                value: "weekly",
+                label: recurrenceMessages.recurrenceOptions.weekly,
+                description: recurrenceMessages.recurrenceDescriptions.weekly,
+              },
+            ]}
+            onChange={(ruleType) =>
+              setDraft((current) => ({ ...current, ruleType }))
             }
           />
         </FieldLabel>

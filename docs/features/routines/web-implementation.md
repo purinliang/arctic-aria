@@ -12,6 +12,7 @@ The current web implementation supports database-backed routine testing:
 - load routine definitions from Neon
 - load routine groups from Neon
 - load today's routine instances from Neon
+- load generated routine instances from Neon
 - add, edit, and delete routine definitions
 - add, edit, delete, and filter by routine groups
 - parse and save routine templates from the add/edit dialog header menu
@@ -24,6 +25,7 @@ The current web implementation supports database-backed routine testing:
   web-hosted scheduled Discord cron route and Discord notification service
 - store routine reminder state on routine instances with `remind_at` and
   `reminded_at`
+- write routine completion history to `routine_completion_events`
 
 The current Today UI does not show `Busy`, `Skip`, `Later`, or
 `Move to tomorrow` buttons. Those are future reminder-response actions.
@@ -49,13 +51,26 @@ The page should show:
 Routine `Edit` opens routine editing UI.
 
 Successful save or delete refreshes Today routine instances and routine
-definitions from the backend response.
+definitions from the backend response. It also refreshes the loaded routine
+instance list.
 
 Routine group save/delete also refreshes routine definitions, routine groups,
-and today's routine instances from the backend response.
+today's routine instances, and loaded routine instances from the backend
+response.
 
 The routine group filter is local UI state. It is not persisted and does not
 call the backend.
+
+The Routine Instances panel uses local date filters:
+
+- `All`
+- `Recent`: yesterday through three days after the current board date
+- `Future`: four or more days after the current board date
+- `Past`: two or more days before the current board date
+
+Routine page, Today, and reminder loads lazily ensure up to the next three
+instances per active routine. Saving a routine removes future pending
+uncustomized instances for that routine and regenerates the next three.
 
 ## Today Panel
 
@@ -152,13 +167,16 @@ Routine web UI:
 apps/web/src/features/routines/components/RoutinesPage.tsx
 apps/web/src/features/routines/components/RoutinesList.tsx
 apps/web/src/features/routines/components/RoutineEditorDialog.tsx
+apps/web/src/features/routines/components/RoutineFiltersPanel.tsx
 apps/web/src/features/routines/components/RoutineTemplateEditorDialog.tsx
 apps/web/src/features/routines/components/RoutineGroupManagerDialog.tsx
 apps/web/src/features/routines/components/RoutineGroupsPanel.tsx
+apps/web/src/features/routines/components/RoutineInstancesList.tsx
 apps/web/src/features/routines/components/RoutineRecurrenceFields.tsx
 apps/web/src/features/routines/components/RoutinesPanel.tsx
 apps/web/src/features/routines/components/routine-page-helpers.ts
 apps/web/src/features/routines/routine-recurrence.ts
+apps/web/src/features/instance-date-filters.ts
 ```
 
 Routine server actions:
@@ -190,6 +208,7 @@ Database migration:
 apps/database/migrations/0003_create_routines.sql
 apps/database/migrations/0022_add_routine_reminder_state.sql
 apps/database/migrations/0026_create_routine_groups.sql
+apps/database/migrations/0033_split_completion_events.sql
 ```
 
 Focused tests:
@@ -200,6 +219,7 @@ apps/web/src/features/routines/__tests__/routine-recurrence.test.ts
 apps/web/src/features/routines/__tests__/routine-reminder-service.test.ts
 apps/web/src/features/routines/__tests__/routine-service.test.ts
 apps/web/src/features/routines/__tests__/routine-template.test.ts
+apps/web/src/features/__tests__/instance-date-filters.test.ts
 ```
 
 ## Verification

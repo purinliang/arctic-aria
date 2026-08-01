@@ -1,13 +1,18 @@
 # Event Groups, Recurring Instances, And Work History Plan
 
-Status: planned, not implemented.
+Status: implemented through Event Groups, Event rules, Event instances,
+next-3 Event and Routine instance generation, split definition/instance
+management panels, shared instance filters, and split completion-history
+tables.
 
-This document is the implementation-ready planning source for a later Goal Mode
-run. Current implemented Event behavior remains one-time scheduled rows until a
-future implementation branch updates migrations, repositories, services, UI,
-and tests.
+Remaining later work: Event instance reschedule, cancel, and location-override
+actions.
 
-## Current Facts
+This document was the implementation-ready planning source for the recurrence
+goal. It remains the product rationale and follow-up checklist for the remaining
+Event-instance lifecycle work.
+
+## Starting Facts Before This Goal
 
 Current Events:
 
@@ -110,7 +115,7 @@ Daily rules:
   needed, create separate weekly Event definitions inside one Event Group until
   the product clearly needs a weekday shortcut.
 
-## Planned Data Model
+## Implemented Data Model
 
 The target schema separates Event definitions, Event rules, Event instances,
 and Event groups.
@@ -119,7 +124,7 @@ and Event groups.
 
 Purpose: optional grouping for related Event definitions.
 
-Planned fields:
+Fields:
 
 - `id`
 - `user_id`
@@ -140,7 +145,7 @@ Rules:
 
 Purpose: Event definition table.
 
-Planned changes:
+Implemented changes:
 
 - add optional `group_id`
 - add or migrate to `start_date`
@@ -160,7 +165,7 @@ Default location:
 
 Purpose: one recurrence rule per Event definition.
 
-Planned fields:
+Fields:
 
 - `id`
 - `event_id`
@@ -182,7 +187,7 @@ Rules:
 
 Purpose: concrete generated appointment rows.
 
-Planned fields:
+Fields:
 
 - `id`
 - `user_id`
@@ -223,7 +228,7 @@ Keep the existing Routine table split:
 - `routine_rules`
 - `routine_instances`
 
-Planned Routine behavior changes:
+Implemented Routine behavior changes:
 
 - generate upcoming routine instances beyond Today
 - generate at most the next 3 future instances per active routine
@@ -334,7 +339,7 @@ Target tables:
 Do not create another shared target-polymorphic completion table. Project task
 completion history and routine completion history should be separate tables.
 
-Planned `project_task_completion_events` fields:
+`project_task_completion_events` fields:
 
 - `id`
 - `user_id`
@@ -345,7 +350,7 @@ Planned `project_task_completion_events` fields:
 - `occurred_at`
 - `source`
 
-Planned `routine_completion_events` fields:
+`routine_completion_events` fields:
 
 - `id`
 - `user_id`
@@ -354,7 +359,7 @@ Planned `routine_completion_events` fields:
 - `occurred_at`
 - `source`
 
-Migration direction:
+Implemented migration direction:
 
 - create both new tables
 - backfill `completion_events` rows where `target_type = 'task'` into
@@ -378,9 +383,9 @@ Calendar Event lifecycle history:
 - current Event instance state can live on `event_instances`
 - if immutable audit is later needed, add `event_instance_history`
 
-## Goal Mode Implementation Order
+## Implementation Order
 
-Recommended branch sequence:
+Implemented branch sequence:
 
 1. Update this planning doc and related doc references.
 2. Split `completion_events` into project and routine completion history
@@ -390,11 +395,11 @@ Recommended branch sequence:
 4. Add Event Groups, Event rules, Event instances, and backfill current Events.
 5. Add Event next-3 upcoming instance generation.
 6. Add split definition/instance panels for Routines and Events.
-7. Add Event instance reschedule/cancel and location override actions.
+7. Later: add Event instance reschedule/cancel and location override actions.
 
 Keep each branch focused and commit after each coherent migration or UI step.
 
-## Later Implementation Tests
+## Implementation Tests
 
 Completion history tests:
 

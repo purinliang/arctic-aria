@@ -94,16 +94,20 @@ In progress:
 
 ## Events
 
-Status: implemented for one-time scheduled items.
+Status: implemented for fixed plans with one-time, daily, and weekly
+recurrence.
 
 You might have appointments, bookings, meetings, or other plans that happen
-once at a fixed date and time. Arctic Aria lets you create Events with a title,
-optional description, date, time, estimated duration, and location.
+at a fixed date and time, or repeat as a series with an outside dependency.
+Arctic Aria lets you create Events with a title, optional description, group,
+date, time, recurrence, estimated duration, and location.
 
 You can:
 
 - create, edit, and delete Events
-- see upcoming and past Events on the Events page
+- organize related Events with Event Groups
+- see Event definitions and generated Event instances on the Events page
+- filter Event instances by All, Recent, Future, or Past
 - see today's Events on Today
 - open the Events page from a Today Event row
 - see Events in the Daily Review message

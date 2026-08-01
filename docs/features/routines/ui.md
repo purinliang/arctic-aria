@@ -51,7 +51,8 @@ The first Routines page should allow the user to:
 
 - view routine definitions
 - filter routine definitions by group
-- view recent or upcoming instances
+- view generated routine instances
+- filter routine instances by `All`, `Recent`, `Future`, or `Past`
 - create a routine from a `New` header button
 - edit a routine
 - delete a routine
@@ -94,8 +95,26 @@ phases and remain inside Projects.
 
 The Routines page uses the shared split layout:
 
-- left side: Routines list panel
-- right side: Groups panel
+- left side: Routine Definitions panel and Routine Instances panel
+- right side: instance Filter panel and Groups panel
+
+The Routine Definitions panel lists active routine definitions. Rows show title,
+description, group, recurrence summary, preferred time, and estimated duration.
+The row action opens the Edit Routine dialog.
+
+The Routine Instances panel lists generated routine instances. Rows show title,
+description, scheduled date, scheduled time, and status. Pending rows can be
+completed from this panel. Completed or skipped rows can be reopened.
+
+The instance filter uses:
+
+- `All`: every loaded routine instance
+- `Recent`: yesterday through three days after the current board date
+- `Future`: four or more days after the current board date
+- `Past`: two or more days before the current board date
+
+The group filter affects routine definitions. It does not filter the Routine
+Instances panel.
 
 Groups panel layout:
 

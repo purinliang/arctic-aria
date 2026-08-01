@@ -5,7 +5,10 @@ import {
   type RoutineInstanceRecord,
   type RoutineRecord,
 } from "../server/routine-repository.ts";
-import { createRoutineService } from "../server/routine-service.ts";
+import {
+  createRoutineService,
+  nextRoutineOccurrenceDates,
+} from "../server/routine-service.ts";
 
 const userId = "user-1";
 const now = new Date("2026-07-12T10:00:00.000Z");
@@ -230,6 +233,60 @@ test("saving a routine creates today's instance immediately", async () => {
   assert.equal(instances.length, 1);
   assert.equal(instances[0].title, "New morning check");
   assert.equal(instances[0].scheduledTime, "08:00");
+});
+
+test("routine recurrence dates are generated with a three-instance limit", () => {
+  assert.deepEqual(
+    nextRoutineOccurrenceDates({
+      routine: routine({
+        id: "routine-1",
+        title: "Weekly class prep",
+        startDate: "2026-07-01",
+        rule: {
+          id: "routine-1-rule",
+          routineId: "routine-1",
+          ruleType: "weekly",
+          intervalValue: null,
+          weekdays: [1, 3],
+          dayOfMonth: null,
+          preferredTime: "08:00",
+          timezone: "UTC",
+          createdAt: new Date("2026-07-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-07-01T00:00:00.000Z"),
+        },
+      }),
+      fromDate: "2026-07-12",
+    }),
+    ["2026-07-13", "2026-07-15", "2026-07-20"],
+  );
+});
+
+test("listUpcomingRoutineInstances tops up active routines without duplicates", async () => {
+  const repository = new InMemoryRoutineRepository({
+    routines: [
+      routine({
+        id: "routine-1",
+        title: "Daily check",
+        startDate: "2026-07-01",
+      }),
+    ],
+  });
+  const service = createRoutineService({
+    routines: repository,
+    now: () => now,
+  });
+
+  const firstLoad = await service.listUpcomingRoutineInstances(userId, "UTC");
+  const secondLoad = await service.listUpcomingRoutineInstances(userId, "UTC");
+
+  assert.deepEqual(
+    firstLoad.map((instance) => instance.scheduledDate),
+    ["2026-07-12", "2026-07-13", "2026-07-14"],
+  );
+  assert.deepEqual(
+    secondLoad.map((instance) => instance.scheduledDate),
+    ["2026-07-12", "2026-07-13", "2026-07-14"],
+  );
 });
 
 test("monthly by date supports yearly renewal intervals", async () => {

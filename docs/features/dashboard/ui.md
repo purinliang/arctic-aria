@@ -166,7 +166,7 @@ navigate.
 
 ## Events Panel
 
-The Events panel shows Events for the current personal board date.
+The Events panel shows Event instances for the current personal board date.
 
 Header:
 

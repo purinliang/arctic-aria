@@ -1,12 +1,12 @@
-// Events Page - Event Filters Panel.
+// Routines Page - Routine Instance Filters Panel.
 import { ListFilter } from "lucide-react";
 import { CardHeader } from "@/components/card";
 import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { Panel } from "@/components/panel";
 import type { InstanceDateFilter } from "@/features/instance-date-filters";
-import type { EventMessages } from "@/messages/app-messages";
+import type { RoutineMessages } from "@/messages/app-messages";
 
-export function EventFiltersPanel({
+export function RoutineFiltersPanel({
   darkMode,
   disabled,
   filter,
@@ -16,7 +16,7 @@ export function EventFiltersPanel({
   darkMode: boolean;
   disabled: boolean;
   filter: InstanceDateFilter;
-  messages: EventMessages["filters"];
+  messages: RoutineMessages["filters"];
   onFilterChange: (filter: InstanceDateFilter) => void;
 }) {
   return (

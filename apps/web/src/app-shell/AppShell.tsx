@@ -423,11 +423,13 @@ export function AppShell({
             <RoutinesPage
               darkMode={darkMode}
               routines={routineState.routineDefinitions}
+              routineInstances={routineState.routineInstances}
               routineGroups={routineState.routineGroups}
               loading={routineState.routineLoading}
               pending={routineState.routineActionPending}
               onRoutineSave={routineState.saveRoutineFromPage}
               onRoutineDelete={routineState.deleteRoutineFromPage}
+              onRoutineInstanceStatus={routineState.updateRoutineInstanceFromPage}
               onRoutineTemplateParse={routineState.parseRoutineTemplateFromPage}
               onRoutineTemplateApply={routineState.applyRoutineTemplateFromPage}
               onRoutineGroupSave={routineState.saveRoutineGroupFromPage}
@@ -444,10 +446,14 @@ export function AppShell({
             <EventsPage
               darkMode={darkMode}
               events={eventState.events}
+              eventInstances={eventState.eventInstances}
+              eventGroups={eventState.eventGroups}
               loading={eventState.eventLoading}
               pending={eventState.eventActionPending}
               onEventSave={eventState.saveEventFromPage}
               onEventDelete={eventState.deleteEventFromPage}
+              onEventGroupSave={eventState.saveEventGroupFromPage}
+              onEventGroupDelete={eventState.deleteEventGroupFromPage}
               onEventTemplateParse={eventState.parseEventTemplateFromPage}
               onEventTemplateApply={eventState.applyEventTemplateFromPage}
               messages={messages.events}

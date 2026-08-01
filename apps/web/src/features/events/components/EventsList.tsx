@@ -1,4 +1,4 @@
-// Events Page - Events List.
+// Events Page - Event Definitions List.
 import { Edit3 } from "lucide-react";
 import { Button } from "@/components/button";
 import { secondaryTextColorClass } from "@/components/color";
@@ -14,19 +14,16 @@ import {
   ListItemTitle,
 } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
-import { LabelText } from "@/components/text";
-import type { ScheduledEvent } from "@/features/dashboard/types";
+import type { EventDefinition } from "@/features/dashboard/types";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { EventMessages, FormMessages } from "@/messages/app-messages";
-import type { EventTimeFilter } from "./event-page-helpers";
+import { eventRuleSummary } from "./event-page-helpers";
 
 export function EventsList({
   darkMode,
   loading,
   pending,
-  upcomingEvents,
-  pastEvents,
-  filter,
+  events,
   messages,
   formMessages,
   timeFormatPreference,
@@ -35,98 +32,21 @@ export function EventsList({
   darkMode: boolean;
   loading: boolean;
   pending: boolean;
-  upcomingEvents: ScheduledEvent[];
-  pastEvents: ScheduledEvent[];
-  filter: EventTimeFilter;
+  events: EventDefinition[];
   messages: EventMessages;
   formMessages: FormMessages;
   timeFormatPreference: TimeFormatPreference;
-  onEdit: (event: ScheduledEvent) => void;
+  onEdit: (event: EventDefinition) => void;
 }) {
-  const hasEvents = upcomingEvents.length > 0 || pastEvents.length > 0;
-
   return (
     <List darkMode={darkMode}>
       {loading ? (
         <LoadingLine darkMode={darkMode} text={messages.page.loading} />
       ) : null}
-      {!loading && !hasEvents ? (
+      {!loading && events.length === 0 ? (
         <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
-          {emptyTextForFilter(filter, messages)}
+          {messages.page.empty}
         </p>
-      ) : null}
-      <EventSection
-        darkMode={darkMode}
-        label={messages.page.upcoming}
-        showLabel={false}
-        events={upcomingEvents}
-        pending={pending}
-        messages={messages}
-        formMessages={formMessages}
-        timeFormatPreference={timeFormatPreference}
-        onEdit={onEdit}
-      />
-      <EventSection
-        darkMode={darkMode}
-        label={messages.page.past}
-        showLabel={filter === "all"}
-        events={pastEvents}
-        pending={pending}
-        messages={messages}
-        formMessages={formMessages}
-        timeFormatPreference={timeFormatPreference}
-        onEdit={onEdit}
-      />
-    </List>
-  );
-}
-
-function emptyTextForFilter(
-  filter: EventTimeFilter,
-  messages: EventMessages,
-) {
-  if (filter === "upcoming") {
-    return messages.page.emptyUpcoming;
-  }
-
-  if (filter === "past") {
-    return messages.page.emptyPast;
-  }
-
-  return messages.page.empty;
-}
-
-function EventSection({
-  darkMode,
-  label,
-  showLabel,
-  events,
-  pending,
-  messages,
-  formMessages,
-  timeFormatPreference,
-  onEdit,
-}: {
-  darkMode: boolean;
-  label: string;
-  showLabel: boolean;
-  events: ScheduledEvent[];
-  pending: boolean;
-  messages: EventMessages;
-  formMessages: FormMessages;
-  timeFormatPreference: TimeFormatPreference;
-  onEdit: (event: ScheduledEvent) => void;
-}) {
-  if (events.length === 0) {
-    return null;
-  }
-
-  return (
-    <>
-      {showLabel ? (
-        <div className="px-4 pb-1 pt-3">
-          <LabelText darkMode={darkMode}>{label}</LabelText>
-        </div>
       ) : null}
       {events.map((event) => (
         <EventRow
@@ -140,7 +60,7 @@ function EventSection({
           onEdit={() => onEdit(event)}
         />
       ))}
-    </>
+    </List>
   );
 }
 
@@ -153,7 +73,7 @@ function EventRow({
   timeFormatPreference,
   onEdit,
 }: {
-  event: ScheduledEvent;
+  event: EventDefinition;
   darkMode: boolean;
   pending: boolean;
   messages: EventMessages;
@@ -202,18 +122,20 @@ function eventMetadataText({
   formMessages,
   timeFormatPreference,
 }: {
-  event: ScheduledEvent;
+  event: EventDefinition;
   messages: EventMessages;
   formMessages: FormMessages;
   timeFormatPreference: TimeFormatPreference;
 }) {
   return [
-    formatDateKey(event.eventDate, formMessages.datePicker),
+    event.groupName || messages.groups.noGroup,
+    eventRuleSummary(event, messages),
+    formatDateKey(event.startDate, formMessages.datePicker),
     formatTimeDisplay(
-      event.eventTime,
+      event.scheduledTime,
       formMessages.timePicker,
       timeFormatPreference,
-    ) || event.eventTime,
+    ) || event.scheduledTime,
     event.estimatedDurationHours
       ? messages.metadata.durationHours(event.estimatedDurationHours)
       : null,

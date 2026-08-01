@@ -8,23 +8,43 @@ attributes are documented in [overview.md](overview.md) and
 
 The sidebar `Events` item opens the full Event management page.
 
-The first Events page allows the user to:
+The Events page allows the user to:
 
-- view upcoming Events
-- view past Events
+- view Event definitions
+- filter Event definitions by group
+- view generated Event instances
+- filter Event instances by `All`, `Recent`, `Future`, or `Past`
 - create an Event from a `New` header button
 - edit an Event
 - delete an Event
+- create, edit, and delete Event Groups
 
 The Events page header action is a secondary `New` button with a plus icon. Do
 not label this button `Add` or `New event`, because the panel title already says
 `Events`.
 
-The page uses the split layout. The right panel filters the list by `All`,
-`Upcoming`, or `Past`. `All` appears first in the control, while `Upcoming` is
-selected by default. Section labels are shown only when `All` is selected,
-because filtered lists already state their scope in the right panel. The page
-does not have Event groups or categories.
+The page uses the shared split layout:
+
+- left side: Event Definitions panel and Event Instances panel
+- right side: instance Filter panel and Groups panel
+
+The Event Definitions panel lists active definitions. Rows show title,
+description, group, recurrence label, start date, scheduled time, estimated
+duration, and default location. The row action opens the Edit Event dialog.
+
+The Event Instances panel lists generated instances. Rows show title,
+description, scheduled date, scheduled time, effective location, and status.
+The current UI does not expose reschedule, cancel, or location override actions.
+
+The instance filter uses:
+
+- `All`: every loaded Event instance
+- `Recent`: yesterday through three days after the current board date
+- `Future`: four or more days after the current board date
+- `Past`: two or more days before the current board date
+
+The Groups panel filters Event definitions by `All`, `Default`, or a
+user-created Event Group. `Manage` opens group management.
 
 ## Add Event Dialog
 
@@ -34,8 +54,11 @@ Fields:
 
 - title
 - optional description
+- group
 - date
+- end date
 - time
+- repeat rule
 - estimated duration, entered in hours and saved as a value rounded to two
   decimals after submit
 - optional location
@@ -93,10 +116,46 @@ Edit Event mode, the current Event row must keep the matching `id`, and
 additional create rows may leave `id` empty. Existing update rows whose
 editable values match the stored Event render as `Preserve`.
 
+The current Event template edits only the flat Event fields listed above. New
+template-created Events use the normal default group and a `once` rule in the
+user's resolved timezone. Template updates preserve the existing Event Group,
+end date, recurrence rule, and timezone.
+
+## Event Group Management
+
+The group manager uses the same dialog direction as routine group management.
+
+The first group manager supports user-created groups only. There are no
+built-in Event Groups.
+
+Group manager layout:
+
+- dialog title: `Manage Groups`
+- one section: `Event Groups`
+- section header action: `New`
+- group rows show name, description, and `Edit`
+- empty state says there are no groups yet
+
+Group form fields:
+
+- group name
+- optional description
+
+Group save/delete behavior:
+
+- save validates name length, description length, and duplicate names
+- successful save closes the form and refreshes Events/groups/instances from
+  the backend response
+- failed save keeps the form open and shows the shared notification
+- delete requires confirmation
+- successful delete clears the group from Events and moves them to `Default`
+- failed delete keeps the form open and shows the shared notification
+
 ## Today Events Panel
 
 Today shows an `Events` panel in the right column after `Progress` and before
-`Pinned Memories`.
+`Pinned Memories`. Today rows come from generated Event instances for the
+current board date.
 
 Event row layout:
 

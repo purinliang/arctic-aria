@@ -1,11 +1,17 @@
 "use server";
 
 import { getCurrentUser } from "@/features/auth/actions";
-import type { ScheduledEvent } from "@/features/dashboard/types";
+import type {
+  EventDefinition,
+  EventGroupOption,
+  ScheduledEvent,
+} from "@/features/dashboard/types";
 import { loadUserResolvedTimeZone } from "@/features/settings/server/user-time-zone";
 import type { ActionFailureResult } from "../../messages/action-result.ts";
 import {
+  validateEventGroupInput,
   validateEventInput,
+  type EventGroupInput,
   type EventInput,
 } from "./event-action-helpers";
 import { normalizeEventTemplateDocument } from "./event-template-normalizer";
@@ -14,14 +20,23 @@ import type {
   NormalizedEventTemplate,
 } from "./event-template-types";
 import { eventService } from "./server/event-service";
-import type { EventRecord } from "./server/event-repository";
+import type {
+  EventGroupRecord,
+  EventInstanceRecord,
+  EventRecord,
+} from "./server/event-repository";
 
-export type { EventInput } from "./event-action-helpers";
+export type {
+  EventGroupInput,
+  EventInput,
+} from "./event-action-helpers";
 export type { EventTemplateParseData } from "./event-template-types";
 
 export type EventDashboardData = {
-  events: ScheduledEvent[];
+  events: EventDefinition[];
+  eventInstances: ScheduledEvent[];
   todayEvents: ScheduledEvent[];
+  eventGroups: EventGroupOption[];
 };
 
 export type EventActionResult<T> =
@@ -59,15 +74,71 @@ function notFoundResult<T>(): EventActionResult<T> {
   };
 }
 
-function toScheduledEvent(event: EventRecord): ScheduledEvent {
+function duplicateEventGroupResult<T>(): EventActionResult<T> {
+  return {
+    ok: false,
+    message: "An event group with that name already exists.",
+    code: "event_group_duplicate",
+    category: "domain",
+    action: "save",
+    subject: "group",
+    field: "name",
+    reason: "duplicate",
+  };
+}
+
+function isDatabaseUniqueViolation(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "23505"
+  );
+}
+
+function weekdayFromDateKey(value: string) {
+  return new Date(`${value}T00:00:00.000Z`).getUTCDay();
+}
+
+function toEventDefinition(event: EventRecord): EventDefinition {
   return {
     id: event.id,
+    groupId: event.groupId,
+    groupName: event.groupName,
     title: event.title,
     description: event.description,
-    eventDate: event.eventDate,
-    eventTime: event.eventTime,
+    startDate: event.startDate,
+    endDate: event.endDate,
     estimatedDurationHours: event.estimatedDurationHours,
     location: event.location,
+    ruleType: event.rule.ruleType,
+    scheduledTime: event.rule.scheduledTime,
+    weekday: event.rule.weekday,
+    timezone: event.rule.timezone,
+    createdAt: event.createdAt.toISOString(),
+    updatedAt: event.updatedAt.toISOString(),
+  };
+}
+
+function toEventGroupOption(group: EventGroupRecord): EventGroupOption {
+  return {
+    id: group.id,
+    name: group.name,
+    description: group.description,
+  };
+}
+
+function toScheduledEvent(event: EventInstanceRecord): ScheduledEvent {
+  return {
+    id: event.id,
+    eventId: event.eventId,
+    title: event.title,
+    description: event.description,
+    eventDate: event.scheduledDate,
+    eventTime: event.scheduledTime,
+    estimatedDurationHours: event.estimatedDurationHours,
+    location: event.effectiveLocation,
+    status: event.status,
     createdAt: event.createdAt.toISOString(),
     updatedAt: event.updatedAt.toISOString(),
   };
@@ -77,14 +148,18 @@ export async function loadEventDashboardData(
   userId: string,
 ): Promise<EventDashboardData> {
   const timeZone = await loadUserResolvedTimeZone(userId);
-  const [events, todayEvents] = await Promise.all([
+  const [events, eventInstances, todayEvents, eventGroups] = await Promise.all([
     eventService.listEvents(userId),
+    eventService.listEventInstances(userId, timeZone),
     eventService.listTodayEvents(userId, timeZone),
+    eventService.listEventGroups(userId),
   ]);
 
   return {
-    events: events.map(toScheduledEvent),
+    events: events.map(toEventDefinition),
+    eventInstances: eventInstances.map(toScheduledEvent),
     todayEvents: todayEvents.map(toScheduledEvent),
+    eventGroups: eventGroups.map(toEventGroupOption),
   };
 }
 
@@ -92,7 +167,12 @@ export async function loadEventsForDateData(
   userId: string,
   eventDate: string,
 ): Promise<{ events: ScheduledEvent[] }> {
-  const events = await eventService.listEventsForDate(userId, eventDate);
+  const timeZone = await loadUserResolvedTimeZone(userId);
+  const events = await eventService.listEventsForDate(
+    userId,
+    eventDate,
+    timeZone,
+  );
 
   return {
     events: events.map(toScheduledEvent),
@@ -134,14 +214,40 @@ export async function saveEvent(
   }
 
   try {
+    if (validation.groupId) {
+      const group = (await eventService.listEventGroups(user.id)).find(
+        (item) => item.id === validation.groupId,
+      );
+
+      if (!group) {
+        return {
+          ok: false,
+          message: "Event group was not found.",
+          code: "event_group_not_found",
+          category: "not_found",
+          subject: "group",
+        };
+      }
+    }
+
     const saved = await eventService.saveEvent(user.id, {
       eventId: input.id,
+      groupId: validation.groupId,
       title: validation.title,
       description: validation.description,
-      eventDate: validation.eventDate,
-      eventTime: validation.eventTime,
+      startDate: validation.eventDate,
+      endDate: validation.endDate,
       estimatedDurationHours: validation.estimatedDurationHours,
       location: validation.location,
+      rule: {
+        ruleType: validation.ruleType,
+        scheduledTime: validation.eventTime,
+        weekday:
+          validation.ruleType === "weekly"
+            ? weekdayFromDateKey(validation.eventDate)
+            : null,
+        timezone: validation.timezone,
+      },
     });
 
     if (!saved) {
@@ -153,6 +259,63 @@ export async function saveEvent(
       data: await loadEventDashboardData(user.id),
     };
   } catch {
+    return databaseResult();
+  }
+}
+
+export async function saveEventGroup(
+  input: EventGroupInput,
+): Promise<EventActionResult<EventDashboardData>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  const validation = validateEventGroupInput(input);
+
+  if (!validation.ok) {
+    return validation;
+  }
+
+  try {
+    const groups = await eventService.listEventGroups(user.id);
+    const duplicate = groups.some(
+      (group) =>
+        group.id !== input.id &&
+        group.name.toLocaleLowerCase() ===
+          validation.name.toLocaleLowerCase(),
+    );
+
+    if (duplicate) {
+      return duplicateEventGroupResult();
+    }
+
+    const saved = await eventService.saveEventGroup(user.id, {
+      groupId: input.id,
+      name: validation.name,
+      description: validation.description,
+    });
+
+    if (!saved) {
+      return {
+        ok: false,
+        message: "Event group was not found.",
+        code: "event_group_not_found",
+        category: "not_found",
+        subject: "group",
+      };
+    }
+
+    return {
+      ok: true,
+      data: await loadEventDashboardData(user.id),
+    };
+  } catch (error) {
+    if (isDatabaseUniqueViolation(error)) {
+      return duplicateEventGroupResult();
+    }
+
     return databaseResult();
   }
 }
@@ -196,11 +359,19 @@ export async function applyEventTemplate(
   }
 
   try {
+    const timeZone = await loadUserResolvedTimeZone(user.id);
     const prepared = await prepareEventTemplate(user.id, eventId, source);
 
     if (!prepared.ok) {
       return prepared;
     }
+
+    const currentEventById = new Map(
+      (await eventService.listEvents(user.id)).map((event) => [
+        event.id,
+        event,
+      ]),
+    );
 
     for (const command of prepared.data.commands) {
       if (command.previewOperation === "preserve") {
@@ -219,12 +390,31 @@ export async function applyEventTemplate(
 
       const saved = await eventService.saveEvent(user.id, {
         eventId: command.eventId ?? undefined,
+        groupId: command.eventId
+          ? currentEventById.get(command.eventId)?.groupId ?? null
+          : null,
         title: command.title,
         description: command.description,
-        eventDate: command.eventDate,
-        eventTime: command.eventTime,
+        startDate: command.eventDate,
+        endDate: command.eventId
+          ? currentEventById.get(command.eventId)?.endDate ?? null
+          : null,
         estimatedDurationHours: command.estimatedDurationHours,
         location: command.location,
+        rule: {
+          ruleType: command.eventId
+            ? currentEventById.get(command.eventId)?.rule.ruleType ?? "once"
+            : "once",
+          scheduledTime: command.eventTime,
+          weekday:
+            currentEventById.get(command.eventId ?? "")?.rule.ruleType ===
+            "weekly"
+              ? weekdayFromDateKey(command.eventDate)
+              : null,
+          timezone:
+            currentEventById.get(command.eventId ?? "")?.rule.timezone ??
+            timeZone,
+        },
       });
 
       if (!saved) {
@@ -255,6 +445,37 @@ export async function deleteEvent(
 
     if (!deleted) {
       return notFoundResult();
+    }
+
+    return {
+      ok: true,
+      data: await loadEventDashboardData(user.id),
+    };
+  } catch {
+    return databaseResult();
+  }
+}
+
+export async function deleteEventGroup(
+  groupId: string,
+): Promise<EventActionResult<EventDashboardData>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  try {
+    const deleted = await eventService.deleteEventGroup(user.id, groupId);
+
+    if (!deleted) {
+      return {
+        ok: false,
+        message: "Event group was not found.",
+        code: "event_group_not_found",
+        category: "not_found",
+        subject: "group",
+      };
     }
 
     return {

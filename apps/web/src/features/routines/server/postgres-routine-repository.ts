@@ -473,6 +473,46 @@ export class PostgresRoutineRepository implements RoutineRepository {
     return rows.map(mapRoutineInstance);
   }
 
+  async listRoutineInstances(userId: string) {
+    const rows = (await this.getSql().query(
+      `${routineInstanceSelect}
+       WHERE routine_instances.user_id = $1
+         AND routines.deleted_at IS NULL
+       ORDER BY
+         routine_instances.scheduled_date ASC,
+         routine_instances.scheduled_time NULLS LAST,
+         routines.title,
+         routine_instances.created_at ASC`,
+      [userId],
+    )) as RoutineInstanceRow[];
+
+    return rows.map(mapRoutineInstance);
+  }
+
+  async deleteFuturePendingRoutineInstances(input: {
+    userId: string;
+    routineId: string;
+    fromDate: string;
+  }) {
+    const rows = (await this.getSql().query(
+      `
+      DELETE FROM routine_instances
+      WHERE user_id = $1
+        AND routine_id = $2
+        AND scheduled_date >= $3::date
+        AND status = 'pending'
+        AND completed_at IS NULL
+        AND skipped_at IS NULL
+        AND moved_at IS NULL
+        AND moved_from_date IS NULL
+      RETURNING id
+      `,
+      [input.userId, input.routineId, input.fromDate],
+    )) as Array<{ id: string }>;
+
+    return rows.length;
+  }
+
   async completeRoutineInstance(input: {
     userId: string;
     instanceId: string;
@@ -525,17 +565,24 @@ export class PostgresRoutineRepository implements RoutineRepository {
         RETURNING *
       ),
       event AS (
-        INSERT INTO completion_events (
+        INSERT INTO routine_completion_events (
           user_id,
-          target_type,
-          target_id,
+          routine_instance_id,
           event_type,
           occurred_at,
           source
         )
-        SELECT user_id, 'routine_instance', id, $3::text, $4::timestamptz, 'web'
+        SELECT
+          user_id,
+          id,
+          CASE
+            WHEN $3::text = 'pending' THEN 'reopened'
+            ELSE $3::text
+          END,
+          $4::timestamptz,
+          'web'
         FROM updated_instance
-        WHERE $3::text != 'pending'
+        WHERE $3::text IN ('completed', 'skipped', 'pending')
         RETURNING id
       )
       ${routineInstanceSelectFromCte("updated_instance")}

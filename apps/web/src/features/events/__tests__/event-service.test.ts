@@ -4,7 +4,10 @@ import {
   InMemoryEventRepository,
   type EventRecord,
 } from "../server/event-repository.ts";
-import { createEventService } from "../server/event-service.ts";
+import {
+  createEventService,
+  nextEventOccurrenceDates,
+} from "../server/event-service.ts";
 
 const userId = "user-1";
 const otherUserId = "user-2";
@@ -16,15 +19,27 @@ function event(
   return {
     id: input.id,
     userId: input.userId ?? userId,
+    groupId: input.groupId ?? null,
+    groupName: input.groupName ?? null,
     title: input.title,
     description: input.description ?? `${input.title} description`,
-    eventDate: input.eventDate ?? "2026-07-22",
-    eventTime: input.eventTime ?? "09:00",
+    startDate: input.startDate ?? "2026-07-22",
+    endDate: input.endDate ?? null,
     estimatedDurationHours: input.estimatedDurationHours ?? null,
     location: input.location ?? null,
     createdAt: input.createdAt ?? new Date("2026-07-01T00:00:00.000Z"),
     updatedAt: input.updatedAt ?? new Date("2026-07-01T00:00:00.000Z"),
     deletedAt: input.deletedAt ?? null,
+    rule: input.rule ?? {
+      id: `${input.id}-rule`,
+      eventId: input.id,
+      ruleType: "once",
+      scheduledTime: "09:00",
+      weekday: null,
+      timezone: "UTC",
+      createdAt: new Date("2026-07-01T00:00:00.000Z"),
+      updatedAt: new Date("2026-07-01T00:00:00.000Z"),
+    },
   };
 }
 
@@ -34,22 +49,29 @@ test("lists non-deleted events in date, time, and created order", async () => {
       event({
         id: "event-3",
         title: "Later created first",
-        eventDate: "2026-07-22",
-        eventTime: "09:00",
+        startDate: "2026-07-22",
         createdAt: new Date("2026-07-01T00:02:00.000Z"),
       }),
       event({
         id: "event-2",
         title: "Earlier created second",
-        eventDate: "2026-07-22",
-        eventTime: "09:00",
+        startDate: "2026-07-22",
         createdAt: new Date("2026-07-01T00:01:00.000Z"),
       }),
       event({
         id: "event-1",
         title: "Earlier day",
-        eventDate: "2026-07-21",
-        eventTime: "20:00",
+        startDate: "2026-07-21",
+        rule: {
+          id: "event-1-rule",
+          eventId: "event-1",
+          ruleType: "once",
+          scheduledTime: "20:00",
+          weekday: null,
+          timezone: "UTC",
+          createdAt: new Date("2026-07-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-07-01T00:00:00.000Z"),
+        },
       }),
       event({
         id: "event-deleted",
@@ -76,24 +98,38 @@ test("saves, updates, and soft deletes an event", async () => {
   const saved = await service.saveEvent(userId, {
     title: "Visa appointment",
     description: "Bring documents.",
-    eventDate: "2026-07-22",
-    eventTime: "09:30",
+    groupId: null,
+    startDate: "2026-07-22",
+    endDate: null,
     estimatedDurationHours: 1.5,
     location: "Office",
+    rule: {
+      ruleType: "once",
+      scheduledTime: "09:30",
+      weekday: null,
+      timezone: "UTC",
+    },
   });
 
   assert.equal(saved?.title, "Visa appointment");
-  assert.equal(saved?.eventTime, "09:30");
+  assert.equal(saved?.rule.scheduledTime, "09:30");
   assert.equal(saved?.estimatedDurationHours, 1.5);
 
   const updated = await service.saveEvent(userId, {
     eventId: saved?.id,
     title: "Updated appointment",
     description: null,
-    eventDate: "2026-07-23",
-    eventTime: "10:00",
+    groupId: null,
+    startDate: "2026-07-23",
+    endDate: null,
     estimatedDurationHours: null,
     location: null,
+    rule: {
+      ruleType: "once",
+      scheduledTime: "10:00",
+      weekday: null,
+      timezone: "UTC",
+    },
   });
 
   assert.equal(updated?.title, "Updated appointment");
@@ -119,10 +155,17 @@ test("ownership prevents cross-user event reads and mutations", async () => {
       eventId: "event-1",
       title: "Cross-user update",
       description: null,
-      eventDate: "2026-07-22",
-      eventTime: "09:30",
+      groupId: null,
+      startDate: "2026-07-22",
+      endDate: null,
       estimatedDurationHours: null,
       location: null,
+      rule: {
+        ruleType: "once",
+        scheduledTime: "09:30",
+        weekday: null,
+        timezone: "UTC",
+      },
     }),
     null,
   );
@@ -137,14 +180,32 @@ test("today events use the local scheduled board date", async () => {
       event({
         id: "event-1",
         title: "Previous board day",
-        eventDate: "2026-07-21",
-        eventTime: "22:00",
+        startDate: "2026-07-21",
+        rule: {
+          id: "event-1-rule",
+          eventId: "event-1",
+          ruleType: "once",
+          scheduledTime: "22:00",
+          weekday: null,
+          timezone: "Australia/Sydney",
+          createdAt: new Date("2026-07-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-07-01T00:00:00.000Z"),
+        },
       }),
       event({
         id: "event-2",
         title: "Calendar day after midnight",
-        eventDate: "2026-07-22",
-        eventTime: "01:00",
+        startDate: "2026-07-22",
+        rule: {
+          id: "event-2-rule",
+          eventId: "event-2",
+          ruleType: "once",
+          scheduledTime: "01:00",
+          weekday: null,
+          timezone: "Australia/Sydney",
+          createdAt: new Date("2026-07-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-07-01T00:00:00.000Z"),
+        },
       }),
     ],
   });
@@ -156,4 +217,85 @@ test("today events use the local scheduled board date", async () => {
   const events = await service.listTodayEvents(userId, "Australia/Sydney");
 
   assert.deepEqual(events.map((item) => item.title), ["Previous board day"]);
+});
+
+test("event recurrence dates are generated with a three-instance limit", () => {
+  assert.deepEqual(
+    nextEventOccurrenceDates({
+      event: event({
+        id: "daily-event",
+        title: "Daily tutorial",
+        startDate: "2026-07-20",
+        rule: {
+          id: "daily-event-rule",
+          eventId: "daily-event",
+          ruleType: "daily",
+          scheduledTime: "09:00",
+          weekday: null,
+          timezone: "UTC",
+          createdAt: new Date("2026-07-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-07-01T00:00:00.000Z"),
+        },
+      }),
+      fromDate: "2026-07-21",
+    }),
+    ["2026-07-21", "2026-07-22", "2026-07-23"],
+  );
+
+  assert.deepEqual(
+    nextEventOccurrenceDates({
+      event: event({
+        id: "weekly-event",
+        title: "Weekly tutorial",
+        startDate: "2026-07-20",
+        rule: {
+          id: "weekly-event-rule",
+          eventId: "weekly-event",
+          ruleType: "weekly",
+          scheduledTime: "14:00",
+          weekday: 1,
+          timezone: "UTC",
+          createdAt: new Date("2026-07-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-07-01T00:00:00.000Z"),
+        },
+      }),
+      fromDate: "2026-07-21",
+    }),
+    ["2026-07-27", "2026-08-03", "2026-08-10"],
+  );
+});
+
+test("listEventInstances tops up active events without duplicates", async () => {
+  const repository = new InMemoryEventRepository({
+    events: [
+      event({
+        id: "event-1",
+        title: "Daily class",
+        startDate: "2026-07-20",
+        rule: {
+          id: "event-1-rule",
+          eventId: "event-1",
+          ruleType: "daily",
+          scheduledTime: "09:00",
+          weekday: null,
+          timezone: "UTC",
+          createdAt: new Date("2026-07-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-07-01T00:00:00.000Z"),
+        },
+      }),
+    ],
+  });
+  const service = createEventService({ events: repository, now: () => now });
+
+  const firstLoad = await service.listEventInstances(userId, "UTC");
+  const secondLoad = await service.listEventInstances(userId, "UTC");
+
+  assert.deepEqual(
+    firstLoad.map((instance) => instance.scheduledDate),
+    ["2026-07-21", "2026-07-22", "2026-07-23"],
+  );
+  assert.deepEqual(
+    secondLoad.map((instance) => instance.scheduledDate),
+    ["2026-07-21", "2026-07-22", "2026-07-23"],
+  );
 });

@@ -142,14 +142,26 @@ function eventRecord(input: Partial<EventRecord> = {}): EventRecord {
   return {
     id: input.id ?? "event-1",
     userId: input.userId ?? "user-1",
+    groupId: input.groupId ?? null,
+    groupName: input.groupName ?? null,
     title: input.title ?? "Existing event",
     description: input.description ?? "Keep this.",
-    eventDate: input.eventDate ?? "2026-07-29",
-    eventTime: input.eventTime ?? "09:30",
+    startDate: input.startDate ?? "2026-07-29",
+    endDate: input.endDate ?? null,
     estimatedDurationHours: input.estimatedDurationHours ?? 1.25,
     location: input.location ?? "Library",
     createdAt: input.createdAt ?? now,
     updatedAt: input.updatedAt ?? now,
     deletedAt: input.deletedAt ?? null,
+    rule: input.rule ?? {
+      id: `${input.id ?? "event-1"}-rule`,
+      eventId: input.id ?? "event-1",
+      ruleType: "once",
+      scheduledTime: "09:30",
+      weekday: null,
+      timezone: "UTC",
+      createdAt: now,
+      updatedAt: now,
+    },
   };
 }
