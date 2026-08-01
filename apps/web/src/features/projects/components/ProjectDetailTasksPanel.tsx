@@ -142,7 +142,6 @@ function ProjectTaskRow({
           }
         />
         <ListItemContent
-          grow={false}
           title={<ListItemTitle>{task.title}</ListItemTitle>}
           main={
             <ListItemDescription>

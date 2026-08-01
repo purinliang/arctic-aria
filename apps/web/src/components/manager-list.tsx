@@ -222,6 +222,7 @@ export function ManagerListRow({
           }}
           support={support}
           supportProps={{
+            truncate: true,
             className: cx("block min-w-0", supportClassName),
           }}
         />

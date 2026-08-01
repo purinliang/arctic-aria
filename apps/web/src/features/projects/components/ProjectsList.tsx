@@ -149,7 +149,7 @@ function ProjectListItem({
           </ListItemDescription>
         }
         support={
-          <ListItemSupportingText className="block min-w-0 truncate">
+          <ListItemSupportingText>
             {projectTimelineText(
               project,
               timelineMessages,

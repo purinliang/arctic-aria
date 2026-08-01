@@ -138,7 +138,7 @@ function ChoiceButton({
   return (
     <button
       className={cx(
-        "inline-flex items-center rounded-md border text-left font-[var(--aa-font-weight-semibold)] transition disabled:cursor-not-allowed",
+        "inline-flex min-w-0 max-w-full items-center whitespace-normal rounded-md border text-left font-[var(--aa-font-weight-semibold)] transition disabled:cursor-not-allowed",
         controlGapClass,
         compact
           ? cx(
@@ -158,8 +158,8 @@ function ChoiceButton({
       {...props}
     >
       {option.icon}
-      <span>
-        <Text tone="current" weight="semibold">
+      <span className="min-w-0 break-words">
+        <Text tone="current" weight="semibold" className="break-words">
           {option.label}
         </Text>
         {option.description ? (

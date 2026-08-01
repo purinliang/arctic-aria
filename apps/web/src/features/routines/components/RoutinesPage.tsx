@@ -5,6 +5,10 @@ import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { ConfirmDialog } from "@/components/dialog";
 import { Panel } from "@/components/panel";
+import {
+  splitPanelClass,
+  splitPanelColumnClass,
+} from "@/components/spacing";
 import type {
   Routine,
   RoutineDefinition,
@@ -310,8 +314,8 @@ export function RoutinesPage({
   return (
     <>
       <section className="aa-split-container">
-        <div className="aa-split-panel gap-4">
-          <div className="grid min-w-0 content-start gap-4">
+        <div className={splitPanelClass}>
+          <div className={splitPanelColumnClass}>
             <Panel darkMode={darkMode}>
               <RoutinesPageHeader
                 darkMode={darkMode}
@@ -357,7 +361,7 @@ export function RoutinesPage({
             </Panel>
           </div>
 
-          <aside className="grid content-start gap-4">
+          <aside className={splitPanelColumnClass}>
             <RoutineFiltersPanel
               darkMode={darkMode}
               disabled={pending}

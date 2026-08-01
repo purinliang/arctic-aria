@@ -1,4 +1,7 @@
 export const pageStackClass = "grid gap-[var(--aa-space-page-gap)]";
+export const splitPanelClass = "aa-split-panel gap-[var(--aa-space-page-gap)]";
+export const splitPanelColumnClass =
+  "grid min-w-0 content-start gap-[var(--aa-space-page-gap)]";
 export const panelStackClass = "grid gap-[var(--aa-space-panel-gap)]";
 export const sectionStackClass = "grid gap-[var(--aa-space-section-gap)]";
 export const subsectionStackClass =

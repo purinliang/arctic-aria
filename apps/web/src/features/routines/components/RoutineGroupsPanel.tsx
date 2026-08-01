@@ -4,6 +4,7 @@ import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { Panel } from "@/components/panel";
+import { cardBodyPaddingClass } from "@/components/spacing";
 import type { RoutineGroupOption } from "@/features/dashboard/types";
 import type { RoutineMessages } from "@/messages/app-messages";
 import type { RoutineGroupFilter } from "./routine-page-helpers";
@@ -43,7 +44,7 @@ export function RoutineGroupsPanel({
           </Button>
         }
       />
-      <div className="px-4 py-3">
+      <div className={cardBodyPaddingClass}>
         <SingleChoiceGroup
           darkMode={darkMode}
           value={filter}

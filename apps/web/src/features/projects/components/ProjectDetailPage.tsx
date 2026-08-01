@@ -3,6 +3,10 @@ import { useMemo } from "react";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { Panel } from "@/components/panel";
+import {
+  splitPanelClass,
+  splitPanelColumnClass,
+} from "@/components/spacing";
 import type { TaskStatus } from "@/features/dashboard/types";
 import type {
   ProjectTaskView,
@@ -224,7 +228,7 @@ function ProjectDetailContent({
 
   return (
     <div className="aa-split-container">
-      <div className="aa-split-panel gap-4">
+      <div className={splitPanelClass}>
         {activeMilestoneId === null ? (
           <ProjectLevelDetailPage
             darkMode={darkMode}
@@ -250,7 +254,7 @@ function ProjectDetailContent({
           />
         )}
 
-        <aside className="grid content-start gap-4">
+        <aside className={splitPanelColumnClass}>
           {activeMilestoneId !== null && selectedChoice ? (
             <MilestoneOverviewPanel
               darkMode={darkMode}
@@ -289,7 +293,7 @@ function ProjectLevelDetailPage({
   onEditProject: (project: ProjectView) => void;
 }) {
   return (
-    <div className="grid min-w-0 content-start gap-4">
+    <div className={splitPanelColumnClass}>
       <ProjectOverviewPanel
         darkMode={darkMode}
         pending={pending}
@@ -329,7 +333,7 @@ function ProjectMilestoneDetailPage({
   onTaskStatus: (taskId: string, status: TaskStatus) => void;
 }) {
   return (
-    <div className="grid min-w-0 content-start gap-4">
+    <div className={splitPanelColumnClass}>
       <ProjectDetailTasksPanel
         darkMode={darkMode}
         pending={pending}

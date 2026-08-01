@@ -59,7 +59,6 @@ export function RoutinesList({
       renderItem={(routine) => (
         <ListItem key={routine.id} darkMode={darkMode} className="items-start">
           <ListItemContent
-            grow={false}
             title={<ListItemTitle>{routine.title}</ListItemTitle>}
             main={
               <ListItemDescription>
@@ -71,7 +70,7 @@ export function RoutinesList({
               </ListItemDescription>
             }
             support={
-              <ListItemSupportingText className="block min-w-0 truncate">
+              <ListItemSupportingText>
                 {routineMetadataText({
                   routine,
                   groupMessages,

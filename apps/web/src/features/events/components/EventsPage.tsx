@@ -5,6 +5,10 @@ import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { ConfirmDialog } from "@/components/dialog";
 import { Panel } from "@/components/panel";
+import {
+  splitPanelClass,
+  splitPanelColumnClass,
+} from "@/components/spacing";
 import type {
   EventDefinition,
   EventGroupOption,
@@ -370,8 +374,8 @@ export function EventsPage({
   return (
     <>
       <section className="aa-split-container">
-        <div className="aa-split-panel gap-4">
-          <div className="grid min-w-0 content-start gap-4">
+        <div className={splitPanelClass}>
+          <div className={splitPanelColumnClass}>
             <Panel darkMode={darkMode}>
               <EventsPageHeader
                 darkMode={darkMode}
@@ -413,7 +417,7 @@ export function EventsPage({
             </Panel>
           </div>
 
-          <aside className="grid content-start gap-4">
+          <aside className={splitPanelColumnClass}>
             <EventFiltersPanel
               darkMode={darkMode}
               disabled={pending}

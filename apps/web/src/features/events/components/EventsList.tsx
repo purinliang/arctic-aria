@@ -87,7 +87,6 @@ function EventRow({
   return (
     <ListItem darkMode={darkMode} className="items-start">
       <ListItemContent
-        grow={false}
         title={<ListItemTitle>{event.title}</ListItemTitle>}
         main={
           <ListItemDescription>
@@ -95,7 +94,7 @@ function EventRow({
           </ListItemDescription>
         }
         support={
-          <ListItemSupportingText className="block min-w-0 truncate">
+          <ListItemSupportingText>
             {eventMetadataText({
               event,
               messages,

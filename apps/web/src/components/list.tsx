@@ -62,7 +62,7 @@ export function ListItem({
       className={cx(
         layout === "row"
           ? cx(
-              "flex items-start justify-between",
+              "grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start",
               inlineGapClass,
               listRowPaddingClass,
             )
@@ -94,7 +94,9 @@ export function ListItemContent({
   const hasSlots = Boolean(title || main || support);
 
   return (
-    <div className={cx("min-w-0", grow ? "flex-1" : undefined, className)}>
+    <div
+      className={cx("min-w-0 w-full", grow ? "flex-1" : undefined, className)}
+    >
       {hasSlots ? (
         <>
           {title ? <div className="min-w-0">{title}</div> : null}
@@ -177,10 +179,12 @@ export function ListItemSupportingText({
   children,
   className,
   tone = "default",
+  truncate = true,
 }: {
   children: ReactNode;
   className?: string;
   tone?: ListItemTextTone;
+  truncate?: boolean;
 }) {
   return (
     <Text
@@ -188,6 +192,7 @@ export function ListItemSupportingText({
       size="sm"
       weight="normal"
       tone={listItemTextTone(tone)}
+      truncate={truncate}
       className={className}
     >
       {children}

@@ -64,7 +64,7 @@ export function EventInstancesList({
               </ListItemDescription>
             }
             support={
-              <ListItemSupportingText className="block min-w-0 truncate">
+              <ListItemSupportingText>
                 {instanceMetadataText({
                   instance,
                   messages,

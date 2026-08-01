@@ -133,7 +133,7 @@ export const englishDesignMessages: DesignMessages = {
     englishSample:
       "Arctic Aria keeps dense product text readable across panels, dialogs, and list rows.",
     chineseSample:
-      "北极咏叹调需要在中文界面中保留更舒适的多行阅读节奏。",
+      "北极阿莉雅需要在中文界面中保留更舒适的多行阅读节奏。",
     lineHeightSupport: "14px body copy · Language-aware line-height",
   },
   spacing: {

@@ -121,7 +121,7 @@ export const englishEventMessages = {
   },
   groups: {
     title: "Groups",
-    description: "Filter related event definitions.",
+    description: "Filter by event group.",
     all: "All",
     noGroup: "Default",
     manage: "Manage",
@@ -157,7 +157,7 @@ export const englishEventMessages = {
   },
   filters: {
     title: "Filter",
-    description: "Choose which instances to show.",
+    description: "Filter instances by date.",
     all: "All",
     recent: "Recent",
     future: "Future",
@@ -324,7 +324,7 @@ export const simplifiedChineseEventMessages: EventMessages = {
   },
   groups: {
     title: "分组",
-    description: "筛选相关事件定义。",
+    description: "按事件分组筛选。",
     all: "全部",
     noGroup: "默认",
     manage: "管理",
@@ -360,7 +360,7 @@ export const simplifiedChineseEventMessages: EventMessages = {
   },
   filters: {
     title: "筛选",
-    description: "选择要显示的事件实例。",
+    description: "按日期筛选实例。",
     all: "全部",
     recent: "近期",
     future: "未来",

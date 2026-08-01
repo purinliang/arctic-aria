@@ -88,6 +88,7 @@ tokens.
 Use spacing helpers for repeated chrome:
 
 - page, panel, section, subsection, and body stacks
+- shared split-panel column gap and split-column stack gap
 - list row and compact manager row padding
 - card header and body padding
 - dialog and popover padding
@@ -357,6 +358,15 @@ base rhythm should still come from the shared `sm` button height. Field labels
 above choice groups should use shared `LabelText`, the same as input, select,
 date picker, and time picker labels.
 
+Choice labels must wrap or break inside the available column. Long user-created
+filter names must not force a side panel wider than the shared split layout
+allows.
+
+List supporting metadata uses `ListItemSupportingText`, which truncates by
+default inside the row's available content track. Use this for event, routine,
+project, memory, and idea metadata so long user-created labels do not expand a
+list row past the page or panel width.
+
 ## Switch
 
 `switch.tsx` owns binary toggle controls.
@@ -414,6 +424,11 @@ right panel, stack the panels vertically. Use the shared CSS classes
 to two columns only when the container is at least `53rem` wide. The split
 controls width only; left and right panels keep independent content-driven
 heights and should not be stretched to match each other.
+
+Feature pages should prefer the shared spacing helpers `splitPanelClass` and
+`splitPanelColumnClass` instead of local split `gap-*` classes. This keeps the
+left/right column margin and each column's panel stack on the same page-gap
+token.
 
 ## Card
 

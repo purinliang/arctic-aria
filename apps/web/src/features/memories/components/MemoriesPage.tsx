@@ -2,6 +2,10 @@
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/dialog";
+import {
+  splitPanelClass,
+  splitPanelColumnClass,
+} from "@/components/spacing";
 import type {
   MemoryCategoryOption,
   MemoryRecord,
@@ -270,8 +274,8 @@ export function MemoriesPage({
   return (
     <>
       <section className="aa-split-container">
-        <div className="aa-split-panel gap-4">
-          <div className="grid min-w-0 content-start gap-4">
+        <div className={splitPanelClass}>
+          <div className={splitPanelColumnClass}>
             <MemoriesPanel
               darkMode={darkMode}
               loading={loading}
@@ -290,7 +294,7 @@ export function MemoriesPage({
             />
           </div>
 
-          <aside className="grid content-start gap-4">
+          <aside className={splitPanelColumnClass}>
             <MemoryCategoriesPanel
               darkMode={darkMode}
               filter={filter}

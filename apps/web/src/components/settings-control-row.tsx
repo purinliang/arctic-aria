@@ -23,6 +23,7 @@ export function SettingsControlRow({
   return (
     <ListItem
       darkMode={darkMode}
+      layout="block"
       className={cx(
         "grid grid-cols-1 items-stretch sm:grid-cols-[minmax(0,1fr)_20rem]",
         className,

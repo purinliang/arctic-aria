@@ -22,7 +22,7 @@ export const englishRoutineMessages = {
   },
   groups: {
     title: "Groups",
-    description: "Filter routines by life area.",
+    description: "Filter by routine group.",
     all: "All",
     noGroup: "Default",
     manage: "Manage",
@@ -77,7 +77,7 @@ export const englishRoutineMessages = {
   },
   filters: {
     title: "Filter",
-    description: "Choose which instances to show.",
+    description: "Filter instances by date.",
     all: "All",
     recent: "Recent",
     future: "Future",
@@ -264,7 +264,7 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
   },
   groups: {
     title: "分组",
-    description: "按生活领域筛选日常。",
+    description: "按日常分组筛选。",
     all: "全部",
     noGroup: "默认",
     manage: "管理",
@@ -319,7 +319,7 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
   },
   filters: {
     title: "筛选",
-    description: "选择要显示的日常实例。",
+    description: "按日期筛选实例。",
     all: "全部",
     recent: "近期",
     future: "未来",

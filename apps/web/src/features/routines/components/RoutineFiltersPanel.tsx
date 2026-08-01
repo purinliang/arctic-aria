@@ -3,6 +3,7 @@ import { ListFilter } from "lucide-react";
 import { CardHeader } from "@/components/card";
 import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { Panel } from "@/components/panel";
+import { cardBodyPaddingClass } from "@/components/spacing";
 import type { InstanceDateFilter } from "@/features/instance-date-filters";
 import type { RoutineMessages } from "@/messages/app-messages";
 
@@ -27,7 +28,7 @@ export function RoutineFiltersPanel({
         title={messages.title}
         description={messages.description}
       />
-      <div className="px-4 py-3">
+      <div className={cardBodyPaddingClass}>
         <SingleChoiceGroup
           darkMode={darkMode}
           value={filter}

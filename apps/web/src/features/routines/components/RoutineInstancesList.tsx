@@ -77,7 +77,6 @@ export function RoutineInstancesList({
               }
             />
             <ListItemContent
-              grow={false}
               title={<ListItemTitle>{instance.title}</ListItemTitle>}
               main={
                 <ListItemDescription>
@@ -85,7 +84,7 @@ export function RoutineInstancesList({
                 </ListItemDescription>
               }
               support={
-                <ListItemSupportingText className="block min-w-0 truncate">
+                <ListItemSupportingText>
                   {instanceMetadataText({
                     instance,
                     messages,
