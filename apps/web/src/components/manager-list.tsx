@@ -10,7 +10,6 @@ import {
   controlGapClass,
   iconGapClass,
   inlineGapClass,
-  popoverPaddingClass,
 } from "./spacing";
 import { DescriptionText, TextStack } from "./text";
 import { cx } from "./utils";
@@ -133,7 +132,7 @@ export function ManagerList<Item>({
           darkMode={darkMode}
           messages={messages}
           windowState={windowState}
-          className={cx("bg-[var(--aa-panel-bg)]", popoverPaddingClass)}
+          className="bg-[var(--aa-panel-bg)]"
           onFirst={() =>
             setPageState({
               pageIndex: 0,

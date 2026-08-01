@@ -522,7 +522,8 @@ The footer uses compact ghost icon controls:
 ```
 
 The icon buttons are compact and borderless. The page count is text, not an
-input or dialog trigger in the current UI.
+input or dialog trigger in the current UI. The footer uses compact vertical
+padding so pagination does not read as another full list row.
 
 When a surrounding filter changes, pass a reset key so the current page returns
 to the first page. Do not use paged lists for compact dashboard panels that

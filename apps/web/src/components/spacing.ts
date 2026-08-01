@@ -24,6 +24,8 @@ export const dialogPaddingClass =
   "px-[var(--aa-space-dialog-x)] py-[var(--aa-space-dialog-y)]";
 export const popoverPaddingClass =
   "px-[var(--aa-space-popover-x)] py-[var(--aa-space-popover-y)]";
+export const pagedListNavigationPaddingClass =
+  "px-[var(--aa-space-popover-x)] py-[var(--aa-space-tag-y)]";
 export const tableCellPaddingClass =
   "px-[var(--aa-space-table-cell-x)] py-[var(--aa-space-table-cell-y)]";
 export const tagPaddingClass =

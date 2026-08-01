@@ -18,7 +18,7 @@ import type { RoutineMessages } from "@/messages/app-messages";
 import type { TimePickerMessages } from "@/messages/form-messages";
 import { ruleSummary } from "./routine-page-helpers";
 
-const routineDefinitionPageSize = 8;
+const routineDefinitionPageSize = 6;
 
 export function RoutinesList({
   darkMode,

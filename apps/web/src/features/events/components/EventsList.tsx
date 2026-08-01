@@ -17,7 +17,7 @@ import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { EventMessages, FormMessages } from "@/messages/app-messages";
 import { eventRuleSummary } from "./event-page-helpers";
 
-const eventDefinitionPageSize = 8;
+const eventDefinitionPageSize = 6;
 
 export function EventsList({
   darkMode,

@@ -13,7 +13,11 @@ import {
   pagedListWindow,
   type PagedListWindow,
 } from "./paged-list-utils";
-import { controlGapClass, listRowPaddingClass, popoverPaddingClass } from "./spacing";
+import {
+  controlGapClass,
+  listRowPaddingClass,
+  pagedListNavigationPaddingClass,
+} from "./spacing";
 import { DescriptionText, SupportingText } from "./text";
 import { cx } from "./utils";
 
@@ -153,7 +157,7 @@ export function PagedListNavigation({
       className={cx(
         "flex items-center justify-center",
         controlGapClass,
-        popoverPaddingClass,
+        pagedListNavigationPaddingClass,
         className,
       )}
     >
