@@ -70,6 +70,20 @@ size smaller. Supporting metadata should usually be a single `A · B · C` line.
 Feature rows should not hand-code label, description, or metadata font size,
 line height, or muted color.
 
+## Content Section
+
+`content-section.tsx` owns unframed content sections and subsections that sit at
+the same visual level as panels.
+
+Use `ContentSection` for a page-level block with a title, optional description,
+optional right-side action, and body content. Use `ContentSubsection` inside
+that block for smaller titled groups. These components should not add panel
+borders, card backgrounds, or nested-card styling; they structure content that
+already lives on the page surface, such as Design review pages.
+
+Use them when a surface needs title plus description rhythm but is not a panel,
+dialog, form section, or list row.
+
 ## Masked Text
 
 `masked-text.tsx` owns read-only masked text display for values that should not
@@ -440,6 +454,23 @@ Use `ExpandableListItem` for rows that open details. The header row and expanded
 details must be rendered inside the same list item so the background, padding,
 and divider behavior stay consistent. Do not place expanded details in a
 separate grey box or sibling container below the item.
+
+## Paged List
+
+`paged-list.tsx` owns pagination for long management lists. It composes the
+shared `List` and `ListItem` primitives, so feature rows keep the same padding,
+dividers, hover states, and text rhythm while the list renders only one page at
+a time.
+
+Use `PagedList` when a management panel can naturally grow past a short review
+length. The owning feature still decides which items belong in the list through
+filters or grouping; `PagedList` only slices the already-filtered item array and
+renders localized status text plus `Previous` and `Next` controls. The controls
+use normal shared button height.
+
+When a surrounding filter changes, pass a reset key so the current page returns
+to the first page. Do not use paged lists for compact dashboard panels that
+intentionally show only today's top items.
 
 ## Optional Description Copy
 

@@ -135,6 +135,7 @@ Current web source:
 
 - `apps/web/src/components/settings-control-row.tsx`
 - `apps/web/src/components/tabs.tsx`
+- `apps/web/src/components/content-section.tsx`
 - `apps/web/src/app-shell/developer-mode.ts`
 - `apps/web/src/features/design/components/DesignPage.tsx`
 - `apps/web/src/features/design/components/DesignColorPage.tsx`

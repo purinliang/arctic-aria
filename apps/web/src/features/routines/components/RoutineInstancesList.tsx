@@ -1,25 +1,26 @@
 // Routines Page - Routine Instances List.
-import { secondaryTextColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
 import { formatTimeDisplay } from "@/components/forms/time-display";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import {
-  List,
   ListItem,
   ListItemContent,
   ListItemDescription,
   ListItemSupportingText,
   ListItemTitle,
 } from "@/components/list";
-import { LoadingLine } from "@/components/loading";
+import { PagedList } from "@/components/paged-list";
 import type { Routine, RoutineStatus } from "@/features/dashboard/types";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { FormMessages, RoutineMessages } from "@/messages/app-messages";
+
+const routineInstancePageSize = 6;
 
 export function RoutineInstancesList({
   darkMode,
   loading,
   pending,
+  paginationKey,
   instances,
   messages,
   formMessages,
@@ -29,6 +30,7 @@ export function RoutineInstancesList({
   darkMode: boolean;
   loading: boolean;
   pending: boolean;
+  paginationKey: string;
   instances: Routine[];
   messages: RoutineMessages;
   formMessages: FormMessages;
@@ -36,16 +38,17 @@ export function RoutineInstancesList({
   onStatusChange: (instanceId: string, status: RoutineStatus) => void;
 }) {
   return (
-    <List darkMode={darkMode}>
-      {loading ? (
-        <LoadingLine darkMode={darkMode} text={messages.instances.loading} />
-      ) : null}
-      {!loading && instances.length === 0 ? (
-        <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
-          {messages.instances.empty}
-        </p>
-      ) : null}
-      {instances.map((instance) => (
+    <PagedList
+      ariaLabel={messages.instances.pagination.ariaLabel}
+      darkMode={darkMode}
+      emptyText={messages.instances.empty}
+      items={instances}
+      loading={loading}
+      loadingText={messages.instances.loading}
+      messages={messages.instances.pagination}
+      pageSize={routineInstancePageSize}
+      resetKey={paginationKey}
+      renderItem={(instance) => (
         <ListItem
           key={instance.id}
           darkMode={darkMode}
@@ -94,8 +97,8 @@ export function RoutineInstancesList({
             />
           </div>
         </ListItem>
-      ))}
-    </List>
+      )}
+    />
   );
 }
 

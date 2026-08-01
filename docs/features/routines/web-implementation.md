@@ -36,7 +36,7 @@ The user opens the Routines page from the sidebar.
 
 The page should show:
 
-- routine definition list
+- paged routine definition list
 - right-side routine group filter panel
 - `New` action in the panel header
 - `Manage` action in the Groups panel header
@@ -60,6 +60,7 @@ response.
 
 The routine group filter is local UI state. It is not persisted and does not
 call the backend. It applies to both routine definitions and routine instances.
+Changing the group filter resets both paged routine lists to their first page.
 
 The Routine Instances panel uses local date filters:
 
@@ -72,7 +73,9 @@ Routine page, Today, and reminder loads lazily ensure up to the next three
 instances per active routine. Saving a routine removes future pending
 uncustomized instances for that routine and regenerates the next three. The
 Routine Instances panel uses the same checkbox-style completion control as the
-Today Routines panel.
+Today Routines panel. It uses the shared paged-list control when more than six
+instances are visible. The Routine Definitions panel uses the shared paged-list
+control when more than eight definitions are visible.
 
 ## Today Panel
 
@@ -179,6 +182,8 @@ apps/web/src/features/routines/components/RoutinesPanel.tsx
 apps/web/src/features/routines/components/routine-page-helpers.ts
 apps/web/src/features/routines/routine-recurrence.ts
 apps/web/src/features/instance-date-filters.ts
+apps/web/src/components/paged-list.tsx
+apps/web/src/components/paged-list-utils.ts
 ```
 
 Routine server actions:

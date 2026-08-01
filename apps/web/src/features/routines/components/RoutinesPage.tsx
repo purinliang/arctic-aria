@@ -324,6 +324,7 @@ export function RoutinesPage({
                 routines={visibleRoutines}
                 loading={loading}
                 pending={pending}
+                paginationKey={activeGroupFilter}
                 messages={messages.page}
                 groupMessages={messages.groups}
                 ruleMessages={messages}
@@ -345,6 +346,7 @@ export function RoutinesPage({
                 instances={visibleRoutineInstances}
                 loading={loading}
                 pending={pending}
+                paginationKey={`${activeGroupFilter}-${instanceFilter}`}
                 messages={messages}
                 formMessages={formMessages}
                 timeFormatPreference={timeFormatPreference}

@@ -100,11 +100,15 @@ The Routines page uses the shared split layout:
 
 The Routine Definitions panel lists active routine definitions. Rows show title,
 description, group, recurrence summary, preferred time, and estimated duration.
-The row action opens the Edit Routine dialog.
+The row action opens the Edit Routine dialog. When there are more than eight
+visible definitions, the panel uses the shared paged-list control so only one
+definition page renders at a time.
 
 The Routine Instances panel lists generated routine instances. Rows show title,
 description, scheduled date, scheduled time, and status. Pending rows can be
-completed from this panel. Completed or skipped rows can be reopened.
+completed from this panel. Completed or skipped rows can be reopened. When
+there are more than six visible instances, the panel uses the shared paged-list
+control so only one instance page renders at a time.
 
 The instance filter uses:
 
@@ -131,6 +135,8 @@ Click behavior:
 - `No group` shows routines without a group.
 - a group button shows routines assigned to that group.
 - `Manage` opens group management.
+- changing the group filter resets both routine list pagers to their first
+  page.
 
 ## Routine Group Management
 

@@ -4,13 +4,8 @@
 import type { ReactNode } from "react";
 import { MoreHorizontal, Plus, Save } from "lucide-react";
 import { Button, type ButtonTone } from "@/components/button";
-import {
-  List,
-  ListItem,
-  ListItemContent,
-  ListItemDescription,
-  ListItemTitle,
-} from "@/components/list";
+import { ContentSubsection } from "@/components/content-section";
+import { SupportingText } from "@/components/text";
 import type { DesignMessages } from "@/messages/design-messages";
 
 type ButtonToneKey = keyof DesignMessages["buttons"]["tones"];
@@ -45,9 +40,9 @@ export function DesignButtonPage({
   messages: DesignMessages["buttons"];
 }) {
   return (
-    <List darkMode={darkMode} className="rounded-md">
+    <div className="grid gap-5">
       {buttonToneGroups.map((group) => (
-        <ButtonToneListItem
+        <ButtonToneSubsection
           key={group.key}
           darkMode={darkMode}
           examples={messages.examples}
@@ -58,11 +53,11 @@ export function DesignButtonPage({
           description={messages.tones[group.key].description}
         />
       ))}
-    </List>
+    </div>
   );
 }
 
-function ButtonToneListItem({
+function ButtonToneSubsection({
   darkMode,
   description,
   examples,
@@ -80,31 +75,30 @@ function ButtonToneListItem({
   tone: ButtonTone;
 }) {
   return (
-    <ListItem darkMode={darkMode} layout="block">
-      <ListItemContent
-        title={<ListItemTitle>{title}</ListItemTitle>}
-        main={<ListItemDescription>{description}</ListItemDescription>}
+    <ContentSubsection
+      darkMode={darkMode}
+      title={title}
+      description={description}
+      bodyClassName="grid gap-2"
+    >
+      <ButtonExampleRow
+        darkMode={darkMode}
+        examples={examples}
+        icon={icon}
+        label={states.normal}
+        tone={tone}
+        toneLabel={title}
       />
-      <div className="mt-3 grid gap-2">
-        <ButtonExampleRow
-          darkMode={darkMode}
-          examples={examples}
-          icon={icon}
-          label={states.normal}
-          tone={tone}
-          toneLabel={title}
-        />
-        <ButtonExampleRow
-          darkMode={darkMode}
-          disabled
-          examples={examples}
-          icon={icon}
-          label={states.disabled}
-          tone={tone}
-          toneLabel={title}
-        />
-      </div>
-    </ListItem>
+      <ButtonExampleRow
+        darkMode={darkMode}
+        disabled
+        examples={examples}
+        icon={icon}
+        label={states.disabled}
+        tone={tone}
+        toneLabel={title}
+      />
+    </ContentSubsection>
   );
 }
 
@@ -127,9 +121,9 @@ function ButtonExampleRow({
 }) {
   return (
     <div className="grid gap-2 sm:grid-cols-[5rem_minmax(0,1fr)] sm:items-center">
-      <span className="text-xs font-semibold text-[var(--aa-secondary-text)]">
+      <SupportingText darkMode={darkMode} className="font-semibold">
         {label}
-      </span>
+      </SupportingText>
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         <Button darkMode={darkMode} tone={tone} disabled={disabled} icon={icon}>
           {examples.withIcon}

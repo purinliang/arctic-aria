@@ -1,6 +1,14 @@
 import type { RoutineRuleType } from "@/features/dashboard/types";
 import type { RoutineRecurrenceOption } from "@/features/routines/routine-recurrence";
 
+type PaginationStatusWindow = {
+  endIndex: number;
+  pageNumber: number;
+  startIndex: number;
+  totalItems: number;
+  totalPages: number;
+};
+
 export const englishRoutineMessages = {
   page: {
     title: "Routines",
@@ -11,6 +19,19 @@ export const englishRoutineMessages = {
     noDescription: "No description.",
     flexible: "Flexible",
     edit: "Edit",
+    pagination: {
+      ariaLabel: "Routine definition pages",
+      previous: "Previous",
+      next: "Next",
+      status: ({
+        endIndex,
+        pageNumber,
+        startIndex,
+        totalItems,
+        totalPages,
+      }: PaginationStatusWindow) =>
+        `Showing ${startIndex + 1}-${endIndex} of ${totalItems} · Page ${pageNumber} of ${totalPages}`,
+    },
   },
   groups: {
     title: "Groups",
@@ -53,6 +74,19 @@ export const englishRoutineMessages = {
     reopen: "Reopen",
     markDone: (title: string) => `Mark "${title}" done`,
     reopenItem: (title: string) => `Reopen "${title}"`,
+    pagination: {
+      ariaLabel: "Routine instance pages",
+      previous: "Previous",
+      next: "Next",
+      status: ({
+        endIndex,
+        pageNumber,
+        startIndex,
+        totalItems,
+        totalPages,
+      }: PaginationStatusWindow) =>
+        `Showing ${startIndex + 1}-${endIndex} of ${totalItems} · Page ${pageNumber} of ${totalPages}`,
+    },
     status: {
       pending: "Pending",
       completed: "Completed",
@@ -241,6 +275,19 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     noDescription: "暂无描述。",
     flexible: "灵活时间",
     edit: "编辑",
+    pagination: {
+      ariaLabel: "日常定义分页",
+      previous: "上一页",
+      next: "下一页",
+      status: ({
+        endIndex,
+        pageNumber,
+        startIndex,
+        totalItems,
+        totalPages,
+      }) =>
+        `显示 ${startIndex + 1}-${endIndex} / ${totalItems} · 第 ${pageNumber} / ${totalPages} 页`,
+    },
   },
   groups: {
     title: "分组",
@@ -283,6 +330,19 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     reopen: "重新打开",
     markDone: (title) => `完成“${title}”`,
     reopenItem: (title) => `重新打开“${title}”`,
+    pagination: {
+      ariaLabel: "日常实例分页",
+      previous: "上一页",
+      next: "下一页",
+      status: ({
+        endIndex,
+        pageNumber,
+        startIndex,
+        totalItems,
+        totalPages,
+      }) =>
+        `显示 ${startIndex + 1}-${endIndex} / ${totalItems} · 第 ${pageNumber} / ${totalPages} 页`,
+    },
     status: {
       pending: "待处理",
       completed: "已完成",

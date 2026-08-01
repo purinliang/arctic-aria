@@ -5,13 +5,12 @@ import { Moon, SlidersHorizontal, Sun } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ThemeMode, ThemePreference } from "@/app-shell/app-preferences";
 import { CardHeader } from "@/components/card";
-import { secondaryTextColorClass } from "@/components/color";
+import { ContentSection } from "@/components/content-section";
 import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { List } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { SettingsControlRow } from "@/components/settings-control-row";
 import { Tabs, type TabOption } from "@/components/tabs";
-import { cx } from "@/components/utils";
 import {
   getDesignMessages,
   type DesignMessages,
@@ -69,31 +68,29 @@ export function DesignPage({
         onLanguageChange={onLanguagePreferenceChange}
         onThemeChange={onThemePreferenceChange}
       />
-      <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="text-base font-semibold leading-5">
-            {activePageMessages.title}
-          </h2>
-          <p className={cx("mt-0.5 text-sm leading-5", secondaryTextColorClass)}>
-            {activePageMessages.description}
-          </p>
-        </div>
-        <Tabs
-          ariaLabel={messages.tabs.ariaLabel}
-          darkMode={darkMode}
-          options={tabOptions}
-          value={activeTab}
-          onChange={(value) => setActiveTab(readDesignTab(value))}
-        />
-      </div>
-      {activeTab === "buttons" ? (
-        <DesignButtonPage
-          darkMode={darkMode}
-          messages={messages.buttons}
-        />
-      ) : (
-        <DesignColorPage darkMode={darkMode} messages={messages.colors} />
-      )}
+      <ContentSection
+        darkMode={darkMode}
+        title={activePageMessages.title}
+        description={activePageMessages.description}
+        action={
+          <Tabs
+            ariaLabel={messages.tabs.ariaLabel}
+            darkMode={darkMode}
+            options={tabOptions}
+            value={activeTab}
+            onChange={(value) => setActiveTab(readDesignTab(value))}
+          />
+        }
+      >
+        {activeTab === "buttons" ? (
+          <DesignButtonPage
+            darkMode={darkMode}
+            messages={messages.buttons}
+          />
+        ) : (
+          <DesignColorPage darkMode={darkMode} messages={messages.colors} />
+        )}
+      </ContentSection>
     </section>
   );
 }
