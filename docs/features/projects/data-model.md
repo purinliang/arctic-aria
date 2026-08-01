@@ -215,14 +215,27 @@ Prerequisite or dependency behavior is a future design problem. If it returns,
 it needs a new data model covering ownership, self-dependency prevention,
 cycle prevention, same-project behavior, UI interaction, and migration rules.
 
-## Completion Events
+## Project Task Completion Events
 
-`completion_events` supports task-level history.
+`project_task_completion_events` supports task-level history.
+
+Current fields:
+
+- `id`
+- `user_id`
+- `task_id`
+- `event_type`
+- `previous_completed_weight`
+- `new_completed_weight`
+- `occurred_at`
+- `source`
 
 Current task event types:
 
 - `completed`
 - `reopened`
+- `blocked`
+- `unblocked`
 
 Do not add task-child completion events in the current design. The current
 schedulable unit is the task.
@@ -283,6 +296,10 @@ Historical migrations still show the old task and project prototype shape:
   and drops `project_task_dependencies`.
 - `0025_create_project_task_daily_selections.sql` adds stable Today selection
   rows so completed scheduled project tasks do not disappear from Today.
+- `0033_split_completion_events.sql` creates
+  `project_task_completion_events`, backfills legacy task rows from
+  `completion_events`, and updates current write paths to use the
+  project-specific table.
 
 Because migration history is immutable, do not edit old migration files to
 match the current model. Add a follow-up migration when schema governance

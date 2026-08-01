@@ -1,8 +1,9 @@
 # Events
 
-Events are one-time scheduled items with a concrete local date and time. They
-are useful for appointments, meetings, booked activities, and other fixed plans
-that should be visible without becoming project tasks or routine instances.
+Events are fixed plans with concrete generated instances. They are useful for
+appointments, meetings, booked activities, classes, customer work, deadlines,
+and other plans that have an outside dependency and should be visible without
+becoming project tasks or routine instances.
 
 ## Boundary
 
@@ -10,20 +11,39 @@ An Event is not a project task and not a routine instance.
 
 Events:
 
-- happen once at one local `event_date` and `event_time`
+- are stored as Event definitions plus generated Event instances
+- can happen once, daily, or weekly
+- may belong to an optional Event Group
 - may include an optional description, estimated duration, and location
 - can be created, edited, and deleted
 - cannot be completed, skipped, reopened, moved, or rescheduled from Today
 - do not affect Today progress counts or progress bars
 
-Reminder delivery is out of scope for the first Events feature. Daily Review
-may include Events as read-only context, but summary tone and work progress
-still come from tasks and routines.
+Reminder delivery is not implemented for Events. Daily Review may include Event
+instances as read-only context, but summary tone and work progress still come
+from tasks and routines.
+
+## Definitions And Instances
+
+An Event definition stores the repeatable plan: title, description, group,
+start date, optional end date, recurrence rule, default scheduled time,
+estimated duration, and default location.
+
+An Event instance stores one concrete appointment generated from a definition.
+The Events page can edit one instance's scheduled date, scheduled time, and
+location override, or cancel only that generated occurrence. These instance
+actions do not rewrite the whole Event definition.
+
+Event Groups are optional folders for related definitions, such as school
+tutorials, student lessons, customer meetings, or weekly reports. Different
+predictable times or locations should be separate Event definitions inside the
+same group.
 
 ## Today Behavior
 
-Today shows Events for the current local board date, using the same scheduled
-day boundary as project tasks and routines. Event rows are display-only:
+Today shows Event instances for the current local board date, using the same
+scheduled day boundary as project tasks and routines. Event rows are
+display-only:
 
 - no checkbox
 - no done or undone state
@@ -34,8 +54,8 @@ Clicking an Event title opens the Events page.
 ## Daily Review
 
 Daily Review includes an Events section between Routines and Pinned Memories.
-Event rows are plain bullet items, not checkbox rows. Review metadata includes
-`eventCount`.
+Event instance rows are plain bullet items, not checkbox rows. Review metadata
+includes `eventCount`.
 
 Events do not influence progress tone. Memories keep their existing life-count
 behavior.

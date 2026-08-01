@@ -70,6 +70,20 @@ size smaller. Supporting metadata should usually be a single `A · B · C` line.
 Feature rows should not hand-code label, description, or metadata font size,
 line height, or muted color.
 
+## Content Section
+
+`content-section.tsx` owns unframed content sections and subsections that sit at
+the same visual level as panels.
+
+Use `ContentSection` for a page-level block with a title, optional description,
+optional right-side action, and body content. Use `ContentSubsection` inside
+that block for smaller titled groups. These components should not add panel
+borders, card backgrounds, or nested-card styling; they structure content that
+already lives on the page surface, such as Design review pages.
+
+Use them when a surface needs title plus description rhythm but is not a panel,
+dialog, form section, or list row.
+
 ## Masked Text
 
 `masked-text.tsx` owns read-only masked text display for values that should not
@@ -440,6 +454,52 @@ Use `ExpandableListItem` for rows that open details. The header row and expanded
 details must be rendered inside the same list item so the background, padding,
 and divider behavior stay consistent. Do not place expanded details in a
 separate grey box or sibling container below the item.
+
+## Paged List
+
+`paged-list.tsx` owns pagination for long management lists. It composes the
+shared `List` and `ListItem` primitives, so feature rows keep the same padding,
+dividers, hover states, and text rhythm while the list renders only one page at
+a time.
+
+Use `PagedList` when a page or panel user-created list can naturally grow past
+a short review length, such as routine definitions, routine instances, Event
+definitions, Event instances, project tasks, projects, memories, and ideas. The
+owning feature still decides which items belong in the list through filters or
+grouping; `PagedList` only slices the already-filtered item array.
+
+The footer uses compact ghost icon controls:
+
+```text
+[First] [Previous] [Page x / y] [Next] [Last]
+```
+
+The icon buttons are compact and borderless. The page count is text, not an
+input or dialog trigger in the current UI.
+
+When a surrounding filter changes, pass a reset key so the current page returns
+to the first page. Do not use paged lists for compact dashboard panels that
+intentionally show only today's top items.
+
+Default page sizes:
+
+- `6`: generated instance lists and dialog manager lists
+- `8`: normal feature-page lists with taller rows
+- `10`: full-width or primary single-panel lists with more vertical room
+
+## Manager List
+
+`manager-list.tsx` owns compact dialog-only management sections and rows. Use it
+inside manager dialogs that list user-created supporting records, such as
+Routine Groups, Event Groups, Project Milestones, and Memory Categories.
+
+`ManagerDialogSection` aligns the section title on the left and the `New`
+action on the right. `ManagerListRow` uses the same right-side action column, so
+the header `New` action aligns with row-level actions such as `Edit`.
+
+`ManagerList` should not look like a page panel list. It uses compact dialog
+row padding and a dialog-form surface. It renders at most six rows per page by
+default and uses the same compact icon pager as `PagedList` when needed.
 
 ## Optional Description Copy
 

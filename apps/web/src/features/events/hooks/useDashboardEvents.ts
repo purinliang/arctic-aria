@@ -9,12 +9,18 @@ import {
 } from "@/app-shell/action-notifications";
 import {
   applyEventTemplate,
+  cancelEventInstance,
   deleteEvent,
+  deleteEventGroup,
   getEventDashboardData,
   parseEventTemplate,
+  saveEventInstance,
+  saveEventGroup,
   saveEvent,
   type EventActionResult,
   type EventDashboardData,
+  type EventGroupInput,
+  type EventInstanceInput,
   type EventInput,
   type EventTemplateParseData,
 } from "@/features/events/actions";
@@ -23,7 +29,11 @@ import type {
   EventMessages,
   NotificationMessages,
 } from "@/messages/app-messages";
-import type { ScheduledEvent } from "@/features/dashboard/types";
+import type {
+  EventDefinition,
+  EventGroupOption,
+  ScheduledEvent,
+} from "@/features/dashboard/types";
 
 type EventDataAction = () => Promise<EventActionResult<EventDashboardData>>;
 
@@ -36,8 +46,10 @@ export function useDashboardEvents(
   templateMessages?: EventMessages["editor"]["template"],
   notificationMessages?: NotificationMessages,
 ) {
-  const [events, setEvents] = useState<ScheduledEvent[]>([]);
+  const [events, setEvents] = useState<EventDefinition[]>([]);
+  const [eventInstances, setEventInstances] = useState<ScheduledEvent[]>([]);
   const [todayEvents, setTodayEvents] = useState<ScheduledEvent[]>([]);
+  const [eventGroups, setEventGroups] = useState<EventGroupOption[]>([]);
   const [eventLoading, setEventLoading] = useState(true);
   const [eventCacheReady, setEventCacheReady] = useState(false);
   const [eventActionPending, setEventActionPending] = useState(false);
@@ -56,7 +68,9 @@ export function useDashboardEvents(
 
   const applyEventData = useCallback((data: EventDashboardData) => {
     setEvents(data.events);
+    setEventInstances(data.eventInstances ?? []);
     setTodayEvents(data.todayEvents);
+    setEventGroups(data.eventGroups ?? []);
     setEventLoading(false);
     setEventCacheReady(true);
   }, []);
@@ -66,7 +80,9 @@ export function useDashboardEvents(
       const cachedData = readDashboardBrowserCacheSection(userId, "events");
 
       setEvents(cachedData?.events ?? []);
+      setEventInstances(cachedData?.eventInstances ?? []);
       setTodayEvents(cachedData?.todayEvents ?? []);
+      setEventGroups(cachedData?.eventGroups ?? []);
       setEventLoading(cachedData === null);
       setEventCacheReady(cachedData !== null);
     }, 0);
@@ -81,9 +97,11 @@ export function useDashboardEvents(
 
     writeDashboardBrowserCacheSection(userId, "events", {
       events,
+      eventInstances,
       todayEvents,
+      eventGroups,
     });
-  }, [eventCacheReady, events, todayEvents, userId]);
+  }, [eventCacheReady, eventGroups, eventInstances, events, todayEvents, userId]);
 
   const refreshEventData = useCallback(async () => {
     const actionResult = await runNotifiedServerAction({
@@ -213,7 +231,9 @@ export function useDashboardEvents(
 
   return {
     events,
+    eventInstances,
     todayEvents,
+    eventGroups,
     eventLoading,
     eventActionPending,
     refreshEventData,
@@ -225,6 +245,28 @@ export function useDashboardEvents(
     deleteEventFromPage: (eventId: string) =>
       runEventManagementAction(
         () => deleteEvent(eventId),
+        actionFailedTitle("delete", "event"),
+      ),
+    saveEventGroupFromPage: (input: EventGroupInput) =>
+      runEventManagementAction(
+        () => saveEventGroup(input),
+        actionFailedTitle("save", "group"),
+      ),
+    deleteEventGroupFromPage: (groupId: string) =>
+      runEventManagementAction(
+        () => deleteEventGroup(groupId),
+        actionFailedTitle("delete", "group"),
+      ),
+    saveEventInstanceFromPage: (input: EventInstanceInput) =>
+      runEventManagementAction(
+        () => saveEventInstance(input),
+        actionFailedTitle("update", "event"),
+      ),
+    cancelEventInstanceFromPage: (
+      input: Pick<EventInstanceInput, "id" | "reason">,
+    ) =>
+      runEventManagementAction(
+        () => cancelEventInstance(input),
         actionFailedTitle("delete", "event"),
       ),
     parseEventTemplateFromPage,

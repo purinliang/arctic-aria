@@ -199,20 +199,28 @@ function normalizeEventTemplateSave({
   const eventId = currentEvent?.id ?? null;
   const draft: EventInput = {
     id: eventId ?? undefined,
+    groupId: currentEvent?.groupId ?? null,
     title: fieldValue(fields, "title", currentEvent?.title ?? ""),
     description: fieldValue(
       fields,
       "description",
       currentEvent?.description ?? "",
     ),
-    eventDate: fieldValue(fields, "event_date", currentEvent?.eventDate ?? ""),
-    eventTime: fieldValue(fields, "event_time", currentEvent?.eventTime ?? ""),
+    eventDate: fieldValue(fields, "event_date", currentEvent?.startDate ?? ""),
+    endDate: currentEvent?.endDate ?? "",
+    eventTime: fieldValue(
+      fields,
+      "event_time",
+      currentEvent?.rule.scheduledTime ?? "",
+    ),
+    ruleType: currentEvent?.rule.ruleType ?? "once",
     estimatedDurationHours: fieldValue(
       fields,
       "estimated_duration_hours",
       currentEvent?.estimatedDurationHours?.toString() ?? "",
     ),
     location: fieldValue(fields, "location", currentEvent?.location ?? ""),
+    timezone: currentEvent?.rule.timezone ?? "UTC",
   };
   const validation = validateEventInput(draft);
 
@@ -258,8 +266,8 @@ function currentEventMatchesValidation(
   return (
     currentEvent.title === validation.title &&
     currentEvent.description === validation.description &&
-    currentEvent.eventDate === validation.eventDate &&
-    currentEvent.eventTime === validation.eventTime &&
+    currentEvent.startDate === validation.eventDate &&
+    currentEvent.rule.scheduledTime === validation.eventTime &&
     currentEvent.estimatedDurationHours === validation.estimatedDurationHours &&
     currentEvent.location === validation.location
   );

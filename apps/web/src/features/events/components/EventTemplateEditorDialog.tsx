@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/scroll-area";
 import { SupportingText } from "@/components/text";
 import { TemplateEditorDialog } from "@/components/template-editor-dialog";
 import { cx } from "@/components/utils";
-import type { ScheduledEvent } from "@/features/dashboard/types";
+import type { EventDefinition } from "@/features/dashboard/types";
 import type {
   EventInput,
   EventTemplateParseData,
@@ -36,7 +36,7 @@ export function EventTemplateEditorDialog({
   darkMode: boolean;
   pending: boolean;
   mode: TemplateMode;
-  event: ScheduledEvent | null;
+  event: EventDefinition | null;
   draft: EventInput | null;
   messages: EventMessages["editor"]["template"];
   showErrorNotification: (message: string, title?: string) => void;
@@ -86,12 +86,16 @@ export function EventTemplateEditorDialog({
 }
 
 const emptyEventTemplateDraft: EventInput = {
+  groupId: null,
   title: "",
   description: "",
   eventDate: "",
+  endDate: "",
   eventTime: "",
+  ruleType: "once",
   estimatedDurationHours: "",
   location: "",
+  timezone: "UTC",
 };
 
 function EventTemplatePreview({

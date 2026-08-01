@@ -2,7 +2,10 @@ import {
   discordNotificationService,
   type DiscordNotificationResult,
 } from "../../discord/server/notification-service.ts";
-import { shouldGenerateInstance } from "./routine-service.ts";
+import {
+  nextRoutineOccurrenceDates,
+  shouldGenerateInstance,
+} from "./routine-service.ts";
 import { PostgresRoutineRepository } from "./postgres-routine-repository.ts";
 import type {
   RoutineInstanceRecord,
@@ -62,16 +65,37 @@ export function createRoutineReminderService({
       for (const routine of activeRoutines) {
         let hasDueCandidate = false;
         let hasPendingDueCandidate = false;
-
-        for (const scheduledDate of routineReminderCandidateDates(
+        const candidateDates = routineReminderCandidateDates(
           routine,
           occurredAt,
-        )) {
+        );
+        const scheduledTime = resolveRoutineScheduledTime(routine);
+
+        await Promise.all(
+          nextRoutineOccurrenceDates({
+            routine,
+            fromDate: candidateDates[0] ?? routine.startDate,
+          }).map((scheduledDate) =>
+            routines.ensureRoutineInstance({
+              userId: routine.userId,
+              routineId: routine.id,
+              scheduledDate,
+              scheduledTime,
+              remindAt: routineReminderAt({
+                scheduledDate,
+                scheduledTime,
+                timeZone: routine.rule.timezone,
+              }),
+              occurredAt,
+            }),
+          ),
+        );
+
+        for (const scheduledDate of candidateDates) {
           if (!shouldGenerateInstance(routine, scheduledDate)) {
             continue;
           }
 
-          const scheduledTime = resolveRoutineScheduledTime(routine);
           const remindAt = routineReminderAt({
             scheduledDate,
             scheduledTime,

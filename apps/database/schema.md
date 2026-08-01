@@ -292,16 +292,15 @@ Indexes:
 - `(remind_at)` where status is `pending`, `remind_at` is set, and
   `reminded_at` is null
 
-### `completion_events`
+### `project_task_completion_events`
 
-Append-style event history for completed or reopened work.
+Append-style completion history for project tasks.
 
 Columns:
 
 - `id uuid PRIMARY KEY`
 - `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
-- `target_type text NOT NULL`
-- `target_id uuid NOT NULL`
+- `task_id uuid NOT NULL REFERENCES project_tasks(id) ON DELETE CASCADE`
 - `event_type text NOT NULL`
 - `previous_completed_weight numeric(8, 3)`
 - `new_completed_weight numeric(8, 3)`
@@ -310,28 +309,82 @@ Columns:
 
 Important constraints:
 
-- target type: `task`, `routine_instance`
-- event type: `completed`, `partially_completed`, `skipped`, `reopened`,
-  `blocked`, `unblocked`
+- event type: `completed`, `reopened`, `blocked`, `unblocked`
 
 Indexes:
 
-- `(user_id, target_type, target_id, occurred_at DESC)`
+- `(user_id, task_id, occurred_at DESC)`
 
-## Events
+### `routine_completion_events`
 
-### `events`
-
-One-time scheduled items. Event delete is a soft delete through `deleted_at`.
+Append-style completion history for routine instances.
 
 Columns:
 
 - `id uuid PRIMARY KEY`
 - `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
+- `routine_instance_id uuid NOT NULL REFERENCES routine_instances(id) ON DELETE CASCADE`
+- `event_type text NOT NULL`
+- `occurred_at timestamptz NOT NULL`
+- `source text NOT NULL DEFAULT 'web'`
+
+Important constraints:
+
+- event type: `completed`, `skipped`, `reopened`
+
+Indexes:
+
+- `(user_id, routine_instance_id, occurred_at DESC)`
+
+### `completion_events`
+
+Legacy append-style completion history table retained by earlier migrations.
+Migration `0033_split_completion_events.sql` backfills supported task rows into
+`project_task_completion_events` and routine-instance rows into
+`routine_completion_events`. Current Project and Routine write paths no longer
+insert into this table.
+
+## Events
+
+### `event_groups`
+
+Optional user-owned groups for organizing Event definitions. Event Groups are
+soft deleted through `deleted_at`.
+
+Columns:
+
+- `id uuid PRIMARY KEY`
+- `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
+- `name text NOT NULL`
+- `description text`
+- `created_at timestamptz NOT NULL`
+- `updated_at timestamptz NOT NULL`
+- `deleted_at timestamptz`
+
+Important constraints:
+
+- name length: 1-80 characters
+- description length: at most 500 characters
+- active group names are unique per user case-insensitively
+
+Indexes:
+
+- unique `(user_id, lower(name))` where `deleted_at IS NULL`
+- `(user_id, name)` where `deleted_at IS NULL`
+
+### `events`
+
+Event definitions. Event delete is a soft delete through `deleted_at`.
+
+Columns:
+
+- `id uuid PRIMARY KEY`
+- `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
+- `group_id uuid REFERENCES event_groups(id) ON DELETE SET NULL`
 - `title text NOT NULL`
 - `description text`
-- `event_date date NOT NULL`
-- `event_time time NOT NULL`
+- `start_date date NOT NULL`
+- `end_date date`
 - `estimated_duration_hours numeric(5,2)`
 - `location text`
 - `created_at timestamptz NOT NULL`
@@ -342,12 +395,73 @@ Important constraints:
 
 - title length: 1-120 characters after trim
 - description length: at most 2000 characters
+- end date is null or not before start date
 - estimated duration is null or a positive value up to 24 hours
 - location length: at most 500 characters
 
 Indexes:
 
-- `(user_id, event_date, event_time, created_at)` where `deleted_at IS NULL`
+- `(user_id, start_date, created_at)` where `deleted_at IS NULL`
+- `(user_id, group_id, start_date)` where `deleted_at IS NULL`
+
+### `event_rules`
+
+One recurrence rule per Event definition.
+
+Columns:
+
+- `id uuid PRIMARY KEY`
+- `event_id uuid NOT NULL REFERENCES events(id) ON DELETE CASCADE`
+- `rule_type text NOT NULL`
+- `scheduled_time time NOT NULL`
+- `weekday integer`
+- `timezone text NOT NULL DEFAULT 'UTC'`
+- `created_at timestamptz NOT NULL`
+- `updated_at timestamptz NOT NULL`
+
+Important constraints:
+
+- rule type: `once`, `daily`, `weekly`
+- weekday is null or 0-6
+- weekday is required only for weekly rules
+- timezone is present
+- one rule per Event
+
+### `event_instances`
+
+Concrete generated Event appointments.
+
+Columns:
+
+- `id uuid PRIMARY KEY`
+- `user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE`
+- `event_id uuid NOT NULL REFERENCES events(id) ON DELETE CASCADE`
+- `rule_date date NOT NULL`
+- `rule_time time NOT NULL`
+- `scheduled_date date NOT NULL`
+- `scheduled_time time NOT NULL`
+- `location_override text`
+- `status text NOT NULL DEFAULT 'scheduled'`
+- `canceled_at timestamptz`
+- `cancellation_reason text`
+- `rescheduled_at timestamptz`
+- `reschedule_reason text`
+- `created_at timestamptz NOT NULL`
+- `updated_at timestamptz NOT NULL`
+
+Important constraints:
+
+- status: `scheduled`, `canceled`
+- one instance per Event rule date/time slot
+- location override length: at most 500 characters
+- cancellation and reschedule reasons: at most 500 characters
+- canceled instances must have `canceled_at`; scheduled instances must not
+
+Indexes:
+
+- unique `(event_id, rule_date, rule_time)`
+- `(user_id, scheduled_date, scheduled_time, created_at)`
+- `(event_id, scheduled_date, scheduled_time)`
 
 ## Projects
 

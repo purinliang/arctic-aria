@@ -4,6 +4,9 @@ This document defines routine persistence, backend validation, and database
 constraints. Product behavior is documented in [overview.md](overview.md), and UI
 behavior is documented in [ui.md](ui.md).
 
+Routine page and reminder loads materialize at most the next 3 routine
+instances per active routine, aligned with recurring Event instance generation.
+
 ## Validation And Consistency
 
 Routines uses the shared database integrity rules from
@@ -210,15 +213,25 @@ Current database protection:
   `reminded_at` empty.
 - move metadata requires `moved_from_date` to have `moved_at`.
 
-## `completion_events`
+## `routine_completion_events`
 
 Routine completion and skip actions should create immutable completion history
 for daily review.
 
-Current routine event target:
+Current fields:
 
-- target type: `routine_instance`
-- target id: the routine instance id
+- `id`
+- `user_id`
+- `routine_instance_id`
+- `event_type`
+- `occurred_at`
+- `source`
+
+Current routine event types:
+
+- `completed`
+- `skipped`
+- `reopened`
 
 The latest state remains on `routine_instances`. Event history records what
 happened.
@@ -232,8 +245,7 @@ The first reminder sender:
 
 - scans active routines
 - resolves each routine's stored timezone, preferred time, and `18:00` fallback
-- ensures routine instances only when their `remind_at` is inside the due
-  window
+- ensures the next 3 upcoming routine instances for each active routine
 - queries pending routine instances by `remind_at`
 - sends only pending instances
 - sets `reminded_at` after successful Discord delivery
@@ -260,6 +272,9 @@ Historical migrations still show the old routine lifecycle shape:
   index.
 - `0026_create_routine_groups.sql` adds optional `routine_groups` and
   `routines.group_id`.
+- `0033_split_completion_events.sql` creates `routine_completion_events`,
+  backfills legacy routine rows from `completion_events`, and updates current
+  write paths to use the routine-specific table.
 
 Because migration history is immutable, do not edit old migration files to
 match the current model. Add a follow-up migration when schema governance

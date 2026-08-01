@@ -1,4 +1,8 @@
 import type { ProjectDurationRange } from "@/features/projects/project-duration";
+import {
+  englishPaginationMessages,
+  simplifiedChinesePaginationMessages,
+} from "./pagination-messages.ts";
 
 export const englishProjectMessages = {
   pageTitle: {
@@ -18,6 +22,10 @@ export const englishProjectMessages = {
     pin: "Pin project",
     unpin: "Unpin project",
     open: (title: string) => `Open ${title}`,
+    pagination: {
+      ariaLabel: "Project pages",
+      ...englishPaginationMessages,
+    },
   },
   detail: {
     selectProject: "Select a project to view milestones and tasks.",
@@ -49,6 +57,14 @@ export const englishProjectMessages = {
     notSet: "Not set",
     due: (value: string) => `Due ${value}`,
     markDone: (title: string) => `Mark ${title} done`,
+    taskPagination: {
+      ariaLabel: "Task pages",
+      ...englishPaginationMessages,
+    },
+    milestonePagination: {
+      ariaLabel: "Milestone pages",
+      ...englishPaginationMessages,
+    },
   },
   timeline: {
     due: (date: string) => `Due ${date}`,
@@ -240,6 +256,10 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
     pin: "置顶项目",
     unpin: "取消置顶项目",
     open: (title) => `打开 ${title}`,
+    pagination: {
+      ariaLabel: "项目分页",
+      ...simplifiedChinesePaginationMessages,
+    },
   },
   detail: {
     selectProject: "选择一个项目以查看里程碑和任务。",
@@ -271,6 +291,14 @@ export const simplifiedChineseProjectMessages: ProjectMessages = {
     notSet: "未设置",
     due: (value) => `截止 ${value}`,
     markDone: (title) => `将 ${title} 标记为完成`,
+    taskPagination: {
+      ariaLabel: "任务分页",
+      ...simplifiedChinesePaginationMessages,
+    },
+    milestonePagination: {
+      ariaLabel: "里程碑分页",
+      ...simplifiedChinesePaginationMessages,
+    },
   },
   timeline: {
     due: (date) => `截止 ${date}`,

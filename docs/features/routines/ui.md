@@ -51,7 +51,8 @@ The first Routines page should allow the user to:
 
 - view routine definitions
 - filter routine definitions by group
-- view recent or upcoming instances
+- view generated routine instances
+- filter routine instances by `All`, `Recent`, `Future`, or `Past`
 - create a routine from a `New` header button
 - edit a routine
 - delete a routine
@@ -94,8 +95,34 @@ phases and remain inside Projects.
 
 The Routines page uses the shared split layout:
 
-- left side: Routines list panel
-- right side: Groups panel
+- left side: Routine Definitions panel and Routine Instances panel
+- right side: instance Filter panel and Groups panel
+
+The Routine Definitions panel lists active routine definitions. Rows show title,
+description, group, recurrence summary, preferred time, and estimated duration.
+The row action opens the Edit Routine dialog. When there are more than eight
+visible definitions, the panel uses the shared paged-list control so only one
+definition page renders at a time.
+
+The Routine Instances panel lists generated routine instances. Rows show title,
+description, scheduled date, scheduled time, and status. Pending rows can be
+completed from this panel. Completed or skipped rows can be reopened. When
+there are more than six visible instances, the panel uses the shared paged-list
+control so only one instance page renders at a time.
+
+Paged Routine lists use compact pagination controls in this order: first page,
+previous page, `Page x / y`, next page, last page. Changing the group or
+instance filter resets the affected list pager to the first page.
+
+The instance filter uses:
+
+- `All`: every loaded routine instance
+- `Recent`: yesterday through three days after the current board date
+- `Future`: four or more days after the current board date
+- `Past`: two or more days before the current board date
+
+The group filter affects routine definitions and routine instances. Routine
+instances are filtered by their parent routine definition.
 
 Groups panel layout:
 
@@ -112,6 +139,8 @@ Click behavior:
 - `No group` shows routines without a group.
 - a group button shows routines assigned to that group.
 - `Manage` opens group management.
+- changing the group filter resets both routine list pagers to their first
+  page.
 
 ## Routine Group Management
 
@@ -124,9 +153,12 @@ Group manager layout:
 
 - dialog title: `Manage Groups`
 - one section: `Routine Groups`
-- section header action: `New`
+- section header action: right-aligned `New`
 - group rows show name, description, and `Edit`
 - empty state says there are no groups yet
+- use the shared dialog `ManagerList`, not a page/panel list
+- show at most six group rows per page, with the compact icon pager below the
+  rows when needed
 
 Group form fields:
 

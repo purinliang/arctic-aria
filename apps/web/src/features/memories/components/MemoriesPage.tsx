@@ -276,6 +276,7 @@ export function MemoriesPage({
               darkMode={darkMode}
               loading={loading}
               pending={pending}
+              paginationKey={filter}
               memories={visibleMemories}
               pendingPinIds={pendingSuggestionIds}
               messages={messages.panel}

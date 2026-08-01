@@ -6,9 +6,15 @@ import { CardHeader } from "@/components/card";
 import { ConfirmDialog } from "@/components/dialog";
 import { Panel } from "@/components/panel";
 import type {
+  Routine,
   RoutineDefinition,
   RoutineGroupOption,
+  RoutineStatus,
 } from "@/features/dashboard/types";
+import {
+  filterInstancesByDate,
+  type InstanceDateFilter,
+} from "@/features/instance-date-filters";
 import type {
   RoutineGroupInput,
   RoutineInput,
@@ -17,10 +23,13 @@ import type {
 import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { FormMessages, RoutineMessages } from "@/messages/app-messages";
 import { RoutineEditorDialog } from "./RoutineEditorDialog";
+import { RoutineFiltersPanel } from "./RoutineFiltersPanel";
 import { RoutineGroupManagerDialog } from "./RoutineGroupManagerDialog";
 import { RoutineGroupsPanel } from "./RoutineGroupsPanel";
+import { RoutineInstancesList } from "./RoutineInstancesList";
 import { RoutinesList } from "./RoutinesList";
 import { RoutineTemplateEditorDialog } from "./RoutineTemplateEditorDialog";
+import { localScheduledDateKey } from "@/features/settings/time-zones";
 import {
   emptyDraft,
   filterRoutinesByGroup,
@@ -54,6 +63,7 @@ const emptyGroupDraft: RoutineGroupInput = {
 export function RoutinesPage({
   darkMode,
   routines,
+  routineInstances,
   routineGroups,
   loading,
   pending,
@@ -64,6 +74,7 @@ export function RoutinesPage({
   resolvedTimeZone,
   onRoutineSave,
   onRoutineDelete,
+  onRoutineInstanceStatus,
   onRoutineTemplateParse,
   onRoutineTemplateApply,
   onRoutineGroupSave,
@@ -73,6 +84,7 @@ export function RoutinesPage({
 }: {
   darkMode: boolean;
   routines: RoutineDefinition[];
+  routineInstances: Routine[];
   routineGroups: RoutineGroupOption[];
   loading: boolean;
   pending: boolean;
@@ -83,6 +95,10 @@ export function RoutinesPage({
   resolvedTimeZone: string;
   onRoutineSave: (input: RoutineInput) => RoutineResult;
   onRoutineDelete: (routineId: string) => RoutineResult;
+  onRoutineInstanceStatus: (
+    instanceId: string,
+    status: RoutineStatus,
+  ) => RoutineResult;
   onRoutineTemplateParse: (
     routineId: string | null,
     source: string,
@@ -101,6 +117,8 @@ export function RoutinesPage({
     [routineGroups],
   );
   const [groupFilter, setGroupFilter] = useState<RoutineGroupFilter>("All");
+  const [instanceFilter, setInstanceFilter] =
+    useState<InstanceDateFilter>("recent");
   const [editorOpen, setEditorOpen] = useState(false);
   const [draft, setDraft] = useState<RoutineInput>(() =>
     emptyDraft(resolvedTimeZone),
@@ -121,6 +139,24 @@ export function RoutinesPage({
       ? groupFilter
       : "All";
   const visibleRoutines = filterRoutinesByGroup(routines, activeGroupFilter);
+  const visibleRoutineIds = new Set(
+    visibleRoutines.map((routine) => routine.id),
+  );
+  const groupFilteredRoutineInstances =
+    activeGroupFilter === "All"
+      ? routineInstances
+      : routineInstances.filter((instance) =>
+          visibleRoutineIds.has(instance.routineId),
+        );
+  const referenceDate = localScheduledDateKey({
+    date: new Date(),
+    timeZone: resolvedTimeZone,
+  });
+  const visibleRoutineInstances = filterInstancesByDate(
+    groupFilteredRoutineInstances,
+    instanceFilter,
+    referenceDate,
+  );
   const templateRoutine =
     templateTarget?.mode === "update"
       ? routines.find((routine) => routine.id === templateTarget.routineId) ??
@@ -288,6 +324,7 @@ export function RoutinesPage({
                 routines={visibleRoutines}
                 loading={loading}
                 pending={pending}
+                paginationKey={activeGroupFilter}
                 messages={messages.page}
                 groupMessages={messages.groups}
                 ruleMessages={messages}
@@ -296,9 +333,38 @@ export function RoutinesPage({
                 onEdit={openEditor}
               />
             </Panel>
+
+            <Panel darkMode={darkMode}>
+              <CardHeader
+                darkMode={darkMode}
+                icon={<Bell size={18} aria-hidden="true" />}
+                title={messages.instances.title}
+                description={messages.instances.description}
+              />
+              <RoutineInstancesList
+                darkMode={darkMode}
+                instances={visibleRoutineInstances}
+                loading={loading}
+                pending={pending}
+                paginationKey={`${activeGroupFilter}-${instanceFilter}`}
+                messages={messages}
+                formMessages={formMessages}
+                timeFormatPreference={timeFormatPreference}
+                onStatusChange={(instanceId, status) => {
+                  void onRoutineInstanceStatus(instanceId, status);
+                }}
+              />
+            </Panel>
           </div>
 
           <aside className="grid content-start gap-4">
+            <RoutineFiltersPanel
+              darkMode={darkMode}
+              disabled={pending}
+              filter={instanceFilter}
+              messages={messages.filters}
+              onFilterChange={setInstanceFilter}
+            />
             <RoutineGroupsPanel
               darkMode={darkMode}
               filter={activeGroupFilter}

@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { validateEventInput } from "../event-action-helpers.ts";
+import {
+  validateEventInput,
+  validateEventInstanceCancelInput,
+  validateEventInstanceInput,
+} from "../event-action-helpers.ts";
 
 test("event validation accepts complete input", () => {
   const result = validateEventInput({
@@ -157,6 +161,82 @@ test("event validation rejects invalid duration and long location", () => {
       category: "invalid_parameter",
       subject: "event",
       field: "location",
+      reason: "too_long",
+      limit: 500,
+    },
+  );
+});
+
+test("event instance validation accepts reschedule and location override input", () => {
+  const result = validateEventInstanceInput({
+    id: "instance-1",
+    eventDate: "2026-07-23",
+    eventTime: "10:30",
+    locationOverride: "Room 2",
+    reason: "Teacher request",
+  });
+
+  assert.equal(result.ok, true);
+
+  if (result.ok) {
+    assert.equal(result.instanceId, "instance-1");
+    assert.equal(result.eventDate, "2026-07-23");
+    assert.equal(result.eventTime, "10:30");
+    assert.equal(result.locationOverride, "Room 2");
+    assert.equal(result.reason, "Teacher request");
+  }
+});
+
+test("event instance validation rejects invalid date, time, and long reason", () => {
+  assert.deepEqual(
+    validateEventInstanceInput({
+      id: "instance-1",
+      eventDate: "2026-02-31",
+      eventTime: "10:30",
+      locationOverride: "",
+      reason: "",
+    }),
+    {
+      ok: false,
+      message:
+        "Event instance date must be a real date in YYYY-MM-DD format.",
+      code: "event_instance_date_invalid",
+      category: "invalid_parameter",
+      subject: "event",
+      field: "date",
+      reason: "invalid_format",
+    },
+  );
+  assert.deepEqual(
+    validateEventInstanceInput({
+      id: "instance-1",
+      eventDate: "2026-07-23",
+      eventTime: "24:00",
+      locationOverride: "",
+      reason: "",
+    }),
+    {
+      ok: false,
+      message: "Event instance time must use HH:MM.",
+      code: "event_instance_time_invalid",
+      category: "invalid_parameter",
+      subject: "event",
+      field: "time",
+      reason: "invalid_format",
+    },
+  );
+  assert.deepEqual(
+    validateEventInstanceCancelInput({
+      id: "instance-1",
+      reason: "x".repeat(501),
+    }),
+    {
+      ok: false,
+      message: "Event instance reason must be 500 characters or fewer.",
+      code: "event_instance_reason_invalid",
+      category: "invalid_parameter",
+      subject: "event",
+      field: "reason",
       reason: "too_long",
       limit: 500,
     },

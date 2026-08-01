@@ -2,6 +2,10 @@ import {
   englishMemoryExperienceMessages,
   simplifiedChineseMemoryExperienceMessages,
 } from "./memory-experience-messages.ts";
+import {
+  englishPaginationMessages,
+  simplifiedChinesePaginationMessages,
+} from "./pagination-messages.ts";
 
 export const englishMemoryMessages = {
   panel: {
@@ -20,6 +24,10 @@ export const englishMemoryMessages = {
     cancelPin: "Unpin memory",
     experience: englishMemoryExperienceMessages,
     edit: "Edit",
+    pagination: {
+      ariaLabel: "Memory pages",
+      ...englishPaginationMessages,
+    },
   },
   suggestions: {
     title: "Suggestions",
@@ -60,6 +68,10 @@ export const englishMemoryMessages = {
     description: "Description",
     noDescription: "No description.",
     noCustomCategories: "No custom categories yet.",
+    pagination: {
+      ariaLabel: "Category pages",
+      ...englishPaginationMessages,
+    },
     builtIns: {
       cuisine: {
         name: "Cuisine",
@@ -164,6 +176,10 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     cancelPin: "取消置顶",
     experience: simplifiedChineseMemoryExperienceMessages,
     edit: "编辑",
+    pagination: {
+      ariaLabel: "回忆分页",
+      ...simplifiedChinesePaginationMessages,
+    },
   },
   suggestions: {
     title: "建议",
@@ -204,6 +220,10 @@ export const simplifiedChineseMemoryMessages: MemoryMessages = {
     description: "描述",
     noDescription: "暂无描述。",
     noCustomCategories: "暂无自定义分类。",
+    pagination: {
+      ariaLabel: "分类分页",
+      ...simplifiedChinesePaginationMessages,
+    },
     builtIns: {
       cuisine: {
         name: "美食",

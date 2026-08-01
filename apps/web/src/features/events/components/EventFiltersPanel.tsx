@@ -3,8 +3,8 @@ import { ListFilter } from "lucide-react";
 import { CardHeader } from "@/components/card";
 import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { Panel } from "@/components/panel";
+import type { InstanceDateFilter } from "@/features/instance-date-filters";
 import type { EventMessages } from "@/messages/app-messages";
-import type { EventTimeFilter } from "./event-page-helpers";
 
 export function EventFiltersPanel({
   darkMode,
@@ -15,9 +15,9 @@ export function EventFiltersPanel({
 }: {
   darkMode: boolean;
   disabled: boolean;
-  filter: EventTimeFilter;
+  filter: InstanceDateFilter;
   messages: EventMessages["filters"];
-  onFilterChange: (filter: EventTimeFilter) => void;
+  onFilterChange: (filter: InstanceDateFilter) => void;
 }) {
   return (
     <Panel darkMode={darkMode}>
@@ -38,15 +38,19 @@ export function EventFiltersPanel({
               label: messages.all,
             },
             {
-              value: "upcoming",
-              label: messages.upcoming,
+              value: "recent",
+              label: messages.recent,
+            },
+            {
+              value: "future",
+              label: messages.future,
             },
             {
               value: "past",
               label: messages.past,
             },
           ]}
-          onChange={(value) => onFilterChange(value as EventTimeFilter)}
+          onChange={(value) => onFilterChange(value as InstanceDateFilter)}
         />
       </div>
     </Panel>

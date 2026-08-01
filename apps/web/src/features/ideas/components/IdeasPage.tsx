@@ -6,15 +6,14 @@ import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { ConfirmDialog } from "@/components/dialog";
 import {
-  List,
   ListItem,
   ListItemActions,
   ListItemContent,
   ListItemSupportingText,
   ListItemTitle,
 } from "@/components/list";
+import { PagedList } from "@/components/paged-list";
 import { Panel } from "@/components/panel";
-import { DescriptionText } from "@/components/text";
 import { formatDateKey } from "@/components/forms/date-format";
 import type { IdeaInput, IdeaPageItem } from "../actions";
 import type { IdeaMessages } from "@/messages/app-messages";
@@ -28,6 +27,7 @@ type ConfirmationTarget = { id: string; rawText: string };
 const emptyIdeaDraft: IdeaInput = {
   rawText: "",
 };
+const ideaPageSize = 10;
 
 export function IdeasPage({
   darkMode,
@@ -122,37 +122,31 @@ export function IdeasPage({
             </Button>
           }
         />
-        <List darkMode={darkMode}>
-          {loading ? (
-            <ListItem darkMode={darkMode} layout="block">
-              <DescriptionText darkMode={darkMode}>
-                {messages.page.loading}
-              </DescriptionText>
-            </ListItem>
-          ) : ideas.length > 0 ? (
-            ideas.map((idea) => (
-              <IdeaRow
-                key={idea.id}
-                darkMode={darkMode}
-                idea={idea}
-                messages={messages}
-                dateMessages={dateMessages}
-                onEdit={() =>
-                  setIdeaDraft({
-                    id: idea.id,
-                    rawText: idea.rawText,
-                  })
-                }
-              />
-            ))
-          ) : (
-            <div className="px-4 py-4">
-              <DescriptionText darkMode={darkMode}>
-                {messages.page.empty}
-              </DescriptionText>
-            </div>
+        <PagedList
+          ariaLabel={messages.page.pagination.ariaLabel}
+          darkMode={darkMode}
+          emptyText={messages.page.empty}
+          items={ideas}
+          loading={loading}
+          loadingText={messages.page.loading}
+          messages={messages.page.pagination}
+          pageSize={ideaPageSize}
+          renderItem={(idea) => (
+            <IdeaRow
+              key={idea.id}
+              darkMode={darkMode}
+              idea={idea}
+              messages={messages}
+              dateMessages={dateMessages}
+              onEdit={() =>
+                setIdeaDraft({
+                  id: idea.id,
+                  rawText: idea.rawText,
+                })
+              }
+            />
           )}
-        </List>
+        />
       </Panel>
 
       {ideaDraft ? (

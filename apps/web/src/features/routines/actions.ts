@@ -31,6 +31,7 @@ export type { RoutineTemplateParseData } from "./routine-template-types";
 
 export type RoutineDashboardData = {
   routines: Routine[];
+  routineInstances: Routine[];
   routineDefinitions: RoutineDefinition[];
   routineGroups: RoutineGroupOption[];
 };

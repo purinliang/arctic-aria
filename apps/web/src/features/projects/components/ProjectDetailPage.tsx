@@ -239,6 +239,7 @@ function ProjectDetailContent({
             pending={pending}
             project={project}
             selectedMilestone={selectedMilestone}
+            taskPaginationKey={activeMilestoneId}
             selectedTasks={selectedTasks}
             messages={messages}
             defaultDescriptions={defaultDescriptions}
@@ -305,6 +306,7 @@ function ProjectMilestoneDetailPage({
   pending,
   project,
   selectedMilestone,
+  taskPaginationKey,
   selectedTasks,
   messages,
   defaultDescriptions,
@@ -317,6 +319,7 @@ function ProjectMilestoneDetailPage({
   pending: boolean;
   project: ProjectView;
   selectedMilestone: ProjectView["milestones"][number] | null;
+  taskPaginationKey: string;
   selectedTasks: ProjectTaskView[];
   messages: ProjectMessages["detail"];
   defaultDescriptions: ProjectMessages["defaultDescriptions"];
@@ -330,6 +333,7 @@ function ProjectMilestoneDetailPage({
       <ProjectDetailTasksPanel
         darkMode={darkMode}
         pending={pending}
+        paginationKey={taskPaginationKey}
         tasks={selectedTasks}
         messages={messages}
         defaultDescriptions={defaultDescriptions}

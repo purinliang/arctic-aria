@@ -14,6 +14,8 @@ The current web implementation supports database-backed memory testing:
 - add, edit, and delete memories
 - add, edit, and delete categories
 - pin and unpin memories from the Memories page
+- paginate the Memories page list with the shared compact pager
+- render category management with the shared dialog manager-list component
 - show pinned memories on Today from Neon
 - mark pinned memories experienced
 - cancel pinned memory experience marks
@@ -35,6 +37,10 @@ The page should show:
 Memory `Edit` opens memory editing UI.
 
 `Manage` opens category management UI.
+
+The main memory list renders at most eight memories per page. Changing the
+category filter resets the memory pager to the first page. Category management
+renders at most six custom category rows per page in the manager dialog.
 
 ## Suggestions Panel
 
@@ -138,7 +144,12 @@ apps/web/src/features/memories/components/MemoryCategoriesPanel.tsx
 apps/web/src/features/memories/components/MemoriesPanel.tsx
 apps/web/src/features/memories/components/SuggestionsPanel.tsx
 apps/web/src/features/memories/components/PinnedMemoriesPanel.tsx
+apps/web/src/features/memories/components/CategoryManagerDialog.tsx
 apps/web/src/app-shell/AppShell.tsx
+apps/web/src/components/manager-list.tsx
+apps/web/src/components/paged-list.tsx
+apps/web/src/components/paged-list-utils.ts
+apps/web/src/messages/pagination-messages.ts
 ```
 
 Memory page backend and load failures should use the shared notification stack,

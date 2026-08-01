@@ -1,8 +1,7 @@
 // Memories Page - Category Manager Dialog.
 import { Edit3, Plus } from "lucide-react";
-import type { Dispatch, ReactNode, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
-import { secondaryButtonBorderColorClass } from "@/components/color";
 import { textAreaMinHeightSmClass } from "@/components/control-layout";
 import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import {
@@ -14,15 +13,10 @@ import {
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import {
-  List,
-  ListItem,
-  ListItemActions,
-  ListItemContent,
-  ListItemDescription,
-  ListItemTitle,
-} from "@/components/list";
-import { DescriptionText, SectionTitle } from "@/components/text";
-import { cx } from "@/components/utils";
+  ManagerDialogSection,
+  ManagerList,
+  ManagerListRow,
+} from "@/components/manager-list";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryCategoryInput } from "@/features/memories/actions";
 import type { MemoryMessages } from "@/messages/app-messages";
@@ -84,7 +78,8 @@ export function CategoryManagerDialog({
             onClose={onCloseEditor}
           />
           <div className="grid gap-[var(--aa-form-section-gap)]">
-            <CategorySection
+            <ManagerDialogSection
+              darkMode={darkMode}
               title={messages.customSection}
               action={
                 <Button
@@ -97,33 +92,32 @@ export function CategoryManagerDialog({
                 </Button>
               }
             >
-              {customCategories.length > 0 ? (
-                <CategoryList
-                  darkMode={darkMode}
-                  categories={customCategories}
-                  editDisabled={pending}
-                  messages={messages}
-                  defaultDescriptions={defaultDescriptions}
-                  onOpenEdit={onOpenEdit}
-                />
-              ) : (
-                <EmptyCategoryList
-                  darkMode={darkMode}
-                  message={messages.noCustomCategories}
-                />
-              )}
-            </CategorySection>
-
-            <CategorySection title={messages.defaultSection}>
               <CategoryList
                 darkMode={darkMode}
-                categories={defaultCategories}
+                categories={customCategories}
+                emptyText={messages.noCustomCategories}
                 editDisabled={pending}
                 messages={messages}
                 defaultDescriptions={defaultDescriptions}
                 onOpenEdit={onOpenEdit}
               />
-            </CategorySection>
+            </ManagerDialogSection>
+
+            <ManagerDialogSection
+              darkMode={darkMode}
+              title={messages.defaultSection}
+            >
+              <CategoryList
+                darkMode={darkMode}
+                categories={defaultCategories}
+                emptyText={messages.noCustomCategories}
+                editDisabled={pending}
+                messages={messages}
+                defaultDescriptions={defaultDescriptions}
+                pageSize={10}
+                onOpenEdit={onOpenEdit}
+              />
+            </ManagerDialogSection>
           </div>
         </DialogFrame>
       </DialogOverlay>
@@ -156,129 +150,58 @@ export function CategoryManagerDialog({
   );
 }
 
-function CategorySection({
-  title,
-  action,
-  children,
-}: {
-  title: string;
-  action?: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <section className="grid gap-[var(--aa-field-label-gap)]">
-      <div className="flex items-center gap-3">
-        <SectionTitle>{title}</SectionTitle>
-        {action ? <div className="shrink-0">{action}</div> : null}
-      </div>
-      {children}
-    </section>
-  );
-}
-
 function CategoryList({
   darkMode,
   categories,
+  emptyText,
   editDisabled,
   messages,
   defaultDescriptions,
+  pageSize,
   onOpenEdit,
 }: {
   darkMode: boolean;
   categories: MemoryCategoryOption[];
+  emptyText: string;
   editDisabled: boolean;
   messages: MemoryMessages["categories"];
   defaultDescriptions: MemoryMessages["defaultDescriptions"];
+  pageSize?: number;
   onOpenEdit: (category: MemoryCategoryOption) => void;
 }) {
   return (
-    <List
+    <ManagerList
       darkMode={darkMode}
-      className={cx("rounded-md border", secondaryButtonBorderColorClass)}
-    >
-      {categories.map((category) => (
-        <CategoryRow
-          key={category.id}
+      emptyText={emptyText}
+      getItemKey={(category) => category.id}
+      items={categories}
+      messages={messages.pagination}
+      pageSize={pageSize}
+      renderItem={(category) => (
+        <ManagerListRow
           darkMode={darkMode}
-          category={category}
-          editDisabled={editDisabled}
-          messages={messages}
-          defaultDescriptions={defaultDescriptions}
-          onOpenEdit={onOpenEdit}
+          title={getMemoryCategoryName(category, messages.builtIns)}
+          description={getMemoryCategoryDisplayDescription(
+            category,
+            messages.builtIns,
+            defaultDescriptions.category,
+          )}
+          leading={<MemoryCategoryIcon iconName={category.iconName} size={16} />}
+          action={
+            category.builtInKey ? null : (
+              <Button
+                darkMode={darkMode}
+                disabled={editDisabled}
+                icon={<Edit3 size={15} aria-hidden="true" />}
+                onClick={() => onOpenEdit(category)}
+              >
+                {messages.edit}
+              </Button>
+            )
+          }
         />
-      ))}
-    </List>
-  );
-}
-
-function EmptyCategoryList({
-  darkMode,
-  message,
-}: {
-  darkMode: boolean;
-  message: string;
-}) {
-  return (
-    <List
-      darkMode={darkMode}
-      className={cx("rounded-md border", secondaryButtonBorderColorClass)}
-    >
-      <ListItem darkMode={darkMode}>
-        <DescriptionText darkMode={darkMode}>{message}</DescriptionText>
-      </ListItem>
-    </List>
-  );
-}
-
-function CategoryRow({
-  darkMode,
-  category,
-  editDisabled,
-  messages,
-  defaultDescriptions,
-  onOpenEdit,
-}: {
-  darkMode: boolean;
-  category: MemoryCategoryOption;
-  editDisabled: boolean;
-  messages: MemoryMessages["categories"];
-  defaultDescriptions: MemoryMessages["defaultDescriptions"];
-  onOpenEdit: (category: MemoryCategoryOption) => void;
-}) {
-  return (
-    <ListItem darkMode={darkMode} className="items-start">
-      <span className="mt-1 shrink-0">
-        <MemoryCategoryIcon iconName={category.iconName} size={16} />
-      </span>
-      <ListItemContent
-        title={
-          <ListItemTitle truncate>
-            {getMemoryCategoryName(category, messages.builtIns)}
-          </ListItemTitle>
-        }
-        main={
-          <ListItemDescription>
-            {getMemoryCategoryDisplayDescription(
-              category,
-              messages.builtIns,
-              defaultDescriptions.category,
-            )}
-          </ListItemDescription>
-        }
-      />
-      {category.builtInKey ? null : (
-        <ListItemActions>
-          <Button
-            darkMode={darkMode}
-            disabled={editDisabled}
-            icon={<Edit3 size={15} aria-hidden="true" />}
-            onClick={() => onOpenEdit(category)}
-          >
-            {messages.edit}
-          </Button>
-        </ListItemActions>
       )}
-    </ListItem>
+    />
   );
 }
 

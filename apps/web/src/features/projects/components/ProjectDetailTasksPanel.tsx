@@ -2,12 +2,10 @@
 import { Edit3, ListChecks, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { Card, CardHeader } from "@/components/card";
-import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
 import { CheckboxControl } from "@/components/forms/selection-field";
 import {
-  List,
   ListItem,
   ListItemActions,
   ListItemContent,
@@ -15,14 +13,18 @@ import {
   ListItemSupportingText,
   ListItemTitle,
 } from "@/components/list";
+import { PagedList } from "@/components/paged-list";
 import type { TaskStatus } from "@/features/dashboard/types";
 import type { ProjectTaskView } from "@/features/projects/actions";
 import type { ProjectMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
 
+const projectTaskPageSize = 8;
+
 export function ProjectDetailTasksPanel({
   darkMode,
   pending,
+  paginationKey,
   tasks,
   messages,
   defaultDescriptions,
@@ -33,6 +35,7 @@ export function ProjectDetailTasksPanel({
 }: {
   darkMode: boolean;
   pending: boolean;
+  paginationKey: string;
   tasks: ProjectTaskView[];
   messages: ProjectMessages["detail"];
   defaultDescriptions: ProjectMessages["defaultDescriptions"];
@@ -62,13 +65,17 @@ export function ProjectDetailTasksPanel({
           </Button>
         }
       />
-      <List darkMode={darkMode}>
-        {tasks.length === 0 ? (
-          <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
-            {messages.noTasks}
-          </p>
-        ) : null}
-        {tasks.map((task) => (
+      <PagedList
+        ariaLabel={messages.taskPagination.ariaLabel}
+        darkMode={darkMode}
+        emptyText={messages.noTasks}
+        items={tasks}
+        loading={false}
+        loadingText=""
+        messages={messages.taskPagination}
+        pageSize={projectTaskPageSize}
+        resetKey={paginationKey}
+        renderItem={(task) => (
           <ListItem key={task.id} darkMode={darkMode} layout="block">
             <ProjectTaskRow
               darkMode={darkMode}
@@ -81,8 +88,8 @@ export function ProjectDetailTasksPanel({
               onTaskStatus={onTaskStatus}
             />
           </ListItem>
-        ))}
-      </List>
+        )}
+      />
     </Card>
   );
 }

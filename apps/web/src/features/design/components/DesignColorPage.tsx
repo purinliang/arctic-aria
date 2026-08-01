@@ -1,15 +1,10 @@
 // Design Page - Color.
 import { Card } from "@/components/card";
 import { toneClass, type Tone } from "@/components/color";
-import {
-  List,
-  ListItem,
-  ListItemContent,
-  ListItemDescription,
-  ListItemTitle,
-} from "@/components/list";
-import type { DesignMessages } from "@/messages/design-messages";
+import { ContentSubsection } from "@/components/content-section";
+import { DescriptionText, LabelText, SupportingText } from "@/components/text";
 import { cx } from "@/components/utils";
+import type { DesignMessages } from "@/messages/design-messages";
 
 type BackgroundTokenKey = keyof DesignMessages["colors"]["tokens"];
 type BackgroundTokenState = "default" | "hover" | "disabled";
@@ -79,51 +74,41 @@ export function DesignColorPage({
   messages: DesignMessages["colors"];
 }) {
   return (
-    <List darkMode={darkMode} className="rounded-md">
-      <ListItem darkMode={darkMode} layout="block">
-        <ListItemContent
-          title={<ListItemTitle>{messages.paletteTitle}</ListItemTitle>}
-          main={
-            <ListItemDescription>
-              {messages.paletteDescription}
-            </ListItemDescription>
-          }
-        />
-        <div className="mt-3 grid gap-3 lg:grid-cols-2">
-          {backgroundTokenGroups.map((tokenGroup) => (
-            <BackgroundTokenCard
-              key={tokenGroup.key}
-              darkMode={darkMode}
-              label={messages.tokens[tokenGroup.key]}
-              stateLabels={messages.states}
-              unavailableLabel={messages.unavailable}
-              values={tokenGroup.values}
-            />
-          ))}
-        </div>
-      </ListItem>
-      <ListItem darkMode={darkMode} layout="block">
-        <ListItemContent
-          title={<ListItemTitle>{messages.semanticTitle}</ListItemTitle>}
-          main={
-            <ListItemDescription>
-              {messages.semanticDescription}
-            </ListItemDescription>
-          }
-        />
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {semanticToneGroups.map((tone) => (
-            <SemanticToneCard
-              key={tone}
-              darkMode={darkMode}
-              label={messages.semanticTones[tone].label}
-              tone={tone}
-              usage={messages.semanticTones[tone].usage}
-            />
-          ))}
-        </div>
-      </ListItem>
-    </List>
+    <div className="grid gap-5">
+      <ContentSubsection
+        darkMode={darkMode}
+        title={messages.paletteTitle}
+        description={messages.paletteDescription}
+        bodyClassName="grid gap-3 lg:grid-cols-2"
+      >
+        {backgroundTokenGroups.map((tokenGroup) => (
+          <BackgroundTokenCard
+            key={tokenGroup.key}
+            darkMode={darkMode}
+            label={messages.tokens[tokenGroup.key]}
+            stateLabels={messages.states}
+            unavailableLabel={messages.unavailable}
+            values={tokenGroup.values}
+          />
+        ))}
+      </ContentSubsection>
+      <ContentSubsection
+        darkMode={darkMode}
+        title={messages.semanticTitle}
+        description={messages.semanticDescription}
+        bodyClassName="grid gap-3 sm:grid-cols-2"
+      >
+        {semanticToneGroups.map((tone) => (
+          <SemanticToneCard
+            key={tone}
+            darkMode={darkMode}
+            label={messages.semanticTones[tone].label}
+            tone={tone}
+            usage={messages.semanticTones[tone].usage}
+          />
+        ))}
+      </ContentSubsection>
+    </div>
   );
 }
 
@@ -143,11 +128,12 @@ function BackgroundTokenCard({
   return (
     <Card darkMode={darkMode} className="overflow-hidden">
       <div className="grid gap-2 px-3 py-2.5">
-        <ListItemTitle size="compact">{label}</ListItemTitle>
+        <LabelText darkMode={darkMode}>{label}</LabelText>
         <div className="grid gap-2 sm:grid-cols-3">
           {backgroundStates.map((state) => (
             <BackgroundTokenSwatch
               key={state}
+              darkMode={darkMode}
               label={stateLabels[state]}
               unavailableLabel={unavailableLabel}
               value={values[state]}
@@ -160,19 +146,21 @@ function BackgroundTokenCard({
 }
 
 function BackgroundTokenSwatch({
+  darkMode,
   label,
   unavailableLabel,
   value,
 }: {
+  darkMode: boolean;
   label: string;
   unavailableLabel: string;
   value?: string;
 }) {
   return (
     <div className="grid min-w-0 gap-1">
-      <div className="text-xs font-semibold text-[var(--aa-secondary-text)]">
+      <SupportingText darkMode={darkMode} className="font-semibold">
         {label}
-      </div>
+      </SupportingText>
       <div
         className={cx(
           "h-12 rounded-md border border-[var(--aa-secondary-button-border)]",
@@ -181,9 +169,9 @@ function BackgroundTokenSwatch({
         style={value ? { background: value } : undefined}
       >
         {value ? null : (
-          <span className="text-xs text-[var(--aa-secondary-text)]">
+          <SupportingText darkMode={darkMode}>
             {unavailableLabel}
-          </span>
+          </SupportingText>
         )}
       </div>
       <code className="truncate text-xs text-[var(--aa-secondary-text)]">
@@ -219,9 +207,7 @@ function SemanticToneCard({
         >
           {label}
         </span>
-        <p className="text-sm leading-5 text-[var(--aa-secondary-text)]">
-          {usage}
-        </p>
+        <DescriptionText darkMode={darkMode}>{usage}</DescriptionText>
       </div>
     </Card>
   );

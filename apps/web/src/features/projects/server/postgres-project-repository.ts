@@ -245,10 +245,10 @@ export class PostgresProjectRepository implements ProjectRepository {
          RETURNING *
        ),
        event AS (
-         INSERT INTO completion_events (
-           user_id, target_type, target_id, event_type, occurred_at, source
+         INSERT INTO project_task_completion_events (
+           user_id, task_id, event_type, occurred_at, source
          )
-         SELECT user_id, 'task', id, $5, $4::timestamptz, 'web'
+         SELECT user_id, id, $5, $4::timestamptz, 'web'
          FROM updated_task
          WHERE $3::text IN ('done', 'todo')
          RETURNING id

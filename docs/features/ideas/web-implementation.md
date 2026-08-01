@@ -6,6 +6,8 @@ Ideas has a web management page and backend capture foundation.
 
 - Page: `apps/web/src/features/ideas/components/IdeasPage.tsx`
 - Editor dialog: `apps/web/src/features/ideas/components/IdeaEditorDialog.tsx`
+- Paged list: `apps/web/src/components/paged-list.tsx`
+- Pagination copy: `apps/web/src/messages/pagination-messages.ts`
 - Server actions: `apps/web/src/features/ideas/actions.ts`
 - Service: `apps/web/src/features/ideas/server/idea-service.ts`
 - Repository: `apps/web/src/features/ideas/server/postgres-idea-repository.ts`
@@ -16,7 +18,8 @@ Ideas has a web management page and backend capture foundation.
 ## Current Behavior
 
 The page lists unarchived ideas for the signed-in user. If no ideas exist yet,
-it shows the normal empty state.
+it shows the normal empty state. When there are more than ten ideas, the page
+uses the shared compact paged-list footer.
 
 The web UI can add, edit, and delete ideas. Delete archives the idea, removes
 it from the visible list, and does not hard-delete the database row.
