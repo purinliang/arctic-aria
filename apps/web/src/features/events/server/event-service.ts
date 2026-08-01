@@ -273,6 +273,37 @@ export function createEventService(options: EventServiceOptions = {}) {
         occurredAt: now(),
       });
     },
+
+    async updateEventInstance(
+      userId: string,
+      input: {
+        instanceId: string;
+        scheduledDate: string;
+        scheduledTime: string;
+        locationOverride: string | null;
+        rescheduleReason: string | null;
+      },
+    ) {
+      return events.updateEventInstance({
+        userId,
+        ...input,
+        occurredAt: now(),
+      });
+    },
+
+    async cancelEventInstance(
+      userId: string,
+      input: {
+        instanceId: string;
+        cancellationReason: string | null;
+      },
+    ) {
+      return events.cancelEventInstance({
+        userId,
+        ...input,
+        occurredAt: now(),
+      });
+    },
   };
 }
 

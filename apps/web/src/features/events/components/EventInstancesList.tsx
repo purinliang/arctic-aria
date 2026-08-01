@@ -1,10 +1,13 @@
 // Events Page - Event Instances List.
+import { Edit3 } from "lucide-react";
+import { Button } from "@/components/button";
 import { secondaryTextColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
 import { formatTimeDisplay } from "@/components/forms/time-display";
 import {
   List,
   ListItem,
+  ListItemActions,
   ListItemContent,
   ListItemDescription,
   ListItemSupportingText,
@@ -18,17 +21,21 @@ import type { EventMessages, FormMessages } from "@/messages/app-messages";
 export function EventInstancesList({
   darkMode,
   loading,
+  pending,
   instances,
   messages,
   formMessages,
   timeFormatPreference,
+  onEdit,
 }: {
   darkMode: boolean;
   loading: boolean;
+  pending: boolean;
   instances: ScheduledEvent[];
   messages: EventMessages;
   formMessages: FormMessages;
   timeFormatPreference: TimeFormatPreference;
+  onEdit: (instance: ScheduledEvent) => void;
 }) {
   return (
     <List darkMode={darkMode}>
@@ -64,6 +71,16 @@ export function EventInstancesList({
               </ListItemSupportingText>
             }
           />
+          <ListItemActions>
+            <Button
+              darkMode={darkMode}
+              disabled={pending}
+              icon={<Edit3 size={15} aria-hidden="true" />}
+              onClick={() => onEdit(instance)}
+            >
+              {messages.instances.edit}
+            </Button>
+          </ListItemActions>
         </ListItem>
       ))}
     </List>

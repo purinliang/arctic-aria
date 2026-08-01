@@ -1,9 +1,11 @@
 import type { NeonQueryFunction } from "@neondatabase/serverless";
 import { getSql } from "../../../server/database/neon.ts";
 import type {
+  CancelEventInstanceInput,
   EventRepository,
   SaveEventGroupInput,
   SaveEventInput,
+  UpdateEventInstanceInput,
 } from "./event-repository.ts";
 import {
   eventInstanceSelect,
@@ -382,6 +384,91 @@ export class PostgresEventRepository implements EventRepository {
         input.ruleTime,
         input.scheduledDate,
         input.scheduledTime,
+        input.occurredAt,
+      ],
+    )) as EventInstanceRow[];
+
+    return rows[0] ? mapEventInstance(rows[0]) : null;
+  }
+
+  async updateEventInstance(input: UpdateEventInstanceInput) {
+    const rows = (await this.getSql().query(
+      `
+      WITH updated_instance AS (
+        UPDATE event_instances
+        SET
+          scheduled_date = $3::date,
+          scheduled_time = $4::time,
+          location_override = $5,
+          rescheduled_at = CASE
+            WHEN scheduled_date != $3::date
+              OR scheduled_time != $4::time
+            THEN $7
+            ELSE rescheduled_at
+          END,
+          reschedule_reason = CASE
+            WHEN scheduled_date != $3::date
+              OR scheduled_time != $4::time
+            THEN $6
+            ELSE reschedule_reason
+          END,
+          updated_at = $7
+        WHERE user_id = $1
+          AND id = $2
+          AND status = 'scheduled'
+          AND EXISTS (
+            SELECT 1
+            FROM events
+            WHERE events.id = event_instances.event_id
+              AND events.user_id = $1
+              AND events.deleted_at IS NULL
+          )
+        RETURNING *
+      )
+      ${eventInstanceSelectFromCte("updated_instance")}
+      `,
+      [
+        input.userId,
+        input.instanceId,
+        input.scheduledDate,
+        input.scheduledTime,
+        input.locationOverride,
+        input.rescheduleReason,
+        input.occurredAt,
+      ],
+    )) as EventInstanceRow[];
+
+    return rows[0] ? mapEventInstance(rows[0]) : null;
+  }
+
+  async cancelEventInstance(input: CancelEventInstanceInput) {
+    const rows = (await this.getSql().query(
+      `
+      WITH canceled_instance AS (
+        UPDATE event_instances
+        SET
+          status = 'canceled',
+          canceled_at = $4,
+          cancellation_reason = $3,
+          updated_at = $4
+        WHERE user_id = $1
+          AND id = $2
+          AND status = 'scheduled'
+          AND EXISTS (
+            SELECT 1
+            FROM events
+            WHERE events.id = event_instances.event_id
+              AND events.user_id = $1
+              AND events.deleted_at IS NULL
+          )
+        RETURNING *
+      )
+      ${eventInstanceSelectFromCte("canceled_instance")}
+      `,
+      [
+        input.userId,
+        input.instanceId,
+        input.cancellationReason,
         input.occurredAt,
       ],
     )) as EventInstanceRow[];

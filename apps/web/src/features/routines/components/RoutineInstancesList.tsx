@@ -1,13 +1,11 @@
 // Routines Page - Routine Instances List.
-import { Check, RotateCcw } from "lucide-react";
-import { Button } from "@/components/button";
 import { secondaryTextColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
 import { formatTimeDisplay } from "@/components/forms/time-display";
+import { CheckboxControl } from "@/components/forms/selection-field";
 import {
   List,
   ListItem,
-  ListItemActions,
   ListItemContent,
   ListItemDescription,
   ListItemSupportingText,
@@ -53,45 +51,48 @@ export function RoutineInstancesList({
           darkMode={darkMode}
           className="items-start"
         >
-          <ListItemContent
-            title={<ListItemTitle>{instance.title}</ListItemTitle>}
-            main={
-              <ListItemDescription>
-                {instance.description || messages.page.noDescription}
-              </ListItemDescription>
-            }
-            support={
-              <ListItemSupportingText className="block min-w-0 truncate">
-                {instanceMetadataText({
-                  instance,
-                  messages,
-                  formMessages,
-                  timeFormatPreference,
-                })}
-              </ListItemSupportingText>
-            }
-          />
-          <ListItemActions>
-            {instance.status === "pending" ? (
-              <Button
-                darkMode={darkMode}
-                disabled={pending}
-                icon={<Check size={15} aria-hidden="true" />}
-                onClick={() => onStatusChange(instance.id, "completed")}
-              >
-                {messages.instances.complete}
-              </Button>
-            ) : (
-              <Button
-                darkMode={darkMode}
-                disabled={pending}
-                icon={<RotateCcw size={15} aria-hidden="true" />}
-                onClick={() => onStatusChange(instance.id, "pending")}
-              >
-                {messages.instances.reopen}
-              </Button>
-            )}
-          </ListItemActions>
+          <div className="grid min-w-0 w-full flex-1 grid-cols-[auto_minmax(0,1fr)] gap-3">
+            <CheckboxControl
+              darkMode={darkMode}
+              className="mt-1"
+              disabled={pending}
+              checked={instance.status === "completed"}
+              aria-label={
+                instance.status === "completed" || instance.status === "skipped"
+                  ? messages.instances.reopenItem(instance.title)
+                  : messages.instances.markDone(instance.title)
+              }
+              onChange={(event) =>
+                onStatusChange(
+                  instance.id,
+                  instance.status === "skipped"
+                    ? "pending"
+                    : event.target.checked
+                      ? "completed"
+                      : "pending",
+                )
+              }
+            />
+            <ListItemContent
+              grow={false}
+              title={<ListItemTitle>{instance.title}</ListItemTitle>}
+              main={
+                <ListItemDescription>
+                  {instance.description || messages.page.noDescription}
+                </ListItemDescription>
+              }
+              support={
+                <ListItemSupportingText className="block min-w-0 truncate">
+                  {instanceMetadataText({
+                    instance,
+                    messages,
+                    formMessages,
+                    timeFormatPreference,
+                  })}
+                </ListItemSupportingText>
+              }
+            />
+          </div>
         </ListItem>
       ))}
     </List>

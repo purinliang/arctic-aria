@@ -105,6 +105,7 @@ export type ScheduledEvent = {
   eventTime: string;
   estimatedDurationHours: number | null;
   location: string | null;
+  locationOverride: string | null;
   status: EventInstanceStatus;
   createdAt: string;
   updatedAt: string;

@@ -9,15 +9,18 @@ import {
 } from "@/app-shell/action-notifications";
 import {
   applyEventTemplate,
+  cancelEventInstance,
   deleteEvent,
   deleteEventGroup,
   getEventDashboardData,
   parseEventTemplate,
+  saveEventInstance,
   saveEventGroup,
   saveEvent,
   type EventActionResult,
   type EventDashboardData,
   type EventGroupInput,
+  type EventInstanceInput,
   type EventInput,
   type EventTemplateParseData,
 } from "@/features/events/actions";
@@ -253,6 +256,18 @@ export function useDashboardEvents(
       runEventManagementAction(
         () => deleteEventGroup(groupId),
         actionFailedTitle("delete", "group"),
+      ),
+    saveEventInstanceFromPage: (input: EventInstanceInput) =>
+      runEventManagementAction(
+        () => saveEventInstance(input),
+        actionFailedTitle("update", "event"),
+      ),
+    cancelEventInstanceFromPage: (
+      input: Pick<EventInstanceInput, "id" | "reason">,
+    ) =>
+      runEventManagementAction(
+        () => cancelEventInstance(input),
+        actionFailedTitle("delete", "event"),
       ),
     parseEventTemplateFromPage,
     applyEventTemplateFromPage: (eventId: string | null, source: string) =>

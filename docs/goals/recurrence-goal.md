@@ -5,12 +5,13 @@ next-3 Event and Routine instance generation, split definition/instance
 management panels, shared instance filters, and split completion-history
 tables.
 
-Remaining later work: Event instance reschedule, cancel, and location-override
-actions.
+Remaining later work: none in this goal. Future product work may add richer
+Event instance history, reminder delivery, or shortcut recurrence presets after
+usage proves a need.
 
 This document was the implementation-ready planning source for the recurrence
-goal. It remains the product rationale and follow-up checklist for the remaining
-Event-instance lifecycle work.
+goal. It remains the product rationale and a record of the implementation
+checklist.
 
 ## Starting Facts Before This Goal
 
@@ -395,7 +396,7 @@ Implemented branch sequence:
 4. Add Event Groups, Event rules, Event instances, and backfill current Events.
 5. Add Event next-3 upcoming instance generation.
 6. Add split definition/instance panels for Routines and Events.
-7. Later: add Event instance reschedule/cancel and location override actions.
+7. Add Event instance reschedule/cancel and location override actions.
 
 Keep each branch focused and commit after each coherent migration or UI step.
 

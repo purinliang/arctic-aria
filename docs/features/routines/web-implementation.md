@@ -59,7 +59,7 @@ today's routine instances, and loaded routine instances from the backend
 response.
 
 The routine group filter is local UI state. It is not persisted and does not
-call the backend.
+call the backend. It applies to both routine definitions and routine instances.
 
 The Routine Instances panel uses local date filters:
 
@@ -70,7 +70,9 @@ The Routine Instances panel uses local date filters:
 
 Routine page, Today, and reminder loads lazily ensure up to the next three
 instances per active routine. Saving a routine removes future pending
-uncustomized instances for that routine and regenerates the next three.
+uncustomized instances for that routine and regenerates the next three. The
+Routine Instances panel uses the same checkbox-style completion control as the
+Today Routines panel.
 
 ## Today Panel
 

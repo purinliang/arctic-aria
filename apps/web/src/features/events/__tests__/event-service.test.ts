@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   InMemoryEventRepository,
+  type EventInstanceRecord,
   type EventRecord,
 } from "../server/event-repository.ts";
 import {
@@ -40,6 +41,35 @@ function event(
       createdAt: new Date("2026-07-01T00:00:00.000Z"),
       updatedAt: new Date("2026-07-01T00:00:00.000Z"),
     },
+  };
+}
+
+function eventInstance(
+  input: Partial<EventInstanceRecord> &
+    Pick<EventInstanceRecord, "id" | "eventId">,
+): EventInstanceRecord {
+  return {
+    id: input.id,
+    userId: input.userId ?? userId,
+    eventId: input.eventId,
+    title: input.title ?? "Visa appointment",
+    description: input.description ?? "Bring documents.",
+    ruleDate: input.ruleDate ?? "2026-07-22",
+    ruleTime: input.ruleTime ?? "09:00",
+    scheduledDate: input.scheduledDate ?? "2026-07-22",
+    scheduledTime: input.scheduledTime ?? "09:00",
+    estimatedDurationHours: input.estimatedDurationHours ?? null,
+    location: input.location ?? "Office",
+    locationOverride: input.locationOverride ?? null,
+    effectiveLocation:
+      input.effectiveLocation ?? input.locationOverride ?? input.location ?? "Office",
+    status: input.status ?? "scheduled",
+    canceledAt: input.canceledAt ?? null,
+    cancellationReason: input.cancellationReason ?? null,
+    rescheduledAt: input.rescheduledAt ?? null,
+    rescheduleReason: input.rescheduleReason ?? null,
+    createdAt: input.createdAt ?? new Date("2026-07-01T00:00:00.000Z"),
+    updatedAt: input.updatedAt ?? new Date("2026-07-01T00:00:00.000Z"),
   };
 }
 
@@ -297,5 +327,86 @@ test("listEventInstances tops up active events without duplicates", async () => 
   assert.deepEqual(
     secondLoad.map((instance) => instance.scheduledDate),
     ["2026-07-21", "2026-07-22", "2026-07-23"],
+  );
+});
+
+test("updates one event instance without changing the event definition", async () => {
+  const repository = new InMemoryEventRepository({
+    events: [
+      event({
+        id: "event-1",
+        title: "Weekly tutorial",
+        location: "Room 1",
+      }),
+    ],
+    instances: [
+      eventInstance({
+        id: "instance-1",
+        eventId: "event-1",
+        scheduledDate: "2026-07-22",
+        scheduledTime: "09:00",
+        location: "Room 1",
+      }),
+    ],
+  });
+  const service = createEventService({ events: repository, now: () => now });
+
+  const updated = await service.updateEventInstance(userId, {
+    instanceId: "instance-1",
+    scheduledDate: "2026-07-23",
+    scheduledTime: "10:30",
+    locationOverride: "Room 2",
+    rescheduleReason: "Teacher request",
+  });
+  const [definition] = await service.listEvents(userId);
+
+  assert.equal(updated?.scheduledDate, "2026-07-23");
+  assert.equal(updated?.scheduledTime, "10:30");
+  assert.equal(updated?.locationOverride, "Room 2");
+  assert.equal(updated?.effectiveLocation, "Room 2");
+  assert.deepEqual(updated?.rescheduledAt, now);
+  assert.equal(updated?.rescheduleReason, "Teacher request");
+  assert.equal(definition.location, "Room 1");
+});
+
+test("canceling one event instance hides only that occurrence", async () => {
+  const repository = new InMemoryEventRepository({
+    events: [
+      event({
+        id: "event-1",
+        title: "Weekly tutorial",
+      }),
+    ],
+    instances: [
+      eventInstance({
+        id: "instance-1",
+        eventId: "event-1",
+        scheduledDate: "2026-07-22",
+      }),
+      eventInstance({
+        id: "instance-2",
+        eventId: "event-1",
+        scheduledDate: "2026-07-29",
+      }),
+    ],
+  });
+  const service = createEventService({ events: repository, now: () => now });
+
+  const canceled = await service.cancelEventInstance(userId, {
+    instanceId: "instance-1",
+    cancellationReason: "Class canceled",
+  });
+  const remainingInstances = await service.listEventInstances(userId, "UTC");
+
+  assert.equal(canceled?.status, "canceled");
+  assert.deepEqual(canceled?.canceledAt, now);
+  assert.equal(canceled?.cancellationReason, "Class canceled");
+  assert.equal(
+    remainingInstances.some((instance) => instance.id === "instance-1"),
+    false,
+  );
+  assert.equal(
+    remainingInstances.some((instance) => instance.id === "instance-2"),
+    true,
   );
 });

@@ -15,13 +15,15 @@ The current web implementation supports database-backed Events:
 - add, edit, and soft-delete Events
 - add, edit, delete, and filter by Event Groups
 - choose `once`, `daily`, or `weekly` recurrence
+- edit one Event instance's scheduled date, scheduled time, location override,
+  and reschedule reason
+- cancel one Event instance with an optional cancellation reason
 - parse and save Event templates from the add/edit dialog header menu
 - filter Event instances by `All`, `Recent`, `Future`, or `Past`
 - show today's Events as display-only rows on Today
 - include Events in scheduled Daily Review text and metadata
 
-The current version does not send Discord Event reminders and does not expose
-Event instance reschedule, cancel, or location override actions in the UI.
+The current version does not send Discord Event reminders.
 
 ## Data Flow
 
@@ -29,7 +31,7 @@ Event instance reschedule, cancel, or location override actions in the UI.
 `useDashboardEvents`. The hook uses the shared dashboard browser cache with
 stale-while-refresh behavior.
 
-Successful definition, group, or delete actions refresh cached Event
+Successful definition, group, instance, or delete actions refresh cached Event
 definitions, generated Event instances, Today Event rows, and Event Groups from
 the backend response. Failed actions keep dialogs open and show a shared
 notification.
@@ -83,6 +85,7 @@ apps/web/src/features/events/components/EventFiltersPanel.tsx
 apps/web/src/features/events/components/EventEditorDialog.tsx
 apps/web/src/features/events/components/EventGroupsPanel.tsx
 apps/web/src/features/events/components/EventGroupManagerDialog.tsx
+apps/web/src/features/events/components/EventInstanceEditorDialog.tsx
 apps/web/src/features/events/components/EventInstancesList.tsx
 apps/web/src/features/events/components/EventTemplateEditorDialog.tsx
 apps/web/src/features/events/components/EventsPanel.tsx

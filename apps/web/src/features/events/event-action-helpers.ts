@@ -1,6 +1,7 @@
 import { isValidDateKey } from "../routines/routine-recurrence.ts";
 
 const maxEstimatedDurationHours = 24;
+const maxEventInstanceReasonLength = 500;
 const eventRuleTypes = new Set(["once", "daily", "weekly"]);
 
 export type EventInput = {
@@ -21,6 +22,16 @@ export type EventGroupInput = {
   id?: string;
   name: string;
   description: string;
+};
+
+export type EventInstanceInput = {
+  id: string;
+  title?: string;
+  eventDate: string;
+  eventTime: string;
+  locationOverride?: string | null;
+  reason?: string | null;
+  effectiveLocation?: string | null;
 };
 
 export function validateEventInput(input: EventInput) {
@@ -239,6 +250,118 @@ export function validateEventGroupInput(input: EventGroupInput) {
   };
 }
 
+export function validateEventInstanceInput(input: EventInstanceInput) {
+  const instanceId = input.id.trim();
+  const eventDate = input.eventDate.trim();
+  const eventTime = input.eventTime.trim();
+  const locationOverride = input.locationOverride?.trim() ?? "";
+  const reason = input.reason?.trim() ?? "";
+
+  if (!instanceId) {
+    return eventInstanceNotFoundResult();
+  }
+
+  if (!eventDate) {
+    return {
+      ok: false as const,
+      message: "Choose an event instance date.",
+      code: "event_instance_date_missing",
+      category: "missing_parameter" as const,
+      subject: "event" as const,
+      field: "date",
+      reason: "required" as const,
+    };
+  }
+
+  if (!isValidDateKey(eventDate)) {
+    return {
+      ok: false as const,
+      message:
+        "Event instance date must be a real date in YYYY-MM-DD format.",
+      code: "event_instance_date_invalid",
+      category: "invalid_parameter" as const,
+      subject: "event" as const,
+      field: "date",
+      reason: "invalid_format" as const,
+    };
+  }
+
+  if (!eventTime) {
+    return {
+      ok: false as const,
+      message: "Choose an event instance time.",
+      code: "event_instance_time_missing",
+      category: "missing_parameter" as const,
+      subject: "event" as const,
+      field: "time",
+      reason: "required" as const,
+    };
+  }
+
+  if (!isValidEventTime(eventTime)) {
+    return {
+      ok: false as const,
+      message: "Event instance time must use HH:MM.",
+      code: "event_instance_time_invalid",
+      category: "invalid_parameter" as const,
+      subject: "event" as const,
+      field: "time",
+      reason: "invalid_format" as const,
+    };
+  }
+
+  if (locationOverride.length > 500) {
+    return {
+      ok: false as const,
+      message: "Event instance location override must be 500 characters or fewer.",
+      code: "event_instance_location_override_invalid",
+      category: "invalid_parameter" as const,
+      subject: "event" as const,
+      field: "location_override",
+      reason: "too_long" as const,
+      limit: 500,
+    };
+  }
+
+  const reasonValidation = validateEventInstanceReason(reason);
+
+  if (!reasonValidation.ok) {
+    return reasonValidation;
+  }
+
+  return {
+    ok: true as const,
+    instanceId,
+    eventDate,
+    eventTime,
+    locationOverride: locationOverride || null,
+    reason: reason || null,
+  };
+}
+
+export function validateEventInstanceCancelInput(
+  input: Pick<EventInstanceInput, "id" | "reason">,
+) {
+  const instanceId = input.id.trim();
+  const reason = input.reason?.trim() ?? "";
+
+  if (!instanceId) {
+    return eventInstanceNotFoundResult();
+  }
+
+  const reasonValidation = validateEventInstanceReason(reason);
+
+  if (!reasonValidation.ok) {
+    return reasonValidation;
+  }
+
+  return {
+    ok: true as const,
+    instanceId,
+    reason: reason || null,
+  };
+}
+
 export function isValidEventTime(value: string) {
   const match = /^(\d{2}):(\d{2})$/.exec(value);
 
@@ -281,6 +404,35 @@ function validateOptionalEstimatedDurationHours(value?: string | null) {
   return {
     ok: true as const,
     value: rounded,
+  };
+}
+
+function validateEventInstanceReason(reason: string) {
+  if (reason.length > maxEventInstanceReasonLength) {
+    return {
+      ok: false as const,
+      message: "Event instance reason must be 500 characters or fewer.",
+      code: "event_instance_reason_invalid",
+      category: "invalid_parameter" as const,
+      subject: "event" as const,
+      field: "reason",
+      reason: "too_long" as const,
+      limit: maxEventInstanceReasonLength,
+    };
+  }
+
+  return {
+    ok: true as const,
+  };
+}
+
+function eventInstanceNotFoundResult() {
+  return {
+    ok: false as const,
+    message: "Event instance was not found.",
+    code: "event_instance_not_found",
+    category: "not_found" as const,
+    subject: "event" as const,
   };
 }
 

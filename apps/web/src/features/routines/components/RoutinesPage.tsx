@@ -139,12 +139,21 @@ export function RoutinesPage({
       ? groupFilter
       : "All";
   const visibleRoutines = filterRoutinesByGroup(routines, activeGroupFilter);
+  const visibleRoutineIds = new Set(
+    visibleRoutines.map((routine) => routine.id),
+  );
+  const groupFilteredRoutineInstances =
+    activeGroupFilter === "All"
+      ? routineInstances
+      : routineInstances.filter((instance) =>
+          visibleRoutineIds.has(instance.routineId),
+        );
   const referenceDate = localScheduledDateKey({
     date: new Date(),
     timeZone: resolvedTimeZone,
   });
   const visibleRoutineInstances = filterInstancesByDate(
-    routineInstances,
+    groupFilteredRoutineInstances,
     instanceFilter,
     referenceDate,
   );

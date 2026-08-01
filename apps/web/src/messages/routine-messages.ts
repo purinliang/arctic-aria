@@ -51,6 +51,8 @@ export const englishRoutineMessages = {
     empty: "No routine instances in this range.",
     complete: "Complete",
     reopen: "Reopen",
+    markDone: (title: string) => `Mark "${title}" done`,
+    reopenItem: (title: string) => `Reopen "${title}"`,
     status: {
       pending: "Pending",
       completed: "Completed",
@@ -279,6 +281,8 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     empty: "这个范围内没有日常实例。",
     complete: "完成",
     reopen: "重新打开",
+    markDone: (title) => `完成“${title}”`,
+    reopenItem: (title) => `重新打开“${title}”`,
     status: {
       pending: "待处理",
       completed: "已完成",

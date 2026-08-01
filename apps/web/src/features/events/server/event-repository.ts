@@ -91,6 +91,23 @@ export type SaveEventGroupInput = {
   occurredAt: Date;
 };
 
+export type UpdateEventInstanceInput = {
+  userId: string;
+  instanceId: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  locationOverride: string | null;
+  rescheduleReason: string | null;
+  occurredAt: Date;
+};
+
+export type CancelEventInstanceInput = {
+  userId: string;
+  instanceId: string;
+  cancellationReason: string | null;
+  occurredAt: Date;
+};
+
 export type EventRepository = {
   listEventGroups(userId: string): Promise<EventGroupRecord[]>;
   listEvents(userId: string): Promise<EventRecord[]>;
@@ -125,6 +142,12 @@ export type EventRepository = {
     scheduledTime: string;
     occurredAt: Date;
   }): Promise<EventInstanceRecord | null>;
+  updateEventInstance(
+    input: UpdateEventInstanceInput,
+  ): Promise<EventInstanceRecord | null>;
+  cancelEventInstance(
+    input: CancelEventInstanceInput,
+  ): Promise<EventInstanceRecord | null>;
   deleteFutureScheduledEventInstances(input: {
     userId: string;
     eventId: string;
@@ -380,6 +403,53 @@ export class InMemoryEventRepository implements EventRepository {
     return instance;
   }
 
+  async updateEventInstance(input: UpdateEventInstanceInput) {
+    const instance = this.findActiveScheduledInstance(
+      input.userId,
+      input.instanceId,
+    );
+
+    if (!instance) {
+      return null;
+    }
+
+    const event = this.events.find((current) => current.id === instance.eventId);
+    const rescheduled =
+      instance.scheduledDate !== input.scheduledDate ||
+      instance.scheduledTime !== input.scheduledTime;
+
+    instance.scheduledDate = input.scheduledDate;
+    instance.scheduledTime = input.scheduledTime;
+    instance.locationOverride = input.locationOverride;
+    instance.effectiveLocation = input.locationOverride ?? event?.location ?? null;
+    instance.updatedAt = input.occurredAt;
+
+    if (rescheduled) {
+      instance.rescheduledAt = input.occurredAt;
+      instance.rescheduleReason = input.rescheduleReason;
+    }
+
+    return instance;
+  }
+
+  async cancelEventInstance(input: CancelEventInstanceInput) {
+    const instance = this.findActiveScheduledInstance(
+      input.userId,
+      input.instanceId,
+    );
+
+    if (!instance) {
+      return null;
+    }
+
+    instance.status = "canceled";
+    instance.canceledAt = input.occurredAt;
+    instance.cancellationReason = input.cancellationReason;
+    instance.updatedAt = input.occurredAt;
+
+    return instance;
+  }
+
   async deleteFutureScheduledEventInstances(input: {
     userId: string;
     eventId: string;
@@ -426,6 +496,25 @@ export class InMemoryEventRepository implements EventRepository {
             group.deletedAt === null,
         ) ?? null
       : null;
+  }
+
+  private findActiveScheduledInstance(userId: string, instanceId: string) {
+    const instance = this.instances.find(
+      (current) => current.userId === userId && current.id === instanceId,
+    );
+
+    if (!instance || instance.status !== "scheduled") {
+      return null;
+    }
+
+    const event = this.events.find(
+      (current) =>
+        current.userId === userId &&
+        current.id === instance.eventId &&
+        current.deletedAt === null,
+    );
+
+    return event ? instance : null;
   }
 }
 

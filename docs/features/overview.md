@@ -260,8 +260,8 @@ supported rule types are `once`, `daily`, and `weekly`.
 
 `event_instances` store generated appointments. Event page and Today loads
 ensure at most the next 3 upcoming Event instances per active Event definition.
-Event instances can later support cancel, reschedule, and location override
-without changing the whole Event definition.
+Event instances support cancel, reschedule, and location override without
+changing the whole Event definition.
 
 ## Today Selections
 

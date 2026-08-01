@@ -30,10 +30,9 @@ start date, optional end date, recurrence rule, default scheduled time,
 estimated duration, and default location.
 
 An Event instance stores one concrete appointment generated from a definition.
-The current UI shows instances but does not yet expose reschedule, cancel, or
-location-override actions. Those lifecycle fields exist in the data model so a
-future Event-instance editor can change one occurrence without rewriting the
-whole definition.
+The Events page can edit one instance's scheduled date, scheduled time, and
+location override, or cancel only that generated occurrence. These instance
+actions do not rewrite the whole Event definition.
 
 Event Groups are optional folders for related definitions, such as school
 tutorials, student lessons, customer meetings, or weekly reports. Different

@@ -10,8 +10,11 @@ import { loadUserResolvedTimeZone } from "@/features/settings/server/user-time-z
 import type { ActionFailureResult } from "../../messages/action-result.ts";
 import {
   validateEventGroupInput,
+  validateEventInstanceCancelInput,
+  validateEventInstanceInput,
   validateEventInput,
   type EventGroupInput,
+  type EventInstanceInput,
   type EventInput,
 } from "./event-action-helpers";
 import { normalizeEventTemplateDocument } from "./event-template-normalizer";
@@ -28,6 +31,7 @@ import type {
 
 export type {
   EventGroupInput,
+  EventInstanceInput,
   EventInput,
 } from "./event-action-helpers";
 export type { EventTemplateParseData } from "./event-template-types";
@@ -69,6 +73,16 @@ function notFoundResult<T>(): EventActionResult<T> {
     ok: false,
     message: "Event was not found.",
     code: "event_not_found",
+    category: "not_found",
+    subject: "event",
+  };
+}
+
+function eventInstanceNotFoundResult<T>(): EventActionResult<T> {
+  return {
+    ok: false,
+    message: "Event instance was not found.",
+    code: "event_instance_not_found",
     category: "not_found",
     subject: "event",
   };
@@ -138,6 +152,7 @@ function toScheduledEvent(event: EventInstanceRecord): ScheduledEvent {
     eventTime: event.scheduledTime,
     estimatedDurationHours: event.estimatedDurationHours,
     location: event.effectiveLocation,
+    locationOverride: event.locationOverride,
     status: event.status,
     createdAt: event.createdAt.toISOString(),
     updatedAt: event.updatedAt.toISOString(),
@@ -316,6 +331,77 @@ export async function saveEventGroup(
       return duplicateEventGroupResult();
     }
 
+    return databaseResult();
+  }
+}
+
+export async function saveEventInstance(
+  input: EventInstanceInput,
+): Promise<EventActionResult<EventDashboardData>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  const validation = validateEventInstanceInput(input);
+
+  if (!validation.ok) {
+    return validation;
+  }
+
+  try {
+    const saved = await eventService.updateEventInstance(user.id, {
+      instanceId: validation.instanceId,
+      scheduledDate: validation.eventDate,
+      scheduledTime: validation.eventTime,
+      locationOverride: validation.locationOverride,
+      rescheduleReason: validation.reason,
+    });
+
+    if (!saved) {
+      return eventInstanceNotFoundResult();
+    }
+
+    return {
+      ok: true,
+      data: await loadEventDashboardData(user.id),
+    };
+  } catch {
+    return databaseResult();
+  }
+}
+
+export async function cancelEventInstance(
+  input: Pick<EventInstanceInput, "id" | "reason">,
+): Promise<EventActionResult<EventDashboardData>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  const validation = validateEventInstanceCancelInput(input);
+
+  if (!validation.ok) {
+    return validation;
+  }
+
+  try {
+    const canceled = await eventService.cancelEventInstance(user.id, {
+      instanceId: validation.instanceId,
+      cancellationReason: validation.reason,
+    });
+
+    if (!canceled) {
+      return eventInstanceNotFoundResult();
+    }
+
+    return {
+      ok: true,
+      data: await loadEventDashboardData(user.id),
+    };
+  } catch {
     return databaseResult();
   }
 }

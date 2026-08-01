@@ -454,6 +454,8 @@ export function AppShell({
               onEventDelete={eventState.deleteEventFromPage}
               onEventGroupSave={eventState.saveEventGroupFromPage}
               onEventGroupDelete={eventState.deleteEventGroupFromPage}
+              onEventInstanceSave={eventState.saveEventInstanceFromPage}
+              onEventInstanceCancel={eventState.cancelEventInstanceFromPage}
               onEventTemplateParse={eventState.parseEventTemplateFromPage}
               onEventTemplateApply={eventState.applyEventTemplateFromPage}
               messages={messages.events}

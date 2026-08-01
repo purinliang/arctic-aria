@@ -99,6 +99,125 @@ test("event instance list for date filters by owner and date", async () => {
   assert.deepEqual(capturedParams, ["user-1", "2026-07-22"]);
 });
 
+test("event instance update casts schedule fields and guards ownership", async () => {
+  let capturedQuery = "";
+  let capturedParams: unknown[] = [];
+  const occurredAt = new Date("2026-07-12T10:00:00.000Z");
+  const sql = {
+    async query(query: string, params: unknown[]) {
+      capturedQuery = query;
+      capturedParams = params;
+
+      return [
+        {
+          id: "instance-1",
+          user_id: "user-1",
+          event_id: "event-1",
+          title: "Visa appointment",
+          description: "Bring documents.",
+          rule_date: "2026-07-22",
+          rule_time: "09:00:00",
+          scheduled_date: "2026-07-23",
+          scheduled_time: "10:30:00",
+          estimated_duration_hours: "1.25",
+          location: "Office",
+          location_override: "Room 2",
+          status: "scheduled",
+          canceled_at: null,
+          cancellation_reason: null,
+          rescheduled_at: occurredAt,
+          reschedule_reason: "Teacher request",
+          created_at: occurredAt,
+          updated_at: occurredAt,
+        },
+      ];
+    },
+  };
+  const repository = new PostgresEventRepository(sql as never);
+
+  const result = await repository.updateEventInstance({
+    userId: "user-1",
+    instanceId: "instance-1",
+    scheduledDate: "2026-07-23",
+    scheduledTime: "10:30",
+    locationOverride: "Room 2",
+    rescheduleReason: "Teacher request",
+    occurredAt,
+  });
+
+  assert.equal(result?.scheduledDate, "2026-07-23");
+  assert.equal(result?.scheduledTime, "10:30");
+  assert.equal(result?.effectiveLocation, "Room 2");
+  assert.match(capturedQuery, /scheduled_date = \$3::date/);
+  assert.match(capturedQuery, /scheduled_time = \$4::time/);
+  assert.match(capturedQuery, /event_instances\.event_id/);
+  assert.match(capturedQuery, /events\.deleted_at IS NULL/);
+  assert.deepEqual(capturedParams, [
+    "user-1",
+    "instance-1",
+    "2026-07-23",
+    "10:30",
+    "Room 2",
+    "Teacher request",
+    occurredAt,
+  ]);
+});
+
+test("event instance cancel updates only active scheduled instances", async () => {
+  let capturedQuery = "";
+  let capturedParams: unknown[] = [];
+  const occurredAt = new Date("2026-07-12T10:00:00.000Z");
+  const sql = {
+    async query(query: string, params: unknown[]) {
+      capturedQuery = query;
+      capturedParams = params;
+
+      return [
+        {
+          id: "instance-1",
+          user_id: "user-1",
+          event_id: "event-1",
+          title: "Visa appointment",
+          description: "Bring documents.",
+          rule_date: "2026-07-22",
+          rule_time: "09:00:00",
+          scheduled_date: "2026-07-22",
+          scheduled_time: "09:00:00",
+          estimated_duration_hours: "1.25",
+          location: "Office",
+          location_override: null,
+          status: "canceled",
+          canceled_at: occurredAt,
+          cancellation_reason: "Class canceled",
+          rescheduled_at: null,
+          reschedule_reason: null,
+          created_at: occurredAt,
+          updated_at: occurredAt,
+        },
+      ];
+    },
+  };
+  const repository = new PostgresEventRepository(sql as never);
+
+  const result = await repository.cancelEventInstance({
+    userId: "user-1",
+    instanceId: "instance-1",
+    cancellationReason: "Class canceled",
+    occurredAt,
+  });
+
+  assert.equal(result?.status, "canceled");
+  assert.deepEqual(result?.canceledAt, occurredAt);
+  assert.match(capturedQuery, /status = 'scheduled'/);
+  assert.match(capturedQuery, /events\.deleted_at IS NULL/);
+  assert.deepEqual(capturedParams, [
+    "user-1",
+    "instance-1",
+    "Class canceled",
+    occurredAt,
+  ]);
+});
+
 test("event delete writes deleted_at", async () => {
   let capturedQuery = "";
   const occurredAt = new Date("2026-07-12T10:00:00.000Z");

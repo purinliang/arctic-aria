@@ -34,7 +34,7 @@ duration, and default location. The row action opens the Edit Event dialog.
 
 The Event Instances panel lists generated instances. Rows show title,
 description, scheduled date, scheduled time, effective location, and status.
-The current UI does not expose reschedule, cancel, or location override actions.
+The row action opens the Edit Event Instance dialog.
 
 The instance filter uses:
 
@@ -44,7 +44,34 @@ The instance filter uses:
 - `Past`: two or more days before the current board date
 
 The Groups panel filters Event definitions by `All`, `Default`, or a
-user-created Event Group. `Manage` opens group management.
+user-created Event Group. It also filters Event instances by their parent Event
+definition. `Manage` opens group management.
+
+## Edit Event Instance Dialog
+
+Use a modal dialog over the Events page.
+
+Fields:
+
+- date
+- time
+- optional location override
+- optional reason
+
+Save behavior:
+
+- clicking `Save` validates the instance date, time, location override, and
+  reason
+- successful save updates only that Event instance and refreshes Event page
+  data
+- failed save keeps the dialog open and shows the shared notification
+
+Cancel behavior:
+
+- clicking `Cancel` asks for confirmation
+- confirming cancel marks only that generated appointment canceled
+- canceled Event instances disappear from normal Event instance lists and Today
+- canceling does not delete or change the parent Event definition
 
 ## Add Event Dialog
 

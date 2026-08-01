@@ -113,8 +113,8 @@ The instance filter uses:
 - `Future`: four or more days after the current board date
 - `Past`: two or more days before the current board date
 
-The group filter affects routine definitions. It does not filter the Routine
-Instances panel.
+The group filter affects routine definitions and routine instances. Routine
+instances are filtered by their parent routine definition.
 
 Groups panel layout:
 

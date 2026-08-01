@@ -16,6 +16,7 @@ import {
 } from "@/features/instance-date-filters";
 import type {
   EventGroupInput,
+  EventInstanceInput,
   EventInput,
   EventTemplateParseData,
 } from "@/features/events/actions";
@@ -26,6 +27,7 @@ import { EventEditorDialog } from "./EventEditorDialog";
 import { EventFiltersPanel } from "./EventFiltersPanel";
 import { EventGroupManagerDialog } from "./EventGroupManagerDialog";
 import { EventGroupsPanel } from "./EventGroupsPanel";
+import { EventInstanceEditorDialog } from "./EventInstanceEditorDialog";
 import { EventInstancesList } from "./EventInstancesList";
 import { EventTemplateEditorDialog } from "./EventTemplateEditorDialog";
 import { EventsList } from "./EventsList";
@@ -40,9 +42,10 @@ import {
 type EventResult = Promise<boolean>;
 type EventGroupResult = Promise<boolean>;
 type ConfirmationTarget = {
-  type: "event" | "group";
+  type: "event" | "group" | "instance";
   id: string;
   title: string;
+  reason?: string | null;
 };
 type DialogAction = "save" | "delete" | null;
 type EventTemplateTarget =
@@ -75,6 +78,8 @@ export function EventsPage({
   onEventDelete,
   onEventGroupSave,
   onEventGroupDelete,
+  onEventInstanceSave,
+  onEventInstanceCancel,
   onEventTemplateParse,
   onEventTemplateApply,
   showErrorNotification,
@@ -94,6 +99,10 @@ export function EventsPage({
   onEventDelete: (eventId: string) => EventResult;
   onEventGroupSave: (input: EventGroupInput) => EventGroupResult;
   onEventGroupDelete: (groupId: string) => EventGroupResult;
+  onEventInstanceSave: (input: EventInstanceInput) => EventResult;
+  onEventInstanceCancel: (
+    input: Pick<EventInstanceInput, "id" | "reason">,
+  ) => EventResult;
   onEventTemplateParse: (
     eventId: string | null,
     source: string,
@@ -117,6 +126,8 @@ export function EventsPage({
   const [groupFormOpen, setGroupFormOpen] = useState(false);
   const [groupDraft, setGroupDraft] =
     useState<EventGroupInput>(emptyGroupDraft);
+  const [instanceDraft, setInstanceDraft] =
+    useState<EventInstanceInput | null>(null);
   const [confirmationTarget, setConfirmationTarget] =
     useState<ConfirmationTarget | null>(null);
   const [templateTarget, setTemplateTarget] =
@@ -129,12 +140,19 @@ export function EventsPage({
       ? groupFilter
       : "All";
   const visibleEvents = filterEventsByGroup(events, activeGroupFilter);
+  const visibleEventIds = new Set(visibleEvents.map((event) => event.id));
+  const groupFilteredEventInstances =
+    activeGroupFilter === "All"
+      ? eventInstances
+      : eventInstances.filter((instance) =>
+          visibleEventIds.has(instance.eventId),
+        );
   const referenceDate = localScheduledDateKey({
     date: new Date(),
     timeZone: resolvedTimeZone,
   });
   const visibleInstances = filterInstancesByDate(
-    eventInstances.map((event) => ({
+    groupFilteredEventInstances.map((event) => ({
       ...event,
       scheduledDate: event.eventDate,
     })),
@@ -166,6 +184,12 @@ export function EventsPage({
     }
   }
 
+  function closeInstanceEditor() {
+    if (!pending && dialogAction === null) {
+      setInstanceDraft(null);
+    }
+  }
+
   function openNewEditor() {
     setDraft({
       ...emptyEventDraft(resolvedTimeZone),
@@ -179,6 +203,18 @@ export function EventsPage({
     setEditorOpen(true);
   }
 
+  function openInstanceEditor(instance: ScheduledEvent) {
+    setInstanceDraft({
+      id: instance.id,
+      title: instance.title,
+      eventDate: instance.eventDate,
+      eventTime: instance.eventTime,
+      locationOverride: instance.locationOverride ?? "",
+      effectiveLocation: instance.location,
+      reason: "",
+    });
+  }
+
   async function submitEvent() {
     setDialogAction("save");
 
@@ -188,6 +224,24 @@ export function EventsPage({
       if (saved) {
         setEditorOpen(false);
         setDraft(emptyEventDraft(resolvedTimeZone));
+      }
+    } finally {
+      setDialogAction(null);
+    }
+  }
+
+  async function submitEventInstance() {
+    if (!instanceDraft) {
+      return;
+    }
+
+    setDialogAction("save");
+
+    try {
+      const saved = await onEventInstanceSave(instanceDraft);
+
+      if (saved) {
+        setInstanceDraft(null);
       }
     } finally {
       setDialogAction(null);
@@ -249,19 +303,26 @@ export function EventsPage({
       const deleted =
         confirmationTarget.type === "event"
           ? await onEventDelete(confirmationTarget.id)
-          : await onEventGroupDelete(confirmationTarget.id);
+          : confirmationTarget.type === "group"
+            ? await onEventGroupDelete(confirmationTarget.id)
+            : await onEventInstanceCancel({
+                id: confirmationTarget.id,
+                reason: confirmationTarget.reason ?? null,
+              });
 
       if (deleted) {
         setConfirmationTarget(null);
         if (confirmationTarget.type === "event") {
           setEditorOpen(false);
           setDraft(emptyEventDraft(resolvedTimeZone));
-        } else {
+        } else if (confirmationTarget.type === "group") {
           setGroupFilter((current) =>
             current === confirmationTarget.id ? "All" : current,
           );
           setGroupFormOpen(false);
           setGroupDraft(emptyGroupDraft);
+        } else {
+          setInstanceDraft(null);
         }
       }
     } finally {
@@ -278,6 +339,19 @@ export function EventsPage({
       type: "event",
       id: draft.id,
       title: draft.title || messages.confirm.fallback,
+    });
+  }
+
+  function openInstanceCancelConfirmation() {
+    if (!instanceDraft) {
+      return;
+    }
+
+    setConfirmationTarget({
+      type: "instance",
+      id: instanceDraft.id,
+      title: instanceDraft.title || messages.instances.cancelFallback,
+      reason: instanceDraft.reason ?? null,
     });
   }
 
@@ -331,6 +405,8 @@ export function EventsPage({
                 messages={messages}
                 formMessages={formMessages}
                 timeFormatPreference={timeFormatPreference}
+                pending={pending}
+                onEdit={openInstanceEditor}
               />
             </Panel>
           </div>
@@ -401,6 +477,22 @@ export function EventsPage({
         />
       ) : null}
 
+      {instanceDraft ? (
+        <EventInstanceEditorDialog
+          darkMode={darkMode}
+          pending={pending || dialogAction !== null}
+          saving={dialogAction === "save"}
+          draft={instanceDraft}
+          messages={messages}
+          formMessages={formMessages}
+          timeFormatPreference={timeFormatPreference}
+          setDraft={setInstanceDraft}
+          onClose={closeInstanceEditor}
+          onSubmit={() => void submitEventInstance()}
+          onCancel={openInstanceCancelConfirmation}
+        />
+      ) : null}
+
       {groupManagerOpen ? (
         <EventGroupManagerDialog
           darkMode={darkMode}
@@ -433,16 +525,28 @@ export function EventsPage({
           title={
             confirmationTarget.type === "event"
               ? messages.confirm.title
-              : messages.groups.confirmTitle
+              : confirmationTarget.type === "group"
+                ? messages.groups.confirmTitle
+                : messages.instances.cancelTitle
           }
           description={
             confirmationTarget.type === "event"
               ? messages.confirm.description(confirmationTarget.title)
-              : messages.groups.confirmDescription(confirmationTarget.title)
+              : confirmationTarget.type === "group"
+                ? messages.groups.confirmDescription(confirmationTarget.title)
+                : messages.instances.cancelDescription(confirmationTarget.title)
           }
           cancelText={messages.confirm.cancel}
-          confirmText={messages.confirm.confirm}
-          pendingConfirmText={messages.confirm.deleting}
+          confirmText={
+            confirmationTarget.type === "instance"
+              ? messages.instances.cancel
+              : messages.confirm.confirm
+          }
+          pendingConfirmText={
+            confirmationTarget.type === "instance"
+              ? messages.instances.canceling
+              : messages.confirm.deleting
+          }
           closeLabel={messages.confirm.close}
           confirmIcon={<Trash2 size={14} aria-hidden="true" />}
           onCancel={() => {

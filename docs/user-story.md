@@ -108,6 +108,8 @@ You can:
 - organize related Events with Event Groups
 - see Event definitions and generated Event instances on the Events page
 - filter Event instances by All, Recent, Future, or Past
+- reschedule or cancel one generated Event instance without changing the whole
+  Event definition
 - see today's Events on Today
 - open the Events page from a Today Event row
 - see Events in the Daily Review message
