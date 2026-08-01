@@ -305,6 +305,11 @@ Detailed behavior and table attributes are documented in
 
 Completion events are immutable history records used by review logic.
 
+Planned direction: replace the shared `completion_events` table with separate
+project task and routine completion history tables. Calendar Events should not
+use completion history tables. See
+[events/recurrence-plan.md](events/recurrence-plan.md).
+
 `completion_events` should store:
 
 - user id

@@ -4,6 +4,9 @@ Events are one-time scheduled items with a concrete local date and time. They
 are useful for appointments, meetings, booked activities, and other fixed plans
 that should be visible without becoming project tasks or routine instances.
 
+Recurring Events and Event Groups are planned but not implemented. The current
+design direction is documented in [recurrence-plan.md](recurrence-plan.md).
+
 ## Boundary
 
 An Event is not a project task and not a routine instance.

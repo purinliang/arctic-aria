@@ -4,6 +4,12 @@ This document defines routine persistence, backend validation, and database
 constraints. Product behavior is documented in [overview.md](overview.md), and UI
 behavior is documented in [ui.md](ui.md).
 
+A planned future-actions pass will materialize at most the next 3 routine
+instances per active routine, aligned with planned recurring Event instances.
+That cross-feature direction is documented in
+[../events/recurrence-plan.md](../events/recurrence-plan.md) and is not
+implemented yet.
+
 ## Validation And Consistency
 
 Routines uses the shared database integrity rules from
@@ -214,6 +220,10 @@ Current database protection:
 
 Routine completion and skip actions should create immutable completion history
 for daily review.
+
+Planned direction: split this shared table into
+`routine_completion_events`, separate from project task completion history. See
+[../events/recurrence-plan.md](../events/recurrence-plan.md).
 
 Current routine event target:
 

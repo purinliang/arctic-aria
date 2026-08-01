@@ -219,6 +219,10 @@ cycle prevention, same-project behavior, UI interaction, and migration rules.
 
 `completion_events` supports task-level history.
 
+Planned direction: split this shared table into
+`project_task_completion_events`, separate from routine completion history. See
+[../events/recurrence-plan.md](../events/recurrence-plan.md).
+
 Current task event types:
 
 - `completed`

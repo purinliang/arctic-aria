@@ -4,6 +4,10 @@ This document defines Event persistence, backend validation, and database
 constraints. Product behavior is documented in [overview.md](overview.md), and UI
 behavior is documented in [ui.md](ui.md).
 
+Planned Event Groups, recurring Event instances, and routine-aligned future
+instance materialization are documented in
+[recurrence-plan.md](recurrence-plan.md). That plan is not implemented yet.
+
 ## Validation And Consistency
 
 Backend validation should check:
