@@ -189,9 +189,11 @@ function BackgroundTokenSwatch({
           </SupportingText>
         )}
       </div>
-      <code className="truncate text-[length:var(--aa-font-size-xs)] leading-[var(--aa-line-height-xs)] text-[var(--aa-secondary-text)]">
-        {value ? formatCssToken(value) : unavailableLabel}
-      </code>
+      {value ? (
+        <code className="truncate text-[length:var(--aa-font-size-xs)] leading-[var(--aa-line-height-xs)] text-[var(--aa-secondary-text)]">
+          {formatCssToken(value)}
+        </code>
+      ) : null}
     </div>
   );
 }

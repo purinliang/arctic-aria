@@ -5,6 +5,7 @@ import {
 import { Button } from "./button";
 import {
   bodyStackClass,
+  compactListItemPaddingClass,
   controlGapClass,
   inlineGapClass,
   listRowPaddingClass,
@@ -16,6 +17,7 @@ import { cx } from "./utils";
 
 type ListItemTone = "default" | "success";
 type ListItemTextTone = "default" | "selected";
+type ListItemDensity = "normal" | "compact";
 
 export function List({
   className,
@@ -40,6 +42,7 @@ export function List({
 
 export function ListItem({
   darkMode,
+  density = "normal",
   selected = false,
   expanded = false,
   layout = "row",
@@ -48,6 +51,7 @@ export function ListItem({
   children,
 }: {
   darkMode: boolean;
+  density?: ListItemDensity;
   selected?: boolean;
   expanded?: boolean;
   layout?: "row" | "block";
@@ -56,6 +60,8 @@ export function ListItem({
   children: ReactNode;
 }) {
   const active = selected || expanded;
+  const paddingClass =
+    density === "compact" ? compactListItemPaddingClass : listRowPaddingClass;
 
   return (
     <article
@@ -64,9 +70,9 @@ export function ListItem({
           ? cx(
               "grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start",
               inlineGapClass,
-              listRowPaddingClass,
+              paddingClass,
             )
-          : listRowPaddingClass,
+          : paddingClass,
         itemToneClass(darkMode, tone, active),
         className,
       )}

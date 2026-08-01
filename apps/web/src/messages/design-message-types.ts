@@ -128,17 +128,9 @@ export type DesignMessages = {
     description: string;
     rowsTitle: string;
     rowsDescription: string;
-    surfacesTitle: string;
-    surfacesDescription: string;
-    textStackTitle: string;
-    textStackDescription: string;
     normalRow: string;
     compactRow: string;
-    cardBody: string;
-    dialogBody: string;
-    popover: string;
     tag: string;
-    rowTitle: string;
     rowDescription: string;
     rowSupport: string;
   };

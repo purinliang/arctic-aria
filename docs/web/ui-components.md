@@ -475,6 +475,9 @@ Use it for:
 List items should keep horizontal padding, vertical rhythm, hover state, and
 selected state consistent. The shared `ListItem` owns list-row padding. Feature
 rows should not hand-code first/last padding.
+Use `density="compact"` when a row needs the compact list-row rhythm while
+keeping the same horizontal action alignment, row grid, hover color, and
+selected state.
 
 List dividers use the weaker list-divider border role, not the stronger panel
 outline border. Panel borders should remain visually stronger than dividers

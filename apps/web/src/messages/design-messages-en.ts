@@ -133,28 +133,18 @@ export const englishDesignMessages: DesignMessages = {
     englishSample:
       "Arctic Aria keeps dense product text readable across panels, dialogs, and list rows.",
     chineseSample:
-      "北极阿莉雅需要在中文界面中保留更舒适的多行阅读节奏。",
+      "北极阿莉雅需要在中文界面中保留更舒适的多行阅读节奏，让列表、面板和对话框里的说明文字在窄宽度下也能自然换行。",
     lineHeightSupport: "14px body copy · Language-aware line-height",
   },
   spacing: {
     title: "Spacing",
     description:
-      "Reusable padding and stack rhythm for lists, surfaces, popovers, tags, and text stacks.",
+      "Reusable row padding and metadata rhythm for product lists.",
     rowsTitle: "Rows",
     rowsDescription: "Normal and compact row rhythm for user-generated lists.",
-    surfacesTitle: "Surfaces",
-    surfacesDescription:
-      "Shared padding used by card bodies, dialogs, popovers, and tags.",
-    textStackTitle: "Text Stacks",
-    textStackDescription:
-      "Title, description, and supporting metadata use tokenized vertical rhythm.",
     normalRow: "Normal row",
     compactRow: "Compact row",
-    cardBody: "Card body",
-    dialogBody: "Dialog body",
-    popover: "Popover",
     tag: "Tag",
-    rowTitle: "Row title",
     rowDescription: "Description line for the row content.",
     rowSupport: "Supporting metadata",
   },

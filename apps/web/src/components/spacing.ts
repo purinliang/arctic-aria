@@ -14,6 +14,8 @@ export const listRowPaddingClass =
   "px-[var(--aa-space-list-row-x)] py-[var(--aa-space-list-row-y)]";
 export const compactListRowPaddingClass =
   "px-[var(--aa-space-list-row-compact-x)] py-[var(--aa-space-list-row-compact-y)]";
+export const compactListItemPaddingClass =
+  "px-[var(--aa-space-list-row-x)] py-[var(--aa-space-list-row-compact-y)]";
 export const cardHeaderPaddingClass =
   "px-[var(--aa-space-card-header-x)] py-[var(--aa-space-card-header-y)]";
 export const cardBodyPaddingClass =
