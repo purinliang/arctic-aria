@@ -455,7 +455,11 @@ textarea {
   }
 
   .aa-split-panel {
-    grid-template-columns: minmax(0, 1fr) 20rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+  }
+
+  .aa-split-panel > * {
+    min-width: 0;
   }
 
   .aa-split-panel-sidebar {
