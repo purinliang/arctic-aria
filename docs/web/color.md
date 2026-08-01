@@ -65,7 +65,8 @@ Secondary buttons have two presentations:
 - Secondary button uses the secondary button tokens for its surface, text,
   border, hover, disabled, and disabled border colors.
 - Secondary button (borderless) uses the same secondary button text, hover, and
-  disabled tokens without drawing a border.
+  disabled text tokens without drawing a border. Its disabled background stays
+  transparent so it remains borderless.
 
 Do not create a separate color family for secondary button and secondary button
 (borderless).
@@ -170,12 +171,14 @@ direct text entry.
 
 - Product buttons have two types: primary and secondary.
 - Secondary button and secondary button (borderless) must use the same
-  secondary button role tokens.
+  secondary button text role tokens. Borderless disabled buttons keep a
+  transparent background.
 - Bordered secondary controls must use `--aa-secondary-button-border` for the
   normal outline and `--aa-secondary-button-hover-border` for the hover/focus
   outline. Do not use `--aa-secondary-button-hover-bg` as a border color.
 - Disabled primary and secondary buttons must use disabled button color tokens
-  and must not expose hover colors.
+  and must not expose hover colors. Borderless disabled buttons use disabled
+  text tokens while keeping their background transparent.
 - Disabled primary and secondary buttons must not rely on opacity as their main
   disabled treatment.
 - Disabled input controls should keep a visible secondary border while using
