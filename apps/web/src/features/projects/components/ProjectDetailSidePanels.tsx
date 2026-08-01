@@ -227,7 +227,7 @@ export function MilestoneSwitchPanel({
             className="p-0"
           >
             <button
-              className="grid h-9 w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-left"
+              className="grid h-9 w-full min-w-0 cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-left"
               type="button"
               title={choice.title}
               onClick={() => onSelectMilestone(choice.id)}
