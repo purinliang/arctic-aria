@@ -4,9 +4,9 @@ This roadmap records future work. It should not repeat released implementation
 details; released behavior belongs in `docs/releases/` and stable rules belong
 in the owning feature, web, or infrastructure docs.
 
-Current released version: `v0.13.0`.
+Current released version: `v0.14.0`.
 
-Current release candidate on `develop`: `v0.14.0`.
+Current release candidate on `develop`: `v0.15.0`.
 
 ## Next Work After v0.12.0
 
