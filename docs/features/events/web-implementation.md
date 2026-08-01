@@ -20,6 +20,8 @@ The current web implementation supports database-backed Events:
 - cancel one Event instance with an optional cancellation reason
 - parse and save Event templates from the add/edit dialog header menu
 - filter Event instances by `All`, `Recent`, `Future`, or `Past`
+- paginate Event definitions, Event instances, and Event Group management with
+  the shared compact pager
 - show today's Events as display-only rows on Today
 - include Events in scheduled Daily Review text and metadata
 
@@ -90,6 +92,10 @@ apps/web/src/features/events/components/EventInstancesList.tsx
 apps/web/src/features/events/components/EventTemplateEditorDialog.tsx
 apps/web/src/features/events/components/EventsPanel.tsx
 apps/web/src/features/events/components/event-page-helpers.ts
+apps/web/src/components/manager-list.tsx
+apps/web/src/components/paged-list.tsx
+apps/web/src/components/paged-list-utils.ts
+apps/web/src/messages/pagination-messages.ts
 ```
 
 Event server actions:

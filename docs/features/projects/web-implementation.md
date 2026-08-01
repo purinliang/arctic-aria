@@ -189,7 +189,8 @@ List body:
 Clicking only the underlined project title opens the detail page. The whole
 project item is not clickable. Do not add a text `View` button or footer action
 inside project list items. `Pin` and `Unpin` only update sidebar shortcuts and
-must not navigate. The list page does not show task rows.
+must not navigate. The list page does not show task rows. When there are more
+than ten projects, the list uses the shared compact paged-list footer.
 
 ### Project Detail Layout
 
@@ -278,6 +279,14 @@ Task list:
 - completed state does not affect sorting
 - sorting happens when data is loaded/refreshed or after adding/editing a task;
   checking or unchecking `Done` must keep the current visible row order
+- when there are more than eight tasks in the selected milestone group, the
+  task list uses the shared compact paged-list footer
+
+Milestone manager dialog:
+
+- uses the shared dialog `ManagerList`, not the page/panel list surface
+- aligns the section `New` action with row-level `Edit` actions
+- shows at most six milestone rows per page
 
 Task row layout:
 
@@ -419,10 +428,16 @@ Project web UI:
 apps/web/src/features/projects/components/ProjectsPage.tsx
 apps/web/src/features/projects/components/ProjectDetailPage.tsx
 apps/web/src/features/projects/components/ProjectsList.tsx
+apps/web/src/features/projects/components/ProjectDetailTasksPanel.tsx
+apps/web/src/features/projects/components/ProjectMilestoneManagerDialog.tsx
 apps/web/src/features/projects/components/ProjectTasksPanel.tsx
 apps/web/src/features/dashboard/components/Dashboard.tsx
 apps/web/src/app-shell/AppShell.tsx
 apps/web/src/app-shell/app-routes.ts
+apps/web/src/components/manager-list.tsx
+apps/web/src/components/paged-list.tsx
+apps/web/src/components/paged-list-utils.ts
+apps/web/src/messages/pagination-messages.ts
 ```
 
 Project server actions:

@@ -1,13 +1,9 @@
 import type { RoutineRuleType } from "@/features/dashboard/types";
 import type { RoutineRecurrenceOption } from "@/features/routines/routine-recurrence";
-
-type PaginationStatusWindow = {
-  endIndex: number;
-  pageNumber: number;
-  startIndex: number;
-  totalItems: number;
-  totalPages: number;
-};
+import {
+  englishPaginationMessages,
+  simplifiedChinesePaginationMessages,
+} from "./pagination-messages.ts";
 
 export const englishRoutineMessages = {
   page: {
@@ -21,16 +17,7 @@ export const englishRoutineMessages = {
     edit: "Edit",
     pagination: {
       ariaLabel: "Routine definition pages",
-      previous: "Previous",
-      next: "Next",
-      status: ({
-        endIndex,
-        pageNumber,
-        startIndex,
-        totalItems,
-        totalPages,
-      }: PaginationStatusWindow) =>
-        `Showing ${startIndex + 1}-${endIndex} of ${totalItems} · Page ${pageNumber} of ${totalPages}`,
+      ...englishPaginationMessages,
     },
   },
   groups: {
@@ -52,6 +39,10 @@ export const englishRoutineMessages = {
     descriptionLabel: "Description",
     noDescription: "No description.",
     noGroups: "No groups yet.",
+    pagination: {
+      ariaLabel: "Routine group pages",
+      ...englishPaginationMessages,
+    },
     save: "Save",
     saving: "Saving",
     delete: "Delete",
@@ -76,16 +67,7 @@ export const englishRoutineMessages = {
     reopenItem: (title: string) => `Reopen "${title}"`,
     pagination: {
       ariaLabel: "Routine instance pages",
-      previous: "Previous",
-      next: "Next",
-      status: ({
-        endIndex,
-        pageNumber,
-        startIndex,
-        totalItems,
-        totalPages,
-      }: PaginationStatusWindow) =>
-        `Showing ${startIndex + 1}-${endIndex} of ${totalItems} · Page ${pageNumber} of ${totalPages}`,
+      ...englishPaginationMessages,
     },
     status: {
       pending: "Pending",
@@ -277,16 +259,7 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     edit: "编辑",
     pagination: {
       ariaLabel: "日常定义分页",
-      previous: "上一页",
-      next: "下一页",
-      status: ({
-        endIndex,
-        pageNumber,
-        startIndex,
-        totalItems,
-        totalPages,
-      }) =>
-        `显示 ${startIndex + 1}-${endIndex} / ${totalItems} · 第 ${pageNumber} / ${totalPages} 页`,
+      ...simplifiedChinesePaginationMessages,
     },
   },
   groups: {
@@ -308,6 +281,10 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     descriptionLabel: "描述",
     noDescription: "暂无描述。",
     noGroups: "还没有分组。",
+    pagination: {
+      ariaLabel: "日常分组分页",
+      ...simplifiedChinesePaginationMessages,
+    },
     save: "保存",
     saving: "正在保存",
     delete: "删除",
@@ -332,16 +309,7 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     reopenItem: (title) => `重新打开“${title}”`,
     pagination: {
       ariaLabel: "日常实例分页",
-      previous: "上一页",
-      next: "下一页",
-      status: ({
-        endIndex,
-        pageNumber,
-        startIndex,
-        totalItems,
-        totalPages,
-      }) =>
-        `显示 ${startIndex + 1}-${endIndex} / ${totalItems} · 第 ${pageNumber} / ${totalPages} 页`,
+      ...simplifiedChinesePaginationMessages,
     },
     status: {
       pending: "待处理",

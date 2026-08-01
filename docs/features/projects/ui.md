@@ -139,6 +139,8 @@ Project list layout:
 - the full-width Projects list must keep `min-w-0` shrink constraints on the
   page wrapper, panel, row, and text columns so mobile widths do not overflow
 - do not add a text `View` button or footer band inside project list items
+- when there are more than ten projects, use the shared compact paged-list
+  control below the rows
 
 ## Add Project Flow
 
@@ -323,6 +325,8 @@ Detail page layout:
 - new tasks default to the selected milestone when a real milestone is selected
 - task row layout: `Done` checkbox on the left, then title, description,
   deadline metadata, then `Edit` on the right
+- when there are more than eight tasks in the selected milestone group, use the
+  shared compact paged-list control below the rows
 - if saved milestone objectives or task descriptions are empty, render localized
   default copy derived from the milestone or task title; these fallbacks are not
   persisted
@@ -375,6 +379,13 @@ Actions:
 - delete milestone
 
 Projects do not create a default milestone. The milestone list can be empty.
+
+Milestone manager layout:
+
+- use the shared dialog `ManagerList`, not a page/panel list
+- align the section `New` action with row-level `Edit` actions on the right
+- show at most six milestone rows per page, with the compact icon pager below
+  the rows when needed
 
 ## Tasks UI
 

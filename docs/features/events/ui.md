@@ -31,10 +31,13 @@ The page uses the shared split layout:
 The Event Definitions panel lists active definitions. Rows show title,
 description, group, recurrence label, start date, scheduled time, estimated
 duration, and default location. The row action opens the Edit Event dialog.
+When there are more than eight visible definitions, the panel uses the shared
+paged-list control.
 
 The Event Instances panel lists generated instances. Rows show title,
 description, scheduled date, scheduled time, effective location, and status.
-The row action opens the Edit Event Instance dialog.
+The row action opens the Edit Event Instance dialog. When there are more than
+six visible instances, the panel uses the shared paged-list control.
 
 The instance filter uses:
 
@@ -46,6 +49,10 @@ The instance filter uses:
 The Groups panel filters Event definitions by `All`, `Default`, or a
 user-created Event Group. It also filters Event instances by their parent Event
 definition. `Manage` opens group management.
+
+Paged Event lists use compact pagination controls in this order: first page,
+previous page, `Page x / y`, next page, last page. Changing the group or
+instance filter resets the affected list pager to the first page.
 
 ## Edit Event Instance Dialog
 
@@ -159,9 +166,12 @@ Group manager layout:
 
 - dialog title: `Manage Groups`
 - one section: `Event Groups`
-- section header action: `New`
+- section header action: right-aligned `New`
 - group rows show name, description, and `Edit`
 - empty state says there are no groups yet
+- use the shared dialog `ManagerList`, not a page/panel list
+- show at most six group rows per page, with the compact icon pager below the
+  rows when needed
 
 Group form fields:
 

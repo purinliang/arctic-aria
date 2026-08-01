@@ -9,13 +9,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
-import {
-  secondaryTextColorClass,
-} from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
 import {
-  List,
   ListItem,
   ListItemActions,
   ListItemContent,
@@ -23,22 +19,21 @@ import {
   ListItemSupportingText,
   ListItemTitle,
 } from "@/components/list";
-import { LoadingLine } from "@/components/loading";
+import { PagedList } from "@/components/paged-list";
 import { Panel } from "@/components/panel";
-import type {
-  MemoryRecord,
-} from "@/features/dashboard/types";
+import type { MemoryRecord } from "@/features/dashboard/types";
 import type { MemoryMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
 import { memoryExperienceMetadataSegments } from "./memory-metadata";
-import {
-  getMemoryCategoryLabel,
-} from "./memory-page-helpers";
+import { getMemoryCategoryLabel } from "./memory-page-helpers";
+
+const memoryPageSize = 8;
 
 export function MemoriesPanel({
   darkMode,
   loading,
   pending,
+  paginationKey,
   memories,
   pendingPinIds,
   messages,
@@ -53,6 +48,7 @@ export function MemoriesPanel({
   darkMode: boolean;
   loading: boolean;
   pending: boolean;
+  paginationKey: string;
   memories: MemoryRecord[];
   pendingPinIds: string[];
   messages: MemoryMessages["panel"];
@@ -83,17 +79,17 @@ export function MemoriesPanel({
         }
       />
 
-      <List darkMode={darkMode}>
-        {loading ? (
-          <LoadingLine darkMode={darkMode} text={messages.loading} />
-        ) : null}
-        {!loading && memories.length === 0 ? (
-          <EmptyLine
-            darkMode={darkMode}
-            text={messages.empty}
-          />
-        ) : null}
-        {memories.map((memory) => (
+      <PagedList
+        ariaLabel={messages.pagination.ariaLabel}
+        darkMode={darkMode}
+        emptyText={messages.empty}
+        items={memories}
+        loading={loading}
+        loadingText={messages.loading}
+        messages={messages.pagination}
+        pageSize={memoryPageSize}
+        resetKey={paginationKey}
+        renderItem={(memory) => (
           <MemoryRow
             key={memory.id}
             memory={memory}
@@ -107,8 +103,8 @@ export function MemoriesPanel({
             onPin={() => onPinMemory(memory.id)}
             onUnpin={() => onUnpinMemory(memory.id)}
           />
-        ))}
-      </List>
+        )}
+      />
     </Panel>
   );
 }
@@ -206,12 +202,4 @@ function formatDate(
   fallback: string,
 ) {
   return formatDateKey(value, messages, fallback);
-}
-
-function EmptyLine({ text }: { darkMode: boolean; text: string }) {
-  return (
-    <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
-      {text}
-    </p>
-  );
 }

@@ -1,3 +1,8 @@
+import {
+  englishPaginationMessages,
+  simplifiedChinesePaginationMessages,
+} from "./pagination-messages.ts";
+
 export const englishEventMessages = {
   page: {
     title: "Events",
@@ -7,6 +12,10 @@ export const englishEventMessages = {
     empty: "No events yet.",
     noDescription: "No description.",
     edit: "Edit",
+    pagination: {
+      ariaLabel: "Event definition pages",
+      ...englishPaginationMessages,
+    },
   },
   editor: {
     add: "Add event",
@@ -101,6 +110,10 @@ export const englishEventMessages = {
     cancelFallback: "this event instance",
     cancelDescription: (title: string) =>
       `Cancel "${title}"? Only this generated appointment will be canceled.`,
+    pagination: {
+      ariaLabel: "Event instance pages",
+      ...englishPaginationMessages,
+    },
     status: {
       scheduled: "Scheduled",
       canceled: "Canceled",
@@ -125,6 +138,10 @@ export const englishEventMessages = {
     descriptionLabel: "Description",
     noDescription: "No description.",
     noGroups: "No groups yet.",
+    pagination: {
+      ariaLabel: "Event group pages",
+      ...englishPaginationMessages,
+    },
     save: "Save",
     saving: "Saving",
     delete: "Delete",
@@ -207,6 +224,10 @@ export const simplifiedChineseEventMessages: EventMessages = {
     empty: "还没有事件。",
     noDescription: "暂无描述。",
     edit: "编辑",
+    pagination: {
+      ariaLabel: "事件定义分页",
+      ...simplifiedChinesePaginationMessages,
+    },
   },
   editor: {
     add: "添加事件",
@@ -292,6 +313,10 @@ export const simplifiedChineseEventMessages: EventMessages = {
     cancelFallback: "这个事件实例",
     cancelDescription: (title) =>
       `取消“${title}”？只会取消这一个已生成的预约。`,
+    pagination: {
+      ariaLabel: "事件实例分页",
+      ...simplifiedChinesePaginationMessages,
+    },
     status: {
       scheduled: "已安排",
       canceled: "已取消",
@@ -316,6 +341,10 @@ export const simplifiedChineseEventMessages: EventMessages = {
     descriptionLabel: "描述",
     noDescription: "暂无描述。",
     noGroups: "还没有分组。",
+    pagination: {
+      ariaLabel: "事件分组分页",
+      ...simplifiedChinesePaginationMessages,
+    },
     save: "保存",
     saving: "正在保存",
     delete: "删除",

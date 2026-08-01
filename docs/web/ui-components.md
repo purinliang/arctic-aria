@@ -462,15 +462,44 @@ shared `List` and `ListItem` primitives, so feature rows keep the same padding,
 dividers, hover states, and text rhythm while the list renders only one page at
 a time.
 
-Use `PagedList` when a management panel can naturally grow past a short review
-length. The owning feature still decides which items belong in the list through
-filters or grouping; `PagedList` only slices the already-filtered item array and
-renders localized status text plus `Previous` and `Next` controls. The controls
-use normal shared button height.
+Use `PagedList` when a page or panel user-created list can naturally grow past
+a short review length, such as routine definitions, routine instances, Event
+definitions, Event instances, project tasks, projects, memories, and ideas. The
+owning feature still decides which items belong in the list through filters or
+grouping; `PagedList` only slices the already-filtered item array.
+
+The footer uses compact ghost icon controls:
+
+```text
+[First] [Previous] [Page x / y] [Next] [Last]
+```
+
+The icon buttons are compact and borderless. The page count is text, not an
+input or dialog trigger in the current UI.
 
 When a surrounding filter changes, pass a reset key so the current page returns
 to the first page. Do not use paged lists for compact dashboard panels that
 intentionally show only today's top items.
+
+Default page sizes:
+
+- `6`: generated instance lists and dialog manager lists
+- `8`: normal feature-page lists with taller rows
+- `10`: full-width or primary single-panel lists with more vertical room
+
+## Manager List
+
+`manager-list.tsx` owns compact dialog-only management sections and rows. Use it
+inside manager dialogs that list user-created supporting records, such as
+Routine Groups, Event Groups, Project Milestones, and Memory Categories.
+
+`ManagerDialogSection` aligns the section title on the left and the `New`
+action on the right. `ManagerListRow` uses the same right-side action column, so
+the header `New` action aligns with row-level actions such as `Edit`.
+
+`ManagerList` should not look like a page panel list. It uses compact dialog
+row padding and a dialog-form surface. It renders at most six rows per page by
+default and uses the same compact icon pager as `PagedList` when needed.
 
 ## Optional Description Copy
 

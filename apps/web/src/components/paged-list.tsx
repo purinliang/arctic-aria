@@ -1,4 +1,9 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { Button } from "./button";
@@ -9,12 +14,17 @@ import {
   type PagedListWindow,
 } from "./paged-list-utils";
 import { DescriptionText, SupportingText } from "./text";
+import { cx } from "./utils";
 
-export type PagedListMessages = {
+export type PagedListNavigationMessages = {
+  first: string;
+  last: string;
   next: string;
+  page: (pageNumber: number, totalPages: number) => string;
   previous: string;
-  status: (window: PagedListWindow) => string;
 };
+
+export type PagedListMessages = PagedListNavigationMessages;
 
 export function PagedList<Item>({
   ariaLabel,
@@ -74,7 +84,7 @@ export function PagedList<Item>({
       ) : null}
       {!loading ? visibleItems.map((item) => renderItem(item)) : null}
       {showPagination ? (
-        <PagedListFooter
+        <PagedListNavigation
           ariaLabel={ariaLabel}
           darkMode={darkMode}
           messages={messages}
@@ -82,6 +92,12 @@ export function PagedList<Item>({
           onPrevious={() =>
             setPageState({
               pageIndex: Math.max(0, windowState.pageIndex - 1),
+              resetKey: normalizedResetKey,
+            })
+          }
+          onFirst={() =>
+            setPageState({
+              pageIndex: 0,
               resetKey: normalizedResetKey,
             })
           }
@@ -94,24 +110,36 @@ export function PagedList<Item>({
               resetKey: normalizedResetKey,
             })
           }
+          onLast={() =>
+            setPageState({
+              pageIndex: windowState.totalPages - 1,
+              resetKey: normalizedResetKey,
+            })
+          }
         />
       ) : null}
     </List>
   );
 }
 
-function PagedListFooter({
+export function PagedListNavigation({
   ariaLabel,
+  className,
   darkMode,
   messages,
   windowState,
+  onFirst,
+  onLast,
   onNext,
   onPrevious,
 }: {
   ariaLabel: string;
+  className?: string;
   darkMode: boolean;
-  messages: PagedListMessages;
+  messages: PagedListNavigationMessages;
   windowState: PagedListWindow;
+  onFirst: () => void;
+  onLast: () => void;
   onNext: () => void;
   onPrevious: () => void;
 }) {
@@ -121,29 +149,53 @@ function PagedListFooter({
   return (
     <nav
       aria-label={ariaLabel}
-      className="grid gap-2 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+      className={cx(
+        "flex items-center justify-center gap-1 px-3 py-2",
+        className,
+      )}
     >
-      <SupportingText darkMode={darkMode} className="block min-w-0">
-        {messages.status(windowState)}
+      <Button
+        darkMode={darkMode}
+        tone="ghost"
+        size="icon"
+        aria-label={messages.first}
+        disabled={previousDisabled}
+        icon={<ChevronsLeft size={14} aria-hidden="true" />}
+        onClick={onFirst}
+      />
+      <Button
+        darkMode={darkMode}
+        tone="ghost"
+        size="icon"
+        aria-label={messages.previous}
+        disabled={previousDisabled}
+        icon={<ChevronLeft size={14} aria-hidden="true" />}
+        onClick={onPrevious}
+      />
+      <SupportingText
+        darkMode={darkMode}
+        className="inline-flex h-[var(--aa-icon-button-size)] min-w-[5.5rem] items-center justify-center px-2 text-center"
+      >
+        {messages.page(windowState.pageNumber, windowState.totalPages)}
       </SupportingText>
-      <div className="flex min-w-0 items-center justify-end gap-2">
-        <Button
-          darkMode={darkMode}
-          disabled={previousDisabled}
-          icon={<ChevronLeft size={14} aria-hidden="true" />}
-          onClick={onPrevious}
-        >
-          {messages.previous}
-        </Button>
-        <Button
-          darkMode={darkMode}
-          disabled={nextDisabled}
-          onClick={onNext}
-        >
-          <span>{messages.next}</span>
-          <ChevronRight size={14} aria-hidden="true" />
-        </Button>
-      </div>
+      <Button
+        darkMode={darkMode}
+        tone="ghost"
+        size="icon"
+        aria-label={messages.next}
+        disabled={nextDisabled}
+        icon={<ChevronRight size={14} aria-hidden="true" />}
+        onClick={onNext}
+      />
+      <Button
+        darkMode={darkMode}
+        tone="ghost"
+        size="icon"
+        aria-label={messages.last}
+        disabled={nextDisabled}
+        icon={<ChevronsRight size={14} aria-hidden="true" />}
+        onClick={onLast}
+      />
     </nav>
   );
 }

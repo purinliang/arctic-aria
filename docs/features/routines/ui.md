@@ -110,6 +110,10 @@ completed from this panel. Completed or skipped rows can be reopened. When
 there are more than six visible instances, the panel uses the shared paged-list
 control so only one instance page renders at a time.
 
+Paged Routine lists use compact pagination controls in this order: first page,
+previous page, `Page x / y`, next page, last page. Changing the group or
+instance filter resets the affected list pager to the first page.
+
 The instance filter uses:
 
 - `All`: every loaded routine instance
@@ -149,9 +153,12 @@ Group manager layout:
 
 - dialog title: `Manage Groups`
 - one section: `Routine Groups`
-- section header action: `New`
+- section header action: right-aligned `New`
 - group rows show name, description, and `Edit`
 - empty state says there are no groups yet
+- use the shared dialog `ManagerList`, not a page/panel list
+- show at most six group rows per page, with the compact icon pager below the
+  rows when needed
 
 Group form fields:
 

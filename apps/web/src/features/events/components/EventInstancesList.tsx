@@ -1,11 +1,9 @@
 // Events Page - Event Instances List.
 import { Edit3 } from "lucide-react";
 import { Button } from "@/components/button";
-import { secondaryTextColorClass } from "@/components/color";
 import { formatDateKey } from "@/components/forms/date-format";
 import { formatTimeDisplay } from "@/components/forms/time-display";
 import {
-  List,
   ListItem,
   ListItemActions,
   ListItemContent,
@@ -13,15 +11,18 @@ import {
   ListItemSupportingText,
   ListItemTitle,
 } from "@/components/list";
-import { LoadingLine } from "@/components/loading";
+import { PagedList } from "@/components/paged-list";
 import type { ScheduledEvent } from "@/features/dashboard/types";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { EventMessages, FormMessages } from "@/messages/app-messages";
+
+const eventInstancePageSize = 6;
 
 export function EventInstancesList({
   darkMode,
   loading,
   pending,
+  paginationKey,
   instances,
   messages,
   formMessages,
@@ -31,6 +32,7 @@ export function EventInstancesList({
   darkMode: boolean;
   loading: boolean;
   pending: boolean;
+  paginationKey: string;
   instances: ScheduledEvent[];
   messages: EventMessages;
   formMessages: FormMessages;
@@ -38,16 +40,17 @@ export function EventInstancesList({
   onEdit: (instance: ScheduledEvent) => void;
 }) {
   return (
-    <List darkMode={darkMode}>
-      {loading ? (
-        <LoadingLine darkMode={darkMode} text={messages.instances.loading} />
-      ) : null}
-      {!loading && instances.length === 0 ? (
-        <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
-          {messages.instances.empty}
-        </p>
-      ) : null}
-      {instances.map((instance) => (
+    <PagedList
+      ariaLabel={messages.instances.pagination.ariaLabel}
+      darkMode={darkMode}
+      emptyText={messages.instances.empty}
+      items={instances}
+      loading={loading}
+      loadingText={messages.instances.loading}
+      messages={messages.instances.pagination}
+      pageSize={eventInstancePageSize}
+      resetKey={paginationKey}
+      renderItem={(instance) => (
         <ListItem
           key={instance.id}
           darkMode={darkMode}
@@ -82,8 +85,8 @@ export function EventInstancesList({
             </Button>
           </ListItemActions>
         </ListItem>
-      ))}
-    </List>
+      )}
+    />
   );
 }
 

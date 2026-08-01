@@ -384,6 +384,7 @@ export function EventsPage({
                 events={visibleEvents}
                 loading={loading}
                 pending={pending}
+                paginationKey={activeGroupFilter}
                 messages={messages}
                 formMessages={formMessages}
                 timeFormatPreference={timeFormatPreference}
@@ -406,6 +407,7 @@ export function EventsPage({
                 formMessages={formMessages}
                 timeFormatPreference={timeFormatPreference}
                 pending={pending}
+                paginationKey={`${activeGroupFilter}-${instanceFilter}`}
                 onEdit={openInstanceEditor}
               />
             </Panel>

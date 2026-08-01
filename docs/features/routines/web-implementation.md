@@ -75,7 +75,9 @@ uncustomized instances for that routine and regenerates the next three. The
 Routine Instances panel uses the same checkbox-style completion control as the
 Today Routines panel. It uses the shared paged-list control when more than six
 instances are visible. The Routine Definitions panel uses the shared paged-list
-control when more than eight definitions are visible.
+control when more than eight definitions are visible. Routine group management
+uses the shared dialog manager-list component and shows at most six groups per
+page.
 
 ## Today Panel
 
@@ -182,8 +184,10 @@ apps/web/src/features/routines/components/RoutinesPanel.tsx
 apps/web/src/features/routines/components/routine-page-helpers.ts
 apps/web/src/features/routines/routine-recurrence.ts
 apps/web/src/features/instance-date-filters.ts
+apps/web/src/components/manager-list.tsx
 apps/web/src/components/paged-list.tsx
 apps/web/src/components/paged-list-utils.ts
+apps/web/src/messages/pagination-messages.ts
 ```
 
 Routine server actions:
