@@ -1,4 +1,6 @@
 import { Sparkles } from "lucide-react";
+import { iconGapClass } from "./spacing";
+import { Text } from "./text";
 import { cx } from "./utils";
 
 type ArcticAriaLogoVariant = "inline" | "sidebar";
@@ -22,16 +24,23 @@ export function ArcticAriaLogo({
 
     return (
       <div className={cx("min-w-0", className)}>
-        <div className="flex items-center gap-2">
+        <div className={cx("flex items-center", iconGapClass)}>
           <Sparkles size={17} aria-hidden="true" />
-          <span className="truncate text-sm font-semibold leading-none tracking-normal">
+          <Text
+            as="span"
+            size="md"
+            weight="semibold"
+            leading="xs"
+            truncate
+            className="tracking-normal"
+          >
             {brandText}
-          </span>
+          </Text>
         </div>
         {workspaceLabel ? (
           <p
             className={cx(
-              "mt-0 truncate font-semibold leading-tight tracking-normal",
+              "mt-0 truncate font-[var(--aa-font-weight-semibold)] leading-[1.12] tracking-normal",
               workspaceTextClass,
             )}
           >
@@ -43,9 +52,11 @@ export function ArcticAriaLogo({
   }
 
   return (
-    <div className={cx("flex items-center justify-center gap-2", className)}>
+    <div className={cx("flex items-center justify-center", iconGapClass, className)}>
       <Sparkles size={22} aria-hidden="true" />
-      <h1 className="text-2xl font-semibold tracking-normal">{brandText}</h1>
+      <Text as="h1" size="page" weight="semibold" className="tracking-normal">
+        {brandText}
+      </Text>
     </div>
   );
 }

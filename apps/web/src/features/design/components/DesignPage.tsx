@@ -10,6 +10,7 @@ import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { List } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { SettingsControlRow } from "@/components/settings-control-row";
+import { pageStackClass } from "@/components/spacing";
 import { Tabs, type TabOption } from "@/components/tabs";
 import {
   getDesignMessages,
@@ -21,8 +22,10 @@ import type {
 } from "@/messages/languages";
 import { DesignButtonPage } from "./DesignButtonPage";
 import { DesignColorPage } from "./DesignColorPage";
+import { DesignSpacingPage } from "./DesignSpacingPage";
+import { DesignTypographyPage } from "./DesignTypographyPage";
 
-type DesignTab = "colors" | "buttons";
+type DesignTab = "colors" | "buttons" | "typography" | "spacing";
 
 export function DesignPage({
   darkMode,
@@ -42,12 +45,13 @@ export function DesignPage({
   const [activeTab, setActiveTab] = useState<DesignTab>("colors");
   const previewTheme = darkMode ? "dark" : "light";
   const messages = getDesignMessages(resolvedLanguage);
-  const activePageMessages =
-    activeTab === "buttons" ? messages.buttons : messages.colors;
+  const activePageMessages = designPageMessages(messages, activeTab);
   const tabOptions = useMemo<TabOption[]>(
     () => [
       { value: "colors", label: messages.tabs.colors },
       { value: "buttons", label: messages.tabs.buttons },
+      { value: "typography", label: messages.tabs.typography },
+      { value: "spacing", label: messages.tabs.spacing },
     ],
     [messages],
   );
@@ -59,7 +63,7 @@ export function DesignPage({
   });
 
   return (
-    <section className="grid gap-4">
+    <section className={pageStackClass}>
       <PreviewControls
         darkMode={darkMode}
         messages={messages.preview}
@@ -82,14 +86,11 @@ export function DesignPage({
           />
         }
       >
-        {activeTab === "buttons" ? (
-          <DesignButtonPage
-            darkMode={darkMode}
-            messages={messages.buttons}
-          />
-        ) : (
-          <DesignColorPage darkMode={darkMode} messages={messages.colors} />
-        )}
+        <ActiveDesignPage
+          activeTab={activeTab}
+          darkMode={darkMode}
+          messages={messages}
+        />
       </ContentSection>
     </section>
   );
@@ -170,7 +171,11 @@ function PreviewControls({
 }
 
 function readDesignTab(value: string): DesignTab {
-  return value === "buttons" ? "buttons" : "colors";
+  if (value === "buttons" || value === "typography" || value === "spacing") {
+    return value;
+  }
+
+  return "colors";
 }
 
 function readPreviewTheme(value: string): ThemeMode {
@@ -179,6 +184,51 @@ function readPreviewTheme(value: string): ThemeMode {
 
 function readPreviewLanguage(value: string): SupportedLanguage {
   return value === "zh-CN" ? "zh-CN" : "en";
+}
+
+function designPageMessages(messages: DesignMessages, activeTab: DesignTab) {
+  if (activeTab === "buttons") {
+    return messages.buttons;
+  }
+
+  if (activeTab === "typography") {
+    return messages.typography;
+  }
+
+  if (activeTab === "spacing") {
+    return messages.spacing;
+  }
+
+  return messages.colors;
+}
+
+function ActiveDesignPage({
+  activeTab,
+  darkMode,
+  messages,
+}: {
+  activeTab: DesignTab;
+  darkMode: boolean;
+  messages: DesignMessages;
+}) {
+  if (activeTab === "buttons") {
+    return <DesignButtonPage darkMode={darkMode} messages={messages.buttons} />;
+  }
+
+  if (activeTab === "typography") {
+    return (
+      <DesignTypographyPage
+        darkMode={darkMode}
+        messages={messages.typography}
+      />
+    );
+  }
+
+  if (activeTab === "spacing") {
+    return <DesignSpacingPage darkMode={darkMode} messages={messages.spacing} />;
+  }
+
+  return <DesignColorPage darkMode={darkMode} messages={messages.colors} />;
 }
 
 function useRestoreDesignPreferences({

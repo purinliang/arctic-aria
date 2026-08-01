@@ -2,6 +2,13 @@
 import { Card } from "@/components/card";
 import { toneClass, type Tone } from "@/components/color";
 import { ContentSubsection } from "@/components/content-section";
+import {
+  bodyStackClass,
+  cardBodyPaddingClass,
+  controlGapClass,
+  sectionStackClass,
+  tagPaddingClass,
+} from "@/components/spacing";
 import { DescriptionText, LabelText, SupportingText } from "@/components/text";
 import { cx } from "@/components/utils";
 import type { DesignMessages } from "@/messages/design-messages";
@@ -74,12 +81,12 @@ export function DesignColorPage({
   messages: DesignMessages["colors"];
 }) {
   return (
-    <div className="grid gap-5">
+    <div className={sectionStackClass}>
       <ContentSubsection
         darkMode={darkMode}
         title={messages.paletteTitle}
         description={messages.paletteDescription}
-        bodyClassName="grid gap-3 lg:grid-cols-2"
+        bodyClassName="grid lg:grid-cols-2"
       >
         {backgroundTokenGroups.map((tokenGroup) => (
           <BackgroundTokenCard
@@ -96,7 +103,7 @@ export function DesignColorPage({
         darkMode={darkMode}
         title={messages.semanticTitle}
         description={messages.semanticDescription}
-        bodyClassName="grid gap-3 sm:grid-cols-2"
+        bodyClassName="grid sm:grid-cols-2"
       >
         {semanticToneGroups.map((tone) => (
           <SemanticToneCard
@@ -127,9 +134,14 @@ function BackgroundTokenCard({
 }) {
   return (
     <Card darkMode={darkMode} className="overflow-hidden">
-      <div className="grid gap-2 px-3 py-2.5">
+      <div className={cx(bodyStackClass, cardBodyPaddingClass)}>
         <LabelText darkMode={darkMode}>{label}</LabelText>
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div
+          className={cx(
+            "mt-[var(--aa-space-body-gap)] grid sm:grid-cols-3",
+            controlGapClass,
+          )}
+        >
           {backgroundStates.map((state) => (
             <BackgroundTokenSwatch
               key={state}
@@ -157,8 +169,11 @@ function BackgroundTokenSwatch({
   value?: string;
 }) {
   return (
-    <div className="grid min-w-0 gap-1">
-      <SupportingText darkMode={darkMode} className="font-semibold">
+    <div className="grid min-w-0 gap-[var(--aa-space-text-title-desc)]">
+      <SupportingText
+        darkMode={darkMode}
+        className="font-[var(--aa-font-weight-semibold)]"
+      >
         {label}
       </SupportingText>
       <div
@@ -174,7 +189,7 @@ function BackgroundTokenSwatch({
           </SupportingText>
         )}
       </div>
-      <code className="truncate text-xs text-[var(--aa-secondary-text)]">
+      <code className="truncate text-[length:var(--aa-font-size-xs)] leading-[var(--aa-line-height-xs)] text-[var(--aa-secondary-text)]">
         {value ? formatCssToken(value) : unavailableLabel}
       </code>
     </div>
@@ -198,10 +213,11 @@ function SemanticToneCard({
 }) {
   return (
     <Card darkMode={darkMode}>
-      <div className="grid gap-2 px-3 py-2.5">
+      <div className={cx(bodyStackClass, cardBodyPaddingClass)}>
         <span
           className={cx(
-            "inline-flex h-6 w-fit shrink-0 items-center rounded border px-2 text-xs font-semibold",
+            "inline-flex w-fit shrink-0 items-center rounded border text-[length:var(--aa-font-size-xs)] font-[var(--aa-font-weight-semibold)] leading-[var(--aa-line-height-xs)]",
+            tagPaddingClass,
             toneClass(darkMode, tone),
           )}
         >

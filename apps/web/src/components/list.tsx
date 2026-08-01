@@ -1,9 +1,17 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import {
   listDividerColorClass,
-  secondaryTextColorClass,
 } from "./color";
 import { Button } from "./button";
+import {
+  bodyStackClass,
+  controlGapClass,
+  inlineGapClass,
+  listRowPaddingClass,
+  textDescSupportGapClass,
+  textTitleDescGapClass,
+} from "./spacing";
+import { Text, TextStack } from "./text";
 import { cx } from "./utils";
 
 type ListItemTone = "default" | "success";
@@ -53,8 +61,12 @@ export function ListItem({
     <article
       className={cx(
         layout === "row"
-          ? "flex items-start justify-between gap-3 px-4 py-2 first-of-type:pt-2 last-of-type:pb-2"
-          : "px-4 py-2 first-of-type:pt-2 last-of-type:pb-2",
+          ? cx(
+              "flex items-start justify-between",
+              inlineGapClass,
+              listRowPaddingClass,
+            )
+          : listRowPaddingClass,
         itemToneClass(darkMode, tone, active),
         className,
       )}
@@ -86,8 +98,21 @@ export function ListItemContent({
       {hasSlots ? (
         <>
           {title ? <div className="min-w-0">{title}</div> : null}
-          {main ? <div className="min-w-0">{main}</div> : null}
-          {support ? <div className="min-w-0">{support}</div> : null}
+          {main ? (
+            <div className={cx("min-w-0", title ? textTitleDescGapClass : undefined)}>
+              {main}
+            </div>
+          ) : null}
+          {support ? (
+            <div
+              className={cx(
+                "min-w-0",
+                title || main ? textDescSupportGapClass : undefined,
+              )}
+            >
+              {support}
+            </div>
+          ) : null}
         </>
       ) : (
         children
@@ -110,17 +135,19 @@ export function ListItemTitle({
   weight?: "normal" | "semibold";
 }) {
   return (
-    <span
+    <Text
+      as="span"
+      size={size === "compact" ? "md" : "lg"}
+      weight={weight}
+      tone="current"
+      truncate={truncate}
       className={cx(
-        "block min-w-0 leading-5",
-        size === "compact" ? "text-sm" : "text-base",
-        weight === "normal" ? "font-normal" : "font-semibold",
-        truncate ? "truncate" : undefined,
+        "block min-w-0",
         className,
       )}
     >
       {children}
-    </span>
+    </Text>
   );
 }
 
@@ -134,9 +161,15 @@ export function ListItemDescription({
   tone?: ListItemTextTone;
 }) {
   return (
-    <p className={cx("text-sm leading-5", listItemTextToneClass(tone), className)}>
+    <Text
+      as="p"
+      size="md"
+      weight="normal"
+      tone={listItemTextTone(tone)}
+      className={className}
+    >
       {children}
-    </p>
+    </Text>
   );
 }
 
@@ -150,9 +183,63 @@ export function ListItemSupportingText({
   tone?: ListItemTextTone;
 }) {
   return (
-    <span className={cx("text-xs leading-4", listItemTextToneClass(tone), className)}>
+    <Text
+      as="span"
+      size="sm"
+      weight="normal"
+      tone={listItemTextTone(tone)}
+      className={className}
+    >
       {children}
-    </span>
+    </Text>
+  );
+}
+
+export function ListItemTextStack({
+  className,
+  description,
+  descriptionClassName,
+  support,
+  supportClassName,
+  title,
+  titleClassName,
+  tone = "default",
+  truncateTitle = false,
+}: {
+  className?: string;
+  description?: ReactNode;
+  descriptionClassName?: string;
+  support?: ReactNode;
+  supportClassName?: string;
+  title?: ReactNode;
+  titleClassName?: string;
+  tone?: ListItemTextTone;
+  truncateTitle?: boolean;
+}) {
+  return (
+    <TextStack
+      className={className}
+      title={title}
+      titleProps={{
+        size: "lg",
+        weight: "semibold",
+        tone: "current",
+        truncate: truncateTitle,
+        className: titleClassName,
+      }}
+      description={description}
+      descriptionProps={{
+        size: "md",
+        tone: listItemTextTone(tone),
+        className: descriptionClassName,
+      }}
+      support={support}
+      supportProps={{
+        size: "sm",
+        tone: listItemTextTone(tone),
+        className: supportClassName,
+      }}
+    />
   );
 }
 
@@ -190,7 +277,13 @@ export function ListItemActions({
   className?: string;
 }) {
   return (
-    <div className={cx("flex shrink-0 items-center gap-2 self-center", className)}>
+    <div
+      className={cx(
+        "flex shrink-0 items-center self-center",
+        controlGapClass,
+        className,
+      )}
+    >
       {children}
     </div>
   );
@@ -206,7 +299,7 @@ export function ListFooterAction({
   onClick: () => void;
 }) {
   return (
-    <div className="flex justify-end px-4 py-3">
+    <div className={cx("flex justify-end", listRowPaddingClass)}>
       <Button darkMode={darkMode} tone="ghost" onClick={onClick}>
         {label}
       </Button>
@@ -252,14 +345,16 @@ export function ExpandableListItem({
     >
       <div
         className={cx(
-          "grid w-full items-start gap-3",
+          "grid w-full items-start",
+          inlineGapClass,
           leading ? "grid-cols-[auto_minmax(0,1fr)]" : "grid-cols-1",
         )}
       >
         {leading ? <div className="mt-1">{leading}</div> : null}
         <button
           className={cx(
-            "grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-left",
+            "grid w-full grid-cols-[minmax(0,1fr)_auto] items-start text-left",
+            inlineGapClass,
             headerClassName,
           )}
           type="button"
@@ -271,7 +366,9 @@ export function ExpandableListItem({
         </button>
       </div>
       {expanded && children ? (
-        <div className={cx("mt-3", bodyClassName)}>{children}</div>
+        <div className={cx(bodyStackClass, "mt-[var(--aa-space-body-gap)]", bodyClassName)}>
+          {children}
+        </div>
       ) : null}
     </ListItem>
   );
@@ -293,8 +390,6 @@ function itemToneClass(
   return "hover:bg-[var(--aa-panel-hover-bg)] hover:text-[var(--aa-primary-text)]";
 }
 
-function listItemTextToneClass(tone: ListItemTextTone) {
-  return tone === "selected"
-    ? "text-[var(--aa-primary-button-text)]"
-    : secondaryTextColorClass;
+function listItemTextTone(tone: ListItemTextTone) {
+  return tone === "selected" ? "current" : "secondary";
 }

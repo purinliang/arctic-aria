@@ -53,6 +53,11 @@ Text is independent from page and panel backgrounds:
 |---|---|
 | Primary text | `--aa-primary-text` |
 | Secondary/supportive text | `--aa-secondary-text` |
+| Inverse text | `--aa-inverse-text` |
+
+The `current` text tone in `Text` inherits the surrounding component color. Use
+it inside selected rows, notification tones, and primary button surfaces so
+nested text does not fight the parent state color.
 
 Light and dark mode should resolve the same role names to different values in
 `globals.css`. Components should not need separate light-mode and dark-mode
@@ -140,8 +145,8 @@ direct text entry.
 | `CheckboxField`, `CheckboxControl` checked | Primary button |
 | `Switch` off | Secondary button |
 | `Switch` on | Primary button |
-| `PageTitle`, `SectionTitle`, `LabelText` | Inherits parent |
-| `DescriptionText`, `SupportingText` | Inherits parent |
+| `Text`, `TextStack`, `PageTitle`, `SectionTitle`, `LabelText` | Text role selected by tone |
+| `DescriptionText`, `SupportingText` | Secondary text |
 | `InlineMessage` | Status tone exception |
 | `NotificationStack` | Inherits page; positions notification toasts |
 | Notification toast | Status tone exception |

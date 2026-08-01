@@ -105,6 +105,15 @@ user's time-format preference. Store times as normalized `HH:mm`; render them as
 12-hour or 24-hour display text plus a capitalized day-period label, such as
 `8:30 PM Evening` or `20:30 Evening`.
 
+## Typography
+
+The app shell writes `data-aa-language` on the root document. Shared typography
+tokens use that attribute to switch Simplified Chinese font family and
+line-height values. Feature components should not add local Chinese-only
+spacing, font-size, or line-height overrides. Use the shared `Text`,
+`TextStack`, list text, and form text components so English and Chinese rhythm
+remain centralized.
+
 ## Current Status
 
 Implemented:

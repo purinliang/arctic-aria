@@ -16,7 +16,7 @@ export function TextArea({
     <textarea
       className={cx(
         formControlClass(darkMode, hasError),
-        "h-auto resize-y py-2",
+        "h-auto resize-y py-[var(--aa-space-table-cell-y)]",
         textAreaMinHeightMdClass,
         className,
       )}

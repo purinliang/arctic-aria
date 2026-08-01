@@ -1,4 +1,5 @@
 import { cx } from "./utils";
+import { popoverPaddingClass } from "./spacing";
 
 export type Tone =
   | "blue"
@@ -63,5 +64,9 @@ export function statusMessageClass(
   darkMode: boolean,
   tone: Tone = "neutral",
 ) {
-  return cx("rounded-md border px-3 py-2 text-sm", toneClass(darkMode, tone));
+  return cx(
+    "rounded-md border text-[length:var(--aa-font-size-md)] leading-[var(--aa-line-height-md)]",
+    popoverPaddingClass,
+    toneClass(darkMode, tone),
+  );
 }

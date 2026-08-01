@@ -25,6 +25,13 @@ import {
   selectedOptionRenderIndexForSelectPopover,
 } from "./selection-field-utils";
 import { ScrollArea } from "../scroll-area";
+import {
+  controlGapClass,
+  inlineGapClass,
+  tableCellPaddingClass,
+  textTitleDescGapClass,
+} from "../spacing";
+import { Text } from "../text";
 import { cx } from "../utils";
 
 export type SelectOption = {
@@ -197,7 +204,8 @@ export function SelectInput({
       <button
         className={cx(
           formButtonControlClass(darkMode, hasError),
-          "flex items-center justify-between gap-3 text-left font-normal",
+          "flex items-center justify-between text-left",
+          inlineGapClass,
           className,
         )}
         type="button"
@@ -233,7 +241,7 @@ export function SelectInput({
               style={popoverRootStyle}
               className={formControlPopupClass(
                 darkMode,
-                "overflow-hidden p-0",
+                "overflow-hidden !p-0",
               )}
               viewportStyle={{
                 maxHeight: popoverStyle?.maxHeight,
@@ -248,7 +256,9 @@ export function SelectInput({
                   <button
                     key={option.value}
                     className={cx(
-                      "flex w-full items-start justify-between gap-3 px-2 py-2 text-left text-sm transition first:rounded-t-sm last:rounded-b-sm disabled:cursor-not-allowed",
+                      "flex w-full items-start justify-between text-left text-[length:var(--aa-font-size-md)] leading-[var(--aa-line-height-md)] transition first:rounded-t-sm last:rounded-b-sm disabled:cursor-not-allowed",
+                      inlineGapClass,
+                      tableCellPaddingClass,
                       selected
                         ? "bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)] disabled:bg-[var(--aa-primary-button-disabled-bg)] disabled:text-[var(--aa-primary-button-disabled-text)] disabled:hover:bg-[var(--aa-primary-button-disabled-bg)] disabled:hover:text-[var(--aa-primary-button-disabled-text)]"
                         : "bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
@@ -262,21 +272,26 @@ export function SelectInput({
                       setOpen(false);
                     }}
                   >
-                    <span className="grid min-w-0 gap-0.5">
-                      <span className="truncate font-normal leading-5">
+                    <span className="min-w-0">
+                      <Text
+                        tone="current"
+                        truncate
+                        className="font-[var(--aa-font-weight-normal)]"
+                      >
                         {option.label}
-                      </span>
+                      </Text>
                       {option.description ? (
-                        <span
+                        <Text
+                          size="sm"
+                          tone="current"
                           className={cx(
-                            "text-xs leading-5",
-                            selected
-                              ? "opacity-70"
-                              : "text-[var(--aa-secondary-button-text)]",
+                            "block",
+                            textTitleDescGapClass,
+                            selected ? "opacity-70" : undefined,
                           )}
                         >
                           {option.description}
-                        </span>
+                        </Text>
                       ) : null}
                     </span>
                     {selected ? (
@@ -309,7 +324,9 @@ export function CheckboxField({
   return (
     <label
       className={cx(
-        "flex items-start gap-3 rounded-md border px-3 py-2 text-sm transition",
+        "flex items-start rounded-md border text-[length:var(--aa-font-size-md)] leading-[var(--aa-line-height-md)] transition",
+        inlineGapClass,
+        tableCellPaddingClass,
         props.disabled ? "cursor-not-allowed" : "cursor-pointer",
         props.checked
           ? props.disabled
@@ -335,12 +352,21 @@ export function CheckboxField({
       >
         {props.checked ? <Check className="h-3.5 w-3.5" /> : null}
       </span>
-      <span className="grid gap-0.5">
-        <span>{label}</span>
+      <span>
+        <Text tone="current">{label}</Text>
         {description ? (
-          <span className={props.checked ? "opacity-80" : undefined}>
+          <Text
+            as="span"
+            size="sm"
+            tone="current"
+            className={cx(
+              "block",
+              textTitleDescGapClass,
+              props.checked ? "opacity-80" : undefined,
+            )}
+          >
             {description}
-          </span>
+          </Text>
         ) : null}
       </span>
       <input className="sr-only" type="checkbox" {...props} />
@@ -385,5 +411,9 @@ export function CheckboxGroup({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={cx("grid gap-2", className)}>{children}</div>;
+  return (
+    <div className={cx("grid", controlGapClass, className)}>
+      {children}
+    </div>
+  );
 }

@@ -5,7 +5,14 @@ import {
   type PagedListNavigationMessages,
 } from "./paged-list";
 import { pagedListWindow } from "./paged-list-utils";
-import { DescriptionText, SectionTitle, SupportingText } from "./text";
+import {
+  compactListRowPaddingClass,
+  controlGapClass,
+  iconGapClass,
+  inlineGapClass,
+  popoverPaddingClass,
+} from "./spacing";
+import { DescriptionText, TextStack } from "./text";
 import { cx } from "./utils";
 
 export const managerListPageSize = 6;
@@ -29,20 +36,33 @@ export function ManagerDialogSection({
   description?: string;
   title: string;
 }) {
+  void darkMode;
+
   return (
-    <section className={cx("grid gap-[var(--aa-field-label-gap)]", className)}>
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-        <div className="min-w-0">
-          <SectionTitle className="flex min-h-[var(--aa-button-height-sm)] items-center">
-            {title}
-          </SectionTitle>
-          {description ? (
-            <DescriptionText darkMode={darkMode} className="mt-0.5">
-              {description}
-            </DescriptionText>
-          ) : null}
-        </div>
-        {action ? <div className="shrink-0 justify-self-end">{action}</div> : null}
+    <section
+      className={cx(
+        "grid gap-[var(--aa-space-text-title-desc)]",
+        className,
+      )}
+    >
+      <div
+        className={cx(
+          "grid grid-cols-[minmax(0,1fr)_auto] items-start",
+          inlineGapClass,
+        )}
+      >
+        <TextStack
+          title={title}
+          titleProps={{
+            size: "lg",
+            className: "flex min-h-[var(--aa-button-height-sm)] items-center",
+          }}
+          description={description}
+          descriptionProps={{ size: "md" }}
+        />
+        {action ? (
+          <div className="shrink-0 justify-self-end">{action}</div>
+        ) : null}
       </div>
       {children}
     </section>
@@ -100,7 +120,7 @@ export function ManagerList<Item>({
       )}
     >
       {items.length === 0 ? (
-        <DescriptionText darkMode={darkMode} className="px-3 py-3">
+        <DescriptionText darkMode={darkMode} className={compactListRowPaddingClass}>
           {emptyText}
         </DescriptionText>
       ) : null}
@@ -113,7 +133,7 @@ export function ManagerList<Item>({
           darkMode={darkMode}
           messages={messages}
           windowState={windowState}
-          className="bg-[var(--aa-panel-bg)] px-3 py-2"
+          className={cx("bg-[var(--aa-panel-bg)]", popoverPaddingClass)}
           onFirst={() =>
             setPageState({
               pageIndex: 0,
@@ -168,10 +188,14 @@ export function ManagerListRow({
   supportClassName?: string;
   title: ReactNode;
 }) {
+  void darkMode;
+
   return (
     <article
       className={cx(
-        "grid items-start gap-3 px-3 py-2.5",
+        "grid items-start",
+        inlineGapClass,
+        compactListRowPaddingClass,
         action ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-1",
         className,
       )}
@@ -179,32 +203,36 @@ export function ManagerListRow({
       <div
         className={cx(
           "min-w-0",
-          leading ? "grid grid-cols-[auto_minmax(0,1fr)] gap-2" : undefined,
+          leading
+            ? cx("grid grid-cols-[auto_minmax(0,1fr)]", iconGapClass)
+            : undefined,
         )}
       >
         {leading ? <span className="mt-0.5 shrink-0">{leading}</span> : null}
-        <div className="min-w-0">
-          <h4 className="truncate text-sm font-semibold leading-5">{title}</h4>
-          {description ? (
-            <DescriptionText
-              darkMode={darkMode}
-              className={cx("min-w-0", descriptionClassName)}
-            >
-              {description}
-            </DescriptionText>
-          ) : null}
-          {support ? (
-            <SupportingText
-              darkMode={darkMode}
-              className={cx("block min-w-0", supportClassName)}
-            >
-              {support}
-            </SupportingText>
-          ) : null}
-        </div>
+        <TextStack
+          title={title}
+          titleProps={{
+            as: "h4",
+            size: "md",
+            truncate: true,
+          }}
+          description={description}
+          descriptionProps={{
+            className: cx("min-w-0", descriptionClassName),
+          }}
+          support={support}
+          supportProps={{
+            className: cx("block min-w-0", supportClassName),
+          }}
+        />
       </div>
       {action ? (
-        <div className="flex shrink-0 items-center gap-2 self-center justify-self-end">
+        <div
+          className={cx(
+            "flex shrink-0 items-center self-center justify-self-end",
+            controlGapClass,
+          )}
+        >
           {action}
         </div>
       ) : null}

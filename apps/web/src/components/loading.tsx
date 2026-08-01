@@ -2,7 +2,8 @@
 
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { secondaryTextColorClass } from "./color";
+import { controlGapClass, listRowPaddingClass } from "./spacing";
+import { Text } from "./text";
 import { cx } from "./utils";
 
 export function LoadingLine({
@@ -16,13 +17,14 @@ export function LoadingLine({
   return (
     <div
       className={cx(
-        "flex items-center gap-2 px-4 py-4 text-sm",
-        secondaryTextColorClass,
+        "flex items-center",
+        controlGapClass,
+        listRowPaddingClass,
         className,
       )}
     >
       <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
-      <span>{text}</span>
+      <Text tone="secondary">{text}</Text>
     </div>
   );
 }

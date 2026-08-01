@@ -59,6 +59,16 @@ Use it for:
 - helper/supporting text
 - input labels
 - inline validation messages
+- composable text stacks in rows, panels, dialogs, and Design review pages
+
+Use `Text` when a component needs a specific composition of size, weight, tone,
+line-height, element, or truncation. Supported sizes are `xs`, `sm`, `md`, `lg`,
+`xl`, and `page`. Supported weights are `light`, `normal`, `medium`, and
+`semibold`. Supported tones are `primary`, `secondary`, `inverse`, and
+`current`.
+
+Use `TextStack` for reusable title, description, and supporting metadata
+rhythm. Use `ListItemTextStack` for list rows.
 
 Placeholder text belongs to the input component API, but it should follow the
 same plain English style as other helper text.
@@ -69,6 +79,25 @@ the same muted visual family and line height direction as descriptions, but one
 size smaller. Supporting metadata should usually be a single `A · B · C` line.
 Feature rows should not hand-code label, description, or metadata font size,
 line height, or muted color.
+
+## Spacing
+
+`spacing.ts` owns reusable class constants for shared padding, margin, and gap
+tokens.
+
+Use spacing helpers for repeated chrome:
+
+- page, panel, section, subsection, and body stacks
+- list row and compact manager row padding
+- card header and body padding
+- dialog and popover padding
+- table-like cell padding
+- tag padding
+- title-description and description-supporting text gaps
+- inline, control, and icon gaps
+
+Do not tokenize one-off geometry such as fixed max-widths, grid templates,
+z-index, animation distances, artwork sizes, or absolute positioning.
 
 ## Content Section
 
@@ -170,11 +199,11 @@ Form rhythm:
 - button heights: `sm` `36px`, `md` `40px`, `lg` `44px`
 - text inputs, select triggers, and date/time picker triggers: `40px`
 - icon-only buttons: `36px`
-- label-to-control gap: `4px`
+- label-to-control gap: `2px`
 - normal field-group gap: `12px`
 - form section gap: `18px`
 - form actions should start `36px` after the field group
-- actions inside the action area use a `16px` gap
+- actions inside the action area use the shared `12px` inline gap
 - auth submit and CRUD save/delete buttons use the `40px` `md` height
 
 Use tight field groups for repeated simple inputs. Use larger form sections
@@ -405,10 +434,10 @@ header components for the same shape. Header action placement, including the
 top and right inset for buttons, belongs to `CardHeader`; feature code should
 only pass the action component.
 
-Card and panel headers should use compact `px-4 py-2` spacing, a bottom border,
-and a subtle header background that differs from the content surface. Header
-descriptions use supporting-text weight because they explain the title rather
-than acting as body copy.
+Card and panel headers should use the shared card-header padding token, a
+bottom border, and a subtle header background that differs from the content
+surface. Header descriptions use supporting-text weight because they explain the
+title rather than acting as body copy.
 
 Header icons should use the same foreground color as the header title. Do not
 style header icons as muted/supporting text; muted color is reserved for
@@ -429,22 +458,22 @@ Use it for:
 - list dividers
 
 List items should keep horizontal padding, vertical rhythm, hover state, and
-selected state consistent. The shared `ListItem` owns vertical padding: middle
-rows are compact, while the first row keeps the larger top padding and the last
-row keeps the larger bottom padding automatically. Feature rows should not
-hand-code first/last padding.
+selected state consistent. The shared `ListItem` owns list-row padding. Feature
+rows should not hand-code first/last padding.
 
 List dividers use the weaker list-divider border role, not the stronger panel
 outline border. Panel borders should remain visually stronger than dividers
 between rows.
 
 For normal title, main-content, and supporting-metadata rows, use
-`ListItemContent` with its `title`, `main`, and `support` slots. Use
-`ListItemTitle`, `ListItemDescription`, and `ListItemSupportingText` inside
-those slots. Feature rows should not hand-code list title, description, or
-metadata font size, weight, line height, muted color, or local `mt-*` spacing.
-`ListItemContent` owns the vertical relationship between the slots, and the list
-text components own the compact multiline rhythm.
+`ListItemContent` with its `title`, `main`, and `support` slots, or use
+`ListItemTextStack` when the row is a simple title, description, and supporting
+metadata composition. Use `ListItemTitle`, `ListItemDescription`, and
+`ListItemSupportingText` inside custom slot content. Feature rows should not
+hand-code list title, description, or metadata font size, weight, line height,
+muted color, or local `mt-*` spacing. `ListItemContent` owns the vertical
+relationship between the slots, and the list text components own the compact
+multiline rhythm.
 
 Empty states, overview copy, form help, and dialog body text are not list rows.
 Use `DescriptionText` or `SupportingText` for those surfaces instead of forcing
@@ -537,14 +566,13 @@ Use it for:
 Dialogs are stronger than notifications. Use dialogs when the user must make a
 decision or when the current workflow cannot safely continue.
 
-Dialog frames use the same `px-4 py-4` padding rhythm as notifications. Form
-dialogs should use the default dialog width so input fields, date pickers, and
-other long controls do not collapse into a narrow column. Use larger section
-spacing only when a form has meaningful groups. Small confirmation dialogs may
-use the `sm` size. Wide workflow dialogs that need side-by-side editing and
-preview, such as Project Tree Template, may use the `lg` size. Dialog overlays
-must provide enough top and
-bottom viewport padding and must allow vertical scrolling when form content is
+Dialog frames use the shared dialog padding token. Form dialogs should use the
+default dialog width so input fields, date pickers, and other long controls do
+not collapse into a narrow column. Use larger section spacing only when a form
+has meaningful groups. Small confirmation dialogs may use the `sm` size. Wide
+workflow dialogs that need side-by-side editing and preview, such as Project
+Tree Template, may use the `lg` size. Dialog overlays must provide enough top
+and bottom viewport padding and must allow vertical scrolling when form content is
 taller than the viewport. Dialogs must not close when the user clicks the
 semi-transparent overlay; close only through explicit close, cancel, save,
 delete, or confirmation controls. Feature dialogs should use shared dialog

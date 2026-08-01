@@ -1,0 +1,150 @@
+import type { DesignMessages } from "./design-message-types";
+
+export const simplifiedChineseDesignMessages: DesignMessages = {
+  preview: {
+    title: "预览控制",
+    description: "临时检查主题和语言。",
+    themeTitle: "主题预览",
+    themeDescription: "临时切换工作区的浅色或深色主题。",
+    languageTitle: "语言预览",
+    languageDescription: "临时切换标签语言以检查间距。",
+    light: "浅色",
+    dark: "深色",
+    english: "English",
+    simplifiedChinese: "简体中文",
+  },
+  tabs: {
+    ariaLabel: "设计页面",
+    colors: "颜色",
+    buttons: "按钮",
+    typography: "排版",
+    spacing: "间距",
+  },
+  colors: {
+    title: "颜色",
+    description: "共享组件使用的背景变量。",
+    paletteTitle: "背景变量",
+    paletteDescription: "展示每个组件族定义的默认、悬停和禁用背景。",
+    states: {
+      default: "默认",
+      hover: "悬停",
+      disabled: "禁用",
+    },
+    unavailable: "无",
+    tokens: {
+      page: "页面",
+      panel: "面板",
+      panelHeader: "面板标题栏",
+      primaryButton: "主要按钮",
+      secondaryButton: "次要按钮",
+      textInput: "文本输入",
+    },
+    semanticTitle: "语义色",
+    semanticDescription: "共享状态颜色当前的含义和生产使用位置。",
+    semanticTones: {
+      neutral: {
+        label: "中性",
+        usage: "模板预览中的保留操作徽标；共享标签和行内消息的默认色。",
+      },
+      blue: {
+        label: "蓝色",
+        usage: "信息通知，以及模板预览中的更新操作徽标。",
+      },
+      emerald: {
+        label: "绿色",
+        usage: "成功通知，以及模板预览中的创建操作徽标。",
+      },
+      red: {
+        label: "红色",
+        usage: "错误通知，以及模板预览中的删除操作徽标。",
+      },
+    },
+  },
+  buttons: {
+    title: "按钮",
+    description: "命令语气、图标节奏、禁用状态和尺寸。",
+    tones: {
+      primary: {
+        title: "主要",
+        description: "主操作和选中的标签页状态。",
+      },
+      secondary: {
+        title: "次要",
+        description: "普通操作、面板操作和列表行控件。",
+      },
+      ghost: {
+        title: "幽灵按钮",
+        description: "低强调的图标和工具操作。",
+      },
+    },
+    states: {
+      normal: "普通",
+      disabled: "禁用",
+    },
+    examples: {
+      withIcon: "带图标",
+      withoutIcon: "无图标",
+      iconOnly: "仅图标",
+    },
+  },
+  typography: {
+    title: "排版",
+    description: "组合式文字尺寸、字重、语气和语言行高变量。",
+    sizesTitle: "尺寸",
+    sizesDescription: "产品文字尺寸和默认行高。",
+    weightsTitle: "字重",
+    weightsDescription: "产品允许使用的字重。",
+    tonesTitle: "文字语气",
+    tonesDescription: "主要、次要、反色和继承文字颜色。",
+    languageTitle: "语言节奏",
+    languageDescription:
+      "英文和中文示例使用同一套 API，并通过语言变量调整行高。",
+    sampleTitle: "示例标题",
+    sampleDescription: "说明文字解释周围内容，但不成为新的标题。",
+    sampleSupport: "辅助信息 · 次要细节",
+    sizeLabels: {
+      xs: "特小",
+      sm: "小",
+      md: "中",
+      lg: "大",
+      xl: "特大",
+      page: "页面",
+    },
+    weightLabels: {
+      light: "细体",
+      normal: "常规",
+      medium: "中等",
+      semibold: "半粗",
+    },
+    toneLabels: {
+      primary: "主要",
+      secondary: "次要",
+      inverse: "反色",
+      current: "继承",
+    },
+    englishSample:
+      "Arctic Aria keeps dense product text readable across panels, dialogs, and list rows.",
+    chineseSample:
+      "北极咏叹调需要在中文界面中保留更舒适的多行阅读节奏。",
+    lineHeightSupport: "14px 正文 · 语言感知行高",
+  },
+  spacing: {
+    title: "间距",
+    description: "列表、表面、弹出层、标签和文字堆叠的可复用间距。",
+    rowsTitle: "列表行",
+    rowsDescription: "用户生成内容列表的普通和紧凑行节奏。",
+    surfacesTitle: "表面",
+    surfacesDescription: "卡片正文、对话框、弹出层和标签使用的共享内边距。",
+    textStackTitle: "文字堆叠",
+    textStackDescription: "标题、说明和辅助信息使用变量化的垂直节奏。",
+    normalRow: "普通行",
+    compactRow: "紧凑行",
+    cardBody: "卡片正文",
+    dialogBody: "对话框正文",
+    popover: "弹出层",
+    tag: "标签",
+    rowTitle: "列表行标题",
+    rowDescription: "列表内容的说明文字。",
+    rowSupport: "辅助信息",
+  },
+};

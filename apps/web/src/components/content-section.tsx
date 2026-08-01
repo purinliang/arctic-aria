@@ -1,5 +1,10 @@
 import type { ReactNode } from "react";
-import { DescriptionText } from "./text";
+import {
+  inlineGapClass,
+  sectionStackClass,
+  subsectionStackClass,
+} from "./spacing";
+import { TextStack } from "./text";
 import { cx } from "./utils";
 
 export function ContentSection({
@@ -26,11 +31,18 @@ export function ContentSection({
         darkMode={darkMode}
         description={description}
         title={title}
-        titleClassName="text-base"
         titleElement="h2"
       />
       {children ? (
-        <div className={cx("mt-3 min-w-0", bodyClassName)}>{children}</div>
+        <div
+          className={cx(
+            "mt-[var(--aa-space-subsection-gap)] min-w-0",
+            sectionStackClass,
+            bodyClassName,
+          )}
+        >
+          {children}
+        </div>
       ) : null}
     </section>
   );
@@ -60,11 +72,18 @@ export function ContentSubsection({
         darkMode={darkMode}
         description={description}
         title={title}
-        titleClassName="text-sm"
         titleElement="h3"
       />
       {children ? (
-        <div className={cx("mt-3 min-w-0", bodyClassName)}>{children}</div>
+        <div
+          className={cx(
+            "mt-[var(--aa-space-subsection-gap)] min-w-0",
+            subsectionStackClass,
+            bodyClassName,
+          )}
+        >
+          {children}
+        </div>
       ) : null}
     </section>
   );
@@ -75,30 +94,36 @@ function ContentHeader({
   darkMode,
   description,
   title,
-  titleClassName,
   titleElement,
 }: {
   action?: ReactNode;
   darkMode: boolean;
   description?: ReactNode;
   title: ReactNode;
-  titleClassName: string;
   titleElement: "h2" | "h3";
 }) {
   const Title = titleElement;
 
+  void darkMode;
+
   return (
-    <header className="flex min-w-0 flex-wrap items-start justify-between gap-3">
-      <div className="min-w-0">
-        <Title className={cx("font-semibold leading-5", titleClassName)}>
-          {title}
-        </Title>
-        {description ? (
-          <DescriptionText darkMode={darkMode} className="mt-0.5">
-            {description}
-          </DescriptionText>
-        ) : null}
-      </div>
+    <header
+      className={cx(
+        "flex min-w-0 flex-wrap items-start justify-between",
+        inlineGapClass,
+      )}
+    >
+      <TextStack
+        className="min-w-0"
+        title={title}
+        titleProps={{
+          as: Title,
+          size: titleElement === "h2" ? "lg" : "md",
+          weight: "semibold",
+        }}
+        description={description}
+        descriptionProps={{ size: "md" }}
+      />
       {action ? <div className="shrink-0">{action}</div> : null}
     </header>
   );

@@ -5,7 +5,9 @@ import type { ReactNode } from "react";
 import { MoreHorizontal, Plus, Save } from "lucide-react";
 import { Button, type ButtonTone } from "@/components/button";
 import { ContentSubsection } from "@/components/content-section";
+import { controlGapClass, sectionStackClass } from "@/components/spacing";
 import { SupportingText } from "@/components/text";
+import { cx } from "@/components/utils";
 import type { DesignMessages } from "@/messages/design-messages";
 
 type ButtonToneKey = keyof DesignMessages["buttons"]["tones"];
@@ -40,7 +42,7 @@ export function DesignButtonPage({
   messages: DesignMessages["buttons"];
 }) {
   return (
-    <div className="grid gap-5">
+    <div className={sectionStackClass}>
       {buttonToneGroups.map((group) => (
         <ButtonToneSubsection
           key={group.key}
@@ -79,7 +81,7 @@ function ButtonToneSubsection({
       darkMode={darkMode}
       title={title}
       description={description}
-      bodyClassName="grid gap-2"
+      bodyClassName="grid"
     >
       <ButtonExampleRow
         darkMode={darkMode}
@@ -120,11 +122,19 @@ function ButtonExampleRow({
   toneLabel: string;
 }) {
   return (
-    <div className="grid gap-2 sm:grid-cols-[5rem_minmax(0,1fr)] sm:items-center">
-      <SupportingText darkMode={darkMode} className="font-semibold">
+    <div
+      className={cx(
+        "grid sm:grid-cols-[5rem_minmax(0,1fr)] sm:items-center",
+        controlGapClass,
+      )}
+    >
+      <SupportingText
+        darkMode={darkMode}
+        className="font-[var(--aa-font-weight-semibold)]"
+      >
         {label}
       </SupportingText>
-      <div className="flex min-w-0 flex-wrap items-center gap-2">
+      <div className={cx("flex min-w-0 flex-wrap items-center", controlGapClass)}>
         <Button darkMode={darkMode} tone={tone} disabled={disabled} icon={icon}>
           {examples.withIcon}
         </Button>

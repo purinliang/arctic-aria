@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 import {
   ListItem,
   ListItemContent,
-  ListItemSupportingText,
-  ListItemTitle,
+  ListItemTextStack,
 } from "./list";
+import { Text } from "./text";
 import { cx } from "./utils";
 
 export function SettingsControlRow({
@@ -29,21 +29,13 @@ export function SettingsControlRow({
       )}
     >
       <ListItemContent
-        className="grid gap-0.5"
         title={
-          <ListItemTitle
-            weight="normal"
-            className="text-[var(--aa-primary-text)]"
-          >
-            {title}
-          </ListItemTitle>
-        }
-        support={
-          support ? (
-            <ListItemSupportingText className="block">
-              {support}
-            </ListItemSupportingText>
-          ) : undefined
+          <ListItemTextStack
+            title={title}
+            titleClassName="text-[var(--aa-primary-text)]"
+            support={support}
+            truncateTitle
+          />
         }
       />
       {control ? (
@@ -63,13 +55,18 @@ export function SettingsControlValue({
   className?: string;
 }) {
   return (
-    <span
+    <Text
+      as="span"
+      size="lg"
+      weight="normal"
+      tone="primary"
+      truncate
       className={cx(
-        "block w-full min-w-0 truncate text-left text-base font-normal leading-6 text-[var(--aa-primary-text)] sm:text-right",
+        "block w-full text-left sm:text-right",
         className,
       )}
     >
       {children}
-    </span>
+    </Text>
   );
 }

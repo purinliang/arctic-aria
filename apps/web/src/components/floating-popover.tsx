@@ -1,5 +1,12 @@
 import type { ReactNode } from "react";
 import { panelColorClass } from "./color";
+import {
+  bodyStackClass,
+  controlGapClass,
+  dialogPaddingClass,
+  inlineGapClass,
+} from "./spacing";
+import { Text } from "./text";
 import { cx } from "./utils";
 
 export function PopoverDismissLayer({
@@ -35,18 +42,28 @@ export function FloatingPopover({
   return (
     <div
       className={cx(
-        "absolute right-0 top-full z-30 mt-2 w-[min(22rem,calc(100vw-2rem))] rounded-md border p-4 text-left shadow-xl",
+        "absolute right-0 top-full z-30 mt-[var(--aa-space-control-gap)] w-[min(22rem,calc(100vw-2rem))] rounded-md border text-left shadow-xl",
+        dialogPaddingClass,
         panelColorClass,
         className,
       )}
     >
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="truncate text-base font-semibold">{title}</h2>
+      <div
+        className={cx(
+          "mb-[var(--aa-space-body-gap)] flex items-center justify-between",
+          inlineGapClass,
+        )}
+      >
+        <Text as="h2" size="lg" weight="semibold" truncate>
+          {title}
+        </Text>
         {actions ? (
-          <div className="flex shrink-0 items-center gap-2">{actions}</div>
+          <div className={cx("flex shrink-0 items-center", controlGapClass)}>
+            {actions}
+          </div>
         ) : null}
       </div>
-      <div className={cx("grid min-w-0 gap-3", bodyClassName)}>
+      <div className={cx("min-w-0", bodyStackClass, bodyClassName)}>
         {children}
       </div>
     </div>

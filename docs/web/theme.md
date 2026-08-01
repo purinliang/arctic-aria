@@ -62,6 +62,22 @@ same Arctic Aria brand direction.
 Color tokens, component color mappings, and current color inconsistencies are
 documented in [color.md](color.md).
 
+## Typography
+
+Typography tokens live in `apps/web/src/app/globals.css` and are consumed by
+shared text components in `apps/web/src/components/text.tsx`.
+
+The default font family is optimized for the English interface. When the root
+document language attribute is `data-aa-language="zh-CN"`, the app switches to
+the Simplified Chinese font-family token and increases multiline line-height for
+`sm`, `md`, `lg`, `xl`, and `page` text. Components should use `Text`,
+`TextStack`, `DescriptionText`, `SupportingText`, `LabelText`, and list text
+helpers instead of adding feature-local Chinese typography overrides.
+
+Shared font weights are limited to `light`, `normal`, `medium`, and
+`semibold`. Do not use stronger weights for normal product UI unless a future
+design update adds a new token.
+
 ## Dark Mode
 
 Dark mode is an account setting for logged-in users and a local fallback setting

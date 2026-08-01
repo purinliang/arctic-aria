@@ -13,6 +13,7 @@ import { FormSection, FormSections } from "./forms/form-layout";
 import { formControlClass } from "./forms/form-control-style";
 import { PendingText } from "./loading";
 import { ScrollArea } from "./scroll-area";
+import { dialogPaddingClass } from "./spacing";
 import { Tabs } from "./tabs";
 import { SupportingText } from "./text";
 import { cx } from "./utils";
@@ -140,7 +141,7 @@ export function TemplateEditorDialog<TPreview>({
           ariaLabel={messages.title}
           darkMode={darkMode}
           fill
-          className="mb-4"
+          className="mb-[var(--aa-space-dialog-y)]"
           options={[
             {
               value: "edit",
@@ -306,7 +307,8 @@ function TemplateSourceEditor({
         ref={textAreaRef}
         aria-label={label}
         className={cx(
-          "block min-h-full w-full cursor-text resize-none overflow-hidden border-0 bg-transparent px-3 py-2 font-mono text-sm leading-6 outline-none",
+          "block min-h-full w-full cursor-text resize-none overflow-hidden border-0 bg-transparent font-mono text-[length:var(--aa-font-size-md)] leading-[var(--aa-line-height-lg)] outline-none",
+          dialogPaddingClass,
           "text-[var(--aa-text-input-text)] caret-[var(--aa-text-input-text)] placeholder:text-[var(--aa-text-input-placeholder-text)]",
           "disabled:cursor-not-allowed disabled:text-[var(--aa-text-input-disabled-text)] disabled:placeholder:text-[var(--aa-text-input-disabled-text)]",
         )}

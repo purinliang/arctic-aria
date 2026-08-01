@@ -30,7 +30,7 @@ export function Tabs({
   return (
     <div
       className={cx(
-        "inline-flex max-w-full gap-1 rounded-md border p-1",
+        "inline-flex max-w-full gap-[var(--aa-space-tab-list-gap)] rounded-md border p-[var(--aa-space-tab-list-padding)]",
         panelHoverContainerColorClass,
         fill ? "w-full" : undefined,
         className,

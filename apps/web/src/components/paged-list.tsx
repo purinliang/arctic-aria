@@ -13,6 +13,7 @@ import {
   pagedListWindow,
   type PagedListWindow,
 } from "./paged-list-utils";
+import { controlGapClass, listRowPaddingClass, popoverPaddingClass } from "./spacing";
 import { DescriptionText, SupportingText } from "./text";
 import { cx } from "./utils";
 
@@ -78,7 +79,7 @@ export function PagedList<Item>({
         <LoadingLine darkMode={darkMode} text={loadingText} />
       ) : null}
       {!loading && items.length === 0 ? (
-        <DescriptionText darkMode={darkMode} className="px-4 py-4">
+        <DescriptionText darkMode={darkMode} className={listRowPaddingClass}>
           {emptyText}
         </DescriptionText>
       ) : null}
@@ -150,7 +151,9 @@ export function PagedListNavigation({
     <nav
       aria-label={ariaLabel}
       className={cx(
-        "flex items-center justify-center gap-1 px-3 py-2",
+        "flex items-center justify-center",
+        controlGapClass,
+        popoverPaddingClass,
         className,
       )}
     >
@@ -174,7 +177,7 @@ export function PagedListNavigation({
       />
       <SupportingText
         darkMode={darkMode}
-        className="inline-flex h-[var(--aa-icon-button-size)] min-w-[5.5rem] items-center justify-center px-2 text-center"
+        className="inline-flex h-[var(--aa-icon-button-size)] min-w-[5.5rem] items-center justify-center px-[var(--aa-space-tag-x)] text-center"
       >
         {messages.page(windowState.pageNumber, windowState.totalPages)}
       </SupportingText>
