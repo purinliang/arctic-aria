@@ -128,7 +128,7 @@ export const englishDesignMessages: DesignMessages = {
       primary: "Primary",
       secondary: "Secondary",
       inverse: "Inverse",
-      current: "Current",
+      current: "Inherited",
     },
     englishSample:
       "Arctic Aria keeps dense product text readable across panels, dialogs, and list rows.",
