@@ -56,6 +56,7 @@ export function useDashboardRoutines(
   notificationMessages?: NotificationMessages,
 ) {
   const [routines, setRoutines] = useState<Routine[]>([]);
+  const [routineInstances, setRoutineInstances] = useState<Routine[]>([]);
   const [routineDefinitions, setRoutineDefinitions] = useState<
     RoutineDefinition[]
   >([]);
@@ -80,6 +81,7 @@ export function useDashboardRoutines(
 
   const applyRoutineData = useCallback((data: RoutineDashboardData) => {
     setRoutines(data.routines);
+    setRoutineInstances(data.routineInstances ?? []);
     setRoutineDefinitions(data.routineDefinitions);
     setRoutineGroups(data.routineGroups);
     setRoutineLoading(false);
@@ -91,6 +93,7 @@ export function useDashboardRoutines(
       const cachedData = readDashboardBrowserCacheSection(userId, "routines");
 
       setRoutines(cachedData?.routines ?? []);
+      setRoutineInstances(cachedData?.routineInstances ?? []);
       setRoutineDefinitions(cachedData?.routineDefinitions ?? []);
       setRoutineGroups(cachedData?.routineGroups ?? []);
       setRoutineLoading(cachedData === null);
@@ -107,10 +110,18 @@ export function useDashboardRoutines(
 
     writeDashboardBrowserCacheSection(userId, "routines", {
       routines,
+      routineInstances,
       routineDefinitions,
       routineGroups,
     });
-  }, [routineCacheReady, routineDefinitions, routineGroups, routines, userId]);
+  }, [
+    routineCacheReady,
+    routineDefinitions,
+    routineGroups,
+    routineInstances,
+    routines,
+    userId,
+  ]);
 
   const refreshRoutineData = useCallback(async () => {
     const actionResult = await runNotifiedServerAction({
@@ -339,12 +350,23 @@ export function useDashboardRoutines(
 
   return {
     routines,
+    routineInstances,
     routineDefinitions,
     routineGroups,
     routineLoading,
     routineActionPending,
     refreshRoutineData,
     updateRoutine,
+    updateRoutineInstanceFromPage: (instanceId: string, status: RoutineStatus) =>
+      runRoutineManagementAction(
+        () =>
+          status === "completed"
+            ? completeRoutineInstance(instanceId)
+            : status === "skipped"
+              ? skipRoutineInstance(instanceId)
+              : reopenRoutineInstance(instanceId),
+        actionFailedTitle("update", "routine"),
+      ),
     saveRoutineFromPage: (input: RoutineInput) =>
       runRoutineManagementAction(
         () => saveRoutine(input),

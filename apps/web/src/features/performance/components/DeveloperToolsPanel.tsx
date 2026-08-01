@@ -12,7 +12,7 @@ import { CardHeader } from "@/components/card";
 import { List, ListItem } from "@/components/list";
 import { Panel } from "@/components/panel";
 import { SupportingText } from "@/components/text";
-import { SettingsControlRow } from "@/features/settings/components/SettingsControlRow";
+import { SettingsControlRow } from "@/components/settings-control-row";
 import type { SettingsMessages } from "@/messages/app-messages";
 import {
   latencyReportMarkdown,

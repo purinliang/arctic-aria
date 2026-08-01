@@ -4,7 +4,7 @@ import type {
 } from "react";
 import { formFieldClass } from "../control-layout";
 import { formControlClass } from "./form-control-style";
-import { LabelText } from "../text";
+import { LabelText, Text } from "../text";
 import { cx } from "../utils";
 
 export function FieldLabel({
@@ -23,10 +23,10 @@ export function FieldLabel({
       <LabelText darkMode={darkMode}>
         {label}
         {optional ? (
-          <span className="font-normal text-[var(--aa-secondary-text)]">
+          <Text as="span" weight="normal" tone="secondary">
             {" "}
             (Optional)
-          </span>
+          </Text>
         ) : null}
       </LabelText>
       {children}
@@ -88,7 +88,7 @@ export function FieldError({
   return (
     <span
       className={cx(
-        "absolute left-3 top-[calc(100%+8px)] z-20 max-w-[min(280px,calc(100vw-48px))] rounded-md border px-3 py-2 text-sm leading-5 shadow-lg",
+        "absolute left-3 top-[calc(100%+8px)] z-20 max-w-[min(280px,calc(100vw-48px))] rounded-md border px-[var(--aa-space-popover-x)] py-[var(--aa-space-popover-y)] text-[length:var(--aa-font-size-md)] leading-[var(--aa-line-height-md)] shadow-lg",
         darkMode
           ? "border-red-400/40 bg-red-950 text-red-50"
           : "border-red-200 bg-red-50 text-red-700",

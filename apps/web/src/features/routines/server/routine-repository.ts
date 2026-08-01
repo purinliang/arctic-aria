@@ -139,6 +139,12 @@ export type RoutineRepository = {
     userId: string,
     scheduledDate: string,
   ): Promise<RoutineInstanceRecord[]>;
+  listRoutineInstances(userId: string): Promise<RoutineInstanceRecord[]>;
+  deleteFuturePendingRoutineInstances(input: {
+    userId: string;
+    routineId: string;
+    fromDate: string;
+  }): Promise<number>;
   completeRoutineInstance(input: {
     userId: string;
     instanceId: string;
@@ -478,6 +484,45 @@ export class InMemoryRoutineRepository implements RoutineRepository {
     );
   }
 
+  async listRoutineInstances(userId: string) {
+    const activeRoutineIds = new Set(
+      this.routines
+        .filter(
+          (routine) => routine.userId === userId && routine.deletedAt === null,
+        )
+        .map((routine) => routine.id),
+    );
+
+    return this.instances
+      .filter(
+        (instance) =>
+          instance.userId === userId && activeRoutineIds.has(instance.routineId),
+      )
+      .sort(compareRoutineInstances);
+  }
+
+  async deleteFuturePendingRoutineInstances(input: {
+    userId: string;
+    routineId: string;
+    fromDate: string;
+  }) {
+    const beforeLength = this.instances.length;
+
+    this.instances = this.instances.filter(
+      (instance) =>
+        !(
+          instance.userId === input.userId &&
+          instance.routineId === input.routineId &&
+          instance.scheduledDate >= input.fromDate &&
+          instance.status === "pending" &&
+          instance.movedAt === null &&
+          instance.movedFromDate === null
+        ),
+    );
+
+    return beforeLength - this.instances.length;
+  }
+
   async completeRoutineInstance(input: {
     userId: string;
     instanceId: string;
@@ -523,4 +568,26 @@ export class InMemoryRoutineRepository implements RoutineRepository {
 
     return instance;
   }
+}
+
+function compareRoutineInstances(
+  left: RoutineInstanceRecord,
+  right: RoutineInstanceRecord,
+) {
+  return (
+    left.scheduledDate.localeCompare(right.scheduledDate) ||
+    timeSortValue(left.scheduledTime) - timeSortValue(right.scheduledTime) ||
+    left.title.localeCompare(right.title) ||
+    left.createdAt.getTime() - right.createdAt.getTime()
+  );
+}
+
+function timeSortValue(time: string | null) {
+  if (!time) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  const [hour = "0", minute = "0"] = time.split(":");
+
+  return Number(hour) * 60 + Number(minute);
 }

@@ -9,6 +9,10 @@ import {
 } from "@/app-shell/action-notifications";
 import { Button } from "@/components/button";
 import { ConfirmDialog } from "@/components/dialog";
+import {
+  SettingsControlRow,
+  SettingsControlValue,
+} from "@/components/settings-control-row";
 import type {
   NotificationMessages,
   SettingsMessages,
@@ -18,7 +22,6 @@ import {
   writeDiscordBindingCache,
 } from "../discord-binding-cache";
 import { DiscordBindingCodeStatus } from "./DiscordBindingCodeStatus";
-import { SettingsControlRow, SettingsControlValue } from "./SettingsControlRow";
 import {
   cancelDiscordBindingCode,
   createDiscordBindingCode,

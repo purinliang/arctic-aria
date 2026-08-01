@@ -22,6 +22,8 @@ that appear only after an administrator enables developer mode:
   administrator-only developer-mode switch
 - `Developer Tools`: administrator-only diagnostics and internal import tools,
   shown only while developer mode is enabled
+- `Design`: administrator-only shared component review page, shown in the
+  sidebar after Settings only while developer mode is enabled
 
 Settings rows use a consistent structure: title and supporting text on the
 left, one 320px control/value area on the right for tablet and desktop widths.
@@ -110,6 +112,10 @@ users.
 Current behavior:
 
 - show developer panels only after the administrator enables developer mode
+- persist developer mode in browser localStorage for this browser only
+- show the sidebar `Design` page after Settings while developer mode is enabled
+- let `Design` preview theme and language through browser-local app
+  preferences, then restore the previous local values after leaving `Design`
 - show a latency panel with one row for latency samples and right-aligned
   controls
 - run 30 sequential samples against `/api/developer/performance/latency`
@@ -127,6 +133,13 @@ latency, not only an internal backend loop.
 
 Current web source:
 
+- `apps/web/src/components/settings-control-row.tsx`
+- `apps/web/src/components/tabs.tsx`
+- `apps/web/src/components/content-section.tsx`
+- `apps/web/src/app-shell/developer-mode.ts`
+- `apps/web/src/features/design/components/DesignPage.tsx`
+- `apps/web/src/features/design/components/DesignColorPage.tsx`
+- `apps/web/src/features/design/components/DesignButtonPage.tsx`
 - `apps/web/src/features/settings/components/SettingsPage.tsx`
 - `apps/web/src/app-shell/app-preferences.ts`
 - `apps/web/src/messages/app-messages.ts`

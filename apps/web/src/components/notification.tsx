@@ -2,6 +2,13 @@ import { AlertCircle, CheckCircle2, Info, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { NotificationMessages } from "@/messages/app-messages";
 import { toneClass, type Tone } from "./color";
+import {
+  cardBodyPaddingClass,
+  controlGapClass,
+  iconGapClass,
+  inlineGapClass,
+} from "./spacing";
+import { Text } from "./text";
 import { cx } from "./utils";
 
 const maxVisibleNotifications = 3;
@@ -232,7 +239,7 @@ export function NotificationStack({
 
   return (
     <div
-      className="fixed bottom-4 left-1/2 z-[80] grid w-[min(calc(100%-2rem),24rem)] -translate-x-1/2 gap-2 lg:bottom-6 lg:left-auto lg:right-6 lg:w-96 lg:translate-x-0"
+      className="fixed bottom-4 left-1/2 z-[80] grid w-[min(calc(100%-2rem),24rem)] -translate-x-1/2 gap-[var(--aa-space-control-gap)] lg:bottom-6 lg:left-auto lg:right-6 lg:w-96 lg:translate-x-0"
       aria-live="polite"
       aria-relevant="additions text"
     >
@@ -283,25 +290,39 @@ function NotificationToast({
     <section
       data-dismissing={notification.dismissing ? "true" : "false"}
       className={cx(
-        "aa-notification-toast grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-md border px-4 py-4 shadow-2xl",
+        "aa-notification-toast grid grid-cols-[minmax(0,1fr)_auto] rounded-md border shadow-2xl",
+        inlineGapClass,
+        cardBodyPaddingClass,
         toneClass(darkMode, notificationTone(notification.tone)),
       )}
       role="status"
     >
       <div className="min-w-0">
-        <div className="flex items-center gap-2">
+        <div className={cx("flex items-center", iconGapClass)}>
           <Icon size={18} aria-hidden="true" />
-          <h2 className="min-w-0 text-sm font-semibold">
+          <Text
+            as="h2"
+            size="md"
+            weight="semibold"
+            tone="current"
+            className="min-w-0"
+          >
             {notification.title}
-          </h2>
+          </Text>
         </div>
-        <p className="mt-1 text-sm leading-5 opacity-90">
+        <Text
+          as="p"
+          size="md"
+          tone="current"
+          className="mt-[var(--aa-space-text-title-desc)] opacity-90"
+        >
           {notification.message}
-        </p>
+        </Text>
       </div>
       <button
         className={cx(
           "flex h-[18px] w-[18px] items-center justify-center self-start rounded transition",
+          controlGapClass,
           "text-current opacity-80 hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] hover:opacity-100",
         )}
         type="button"

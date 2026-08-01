@@ -51,6 +51,7 @@ const englishMessages = {
     workspace: "Workspace",
     pages: {
       dashboard: "Today",
+      design: "Design",
       events: "Events",
       ideas: "Ideas",
       memories: "Memories",
@@ -60,6 +61,7 @@ const englishMessages = {
     },
     pageDescriptions: {
       dashboard: "Focus on today's plan.",
+      design: "Review shared component styles.",
       events: "Keep one-time plans visible.",
       ideas: "Capture thoughts for later review.",
       memories: "Keep experiences worth returning to.",
@@ -418,6 +420,7 @@ const simplifiedChineseMessages: AppMessages = {
     workspace: "工作区",
     pages: {
       dashboard: "今日",
+      design: "设计",
       events: "事件",
       ideas: "想法",
       memories: "回忆",
@@ -427,6 +430,7 @@ const simplifiedChineseMessages: AppMessages = {
     },
     pageDescriptions: {
       dashboard: "专注今天的计划。",
+      design: "检查共享组件样式。",
       events: "查看一次性的计划。",
       ideas: "先收好想法，之后再整理。",
       memories: "保存值得再次体验的事。",

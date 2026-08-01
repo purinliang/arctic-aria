@@ -53,6 +53,11 @@ Text is independent from page and panel backgrounds:
 |---|---|
 | Primary text | `--aa-primary-text` |
 | Secondary/supportive text | `--aa-secondary-text` |
+| Inverse text | `--aa-inverse-text` |
+
+The `current` text tone in `Text` inherits the surrounding component color. Use
+it inside selected rows, notification tones, and primary button surfaces so
+nested text does not fight the parent state color.
 
 Light and dark mode should resolve the same role names to different values in
 `globals.css`. Components should not need separate light-mode and dark-mode
@@ -65,17 +70,19 @@ Secondary buttons have two presentations:
 - Secondary button uses the secondary button tokens for its surface, text,
   border, hover, disabled, and disabled border colors.
 - Secondary button (borderless) uses the same secondary button text, hover, and
-  disabled tokens without drawing a border.
+  disabled text tokens without drawing a border. Its disabled background stays
+  transparent so it remains borderless.
 
 Do not create a separate color family for secondary button and secondary button
 (borderless).
 
 Typed text controls use text-input tokens for background, border, hover, focus,
-placeholder, and disabled chrome. Their hover and focus backgrounds default to
-the normal text-input background so typed fields do not look like hovered
-buttons. Their focus state changes the existing border to
-`--aa-text-input-focus-border` and may add inward border weight; do not add a
-separate outside focus ring.
+placeholder, and disabled chrome. Text-input background, text, hover, border,
+and disabled tokens intentionally alias the corresponding secondary button
+tokens so typed fields stay in the same neutral control family. Their focus
+state keeps the secondary hover background and text while changing the existing
+border to `--aa-text-input-focus-border`; do not add a separate outside focus
+ring.
 
 Button-like form controls, such as select triggers and picker triggers, use
 secondary button tokens because they open a menu or picker instead of accepting
@@ -111,7 +118,6 @@ direct text entry.
 | `Button` with `tone="secondary"` | Secondary button |
 | `Button` icon/menu utility presentation | Secondary button |
 | `Button` with `tone="ghost"` | Secondary button (borderless) |
-| `Button` with `tone="success"` | Status tone exception |
 | Sidebar root | Panel header |
 | `SidebarItem` | Secondary button |
 | Active `SidebarItem` | Primary button |
@@ -140,8 +146,8 @@ direct text entry.
 | `CheckboxField`, `CheckboxControl` checked | Primary button |
 | `Switch` off | Secondary button |
 | `Switch` on | Primary button |
-| `PageTitle`, `SectionTitle`, `LabelText` | Inherits parent |
-| `DescriptionText`, `SupportingText` | Inherits parent |
+| `Text`, `TextStack`, `PageTitle`, `SectionTitle`, `LabelText` | Text role selected by tone |
+| `DescriptionText`, `SupportingText` | Secondary text |
 | `InlineMessage` | Status tone exception |
 | `NotificationStack` | Inherits page; positions notification toasts |
 | Notification toast | Status tone exception |
@@ -152,8 +158,10 @@ direct text entry.
 ## Exceptions
 
 - Status, validation, and notification tones may use semantic status palettes.
-  Supported status tones are neutral, amber, blue, cyan, emerald, indigo, lime,
-  orange, pink, and red. The default status tone is neutral.
+  Supported status tones are neutral, blue, emerald, and red. The default
+  status tone is neutral. Current production usage is neutral for
+  preserve/default status, blue for information/update, emerald for
+  success/create, and red for error/delete.
 - Modal backdrops may use overlay colors instead of panel roles.
 - Panel list hover states should use `--aa-panel-hover-bg`, not button hover
   roles, unless the row is actually a button.
@@ -169,12 +177,14 @@ direct text entry.
 
 - Product buttons have two types: primary and secondary.
 - Secondary button and secondary button (borderless) must use the same
-  secondary button role tokens.
+  secondary button text role tokens. Borderless disabled buttons keep a
+  transparent background.
 - Bordered secondary controls must use `--aa-secondary-button-border` for the
   normal outline and `--aa-secondary-button-hover-border` for the hover/focus
   outline. Do not use `--aa-secondary-button-hover-bg` as a border color.
 - Disabled primary and secondary buttons must use disabled button color tokens
-  and must not expose hover colors.
+  and must not expose hover colors. Borderless disabled buttons use disabled
+  text tokens while keeping their background transparent.
 - Disabled primary and secondary buttons must not rely on opacity as their main
   disabled treatment.
 - Disabled input controls should keep a visible secondary border while using
@@ -187,10 +197,9 @@ direct text entry.
   selected-state role.
 - Unselected interactive controls should reuse secondary button roles.
 - Text inputs, password inputs, textareas, number inputs, and time picker typed
-  fields should use text-input tokens while hovering, focusing, or typing.
-- Text-input hover and focus backgrounds should not reuse button hover
-  background tokens. Adjust `--aa-text-input-hover-bg` or
-  `--aa-text-input-focus-bg` when a distinct text-entry effect is needed.
+  fields should use text-input tokens while hovering, focusing, or typing. Text
+  input background, text, hover, and disabled tokens should remain mapped to
+  secondary button background and text tokens.
 - Text-input focus should change the existing border color to the primary focus
   token, make the existing edge visibly stronger, and should not draw a
   separate outside blue ring.

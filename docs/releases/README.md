@@ -64,3 +64,4 @@ documentation updates. Keep the body specific enough to be useful when reading
 - [v0.12.4.md](v0.12.4.md): patch release record.
 - [v0.13.0.md](v0.13.0.md)
 - [v0.14.0.md](v0.14.0.md)
+- [v0.15.0.md](v0.15.0.md)

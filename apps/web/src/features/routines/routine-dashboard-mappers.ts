@@ -15,6 +15,7 @@ export function toRoutineInstance(instance: RoutineInstanceRecord): Routine {
     routineId: instance.routineId,
     title: instance.title,
     description: instance.description,
+    scheduledDate: instance.scheduledDate,
     scheduledTime: instance.scheduledTime ?? "Flexible",
     status: instance.status,
     reminderState: "idle",

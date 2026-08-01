@@ -1,3 +1,9 @@
+import type { PaginationMessages } from "./pagination-messages.ts";
+import {
+  englishPaginationMessages,
+  simplifiedChinesePaginationMessages,
+} from "./pagination-messages.ts";
+
 type IdeaMessagesDefinition = {
   page: {
     title: string;
@@ -11,6 +17,9 @@ type IdeaMessagesDefinition = {
     statusUntriaged: string;
     new: string;
     edit: string;
+    pagination: PaginationMessages & {
+      ariaLabel: string;
+    };
   };
   editor: {
     add: string;
@@ -47,6 +56,10 @@ export const englishIdeaMessages: IdeaMessagesDefinition = {
     statusUntriaged: "Untriaged",
     new: "New",
     edit: "Edit",
+    pagination: {
+      ariaLabel: "Idea pages",
+      ...englishPaginationMessages,
+    },
   },
   editor: {
     add: "Add Idea",
@@ -90,6 +103,10 @@ export const simplifiedChineseIdeaMessages: IdeaMessages = {
     statusUntriaged: "未整理",
     new: "新建",
     edit: "编辑",
+    pagination: {
+      ariaLabel: "想法分页",
+      ...simplifiedChinesePaginationMessages,
+    },
   },
   editor: {
     add: "新建想法",

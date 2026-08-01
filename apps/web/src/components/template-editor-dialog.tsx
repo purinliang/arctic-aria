@@ -13,6 +13,8 @@ import { FormSection, FormSections } from "./forms/form-layout";
 import { formControlClass } from "./forms/form-control-style";
 import { PendingText } from "./loading";
 import { ScrollArea } from "./scroll-area";
+import { dialogPaddingClass } from "./spacing";
+import { Tabs } from "./tabs";
 import { SupportingText } from "./text";
 import { cx } from "./utils";
 
@@ -135,14 +137,33 @@ export function TemplateEditorDialog<TPreview>({
           closeLabel={messages.close}
           onClose={onClose}
         />
-        <TemplateTabs
+        <Tabs
+          ariaLabel={messages.title}
           darkMode={darkMode}
-          activeTab={activeTab}
-          disabled={busy}
-          parsing={action === "parse"}
-          messages={messages}
-          onEdit={() => setActiveTab("edit")}
-          onPreview={() => void openPreview()}
+          fill
+          className="mb-[var(--aa-space-dialog-y)]"
+          options={[
+            {
+              value: "edit",
+              label: messages.editTab,
+              disabled: busy,
+            },
+            {
+              value: "preview",
+              label: action === "parse" ? messages.parsing : messages.previewTab,
+              disabled: busy,
+              ariaBusy: action === "parse",
+            },
+          ]}
+          value={activeTab}
+          onChange={(value) => {
+            if (readTemplateTab(value) === "preview") {
+              void openPreview();
+              return;
+            }
+
+            setActiveTab("edit");
+          }}
         />
         <FormSections className={templateBodyClass}>
           {activeTab === "edit" ? (
@@ -286,7 +307,8 @@ function TemplateSourceEditor({
         ref={textAreaRef}
         aria-label={label}
         className={cx(
-          "block min-h-full w-full cursor-text resize-none overflow-hidden border-0 bg-transparent px-3 py-2 font-mono text-sm leading-6 outline-none",
+          "block min-h-full w-full cursor-text resize-none overflow-hidden border-0 bg-transparent font-mono text-[length:var(--aa-font-size-md)] leading-[var(--aa-line-height-lg)] outline-none",
+          dialogPaddingClass,
           "text-[var(--aa-text-input-text)] caret-[var(--aa-text-input-text)] placeholder:text-[var(--aa-text-input-placeholder-text)]",
           "disabled:cursor-not-allowed disabled:text-[var(--aa-text-input-disabled-text)] disabled:placeholder:text-[var(--aa-text-input-disabled-text)]",
         )}
@@ -300,52 +322,6 @@ function TemplateSourceEditor({
   );
 }
 
-function TemplateTabs({
-  darkMode,
-  activeTab,
-  disabled,
-  parsing,
-  messages,
-  onEdit,
-  onPreview,
-}: {
-  darkMode: boolean;
-  activeTab: TemplateTab;
-  disabled: boolean;
-  parsing: boolean;
-  messages: TemplateEditorDialogMessages;
-  onEdit: () => void;
-  onPreview: () => void;
-}) {
-  return (
-    <div
-      className="mb-4 grid grid-cols-2 gap-2"
-      role="tablist"
-      aria-label={messages.title}
-    >
-      <Button
-        darkMode={darkMode}
-        active={activeTab === "edit"}
-        size="md"
-        role="tab"
-        aria-selected={activeTab === "edit"}
-        disabled={disabled}
-        onClick={onEdit}
-      >
-        {messages.editTab}
-      </Button>
-      <Button
-        darkMode={darkMode}
-        active={activeTab === "preview"}
-        size="md"
-        role="tab"
-        aria-selected={activeTab === "preview"}
-        aria-busy={parsing || undefined}
-        disabled={disabled}
-        onClick={onPreview}
-      >
-        {parsing ? messages.parsing : messages.previewTab}
-      </Button>
-    </div>
-  );
+function readTemplateTab(value: string): TemplateTab {
+  return value === "preview" ? "preview" : "edit";
 }

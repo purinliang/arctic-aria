@@ -82,6 +82,8 @@ export function AuthGate() {
     languagePreference,
     resolvedLanguage,
     resolvedTimeZone,
+    setLanguagePreference,
+    setThemePreference,
     themePreference,
     timeFormatPreference,
   } = useAppPreferences();
@@ -234,6 +236,7 @@ export function AuthGate() {
         languagePreference={languagePreference}
         resolvedTimeZone={resolvedTimeZone}
         messages={messages}
+        resolvedLanguage={resolvedLanguage}
         themePreference={themePreference}
         versionStatus={versionStatus}
         logoutPending={logoutPending}
@@ -241,6 +244,8 @@ export function AuthGate() {
         onLanguagePreferenceChange={(nextPreference) =>
           updateUserPreferences({ languagePreference: nextPreference })
         }
+        onLocalLanguagePreferenceChange={setLanguagePreference}
+        onLocalThemePreferenceChange={setThemePreference}
         onPreferenceOpenAttempt={canOpenUserPreferenceInput}
         onThemePreferenceChange={(nextPreference) =>
           updateUserPreferences({ themePreference: nextPreference })

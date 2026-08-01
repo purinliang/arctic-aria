@@ -1,5 +1,5 @@
 import { encodeTemplateFieldValue } from "../template-parser.ts";
-import type { ScheduledEvent } from "../dashboard/types.ts";
+import type { EventDefinition } from "../dashboard/types.ts";
 import type { EventInput } from "./actions.ts";
 
 export function eventTemplateForNewEvent(draft: EventInput) {
@@ -40,7 +40,7 @@ export function eventTemplateForNewEvent(draft: EventInput) {
   ].join("\n");
 }
 
-export function eventTemplateForEvent(event: ScheduledEvent) {
+export function eventTemplateForEvent(event: EventDefinition) {
   return [
     "# Event Template",
     "",
@@ -59,8 +59,8 @@ export function eventTemplateForEvent(event: ScheduledEvent) {
       op: "update",
       title: event.title,
       description: event.description ?? "",
-      eventDate: event.eventDate,
-      eventTime: event.eventTime,
+      eventDate: event.startDate,
+      eventTime: event.scheduledTime,
       estimatedDurationHours: event.estimatedDurationHours?.toString() ?? "",
       location: event.location ?? "",
     }),

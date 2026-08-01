@@ -1,12 +1,11 @@
-// Settings Page - Settings Control Row.
 import type { ReactNode } from "react";
 import {
   ListItem,
   ListItemContent,
-  ListItemSupportingText,
-  ListItemTitle,
-} from "@/components/list";
-import { cx } from "@/components/utils";
+  ListItemTextStack,
+} from "./list";
+import { Text } from "./text";
+import { cx } from "./utils";
 
 export function SettingsControlRow({
   darkMode,
@@ -24,35 +23,24 @@ export function SettingsControlRow({
   return (
     <ListItem
       darkMode={darkMode}
+      layout="block"
       className={cx(
         "grid grid-cols-1 items-stretch sm:grid-cols-[minmax(0,1fr)_20rem]",
         className,
       )}
     >
       <ListItemContent
-        className="grid gap-0.5"
         title={
-          <ListItemTitle
-            weight="normal"
-            className="text-[var(--aa-primary-text)]"
-          >
-            {title}
-          </ListItemTitle>
-        }
-        support={
-          support ? (
-            <ListItemSupportingText className="block">
-              {support}
-            </ListItemSupportingText>
-          ) : undefined
+          <ListItemTextStack
+            title={title}
+            titleClassName="text-[var(--aa-primary-text)]"
+            support={support}
+            truncateTitle
+          />
         }
       />
       {control ? (
-        <div
-          className={cx(
-            "flex min-h-full w-full items-center justify-start sm:justify-end",
-          )}
-        >
+        <div className="flex min-h-full w-full items-center justify-start sm:justify-end">
           {control}
         </div>
       ) : null}
@@ -68,13 +56,18 @@ export function SettingsControlValue({
   className?: string;
 }) {
   return (
-    <span
+    <Text
+      as="span"
+      size="lg"
+      weight="normal"
+      tone="primary"
+      truncate
       className={cx(
-        "block w-full min-w-0 truncate text-left text-base font-normal leading-6 text-[var(--aa-primary-text)] sm:text-right",
+        "block w-full text-left sm:text-right",
         className,
       )}
     >
       {children}
-    </span>
+    </Text>
   );
 }

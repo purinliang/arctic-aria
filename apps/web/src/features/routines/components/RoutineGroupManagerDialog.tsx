@@ -2,7 +2,6 @@
 import { Edit3, Plus } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/button";
-import { secondaryButtonBorderColorClass } from "@/components/color";
 import { textAreaMinHeightMdClass } from "@/components/control-layout";
 import { useDefaultDescriptionPlaceholder } from "@/components/default-description-placeholder";
 import {
@@ -14,15 +13,10 @@ import {
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import {
-  List,
-  ListItem,
-  ListItemActions,
-  ListItemContent,
-  ListItemDescription,
-  ListItemTitle,
-} from "@/components/list";
-import { DescriptionText, SectionTitle } from "@/components/text";
-import { cx } from "@/components/utils";
+  ManagerDialogSection,
+  ManagerList,
+  ManagerListRow,
+} from "@/components/manager-list";
 import type { RoutineGroupOption } from "@/features/dashboard/types";
 import type { RoutineGroupInput } from "@/features/routines/actions";
 import type { RoutineMessages } from "@/messages/app-messages";
@@ -68,9 +62,10 @@ export function RoutineGroupManagerDialog({
             closeLabel={messages.closeEditor}
             onClose={onCloseEditor}
           />
-          <section className="grid gap-[var(--aa-field-label-gap)]">
-            <div className="flex items-center gap-3">
-              <SectionTitle>{messages.sectionTitle}</SectionTitle>
+          <ManagerDialogSection
+            darkMode={darkMode}
+            title={messages.sectionTitle}
+            action={
               <Button
                 darkMode={darkMode}
                 disabled={pending}
@@ -79,28 +74,33 @@ export function RoutineGroupManagerDialog({
               >
                 {messages.new}
               </Button>
-            </div>
-            {groups.length > 0 ? (
-              <GroupList
-                darkMode={darkMode}
-                groups={groups}
-                editDisabled={pending}
-                messages={messages}
-                onOpenEdit={onOpenEdit}
-              />
-            ) : (
-              <List
-                darkMode={darkMode}
-                className={cx("rounded-md border", secondaryButtonBorderColorClass)}
-              >
-                <ListItem darkMode={darkMode}>
-                  <DescriptionText darkMode={darkMode}>
-                    {messages.noGroups}
-                  </DescriptionText>
-                </ListItem>
-              </List>
-            )}
-          </section>
+            }
+          >
+            <ManagerList
+              darkMode={darkMode}
+              emptyText={messages.noGroups}
+              getItemKey={(group) => group.id}
+              items={groups}
+              messages={messages.pagination}
+              renderItem={(group) => (
+                <ManagerListRow
+                  darkMode={darkMode}
+                  title={group.name}
+                  description={group.description || messages.noDescription}
+                  action={
+                    <Button
+                      darkMode={darkMode}
+                      disabled={pending}
+                      icon={<Edit3 size={15} aria-hidden="true" />}
+                      onClick={() => onOpenEdit(group)}
+                    >
+                      {messages.edit}
+                    </Button>
+                  }
+                />
+              )}
+            />
+          </ManagerDialogSection>
         </DialogFrame>
       </DialogOverlay>
 
@@ -127,50 +127,6 @@ export function RoutineGroupManagerDialog({
         />
       ) : null}
     </>
-  );
-}
-
-function GroupList({
-  darkMode,
-  groups,
-  editDisabled,
-  messages,
-  onOpenEdit,
-}: {
-  darkMode: boolean;
-  groups: RoutineGroupOption[];
-  editDisabled: boolean;
-  messages: RoutineMessages["groups"];
-  onOpenEdit: (group: RoutineGroupOption) => void;
-}) {
-  return (
-    <List
-      darkMode={darkMode}
-      className={cx("rounded-md border", secondaryButtonBorderColorClass)}
-    >
-      {groups.map((group) => (
-        <ListItem key={group.id} darkMode={darkMode} className="items-start">
-          <ListItemContent
-            title={<ListItemTitle truncate>{group.name}</ListItemTitle>}
-            main={
-              <ListItemDescription>
-                {group.description || messages.noDescription}
-              </ListItemDescription>
-            }
-          />
-          <ListItemActions>
-            <Button
-              darkMode={darkMode}
-              disabled={editDisabled}
-              icon={<Edit3 size={15} aria-hidden="true" />}
-              onClick={() => onOpenEdit(group)}
-            >
-              {messages.edit}
-            </Button>
-          </ListItemActions>
-        </ListItem>
-      ))}
-    </List>
   );
 }
 

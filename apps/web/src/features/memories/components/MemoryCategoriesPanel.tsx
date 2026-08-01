@@ -4,6 +4,7 @@ import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { Panel } from "@/components/panel";
+import { cardBodyPaddingClass } from "@/components/spacing";
 import type { MemoryCategoryOption } from "@/features/dashboard/types";
 import type { MemoryMessages } from "@/messages/app-messages";
 import { MemoryCategoryIcon } from "./MemoryCategoryIcon";
@@ -54,7 +55,7 @@ export function MemoryCategoriesPanel({
           </Button>
         }
       />
-      <div className="px-4 py-3">
+      <div className={cardBodyPaddingClass}>
         <SingleChoiceGroup
           darkMode={darkMode}
           value={filter}

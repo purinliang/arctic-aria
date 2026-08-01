@@ -2,11 +2,9 @@
 import { FolderKanban, Pin, PinOff, Plus } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
-import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
 import {
-  List,
   ListItem,
   ListItemActions,
   ListItemContent,
@@ -15,12 +13,14 @@ import {
   ListItemTitle,
   ListItemTitleButton,
 } from "@/components/list";
-import { LoadingLine } from "@/components/loading";
+import { PagedList } from "@/components/paged-list";
 import { Panel } from "@/components/panel";
 import type { ProjectView } from "@/features/projects/actions";
 import type { ProjectMessages } from "@/messages/app-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
 import type { ProjectDurationRange } from "@/features/projects/project-duration";
+
+const projectPageSize = 10;
 
 export function ProjectsList({
   darkMode,
@@ -72,16 +72,16 @@ export function ProjectsList({
         }
       />
 
-      <List darkMode={darkMode}>
-        {loading ? (
-          <LoadingLine darkMode={darkMode} text={messages.loading} />
-        ) : null}
-        {!loading && projects.length === 0 ? (
-          <p className={`px-4 py-4 text-sm ${secondaryTextColorClass}`}>
-            {messages.empty}
-          </p>
-        ) : null}
-        {projects.map((project) => (
+      <PagedList
+        ariaLabel={messages.pagination.ariaLabel}
+        darkMode={darkMode}
+        emptyText={messages.empty}
+        items={projects}
+        loading={loading}
+        loadingText={messages.loading}
+        messages={messages.pagination}
+        pageSize={projectPageSize}
+        renderItem={(project) => (
           <ProjectListItem
             key={project.id}
             darkMode={darkMode}
@@ -96,8 +96,8 @@ export function ProjectsList({
             onPin={() => onPinProject(project.id)}
             onUnpin={() => onUnpinProject(project.id)}
           />
-        ))}
-      </List>
+        )}
+      />
     </Panel>
   );
 }
@@ -149,7 +149,7 @@ function ProjectListItem({
           </ListItemDescription>
         }
         support={
-          <ListItemSupportingText className="block min-w-0 truncate">
+          <ListItemSupportingText>
             {projectTimelineText(
               project,
               timelineMessages,

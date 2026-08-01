@@ -4,9 +4,9 @@
 import { Copy, LoaderCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
+import { SettingsControlRow } from "@/components/settings-control-row";
 import type { SettingsMessages } from "@/messages/app-messages";
 import { discordBindingCodeExpiryMinutes } from "../discord-binding-config";
-import { SettingsControlRow } from "./SettingsControlRow";
 
 export function DiscordBindingCodeStatus({
   action,

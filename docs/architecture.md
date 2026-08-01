@@ -141,9 +141,10 @@ Detailed docs:
 
 ### Events
 
-Events are one-time scheduled items such as appointments, meetings, booked
-activities, and other fixed plans. An Event is not a project task and not a
-routine instance.
+Events are fixed plans such as appointments, meetings, booked activities,
+classes, and other externally constrained plans. Event definitions can generate
+one-time, daily, or weekly Event instances. An Event is not a project task and
+not a routine instance.
 
 Detailed docs:
 

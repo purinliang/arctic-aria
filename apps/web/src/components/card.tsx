@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
-import { panelHeaderColorClass, secondaryTextColorClass, panelColorClass } from "./color";
+import { panelHeaderColorClass, panelColorClass } from "./color";
+import { cardHeaderPaddingClass, iconGapClass, inlineGapClass } from "./spacing";
+import { Text, TextStack } from "./text";
 import { cx } from "./utils";
 
 export function Card({
@@ -38,30 +40,38 @@ export function CardHeader({
   return (
     <div
       className={cx(
-        "grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 rounded-t-md border-b px-4 py-2",
+        "grid grid-cols-[minmax(0,1fr)_auto] items-start rounded-t-md border-b",
+        cardHeaderPaddingClass,
+        inlineGapClass,
         panelHeaderColorClass,
         className,
       )}
     >
       <div className="min-w-0">
-        <div className="flex items-center gap-[var(--aa-panel-header-icon-gap)]">
+        <div className={cx("flex items-center", iconGapClass)}>
           {icon ? (
             <span className="inline-flex text-current">{icon}</span>
           ) : null}
-          <h2 className="text-base font-semibold leading-5">{title}</h2>
+          <Text as="h2" size="lg" weight="semibold" tone="current" truncate>
+            {title}
+          </Text>
         </div>
         {description ? (
-          <p className={cx("mt-0.5 text-xs leading-4", secondaryTextColorClass)}>
-            {description}
-          </p>
+          <TextStack
+            description={description}
+            descriptionProps={{
+              size: "sm",
+              className: "mt-[var(--aa-space-text-title-desc)]",
+            }}
+          />
         ) : null}
       </div>
       {action || meta ? (
         <div className="shrink-0 justify-self-end">
           {action ?? (
-            <span className={`text-sm ${secondaryTextColorClass}`}>
+            <Text as="span" size="md" tone="secondary">
               {meta}
-            </span>
+            </Text>
           )}
         </div>
       ) : null}

@@ -30,6 +30,7 @@ import { englishFormMessages } from "@/messages/form-messages";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
 import type { TimePickerMessages } from "@/messages/form-messages";
 import type { TimeParts } from "./time-picker-utils";
+import { controlGapClass, bodyStackClass } from "../spacing";
 import { cx } from "../utils";
 
 export function TimePickerField({
@@ -99,7 +100,8 @@ export function TimePickerField({
       <button
         className={cx(
           formButtonControlClass(darkMode, hasError),
-          "flex items-center gap-3 text-left",
+          "flex items-center text-left",
+          controlGapClass,
           showClear && "pr-12",
           className,
         )}
@@ -153,7 +155,7 @@ export function TimePickerField({
               "w-[min(16rem,calc(100vw-2rem))]",
             )}
           >
-            <div className="grid gap-2">
+            <div className={bodyStackClass}>
               <TimeTextInput
                 darkMode={darkMode}
                 messages={messages}
@@ -166,7 +168,7 @@ export function TimePickerField({
                 }}
               />
               {timeFormatPreference === "12h" ? (
-                <div className="grid grid-cols-2 gap-2">
+                <div className={cx("grid grid-cols-2", controlGapClass)}>
                   {(["AM", "PM"] as const).map((period) => (
                     <Button
                       key={period}
@@ -221,7 +223,7 @@ function TimeTextInput({
         className={formControlClass(
           darkMode,
           false,
-          "min-w-0 px-2 text-center text-lg font-semibold tabular-nums",
+          "min-w-0 px-[var(--aa-space-table-cell-x)] text-center text-[length:var(--aa-font-size-xl)] font-[var(--aa-font-weight-semibold)] leading-[var(--aa-line-height-xl)] tabular-nums",
         )}
         type="text"
         inputMode="text"

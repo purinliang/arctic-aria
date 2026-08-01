@@ -47,6 +47,7 @@ The main navigation area should contain:
 - Memories
 - Ideas
 - Settings
+- Design, only for administrators while Developer mode is enabled
 - separator line
 - theme mode item
 - sign out item
@@ -60,8 +61,12 @@ shortcuts below it open that specific Project detail page directly. Pinned
 project shortcuts are optional and should not replace the main Projects item.
 Navigation should update the browser path so refresh and direct entry preserve
 the current surface. Use `/today`, `/projects`, `/projects/<project-id>`,
-`/routines`, `/events`, `/memories`, `/ideas`, and `/settings`. Do not use
-`/project?id=<id>`.
+`/routines`, `/events`, `/memories`, `/ideas`, `/settings`, and `/design`. Do
+not use `/project?id=<id>`.
+
+The `Design` item appears directly after Settings only when the signed-in
+administrator has enabled Developer mode. Developer mode is stored in browser
+localStorage for the current browser, not in the database.
 
 Review is hidden from the sidebar until the review feature has a stable
 navigation design.
@@ -69,12 +74,12 @@ navigation design.
 ## Sidebar Actions
 
 Theme mode and sign out belong in the same sidebar list as the page navigation.
-Place them directly below a separator line after Settings. They should look
-like other sidebar menu items: same left alignment, icon position, row height,
-and button surface. Do not place them in a separate bottom list or visual
-container. Do not use a separate switch control in the sidebar. Do not show the
-current user display name in the sidebar or page title bar. Theme behavior is
-documented in [theme.md](theme.md).
+Place them directly below a separator line after the final page item. They
+should look like other sidebar menu items: same left alignment, icon position,
+row height, and button surface. Do not place them in a separate bottom list or
+visual container. Do not use a separate switch control in the sidebar. Do not
+show the current user display name in the sidebar or page title bar. Theme
+behavior is documented in [theme.md](theme.md).
 
 ## Brand
 

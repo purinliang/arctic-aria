@@ -2,6 +2,7 @@ export type TaskStatus = "todo" | "done";
 
 export type DashboardView =
   | "dashboard"
+  | "design"
   | "events"
   | "ideas"
   | "projects"
@@ -30,6 +31,7 @@ export type Routine = {
   routineId: string;
   title: string;
   description: string | null;
+  scheduledDate: string;
   scheduledTime: string;
   status: RoutineStatus;
   reminderState: RoutineReminderState;
@@ -67,14 +69,44 @@ export type RoutineGroupOption = {
   description: string | null;
 };
 
+export type EventRuleType = "once" | "daily" | "weekly";
+export type EventInstanceStatus = "scheduled" | "canceled";
+
+export type EventGroupOption = {
+  id: string;
+  name: string;
+  description: string | null;
+};
+
+export type EventDefinition = {
+  id: string;
+  groupId: string | null;
+  groupName: string | null;
+  title: string;
+  description: string | null;
+  startDate: string;
+  endDate: string | null;
+  estimatedDurationHours: number | null;
+  location: string | null;
+  ruleType: EventRuleType;
+  scheduledTime: string;
+  weekday: number | null;
+  timezone: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type ScheduledEvent = {
   id: string;
+  eventId: string;
   title: string;
   description: string | null;
   eventDate: string;
   eventTime: string;
   estimatedDurationHours: number | null;
   location: string | null;
+  locationOverride: string | null;
+  status: EventInstanceStatus;
   createdAt: string;
   updatedAt: string;
 };

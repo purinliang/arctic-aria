@@ -28,7 +28,7 @@ Use it for:
 - muted text colors
 - section borders
 - dividers
-- reusable semantic tones such as blue, amber, cyan, emerald, neutral, and red
+- reusable semantic tones, currently neutral, blue, emerald, and red
 
 Do not hard-code repeated color combinations in feature pages.
 
@@ -59,6 +59,16 @@ Use it for:
 - helper/supporting text
 - input labels
 - inline validation messages
+- composable text stacks in rows, panels, dialogs, and Design review pages
+
+Use `Text` when a component needs a specific composition of size, weight, tone,
+line-height, element, or truncation. Supported sizes are `xs`, `sm`, `md`, `lg`,
+`xl`, and `page`. Supported weights are `light`, `normal`, `medium`, and
+`semibold`. Supported tones are `primary`, `secondary`, `inverse`, and
+`current`.
+
+Use `TextStack` for reusable title, description, and supporting metadata
+rhythm. Use `ListItemTextStack` for list rows.
 
 Placeholder text belongs to the input component API, but it should follow the
 same plain English style as other helper text.
@@ -69,6 +79,40 @@ the same muted visual family and line height direction as descriptions, but one
 size smaller. Supporting metadata should usually be a single `A · B · C` line.
 Feature rows should not hand-code label, description, or metadata font size,
 line height, or muted color.
+
+## Spacing
+
+`spacing.ts` owns reusable class constants for shared padding, margin, and gap
+tokens.
+
+Use spacing helpers for repeated chrome:
+
+- page, panel, section, subsection, and body stacks
+- shared split-panel column gap and split-column stack gap
+- list row and compact manager row padding
+- card header and body padding
+- dialog and popover padding
+- table-like cell padding
+- tag padding
+- title-description and description-supporting text gaps
+- inline, control, and icon gaps
+
+Do not tokenize one-off geometry such as fixed max-widths, grid templates,
+z-index, animation distances, artwork sizes, or absolute positioning.
+
+## Content Section
+
+`content-section.tsx` owns unframed content sections and subsections that sit at
+the same visual level as panels.
+
+Use `ContentSection` for a page-level block with a title, optional description,
+optional right-side action, and body content. Use `ContentSubsection` inside
+that block for smaller titled groups. These components should not add panel
+borders, card backgrounds, or nested-card styling; they structure content that
+already lives on the page surface, such as Design review pages.
+
+Use them when a surface needs title plus description rhythm but is not a panel,
+dialog, form section, or list row.
 
 ## Masked Text
 
@@ -87,8 +131,7 @@ Buttons support:
 
 - primary actions
 - secondary actions
-- ghost/icon actions
-- success actions
+- ghost, or borderless, icon and utility actions
 - text, icon, or text plus icon
 - loading state
 - disabled state
@@ -157,11 +200,11 @@ Form rhythm:
 - button heights: `sm` `36px`, `md` `40px`, `lg` `44px`
 - text inputs, select triggers, and date/time picker triggers: `40px`
 - icon-only buttons: `36px`
-- label-to-control gap: `4px`
+- label-to-control gap: `2px`
 - normal field-group gap: `12px`
 - form section gap: `18px`
 - form actions should start `36px` after the field group
-- actions inside the action area use a `16px` gap
+- actions inside the action area use the shared `12px` inline gap
 - auth submit and CRUD save/delete buttons use the `40px` `md` height
 
 Use tight field groups for repeated simple inputs. Use larger form sections
@@ -315,6 +358,15 @@ base rhythm should still come from the shared `sm` button height. Field labels
 above choice groups should use shared `LabelText`, the same as input, select,
 date picker, and time picker labels.
 
+Choice labels must wrap or break inside the available column. Long user-created
+filter names must not force a side panel wider than the shared split layout
+allows.
+
+List supporting metadata uses `ListItemSupportingText`, which truncates by
+default inside the row's available content track. Use this for event, routine,
+project, memory, and idea metadata so long user-created labels do not expand a
+list row past the page or panel width.
+
 ## Switch
 
 `switch.tsx` owns binary toggle controls.
@@ -324,6 +376,28 @@ build one-off toggle switches inside feature pages.
 
 Do not use a switch in the sidebar theme row. Sidebar actions should use the
 same menu-item button style as navigation items.
+
+## Tabs
+
+`tabs.tsx` owns tabbed page switching controls.
+
+Use it when a page contains several peer review surfaces inside the same route,
+such as the developer-only Design page. Tabs are page-local state, not sidebar
+navigation, and should switch content without changing the browser path unless
+a feature explicitly needs route-backed tabs.
+
+Tabs use the same inset rounded background first used by the auth
+login/register selector. Use normal `sm` button height unless a feature has a
+documented reason for taller tabs.
+
+## Settings Control Row
+
+`settings-control-row.tsx` owns setting-style control rows that pair label and
+supporting text on the left with one control or value area on the right.
+
+Use it for settings-like configuration rows wherever they appear, including
+Settings itself and developer-only review surfaces such as Design. The component
+is shared because the row pattern is not owned by the Settings feature.
 
 ## Loading
 
@@ -351,6 +425,11 @@ to two columns only when the container is at least `53rem` wide. The split
 controls width only; left and right panels keep independent content-driven
 heights and should not be stretched to match each other.
 
+Feature pages should prefer the shared spacing helpers `splitPanelClass` and
+`splitPanelColumnClass` instead of local split `gap-*` classes. This keeps the
+left/right column margin and each column's panel stack on the same page-gap
+token.
+
 ## Card
 
 `card.tsx` owns compact card structure.
@@ -370,10 +449,10 @@ header components for the same shape. Header action placement, including the
 top and right inset for buttons, belongs to `CardHeader`; feature code should
 only pass the action component.
 
-Card and panel headers should use compact `px-4 py-2` spacing, a bottom border,
-and a subtle header background that differs from the content surface. Header
-descriptions use supporting-text weight because they explain the title rather
-than acting as body copy.
+Card and panel headers should use the shared card-header padding token, a
+bottom border, and a subtle header background that differs from the content
+surface. Header descriptions use supporting-text weight because they explain the
+title rather than acting as body copy.
 
 Header icons should use the same foreground color as the header title. Do not
 style header icons as muted/supporting text; muted color is reserved for
@@ -394,22 +473,25 @@ Use it for:
 - list dividers
 
 List items should keep horizontal padding, vertical rhythm, hover state, and
-selected state consistent. The shared `ListItem` owns vertical padding: middle
-rows are compact, while the first row keeps the larger top padding and the last
-row keeps the larger bottom padding automatically. Feature rows should not
-hand-code first/last padding.
+selected state consistent. The shared `ListItem` owns list-row padding. Feature
+rows should not hand-code first/last padding.
+Use `density="compact"` when a row needs the compact list-row rhythm while
+keeping the same horizontal action alignment, row grid, hover color, and
+selected state.
 
 List dividers use the weaker list-divider border role, not the stronger panel
 outline border. Panel borders should remain visually stronger than dividers
 between rows.
 
 For normal title, main-content, and supporting-metadata rows, use
-`ListItemContent` with its `title`, `main`, and `support` slots. Use
-`ListItemTitle`, `ListItemDescription`, and `ListItemSupportingText` inside
-those slots. Feature rows should not hand-code list title, description, or
-metadata font size, weight, line height, muted color, or local `mt-*` spacing.
-`ListItemContent` owns the vertical relationship between the slots, and the list
-text components own the compact multiline rhythm.
+`ListItemContent` with its `title`, `main`, and `support` slots, or use
+`ListItemTextStack` when the row is a simple title, description, and supporting
+metadata composition. Use `ListItemTitle`, `ListItemDescription`, and
+`ListItemSupportingText` inside custom slot content. Feature rows should not
+hand-code list title, description, or metadata font size, weight, line height,
+muted color, or local `mt-*` spacing. `ListItemContent` owns the vertical
+relationship between the slots, and the list text components own the compact
+multiline rhythm.
 
 Empty states, overview copy, form help, and dialog body text are not list rows.
 Use `DescriptionText` or `SupportingText` for those surfaces instead of forcing
@@ -419,6 +501,53 @@ Use `ExpandableListItem` for rows that open details. The header row and expanded
 details must be rendered inside the same list item so the background, padding,
 and divider behavior stay consistent. Do not place expanded details in a
 separate grey box or sibling container below the item.
+
+## Paged List
+
+`paged-list.tsx` owns pagination for long management lists. It composes the
+shared `List` and `ListItem` primitives, so feature rows keep the same padding,
+dividers, hover states, and text rhythm while the list renders only one page at
+a time.
+
+Use `PagedList` when a page or panel user-created list can naturally grow past
+a short review length, such as routine definitions, routine instances, Event
+definitions, Event instances, project tasks, projects, memories, and ideas. The
+owning feature still decides which items belong in the list through filters or
+grouping; `PagedList` only slices the already-filtered item array.
+
+The footer uses compact ghost icon controls:
+
+```text
+[First] [Previous] [Page x / y] [Next] [Last]
+```
+
+The icon buttons are compact and borderless. The page count is text, not an
+input or dialog trigger in the current UI. The footer uses compact vertical
+padding so pagination does not read as another full list row.
+
+When a surrounding filter changes, pass a reset key so the current page returns
+to the first page. Do not use paged lists for compact dashboard panels that
+intentionally show only today's top items.
+
+Default page sizes:
+
+- `6`: generated instance lists and dialog manager lists
+- `8`: normal feature-page lists with taller rows
+- `10`: full-width or primary single-panel lists with more vertical room
+
+## Manager List
+
+`manager-list.tsx` owns compact dialog-only management sections and rows. Use it
+inside manager dialogs that list user-created supporting records, such as
+Routine Groups, Event Groups, Project Milestones, and Memory Categories.
+
+`ManagerDialogSection` aligns the section title on the left and the `New`
+action on the right. `ManagerListRow` uses the same right-side action column, so
+the header `New` action aligns with row-level actions such as `Edit`.
+
+`ManagerList` should not look like a page panel list. It uses compact dialog
+row padding and a dialog-form surface. It renders at most six rows per page by
+default and uses the same compact icon pager as `PagedList` when needed.
 
 ## Optional Description Copy
 
@@ -456,14 +585,13 @@ Use it for:
 Dialogs are stronger than notifications. Use dialogs when the user must make a
 decision or when the current workflow cannot safely continue.
 
-Dialog frames use the same `px-4 py-4` padding rhythm as notifications. Form
-dialogs should use the default dialog width so input fields, date pickers, and
-other long controls do not collapse into a narrow column. Use larger section
-spacing only when a form has meaningful groups. Small confirmation dialogs may
-use the `sm` size. Wide workflow dialogs that need side-by-side editing and
-preview, such as Project Tree Template, may use the `lg` size. Dialog overlays
-must provide enough top and
-bottom viewport padding and must allow vertical scrolling when form content is
+Dialog frames use the shared dialog padding token. Form dialogs should use the
+default dialog width so input fields, date pickers, and other long controls do
+not collapse into a narrow column. Use larger section spacing only when a form
+has meaningful groups. Small confirmation dialogs may use the `sm` size. Wide
+workflow dialogs that need side-by-side editing and preview, such as Project
+Tree Template, may use the `lg` size. Dialog overlays must provide enough top
+and bottom viewport padding and must allow vertical scrolling when form content is
 taller than the viewport. Dialogs must not close when the user clicks the
 semi-transparent overlay; close only through explicit close, cancel, save,
 delete, or confirmation controls. Feature dialogs should use shared dialog

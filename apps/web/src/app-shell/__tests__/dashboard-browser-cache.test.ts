@@ -64,17 +64,40 @@ const eventData: EventDashboardData = {
   events: [
     {
       id: "event-one",
+      groupId: null,
+      groupName: null,
+      title: "Test event",
+      description: "Test event description",
+      startDate: "2026-07-18",
+      endDate: null,
+      estimatedDurationHours: 1.5,
+      location: "Office",
+      ruleType: "once",
+      scheduledTime: "09:30",
+      weekday: null,
+      timezone: "UTC",
+      createdAt: "2026-07-01T00:00:00.000Z",
+      updatedAt: "2026-07-01T00:00:00.000Z",
+    },
+  ],
+  eventInstances: [
+    {
+      id: "event-instance-one",
+      eventId: "event-one",
       title: "Test event",
       description: "Test event description",
       eventDate: "2026-07-18",
       eventTime: "09:30",
       estimatedDurationHours: 1.5,
       location: "Office",
+      locationOverride: null,
+      status: "scheduled",
       createdAt: "2026-07-01T00:00:00.000Z",
       updatedAt: "2026-07-01T00:00:00.000Z",
     },
   ],
   todayEvents: [],
+  eventGroups: [],
 };
 
 test("dashboard browser cache is keyed by user and section", () => {

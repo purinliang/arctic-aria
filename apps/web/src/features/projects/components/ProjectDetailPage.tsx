@@ -3,6 +3,10 @@ import { useMemo } from "react";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { Panel } from "@/components/panel";
+import {
+  splitPanelClass,
+  splitPanelColumnClass,
+} from "@/components/spacing";
 import type { TaskStatus } from "@/features/dashboard/types";
 import type {
   ProjectTaskView,
@@ -224,7 +228,7 @@ function ProjectDetailContent({
 
   return (
     <div className="aa-split-container">
-      <div className="aa-split-panel gap-4">
+      <div className={splitPanelClass}>
         {activeMilestoneId === null ? (
           <ProjectLevelDetailPage
             darkMode={darkMode}
@@ -239,6 +243,7 @@ function ProjectDetailContent({
             pending={pending}
             project={project}
             selectedMilestone={selectedMilestone}
+            taskPaginationKey={activeMilestoneId}
             selectedTasks={selectedTasks}
             messages={messages}
             defaultDescriptions={defaultDescriptions}
@@ -249,7 +254,7 @@ function ProjectDetailContent({
           />
         )}
 
-        <aside className="grid content-start gap-4">
+        <aside className={splitPanelColumnClass}>
           {activeMilestoneId !== null && selectedChoice ? (
             <MilestoneOverviewPanel
               darkMode={darkMode}
@@ -288,7 +293,7 @@ function ProjectLevelDetailPage({
   onEditProject: (project: ProjectView) => void;
 }) {
   return (
-    <div className="grid min-w-0 content-start gap-4">
+    <div className={splitPanelColumnClass}>
       <ProjectOverviewPanel
         darkMode={darkMode}
         pending={pending}
@@ -305,6 +310,7 @@ function ProjectMilestoneDetailPage({
   pending,
   project,
   selectedMilestone,
+  taskPaginationKey,
   selectedTasks,
   messages,
   defaultDescriptions,
@@ -317,6 +323,7 @@ function ProjectMilestoneDetailPage({
   pending: boolean;
   project: ProjectView;
   selectedMilestone: ProjectView["milestones"][number] | null;
+  taskPaginationKey: string;
   selectedTasks: ProjectTaskView[];
   messages: ProjectMessages["detail"];
   defaultDescriptions: ProjectMessages["defaultDescriptions"];
@@ -326,10 +333,11 @@ function ProjectMilestoneDetailPage({
   onTaskStatus: (taskId: string, status: TaskStatus) => void;
 }) {
   return (
-    <div className="grid min-w-0 content-start gap-4">
+    <div className={splitPanelColumnClass}>
       <ProjectDetailTasksPanel
         darkMode={darkMode}
         pending={pending}
+        paginationKey={taskPaginationKey}
         tasks={selectedTasks}
         messages={messages}
         defaultDescriptions={defaultDescriptions}

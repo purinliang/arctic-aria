@@ -3,7 +3,9 @@ import {
   type DatabaseVersionStatus,
 } from "./app-metadata";
 import { ListItemDescription, ListItemTitle } from "./list";
+import { bodyStackClass, textTitleDescGapClass } from "./spacing";
 import { SupportingText } from "./text";
+import { cx } from "./utils";
 import type { VersionStatusMessages } from "@/messages/app-messages";
 import type { ReactNode } from "react";
 
@@ -28,7 +30,7 @@ export function VersionStatusSupport({
   status: DatabaseVersionStatus;
 }) {
   return (
-    <div className="grid gap-1 text-center tabular-nums">
+    <div className="grid gap-[var(--aa-space-text-title-desc)] text-center tabular-nums">
       <SupportingText darkMode={darkMode}>
         {messages.appVersion}: {status.appVersionText}
       </SupportingText>
@@ -62,7 +64,7 @@ export function VersionStatusRows({
   status: DatabaseVersionStatus;
 }) {
   return (
-    <div className="grid gap-3">
+    <div className={bodyStackClass}>
       <VersionRow
         label={messages.appVersion}
         value={status.appVersionText}
@@ -104,7 +106,7 @@ function VersionRow({
       data-version-row={rowId ?? label.toLowerCase().replace(/\s+/g, "-")}
     >
       <ListItemTitle>{label}</ListItemTitle>
-      <ListItemDescription className="tabular-nums">
+      <ListItemDescription className={cx("tabular-nums", textTitleDescGapClass)}>
         {value}
         {message}
       </ListItemDescription>

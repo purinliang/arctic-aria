@@ -18,6 +18,8 @@ export type RoutineServiceOptions = {
 
 const msPerDay = 24 * 60 * 60 * 1000;
 const todayRoutineInstanceLimit = 6;
+const upcomingRoutineInstanceLimit = 3;
+const upcomingRoutineSearchDays = 370 * 3 + 31;
 
 type TodayRoutineCandidate = {
   routine: RoutineRecord;
@@ -27,6 +29,18 @@ type TodayRoutineCandidate = {
 
 function parseDateKey(value: string) {
   return new Date(`${value}T00:00:00.000Z`);
+}
+
+function dateKey(value: Date) {
+  return value.toISOString().slice(0, 10);
+}
+
+function addDaysToDateKey(value: string, days: number) {
+  const date = parseDateKey(value);
+
+  date.setUTCDate(date.getUTCDate() + days);
+
+  return dateKey(date);
 }
 
 function daysBetween(left: string, right: string) {
@@ -108,6 +122,33 @@ export function shouldGenerateInstance(routine: RoutineRecord, date: string) {
   return dayOffset % intervalValue === 0;
 }
 
+export function nextRoutineOccurrenceDates({
+  routine,
+  fromDate,
+  limit = upcomingRoutineInstanceLimit,
+}: {
+  routine: RoutineRecord;
+  fromDate: string;
+  limit?: number;
+}) {
+  const dates: string[] = [];
+  let cursor = fromDate;
+
+  for (
+    let dayOffset = 0;
+    dayOffset <= upcomingRoutineSearchDays && dates.length < limit;
+    dayOffset += 1
+  ) {
+    if (shouldGenerateInstance(routine, cursor)) {
+      dates.push(cursor);
+    }
+
+    cursor = addDaysToDateKey(cursor, 1);
+  }
+
+  return dates;
+}
+
 export function createRoutineService(options: RoutineServiceOptions = {}) {
   const routines = options.routines ?? new PostgresRoutineRepository();
   const now = options.now ?? (() => new Date());
@@ -140,6 +181,64 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
       }),
       occurredAt,
     });
+  }
+
+  async function ensureUpcomingRoutineInstancesForRoutine({
+    userId,
+    routine,
+    referenceDate,
+    occurredAt,
+  }: {
+    userId: string;
+    routine: RoutineRecord;
+    referenceDate: string;
+    occurredAt: Date;
+  }) {
+    const scheduledTime = resolveRoutineScheduledTime(routine);
+    const occurrenceDates = nextRoutineOccurrenceDates({
+      routine,
+      fromDate: referenceDate,
+    });
+
+    await Promise.all(
+      occurrenceDates.map((scheduledDate) =>
+        routines.ensureRoutineInstance({
+          userId,
+          routineId: routine.id,
+          scheduledDate,
+          scheduledTime,
+          remindAt: routineReminderAt({
+            scheduledDate,
+            scheduledTime,
+            timeZone: routine.rule.timezone,
+          }),
+          occurredAt,
+        }),
+      ),
+    );
+  }
+
+  async function ensureUpcomingRoutineInstances(
+    userId: string,
+    timeZone: string,
+    occurredAt: Date,
+  ) {
+    const referenceDate = localScheduledDateKey({
+      date: occurredAt,
+      timeZone,
+    });
+    const activeRoutines = await routines.listActiveRoutines(userId);
+
+    await Promise.all(
+      activeRoutines.map((routine) =>
+        ensureUpcomingRoutineInstancesForRoutine({
+          userId,
+          routine,
+          referenceDate,
+          occurredAt,
+        }),
+      ),
+    );
   }
 
   return {
@@ -206,6 +305,17 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
           scheduledTime,
         };
       });
+
+      await Promise.all(
+        routineCandidates.map(({ routine, scheduledDate }) =>
+          ensureUpcomingRoutineInstancesForRoutine({
+            userId,
+            routine,
+            referenceDate: scheduledDate,
+            occurredAt,
+          }),
+        ),
+      );
 
       const existingInstances = await Promise.all(
         [...scheduledDates].map((scheduledDate) =>
@@ -297,6 +407,14 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
         .slice(0, todayRoutineInstanceLimit);
     },
 
+    async listUpcomingRoutineInstances(userId: string, timeZone: string) {
+      const occurredAt = now();
+
+      await ensureUpcomingRoutineInstances(userId, timeZone, occurredAt);
+
+      return routines.listRoutineInstances(userId);
+    },
+
     async saveRoutine(
       userId: string,
       input: {
@@ -338,6 +456,22 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
         });
 
       if (savedRoutine) {
+        const referenceDate = localScheduledDateKey({
+          date: occurredAt,
+          timeZone: savedRoutine.rule.timezone,
+        });
+
+        await routines.deleteFuturePendingRoutineInstances({
+          userId,
+          routineId: savedRoutine.id,
+          fromDate: referenceDate,
+        });
+        await ensureUpcomingRoutineInstancesForRoutine({
+          userId,
+          routine: savedRoutine,
+          referenceDate,
+          occurredAt,
+        });
         await ensureTodayRoutineInstance(userId, savedRoutine, occurredAt);
       }
 

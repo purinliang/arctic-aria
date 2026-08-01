@@ -167,6 +167,9 @@ Memory item behavior:
   would otherwise appear.
 - The edit action uses a pencil icon and opens the edit-memory dialog.
 - Clicking `Edit` opens the dialog without changing persisted data.
+- When there are more than eight visible memories, use the shared compact
+  paged-list control below the rows.
+- Changing the category filter resets the memory list pager to the first page.
 
 ## Suggestions Panel
 
@@ -250,6 +253,10 @@ The user must be able to:
 Built-in categories should remain visible in Manage Categories with their icon,
 name, and description only. Do not show built-in/user-created supportive
 metadata in the list. Do not show an edit action for built-in categories.
+Manage Categories uses the shared dialog `ManagerList`, not a page/panel list.
+The custom category section aligns the right-side `New` action with row-level
+`Edit` actions. Custom category rows show at most six rows per page, with the
+compact icon pager below the rows when needed.
 
 The add and edit controls should not appear as inline panels inside the memory
 list. Inline panels are hard to distinguish from page content and make it

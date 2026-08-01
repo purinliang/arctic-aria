@@ -6,9 +6,10 @@ import {
   buttonHeightSmClass,
   iconButtonSizeClass,
 } from "./control-layout";
+import { controlGapClass } from "./spacing";
 import { cx } from "./utils";
 
-export type ButtonTone = "primary" | "secondary" | "ghost" | "success";
+export type ButtonTone = "primary" | "secondary" | "ghost";
 export type ButtonSize = "sm" | "md" | "md-lg" | "lg" | "icon";
 
 export function Button({
@@ -35,7 +36,8 @@ export function Button({
   return (
     <button
       className={cx(
-        "inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md font-semibold transition disabled:cursor-not-allowed",
+        "inline-flex shrink-0 cursor-pointer items-center justify-center rounded-md font-[var(--aa-font-weight-semibold)] leading-[var(--aa-line-height-md)] transition disabled:cursor-not-allowed",
+        controlGapClass,
         buttonSizeClass(size),
         buttonToneClass(darkMode, tone, active),
         className,
@@ -52,26 +54,41 @@ export function Button({
 
 function buttonSizeClass(size: ButtonSize) {
   if (size === "sm") {
-    return cx(buttonHeightSmClass, "px-3 text-sm");
+    return cx(
+      buttonHeightSmClass,
+      "px-[var(--aa-space-popover-x)] text-[length:var(--aa-font-size-md)]",
+    );
   }
 
   if (size === "md") {
-    return cx(buttonHeightMdClass, "px-3 text-sm");
+    return cx(
+      buttonHeightMdClass,
+      "px-[var(--aa-space-popover-x)] text-[length:var(--aa-font-size-md)]",
+    );
   }
 
   if (size === "md-lg") {
-    return cx(buttonHeightMdLgClass, "px-3 text-sm");
+    return cx(
+      buttonHeightMdLgClass,
+      "px-[var(--aa-space-popover-x)] text-[length:var(--aa-font-size-md)]",
+    );
   }
 
   if (size === "lg") {
-    return cx(buttonHeightLgClass, "px-4 text-sm");
+    return cx(
+      buttonHeightLgClass,
+      "px-[var(--aa-space-card-body-x)] text-[length:var(--aa-font-size-md)]",
+    );
   }
 
   if (size === "icon") {
-    return cx(iconButtonSizeClass, "px-0 text-xs");
+    return cx(iconButtonSizeClass, "px-0 text-[length:var(--aa-font-size-xs)]");
   }
 
-  return cx(buttonHeightSmClass, "px-3 text-sm");
+  return cx(
+    buttonHeightSmClass,
+    "px-[var(--aa-space-popover-x)] text-[length:var(--aa-font-size-md)]",
+  );
 }
 
 function buttonToneClass(
@@ -84,13 +101,7 @@ function buttonToneClass(
   }
 
   if (tone === "ghost") {
-    return "text-[var(--aa-secondary-button-text)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]";
-  }
-
-  if (tone === "success") {
-    return darkMode
-      ? "border border-emerald-400/50 bg-emerald-500/15 text-emerald-200 hover:border-emerald-300"
-      : "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300";
+    return "text-[var(--aa-secondary-button-text)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:bg-transparent disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:bg-transparent disabled:hover:text-[var(--aa-secondary-button-disabled-text)]";
   }
 
   return "border border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:border-[var(--aa-secondary-button-disabled-border)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:border-[var(--aa-secondary-button-disabled-border)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]";

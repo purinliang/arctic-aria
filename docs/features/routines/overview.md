@@ -138,15 +138,16 @@ Action behavior:
   change the instance status; it should create or update reminder delivery
   state after reminder response actions are designed.
 
-## Events
+## Completion History
 
 Completing or skipping a routine instance should create immutable completion
 history for daily review.
 
-The first event target should be:
+The current history target is:
 
-- target type: `routine_instance`
-- target id: the routine instance id
+- table: `routine_completion_events`
+- target id: `routine_instance_id`
+- event types: `completed`, `skipped`, and `reopened`
 
 The latest state remains on `routine_instances`. Event history records what
 happened.

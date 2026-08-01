@@ -5,6 +5,8 @@ import { panelColorClass } from "./color";
 import { FormActions, FormFields, FormSections } from "./forms/form-layout";
 import { PendingText } from "./loading";
 import { ScrollArea } from "./scroll-area";
+import { controlGapClass, dialogPaddingClass, inlineGapClass } from "./spacing";
+import { Text } from "./text";
 import { cx } from "./utils";
 
 export function DialogOverlay({
@@ -70,7 +72,7 @@ export function dialogFrameClass(
   return cx(
     "relative rounded-md border shadow-2xl",
     "bg-[var(--aa-panel-bg)]",
-    padding === "md" ? "p-4" : "",
+    padding === "md" ? dialogPaddingClass : "",
     size === "sm"
       ? "w-[min(calc(100vw-2rem),28rem)]"
       : size === "lg"
@@ -94,9 +96,16 @@ export function DialogHeader({
   onClose: () => void;
 }) {
   return (
-    <div className="mb-[var(--aa-form-section-gap)] flex items-center justify-between gap-3">
-      <h3 className="text-lg font-semibold leading-7">{title}</h3>
-      <div className="flex shrink-0 items-center gap-1">
+    <div
+      className={cx(
+        "mb-[var(--aa-form-section-gap)] flex items-center justify-between",
+        inlineGapClass,
+      )}
+    >
+      <Text as="h3" size="xl" weight="semibold" tone="primary">
+        {title}
+      </Text>
+      <div className={cx("flex shrink-0 items-center", controlGapClass)}>
         {actions}
         <Button
           darkMode={darkMode}
@@ -257,14 +266,15 @@ export function ConfirmDialog({
           closeLabel={closeLabel}
           onClose={onCancel}
         />
-        <p
-          className={
-            "text-sm leading-6 text-[var(--aa-secondary-text)]"
-          }
-        >
+        <Text as="p" size="md" tone="secondary" leading="lg">
           {description}
-        </p>
-        <div className="mt-[var(--aa-form-section-gap)] flex flex-wrap justify-end gap-[var(--aa-form-action-inner-gap)]">
+        </Text>
+        <div
+          className={cx(
+            "mt-[var(--aa-form-section-gap)] flex flex-wrap justify-end",
+            inlineGapClass,
+          )}
+        >
           <Button darkMode={darkMode} disabled={pending} onClick={onCancel}>
             {cancelText}
           </Button>

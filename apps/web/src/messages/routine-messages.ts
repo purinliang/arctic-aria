@@ -1,5 +1,9 @@
 import type { RoutineRuleType } from "@/features/dashboard/types";
 import type { RoutineRecurrenceOption } from "@/features/routines/routine-recurrence";
+import {
+  englishPaginationMessages,
+  simplifiedChinesePaginationMessages,
+} from "./pagination-messages.ts";
 
 export const englishRoutineMessages = {
   page: {
@@ -11,10 +15,14 @@ export const englishRoutineMessages = {
     noDescription: "No description.",
     flexible: "Flexible",
     edit: "Edit",
+    pagination: {
+      ariaLabel: "Routine definition pages",
+      ...englishPaginationMessages,
+    },
   },
   groups: {
     title: "Groups",
-    description: "Filter routines by life area.",
+    description: "Filter by routine group.",
     all: "All",
     noGroup: "Default",
     manage: "Manage",
@@ -31,6 +39,10 @@ export const englishRoutineMessages = {
     descriptionLabel: "Description",
     noDescription: "No description.",
     noGroups: "No groups yet.",
+    pagination: {
+      ariaLabel: "Routine group pages",
+      ...englishPaginationMessages,
+    },
     save: "Save",
     saving: "Saving",
     delete: "Delete",
@@ -43,6 +55,33 @@ export const englishRoutineMessages = {
       "A place for related recurring checks.",
       "A simple group for routines you review together.",
     ],
+  },
+  instances: {
+    title: "Routine Instances",
+    description: "Generated routine actions.",
+    loading: "Loading routine instances...",
+    empty: "No routine instances in this range.",
+    complete: "Complete",
+    reopen: "Reopen",
+    markDone: (title: string) => `Mark "${title}" done`,
+    reopenItem: (title: string) => `Reopen "${title}"`,
+    pagination: {
+      ariaLabel: "Routine instance pages",
+      ...englishPaginationMessages,
+    },
+    status: {
+      pending: "Pending",
+      completed: "Completed",
+      skipped: "Skipped",
+    },
+  },
+  filters: {
+    title: "Filter",
+    description: "Filter instances by date.",
+    all: "All",
+    recent: "Recent",
+    future: "Future",
+    past: "Past",
   },
   editor: {
     add: "Add routine",
@@ -218,10 +257,14 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     noDescription: "暂无描述。",
     flexible: "灵活时间",
     edit: "编辑",
+    pagination: {
+      ariaLabel: "日常定义分页",
+      ...simplifiedChinesePaginationMessages,
+    },
   },
   groups: {
     title: "分组",
-    description: "按生活领域筛选日常。",
+    description: "按日常分组筛选。",
     all: "全部",
     noGroup: "默认",
     manage: "管理",
@@ -238,6 +281,10 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     descriptionLabel: "描述",
     noDescription: "暂无描述。",
     noGroups: "还没有分组。",
+    pagination: {
+      ariaLabel: "日常分组分页",
+      ...simplifiedChinesePaginationMessages,
+    },
     save: "保存",
     saving: "正在保存",
     delete: "删除",
@@ -250,6 +297,33 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
       "适合整理相关重复事项。",
       "方便一起查看的一组日常。",
     ],
+  },
+  instances: {
+    title: "日常实例",
+    description: "已生成的具体日常行动。",
+    loading: "正在加载日常实例...",
+    empty: "这个范围内没有日常实例。",
+    complete: "完成",
+    reopen: "重新打开",
+    markDone: (title) => `完成“${title}”`,
+    reopenItem: (title) => `重新打开“${title}”`,
+    pagination: {
+      ariaLabel: "日常实例分页",
+      ...simplifiedChinesePaginationMessages,
+    },
+    status: {
+      pending: "待处理",
+      completed: "已完成",
+      skipped: "已跳过",
+    },
+  },
+  filters: {
+    title: "筛选",
+    description: "按日期筛选实例。",
+    all: "全部",
+    recent: "近期",
+    future: "未来",
+    past: "过去",
   },
   editor: {
     add: "添加日常",

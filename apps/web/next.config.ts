@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
       { source: "/memories", destination: "/" },
       { source: "/ideas", destination: "/" },
       { source: "/settings", destination: "/" },
+      { source: "/design", destination: "/" },
     ];
   },
   env: {

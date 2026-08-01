@@ -157,34 +157,55 @@
   --aa-list-divider-border: var(--gray-3);
   --aa-primary-text: var(--gray-12);
   --aa-secondary-text: var(--gray-11);
+  --aa-inverse-text: var(--blue-contrast);
+  --aa-font-family-body: Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --aa-font-family-cjk: Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei",
+    ui-sans-serif, system-ui, sans-serif;
+  --aa-font-size-xs: 12px;
+  --aa-font-size-sm: 13px;
+  --aa-font-size-md: 14px;
+  --aa-font-size-lg: 16px;
+  --aa-font-size-xl: 18px;
+  --aa-font-size-page: 28px;
+  --aa-line-height-xs: 16px;
+  --aa-line-height-sm: 18px;
+  --aa-line-height-md: 20px;
+  --aa-line-height-lg: 24px;
+  --aa-line-height-xl: 26px;
+  --aa-line-height-page: 34px;
+  --aa-font-weight-light: 300;
+  --aa-font-weight-normal: 400;
+  --aa-font-weight-medium: 500;
+  --aa-font-weight-semibold: 600;
   --aa-primary-button-bg: var(--blue-9);
   --aa-primary-button-text: var(--blue-contrast);
   --aa-primary-button-hover-bg: var(--blue-10);
   --aa-primary-button-hover-text: var(--blue-contrast);
-  --aa-primary-button-disabled-bg: var(--blue-8);
-  --aa-primary-button-disabled-text: var(--aa-gray-11-50);
+  --aa-primary-button-disabled-bg: var(--gray-4);
+  --aa-primary-button-disabled-text: var(--gray-10);
   --aa-secondary-button-bg: var(--gray-2);
   --aa-secondary-button-text: var(--aa-gray-11-50);
   --aa-secondary-button-border: var(--gray-7);
   --aa-secondary-button-hover-bg: var(--gray-4);
   --aa-secondary-button-hover-border: var(--gray-8);
   --aa-secondary-button-hover-text: var(--gray-12);
-  --aa-secondary-button-disabled-border: var(--gray-6);
-  --aa-secondary-button-disabled-bg: var(--gray-2);
-  --aa-secondary-button-disabled-text: var(--aa-gray-11-50);
-  --aa-text-input-bg: var(--gray-2);
-  --aa-text-input-text: var(--gray-12);
+  --aa-secondary-button-disabled-border: var(--gray-5);
+  --aa-secondary-button-disabled-bg: var(--aa-gray-2-50);
+  --aa-secondary-button-disabled-text: var(--gray-10);
+  --aa-text-input-bg: var(--aa-secondary-button-bg);
+  --aa-text-input-text: var(--aa-secondary-button-text);
   --aa-text-input-placeholder-text: var(--gray-11);
-  --aa-text-input-border: var(--gray-7);
+  --aa-text-input-border: var(--aa-secondary-button-border);
   --aa-text-input-hover-bg: var(--aa-secondary-button-hover-bg);
-  --aa-text-input-hover-text: var(--aa-text-input-text);
-  --aa-text-input-hover-border: var(--gray-8);
+  --aa-text-input-hover-text: var(--aa-secondary-button-hover-text);
+  --aa-text-input-hover-border: var(--aa-secondary-button-hover-border);
   --aa-text-input-focus-bg: var(--aa-text-input-hover-bg);
-  --aa-text-input-focus-text: var(--aa-text-input-text);
+  --aa-text-input-focus-text: var(--aa-text-input-hover-text);
   --aa-text-input-focus-border: var(--aa-primary-button-bg);
-  --aa-text-input-disabled-border: var(--gray-6);
-  --aa-text-input-disabled-bg: var(--gray-2);
-  --aa-text-input-disabled-text: var(--aa-gray-11-50);
+  --aa-text-input-disabled-border: var(--aa-secondary-button-disabled-border);
+  --aa-text-input-disabled-bg: var(--aa-secondary-button-disabled-bg);
+  --aa-text-input-disabled-text: var(--aa-secondary-button-disabled-text);
   --aa-button-height-sm: 36px;
   --aa-button-height-md: 40px;
   --aa-button-height-md-lg: 44px;
@@ -192,16 +213,53 @@
   --aa-form-control-height: 40px;
   --aa-icon-button-size: 36px;
   --aa-field-icon-button-size: 32px;
-  --aa-panel-header-icon-gap: 6px;
-  --aa-field-label-gap: 4px;
-  --aa-field-group-gap: 12px;
+  --aa-space-page-gap: 16px;
+  --aa-space-panel-gap: 16px;
+  --aa-space-section-gap: 20px;
+  --aa-space-subsection-gap: 12px;
+  --aa-space-body-gap: 12px;
+  --aa-space-inline-gap: 12px;
+  --aa-space-control-gap: 8px;
+  --aa-space-icon-gap: 6px;
+  --aa-space-text-title-desc: 2px;
+  --aa-space-text-desc-support: 2px;
+  --aa-space-list-row-x: 16px;
+  --aa-space-list-row-y: 8px;
+  --aa-space-list-row-compact-x: 12px;
+  --aa-space-list-row-compact-y: 8px;
+  --aa-space-card-header-x: 16px;
+  --aa-space-card-header-y: 8px;
+  --aa-space-card-body-x: 16px;
+  --aa-space-card-body-y: 12px;
+  --aa-space-dialog-x: 16px;
+  --aa-space-dialog-y: 16px;
+  --aa-space-popover-x: 12px;
+  --aa-space-popover-y: 12px;
+  --aa-space-table-cell-x: 12px;
+  --aa-space-table-cell-y: 8px;
+  --aa-space-tag-x: 8px;
+  --aa-space-tag-y: 2px;
+  --aa-space-tab-list-gap: 4px;
+  --aa-space-tab-list-padding: 4px;
+  --aa-panel-header-icon-gap: var(--aa-space-icon-gap);
+  --aa-field-label-gap: var(--aa-space-text-title-desc);
+  --aa-field-group-gap: var(--aa-space-body-gap);
   --aa-form-section-gap: 18px;
   --aa-form-action-gap: 36px;
-  --aa-form-action-inner-gap: 16px;
+  --aa-form-action-inner-gap: var(--aa-space-inline-gap);
   --aa-textarea-height-sm: 80px;
   --aa-textarea-height-md: 96px;
   --aa-textarea-height-lg: 112px;
   --aa-template-input-height: 224px;
+}
+
+:root[data-aa-language="zh-CN"] {
+  --aa-font-family-body: var(--aa-font-family-cjk);
+  --aa-line-height-sm: 20px;
+  --aa-line-height-md: 22px;
+  --aa-line-height-lg: 26px;
+  --aa-line-height-xl: 28px;
+  --aa-line-height-page: 36px;
 }
 
 @supports (color: color(display-p3 1 1 1)) {
@@ -344,9 +402,7 @@ body {
   margin: 0;
   background: transparent;
   color: var(--aa-primary-text);
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  font-family: var(--aa-font-family-body);
 }
 
 body::before {
@@ -399,7 +455,11 @@ textarea {
   }
 
   .aa-split-panel {
-    grid-template-columns: minmax(0, 1fr) 20rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+  }
+
+  .aa-split-panel > * {
+    min-width: 0;
   }
 
   .aa-split-panel-sidebar {

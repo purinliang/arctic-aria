@@ -29,6 +29,8 @@ Rows should use the standard list item style:
 - second line: supporting metadata in one line, such as
   `Discord · Untriaged · Jul 17, 2026 Fri`
 - right action: `Pencil icon Edit`
+- when there are more than ten ideas, use the shared compact paged-list control
+  below the rows
 
 When persisted ideas exist, show real ideas. When no persisted ideas exist, the
 page should show the normal empty state. Do not show prototype rows on the

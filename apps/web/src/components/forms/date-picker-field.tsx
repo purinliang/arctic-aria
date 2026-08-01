@@ -29,6 +29,8 @@ import {
 } from "./use-popover-placement";
 import { englishFormMessages } from "@/messages/form-messages";
 import type { DatePickerMessages } from "@/messages/form-messages";
+import { controlGapClass } from "../spacing";
+import { Text } from "../text";
 import { cx } from "../utils";
 
 type VisibleMonth = {
@@ -102,7 +104,8 @@ export function DatePickerField({
       <button
         className={cx(
           formButtonControlClass(darkMode, hasError),
-          "flex items-center gap-3 text-left",
+          "flex items-center text-left",
+          controlGapClass,
           showClear && "pr-12",
           className,
         )}
@@ -152,7 +155,7 @@ export function DatePickerField({
               "w-[min(18rem,calc(100vw-2rem))]",
             )}
           >
-            <div className="mb-2 grid grid-cols-[auto_auto_minmax(0,1fr)_auto_auto] items-center gap-1">
+            <div className="mb-[var(--aa-space-control-gap)] grid grid-cols-[auto_auto_minmax(0,1fr)_auto_auto] items-center gap-1">
               <PickerIconButton
                 darkMode={darkMode}
                 aria-label={messages.previousYear}
@@ -171,12 +174,18 @@ export function DatePickerField({
               >
                 <ChevronLeft className="h-4 w-4" />
               </PickerIconButton>
-              <div className="truncate px-1 text-center text-sm font-semibold">
+              <Text
+                as="div"
+                size="md"
+                weight="semibold"
+                truncate
+                className="px-1 text-center"
+              >
                 {messages.monthYear(
                   messages.shortMonthNames[visibleMonth.monthIndex],
                   visibleMonth.year,
                 )}
-              </div>
+              </Text>
               <PickerIconButton
                 darkMode={darkMode}
                 aria-label={messages.nextMonth}
@@ -197,14 +206,17 @@ export function DatePickerField({
               </PickerIconButton>
             </div>
 
-            <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase tracking-normal">
+            <div className="grid grid-cols-7 gap-1 text-center uppercase tracking-normal">
               {messages.weekdayNames.map((weekday) => (
-                <div
+                <Text
+                  as="div"
+                  size="xs"
+                  weight="semibold"
+                  tone="secondary"
                   key={weekday}
-                  className="text-[var(--aa-secondary-text)]"
                 >
                   {weekday}
-                </div>
+                </Text>
               ))}
             </div>
 
@@ -279,7 +291,7 @@ function DayButton({
   return (
     <button
       className={cx(
-        "h-8 rounded-md text-sm transition disabled:cursor-not-allowed",
+        "h-8 rounded-md text-[length:var(--aa-font-size-md)] leading-[var(--aa-line-height-md)] transition disabled:cursor-not-allowed",
         selected
           ? "bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)] disabled:bg-[var(--aa-primary-button-disabled-bg)] disabled:text-[var(--aa-primary-button-disabled-text)] disabled:hover:bg-[var(--aa-primary-button-disabled-bg)] disabled:hover:text-[var(--aa-primary-button-disabled-text)]"
           : "bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]",
