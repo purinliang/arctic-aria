@@ -77,11 +77,12 @@ Do not create a separate color family for secondary button and secondary button
 (borderless).
 
 Typed text controls use text-input tokens for background, border, hover, focus,
-placeholder, and disabled chrome. Their hover and focus backgrounds default to
-the normal text-input background so typed fields do not look like hovered
-buttons. Their focus state changes the existing border to
-`--aa-text-input-focus-border` and may add inward border weight; do not add a
-separate outside focus ring.
+placeholder, and disabled chrome. Text-input background, text, hover, border,
+and disabled tokens intentionally alias the corresponding secondary button
+tokens so typed fields stay in the same neutral control family. Their focus
+state keeps the secondary hover background and text while changing the existing
+border to `--aa-text-input-focus-border`; do not add a separate outside focus
+ring.
 
 Button-like form controls, such as select triggers and picker triggers, use
 secondary button tokens because they open a menu or picker instead of accepting
@@ -196,10 +197,9 @@ direct text entry.
   selected-state role.
 - Unselected interactive controls should reuse secondary button roles.
 - Text inputs, password inputs, textareas, number inputs, and time picker typed
-  fields should use text-input tokens while hovering, focusing, or typing.
-- Text-input hover and focus backgrounds should not reuse button hover
-  background tokens. Adjust `--aa-text-input-hover-bg` or
-  `--aa-text-input-focus-bg` when a distinct text-entry effect is needed.
+  fields should use text-input tokens while hovering, focusing, or typing. Text
+  input background, text, hover, and disabled tokens should remain mapped to
+  secondary button background and text tokens.
 - Text-input focus should change the existing border color to the primary focus
   token, make the existing edge visibly stronger, and should not draw a
   separate outside blue ring.

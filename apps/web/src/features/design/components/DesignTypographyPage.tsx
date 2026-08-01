@@ -79,8 +79,11 @@ export function DesignTypographyPage({
             <Card key={tone} darkMode={darkMode}>
               <div
                 className={cx(
-                  tone === "inverse"
+                  tone === "inverse" || tone === "current"
                     ? "rounded-md bg-[var(--aa-primary-button-bg)]"
+                    : undefined,
+                  tone === "current"
+                    ? "text-[var(--aa-primary-button-text)]"
                     : undefined,
                   cardBodyPaddingClass,
                 )}
