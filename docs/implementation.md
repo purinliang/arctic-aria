@@ -103,6 +103,10 @@ arctic-aria/
 |       `-- pnpm-workspace.yaml
 |
 |-- docs/
+|   |-- agents/
+|   |   |-- data-integrity.md
+|   |   |-- git-workflow.md
+|   |   `-- validation.md
 |   |-- apps/
 |   |   `-- cli/
 |   |-- features/
@@ -114,6 +118,9 @@ arctic-aria/
 |   |-- implementation.md
 |   |-- roadmap.md
 |   `-- user-story.md
+|
+|-- scripts/
+|   `-- verify-web.sh
 |
 |-- README.md
 `-- AGENTS.md
@@ -328,6 +335,12 @@ Detailed future product and infrastructure direction belongs in
 feature or infrastructure docs.
 
 ## Verification Commands
+
+For the full web gate from the repository root:
+
+```bash
+./scripts/verify-web.sh
+```
 
 Run from `apps/web`:
 
