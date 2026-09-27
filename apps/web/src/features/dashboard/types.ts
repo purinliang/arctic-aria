@@ -34,6 +34,7 @@ export type Routine = {
   scheduledDate: string;
   scheduledTime: string;
   status: RoutineStatus;
+  wasReminded?: boolean;
   reminderState: RoutineReminderState;
   streakText: string;
 };

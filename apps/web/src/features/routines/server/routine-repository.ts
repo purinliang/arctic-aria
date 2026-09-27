@@ -134,6 +134,13 @@ export type RoutineRepository = {
     userId: string;
     instanceId: string;
     remindedAt: Date;
+    expectedRemindAt: Date;
+  }): Promise<RoutineInstanceRecord | null>;
+  snoozeRoutineInstance(input: {
+    userId: string;
+    instanceId: string;
+    remindAt: Date;
+    occurredAt: Date;
   }): Promise<RoutineInstanceRecord | null>;
   listRoutineInstancesForDate(
     userId: string,
@@ -451,18 +458,53 @@ export class InMemoryRoutineRepository implements RoutineRepository {
     userId: string;
     instanceId: string;
     remindedAt: Date;
+    expectedRemindAt: Date;
   }) {
     const instance = this.instances.find(
       (current) =>
         current.userId === input.userId && current.id === input.instanceId,
     );
 
-    if (!instance || instance.status !== "pending") {
+    if (
+      !instance ||
+      instance.status !== "pending" ||
+      instance.remindedAt !== null ||
+      instance.remindAt?.getTime() !== input.expectedRemindAt.getTime()
+    ) {
       return null;
     }
 
     instance.remindedAt = input.remindedAt;
     instance.updatedAt = input.remindedAt;
+
+    return instance;
+  }
+
+  async snoozeRoutineInstance(input: {
+    userId: string;
+    instanceId: string;
+    remindAt: Date;
+    occurredAt: Date;
+  }) {
+    const activeRoutineIds = new Set(
+      this.routines.filter((routine) => routine.deletedAt === null).map((routine) => routine.id),
+    );
+    const instance = this.instances.find(
+      (current) => current.userId === input.userId && current.id === input.instanceId,
+    );
+
+    if (
+      !instance ||
+      instance.status !== "pending" ||
+      instance.remindedAt === null ||
+      !activeRoutineIds.has(instance.routineId)
+    ) {
+      return null;
+    }
+
+    instance.remindAt = input.remindAt;
+    instance.remindedAt = null;
+    instance.updatedAt = input.occurredAt;
 
     return instance;
   }

@@ -18,6 +18,7 @@ export function toRoutineInstance(instance: RoutineInstanceRecord): Routine {
     scheduledDate: instance.scheduledDate,
     scheduledTime: instance.scheduledTime ?? "Flexible",
     status: instance.status,
+    wasReminded: instance.remindedAt !== null,
     reminderState: "idle",
     streakText: instance.status === "pending" ? "Due today" : "Answered today",
   };

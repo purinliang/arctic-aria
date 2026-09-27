@@ -1,5 +1,6 @@
 // Dashboard - Routines Panel.
-import { Bell } from "lucide-react";
+import { Bell, Clock3 } from "lucide-react";
+import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
@@ -31,6 +32,8 @@ export function RoutinesPanel({
   timeMessages,
   timeFormatPreference,
   onRoutineStatus,
+  onRoutineLater,
+  laterPendingIds,
   onRoutineOpen,
 }: {
   darkMode: boolean;
@@ -40,6 +43,8 @@ export function RoutinesPanel({
   timeMessages: TimePickerMessages;
   timeFormatPreference: TimeFormatPreference;
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
+  onRoutineLater: (instanceId: string) => void;
+  laterPendingIds: Set<string>;
   onRoutineOpen: () => void;
 }) {
   const visibleRoutines = routines.slice(0, todayPanelItemLimit);
@@ -69,6 +74,8 @@ export function RoutinesPanel({
             timeMessages={timeMessages}
             timeFormatPreference={timeFormatPreference}
             onStatusChange={(status) => onRoutineStatus(routine.id, status)}
+            onLater={() => onRoutineLater(routine.id)}
+            laterPending={laterPendingIds.has(routine.id)}
             onOpen={onRoutineOpen}
           />
         ))}
@@ -92,6 +99,8 @@ function RoutineRow({
   timeMessages,
   timeFormatPreference,
   onStatusChange,
+  onLater,
+  laterPending,
   onOpen,
 }: {
   routine: Routine;
@@ -100,6 +109,8 @@ function RoutineRow({
   timeMessages: TimePickerMessages;
   timeFormatPreference: TimeFormatPreference;
   onStatusChange: (status: RoutineStatus) => void;
+  onLater: () => void;
+  laterPending: boolean;
   onOpen: () => void;
 }) {
   return (
@@ -140,9 +151,12 @@ function RoutineRow({
       </div>
       <RoutineRowMeta
         routine={routine}
+        darkMode={darkMode}
         messages={messages}
         timeMessages={timeMessages}
         timeFormatPreference={timeFormatPreference}
+        onLater={onLater}
+        laterPending={laterPending}
       />
     </ListItem>
   );
@@ -150,14 +164,20 @@ function RoutineRow({
 
 function RoutineRowMeta({
   routine,
+  darkMode,
   messages,
   timeMessages,
   timeFormatPreference,
+  onLater,
+  laterPending,
 }: {
   routine: Routine;
+  darkMode: boolean;
   messages: DashboardMessages["routines"];
   timeMessages: TimePickerMessages;
   timeFormatPreference: TimeFormatPreference;
+  onLater: () => void;
+  laterPending: boolean;
 }) {
   return (
     <div className="grid min-w-20 shrink-0 justify-items-end text-right">
@@ -169,6 +189,20 @@ function RoutineRowMeta({
           timeFormatPreference,
         )}
       </ListItemSupportingText>
+      {routine.status === "pending" && routine.wasReminded ? (
+        <Button
+          darkMode={darkMode}
+          tone="ghost"
+          size="sm"
+          icon={<Clock3 size={14} aria-hidden="true" />}
+          disabled={laterPending}
+          title={messages.laterHint(routine.title)}
+          aria-label={messages.laterHint(routine.title)}
+          onClick={onLater}
+        >
+          {messages.later}
+        </Button>
+      ) : null}
     </div>
   );
 }

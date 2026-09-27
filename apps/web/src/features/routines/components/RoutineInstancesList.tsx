@@ -1,4 +1,6 @@
 // Routines Page - Routine Instances List.
+import { Clock3 } from "lucide-react";
+import { Button } from "@/components/button";
 import { formatDateKey } from "@/components/forms/date-format";
 import { formatTimeDisplay } from "@/components/forms/time-display";
 import { CheckboxControl } from "@/components/forms/selection-field";
@@ -26,6 +28,8 @@ export function RoutineInstancesList({
   formMessages,
   timeFormatPreference,
   onStatusChange,
+  onLater,
+  laterPendingIds,
 }: {
   darkMode: boolean;
   loading: boolean;
@@ -36,6 +40,8 @@ export function RoutineInstancesList({
   formMessages: FormMessages;
   timeFormatPreference: TimeFormatPreference;
   onStatusChange: (instanceId: string, status: RoutineStatus) => void;
+  onLater: (instanceId: string) => void;
+  laterPendingIds: Set<string>;
 }) {
   return (
     <PagedList
@@ -95,6 +101,20 @@ export function RoutineInstancesList({
               }
             />
           </div>
+          {instance.status === "pending" && instance.wasReminded ? (
+            <Button
+              darkMode={darkMode}
+              tone="ghost"
+              size="sm"
+              icon={<Clock3 size={14} aria-hidden="true" />}
+              disabled={laterPendingIds.has(instance.id)}
+              title={messages.instances.laterHint(instance.title)}
+              aria-label={messages.instances.laterHint(instance.title)}
+              onClick={() => onLater(instance.id)}
+            >
+              {messages.instances.later}
+            </Button>
+          ) : null}
         </ListItem>
       )}
     />

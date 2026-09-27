@@ -187,8 +187,9 @@ Current statuses:
 - `skipped`
 
 `skipped` remains readable for compatibility, but current dashboard UI does not
-create new skipped rows. Future reminder responses should prefer `Later` and
-`Move to tomorrow` instead of treating skip as a first-class current action.
+create new skipped rows. Web `Later` reschedules a sent reminder on the same
+pending instance; `Move to tomorrow` remains future work. Neither creates a
+new completion event.
 
 Reminder fields:
 

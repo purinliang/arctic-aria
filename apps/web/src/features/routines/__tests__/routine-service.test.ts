@@ -68,6 +68,48 @@ test("generates today's daily routine instance", async () => {
   );
 });
 
+test("Later reschedules a pending reminder without moving its occurrence", async () => {
+  const repository = new InMemoryRoutineRepository({
+    routines: [routine({ id: "routine-1", title: "Morning check" })],
+  });
+  const service = createRoutineService({ routines: repository, now: () => now });
+  const [instance] = await service.listTodayRoutineInstances(userId);
+  assert.ok(instance);
+
+  const oldRemindAt = instance.remindAt;
+  assert.ok(oldRemindAt);
+  await repository.markRoutineInstanceReminded({
+    userId,
+    instanceId: instance.id,
+    remindedAt: now,
+    expectedRemindAt: oldRemindAt,
+  });
+
+  const laterService = createRoutineService({
+    routines: repository,
+    now: () => new Date("2026-07-12T10:07:00.000Z"),
+  });
+  const snoozed = await laterService.snoozeRoutineInstance(userId, instance.id);
+  assert.equal(snoozed?.remindAt?.toISOString(), "2026-07-12T11:15:00.000Z");
+  assert.equal(snoozed?.remindedAt, null);
+  assert.equal(await service.snoozeRoutineInstance(userId, instance.id), null);
+  assert.equal(snoozed?.scheduledDate, "2026-07-12");
+  assert.equal(snoozed?.scheduledTime, "08:00");
+  assert.equal(snoozed?.status, "pending");
+
+  const staleDelivery = await repository.markRoutineInstanceReminded({
+    userId,
+    instanceId: instance.id,
+    remindedAt: new Date("2026-07-12T10:01:00.000Z"),
+    expectedRemindAt: oldRemindAt,
+  });
+  assert.equal(staleDelivery, null);
+  assert.equal(snoozed?.remindedAt, null);
+  assert.equal(await service.snoozeRoutineInstance("other-user", instance.id), null);
+  await service.completeRoutineInstance(userId, instance.id);
+  assert.equal(await service.snoozeRoutineInstance(userId, instance.id), null);
+});
+
 test("generates a once routine only on the start date", async () => {
   const repository = new InMemoryRoutineRepository({
     routines: [

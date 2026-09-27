@@ -25,6 +25,7 @@ import {
   completeRoutineInstance,
   reopenRoutineInstance,
   skipRoutineInstance,
+  snoozeRoutineInstance,
 } from "@/features/routines/routine-instance-actions";
 import type {
   DashboardMessages,
@@ -64,6 +65,10 @@ export function useDashboardRoutines(
   const [routineLoading, setRoutineLoading] = useState(true);
   const [routineCacheReady, setRoutineCacheReady] = useState(false);
   const [routineActionPending, setRoutineActionPending] = useState(false);
+  const [routineLaterPendingIds, setRoutineLaterPendingIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const routineLaterInFlight = useRef(new Set<string>());
   const routineActionPendingCount = useRef(0);
   const routineStatusRequestChains = useRef(new Map<string, Promise<void>>());
   const routineStatusRequestVersions = useRef(new Map<string, number>());
@@ -348,6 +353,53 @@ export function useDashboardRoutines(
     });
   }
 
+  async function laterRoutineInstance(instanceId: string) {
+    if (routineLaterInFlight.current.has(instanceId)) {
+      return false;
+    }
+
+    routineLaterInFlight.current.add(instanceId);
+    setRoutineLaterPendingIds(new Set(routineLaterInFlight.current));
+
+    try {
+      const actionResult = await runNotifiedServerAction({
+        action: () => snoozeRoutineInstance(instanceId),
+        messages: notificationMessages,
+        showErrorNotification,
+      });
+
+      if (!actionResult.ok) {
+        return false;
+      }
+
+      if (!actionResult.value.ok) {
+        notifyActionFailure({
+          result: actionResult.value,
+          resultMessages,
+          fallbackTitle: actionFailedTitle("update", "routine"),
+          notificationMessages,
+          showErrorNotification,
+        });
+        return false;
+      }
+
+      setRoutines((current) =>
+        current.map((routine) =>
+          routine.id === instanceId ? { ...routine, wasReminded: false } : routine,
+        ),
+      );
+      setRoutineInstances((current) =>
+        current.map((routine) =>
+          routine.id === instanceId ? { ...routine, wasReminded: false } : routine,
+        ),
+      );
+      return true;
+    } finally {
+      routineLaterInFlight.current.delete(instanceId);
+      setRoutineLaterPendingIds(new Set(routineLaterInFlight.current));
+    }
+  }
+
   return {
     routines,
     routineInstances,
@@ -355,8 +407,10 @@ export function useDashboardRoutines(
     routineGroups,
     routineLoading,
     routineActionPending,
+    routineLaterPendingIds,
     refreshRoutineData,
     updateRoutine,
+    laterRoutineInstance,
     updateRoutineInstanceFromPage: (instanceId: string, status: RoutineStatus) =>
       runRoutineManagementAction(
         () =>

@@ -439,6 +439,7 @@ export class PostgresRoutineRepository implements RoutineRepository {
     userId: string;
     instanceId: string;
     remindedAt: Date;
+    expectedRemindAt: Date;
   }) {
     const rows = (await this.getSql().query(
       `
@@ -450,11 +451,46 @@ export class PostgresRoutineRepository implements RoutineRepository {
         WHERE user_id = $1
           AND id = $2
           AND status = 'pending'
+          AND reminded_at IS NULL
+          AND remind_at = $4::timestamptz
         RETURNING *
       )
       ${routineInstanceSelectFromCte("updated_instance")}
       `,
-      [input.userId, input.instanceId, input.remindedAt],
+      [input.userId, input.instanceId, input.remindedAt, input.expectedRemindAt],
+    )) as RoutineInstanceRow[];
+
+    return rows[0] ? mapRoutineInstance(rows[0]) : null;
+  }
+
+  async snoozeRoutineInstance(input: {
+    userId: string;
+    instanceId: string;
+    remindAt: Date;
+    occurredAt: Date;
+  }) {
+    const rows = (await this.getSql().query(
+      `
+      WITH updated_instance AS (
+        UPDATE routine_instances
+        SET remind_at = $3::timestamptz,
+            reminded_at = NULL,
+            updated_at = $4::timestamptz
+        WHERE user_id = $1
+          AND id = $2
+          AND status = 'pending'
+          AND reminded_at IS NOT NULL
+          AND EXISTS (
+            SELECT 1 FROM routines
+            WHERE routines.id = routine_instances.routine_id
+              AND routines.user_id = $1
+              AND routines.deleted_at IS NULL
+          )
+        RETURNING *
+      )
+      ${routineInstanceSelectFromCte("updated_instance")}
+      `,
+      [input.userId, input.instanceId, input.remindAt, input.occurredAt],
     )) as RoutineInstanceRow[];
 
     return rows[0] ? mapRoutineInstance(rows[0]) : null;

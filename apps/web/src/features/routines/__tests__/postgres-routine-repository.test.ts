@@ -108,10 +108,41 @@ test("mark routine instance reminded writes reminded_at", async () => {
     userId: "user-1",
     instanceId: "instance-1",
     remindedAt,
+    expectedRemindAt: new Date("2026-07-12T07:30:00.000Z"),
   });
 
   assert.deepEqual(result?.remindedAt, remindedAt);
   assert.match(capturedQuery, /reminded_at = \$3::timestamptz/);
+  assert.match(capturedQuery, /reminded_at IS NULL/);
+  assert.match(capturedQuery, /remind_at = \$4::timestamptz/);
+});
+
+test("Later updates only an owned pending instance of an active routine", async () => {
+  let capturedQuery = "";
+  let capturedParams: unknown[] = [];
+  const occurredAt = new Date("2026-07-12T10:07:00.000Z");
+  const remindAt = new Date("2026-07-12T11:15:00.000Z");
+  const repository = new PostgresRoutineRepository({
+    async query(query: string, params: unknown[]) {
+      capturedQuery = query;
+      capturedParams = params;
+      return [];
+    },
+  } as never);
+
+  await repository.snoozeRoutineInstance({
+    userId: "user-1",
+    instanceId: "instance-1",
+    remindAt,
+    occurredAt,
+  });
+
+  assert.match(capturedQuery, /SET remind_at = \$3::timestamptz/);
+  assert.match(capturedQuery, /reminded_at = NULL/);
+  assert.match(capturedQuery, /AND status = 'pending'/);
+  assert.match(capturedQuery, /AND reminded_at IS NOT NULL/);
+  assert.match(capturedQuery, /routines\.deleted_at IS NULL/);
+  assert.deepEqual(capturedParams, ["user-1", "instance-1", remindAt, occurredAt]);
 });
 
 test("routine group create writes routine_groups row", async () => {

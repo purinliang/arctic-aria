@@ -127,13 +127,15 @@ The current Today panel uses static routine rows:
 
 - the completion checkbox appears on the left of the row
 - rows do not expand or collapse
-- `Busy`, `Skip`, `Later`, and `Move to tomorrow` are not exposed in the
-  current Today UI
+- `Later` appears on a pending row after a reminder was sent; `Busy`, `Skip`,
+  and `Move to tomorrow` remain hidden
 
 Action behavior:
 
 - Checking the left checkbox marks the routine instance `completed`.
 - Unchecking the left checkbox reopens the routine instance as `pending`.
+- `Later` schedules another reminder for about an hour later without moving or
+  completing the instance. The action disappears until that reminder is sent.
 - `Skip` and `Busy` remain future reminder-response actions. `Busy` should not
   change the instance status; it should create or update reminder delivery
   state after reminder response actions are designed.
