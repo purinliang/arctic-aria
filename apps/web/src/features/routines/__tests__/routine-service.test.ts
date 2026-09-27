@@ -110,6 +110,52 @@ test("Later reschedules a pending reminder without moving its occurrence", async
   assert.equal(await service.snoozeRoutineInstance(userId, instance.id), null);
 });
 
+test("Tomorrow preserves the occurrence and suppresses today's regeneration", async () => {
+  const repository = new InMemoryRoutineRepository({
+    routines: [routine({ id: "routine-1", title: "Morning check" })],
+  });
+  const service = createRoutineService({ routines: repository, now: () => now });
+  const [today] = await service.listTodayRoutineInstances(userId);
+  assert.ok(today);
+  assert.equal((await repository.listRoutineInstancesForDate(userId, "2026-07-13")).length, 1);
+
+  const moved = await service.moveRoutineInstanceToTomorrow(userId, today.id);
+  assert.equal(moved?.id, today.id);
+  assert.equal(moved?.scheduledDate, "2026-07-13");
+  assert.equal(moved?.movedFromDate, "2026-07-12");
+  assert.deepEqual(moved?.movedAt, now);
+  assert.equal(moved?.status, "pending");
+  assert.equal((await repository.listRoutineInstancesForDate(userId, "2026-07-13")).length, 1);
+  assert.equal((await service.listTodayRoutineInstances(userId)).length, 0);
+  assert.equal(await service.moveRoutineInstanceToTomorrow(userId, today.id), null);
+  assert.equal(await service.moveRoutineInstanceToTomorrow("other-user", today.id), null);
+});
+
+test("Tomorrow refuses to replace an answered next-day occurrence", async () => {
+  const repository = new InMemoryRoutineRepository({
+    routines: [routine({ id: "routine-1", title: "Morning check" })],
+  });
+  const service = createRoutineService({ routines: repository, now: () => now });
+  const [today] = await service.listTodayRoutineInstances(userId);
+  assert.ok(today);
+  const [tomorrow] = await repository.listRoutineInstancesForDate(userId, "2026-07-13");
+  assert.ok(tomorrow);
+  await repository.completeRoutineInstance({
+    userId,
+    instanceId: tomorrow.id,
+    occurredAt: now,
+  });
+  await repository.reopenRoutineInstance({
+    userId,
+    instanceId: tomorrow.id,
+    occurredAt: now,
+  });
+
+  assert.equal(await service.moveRoutineInstanceToTomorrow(userId, today.id), null);
+  assert.equal((await repository.listRoutineInstancesForDate(userId, "2026-07-12")).length, 1);
+  assert.equal((await repository.listRoutineInstancesForDate(userId, "2026-07-13")).length, 1);
+});
+
 test("generates a once routine only on the start date", async () => {
   const repository = new InMemoryRoutineRepository({
     routines: [

@@ -506,6 +506,14 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
       });
     },
 
+    async moveRoutineInstanceToTomorrow(userId: string, instanceId: string) {
+      return routines.moveRoutineInstanceToTomorrow({
+        userId,
+        instanceId,
+        occurredAt: now(),
+      });
+    },
+
     async skipRoutineInstance(userId: string, instanceId: string) {
       return routines.skipRoutineInstance({
         userId,

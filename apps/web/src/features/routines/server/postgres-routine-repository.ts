@@ -22,6 +22,7 @@ import type {
   RoutineRow,
 } from "./postgres-routine-mappers.ts";
 import { fallbackRoutineScheduledTime } from "./routine-reminder-schedule.ts";
+import { moveRoutineInstanceToTomorrowInPostgres } from "./routine-instance-move.ts";
 
 export class PostgresRoutineRepository implements RoutineRepository {
   private readonly sql?: NeonQueryFunction<false, false>;
@@ -366,6 +367,12 @@ export class PostgresRoutineRepository implements RoutineRepository {
         SELECT user_id, id, $3, $4, $6, $5, $5
         FROM target
         WHERE NOT EXISTS (SELECT 1 FROM existing_instance)
+          AND NOT EXISTS (
+            SELECT 1 FROM routine_instances moved
+            WHERE moved.routine_id = target.id
+              AND moved.moved_from_date = $3::date
+              AND moved.moved_at IS NOT NULL
+          )
         ON CONFLICT DO NOTHING
         RETURNING *
       ),
@@ -482,9 +489,13 @@ export class PostgresRoutineRepository implements RoutineRepository {
           AND reminded_at IS NOT NULL
           AND EXISTS (
             SELECT 1 FROM routines
+            JOIN routine_rules ON routine_rules.routine_id = routines.id
             WHERE routines.id = routine_instances.routine_id
               AND routines.user_id = $1
               AND routines.deleted_at IS NULL
+              AND routine_instances.scheduled_date =
+                (($4::timestamptz AT TIME ZONE routine_rules.timezone)
+                  - interval '4 hours')::date
           )
         RETURNING *
       )
@@ -494,6 +505,14 @@ export class PostgresRoutineRepository implements RoutineRepository {
     )) as RoutineInstanceRow[];
 
     return rows[0] ? mapRoutineInstance(rows[0]) : null;
+  }
+
+  async moveRoutineInstanceToTomorrow(input: {
+    userId: string;
+    instanceId: string;
+    occurredAt: Date;
+  }) {
+    return moveRoutineInstanceToTomorrowInPostgres(this.getSql(), input);
   }
 
   async listRoutineInstancesForDate(userId: string, scheduledDate: string) {

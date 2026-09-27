@@ -149,6 +149,7 @@ Routine row layout:
 - right: scheduled time as a direct row child, separate from the title content,
   aligned to the upper-right
 - under the time: `Later` only after a pending routine reminder was sent
+- under the time: `Tomorrow` for a pending routine instance
 - title is underlined and opens the Routines page
 - description is visible and clamps at two lines
 - do not show `Due today`; every routine instance on the Today page is due
@@ -156,7 +157,9 @@ Routine row layout:
 
 Routine rows should not expand or collapse. `Later` reschedules a sent reminder
 for about an hour later and disappears until it sends again. Disable only that
-row's action while saving. `Busy` and `Skip` remain future actions.
+row's schedule actions while saving. `Tomorrow` moves a pending routine to the
+next local board day after server confirmation. `Busy` and `Skip` remain future
+actions.
 
 Checking a routine is a lightweight Dashboard action. The visible row should
 update optimistically and backend failure should be reported through the shared

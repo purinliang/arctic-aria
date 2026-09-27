@@ -68,6 +68,9 @@ export const englishRoutineMessages = {
     later: "Later",
     laterHint: (title: string) => `Remind me about ${title} again in about an hour`,
     laterSuccess: "Reminder moved to about an hour from now.",
+    tomorrow: "Tomorrow",
+    tomorrowHint: (title: string) => `Move ${title} to tomorrow`,
+    tomorrowSuccess: "Routine moved to tomorrow.",
     pagination: {
       ariaLabel: "Routine instance pages",
       ...englishPaginationMessages,
@@ -236,6 +239,7 @@ export const englishRoutineMessages = {
     routine_not_found: "Routine was not found.",
     routine_instance_not_found: "Routine instance was not found.",
     routine_instance_not_pending: "This routine no longer has a reminder to delay.",
+    routine_instance_move_unavailable: "This routine cannot be moved to tomorrow.",
     routine_group_description_invalid:
       "Routine group description must be 500 characters or fewer.",
     routine_group_duplicate: "A routine group with that name already exists.",
@@ -314,6 +318,9 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     later: "稍后提醒",
     laterHint: (title) => `约一小时后再次提醒我${title}`,
     laterSuccess: "提醒已推迟到约一小时后。",
+    tomorrow: "明天",
+    tomorrowHint: (title) => `将${title}移到明天`,
+    tomorrowSuccess: "日常已移到明天。",
     pagination: {
       ariaLabel: "日常实例分页",
       ...simplifiedChinesePaginationMessages,
@@ -468,6 +475,7 @@ export const simplifiedChineseRoutineMessages: RoutineMessages = {
     routine_not_found: "没有找到日常。",
     routine_instance_not_found: "没有找到日常实例。",
     routine_instance_not_pending: "这个日常目前没有可推迟的提醒。",
+    routine_instance_move_unavailable: "这个日常无法移到明天。",
     routine_group_description_invalid: "日常分组描述必须不超过 500 个字符。",
     routine_group_duplicate: "同名日常分组已存在。",
     routine_group_invalid: "请选择有效的日常分组。",

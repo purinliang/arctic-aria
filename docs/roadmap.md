@@ -10,11 +10,10 @@ Current release candidate on `develop`: `v0.15.0`.
 
 ## Next Work After v0.12.0
 
-- Continue explicit schedule actions for Today items. Routine `Later` is
-  implemented on `feature/routine-later`; next design `Move to tomorrow` for
-  routine occurrences, including duplicate prevention. Project task movement
-  remains open. Completed scheduled tasks and routines should remain visible
-  on Today for the current local day.
+- Continue explicit schedule actions for Today items. Routine `Later` and
+  `Tomorrow` are implemented on `feature/routine-schedule-actions`. Project
+  task movement remains open. Completed scheduled tasks and routines should
+  remain visible on Today for the current local day.
 - Review Discord reminder interactions after the first plain reminder messages
   work, including message update strategy, retry behavior, quiet/noise rules,
   and whether response buttons are actually useful.

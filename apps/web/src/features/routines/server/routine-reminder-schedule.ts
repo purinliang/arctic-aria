@@ -45,10 +45,15 @@ export function routineReminderAt({
 }
 
 export function routineLaterReminderAt(occurredAt: Date) {
-  const intervalMs = routineReminderCronIntervalMinutes * msPerMinute;
   const targetMs = occurredAt.getTime() + routineLaterMinutes * msPerMinute;
 
-  return new Date(Math.ceil(targetMs / intervalMs) * intervalMs);
+  return nextRoutineCronTick(new Date(targetMs));
+}
+
+export function nextRoutineCronTick(date: Date) {
+  const intervalMs = routineReminderCronIntervalMinutes * msPerMinute;
+
+  return new Date(Math.ceil(date.getTime() / intervalMs) * intervalMs);
 }
 
 export function routineReminderCandidateDates(

@@ -28,7 +28,8 @@ The current web implementation supports database-backed routine testing:
 - write routine completion history to `routine_completion_events`
 
 Today and the Routines instance list show `Later` after a pending occurrence
-has produced a reminder. `Busy`, `Skip`, and `Move to tomorrow` remain deferred.
+has produced a reminder and `Tomorrow` on pending current-day occurrences.
+`Busy` and `Skip` remain deferred.
 
 ## Current User Flow
 

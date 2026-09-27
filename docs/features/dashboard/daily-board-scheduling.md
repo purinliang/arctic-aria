@@ -2,8 +2,7 @@
 
 Status: partially implemented. Routine reminder timestamps, due-window cron
 selection, reminder delivery idempotency, and project task daily selections are
-implemented. Routine `Later` is available after a reminder was sent;
-`Tomorrow` remains future work.
+implemented. Routine `Later` and `Tomorrow` are available in the web UI.
 
 ## Boundary
 
@@ -42,7 +41,8 @@ local-date selection and recurrence generation:
   recurrence rule matches that local date.
 
 `Later` can reschedule a sent routine reminder from Today or the Routines page.
-Explicit `Move to tomorrow` remains future work.
+`Tomorrow` moves a pending occurrence on the current local board day to the
+next day.
 
 ## Shared Naming
 
@@ -52,7 +52,7 @@ Use the same date/time naming rule across both designs:
 - `_time`: local clock time only
 - `_at`: exact timestamp, either planned or actual
 
-Use `Move to tomorrow` for the full action name and `Tomorrow` for a compact
+Use `Move to tomorrow` for the full action name and `Tomorrow` for the compact
 button label.
 
 Use `Later` for "remind me again in about 1 hour".
@@ -76,8 +76,8 @@ Avoid `Push to tomorrow` in user-facing text. It is understandable, but
   Today still loads the previous local scheduled date so the `02:00` Daily
   Review can snapshot the completed day.
 - Routines without `preferred_time` use the `18:00` local fallback.
-- Dashboard UI exposes checkbox completion/reopen and `Later` after a reminder
-  was sent, but not `Tomorrow`.
+- Dashboard UI exposes checkbox completion/reopen, `Later` after a reminder
+  was sent, and `Tomorrow` for a pending occurrence.
 
 ### Purpose
 
@@ -207,16 +207,19 @@ If the routine has no `preferred_time`, use `18:00`.
 ```text
 scheduled_date = tomorrow
 scheduled_time = latest preferred_time, or 18:00 if preferred_time is null
-remind_at = tomorrow scheduled timestamp minus the reminder lead window
+remind_at = tomorrow scheduled timestamp minus the reminder lead window,
+            or the next cron tick if that time has already passed
 reminded_at = null
 moved_at = clicked_at
 moved_from_date = old scheduled_date
 status stays pending
 ```
 
-The move should avoid duplicate routine rows. If tomorrow's normal generation
-would create the same occurrence, it should find the moved instance instead of
-creating another one.
+The move preserves the source instance id. If an untouched pending occurrence
+has already been generated for tomorrow, delete that generated row in the same
+transaction before moving the source. Refuse the move if tomorrow's row was
+completed, reopened, reminded, edited, or previously moved. Future generation must suppress the
+source's original date while its moved occurrence exists.
 
 ### Preference Change Rules
 
@@ -384,9 +387,9 @@ Daily Review should use the same returned rows as the visible Today panels.
 3. Backend helpers compute local scheduled timestamps and reminder timestamps.
 4. Reminder cron selects due `routine_instances` by `remind_at`.
 5. Today checkbox behavior keeps working with optimistic UI.
-6. Web `Later` is implemented; Discord response actions (`Done`, `Later`, and
-   `Tomorrow`) remain future work.
-7. Add `Tomorrow` controls after its backend behavior is stable.
+6. Web `Later` and `Tomorrow` are implemented; Discord response actions
+   (`Done`, `Later`, and `Tomorrow`) remain future work.
+7. Review project task movement after routine schedule actions are stable.
 8. Add future move/remove controls for project task daily selections after the
    first stable Today behavior is released.
 
@@ -396,6 +399,6 @@ Daily Review should use the same returned rows as the visible Today panels.
   readable until a later cleanup.
 - Whether the first reminder lead time should stay fixed at 30 minutes or
   become configurable later.
-- Whether `Tomorrow` belongs on Today or only in Discord reminder responses.
+- Whether Discord should offer both `Later` and `Tomorrow` response buttons.
 - Whether project task daily selections need a separate remove-from-Today state
   later, or whether moving to another date is enough.

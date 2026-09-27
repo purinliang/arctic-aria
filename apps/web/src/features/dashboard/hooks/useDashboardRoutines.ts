@@ -23,6 +23,7 @@ import {
 } from "@/features/routines/actions";
 import {
   completeRoutineInstance,
+  moveRoutineInstanceToTomorrow,
   reopenRoutineInstance,
   skipRoutineInstance,
   snoozeRoutineInstance,
@@ -65,10 +66,10 @@ export function useDashboardRoutines(
   const [routineLoading, setRoutineLoading] = useState(true);
   const [routineCacheReady, setRoutineCacheReady] = useState(false);
   const [routineActionPending, setRoutineActionPending] = useState(false);
-  const [routineLaterPendingIds, setRoutineLaterPendingIds] = useState<Set<string>>(
+  const [routineSchedulePendingIds, setRoutineSchedulePendingIds] = useState<Set<string>>(
     () => new Set(),
   );
-  const routineLaterInFlight = useRef(new Set<string>());
+  const routineScheduleInFlight = useRef(new Set<string>());
   const routineActionPendingCount = useRef(0);
   const routineStatusRequestChains = useRef(new Map<string, Promise<void>>());
   const routineStatusRequestVersions = useRef(new Map<string, number>());
@@ -353,17 +354,21 @@ export function useDashboardRoutines(
     });
   }
 
-  async function laterRoutineInstance(instanceId: string) {
-    if (routineLaterInFlight.current.has(instanceId)) {
+  async function runRoutineScheduleAction(
+    instanceId: string,
+    action: RoutineDataAction,
+    onSuccess: (data: RoutineDashboardData) => void,
+  ) {
+    if (routineScheduleInFlight.current.has(instanceId)) {
       return false;
     }
 
-    routineLaterInFlight.current.add(instanceId);
-    setRoutineLaterPendingIds(new Set(routineLaterInFlight.current));
+    routineScheduleInFlight.current.add(instanceId);
+    setRoutineSchedulePendingIds(new Set(routineScheduleInFlight.current));
 
     try {
       const actionResult = await runNotifiedServerAction({
-        action: () => snoozeRoutineInstance(instanceId),
+        action,
         messages: notificationMessages,
         showErrorNotification,
       });
@@ -383,21 +388,62 @@ export function useDashboardRoutines(
         return false;
       }
 
-      setRoutines((current) =>
-        current.map((routine) =>
-          routine.id === instanceId ? { ...routine, wasReminded: false } : routine,
-        ),
-      );
-      setRoutineInstances((current) =>
-        current.map((routine) =>
-          routine.id === instanceId ? { ...routine, wasReminded: false } : routine,
-        ),
-      );
+      onSuccess(actionResult.value.data);
       return true;
     } finally {
-      routineLaterInFlight.current.delete(instanceId);
-      setRoutineLaterPendingIds(new Set(routineLaterInFlight.current));
+      routineScheduleInFlight.current.delete(instanceId);
+      setRoutineSchedulePendingIds(new Set(routineScheduleInFlight.current));
     }
+  }
+
+  function laterRoutineInstance(instanceId: string) {
+    return runRoutineScheduleAction(
+      instanceId,
+      () => snoozeRoutineInstance(instanceId),
+      () => {
+        setRoutines((current) =>
+          current.map((routine) =>
+            routine.id === instanceId ? { ...routine, wasReminded: false } : routine,
+          ),
+        );
+        setRoutineInstances((current) =>
+          current.map((routine) =>
+            routine.id === instanceId ? { ...routine, wasReminded: false } : routine,
+          ),
+        );
+      },
+    );
+  }
+
+  function moveRoutineToTomorrow(instanceId: string) {
+    return runRoutineScheduleAction(
+      instanceId,
+      () => moveRoutineInstanceToTomorrow(instanceId),
+      (data) => {
+        const moved = data.routineInstances.find((instance) => instance.id === instanceId);
+
+        if (!moved) {
+          applyRoutineData(data);
+          return;
+        }
+
+        setRoutines((current) => current.filter((instance) => instance.id !== instanceId));
+        setRoutineInstances((current) => {
+          const remaining = current
+            .filter(
+              (instance) =>
+                instance.id === instanceId ||
+                instance.routineId !== moved.routineId ||
+                instance.scheduledDate !== moved.scheduledDate,
+            )
+            .map((instance) => (instance.id === instanceId ? moved : instance));
+
+          return remaining.some((instance) => instance.id === instanceId)
+            ? remaining
+            : [...remaining, moved];
+        });
+      },
+    );
   }
 
   return {
@@ -407,10 +453,11 @@ export function useDashboardRoutines(
     routineGroups,
     routineLoading,
     routineActionPending,
-    routineLaterPendingIds,
+    routineSchedulePendingIds,
     refreshRoutineData,
     updateRoutine,
     laterRoutineInstance,
+    moveRoutineToTomorrow,
     updateRoutineInstanceFromPage: (instanceId: string, status: RoutineStatus) =>
       runRoutineManagementAction(
         () =>

@@ -29,7 +29,8 @@ export function Dashboard({
   onTaskStatus,
   onRoutineStatus,
   onRoutineLater,
-  routineLaterPendingIds,
+  onRoutineTomorrow,
+  routineSchedulePendingIds,
   onMemoryDone,
   onMemoryCancelDone,
   onTaskOpen,
@@ -56,7 +57,8 @@ export function Dashboard({
   ) => void;
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
   onRoutineLater: (instanceId: string) => void;
-  routineLaterPendingIds: Set<string>;
+  onRoutineTomorrow: (instanceId: string) => void;
+  routineSchedulePendingIds: Set<string>;
   onMemoryDone: (pinnedMemoryId: string) => void;
   onMemoryCancelDone: (pinnedMemoryId: string) => void;
   onTaskOpen: (projectId: string) => void;
@@ -90,7 +92,8 @@ export function Dashboard({
             timeFormatPreference={timeFormatPreference}
             onRoutineStatus={onRoutineStatus}
             onRoutineLater={onRoutineLater}
-            laterPendingIds={routineLaterPendingIds}
+            onRoutineTomorrow={onRoutineTomorrow}
+            schedulePendingIds={routineSchedulePendingIds}
             onRoutineOpen={onRoutineOpen}
           />
         </div>

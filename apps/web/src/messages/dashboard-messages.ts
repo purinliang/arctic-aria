@@ -36,6 +36,8 @@ export const englishDashboardMessages = {
     reopen: (title: string) => `Reopen ${title}`,
     later: "Later",
     laterHint: (title: string) => `Remind me about ${title} again in about an hour`,
+    tomorrow: "Tomorrow",
+    tomorrowHint: (title: string) => `Move ${title} to tomorrow`,
     defaultDescriptions: [
       "A repeatable check to keep life moving.",
       "A routine to return to when it is due.",
@@ -203,6 +205,8 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
     reopen: (title) => `重新打开 ${title}`,
     later: "稍后提醒",
     laterHint: (title) => `约一小时后再次提醒我${title}`,
+    tomorrow: "明天",
+    tomorrowHint: (title) => `将${title}移到明天`,
     defaultDescriptions: [
       "帮助生活继续运转的重复检查。",
       "到时间就回来看看的日常。",

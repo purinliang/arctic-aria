@@ -148,6 +148,11 @@ export function AppShell({
       showSuccessNotification(messages.routines.instances.laterSuccess);
     }
   }
+  async function handleRoutineTomorrow(instanceId: string) {
+    if (await routineState.moveRoutineToTomorrow(instanceId)) {
+      showSuccessNotification(messages.routines.instances.tomorrowSuccess);
+    }
+  }
   const eventState = useDashboardEvents(
     currentUser.id,
     showErrorNotification,
@@ -436,7 +441,8 @@ export function AppShell({
               onRoutineDelete={routineState.deleteRoutineFromPage}
               onRoutineInstanceStatus={routineState.updateRoutineInstanceFromPage}
               onRoutineLater={handleRoutineLater}
-              routineLaterPendingIds={routineState.routineLaterPendingIds}
+              onRoutineTomorrow={handleRoutineTomorrow}
+              routineSchedulePendingIds={routineState.routineSchedulePendingIds}
               onRoutineTemplateParse={routineState.parseRoutineTemplateFromPage}
               onRoutineTemplateApply={routineState.applyRoutineTemplateFromPage}
               onRoutineGroupSave={routineState.saveRoutineGroupFromPage}
@@ -555,7 +561,8 @@ export function AppShell({
               onTaskStatus={projectState.updateTaskFromDashboard}
               onRoutineStatus={routineState.updateRoutine}
               onRoutineLater={handleRoutineLater}
-              routineLaterPendingIds={routineState.routineLaterPendingIds}
+              onRoutineTomorrow={handleRoutineTomorrow}
+              routineSchedulePendingIds={routineState.routineSchedulePendingIds}
               onMemoryDone={memoryState.markMemoryDone}
               onMemoryCancelDone={memoryState.cancelMemoryDone}
               onTaskOpen={showProjectDetail}

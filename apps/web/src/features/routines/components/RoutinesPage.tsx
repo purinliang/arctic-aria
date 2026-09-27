@@ -80,7 +80,8 @@ export function RoutinesPage({
   onRoutineDelete,
   onRoutineInstanceStatus,
   onRoutineLater,
-  routineLaterPendingIds,
+  onRoutineTomorrow,
+  routineSchedulePendingIds,
   onRoutineTemplateParse,
   onRoutineTemplateApply,
   onRoutineGroupSave,
@@ -106,7 +107,8 @@ export function RoutinesPage({
     status: RoutineStatus,
   ) => RoutineResult;
   onRoutineLater: (instanceId: string) => void;
-  routineLaterPendingIds: Set<string>;
+  onRoutineTomorrow: (instanceId: string) => void;
+  routineSchedulePendingIds: Set<string>;
   onRoutineTemplateParse: (
     routineId: string | null,
     source: string,
@@ -362,7 +364,9 @@ export function RoutinesPage({
                   void onRoutineInstanceStatus(instanceId, status);
                 }}
                 onLater={onRoutineLater}
-                laterPendingIds={routineLaterPendingIds}
+                onTomorrow={onRoutineTomorrow}
+                schedulePendingIds={routineSchedulePendingIds}
+                todayDate={referenceDate}
               />
             </Panel>
           </div>
