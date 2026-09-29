@@ -27,6 +27,7 @@ export function Dashboard({
   pinnedMemories,
   memoryLoading,
   onTaskStatus,
+  onTaskTomorrow,
   onRoutineStatus,
   onRoutineLater,
   onRoutineTomorrow,
@@ -55,6 +56,7 @@ export function Dashboard({
     taskId: string,
     status: TaskStatus,
   ) => void;
+  onTaskTomorrow: (taskId: string) => void;
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
   onRoutineLater: (instanceId: string) => void;
   onRoutineTomorrow: (instanceId: string) => void;
@@ -81,6 +83,7 @@ export function Dashboard({
             messages={messages.projectTasks}
             dateMessages={formMessages.datePicker}
             onTaskStatus={onTaskStatus}
+            onTaskTomorrow={onTaskTomorrow}
             onTaskOpen={onTaskOpen}
           />
           <RoutinesPanel

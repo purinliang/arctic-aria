@@ -35,6 +35,7 @@ Today task rows should show:
 - project title
 - milestone title, only when the task has one
 - done checkbox
+- `Tomorrow` action for unfinished selected tasks
 - deadline
 
 Today task rows should not show:
@@ -70,6 +71,10 @@ Task row layout:
   omitting the milestone segment when the task has no milestone
 - no expand/collapse behavior
 - no Today edit action
+- `Tomorrow` moves only the clicked task's daily selection to the next local
+  board day; the row disappears immediately and returns at its previous
+  position if the server rejects the move
+- completed tasks remain visible on Today and do not show `Tomorrow`
 - do not show `Block`, `Skip`, or a multi-status selector in the first UI
 - checkbox changes use optimistic UI and must not disable the clicked checkbox,
   other Today task checkboxes, or the row navigation action while the

@@ -94,6 +94,127 @@ test("dashboard task selections stay stable after completion", async () => {
   assert.equal(secondLoad.some((task) => task.id === "task-7"), false);
 });
 
+test("moving a selected task to tomorrow does not reselect it today", async () => {
+  const repository = new InMemoryProjectRepository({
+    projects: [
+      project({
+        id: "project-1",
+        title: "Test project",
+        tasks: [
+          task({ id: "task-1", title: "First", deadlineDate: "2026-07-14" }),
+          task({ id: "task-2", title: "Second", deadlineDate: "2026-07-15" }),
+        ],
+      }),
+    ],
+  });
+  const service = createProjectService({ projects: repository, now: () => now });
+
+  assert.deepEqual(
+    (await service.listDashboardTasks(userId)).map((item) => item.id),
+    ["task-1", "task-2"],
+  );
+  assert.equal(await service.moveDashboardTaskToTomorrow(userId, "task-1"), true);
+  assert.deepEqual(
+    (await service.listDashboardTasks(userId)).map((item) => item.id),
+    ["task-2"],
+  );
+  const nextDay = createProjectService({
+    projects: repository,
+    now: () => new Date("2026-07-15T10:00:00.000Z"),
+  });
+  assert.deepEqual(
+    (await nextDay.listDashboardTasks(userId)).map((item) => item.id),
+    ["task-1", "task-2"],
+  );
+});
+
+test("moving a task replaces only an untouched scheduler selection tomorrow", async () => {
+  const projects = [
+    project({
+      id: "project-1",
+      title: "Test project",
+      tasks: [task({ id: "task-1", title: "First", deadlineDate: "2026-07-14" })],
+    }),
+  ];
+  const selections = [
+    {
+      id: "today",
+      userId,
+      taskId: "task-1",
+      scheduledDate: "2026-07-14",
+      createdAt: now,
+      movedAt: null,
+      movedFromDate: null,
+      source: "scheduler" as const,
+    },
+    {
+      id: "tomorrow",
+      userId,
+      taskId: "task-1",
+      scheduledDate: "2026-07-15",
+      createdAt: now,
+      movedAt: null,
+      movedFromDate: null,
+      source: "scheduler" as const,
+    },
+  ];
+  const repository = new InMemoryProjectRepository({
+    projects,
+    dailySelections: selections,
+  });
+  const service = createProjectService({ projects: repository, now: () => now });
+
+  assert.equal(await service.moveDashboardTaskToTomorrow(userId, "task-1"), true);
+  assert.deepEqual(selections.map((selection) => selection.id), ["today"]);
+  assert.equal(selections[0].scheduledDate, "2026-07-15");
+  assert.equal(selections[0].movedFromDate, "2026-07-14");
+
+  const protectedSelections = selections.map((selection) => ({ ...selection }));
+  protectedSelections[0].scheduledDate = "2026-07-14";
+  protectedSelections[0].movedAt = null;
+  protectedSelections[0].movedFromDate = null;
+  protectedSelections.push({
+    ...selections[0],
+    id: "manual-tomorrow",
+    scheduledDate: "2026-07-15",
+    source: "manual",
+  });
+  const protectedRepository = new InMemoryProjectRepository({
+    projects,
+    dailySelections: protectedSelections,
+  });
+  const protectedService = createProjectService({
+    projects: protectedRepository,
+    now: () => now,
+  });
+  assert.equal(
+    await protectedService.moveDashboardTaskToTomorrow(userId, "task-1"),
+    false,
+  );
+  assert.equal(protectedSelections[0].scheduledDate, "2026-07-14");
+});
+
+test("only a current-day unfinished selection can move", async () => {
+  const repository = new InMemoryProjectRepository({
+    projects: [
+      project({
+        id: "project-1",
+        title: "Test project",
+        tasks: [task({ id: "task-1", title: "First", deadlineDate: "2026-07-14" })],
+      }),
+    ],
+  });
+  const service = createProjectService({ projects: repository, now: () => now });
+
+  assert.equal(await service.moveDashboardTaskToTomorrow(userId, "task-1"), false);
+  await service.listDashboardTasks(userId);
+  await service.updateTaskStatus(userId, "task-1", "done");
+  assert.equal(await service.moveDashboardTaskToTomorrow(userId, "task-1"), false);
+  await service.updateTaskStatus(userId, "task-1", "todo");
+  assert.equal(await service.moveDashboardTaskToTomorrow(userId, "task-1"), true);
+  assert.equal(await service.moveDashboardTaskToTomorrow(userId, "task-1"), false);
+});
+
 test("dashboard task selections refill after a selected task is deleted", async () => {
   const repository = new InMemoryProjectRepository({
     projects: [

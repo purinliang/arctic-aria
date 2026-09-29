@@ -559,6 +559,7 @@ export function AppShell({
               pinnedMemories={memoryState.pinnedMemories}
               memoryLoading={memoryState.memoryLoading}
               onTaskStatus={projectState.updateTaskFromDashboard}
+              onTaskTomorrow={projectState.moveTaskToTomorrow}
               onRoutineStatus={routineState.updateRoutine}
               onRoutineLater={handleRoutineLater}
               onRoutineTomorrow={handleRoutineTomorrow}

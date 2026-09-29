@@ -13,6 +13,8 @@ export const englishDashboardMessages = {
     noDeadline: "No deadline",
     due: (value: string) => `Due ${value}`,
     markDone: (title: string) => `Mark ${title} done`,
+    tomorrow: "Tomorrow",
+    tomorrowHint: (title: string) => `Move ${title} to tomorrow`,
     openProject: (title: string) => `Open project for ${title}`,
     defaultDescriptions: [
       "A concrete step toward the project.",
@@ -182,6 +184,8 @@ export const simplifiedChineseDashboardMessages: DashboardMessages = {
     noDeadline: "无截止日期",
     due: (value) => `截止 ${value}`,
     markDone: (title) => `将 ${title} 标记为完成`,
+    tomorrow: "明天",
+    tomorrowHint: (title) => `将 ${title} 移至明天`,
     openProject: (title) => `打开 ${title} 所属项目`,
     defaultDescriptions: [
       "推动项目向前的一步。",

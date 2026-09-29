@@ -389,9 +389,9 @@ Daily Review should use the same returned rows as the visible Today panels.
 5. Today checkbox behavior keeps working with optimistic UI.
 6. Web `Later` and `Tomorrow` are implemented; Discord response actions
    (`Done`, `Later`, and `Tomorrow`) remain future work.
-7. Review project task movement after routine schedule actions are stable.
-8. Add future move/remove controls for project task daily selections after the
-   first stable Today behavior is released.
+7. Web `Tomorrow` moves selected unfinished project tasks to the next local
+   board day, preserving the selection id and suppressing same-day reselection.
+8. A separate project task remove-from-Today action remains future work.
 
 ## Deferred Questions
 

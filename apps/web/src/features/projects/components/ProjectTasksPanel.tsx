@@ -1,7 +1,8 @@
 // Dashboard - Project Tasks Panel.
-import { ListChecks } from "lucide-react";
+import { ArrowRight, ListChecks } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { CardHeader } from "@/components/card";
+import { Button } from "@/components/button";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
 import { formatDateKey } from "@/components/forms/date-format";
@@ -30,6 +31,7 @@ export function ProjectTasksPanel({
   messages,
   dateMessages,
   onTaskStatus,
+  onTaskTomorrow,
   onTaskOpen,
 }: {
   darkMode: boolean;
@@ -41,6 +43,7 @@ export function ProjectTasksPanel({
     taskId: string,
     status: TaskStatus,
   ) => void;
+  onTaskTomorrow: (taskId: string) => void;
   onTaskOpen: (projectId: string) => void;
 }) {
   const visibleTasks = tasks.slice(0, todayPanelItemLimit);
@@ -68,6 +71,7 @@ export function ProjectTasksPanel({
             messages={messages}
             dateMessages={dateMessages}
             onTaskStatus={(status) => onTaskStatus(task.id, status)}
+            onTomorrow={() => onTaskTomorrow(task.id)}
             onOpen={() => onTaskOpen(task.projectId)}
           />
         ))}
@@ -83,6 +87,7 @@ function ProjectTaskRow({
   messages,
   dateMessages,
   onTaskStatus,
+  onTomorrow,
   onOpen,
 }: {
   task: Task;
@@ -90,6 +95,7 @@ function ProjectTaskRow({
   messages: DashboardMessages["projectTasks"];
   dateMessages: DatePickerMessages;
   onTaskStatus: (status: TaskStatus) => void;
+  onTomorrow: () => void;
   onOpen: () => void;
 }) {
   const deadline = deadlineText(task, messages, dateMessages);
@@ -133,6 +139,19 @@ function ProjectTaskRow({
           }
         />
       </div>
+      {task.status !== "done" ? (
+        <Button
+          darkMode={darkMode}
+          tone="ghost"
+          size="sm"
+          icon={<ArrowRight size={14} aria-hidden="true" />}
+          title={messages.tomorrowHint(task.title)}
+          aria-label={messages.tomorrowHint(task.title)}
+          onClick={onTomorrow}
+        >
+          {messages.tomorrow}
+        </Button>
+      ) : null}
     </ListItem>
   );
 }

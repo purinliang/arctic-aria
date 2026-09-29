@@ -43,6 +43,20 @@ export function createProjectService(options: ProjectServiceOptions = {}) {
       );
     },
 
+    async moveDashboardTaskToTomorrow(
+      userId: string,
+      taskId: string,
+      timeZone = defaultResolvedTimeZone,
+    ) {
+      const occurredAt = now();
+      return projects.moveDashboardTaskToTomorrow({
+        userId,
+        taskId,
+        today: localScheduledDateKey({ date: occurredAt, timeZone }),
+        occurredAt,
+      });
+    },
+
     async saveProject(
       userId: string,
       input: Omit<SaveProjectInput, "userId" | "occurredAt">,
