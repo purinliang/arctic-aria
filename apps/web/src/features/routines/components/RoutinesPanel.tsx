@@ -1,5 +1,6 @@
 // Dashboard - Routines Panel.
-import { Bell } from "lucide-react";
+import { ArrowRight, Bell, Clock3 } from "lucide-react";
+import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { secondaryTextColorClass } from "@/components/color";
 import { displayDescription } from "@/components/default-description";
@@ -16,6 +17,7 @@ import {
 } from "@/components/list";
 import { LoadingLine } from "@/components/loading";
 import { Panel } from "@/components/panel";
+import { controlGapClass } from "@/components/spacing";
 import { formatTimeDisplay } from "@/components/forms/time-display";
 import { todayPanelItemLimit } from "@/features/dashboard/today-panel-display";
 import type { Routine, RoutineStatus } from "@/features/dashboard/types";
@@ -31,6 +33,9 @@ export function RoutinesPanel({
   timeMessages,
   timeFormatPreference,
   onRoutineStatus,
+  onRoutineLater,
+  onRoutineTomorrow,
+  schedulePendingIds,
   onRoutineOpen,
 }: {
   darkMode: boolean;
@@ -40,6 +45,9 @@ export function RoutinesPanel({
   timeMessages: TimePickerMessages;
   timeFormatPreference: TimeFormatPreference;
   onRoutineStatus: (routineId: string, status: RoutineStatus) => void;
+  onRoutineLater: (instanceId: string) => void;
+  onRoutineTomorrow: (instanceId: string) => void;
+  schedulePendingIds: Set<string>;
   onRoutineOpen: () => void;
 }) {
   const visibleRoutines = routines.slice(0, todayPanelItemLimit);
@@ -69,6 +77,9 @@ export function RoutinesPanel({
             timeMessages={timeMessages}
             timeFormatPreference={timeFormatPreference}
             onStatusChange={(status) => onRoutineStatus(routine.id, status)}
+            onLater={() => onRoutineLater(routine.id)}
+            onTomorrow={() => onRoutineTomorrow(routine.id)}
+            schedulePending={schedulePendingIds.has(routine.id)}
             onOpen={onRoutineOpen}
           />
         ))}
@@ -92,6 +103,9 @@ function RoutineRow({
   timeMessages,
   timeFormatPreference,
   onStatusChange,
+  onLater,
+  onTomorrow,
+  schedulePending,
   onOpen,
 }: {
   routine: Routine;
@@ -100,6 +114,9 @@ function RoutineRow({
   timeMessages: TimePickerMessages;
   timeFormatPreference: TimeFormatPreference;
   onStatusChange: (status: RoutineStatus) => void;
+  onLater: () => void;
+  onTomorrow: () => void;
+  schedulePending: boolean;
   onOpen: () => void;
 }) {
   return (
@@ -140,9 +157,13 @@ function RoutineRow({
       </div>
       <RoutineRowMeta
         routine={routine}
+        darkMode={darkMode}
         messages={messages}
         timeMessages={timeMessages}
         timeFormatPreference={timeFormatPreference}
+        onLater={onLater}
+        onTomorrow={onTomorrow}
+        schedulePending={schedulePending}
       />
     </ListItem>
   );
@@ -150,14 +171,22 @@ function RoutineRow({
 
 function RoutineRowMeta({
   routine,
+  darkMode,
   messages,
   timeMessages,
   timeFormatPreference,
+  onLater,
+  onTomorrow,
+  schedulePending,
 }: {
   routine: Routine;
+  darkMode: boolean;
   messages: DashboardMessages["routines"];
   timeMessages: TimePickerMessages;
   timeFormatPreference: TimeFormatPreference;
+  onLater: () => void;
+  onTomorrow: () => void;
+  schedulePending: boolean;
 }) {
   return (
     <div className="grid min-w-20 shrink-0 justify-items-end text-right">
@@ -169,6 +198,36 @@ function RoutineRowMeta({
           timeFormatPreference,
         )}
       </ListItemSupportingText>
+      {routine.status === "pending" ? (
+        <div className={`flex flex-col items-end ${controlGapClass}`}>
+          {routine.wasReminded ? (
+            <Button
+              darkMode={darkMode}
+              tone="ghost"
+              size="sm"
+              icon={<Clock3 size={14} aria-hidden="true" />}
+              disabled={schedulePending}
+              title={messages.laterHint(routine.title)}
+              aria-label={messages.laterHint(routine.title)}
+              onClick={onLater}
+            >
+              {messages.later}
+            </Button>
+          ) : null}
+          <Button
+            darkMode={darkMode}
+            tone="ghost"
+            size="sm"
+            icon={<ArrowRight size={14} aria-hidden="true" />}
+            disabled={schedulePending}
+            title={messages.tomorrowHint(routine.title)}
+            aria-label={messages.tomorrowHint(routine.title)}
+            onClick={onTomorrow}
+          >
+            {messages.tomorrow}
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -273,6 +273,11 @@ Field rules:
   days including today.
 - If a task is edited before it has been selected, the new date fields decide
   whether it can be selected on the next Today load.
+- `Tomorrow` moves an unfinished task's current-day selection to the next
+  local board day without changing the task. A scheduler-created selection
+  already on that day is replaced; a manual or previously moved selection
+  blocks the move. The task is not automatically selected again on the day it
+  left.
 - If a task is edited after it has been selected, the selection remains until a
   future move/remove command changes it or the selected date is no longer
   Today.

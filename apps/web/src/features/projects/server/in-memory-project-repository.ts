@@ -12,6 +12,7 @@ import type {
 } from "./project-repository-types.ts";
 import type { ProjectTaskDailySelectionRecord } from "./project-task-daily-selection.ts";
 import { listInMemoryDashboardTasks } from "./in-memory-project-dashboard.ts";
+import { moveInMemoryDashboardTaskToTomorrow } from "./in-memory-project-task-move.ts";
 import {
   pinInMemoryProject,
   unpinInMemoryProject,
@@ -51,6 +52,19 @@ export class InMemoryProjectRepository implements ProjectRepository {
       userId,
       today,
       occurredAt,
+    });
+  }
+
+  async moveDashboardTaskToTomorrow(input: {
+    userId: string;
+    taskId: string;
+    today: string;
+    occurredAt: Date;
+  }) {
+    return moveInMemoryDashboardTaskToTomorrow({
+      ...input,
+      projects: this.projects,
+      dailySelections: this.dailySelections,
     });
   }
 

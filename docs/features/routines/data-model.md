@@ -187,8 +187,12 @@ Current statuses:
 - `skipped`
 
 `skipped` remains readable for compatibility, but current dashboard UI does not
-create new skipped rows. Future reminder responses should prefer `Later` and
-`Move to tomorrow` instead of treating skip as a first-class current action.
+create new skipped rows. Web `Later` reschedules a sent reminder on the same
+pending instance; Web `Tomorrow` moves a pending current-day instance to the
+next local board day, preserving its id. An untouched pre-generated target is
+removed in the same transaction. An answered, reminded, edited, or previously
+completed and reopened target blocks the move. Neither action creates a
+completion event.
 
 Reminder fields:
 
@@ -199,8 +203,8 @@ Reminder fields:
 - `remind_at` is the exact timestamp when Discord reminder delivery should be
   attempted.
 - `reminded_at` is set only after the reminder send succeeds.
-- `moved_at` and `moved_from_date` are reserved for moving a pending occurrence
-  to another day.
+- `moved_at` records when a pending occurrence moved to tomorrow, and
+  `moved_from_date` records its previous scheduled date.
 
 Current database protection:
 

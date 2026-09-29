@@ -159,6 +159,12 @@ export type ProjectRepository = {
     today: string,
     occurredAt: Date,
   ): Promise<ProjectTaskRecord[]>;
+  moveDashboardTaskToTomorrow(input: {
+    userId: string;
+    taskId: string;
+    today: string;
+    occurredAt: Date;
+  }): Promise<boolean>;
   saveProject(input: SaveProjectInput): Promise<string | null>;
   saveMilestone(input: SaveMilestoneInput): Promise<string | null>;
   saveTask(input: SaveProjectTaskInput): Promise<boolean>;

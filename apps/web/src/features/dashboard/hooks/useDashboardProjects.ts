@@ -29,6 +29,7 @@ import {
   type ProjectView,
 } from "@/features/projects/actions";
 import { projectTaskProgressText } from "@/features/projects/project-progress";
+import { useDashboardTaskMove } from "@/features/projects/hooks/useDashboardTaskMove";
 import type {
   DashboardMessages,
   NotificationMessages,
@@ -64,6 +65,13 @@ export function useDashboardProjects(
   );
   const taskStatusRequestChains = useRef(new Map<string, Promise<void>>());
   const taskStatusRequestVersions = useRef(new Map<string, number>());
+  const moveTaskToTomorrow = useDashboardTaskMove({
+    tasks,
+    setTasks,
+    notificationMessages,
+    resultMessages,
+    showErrorNotification,
+  });
   const actionFailedTitle = (
     action: keyof NotificationMessages["actionWords"],
     subject: keyof NotificationMessages["subjectWords"],
@@ -355,6 +363,7 @@ export function useDashboardProjects(
 
   return {
     tasks,
+    moveTaskToTomorrow,
     projects,
     projectLoading,
     projectActionPending,

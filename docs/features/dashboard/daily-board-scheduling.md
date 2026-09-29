@@ -2,7 +2,7 @@
 
 Status: partially implemented. Routine reminder timestamps, due-window cron
 selection, reminder delivery idempotency, and project task daily selections are
-implemented. Routine `Later` and `Tomorrow` actions remain future work.
+implemented. Routine `Later` and `Tomorrow` are available in the web UI.
 
 ## Boundary
 
@@ -40,8 +40,9 @@ local-date selection and recurrence generation:
 - Routines: the next local day gets its own `routine_instance` when the
   recurrence rule matches that local date.
 
-Explicit `Move to tomorrow` and `Later` actions are not implemented yet. They
-remain future work for manual rescheduling and reminder adjustment.
+`Later` can reschedule a sent routine reminder from Today or the Routines page.
+`Tomorrow` moves a pending occurrence on the current local board day to the
+next day.
 
 ## Shared Naming
 
@@ -51,10 +52,10 @@ Use the same date/time naming rule across both designs:
 - `_time`: local clock time only
 - `_at`: exact timestamp, either planned or actual
 
-Use `Move to tomorrow` for the full action name and `Tomorrow` for a compact
+Use `Move to tomorrow` for the full action name and `Tomorrow` for the compact
 button label.
 
-Use `Later` for "remind me again in 1 hour".
+Use `Later` for "remind me again in about 1 hour".
 
 Avoid `Push to tomorrow` in user-facing text. It is understandable, but
 `Move to tomorrow` is more natural English for this product.
@@ -75,8 +76,8 @@ Avoid `Push to tomorrow` in user-facing text. It is understandable, but
   Today still loads the previous local scheduled date so the `02:00` Daily
   Review can snapshot the completed day.
 - Routines without `preferred_time` use the `18:00` local fallback.
-- Dashboard UI currently exposes checkbox completion/reopen behavior, but not
-  `Later` or `Tomorrow`.
+- Dashboard UI exposes checkbox completion/reopen, `Later` after a reminder
+  was sent, and `Tomorrow` for a pending occurrence.
 
 ### Purpose
 
@@ -179,17 +180,21 @@ completed_at = null
 
 #### Later
 
-`Later` means "remind me again in 1 hour".
+`Later` means "remind me again in about 1 hour". It is available only after
+the pending occurrence has produced a reminder. Round up to the first
+15-minute cron tick at least one hour after the click, so cron can reliably
+deliver it.
 
 ```text
 status stays pending
-remind_at = clicked_at + 1 hour
+remind_at = next cron tick at least 1 hour after clicked_at
 reminded_at = null
 ```
 
 Do not create another routine instance for `Later`. It is the same occurrence
 with a new reminder time. `Later` does not change `scheduled_date` or
-`scheduled_time`.
+`scheduled_time`. When a reminder send and `Later` race, the old send may mark
+`reminded_at` only if `remind_at` still matches the sent timestamp.
 
 #### Tomorrow
 
@@ -202,16 +207,19 @@ If the routine has no `preferred_time`, use `18:00`.
 ```text
 scheduled_date = tomorrow
 scheduled_time = latest preferred_time, or 18:00 if preferred_time is null
-remind_at = tomorrow scheduled timestamp minus the reminder lead window
+remind_at = tomorrow scheduled timestamp minus the reminder lead window,
+            or the next cron tick if that time has already passed
 reminded_at = null
 moved_at = clicked_at
 moved_from_date = old scheduled_date
 status stays pending
 ```
 
-The move should avoid duplicate routine rows. If tomorrow's normal generation
-would create the same occurrence, it should find the moved instance instead of
-creating another one.
+The move preserves the source instance id. If an untouched pending occurrence
+has already been generated for tomorrow, delete that generated row in the same
+transaction before moving the source. Refuse the move if tomorrow's row was
+completed, reopened, reminded, edited, or previously moved. Future generation must suppress the
+source's original date while its moved occurrence exists.
 
 ### Preference Change Rules
 
@@ -379,10 +387,11 @@ Daily Review should use the same returned rows as the visible Today panels.
 3. Backend helpers compute local scheduled timestamps and reminder timestamps.
 4. Reminder cron selects due `routine_instances` by `remind_at`.
 5. Today checkbox behavior keeps working with optimistic UI.
-6. Add Discord reminder actions later: `Done`, `Later`, and `Tomorrow`.
-7. Add web UI controls only after the backend behavior is stable.
-8. Add future move/remove controls for project task daily selections after the
-   first stable Today behavior is released.
+6. Web `Later` and `Tomorrow` are implemented; Discord response actions
+   (`Done`, `Later`, and `Tomorrow`) remain future work.
+7. Web `Tomorrow` moves selected unfinished project tasks to the next local
+   board day, preserving the selection id and suppressing same-day reselection.
+8. A separate project task remove-from-Today action remains future work.
 
 ## Deferred Questions
 
@@ -390,7 +399,6 @@ Daily Review should use the same returned rows as the visible Today panels.
   readable until a later cleanup.
 - Whether the first reminder lead time should stay fixed at 30 minutes or
   become configurable later.
-- Whether the Today page should expose `Later` and `Tomorrow`, or reserve them
-  for Discord reminder responses first.
+- Whether Discord should offer both `Later` and `Tomorrow` response buttons.
 - Whether project task daily selections need a separate remove-from-Today state
   later, or whether moving to another date is enough.

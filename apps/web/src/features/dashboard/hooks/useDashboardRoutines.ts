@@ -23,8 +23,10 @@ import {
 } from "@/features/routines/actions";
 import {
   completeRoutineInstance,
+  moveRoutineInstanceToTomorrow,
   reopenRoutineInstance,
   skipRoutineInstance,
+  snoozeRoutineInstance,
 } from "@/features/routines/routine-instance-actions";
 import type {
   DashboardMessages,
@@ -64,6 +66,10 @@ export function useDashboardRoutines(
   const [routineLoading, setRoutineLoading] = useState(true);
   const [routineCacheReady, setRoutineCacheReady] = useState(false);
   const [routineActionPending, setRoutineActionPending] = useState(false);
+  const [routineSchedulePendingIds, setRoutineSchedulePendingIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const routineScheduleInFlight = useRef(new Set<string>());
   const routineActionPendingCount = useRef(0);
   const routineStatusRequestChains = useRef(new Map<string, Promise<void>>());
   const routineStatusRequestVersions = useRef(new Map<string, number>());
@@ -348,6 +354,98 @@ export function useDashboardRoutines(
     });
   }
 
+  async function runRoutineScheduleAction(
+    instanceId: string,
+    action: RoutineDataAction,
+    onSuccess: (data: RoutineDashboardData) => void,
+  ) {
+    if (routineScheduleInFlight.current.has(instanceId)) {
+      return false;
+    }
+
+    routineScheduleInFlight.current.add(instanceId);
+    setRoutineSchedulePendingIds(new Set(routineScheduleInFlight.current));
+
+    try {
+      const actionResult = await runNotifiedServerAction({
+        action,
+        messages: notificationMessages,
+        showErrorNotification,
+      });
+
+      if (!actionResult.ok) {
+        return false;
+      }
+
+      if (!actionResult.value.ok) {
+        notifyActionFailure({
+          result: actionResult.value,
+          resultMessages,
+          fallbackTitle: actionFailedTitle("update", "routine"),
+          notificationMessages,
+          showErrorNotification,
+        });
+        return false;
+      }
+
+      onSuccess(actionResult.value.data);
+      return true;
+    } finally {
+      routineScheduleInFlight.current.delete(instanceId);
+      setRoutineSchedulePendingIds(new Set(routineScheduleInFlight.current));
+    }
+  }
+
+  function laterRoutineInstance(instanceId: string) {
+    return runRoutineScheduleAction(
+      instanceId,
+      () => snoozeRoutineInstance(instanceId),
+      () => {
+        setRoutines((current) =>
+          current.map((routine) =>
+            routine.id === instanceId ? { ...routine, wasReminded: false } : routine,
+          ),
+        );
+        setRoutineInstances((current) =>
+          current.map((routine) =>
+            routine.id === instanceId ? { ...routine, wasReminded: false } : routine,
+          ),
+        );
+      },
+    );
+  }
+
+  function moveRoutineToTomorrow(instanceId: string) {
+    return runRoutineScheduleAction(
+      instanceId,
+      () => moveRoutineInstanceToTomorrow(instanceId),
+      (data) => {
+        const moved = data.routineInstances.find((instance) => instance.id === instanceId);
+
+        if (!moved) {
+          applyRoutineData(data);
+          return;
+        }
+
+        setRoutines((current) => current.filter((instance) => instance.id !== instanceId));
+        setRoutineInstances((current) => {
+          const remaining = current
+            .filter(
+              (instance) =>
+                instance.id === instanceId ||
+                instance.routineId !== moved.routineId ||
+                instance.scheduledDate !== moved.scheduledDate,
+            )
+            .map((instance) => (instance.id === instanceId ? moved : instance));
+
+          return remaining.some((instance) => instance.id === instanceId)
+            ? remaining
+            : [...remaining, moved];
+        });
+      },
+    );
+  }
+
   return {
     routines,
     routineInstances,
@@ -355,8 +453,11 @@ export function useDashboardRoutines(
     routineGroups,
     routineLoading,
     routineActionPending,
+    routineSchedulePendingIds,
     refreshRoutineData,
     updateRoutine,
+    laterRoutineInstance,
+    moveRoutineToTomorrow,
     updateRoutineInstanceFromPage: (instanceId: string, status: RoutineStatus) =>
       runRoutineManagementAction(
         () =>

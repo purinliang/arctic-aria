@@ -71,6 +71,16 @@ function ensureDashboardTaskSelections(input: {
       )
       .map((selection) => selection.taskId),
   );
+  const movedFromTodayTaskIds = new Set(
+    input.dailySelections
+      .filter(
+        (selection) =>
+          selection.userId === input.userId &&
+          selection.movedFromDate === input.today &&
+          selection.movedAt !== null,
+      )
+      .map((selection) => selection.taskId),
+  );
   const remainingSlots = projectTaskDailySelectionLimit - selectedTaskIds.size;
 
   if (remainingSlots <= 0) {
@@ -82,6 +92,7 @@ function ensureDashboardTaskSelections(input: {
       (task) =>
         task.status !== "done" &&
         !selectedTaskIds.has(task.id) &&
+        !movedFromTodayTaskIds.has(task.id) &&
         taskCanBeAutoScheduled(task, input.today),
     )
     .sort(compareDashboardTasks)

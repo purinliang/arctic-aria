@@ -64,6 +64,14 @@ export async function listPostgresDashboardTasks(
              AND existing_selection.task_id = project_tasks.id
              AND existing_selection.scheduled_date = $2::date
          )
+         AND NOT EXISTS (
+           SELECT 1
+           FROM project_task_daily_selections moved_selection
+           WHERE moved_selection.user_id = $1
+             AND moved_selection.task_id = project_tasks.id
+             AND moved_selection.moved_from_date = $2::date
+             AND moved_selection.moved_at IS NOT NULL
+         )
        ORDER BY
          project_tasks.deadline_date NULLS LAST,
          project_tasks.start_date NULLS LAST,
