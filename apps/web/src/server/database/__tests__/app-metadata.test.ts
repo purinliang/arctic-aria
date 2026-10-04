@@ -2,9 +2,20 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   deriveAppVersion,
+  latestReleaseVersion,
+  nextDevelopmentVersion,
   releaseVersionFromBranch,
   resolveSourceState,
 } from "../../../../scripts/read-app-metadata.mjs";
+
+test("hotfix metadata targets the next patch while develop targets the next minor", () => {
+  const releasedVersion = latestReleaseVersion("v0.14.0", "v0.15.0");
+  assert.equal(releasedVersion, "v0.15.0");
+  assert.equal(nextDevelopmentVersion("hotfix/demo-login-prefill", releasedVersion), "v0.15.1");
+  assert.equal(nextDevelopmentVersion("develop", releasedVersion), "v0.16.0");
+  assert.equal(latestReleaseVersion("v0.9.0", "v0.10.0"), "v0.10.0");
+  assert.equal(latestReleaseVersion("unknown"), "unknown");
+});
 
 test("app metadata uses the version in a hotfix branch name", () => {
   const branch = "agent/hotfix-v0.5.1";
