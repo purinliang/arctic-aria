@@ -11,3 +11,9 @@ export const emptyLogin: LoginInput = {
   username: "",
   password: "",
 };
+
+export function demoLoginInputForSearch(search: string): LoginInput | null {
+  return new URLSearchParams(search).get("mode") === "demo"
+    ? { username: "demo", password: "demodemo" }
+    : null;
+}

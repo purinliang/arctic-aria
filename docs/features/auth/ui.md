@@ -95,6 +95,9 @@ Use the same UI rules as registration, with these differences:
   after click and show errors without relying on a disabled button.
 - Do not show Google sign-in, password reset, or other placeholder actions until
   they are implemented end to end.
+- Visiting the signed-out app with `?mode=demo` prepopulates the sign-in form
+  with the public demo account credentials. This does not create an account,
+  bypass authentication, or submit the form. Other URLs keep empty login fields.
 
 The code may keep hidden future-action UI behind an explicit disabled flag so it
 can be re-enabled when the real implementation is ready. Do not expose the
