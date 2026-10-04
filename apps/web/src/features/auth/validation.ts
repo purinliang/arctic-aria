@@ -80,24 +80,33 @@ function validateUsernameSubmitRule(username: string): string | null {
   return validateUsernameTypingRule(username);
 }
 
-function validatePasswordTypingRule(password: string): string | null {
-  if (!password) {
-    return null;
-  }
-
+export function passwordValidationReason(password: string) {
+  if (!password) return "password_required" as const;
   if (password.length < minimumPasswordLength) {
-    return "Password must be at least 8 characters.";
+    return "password_too_short" as const;
   }
 
   if (password.length > maximumPasswordLength) {
-    return "Password must be 32 characters or fewer.";
+    return "password_too_long" as const;
   }
 
   if (!visibleAsciiPattern.test(password)) {
-    return "Use visible ASCII characters only, with no spaces.";
+    return "password_invalid_format" as const;
   }
 
   return null;
+}
+
+function validatePasswordTypingRule(password: string): string | null {
+  if (!password) return null;
+  const reason = passwordValidationReason(password);
+  const messages = {
+    password_required: "Password can't be empty.",
+    password_too_short: "Password must be at least 8 characters.",
+    password_too_long: "Password must be 32 characters or fewer.",
+    password_invalid_format: "Use visible ASCII characters only, with no spaces.",
+  };
+  return reason ? messages[reason] : null;
 }
 
 function validatePasswordSubmitRule(password: string): string | null {

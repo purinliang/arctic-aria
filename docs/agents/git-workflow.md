@@ -62,6 +62,19 @@ unless the developer explicitly requires the amend operation.
 
 ## Release PRs
 
+- Every hotfix PR into `main` must target the next patch version of the current
+  main release, such as `v0.15.0` to `v0.15.1`. Verify the Git-derived app
+  metadata reports that target before pushing; the package version is not the
+  release version.
+- Hotfix PRs require `docs/releases/vX.Y.Z.md` and use
+  `Hotfix vX.Y.Z: concise release outcome` for the PR and main release commit
+  title. Normal releases from `develop` use `Release vX.Y.Z: ...`. Version
+  detection must recognize both title forms.
+- Push hotfix branches with `main` as the PR base, then carry the merged hotfix
+  back to `develop` through the integration workflow.
+- Derive versions from the newest release in the branch ancestry. An older
+  release tag must not override a newer release commit, and the hotfix patch
+  target must remain separate from the next minor version on `develop`.
 - Prepare `docs/releases/vX.Y.Z.md` before creating or editing a release PR.
   It is the source of truth for the PR title, PR text, and later main release
   commit message.

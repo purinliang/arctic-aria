@@ -30,7 +30,7 @@ export function resolveAppMetadata(appRoot = process.cwd()) {
     process.env.APP_BASE_VERSION,
     releaseVersion,
     branchVersion,
-    bumpMinor(readLatestReleaseVersion(repoRoot)),
+    nextDevelopmentVersion(branch, readLatestReleaseVersion(repoRoot)),
     "v0.0.0",
   );
   const expectedDatabase = resolveExpectedDatabaseMetadata(appRoot);
@@ -83,22 +83,31 @@ function readHeadReleaseVersion(repoRoot) {
 
 function readLatestReleaseVersion(repoRoot) {
   const taggedVersion = readGit(
-    ["tag", "--list", "v*", "--sort=-v:refname"],
+    ["tag", "--merged", "HEAD", "--list", "v*", "--sort=-v:refname"],
     repoRoot,
   )
     .split(/\r?\n/)
     .find(isReleaseVersion);
 
-  if (taggedVersion) {
-    return taggedVersion;
-  }
-
   const releaseSubject = readGit(
-    ["log", "--all", "--grep=^Release v", "--format=%s", "-1"],
+    ["log", "--extended-regexp", "--grep=^(Release|Hotfix) v", "--format=%s", "-1"],
     repoRoot,
   );
 
-  return releaseVersionFromText(releaseSubject);
+  return latestReleaseVersion(taggedVersion, releaseVersionFromText(releaseSubject));
+}
+
+export function latestReleaseVersion(...versions) {
+  return versions.filter(isReleaseVersion).sort((left, right) => {
+    const leftParts = left.slice(1).split(".").map(Number);
+    const rightParts = right.slice(1).split(".").map(Number);
+    for (let index = 0; index < 3; index += 1) {
+      if (leftParts[index] !== rightParts[index]) {
+        return rightParts[index] - leftParts[index];
+      }
+    }
+    return 0;
+  })[0] ?? "unknown";
 }
 
 function readGitSourceState(repoRoot) {
@@ -187,16 +196,18 @@ function isReleaseVersion(version) {
   return /^v\d+\.\d+\.\d+$/.test(version);
 }
 
-function bumpMinor(version) {
+export function nextDevelopmentVersion(branch, version) {
   if (!isReleaseVersion(version)) {
     return "unknown";
   }
 
-  const [, major, minor] = version.match(/^v(\d+)\.(\d+)\.\d+$/) ?? [];
+  const [, major, minor, patch] = version.match(/^v(\d+)\.(\d+)\.(\d+)$/) ?? [];
 
   if (major === undefined || minor === undefined) {
     return "unknown";
   }
 
-  return `v${major}.${Number(minor) + 1}.0`;
+  return branch.startsWith("hotfix/")
+    ? `v${major}.${minor}.${Number(patch) + 1}`
+    : `v${major}.${Number(minor) + 1}.0`;
 }

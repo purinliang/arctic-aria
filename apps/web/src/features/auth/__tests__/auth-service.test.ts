@@ -5,7 +5,7 @@ import {
   DuplicateUsernameError,
   InMemoryUserRepository,
   type CreateUserRecord,
-  type UserRepository,
+  type UserRecord,
 } from "../server/user-repository.ts";
 
 const testUsername = "testusername";
@@ -125,8 +125,8 @@ test("register rejects duplicate usernames", async () => {
 });
 
 test("register handles duplicate username races from the repository", async () => {
-  class RacingUserRepository implements UserRepository {
-    async create(input: CreateUserRecord) {
+  class RacingUserRepository extends InMemoryUserRepository {
+    async create(input: CreateUserRecord): Promise<UserRecord> {
       throw new DuplicateUsernameError(input.username);
     }
 

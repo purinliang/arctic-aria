@@ -87,6 +87,23 @@ Security rules:
 - If a future password pepper is added, keep it outside the database and outside
   committed files.
 
+## Password Changes
+
+Authenticated users may change their own password by providing the current
+password, a new password, and confirmation. All fields use the existing
+8-32-character visible ASCII rules and the same trimming as login. The server
+gets the account id from the signed session and verifies the current password
+with bcrypt before hashing the replacement.
+
+The update matches both the account id and the password hash that was verified.
+If another request has changed that hash, the update fails and asks the user to
+check their current password again. Passwords and hashes never appear in action
+results or logs. No schema migration is required.
+
+Existing signed sessions remain valid after a password change. This flow
+changes the credential for future sign-ins; session revocation remains future
+work under the stateless cookie model.
+
 ## Sessions
 
 The current web implementation stores session state in a signed HTTP-only

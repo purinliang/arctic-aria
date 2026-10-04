@@ -95,11 +95,27 @@ Use the same UI rules as registration, with these differences:
   after click and show errors without relying on a disabled button.
 - Do not show Google sign-in, password reset, or other placeholder actions until
   they are implemented end to end.
+- Visiting the signed-out app with `?mode=demo` prepopulates the sign-in form
+  with the public demo account credentials. This does not create an account,
+  bypass authentication, or submit the form. Other URLs keep empty login fields.
 
 The code may keep hidden future-action UI behind an explicit disabled flag so it
 can be re-enabled when the real implementation is ready. Do not expose the
 separator, Google button, or password reset link to users while the flag is
 disabled.
+
+## Change Password In Settings
+
+The Account panel includes a normal settings row with a `Change password`
+button. It opens a compact shared dialog with current password, new password,
+and confirmation fields. All fields are masked by default and support the
+shared visibility toggle. English and Simplified Chinese use localized labels,
+validation bubbles, and notifications.
+
+Submitting waits for backend confirmation. Keep the dialog open and preserve
+input after failure; duplicate submits and closing while saving are blocked.
+Success closes the dialog and shows a success notification. Closing or saving
+clears the password fields. The signed-in workspace remains open.
 
 ## Interaction Behavior
 
