@@ -23,6 +23,7 @@ import {
 } from "@/components/settings-control-row";
 import { Switch } from "@/components/switch";
 import { DeveloperToolsPanel } from "@/features/performance/components/DeveloperToolsPanel";
+import { PasswordSettingsRow } from "@/features/auth/components/PasswordSettingsRow";
 import type {
   TimeFormatPreference,
   UserPreferences,
@@ -209,6 +210,13 @@ export function SettingsPage({
                 {currentUserDisplayName}
               </SettingsControlValue>
             }
+          />
+          <PasswordSettingsRow
+            darkMode={darkMode}
+            messages={messages.password}
+            notificationMessages={notificationMessages}
+            showErrorNotification={showErrorNotification}
+            showSuccessNotification={showSuccessNotification}
           />
           <SettingsControlRow
             darkMode={darkMode}

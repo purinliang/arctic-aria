@@ -1,5 +1,9 @@
 import type { SupportedLanguage } from "./languages";
 import {
+  englishPasswordChangeMessages,
+  simplifiedChinesePasswordChangeMessages,
+} from "./password-change-messages";
+import {
   englishDashboardMessages,
   simplifiedChineseDashboardMessages,
 } from "./dashboard-messages";
@@ -124,7 +128,8 @@ const englishMessages = {
   },
   settings: {
     description: "Theme, language, and app information.",
-    accountDescription: "Current profile and sign-out.",
+    accountDescription: "Profile, password, and sign-out.",
+    password: englishPasswordChangeMessages,
     accountTitle: "Account",
     appInformationDescription: "Version and development tools.",
     appInformationTitle: "About",
@@ -492,7 +497,8 @@ const simplifiedChineseMessages: AppMessages = {
   },
   settings: {
     description: "主题、语言和应用信息。",
-    accountDescription: "当前资料和退出登录。",
+    accountDescription: "资料、密码和退出登录。",
+    password: simplifiedChinesePasswordChangeMessages,
     accountTitle: "账户",
     appInformationDescription: "版本和开发工具。",
     appInformationTitle: "关于",

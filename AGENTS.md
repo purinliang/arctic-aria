@@ -361,6 +361,22 @@ amend directly when the developer explicitly asks for an amend.
 
 ### Release PRs
 
+- Every hotfix PR into `main` must target the next patch version of the
+  current main release, such as `v0.15.0` to `v0.15.1`. Verify the app metadata
+  reports that target on the hotfix branch before pushing; use the repository's
+  Git-derived version mechanism rather than the package manifest version.
+- Hotfix PRs also require `docs/releases/vX.Y.Z.md`. Use
+  `Hotfix vX.Y.Z: concise release outcome` for the PR title and the main
+  release commit title, and copy the release text from that document.
+- Normal releases from `develop` use `Release vX.Y.Z: ...`; hotfixes from
+  `main` use `Hotfix vX.Y.Z: ...`. Version detection must recognize both
+  release commit title forms.
+- Push the hotfix branch and create or update its PR with `main` as the base.
+  Carry the hotfix back to `develop` through the integration workflow after
+  the main hotfix is merged.
+- Check the newest release on the branch's ancestry when deriving a version;
+  an older release tag must not override a newer release commit. Keep the
+  hotfix target separate from the next minor version on `develop`.
 - Release PR drafts live in `docs/releases/vX.Y.Z.md`.
 - Before creating or editing a release PR, write or update
   `docs/releases/vX.Y.Z.md` first. Copy the release title and release text from
@@ -376,7 +392,7 @@ amend directly when the developer explicitly asks for an amend.
 - Do not include long routine `Verification` or `Notes` sections in release PR
   text unless the developer explicitly asks or a release-blocking caveat must
   be visible in GitHub.
-- When the developer asks an agent to open the GitHub release PR, first push
+- When the developer asks an agent to open a normal GitHub release PR, first push
   `develop`, then create the PR with GitHub CLI from `develop` into `main`.
   Use the release title from the release doc as `--title`. Use only the plain
   paragraphs inside the release doc's `## Release Text` fenced block as the PR

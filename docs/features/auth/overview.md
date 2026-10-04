@@ -17,6 +17,7 @@ The first user feature should include:
 
 - username and password registration
 - username and password login
+- changing the password from Settings after verifying the current password
 - password hashing
 - basic validation and user-facing error messages
 
@@ -24,7 +25,6 @@ The first user feature should not include:
 
 - Google OAuth
 - changing display name
-- changing password
 - account deletion
 - multi-factor authentication
 

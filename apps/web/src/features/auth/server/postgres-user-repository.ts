@@ -92,4 +92,26 @@ export class PostgresUserRepository implements UserRepository {
 
     return row ? mapUser(row) : null;
   }
+
+  async findById(userId: string) {
+    const rows = (await this.getSql()`
+      SELECT id, username, display_name, password_hash, is_admin, created_at, updated_at
+      FROM users WHERE id = ${userId} LIMIT 1
+    `) as UserRow[];
+    return rows[0] ? mapUser(rows[0]) : null;
+  }
+
+  async replacePasswordHash(input: {
+    userId: string;
+    expectedPasswordHash: string;
+    passwordHash: string;
+  }) {
+    const rows = await this.getSql()`
+      UPDATE users
+      SET password_hash = ${input.passwordHash}, updated_at = now()
+      WHERE id = ${input.userId} AND password_hash = ${input.expectedPasswordHash}
+      RETURNING id
+    `;
+    return rows.length > 0;
+  }
 }

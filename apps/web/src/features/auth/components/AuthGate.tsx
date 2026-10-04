@@ -32,7 +32,11 @@ import {
   getPublicVersionStatus,
   logoutUser,
 } from "../actions";
-import { emptyLogin, emptyRegister } from "../auth-form-defaults";
+import {
+  demoLoginInputForSearch,
+  emptyLogin,
+  emptyRegister,
+} from "../auth-form-defaults";
 import {
   shouldIgnoreImmediateLogout,
   shouldRejectFrequentOperation,
@@ -59,7 +63,11 @@ export function AuthGate() {
   const [sessionChecked, setSessionChecked] = useState(false);
   const [mode, setMode] = useState<AuthMode>("login");
   const [registerInput, setRegisterInput] = useState<RegisterInput>(emptyRegister);
-  const [loginInput, setLoginInput] = useState<LoginInput>(emptyLogin);
+  const [loginInput, setLoginInput] = useState<LoginInput>(() =>
+    demoLoginInputForSearch(
+      typeof window === "undefined" ? "" : window.location.search,
+    ) ?? emptyLogin,
+  );
   const [serverErrors, setServerErrors] = useState<AuthFieldErrors>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [logoutPending, setLogoutPending] = useState(false);
