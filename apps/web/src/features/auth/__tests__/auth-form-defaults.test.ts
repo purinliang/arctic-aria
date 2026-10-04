@@ -6,11 +6,11 @@ import { validateLoginSubmit } from "../validation.ts";
 test("demo mode prefills only the login credentials", () => {
   assert.deepEqual(demoLoginInputForSearch("?mode=demo"), {
     username: "demo",
-    password: "demodemo",
+    password: "demo123456+",
   });
   assert.deepEqual(demoLoginInputForSearch("?source=portfolio&mode=demo"), {
     username: "demo",
-    password: "demodemo",
+    password: "demo123456+",
   });
   assert.equal(demoLoginInputForSearch(""), null);
   assert.equal(demoLoginInputForSearch("?mode=register"), null);
