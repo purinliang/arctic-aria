@@ -26,6 +26,12 @@ manual testing and for building the next authenticated features.
 
 ## Code Map
 
+Settings exposes a password-change row through `PasswordSettingsRow` and a
+compact `PasswordChangeDialog`. The authenticated `password-change-actions`
+module takes the account id from the session. `password-change-service`
+validates and verifies the current password, then replaces the stored bcrypt
+hash only if the verified hash is still current. Existing sessions stay valid.
+
 Auth UI:
 
 ```text

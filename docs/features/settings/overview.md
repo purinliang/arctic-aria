@@ -16,6 +16,8 @@ The current web app implements a Settings page opened from the sidebar
 that appear only after an administrator enables developer mode:
 
 - `Preferences`: persisted display, language, and time preferences
+- `Account`: profile values, password change using the current password, and
+  sign-out
 - `Discord`: Discord connection status, connection code flow, direct-message
   test, and disconnect controls
 - `About`: visible app version, collapsed database-version metadata, and the

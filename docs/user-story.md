@@ -34,6 +34,9 @@ Settings currently let you choose theme mode, language, time format, Discord
 binding, and app information. Simplified Chinese is available, but some
 translations are still incomplete and machine translated.
 
+You can change your sign-in password from Settings by entering the current
+password and confirming a new one.
+
 In progress:
 
 - OAuth login
