@@ -129,6 +129,7 @@ not introduce form-field label spacing unless it is used inside a real form.
 placement, and text tokens. Hover or keyboard focus shows a brief information
 bubble; Escape dismisses the bubble. The trigger remains focusable but has no
 click action and is marked `aria-disabled`; it does not open a dialog.
+Moving the pointer away dismisses the bubble even if the trigger retains focus.
 Keep help copy in localized catalogs and make it specific to the current page.
 
 `button.tsx` owns shared button styling.

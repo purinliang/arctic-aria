@@ -44,7 +44,10 @@ export function PageHelpButton({
         aria-describedby={tooltipOpen ? tooltipId : undefined}
         icon={<Info size={18} aria-hidden="true" />}
         onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseLeave={() => {
+          setHovered(false);
+          setFocused(false);
+        }}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         onKeyDown={(event) => {
