@@ -62,6 +62,10 @@ For interactions, document:
 
 ## Interaction Defaults
 
+- Auth and workspace page headers include an information icon. Hover or focus
+  reveals a short summary; activating it opens localized, page-specific help.
+  Project and milestone detail views have their own help. The help dialog is
+  local-only and closes with its close button or Escape.
 - Dashboard actions should be lightweight, usually optimistic, and tracked per
   item when concurrent clicks are possible.
 - Add/edit/delete dialogs may stay blocking because they should close only after

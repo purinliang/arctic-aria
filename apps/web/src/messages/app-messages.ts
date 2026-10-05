@@ -1,5 +1,9 @@
 import type { SupportedLanguage } from "./languages";
 import {
+  englishPageHelpMessages,
+  simplifiedChinesePageHelpMessages,
+} from "./page-help-messages";
+import {
   englishPasswordChangeMessages,
   simplifiedChinesePasswordChangeMessages,
 } from "./password-change-messages";
@@ -47,6 +51,7 @@ export type NotificationMessages = AppMessages["notifications"];
 export type VersionStatusMessages = AppMessages["versionStatus"];
 
 const englishMessages = {
+  pageHelp: englishPageHelpMessages,
   appShell: {
     brandName: "Arctic Aria",
     closeNavigation: "Close navigation",
@@ -419,6 +424,7 @@ const englishMessages = {
 };
 
 const simplifiedChineseMessages: AppMessages = {
+  pageHelp: simplifiedChinesePageHelpMessages,
   appShell: {
     brandName: "北极阿莉雅",
     closeNavigation: "关闭导航",

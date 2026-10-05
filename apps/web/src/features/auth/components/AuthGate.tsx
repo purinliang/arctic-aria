@@ -544,6 +544,7 @@ export function AuthGate() {
       <AuthPage
         darkMode={darkMode}
         messages={messages.auth}
+        helpMessages={messages.pageHelp}
         mode={mode}
         registerInput={registerInput}
         loginInput={loginInput}

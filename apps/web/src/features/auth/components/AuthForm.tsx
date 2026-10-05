@@ -14,6 +14,7 @@ import {
   FormFields,
 } from "@/components/forms/form-layout";
 import { PendingText } from "@/components/loading";
+import { PageHelpButton } from "@/components/page-help";
 import { Tabs } from "@/components/tabs";
 import { SectionTitle } from "@/components/text";
 import type { AuthMode } from "./AuthGate";
@@ -26,11 +27,12 @@ import {
 } from "../validation";
 import { AuthTextField } from "./AuthTextField";
 import { GoogleIcon } from "./GoogleIcon";
-import type { AuthMessages } from "@/messages/app-messages";
+import type { AppMessages, AuthMessages } from "@/messages/app-messages";
 
 export type AuthFormProps = {
   darkMode: boolean;
   messages: AuthMessages;
+  helpMessages: AppMessages["pageHelp"];
   mode: AuthMode;
   registerInput: RegisterInput;
   loginInput: LoginInput;
@@ -64,6 +66,7 @@ const showFutureAuthActions = false;
 export function AuthForm({
   darkMode,
   messages,
+  helpMessages,
   mode,
   registerInput,
   loginInput,
@@ -136,7 +139,15 @@ export function AuthForm({
           onSubmit();
         }}
       >
-        <SectionTitle>{title}</SectionTitle>
+        <div className="flex items-center justify-between gap-[var(--aa-space-control-gap)]">
+          <SectionTitle>{title}</SectionTitle>
+          <PageHelpButton
+            key={mode}
+            darkMode={darkMode}
+            content={helpMessages.pages[mode]}
+            labels={helpMessages}
+          />
+        </div>
 
         <FormFields className="mt-[var(--aa-form-section-gap)]">
           <AuthTextField

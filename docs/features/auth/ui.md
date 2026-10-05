@@ -38,6 +38,9 @@ and [data-model.md](data-model.md).
   preference. Signed-in users can change theme from Settings or the sidebar.
 - Auth labels, placeholder action text, notification titles, and the version
   metadata footer should use the active app message catalog.
+- An information icon beside each tab's form title shows a summary on hover or
+  focus and opens detailed localized help on activation. Demo help identifies
+  the account as shared and warns against entering private information.
 - Show a small deployment metadata footer below the auth panel when app
   metadata is available. It should use shared `SupportingText` styling and
   follow the same version visibility rules as Settings.
