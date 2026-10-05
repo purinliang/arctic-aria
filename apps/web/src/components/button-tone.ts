@@ -2,7 +2,7 @@ export type ButtonTone = "primary" | "secondary" | "ghost" | "danger";
 
 export function buttonToneClass(tone: ButtonTone, active = false) {
   if (tone === "danger") {
-    return "border border-[var(--aa-danger-button-bg)] bg-[var(--aa-danger-button-bg)] text-[var(--aa-danger-button-text)] hover:border-[var(--aa-danger-button-hover-bg)] hover:bg-[var(--aa-danger-button-hover-bg)] disabled:border-[var(--aa-danger-button-disabled-bg)] disabled:bg-[var(--aa-danger-button-disabled-bg)] disabled:text-[var(--aa-danger-button-disabled-text)] disabled:hover:border-[var(--aa-danger-button-disabled-bg)] disabled:hover:bg-[var(--aa-danger-button-disabled-bg)] disabled:hover:text-[var(--aa-danger-button-disabled-text)]";
+    return "border border-[var(--aa-danger-button-border)] bg-[var(--aa-danger-button-bg)] text-[var(--aa-danger-button-text)] hover:border-[var(--aa-danger-button-hover-border)] hover:bg-[var(--aa-danger-button-hover-bg)] disabled:border-[var(--aa-danger-button-disabled-bg)] disabled:bg-[var(--aa-danger-button-disabled-bg)] disabled:text-[var(--aa-danger-button-disabled-text)] disabled:hover:border-[var(--aa-danger-button-disabled-bg)] disabled:hover:bg-[var(--aa-danger-button-disabled-bg)] disabled:hover:text-[var(--aa-danger-button-disabled-text)]";
   }
 
   if (tone === "primary" || active) {

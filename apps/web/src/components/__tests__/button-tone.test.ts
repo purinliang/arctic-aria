@@ -4,7 +4,7 @@ import { buttonToneClass } from "../button-tone.ts";
 
 test("danger buttons have dedicated background, text, hover, and disabled tokens", () => {
   const classes = buttonToneClass("danger");
-  for (const token of ["bg", "text", "hover-bg", "disabled-bg", "disabled-text"]) {
+  for (const token of ["bg", "text", "border", "hover-bg", "hover-border", "disabled-bg", "disabled-text"]) {
     assert.ok(classes.includes(`--aa-danger-button-${token}`));
   }
   assert.ok(classes.includes("disabled:hover:bg-[var(--aa-danger-button-disabled-bg)]"));
