@@ -61,6 +61,10 @@
   --gray-indicator: #8b8d98;
   --gray-track: #8b8d98;
   --color-background: #fff;
+  --aa-danger-button-bg: #b91c1c;
+  --aa-danger-button-hover-bg: #991b1b;
+  --aa-danger-button-disabled-bg: #fee2e2;
+  --aa-danger-button-disabled-text: #991b1b;
   --aa-gray-1-25: color-mix(in srgb, var(--gray-1) 75%, var(--gray-2) 25%);
   --aa-gray-1-50: color-mix(in srgb, var(--gray-1) 50%, var(--gray-2) 50%);
   --aa-gray-1-75: color-mix(in srgb, var(--gray-1) 25%, var(--gray-2) 75%);
@@ -132,6 +136,10 @@
   --gray-indicator: #6c6e79;
   --gray-track: #6c6e79;
   --color-background: #111111;
+  --aa-danger-button-bg: #dc2626;
+  --aa-danger-button-hover-bg: #b91c1c;
+  --aa-danger-button-disabled-bg: #3f2024;
+  --aa-danger-button-disabled-text: #f3acb0;
   --aa-gray-1-25: color-mix(in srgb, var(--gray-1) 75%, var(--gray-2) 25%);
   --aa-gray-1-50: color-mix(in srgb, var(--gray-1) 50%, var(--gray-2) 50%);
   --aa-gray-1-75: color-mix(in srgb, var(--gray-1) 25%, var(--gray-2) 75%);
@@ -179,6 +187,7 @@
   --aa-font-weight-medium: 500;
   --aa-font-weight-semibold: 600;
   --aa-primary-button-bg: var(--blue-9);
+  --aa-danger-button-text: #ffffff;
   --aa-primary-button-text: var(--blue-contrast);
   --aa-primary-button-hover-bg: var(--blue-10);
   --aa-primary-button-hover-text: var(--blue-contrast);

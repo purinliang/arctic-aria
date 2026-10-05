@@ -1,4 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { buttonToneClass } from "./button-tone";
+import type { ButtonTone } from "./button-tone";
 import {
   buttonHeightLgClass,
   buttonHeightMdClass,
@@ -9,7 +11,7 @@ import {
 import { controlGapClass } from "./spacing";
 import { cx } from "./utils";
 
-export type ButtonTone = "primary" | "secondary" | "ghost";
+export type { ButtonTone } from "./button-tone";
 export type ButtonSize = "sm" | "md" | "md-lg" | "lg" | "icon";
 
 export function Button({
@@ -33,13 +35,14 @@ export function Button({
   icon?: ReactNode;
   loadingIcon?: ReactNode;
 }) {
+  void darkMode;
   return (
     <button
       className={cx(
         "inline-flex shrink-0 cursor-pointer items-center justify-center rounded-md font-[var(--aa-font-weight-semibold)] leading-[var(--aa-line-height-md)] transition disabled:cursor-not-allowed",
         controlGapClass,
         buttonSizeClass(size),
-        buttonToneClass(darkMode, tone, active),
+        buttonToneClass(tone, active),
         className,
       )}
       type="button"
@@ -89,20 +92,4 @@ function buttonSizeClass(size: ButtonSize) {
     buttonHeightSmClass,
     "px-[var(--aa-space-popover-x)] text-[length:var(--aa-font-size-md)]",
   );
-}
-
-function buttonToneClass(
-  darkMode: boolean,
-  tone: ButtonTone,
-  active: boolean,
-) {
-  if (tone === "primary" || active) {
-    return "border border-[var(--aa-primary-button-hover-bg)] bg-[var(--aa-primary-button-bg)] text-[var(--aa-primary-button-text)] hover:border-[var(--aa-primary-button-hover-bg)] hover:bg-[var(--aa-primary-button-hover-bg)] hover:text-[var(--aa-primary-button-hover-text)] disabled:border-[var(--aa-primary-button-disabled-bg)] disabled:bg-[var(--aa-primary-button-disabled-bg)] disabled:text-[var(--aa-primary-button-disabled-text)] disabled:hover:border-[var(--aa-primary-button-disabled-bg)] disabled:hover:bg-[var(--aa-primary-button-disabled-bg)] disabled:hover:text-[var(--aa-primary-button-disabled-text)]";
-  }
-
-  if (tone === "ghost") {
-    return "text-[var(--aa-secondary-button-text)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:bg-transparent disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:bg-transparent disabled:hover:text-[var(--aa-secondary-button-disabled-text)]";
-  }
-
-  return "border border-[var(--aa-secondary-button-border)] bg-[var(--aa-secondary-button-bg)] text-[var(--aa-secondary-button-text)] hover:border-[var(--aa-secondary-button-hover-border)] hover:bg-[var(--aa-secondary-button-hover-bg)] hover:text-[var(--aa-secondary-button-hover-text)] disabled:border-[var(--aa-secondary-button-disabled-border)] disabled:bg-[var(--aa-secondary-button-disabled-bg)] disabled:text-[var(--aa-secondary-button-disabled-text)] disabled:hover:border-[var(--aa-secondary-button-disabled-border)] disabled:hover:bg-[var(--aa-secondary-button-disabled-bg)] disabled:hover:text-[var(--aa-secondary-button-disabled-text)]";
 }

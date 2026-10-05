@@ -154,6 +154,9 @@ Submit behavior:
 
 Sign-out behavior:
 
+- The Settings Sign out button uses the shared red `danger` tone, with themed
+  hover and disabled states. Signing out remains a normal session-ending action;
+  it does not delete the account or product data.
 - Sign out is a blocking auth action and is not optimistic.
 - While sign out is pending, only the sidebar sign-out row should show
   `Signing out.`, `Signing out..`, and `Signing out...` as a periodic text

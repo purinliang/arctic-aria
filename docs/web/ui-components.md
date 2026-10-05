@@ -140,6 +140,7 @@ Buttons support:
 - primary actions
 - secondary actions
 - ghost, or borderless, icon and utility actions
+- danger actions with a red background, currently used by Sign out
 - text, icon, or text plus icon
 - loading state
 - disabled state

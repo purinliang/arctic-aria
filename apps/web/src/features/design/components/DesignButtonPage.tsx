@@ -2,7 +2,7 @@
 
 // Design Page - Buttons.
 import type { ReactNode } from "react";
-import { MoreHorizontal, Plus, Save } from "lucide-react";
+import { LogOut, MoreHorizontal, Plus, Save } from "lucide-react";
 import { Button, type ButtonTone } from "@/components/button";
 import { ContentSubsection } from "@/components/content-section";
 import { controlGapClass, sectionStackClass } from "@/components/spacing";
@@ -31,6 +31,11 @@ const buttonToneGroups: {
     key: "ghost",
     tone: "ghost",
     icon: <MoreHorizontal size={14} aria-hidden="true" />,
+  },
+  {
+    key: "danger",
+    tone: "danger",
+    icon: <LogOut size={14} aria-hidden="true" />,
   },
 ];
 
