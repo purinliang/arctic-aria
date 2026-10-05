@@ -535,10 +535,26 @@ input:not(.aa-text-input-control):focus-visible {
   }
 }
 
+.aa-demo-invitation:not(:disabled) {
+  animation: aa-demo-lift 7s ease-in-out infinite;
+}
+
+.aa-demo-invitation:hover,
+.aa-demo-invitation:focus-visible {
+  animation: none;
+}
+
+@keyframes aa-demo-lift {
+  0%, 80%, 100% { transform: perspective(600px) translateZ(0); }
+  85%, 93% { transform: perspective(600px) translateZ(12px) translateY(-2px); }
+  89%, 97% { transform: perspective(600px) translateZ(0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
 
   .aa-notification-toast,
-  .aa-notification-toast[data-dismissing="true"] {
+  .aa-notification-toast[data-dismissing="true"],
+  .aa-demo-invitation:not(:disabled) {
     animation: none;
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 // Auth Page - Auth Form.
-import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Play } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/button";
 import {
@@ -37,6 +37,7 @@ export type AuthFormProps = {
   errors: AuthFieldErrors;
   disabled: boolean;
   pending: boolean;
+  demoPending: boolean;
   submitAttempted: boolean;
   onModeChange: (mode: AuthMode) => void;
   onRegisterChange: <K extends keyof RegisterInput>(
@@ -48,6 +49,7 @@ export type AuthFormProps = {
     value: LoginInput[K],
   ) => void;
   onSubmit: () => void;
+  onTryDemo: () => void;
   onGoogleLogin: () => void;
   onPasswordReset: () => void;
 };
@@ -68,11 +70,13 @@ export function AuthForm({
   errors,
   disabled,
   pending,
+  demoPending,
   submitAttempted,
   onModeChange,
   onRegisterChange,
   onLoginChange,
   onSubmit,
+  onTryDemo,
   onGoogleLogin,
   onPasswordReset,
 }: AuthFormProps) {
@@ -118,8 +122,8 @@ export function AuthForm({
         fill
         className="mb-6"
         options={[
-          { value: "login", label: messages.form.signIn },
-          { value: "register", label: messages.form.signUp },
+          { value: "login", label: messages.form.signIn, disabled },
+          { value: "register", label: messages.form.signUp, disabled },
         ]}
         value={mode}
         onChange={(value) => switchMode(readAuthMode(value))}
@@ -265,6 +269,21 @@ export function AuthForm({
             </Button>
           </span>
 
+          <Button
+            darkMode={darkMode}
+            size="md"
+            className="aa-demo-invitation w-full"
+            disabled={disabled}
+            icon={<Play size={17} aria-hidden="true" />}
+            onClick={onTryDemo}
+          >
+            <PendingText
+              active={demoPending}
+              idleText={messages.form.tryDemo}
+              pendingText={messages.form.openingDemo}
+            />
+          </Button>
+
           {showFutureAuthActions && mode === "login" ? (
             <>
               <div
@@ -307,6 +326,7 @@ export function AuthForm({
               size="sm"
               className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"
               onClick={() => switchMode(switchTarget)}
+              disabled={disabled}
             >
               {switchLabel}
             </Button>

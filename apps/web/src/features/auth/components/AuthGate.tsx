@@ -33,7 +33,7 @@ import {
   logoutUser,
 } from "../actions";
 import {
-  demoLoginInputForSearch,
+  demoLoginInput,
   emptyLogin,
   emptyRegister,
 } from "../auth-form-defaults";
@@ -63,11 +63,9 @@ export function AuthGate() {
   const [sessionChecked, setSessionChecked] = useState(false);
   const [mode, setMode] = useState<AuthMode>("login");
   const [registerInput, setRegisterInput] = useState<RegisterInput>(emptyRegister);
-  const [loginInput, setLoginInput] = useState<LoginInput>(() =>
-    demoLoginInputForSearch(
-      typeof window === "undefined" ? "" : window.location.search,
-    ) ?? emptyLogin,
-  );
+  const [loginInput, setLoginInput] = useState<LoginInput>(emptyLogin);
+  const [demoPending, setDemoPending] = useState(false);
+  const authSubmitting = useRef(false);
   const [serverErrors, setServerErrors] = useState<AuthFieldErrors>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [logoutPending, setLogoutPending] = useState(false);
@@ -468,14 +466,17 @@ export function AuthGate() {
     }
   }
 
-  function handleSubmit() {
+  function handleSubmit(asDemo = false) {
+    if (authSubmitting.current) return;
+    const submittingMode = asDemo ? "login" : mode;
+    const submittedLogin = asDemo ? demoLoginInput : loginInput;
     resetSubmitState();
-    setSubmitAttempted(true);
+    setSubmitAttempted(!asDemo);
 
     const fieldErrors =
-      mode === "register"
+      submittingMode === "register"
         ? validateRegisterSubmit(registerInput)
-        : validateLoginSubmit(loginInput);
+        : validateLoginSubmit(submittedLogin);
 
     if (hasAuthErrors(fieldErrors)) {
       showErrorNotification(
@@ -485,18 +486,21 @@ export function AuthGate() {
       return;
     }
 
+    authSubmitting.current = true;
+    setDemoPending(asDemo);
     startTransition(async () => {
+      try {
       const result =
-        mode === "register"
+        submittingMode === "register"
           ? await submitRegister(registerInput)
-          : await submitLogin(loginInput);
+          : await submitLogin(submittedLogin);
 
       if (!result.ok) {
-        setServerErrors(result.fieldErrors ?? {});
+        if (!asDemo) setServerErrors(result.fieldErrors ?? {});
         notifyActionFailure({
           result,
           resultMessages: messages.auth.results,
-          fallbackTitle: mode === "register"
+          fallbackTitle: submittingMode === "register"
             ? messages.auth.notifications.signUpFailed
             : messages.auth.notifications.signInFailed,
           notificationMessages: messages.notifications,
@@ -507,13 +511,17 @@ export function AuthGate() {
 
       showSuccessNotification(
         localizedActionMessage(result, messages.auth.results),
-        mode === "register"
+        submittingMode === "register"
           ? messages.auth.notifications.accountCreated
           : messages.auth.notifications.signedIn,
       );
 
       lastSessionCreatedAt.current = currentTimeMs();
       setCurrentUser(result.user);
+      } finally {
+        authSubmitting.current = false;
+        setDemoPending(false);
+      }
     });
   }
 
@@ -541,12 +549,14 @@ export function AuthGate() {
         loginInput={loginInput}
         errors={activeErrors}
         disabled={isPending}
-        pending={isPending}
+        pending={isPending && !demoPending}
+        demoPending={demoPending}
         submitAttempted={submitAttempted}
         onModeChange={switchMode}
         onRegisterChange={updateRegister}
         onLoginChange={updateLogin}
         onSubmit={handleSubmit}
+        onTryDemo={() => handleSubmit(true)}
         onGoogleLogin={showGooglePlaceholder}
         onPasswordReset={showPasswordResetPlaceholder}
         versionMessages={messages.versionStatus}

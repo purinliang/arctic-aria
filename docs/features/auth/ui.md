@@ -78,8 +78,11 @@ and [data-model.md](data-model.md).
   stable.
 - Show small text `Already have an account?` and link-style text `Sign in`.
   Clicking the link is equivalent to switching tabs.
-- Do not show unrelated actions or information, such as `Open dashboard without
-  an account` or `OAuth`.
+- Show a secondary `Try demo` action below the main submit button in both tabs.
+  It uses the shared public demo account through normal authentication; it does
+  not create an anonymous account or bypass authentication. The button has a
+  subtle periodic depth/lift animation, paused during hover, focus, requests,
+  and reduced-motion preferences.
 
 ## Login Tab
 
@@ -95,9 +98,10 @@ Use the same UI rules as registration, with these differences:
   after click and show errors without relying on a disabled button.
 - Do not show Google sign-in, password reset, or other placeholder actions until
   they are implemented end to end.
-- Visiting the signed-out app with `?mode=demo` prepopulates the sign-in form
-  with the public demo account credentials. This does not create an account,
-  bypass authentication, or submit the form. Other URLs keep empty login fields.
+- `Try demo` submits the public demo credentials without changing personal
+  sign-in or sign-up fields. Both tabs are blocked during the request; failure
+  keeps the current form open and shows a shared notification. URL parameters
+  no longer prepopulate credentials or trigger demo access.
 
 The code may keep hidden future-action UI behind an explicit disabled flag so it
 can be re-enabled when the real implementation is ready. Do not expose the

@@ -98,6 +98,8 @@ const englishMessages = {
       signUp: "Sign up",
       signingUp: "Signing up",
       welcomeBack: "Welcome back",
+      tryDemo: "Try demo",
+      openingDemo: "Opening demo",
     },
     loading: {
       openingWorkspace: "Opening your workspace...",
@@ -468,6 +470,8 @@ const simplifiedChineseMessages: AppMessages = {
       signUp: "注册",
       signingUp: "正在注册",
       welcomeBack: "欢迎回来",
+      tryDemo: "体验演示",
+      openingDemo: "正在打开演示",
     },
     loading: {
       openingWorkspace: "正在打开你的工作区...",
