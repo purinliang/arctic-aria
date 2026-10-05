@@ -126,11 +126,9 @@ not introduce form-field label spacing unless it is used inside a real form.
 ## Button
 
 `PageHelpButton` combines the shared ghost icon button, viewport-aware popover
-placement, text tokens, and dialog shell. Hover or keyboard focus shows a brief
-information bubble; Escape dismisses the bubble. Click or keyboard activation
-opens a detailed dialog. The native modal handles focus trapping and Escape,
-restores focus on close, and keeps background controls unavailable. The dialog
-uses the shared scroll layer on small screens and does not write product data.
+placement, and text tokens. Hover or keyboard focus shows a brief information
+bubble; Escape dismisses the bubble. The trigger remains focusable but has no
+click action and is marked `aria-disabled`; it does not open a dialog.
 Keep help copy in localized catalogs and make it specific to the current page.
 
 `button.tsx` owns shared button styling.
