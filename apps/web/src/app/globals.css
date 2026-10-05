@@ -192,6 +192,7 @@
   --aa-font-weight-normal: 400;
   --aa-font-weight-medium: 500;
   --aa-font-weight-semibold: 600;
+  --aa-font-weight-bold: 700;
   --aa-primary-button-bg: var(--blue-9);
   --aa-primary-button-text: var(--blue-contrast);
   --aa-primary-button-hover-bg: var(--blue-10);
@@ -549,8 +550,12 @@ input:not(.aa-text-input-control):focus-visible {
   }
 }
 
+.aa-demo-invitation {
+  font-weight: var(--aa-font-weight-bold);
+}
+
 .aa-demo-invitation:not(:disabled) {
-  animation: aa-demo-lift 7s ease-in-out infinite;
+  animation: aa-demo-lift 2.8s ease-in-out infinite;
 }
 
 .aa-demo-invitation:hover,
@@ -559,9 +564,10 @@ input:not(.aa-text-input-control):focus-visible {
 }
 
 @keyframes aa-demo-lift {
-  0%, 80%, 100% { transform: perspective(600px) translateZ(0); }
-  85%, 93% { transform: perspective(600px) translateZ(12px) translateY(-2px); }
-  89%, 97% { transform: perspective(600px) translateZ(0); }
+  0%, 55%, 100% { transform: perspective(600px) translateZ(0); }
+  65% { transform: perspective(600px) translateZ(30px) translateY(-6px); }
+  75%, 92% { transform: perspective(600px) translateZ(0); }
+  83% { transform: perspective(600px) translateZ(24px) translateY(-4px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

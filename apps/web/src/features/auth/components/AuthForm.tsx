@@ -1,7 +1,7 @@
 "use client";
 
 // Auth Page - Auth Form.
-import { ArrowRight, Eye, EyeOff, Play } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/button";
 import {
@@ -285,13 +285,13 @@ export function AuthForm({
             size="md"
             className="aa-demo-invitation w-full"
             disabled={disabled}
-            icon={<Play size={17} aria-hidden="true" />}
+            icon={<ArrowRight size={17} aria-hidden="true" />}
             onClick={onTryDemo}
           >
             <PendingText
               active={demoPending}
               idleText={messages.form.tryDemo}
-              pendingText={messages.form.openingDemo}
+              pendingText={messages.form.tryingDemo}
             />
           </Button>
 

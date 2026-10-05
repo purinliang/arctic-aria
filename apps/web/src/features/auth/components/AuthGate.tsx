@@ -42,6 +42,8 @@ import {
   shouldRejectFrequentOperation,
 } from "../auth-interaction-guards";
 import { submitLogin, submitRegister } from "../auth-client";
+import { demoLoadingDelayMs } from "../demo-entry";
+import { useDemoEntry } from "../hooks/useDemoEntry";
 import type { AuthUser } from "../server/auth-service";
 import {
   hasAuthErrors,
@@ -230,8 +232,14 @@ export function AuthGate() {
     };
   }, [applyPreferencesLocally, currentUser, syncResolvedTimeZone]);
 
-  if (!sessionChecked) {
-    return <AuthLoadingScreen />;
+  useDemoEntry({
+    sessionChecked,
+    signedIn: Boolean(currentUser),
+    onStart: () => handleSubmit(true),
+  });
+
+  if (!sessionChecked || demoPending) {
+    return <AuthLoadingScreen demo={demoPending} />;
   }
 
   if (currentUser) {
@@ -490,34 +498,37 @@ export function AuthGate() {
     setDemoPending(asDemo);
     startTransition(async () => {
       try {
-      const result =
-        submittingMode === "register"
-          ? await submitRegister(registerInput)
-          : await submitLogin(submittedLogin);
+        if (asDemo) {
+          await new Promise((resolve) => setTimeout(resolve, demoLoadingDelayMs));
+        }
+        const result =
+          submittingMode === "register"
+            ? await submitRegister(registerInput)
+            : await submitLogin(submittedLogin);
 
-      if (!result.ok) {
-        if (!asDemo) setServerErrors(result.fieldErrors ?? {});
-        notifyActionFailure({
-          result,
-          resultMessages: messages.auth.results,
-          fallbackTitle: submittingMode === "register"
-            ? messages.auth.notifications.signUpFailed
-            : messages.auth.notifications.signInFailed,
-          notificationMessages: messages.notifications,
-          showErrorNotification,
-        });
-        return;
-      }
+        if (!result.ok) {
+          if (!asDemo) setServerErrors(result.fieldErrors ?? {});
+          notifyActionFailure({
+            result,
+            resultMessages: messages.auth.results,
+            fallbackTitle: submittingMode === "register"
+              ? messages.auth.notifications.signUpFailed
+              : messages.auth.notifications.signInFailed,
+            notificationMessages: messages.notifications,
+            showErrorNotification,
+          });
+          return;
+        }
 
-      showSuccessNotification(
-        localizedActionMessage(result, messages.auth.results),
-        submittingMode === "register"
-          ? messages.auth.notifications.accountCreated
-          : messages.auth.notifications.signedIn,
-      );
+        showSuccessNotification(
+          localizedActionMessage(result, messages.auth.results),
+          submittingMode === "register"
+            ? messages.auth.notifications.accountCreated
+            : messages.auth.notifications.signedIn,
+        );
 
-      lastSessionCreatedAt.current = currentTimeMs();
-      setCurrentUser(result.user);
+        lastSessionCreatedAt.current = currentTimeMs();
+        setCurrentUser(result.user);
       } finally {
         authSubmitting.current = false;
         setDemoPending(false);

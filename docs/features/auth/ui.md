@@ -81,11 +81,12 @@ and [data-model.md](data-model.md).
   stable.
 - Show small text `Already have an account?` and link-style text `Sign in`.
   Clicking the link is equivalent to switching tabs.
-- Show a secondary `Try demo` action below the main submit button in both tabs.
+- Show a secondary `Try demo directly` action below the main submit button in both tabs.
   It uses the shared public demo account through normal authentication; it does
   not create an anonymous account or bypass authentication. The button has a
-  subtle periodic depth/lift animation, paused during hover, focus, requests,
-  and reduced-motion preferences.
+  stronger periodic depth/lift animation every 2.8 seconds and bold text, using
+  the same arrow icon as Sign in. Animation pauses during hover, focus,
+  requests, and reduced-motion preferences.
 
 ## Login Tab
 
@@ -101,10 +102,15 @@ Use the same UI rules as registration, with these differences:
   after click and show errors without relying on a disabled button.
 - Do not show Google sign-in, password reset, or other placeholder actions until
   they are implemented end to end.
-- `Try demo` submits the public demo credentials without changing personal
-  sign-in or sign-up fields. Both tabs are blocked during the request; failure
-  keeps the current form open and shows a shared notification. URL parameters
-  no longer prepopulate credentials or trigger demo access.
+- `Try demo directly` opens the shared full-screen loading state with
+  `Trying demo.`, `Trying demo..`, and `Trying demo...` using the same progress
+  dots as Sign in. It waits two seconds before submitting the public demo
+  credentials, and stays visible until the request finishes. Failure returns
+  to the same tab with personal form inputs preserved and a shared notification.
+- `?demo=true` starts the same flow after checking the existing session. It
+  never replaces an already signed-in account. Consume the parameter once,
+  retaining other query parameters and the hash, so errors and later sign-out
+  do not restart demo entry. The former `?mode=demo` has no effect.
 
 The code may keep hidden future-action UI behind an explicit disabled flag so it
 can be re-enabled when the real implementation is ready. Do not expose the
