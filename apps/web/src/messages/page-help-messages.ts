@@ -35,7 +35,7 @@ export const englishPageHelpMessages = {
       summary: "Record meals, showers, sleep, and exercise, then review the last seven days.",
       sections: [
         { title: "Quick capture", body: "Each activity card records one occurrence at the current time. Edit an entry to change its time or add a note. Work and study belong in Projects." },
-        { title: "Chat", body: "Messages are saved in your own chat history. Chat is under development: no AI API is called and no app actions are performed." },
+        { title: "Recent activity", body: "The log shows today and the previous six dates in your configured timezone. Older entries remain stored; deleting an entry requires confirmation." },
       ],
     },
     projects: {
@@ -153,7 +153,7 @@ export const simplifiedChinesePageHelpMessages: typeof englishPageHelpMessages =
       summary: "记录用餐、洗澡、睡眠和运动，并回顾最近七天。",
       sections: [
         { title: "快速记录", body: "点击活动卡片会以当前时间记录一次活动。编辑记录可以调整时间或添加备注，工作和学习仍由项目管理。" },
-        { title: "聊天", body: "消息保存在你的聊天记录中。聊天功能正在开发中，不会调用 AI API，也不会执行任何应用操作。" },
+        { title: "近期活动", body: "日志显示当前时区中的今天及之前六天。更早的记录仍然保留，删除记录需要确认。" },
       ],
     },
     projects: {

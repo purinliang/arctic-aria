@@ -22,7 +22,6 @@ import { useDailyLife } from '../hooks/useDailyLife';
 import type { LifeActionOptions } from '../hooks/useLifeAction';
 import { ActivityIcon } from './ActivityIcon';
 import { LifeEntryEditor } from './LifeEntryEditor';
-import { LifeChatPanel } from './LifeChatPanel';
 
 export function DailyLifePage({ darkMode, timezone, language, formMessages, timeFormatPreference, ...options }: LifeActionOptions & {
   darkMode: boolean; timezone: string; language: SupportedLanguage;
@@ -40,7 +39,6 @@ export function DailyLifePage({ darkMode, timezone, language, formMessages, time
   const today = entriesForDay(life.entries, days[0], timezone);
   const timeFormatter = new Intl.DateTimeFormat(language, { timeZone: timezone, hour: 'numeric', minute: '2-digit', hour12: timeFormatPreference === '12h' });
   const formatTime = (value: string) => timeFormatter.format(new Date(value));
-  const formatTimestamp = (value: string) => new Intl.DateTimeFormat(language, { timeZone: timezone, dateStyle: 'medium', timeStyle: 'short', hour12: timeFormatPreference === '12h' }).format(new Date(value));
 
   return (
     <div className={sectionStackClass}>
@@ -57,8 +55,6 @@ export function DailyLifePage({ darkMode, timezone, language, formMessages, time
           })}
         </div>
       </ContentSection>
-
-      <LifeChatPanel key={timezone} darkMode={darkMode} {...options} formatTimestamp={formatTimestamp} />
 
       <ContentSection darkMode={darkMode} title={messages.title} description={messages.description}
         action={<Button darkMode={darkMode} tone="ghost" size="icon" aria-label={messages.retry} title={messages.retry}

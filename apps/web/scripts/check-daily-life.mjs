@@ -19,7 +19,6 @@ try {
       localStorage.setItem('arctic-aria.theme-preference', theme);
     }, { language, theme });
     const entries = Array.from({ length: 8 }, (_, index) => ({ id: randomUUID(), activity: 'meal', note: index === 0 ? 'Daily fixture '.repeat(25) : null, occurredAt: new Date(Date.now() - index * 60_000).toISOString() }));
-    const turns = Array.from({ length: 8 }, (_, index) => ({ id: randomUUID(), message: `Earlier message ${index}`, responseCode: 'chat_not_available', createdAt: new Date(Date.now() - index * 60_000).toISOString() }));
     const failures = [];
     let failNextCapture = false;
     await context.route('**/*', async (route) => {
@@ -36,7 +35,10 @@ try {
       else if (name === 'getPublicVersionStatus') result = { appVersionText: 'test', actualDatabaseVersionText: 'test', expectedDatabaseVersionText: 'test', aligned: true, message: '' };
       else if (['getUserPreferences', 'saveResolvedTimeZone'].includes(name)) result = { ok: true, preferences };
       else if (name === 'getLifeEntries') result = { ok: true, data: entries };
-      else if (name === 'getLifeChatHistory') result = { ok: true, data: turns };
+      else if (['getLifeChatHistory', 'sendLifeChatMessage'].includes(name)) {
+        failures.push('Hidden chat must not request history or send messages');
+        result = { ok: false, category: 'server', message: 'Chat is hidden' };
+      }
       else if (name === 'saveLifeEntry') {
         await new Promise((resolve) => setTimeout(resolve, 180));
         if (failNextCapture) {
@@ -53,9 +55,6 @@ try {
       } else if (name === 'archiveLifeEntry') {
         entries.splice(entries.findIndex((entry) => entry.id === args[0]), 1);
         result = { ok: true, data: args[0] };
-      } else if (name === 'sendLifeChatMessage') {
-        const turn = { id: randomUUID(), message: args[0].message, responseCode: 'chat_not_available', createdAt: new Date().toISOString() };
-        turns.unshift(turn); result = { ok: true, data: turn };
       } else if (name === 'getIdeaPageData') result = { ok: true, data: [] };
       else if (name?.startsWith('get') && name.endsWith('DashboardData')) result = { ok: true, data: { projects: [], tasks: [], events: [], eventInstances: [], todayEvents: [], eventGroups: [], routines: [], routineInstances: [], routineDefinitions: [], routineGroups: [], categories: [], pinnedMemories: [], memoryRecords: [] } };
       else { failures.push(`Unexpected action ${name}`); result = { ok: false, category: 'server', message: 'Unsupported fixture action' }; }
@@ -73,17 +72,11 @@ try {
       await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((button) => button.getAttribute('aria-label') === label && !button.disabled), label);
     }
     assert.equal(entries.length, 12);
-    const message = page.getByRole('textbox', { name: language === 'en' ? 'Chat message' : '聊天消息' });
-    await message.fill('Please move all my projects to tomorrow.');
-    await page.getByRole('button', { name: language === 'en' ? 'Send' : '发送', exact: true }).click();
-    await page.getByText('Please move all my projects to tomorrow.', { exact: true }).waitFor();
-    assert.equal(turns.length, 9);
-    assert.equal(entries.length, 12, 'chat must not modify activities');
-    assert.match(await page.locator('body').innerText(), language === 'en' ? /No actions were taken/ : /未执行任何操作/);
+    assert.equal(await page.getByRole('textbox').count(), 0, 'chat composer must be absent');
+    assert.equal(await page.getByRole('heading', { name: language === 'en' ? 'Chat' : '聊天', exact: true }).count(), 0, 'chat panel must be absent');
     await page.screenshot({ path: `${output}/${width}-${language}-${theme}.png`, fullPage: true });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'page must not overflow horizontally');
     await page.reload();
-    await page.getByText('Please move all my projects to tomorrow.', { exact: true }).waitFor();
     const editName = language === 'en' ? 'Edit entry: Exercise' : '编辑记录: 运动';
     await page.getByRole('button', { name: editName, exact: true }).click();
     const note = page.getByLabel(language === 'en' ? 'Note' : '备注', { exact: true });
@@ -104,5 +97,5 @@ try {
     assert.deepEqual(failures, []);
     await context.close();
   }
-  console.log('Daily browser checks passed at desktop/mobile widths in both languages and themes: capture, chat placeholder, edit, reload, rollback, and no horizontal overflow.');
+  console.log('Daily browser checks passed at desktop/mobile widths in both languages and themes: capture, hidden chat with no chat requests, edit, reload, rollback, and no horizontal overflow.');
 } finally { await browser.close(); }

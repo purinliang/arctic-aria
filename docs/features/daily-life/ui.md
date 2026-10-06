@@ -18,7 +18,13 @@ write removes only its optimistic row and uses the shared error notification.
 
 ## Chat
 
-Below capture is the shared framed Chat panel: paged conversation history,
+Chat is currently hidden in the frontend. The Daily page does not mount its
+panel or hook, so it does not fetch history or send messages. There is no
+composer, chat navigation entry, or chat information hint. Backend actions,
+stored history, and the existing panel implementation remain intact for later
+development.
+
+When enabled, the shared framed Chat panel provides paged conversation history,
 multiline composer, and primary Send button with its icon. Each history item
 shows the user's message/time and the fixed development reply stating that no
 AI response or app action is supported. Six newest-first turns are shown per
@@ -34,7 +40,7 @@ Refresh reloads the history without losing the draft. There is no AI API call.
 
 ## Recent Log
 
-Below Chat is an unframed Last seven days section. Each date uses a shared
+Below quick capture is an unframed Last seven days section. Each date uses a shared
 ContentSubsection and normal list rows, with six entries per page if needed.
 Today and Yesterday have localized labels; dates and times respect the app's
 language, timezone, and 12/24-hour preference. Entries are newest first within

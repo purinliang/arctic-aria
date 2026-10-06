@@ -12,7 +12,8 @@
 The feature loads only when its page is mounted. Entries do not share the
 dashboard browser cache. Feature hooks protect concurrent quick captures and
 keep local mutations when a refresh response arrives later. Chat capture is
-blocking and replay-safe; it uses no model or external AI SDK.
+blocking and replay-safe; it uses no model or external AI SDK. The frontend does
+not currently mount the chat panel or request its history.
 
 Focused verification:
 
@@ -37,5 +38,5 @@ The schema check creates and removes a temporary PostgreSQL 18 Docker container
 without publishing a port or contacting the app database. The browser check uses
 the production action manifest and mocks all server actions; it must target a
 preview of the matching build. It covers desktop/mobile, both themes/languages,
-capture, placeholder chat, editing, reload, and rollback. Screenshots default to
+capture, chat absence with no chat requests, editing, reload, and rollback. Screenshots default to
 `/tmp/arctic-aria-daily`; `BASE_URL` and `SCREENSHOT_DIR` can override these.

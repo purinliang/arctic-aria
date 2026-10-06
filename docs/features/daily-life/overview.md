@@ -13,8 +13,9 @@ The page shows today and the previous six calendar dates in the user's configure
 timezone. Older entries remain stored. Notes and recorded times can be edited;
 entries can be removed with confirmation.
 
-Chat below quick capture stores private conversation history and always gives
-the localized development reply. There is no AI integration, API credential,
+Chat is currently hidden in the frontend; its backend and stored conversation
+history remain intact. Its implementation always gives the localized
+development reply. There is no AI integration, API credential,
 tool execution, or product command parsing. Future AI chat must use the owning
 features' backend commands instead of writing directly to their tables.
 

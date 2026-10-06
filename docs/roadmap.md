@@ -58,8 +58,9 @@ For each feature branch that adds or changes persisted behavior, review:
 
 ## Future Product Work
 
-- Daily capture and a non-AI chat history are implemented on
+- Daily capture is implemented on
   `feature/daily-life-log` (2026-10-07), pending review and migration 0035.
+  Chat history infrastructure is retained, but its frontend is hidden for now.
   Future chat integration should use existing authenticated feature commands,
   with explicit confirmation before destructive or schedule-changing actions.
 
