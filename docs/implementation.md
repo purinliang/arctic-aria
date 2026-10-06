@@ -134,6 +134,7 @@ refresh and direct entry keep the selected surface instead of always returning
 to Today:
 
 - `/` and `/today` show Today
+- `/daily` shows quick activity capture, chat history, and the seven-day life log
 - `/projects` shows the Projects list
 - `/projects/<project-id>` shows one Project detail page
 - `/routines` shows Routines

@@ -29,6 +29,7 @@ import type {
   UserPreferences,
 } from "@/features/settings/preferences";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
+import { DailyLifePage } from "@/features/daily-life/components/DailyLifePage";
 import { DesignPage } from "@/features/design/components/DesignPage";
 import { EventsPage } from "@/features/events/components/EventsPage";
 import { useDashboardEvents } from "@/features/events/hooks/useDashboardEvents";
@@ -491,6 +492,17 @@ export function AppShell({
               resolvedTimeZone={resolvedTimeZone}
               showErrorNotification={showErrorNotification}
               showSuccessNotification={showSuccessNotification}
+            />
+          ) : activeWorkspaceView === "daily" ? (
+            <DailyLifePage
+              darkMode={darkMode}
+              timezone={resolvedTimeZone}
+              language={resolvedLanguage}
+              formMessages={messages.forms}
+              timeFormatPreference={timeFormatPreference}
+              messages={messages.dailyLife}
+              notificationMessages={messages.notifications}
+              showErrorNotification={showErrorNotification}
             />
           ) : activeWorkspaceView === "ideas" ? (
             <IdeasPage

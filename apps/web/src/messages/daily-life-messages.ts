@@ -1,0 +1,62 @@
+import { englishPaginationMessages, simplifiedChinesePaginationMessages } from './pagination-messages';
+
+export const englishDailyLifeMessages = {
+  title: 'Last seven days',
+  description: 'Meals, rest, movement, and everyday moments.',
+  activities: { meal: 'Meal', shower: 'Shower', sleep: 'Sleep', exercise: 'Exercise' },
+  record: 'Quick capture', recording: 'Recording',
+  countToday: (count: number) => `${count} today`,
+  edit: 'Edit entry', editorTitle: 'Daily-life entry', close: 'Close entry',
+  activity: 'Activity', date: 'Date', time: 'Time', note: 'Note',
+  notePlaceholder: 'What would you like to remember?',
+  save: 'Save', saving: 'Saving', delete: 'Delete', deleting: 'Deleting',
+  cancel: 'Cancel', deleteTitle: 'Delete this entry?',
+  deleteDescription: 'This entry will be removed from your daily-life log.',
+  today: 'Today', yesterday: 'Yesterday', empty: 'No entries.',
+  loading: 'Loading daily life', retry: 'Refresh',
+  pagination: { ...englishPaginationMessages, ariaLabel: 'Daily-life entries' },
+  chat: {
+    title: 'Chat', description: 'Your conversation history.',
+    placeholder: 'Write a message...', send: 'Send', sending: 'Sending',
+    empty: 'No messages yet.', loading: 'Loading chat', you: 'You', aria: 'Chat message',
+    reply: 'Chat is under development. AI responses and app actions are not supported yet. No actions were taken.',
+    pagination: { ...englishPaginationMessages, ariaLabel: 'Chat history' },
+  },
+  results: {
+    auth_required: 'Please sign in again.',
+    life_invalid: 'Choose a valid activity.',
+    life_note_long: 'Use 500 characters or fewer for the note.',
+    life_time_invalid: 'Choose a valid date and time. This time may not exist due to a clock change.',
+    life_future: 'Record an activity that has already happened.',
+    life_missing: 'This entry is no longer available.',
+    life_unavailable: 'Daily Life is unavailable. Please try again.',
+    life_chat_invalid: 'Enter a message with 1–2000 characters.',
+  },
+};
+export type DailyLifeMessages = typeof englishDailyLifeMessages;
+export const simplifiedChineseDailyLifeMessages: DailyLifeMessages = {
+  title: '最近七天', description: '记录饮食、休息、运动和日常片段。',
+  activities: { meal: '用餐', shower: '洗澡', sleep: '睡眠', exercise: '运动' },
+  record: '快速记录', recording: '正在记录', countToday: (count) => `今天 ${count} 次`,
+  edit: '编辑记录', editorTitle: '日常生活记录', close: '关闭记录',
+  activity: '活动', date: '日期', time: '时间', note: '备注',
+  notePlaceholder: '有什么想要记下来的？', save: '保存', saving: '正在保存',
+  delete: '删除', deleting: '正在删除', cancel: '取消',
+  deleteTitle: '删除这条记录？', deleteDescription: '这条记录将从日常生活日志中移除。',
+  today: '今天', yesterday: '昨天', empty: '暂无记录。', loading: '正在加载日常生活', retry: '刷新',
+  pagination: { ...simplifiedChinesePaginationMessages, ariaLabel: '日常生活记录' },
+  chat: {
+    title: '聊天', description: '你的聊天记录。', placeholder: '输入消息……',
+    send: '发送', sending: '正在发送', empty: '暂无消息。', loading: '正在加载聊天',
+    you: '你', aria: '聊天消息', reply: '聊天功能正在开发中，暂不支持 AI 回复或应用操作。未执行任何操作。',
+    pagination: { ...simplifiedChinesePaginationMessages, ariaLabel: '聊天记录' },
+  },
+  results: {
+    auth_required: '请重新登录。', life_invalid: '请选择有效的活动。',
+    life_note_long: '备注不能超过 500 个字符。',
+    life_time_invalid: '请选择有效的日期和时间。时钟调整可能导致该时间不存在。',
+    life_future: '请记录已经发生的活动。', life_missing: '这条记录已不可用。',
+    life_unavailable: '日常生活暂时不可用，请重试。',
+    life_chat_invalid: '请输入 1–2000 个字符的消息。',
+  },
+};

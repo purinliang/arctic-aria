@@ -125,6 +125,11 @@ not introduce form-field label spacing unless it is used inside a real form.
 
 ## Button
 
+`ActionCard` is a repeated clickable item, not a page section. It uses the shared
+secondary action palette, card-body padding, and text tokens. An icon, label, and
+supporting status stay within a stable minimum height. Daily uses four cards for
+fast activity capture; pending state disables only the selected activity.
+
 `PageHelpButton` combines the shared ghost icon button, viewport-aware popover
 placement, and text tokens. Hover or keyboard focus shows a brief information
 bubble; Escape dismisses the bubble. The trigger remains focusable but has no

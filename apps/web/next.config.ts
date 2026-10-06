@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       { source: "/today", destination: "/" },
+      { source: "/daily", destination: "/" },
       { source: "/projects", destination: "/" },
       { source: "/projects/:projectId", destination: "/" },
       { source: "/routines", destination: "/" },

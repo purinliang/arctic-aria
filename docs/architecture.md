@@ -16,6 +16,7 @@ Arctic Aria
 |   |-- Events
 |   |-- Memories
 |   |-- Dashboard
+|   |-- Daily Life
 |   |-- Ideas
 |   |-- Scheduler
 |   `-- Reviews
@@ -200,6 +201,13 @@ Detailed docs:
 - [features/ideas/data-model.md](features/ideas/data-model.md)
 - [features/ideas/ui.md](features/ideas/ui.md)
 - [features/ideas/web-implementation.md](features/ideas/web-implementation.md)
+
+### Daily Life
+
+Daily Life owns timestamped meals, showers, sleep, and exercise, plus a separate
+non-AI chat history. It is not a planning or memory-recommendation feature.
+Its page and data model are documented in
+[features/daily-life/overview.md](features/daily-life/overview.md).
 
 ### Scheduler
 

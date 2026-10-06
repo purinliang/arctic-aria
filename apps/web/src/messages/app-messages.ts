@@ -1,4 +1,5 @@
 import type { SupportedLanguage } from "./languages";
+import { englishDailyLifeMessages, simplifiedChineseDailyLifeMessages } from "./daily-life-messages";
 import {
   englishPageHelpMessages,
   simplifiedChinesePageHelpMessages,
@@ -51,6 +52,7 @@ export type NotificationMessages = AppMessages["notifications"];
 export type VersionStatusMessages = AppMessages["versionStatus"];
 
 const englishMessages = {
+  dailyLife: englishDailyLifeMessages,
   pageHelp: englishPageHelpMessages,
   appShell: {
     brandName: "Arctic Aria",
@@ -60,6 +62,7 @@ const englishMessages = {
     workspace: "Workspace",
     pages: {
       dashboard: "Today",
+      daily: "Daily",
       design: "Design",
       events: "Events",
       ideas: "Ideas",
@@ -70,6 +73,7 @@ const englishMessages = {
     },
     pageDescriptions: {
       dashboard: "Focus on today's plan.",
+      daily: "Keep a record of everyday life.",
       design: "Review shared component styles.",
       events: "Keep one-time plans visible.",
       ideas: "Capture thoughts for later review.",
@@ -424,6 +428,7 @@ const englishMessages = {
 };
 
 const simplifiedChineseMessages: AppMessages = {
+  dailyLife: simplifiedChineseDailyLifeMessages,
   pageHelp: simplifiedChinesePageHelpMessages,
   appShell: {
     brandName: "北极阿莉雅",
@@ -433,6 +438,7 @@ const simplifiedChineseMessages: AppMessages = {
     workspace: "工作区",
     pages: {
       dashboard: "今日",
+      daily: "日常记录",
       design: "设计",
       events: "事件",
       ideas: "想法",
@@ -443,6 +449,7 @@ const simplifiedChineseMessages: AppMessages = {
     },
     pageDescriptions: {
       dashboard: "专注今天的计划。",
+      daily: "记录日常生活中的片段。",
       design: "检查共享组件样式。",
       events: "查看一次性的计划。",
       ideas: "先收好想法，之后再整理。",

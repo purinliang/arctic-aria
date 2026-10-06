@@ -1,6 +1,7 @@
 // App Shell - Sidebar.
 import {
   Album,
+  NotebookPen,
   Bell,
   CalendarDays,
   LayoutDashboard,
@@ -165,6 +166,13 @@ function SidebarFrame({
             active={activeView === "dashboard"}
             darkMode={darkMode}
             onClick={() => onSelectView("dashboard")}
+          />
+          <SidebarItem
+            icon={<NotebookPen size={18} aria-hidden="true" />}
+            label={messages.pages.daily}
+            active={activeView === "daily"}
+            darkMode={darkMode}
+            onClick={() => onSelectView("daily")}
           />
           <SidebarItem
             icon={<FolderKanban size={18} aria-hidden="true" />}

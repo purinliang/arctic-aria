@@ -30,6 +30,14 @@ export const englishPageHelpMessages = {
         { title: "Experiences", body: "Pinned memories and suggestions offer experiences to revisit. They are suggestions, not overdue commitments." },
       ],
     },
+    daily: {
+      title: "Daily",
+      summary: "Record meals, showers, sleep, and exercise, then review the last seven days.",
+      sections: [
+        { title: "Quick capture", body: "Each activity card records one occurrence at the current time. Edit an entry to change its time or add a note. Work and study belong in Projects." },
+        { title: "Chat", body: "Messages are saved in your own chat history. Chat is under development: no AI API is called and no app actions are performed." },
+      ],
+    },
     projects: {
       title: "Projects",
       summary: "Organize long-term goals into milestones and actionable tasks.",
@@ -138,6 +146,14 @@ export const simplifiedChinesePageHelpMessages: typeof englishPageHelpMessages =
         { title: "任务和例行事项", body: "完成后勾选对应条目。可用的排期操作可以推迟灵活安排的工作，明天会将其移至下一天。已完成条目仍保留在今日页面，方便回顾。" },
         { title: "固定日程", body: "日程代表预约或其他固定承诺。需要调整时，请到日程页面更改时间或取消，而不是像灵活任务一样推迟。" },
         { title: "体验", body: "置顶记忆和推荐可以帮助重温体验。它们是建议，不是会逾期的承诺。" },
+      ],
+    },
+    daily: {
+      title: "日常记录",
+      summary: "记录用餐、洗澡、睡眠和运动，并回顾最近七天。",
+      sections: [
+        { title: "快速记录", body: "点击活动卡片会以当前时间记录一次活动。编辑记录可以调整时间或添加备注，工作和学习仍由项目管理。" },
+        { title: "聊天", body: "消息保存在你的聊天记录中。聊天功能正在开发中，不会调用 AI API，也不会执行任何应用操作。" },
       ],
     },
     projects: {
