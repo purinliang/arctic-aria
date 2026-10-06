@@ -11,6 +11,7 @@ export const routineReminderCronIntervalMinutes = 15;
 export const routineReminderLeadMinutes = 30;
 export const routineReminderWindowMinutes = 2;
 export const routineReminderTextMaxLength = 2000;
+export const routineLaterMinutes = 60;
 
 const msPerMinute = 60 * 1000;
 const routineReminderDescriptionMaxLength = 240;
@@ -41,6 +42,18 @@ export function routineReminderAt({
   return snapToCronInterval(
     new Date(scheduledAt.getTime() - routineReminderLeadMinutes * msPerMinute),
   );
+}
+
+export function routineLaterReminderAt(occurredAt: Date) {
+  const targetMs = occurredAt.getTime() + routineLaterMinutes * msPerMinute;
+
+  return nextRoutineCronTick(new Date(targetMs));
+}
+
+export function nextRoutineCronTick(date: Date) {
+  const intervalMs = routineReminderCronIntervalMinutes * msPerMinute;
+
+  return new Date(Math.ceil(date.getTime() / intervalMs) * intervalMs);
 }
 
 export function routineReminderCandidateDates(

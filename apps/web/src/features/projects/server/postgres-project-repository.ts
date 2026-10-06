@@ -21,6 +21,7 @@ import {
   createProjectTreeTemplate,
 } from "./postgres-project-template-create-queries.ts";
 import { listPostgresDashboardTasks } from "./postgres-project-dashboard-queries.ts";
+import { movePostgresDashboardTaskToTomorrow } from "./postgres-project-task-move.ts";
 import type {
   ApplyProjectTreeTemplateInput,
   CreateProjectTreeTemplateInput,
@@ -59,6 +60,15 @@ export class PostgresProjectRepository implements ProjectRepository {
       today,
       occurredAt,
     });
+  }
+
+  async moveDashboardTaskToTomorrow(input: {
+    userId: string;
+    taskId: string;
+    today: string;
+    occurredAt: Date;
+  }) {
+    return movePostgresDashboardTaskToTomorrow(this.getSql(), input);
   }
 
   saveProject(input: SaveProjectInput) {

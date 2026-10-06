@@ -27,8 +27,9 @@ The current web implementation supports database-backed routine testing:
   `reminded_at`
 - write routine completion history to `routine_completion_events`
 
-The current Today UI does not show `Busy`, `Skip`, `Later`, or
-`Move to tomorrow` buttons. Those are future reminder-response actions.
+Today and the Routines instance list show `Later` after a pending occurrence
+has produced a reminder and `Tomorrow` on pending current-day occurrences.
+`Busy` and `Skip` remain deferred.
 
 ## Current User Flow
 

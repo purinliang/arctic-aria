@@ -5,6 +5,8 @@ import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/button";
+import { PageHelpButton } from "@/components/page-help";
+import { pageHelpKeyForView } from "./page-help";
 import {
   secondaryButtonBorderColorClass,
   secondaryTextColorClass,
@@ -143,6 +145,16 @@ export function AppShell({
     messages.routines.editor.template,
     messages.notifications,
   );
+  async function handleRoutineLater(instanceId: string) {
+    if (await routineState.laterRoutineInstance(instanceId)) {
+      showSuccessNotification(messages.routines.instances.laterSuccess);
+    }
+  }
+  async function handleRoutineTomorrow(instanceId: string) {
+    if (await routineState.moveRoutineToTomorrow(instanceId)) {
+      showSuccessNotification(messages.routines.instances.tomorrowSuccess);
+    }
+  }
   const eventState = useDashboardEvents(
     currentUser.id,
     showErrorNotification,
@@ -307,6 +319,11 @@ export function AppShell({
     activeWorkspaceView,
     messages.appShell.pageDescriptions,
   );
+  const helpKey = pageHelpKeyForView({
+    view: activeWorkspaceView,
+    projectSelected: Boolean(selectedProjectId),
+    milestoneSelected: activeProjectMilestoneId !== null,
+  });
 
   return (
     <main className={`min-h-screen transition-colors ${appShellClass(darkMode)}`}>
@@ -326,7 +343,7 @@ export function AppShell({
 
         <div className="mx-auto flex min-h-[100dvh] min-w-0 flex-1 flex-col gap-4 px-4 pb-12 pt-4 sm:px-6 sm:pb-16 lg:min-h-[110vh] lg:max-w-[1200px] lg:px-8 lg:pb-20">
           <header
-            className={`aa-workspace-header grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3 border-b pb-4 sm:flex sm:items-center ${secondaryButtonBorderColorClass}`}
+            className={`aa-workspace-header grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 border-b pb-4 sm:flex sm:items-center ${secondaryButtonBorderColorClass}`}
           >
             <Button
               darkMode={darkMode}
@@ -381,6 +398,13 @@ export function AppShell({
                 </div>
               </div>
             )}
+            <PageHelpButton
+              key={helpKey}
+              darkMode={darkMode}
+              content={messages.pageHelp.pages[helpKey]}
+              labels={messages.pageHelp}
+              className="col-start-3 row-start-1 sm:ml-auto"
+            />
           </header>
 
           {activeWorkspaceView === "projects" ? (
@@ -430,6 +454,9 @@ export function AppShell({
               onRoutineSave={routineState.saveRoutineFromPage}
               onRoutineDelete={routineState.deleteRoutineFromPage}
               onRoutineInstanceStatus={routineState.updateRoutineInstanceFromPage}
+              onRoutineLater={handleRoutineLater}
+              onRoutineTomorrow={handleRoutineTomorrow}
+              routineSchedulePendingIds={routineState.routineSchedulePendingIds}
               onRoutineTemplateParse={routineState.parseRoutineTemplateFromPage}
               onRoutineTemplateApply={routineState.applyRoutineTemplateFromPage}
               onRoutineGroupSave={routineState.saveRoutineGroupFromPage}
@@ -546,7 +573,11 @@ export function AppShell({
               pinnedMemories={memoryState.pinnedMemories}
               memoryLoading={memoryState.memoryLoading}
               onTaskStatus={projectState.updateTaskFromDashboard}
+              onTaskTomorrow={projectState.moveTaskToTomorrow}
               onRoutineStatus={routineState.updateRoutine}
+              onRoutineLater={handleRoutineLater}
+              onRoutineTomorrow={handleRoutineTomorrow}
+              routineSchedulePendingIds={routineState.routineSchedulePendingIds}
               onMemoryDone={memoryState.markMemoryDone}
               onMemoryCancelDone={memoryState.cancelMemoryDone}
               onTaskOpen={showProjectDetail}

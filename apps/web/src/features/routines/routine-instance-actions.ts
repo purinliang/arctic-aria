@@ -27,6 +27,65 @@ export async function reopenRoutineInstance(
   return updateRoutineInstance(instanceId, "pending");
 }
 
+export async function snoozeRoutineInstance(
+  instanceId: string,
+): Promise<RoutineActionResult<RoutineDashboardData>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  try {
+    const instance = await routineService.snoozeRoutineInstance(user.id, instanceId);
+
+    if (!instance) {
+      return {
+        ok: false,
+        message: "Pending routine instance was not found.",
+        code: "routine_instance_not_pending",
+        category: "not_found",
+        subject: "routine",
+      };
+    }
+
+    return { ok: true, data: await loadRoutineDashboardData(user.id) };
+  } catch {
+    return databaseResult();
+  }
+}
+
+export async function moveRoutineInstanceToTomorrow(
+  instanceId: string,
+): Promise<RoutineActionResult<RoutineDashboardData>> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return unauthorizedResult();
+  }
+
+  try {
+    const instance = await routineService.moveRoutineInstanceToTomorrow(
+      user.id,
+      instanceId,
+    );
+
+    if (!instance) {
+      return {
+        ok: false,
+        message: "This routine cannot be moved to tomorrow.",
+        code: "routine_instance_move_unavailable",
+        category: "domain",
+        subject: "routine",
+      };
+    }
+
+    return { ok: true, data: await loadRoutineDashboardData(user.id) };
+  } catch {
+    return databaseResult();
+  }
+}
+
 async function updateRoutineInstance(
   instanceId: string,
   status: RoutineStatus,

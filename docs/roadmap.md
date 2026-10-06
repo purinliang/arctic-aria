@@ -4,15 +4,17 @@ This roadmap records future work. It should not repeat released implementation
 details; released behavior belongs in `docs/releases/` and stable rules belong
 in the owning feature, web, or infrastructure docs.
 
-Current released version: `v0.14.0`.
+Current released version: `v0.15.1`.
 
-Current release candidate on `develop`: `v0.15.0`.
+Current development version on `develop`: `v0.16.0-dev`.
 
 ## Next Work After v0.12.0
 
-- Review explicit schedule actions for Today items, especially Move to tomorrow
-  and Later. Completed scheduled tasks and routines should remain visible on the
-  Today board for the current local day.
+- Continue explicit schedule actions for Today items. Routine `Later` and
+  `Tomorrow`, and project task `Tomorrow`, are implemented on
+  `feature/routine-schedule-actions`. A separate remove-from-Today action
+  remains open. Completed scheduled tasks and routines stay visible on Today
+  for the current local day.
 - Review Discord reminder interactions after the first plain reminder messages
   work, including message update strategy, retry behavior, quiet/noise rules,
   and whether response buttons are actually useful.

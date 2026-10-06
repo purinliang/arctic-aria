@@ -9,6 +9,7 @@ import type {
 import {
   resolveRoutineScheduledTime,
   routineReminderAt,
+  routineLaterReminderAt,
 } from "./routine-reminder-schedule.ts";
 
 export type RoutineServiceOptions = {
@@ -488,6 +489,25 @@ export function createRoutineService(options: RoutineServiceOptions = {}) {
 
     async completeRoutineInstance(userId: string, instanceId: string) {
       return routines.completeRoutineInstance({
+        userId,
+        instanceId,
+        occurredAt: now(),
+      });
+    },
+
+    async snoozeRoutineInstance(userId: string, instanceId: string) {
+      const occurredAt = now();
+
+      return routines.snoozeRoutineInstance({
+        userId,
+        instanceId,
+        remindAt: routineLaterReminderAt(occurredAt),
+        occurredAt,
+      });
+    },
+
+    async moveRoutineInstanceToTomorrow(userId: string, instanceId: string) {
+      return routines.moveRoutineInstanceToTomorrow({
         userId,
         instanceId,
         occurredAt: now(),

@@ -1,4 +1,6 @@
+import { localScheduledDateKey } from "../../settings/time-zones.ts";
 import { fallbackRoutineScheduledTime } from "./routine-reminder-schedule.ts";
+import { moveRoutineInstanceToTomorrowInMemory } from "./in-memory-routine-instance-move.ts";
 
 export type RoutineRuleType =
   | "once"
@@ -134,6 +136,18 @@ export type RoutineRepository = {
     userId: string;
     instanceId: string;
     remindedAt: Date;
+    expectedRemindAt: Date;
+  }): Promise<RoutineInstanceRecord | null>;
+  snoozeRoutineInstance(input: {
+    userId: string;
+    instanceId: string;
+    remindAt: Date;
+    occurredAt: Date;
+  }): Promise<RoutineInstanceRecord | null>;
+  moveRoutineInstanceToTomorrow(input: {
+    userId: string;
+    instanceId: string;
+    occurredAt: Date;
   }): Promise<RoutineInstanceRecord | null>;
   listRoutineInstancesForDate(
     userId: string,
@@ -166,6 +180,7 @@ export class InMemoryRoutineRepository implements RoutineRepository {
   private groups: RoutineGroupRecord[] = [];
   private routines: RoutineRecord[] = [];
   private instances: RoutineInstanceRecord[] = [];
+  private completionHistoryInstanceIds = new Set<string>();
 
   constructor(seed?: {
     groups?: RoutineGroupRecord[];
@@ -396,6 +411,18 @@ export class InMemoryRoutineRepository implements RoutineRepository {
       return existing;
     }
 
+    if (
+      this.instances.some(
+        (instance) =>
+          instance.userId === input.userId &&
+          instance.routineId === input.routineId &&
+          instance.movedFromDate === input.scheduledDate &&
+          instance.movedAt !== null,
+      )
+    ) {
+      return null;
+    }
+
     const instance: RoutineInstanceRecord = {
       id: crypto.randomUUID(),
       userId: input.userId,
@@ -451,13 +478,19 @@ export class InMemoryRoutineRepository implements RoutineRepository {
     userId: string;
     instanceId: string;
     remindedAt: Date;
+    expectedRemindAt: Date;
   }) {
     const instance = this.instances.find(
       (current) =>
         current.userId === input.userId && current.id === input.instanceId,
     );
 
-    if (!instance || instance.status !== "pending") {
+    if (
+      !instance ||
+      instance.status !== "pending" ||
+      instance.remindedAt !== null ||
+      instance.remindAt?.getTime() !== input.expectedRemindAt.getTime()
+    ) {
       return null;
     }
 
@@ -465,6 +498,60 @@ export class InMemoryRoutineRepository implements RoutineRepository {
     instance.updatedAt = input.remindedAt;
 
     return instance;
+  }
+
+  async snoozeRoutineInstance(input: {
+    userId: string;
+    instanceId: string;
+    remindAt: Date;
+    occurredAt: Date;
+  }) {
+    const activeRoutineIds = new Set(
+      this.routines.filter((routine) => routine.deletedAt === null).map((routine) => routine.id),
+    );
+    const instance = this.instances.find(
+      (current) => current.userId === input.userId && current.id === input.instanceId,
+    );
+    const routine = this.routines.find(
+      (current) => current.userId === input.userId && current.id === instance?.routineId,
+    );
+
+    if (
+      !instance ||
+      instance.status !== "pending" ||
+      instance.remindedAt === null ||
+      !activeRoutineIds.has(instance.routineId) ||
+      !routine ||
+      instance.scheduledDate !==
+        localScheduledDateKey({ date: input.occurredAt, timeZone: routine.rule.timezone })
+    ) {
+      return null;
+    }
+
+    instance.remindAt = input.remindAt;
+    instance.remindedAt = null;
+    instance.updatedAt = input.occurredAt;
+
+    return instance;
+  }
+
+  async moveRoutineInstanceToTomorrow(input: {
+    userId: string;
+    instanceId: string;
+    occurredAt: Date;
+  }) {
+    const moved = moveRoutineInstanceToTomorrowInMemory(
+      this.routines,
+      this.instances,
+      this.completionHistoryInstanceIds,
+      input,
+    );
+
+    if (moved) {
+      this.instances = moved.instances;
+    }
+
+    return moved?.instance ?? null;
   }
 
   async listRoutineInstancesForDate(userId: string, scheduledDate: string) {
@@ -565,6 +652,7 @@ export class InMemoryRoutineRepository implements RoutineRepository {
     instance.completedAt = status === "completed" ? occurredAt : null;
     instance.skippedAt = status === "skipped" ? occurredAt : null;
     instance.updatedAt = occurredAt;
+    this.completionHistoryInstanceIds.add(instance.id);
 
     return instance;
   }

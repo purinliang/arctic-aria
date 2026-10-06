@@ -98,12 +98,18 @@ Today task rows support:
 
 - static read-only task summary rows
 - left-side `Done` checkbox
+- `Tomorrow` action on unfinished selected tasks
 - title, description, and supporting metadata
 
 Checking `Done` uses optimistic UI. Today task rows must not expose edit,
 expand, collapse, or task-management detail controls. If the backend rejects
 the command, the previous visible state is restored and the shared notification
 component shows the error.
+
+`Tomorrow` optimistically removes only the clicked row. The server moves its
+daily selection to the next local board day, replacing only an untouched
+scheduler-created selection already there. If the move fails, restore that row
+and show the shared notification. Completed rows do not offer this action.
 
 The checkbox must remain enabled while the backend request is pending so the
 user can immediately undo the optimistic state. Do not disable the clicked

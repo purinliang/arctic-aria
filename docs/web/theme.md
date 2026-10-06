@@ -75,8 +75,8 @@ the Simplified Chinese font-family token and increases multiline line-height for
 helpers instead of adding feature-local Chinese typography overrides.
 
 Shared font weights are limited to `light`, `normal`, `medium`, and
-`semibold`. Do not use stronger weights for normal product UI unless a future
-design update adds a new token.
+`semibold` for normal product UI. The demo invitation uses the explicit `bold`
+token as a narrow emphasis exception.
 
 ## Dark Mode
 

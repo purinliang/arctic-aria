@@ -67,3 +67,16 @@ Documentation directories:
   environment, Redis, and future infrastructure direction.
 - [docs/releases/](docs/releases/): release-note records and PR/merge-message
   source text.
+
+## Contributor Workflow
+
+Agents start with [AGENTS.md](AGENTS.md). Its linked guides cover data
+integrity, Git and concurrent work, and validation. Human contributors can run
+the same full web gate from the repository root:
+
+```bash
+./scripts/verify-web.sh
+```
+
+The gate checks the diff, runs the web tests and lint, then builds the web app.
+It does not run migrations or deploy the app.

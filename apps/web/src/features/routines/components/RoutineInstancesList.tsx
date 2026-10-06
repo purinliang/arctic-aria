@@ -1,4 +1,7 @@
 // Routines Page - Routine Instances List.
+import { ArrowRight, Clock3 } from "lucide-react";
+import { Button } from "@/components/button";
+import { controlGapClass } from "@/components/spacing";
 import { formatDateKey } from "@/components/forms/date-format";
 import { formatTimeDisplay } from "@/components/forms/time-display";
 import { CheckboxControl } from "@/components/forms/selection-field";
@@ -26,6 +29,10 @@ export function RoutineInstancesList({
   formMessages,
   timeFormatPreference,
   onStatusChange,
+  onLater,
+  onTomorrow,
+  schedulePendingIds,
+  todayDate,
 }: {
   darkMode: boolean;
   loading: boolean;
@@ -36,6 +43,10 @@ export function RoutineInstancesList({
   formMessages: FormMessages;
   timeFormatPreference: TimeFormatPreference;
   onStatusChange: (instanceId: string, status: RoutineStatus) => void;
+  onLater: (instanceId: string) => void;
+  onTomorrow: (instanceId: string) => void;
+  schedulePendingIds: Set<string>;
+  todayDate: string;
 }) {
   return (
     <PagedList
@@ -95,6 +106,38 @@ export function RoutineInstancesList({
               }
             />
           </div>
+          {instance.status === "pending" ? (
+            <div className={`flex flex-col items-end ${controlGapClass}`}>
+              {instance.wasReminded && instance.scheduledDate === todayDate ? (
+                <Button
+                  darkMode={darkMode}
+                  tone="ghost"
+                  size="sm"
+                  icon={<Clock3 size={14} aria-hidden="true" />}
+                  disabled={schedulePendingIds.has(instance.id)}
+                  title={messages.instances.laterHint(instance.title)}
+                  aria-label={messages.instances.laterHint(instance.title)}
+                  onClick={() => onLater(instance.id)}
+                >
+                  {messages.instances.later}
+                </Button>
+              ) : null}
+              {instance.scheduledDate === todayDate ? (
+                <Button
+                  darkMode={darkMode}
+                  tone="ghost"
+                  size="sm"
+                  icon={<ArrowRight size={14} aria-hidden="true" />}
+                  disabled={schedulePendingIds.has(instance.id)}
+                  title={messages.instances.tomorrowHint(instance.title)}
+                  aria-label={messages.instances.tomorrowHint(instance.title)}
+                  onClick={() => onTomorrow(instance.id)}
+                >
+                  {messages.instances.tomorrow}
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
         </ListItem>
       )}
     />

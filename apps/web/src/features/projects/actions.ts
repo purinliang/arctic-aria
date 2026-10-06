@@ -16,6 +16,7 @@ import {
 import { normalizeProjectTreeTemplateDocument } from "./project-tree-template-normalizer";
 import { parseProjectTreeTemplateMarkdown } from "./project-tree-template-parser";
 import { projectService } from "./server/project-service";
+import { loadUserResolvedTimeZone } from "../settings/server/user-time-zone";
 import { loadProjectDashboardData } from "./project-view-models";
 import type { ProjectTaskStatus } from "./server/project-repository";
 import type {
@@ -443,6 +444,21 @@ export async function completeProjectTask(
   taskId: string,
 ): Promise<ProjectCommandResult> {
   return updateProjectTaskStatus(taskId, "done");
+}
+
+export async function moveProjectTaskToTomorrow(
+  taskId: string,
+): Promise<ProjectCommandResult> {
+  return withProjectCommand(
+    async (userId) =>
+      projectService.moveDashboardTaskToTomorrow(
+        userId,
+        taskId,
+        await loadUserResolvedTimeZone(userId),
+      ),
+    "Task could not be moved to tomorrow.",
+    "task_move_unavailable",
+  );
 }
 
 export async function skipProjectTask(

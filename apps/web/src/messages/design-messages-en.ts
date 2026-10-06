@@ -37,6 +37,7 @@ export const englishDesignMessages: DesignMessages = {
       panel: "Panel",
       panelHeader: "Panel header",
       primaryButton: "Primary button",
+      dangerButton: "Danger button",
       secondaryButton: "Secondary button",
       textInput: "Text input",
     },
@@ -62,7 +63,7 @@ export const englishDesignMessages: DesignMessages = {
       red: {
         label: "Red",
         usage:
-          "Error notifications and delete operation badges in template previews.",
+          "Error notifications, delete operation badges in template previews, and Sign out buttons.",
       },
     },
   },
@@ -70,6 +71,10 @@ export const englishDesignMessages: DesignMessages = {
     title: "Buttons",
     description: "Command tones, icon rhythm, disabled state, and sizes.",
     tones: {
+      danger: {
+        title: "Danger",
+        description: "Session-ending actions such as Sign out.",
+      },
       primary: {
         title: "Primary",
         description: "Main actions and selected tab state.",

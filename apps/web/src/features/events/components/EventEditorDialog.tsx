@@ -4,13 +4,16 @@ import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 import { ActionMenu, ActionMenuItem } from "@/components/action-menu";
 import { Button } from "@/components/button";
+import { formFieldClass } from "@/components/control-layout";
 import { CrudEditorDialog } from "@/components/dialog";
+import { SingleChoiceGroup } from "@/components/forms/choice-group";
 import { DatePickerField } from "@/components/forms/date-picker-field";
 import { FormGrid, FormSection } from "@/components/forms/form-layout";
 import { FieldLabel, TextInput } from "@/components/forms/input-field";
 import { SelectInput } from "@/components/forms/selection-field";
 import { TextArea } from "@/components/forms/text-area-field";
 import { TimePickerField } from "@/components/forms/time-picker-field";
+import { LabelText } from "@/components/text";
 import type { EventGroupOption } from "@/features/dashboard/types";
 import type { EventInput } from "@/features/events/actions";
 import type { TimeFormatPreference } from "@/features/settings/preferences";
@@ -75,9 +78,15 @@ export function EventEditorDialog({
         darkMode={darkMode}
         pending={pending}
         draft={draft}
-        groups={groups}
         messages={messages.editor}
-        groupMessages={messages.groups}
+        setDraft={setDraft}
+      />
+      <EventGroupField
+        darkMode={darkMode}
+        pending={pending}
+        draft={draft}
+        groups={groups}
+        messages={messages}
         setDraft={setDraft}
       />
       <EventScheduleFields
@@ -167,44 +176,17 @@ function EventTextFields({
   darkMode,
   pending,
   draft,
-  groups,
   messages,
-  groupMessages,
   setDraft,
 }: {
   darkMode: boolean;
   pending: boolean;
   draft: EventInput;
-  groups: EventGroupOption[];
   messages: EventMessages["editor"];
-  groupMessages: EventMessages["groups"];
   setDraft: Dispatch<SetStateAction<EventInput>>;
 }) {
   return (
     <FormSection>
-      <FieldLabel darkMode={darkMode} label={messages.group}>
-        <SelectInput
-          darkMode={darkMode}
-          value={draft.groupId || "none"}
-          disabled={pending}
-          options={[
-            {
-              value: "none",
-              label: groupMessages.noGroup,
-            },
-            ...groups.map((group) => ({
-              value: group.id,
-              label: group.name,
-            })),
-          ]}
-          onChange={(groupId) =>
-            setDraft((current) => ({
-              ...current,
-              groupId: groupId === "none" ? null : groupId,
-            }))
-          }
-        />
-      </FieldLabel>
       <FieldLabel darkMode={darkMode} label={messages.title}>
         <TextInput
           darkMode={darkMode}
@@ -231,6 +213,51 @@ function EventTextFields({
           }
         />
       </FieldLabel>
+    </FormSection>
+  );
+}
+
+function EventGroupField({
+  darkMode,
+  pending,
+  draft,
+  groups,
+  messages,
+  setDraft,
+}: {
+  darkMode: boolean;
+  pending: boolean;
+  draft: EventInput;
+  groups: EventGroupOption[];
+  messages: EventMessages;
+  setDraft: Dispatch<SetStateAction<EventInput>>;
+}) {
+  return (
+    <FormSection>
+      <div className={formFieldClass}>
+        <LabelText darkMode={darkMode}>{messages.editor.group}</LabelText>
+        <SingleChoiceGroup
+          darkMode={darkMode}
+          value={draft.groupId || "none"}
+          disabled={pending}
+          options={[
+            {
+              value: "none",
+              label: messages.groups.noGroup,
+            },
+            ...groups.map((group) => ({
+              value: group.id,
+              label: group.name,
+            })),
+          ]}
+          onChange={(groupId) =>
+            setDraft((current) => ({
+              ...current,
+              groupId: groupId === "none" ? null : groupId,
+            }))
+          }
+        />
+      </div>
     </FormSection>
   );
 }

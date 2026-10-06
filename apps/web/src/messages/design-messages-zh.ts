@@ -36,6 +36,7 @@ export const simplifiedChineseDesignMessages: DesignMessages = {
       panel: "面板",
       panelHeader: "面板标题栏",
       primaryButton: "主要按钮",
+      dangerButton: "危险操作按钮",
       secondaryButton: "次要按钮",
       textInput: "文本输入",
     },
@@ -56,7 +57,7 @@ export const simplifiedChineseDesignMessages: DesignMessages = {
       },
       red: {
         label: "红色",
-        usage: "错误通知，以及模板预览中的删除操作徽标。",
+        usage: "错误通知、模板预览中的删除操作徽标，以及退出登录按钮。",
       },
     },
   },
@@ -64,6 +65,10 @@ export const simplifiedChineseDesignMessages: DesignMessages = {
     title: "按钮",
     description: "命令语气、图标节奏、禁用状态和尺寸。",
     tones: {
+      danger: {
+        title: "危险操作",
+        description: "结束会话的操作，例如退出登录。",
+      },
       primary: {
         title: "主要",
         description: "主操作和选中的标签页状态。",

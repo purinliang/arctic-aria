@@ -38,6 +38,9 @@ and [data-model.md](data-model.md).
   preference. Signed-in users can change theme from Settings or the sidebar.
 - Auth labels, placeholder action text, notification titles, and the version
   metadata footer should use the active app message catalog.
+- An information icon beside each tab's form title shows a summary on hover or
+  focus. Clicking it has no action and does not open a dialog. Demo summaries
+  identify the account as shared.
 - Show a small deployment metadata footer below the auth panel when app
   metadata is available. It should use shared `SupportingText` styling and
   follow the same version visibility rules as Settings.
@@ -78,8 +81,12 @@ and [data-model.md](data-model.md).
   stable.
 - Show small text `Already have an account?` and link-style text `Sign in`.
   Clicking the link is equivalent to switching tabs.
-- Do not show unrelated actions or information, such as `Open dashboard without
-  an account` or `OAuth`.
+- Show a secondary `Try demo directly` action below the main submit button in both tabs.
+  It uses the shared public demo account through normal authentication; it does
+  not create an anonymous account or bypass authentication. The button has a
+  stronger periodic depth/lift animation every 2.8 seconds and bold text, using
+  the same arrow icon as Sign in. Animation pauses during hover, focus,
+  requests, and reduced-motion preferences.
 
 ## Login Tab
 
@@ -95,9 +102,15 @@ Use the same UI rules as registration, with these differences:
   after click and show errors without relying on a disabled button.
 - Do not show Google sign-in, password reset, or other placeholder actions until
   they are implemented end to end.
-- Visiting the signed-out app with `?mode=demo` prepopulates the sign-in form
-  with the public demo account credentials. This does not create an account,
-  bypass authentication, or submit the form. Other URLs keep empty login fields.
+- `Try demo directly` opens the shared full-screen loading state with
+  `Trying demo.`, `Trying demo..`, and `Trying demo...` using the same progress
+  dots as Sign in. It waits two seconds before submitting the public demo
+  credentials, and stays visible until the request finishes. Failure returns
+  to the same tab with personal form inputs preserved and a shared notification.
+- `?demo=true` starts the same flow after checking the existing session. It
+  never replaces an already signed-in account. Consume the parameter once,
+  retaining other query parameters and the hash, so errors and later sign-out
+  do not restart demo entry. The former `?mode=demo` has no effect.
 
 The code may keep hidden future-action UI behind an explicit disabled flag so it
 can be re-enabled when the real implementation is ready. Do not expose the
@@ -147,6 +160,9 @@ Submit behavior:
 
 Sign-out behavior:
 
+- The Settings Sign out button uses the shared red `danger` tone, with themed
+  hover and disabled states. Signing out remains a normal session-ending action;
+  it does not delete the account or product data.
 - Sign out is a blocking auth action and is not optimistic.
 - While sign out is pending, only the sidebar sign-out row should show
   `Signing out.`, `Signing out..`, and `Signing out...` as a periodic text

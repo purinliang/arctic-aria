@@ -186,12 +186,11 @@ they apply:
 
 ## Verification
 
-- Follow the root `AGENTS.md` Validation Workflow.
+- Follow `docs/agents/validation.md` and the root `AGENTS.md`.
 - During normal feature/fix/refactor branch work, run the relevant focused
   tests for the touched feature or shared area when they exist.
 - Before merging back into `develop`, or when the developer asks for full
-  validation, run `git diff --check`, `pnpm --dir apps/web test`,
-  `pnpm --dir apps/web lint`, and `pnpm --dir apps/web build`.
+  validation, run `./scripts/verify-web.sh` from the repository root.
 - Also run the full web checks earlier when focused tests do not cover the risk
   of a shared component, app shell, server action, metadata, or runtime change.
 - For docs-only changes under the web app, run at least `git diff --check`.

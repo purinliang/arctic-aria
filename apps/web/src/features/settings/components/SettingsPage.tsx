@@ -226,6 +226,7 @@ export function SettingsPage({
               <Button
                 darkMode={darkMode}
                 disabled={logoutPending}
+                tone="danger"
                 icon={<LogOut size={14} aria-hidden="true" />}
                 loading={logoutPending}
                 loadingIcon={

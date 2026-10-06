@@ -1,5 +1,9 @@
 import type { SupportedLanguage } from "./languages";
 import {
+  englishPageHelpMessages,
+  simplifiedChinesePageHelpMessages,
+} from "./page-help-messages";
+import {
   englishPasswordChangeMessages,
   simplifiedChinesePasswordChangeMessages,
 } from "./password-change-messages";
@@ -47,6 +51,7 @@ export type NotificationMessages = AppMessages["notifications"];
 export type VersionStatusMessages = AppMessages["versionStatus"];
 
 const englishMessages = {
+  pageHelp: englishPageHelpMessages,
   appShell: {
     brandName: "Arctic Aria",
     closeNavigation: "Close navigation",
@@ -98,6 +103,8 @@ const englishMessages = {
       signUp: "Sign up",
       signingUp: "Signing up",
       welcomeBack: "Welcome back",
+      tryDemo: "Try demo directly",
+      tryingDemo: "Trying demo",
     },
     loading: {
       openingWorkspace: "Opening your workspace...",
@@ -417,6 +424,7 @@ const englishMessages = {
 };
 
 const simplifiedChineseMessages: AppMessages = {
+  pageHelp: simplifiedChinesePageHelpMessages,
   appShell: {
     brandName: "北极阿莉雅",
     closeNavigation: "关闭导航",
@@ -468,6 +476,8 @@ const simplifiedChineseMessages: AppMessages = {
       signUp: "注册",
       signingUp: "正在注册",
       welcomeBack: "欢迎回来",
+      tryDemo: "直接体验演示",
+      tryingDemo: "正在体验演示",
     },
     loading: {
       openingWorkspace: "正在打开你的工作区...",

@@ -18,8 +18,9 @@ Each routine row should show:
 - scheduled time, if present
 - description, clamped at two lines
 
-Today routine rows should not expand or collapse. Do not show `Busy`, `Skip`,
-`Later`, or `Move to tomorrow` buttons in the current Today UI.
+Today routine rows should not expand or collapse. Show a compact `Later`
+button under the time only for pending instances with a sent reminder. Show
+`Tomorrow` for pending instances. Do not show `Busy` or `Skip` buttons.
 
 Click behavior:
 
@@ -37,8 +38,16 @@ Click behavior:
   request may still be in progress. Failed requests should roll back only the
   affected routine row when that failed request is still the latest request for
   that row.
-- `Busy`, `Skip`, `Later`, and `Move to tomorrow` are deferred
-  reminder-response actions, not Today controls in the current UI.
+- `Later` reschedules the reminder for about one hour later without changing
+  completion or the scheduled date/time. Disable only that row's `Later` button
+  while the request is pending. On success, hide it and show a shared success
+  notification; on failure, keep it visible and show the shared error.
+- `Tomorrow` waits for server confirmation, then removes that occurrence from
+  Today and updates its date in the Routines instance list. Disable that row's
+  schedule buttons while saving, but leave unrelated rows interactive. A
+  conflict with an already answered tomorrow occurrence keeps the row visible
+  and shows a shared error notification.
+- `Busy` and `Skip` remain deferred actions.
 
 The UI may show a temporary reminder delivery state, but the persisted Core
 instance statuses are only `pending`, `completed`, and `skipped`.
@@ -107,6 +116,11 @@ definition page renders at a time.
 The Routine Instances panel lists generated routine instances. Rows show title,
 description, scheduled date, scheduled time, and status. Pending rows can be
 completed from this panel. Completed or skipped rows can be reopened. When
+an occurrence is pending and its reminder has been sent, its row also shows a
+`Later` action. That action disables only its own button while saving, hides on
+success, and uses the shared notification stack for success or failure. When
+an occurrence is pending on the current local board day, its row also shows
+`Tomorrow`. The same per-row pending and notification behavior applies. When
 there are more than six visible instances, the panel uses the shared paged-list
 control so only one instance page renders at a time.
 

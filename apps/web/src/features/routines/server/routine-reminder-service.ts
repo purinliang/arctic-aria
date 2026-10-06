@@ -158,10 +158,15 @@ export function createRoutineReminderService({
 
         if (notification.ok) {
           for (const instance of instances) {
+            if (!instance.remindAt) {
+              continue;
+            }
+
             await routines.markRoutineInstanceReminded({
               userId: instance.userId,
               instanceId: instance.id,
               remindedAt: occurredAt,
+              expectedRemindAt: instance.remindAt,
             });
           }
           result.sent += instances.length;

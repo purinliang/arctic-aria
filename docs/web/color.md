@@ -34,6 +34,11 @@ surfaces feel distinct without creating a separate color system.
 
 ## Core Roles
 
+The danger button stays solid red with white text in both themes. Light mode
+uses the existing semantic red-600 palette token and red-700 on hover, with
+neutral gray surface and text tokens when disabled. Dark mode keeps its
+existing solid red background, hover color, and disabled treatment.
+
 The shared web UI should stay close to this small set of background and button
 roles:
 
