@@ -14,6 +14,7 @@ import {
   FormFields,
 } from "@/components/forms/form-layout";
 import { PendingText } from "@/components/loading";
+import { PageHelpButton } from "@/components/page-help";
 import { Tabs } from "@/components/tabs";
 import { SectionTitle } from "@/components/text";
 import type { AuthMode } from "./AuthGate";
@@ -26,17 +27,19 @@ import {
 } from "../validation";
 import { AuthTextField } from "./AuthTextField";
 import { GoogleIcon } from "./GoogleIcon";
-import type { AuthMessages } from "@/messages/app-messages";
+import type { AppMessages, AuthMessages } from "@/messages/app-messages";
 
 export type AuthFormProps = {
   darkMode: boolean;
   messages: AuthMessages;
+  helpMessages: AppMessages["pageHelp"];
   mode: AuthMode;
   registerInput: RegisterInput;
   loginInput: LoginInput;
   errors: AuthFieldErrors;
   disabled: boolean;
   pending: boolean;
+  demoPending: boolean;
   submitAttempted: boolean;
   onModeChange: (mode: AuthMode) => void;
   onRegisterChange: <K extends keyof RegisterInput>(
@@ -48,6 +51,7 @@ export type AuthFormProps = {
     value: LoginInput[K],
   ) => void;
   onSubmit: () => void;
+  onTryDemo: () => void;
   onGoogleLogin: () => void;
   onPasswordReset: () => void;
 };
@@ -62,17 +66,20 @@ const showFutureAuthActions = false;
 export function AuthForm({
   darkMode,
   messages,
+  helpMessages,
   mode,
   registerInput,
   loginInput,
   errors,
   disabled,
   pending,
+  demoPending,
   submitAttempted,
   onModeChange,
   onRegisterChange,
   onLoginChange,
   onSubmit,
+  onTryDemo,
   onGoogleLogin,
   onPasswordReset,
 }: AuthFormProps) {
@@ -118,8 +125,8 @@ export function AuthForm({
         fill
         className="mb-6"
         options={[
-          { value: "login", label: messages.form.signIn },
-          { value: "register", label: messages.form.signUp },
+          { value: "login", label: messages.form.signIn, disabled },
+          { value: "register", label: messages.form.signUp, disabled },
         ]}
         value={mode}
         onChange={(value) => switchMode(readAuthMode(value))}
@@ -132,7 +139,15 @@ export function AuthForm({
           onSubmit();
         }}
       >
-        <SectionTitle>{title}</SectionTitle>
+        <div className="flex items-center justify-between gap-[var(--aa-space-control-gap)]">
+          <SectionTitle>{title}</SectionTitle>
+          <PageHelpButton
+            key={mode}
+            darkMode={darkMode}
+            content={helpMessages.pages[mode]}
+            labels={helpMessages}
+          />
+        </div>
 
         <FormFields className="mt-[var(--aa-form-section-gap)]">
           <AuthTextField
@@ -265,6 +280,21 @@ export function AuthForm({
             </Button>
           </span>
 
+          <Button
+            darkMode={darkMode}
+            size="md"
+            className="aa-demo-invitation w-full"
+            disabled={disabled}
+            icon={<ArrowRight size={17} aria-hidden="true" />}
+            onClick={onTryDemo}
+          >
+            <PendingText
+              active={demoPending}
+              idleText={messages.form.tryDemo}
+              pendingText={messages.form.tryingDemo}
+            />
+          </Button>
+
           {showFutureAuthActions && mode === "login" ? (
             <>
               <div
@@ -307,6 +337,7 @@ export function AuthForm({
               size="sm"
               className="inline-flex h-auto px-0 text-sm underline-offset-4 hover:underline"
               onClick={() => switchMode(switchTarget)}
+              disabled={disabled}
             >
               {switchLabel}
             </Button>

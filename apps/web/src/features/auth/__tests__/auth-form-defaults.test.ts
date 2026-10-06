@@ -1,21 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { demoLoginInputForSearch } from "../auth-form-defaults.ts";
+import { demoLoginInput, emptyLogin, emptyRegister } from "../auth-form-defaults.ts";
 import { validateLoginSubmit } from "../validation.ts";
 
-test("demo mode prefills only the login credentials", () => {
-  assert.deepEqual(demoLoginInputForSearch("?mode=demo"), {
+test("demo credentials are valid without prepopulating personal auth forms", () => {
+  assert.deepEqual(demoLoginInput, {
     username: "demo",
     password: "demo123456+",
   });
-  assert.deepEqual(demoLoginInputForSearch("?source=portfolio&mode=demo"), {
-    username: "demo",
-    password: "demo123456+",
-  });
-  assert.equal(demoLoginInputForSearch(""), null);
-  assert.equal(demoLoginInputForSearch("?mode=register"), null);
-  assert.equal(demoLoginInputForSearch("?mode=Demo"), null);
-  const demo = demoLoginInputForSearch("?mode=demo");
-  assert.ok(demo);
-  assert.deepEqual(validateLoginSubmit(demo), {});
+  assert.deepEqual(emptyLogin, { username: "", password: "" });
+  assert.equal(emptyRegister.password, "");
+  assert.deepEqual(validateLoginSubmit(demoLoginInput), {});
 });

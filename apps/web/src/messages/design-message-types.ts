@@ -34,6 +34,7 @@ export type DesignMessages = {
       panel: string;
       panelHeader: string;
       primaryButton: string;
+      dangerButton: string;
       secondaryButton: string;
       textInput: string;
     };
@@ -62,6 +63,10 @@ export type DesignMessages = {
     title: string;
     description: string;
     tones: {
+      danger: {
+        title: string;
+        description: string;
+      };
       primary: {
         title: string;
         description: string;

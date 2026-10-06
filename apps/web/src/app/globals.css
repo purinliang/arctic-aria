@@ -61,6 +61,13 @@
   --gray-indicator: #8b8d98;
   --gray-track: #8b8d98;
   --color-background: #fff;
+  --aa-danger-button-bg: var(--color-red-600);
+  --aa-danger-button-text: #ffffff;
+  --aa-danger-button-border: var(--aa-danger-button-bg);
+  --aa-danger-button-hover-bg: var(--color-red-700);
+  --aa-danger-button-hover-border: var(--aa-danger-button-hover-bg);
+  --aa-danger-button-disabled-bg: var(--gray-3);
+  --aa-danger-button-disabled-text: var(--gray-11);
   --aa-gray-1-25: color-mix(in srgb, var(--gray-1) 75%, var(--gray-2) 25%);
   --aa-gray-1-50: color-mix(in srgb, var(--gray-1) 50%, var(--gray-2) 50%);
   --aa-gray-1-75: color-mix(in srgb, var(--gray-1) 25%, var(--gray-2) 75%);
@@ -132,6 +139,13 @@
   --gray-indicator: #6c6e79;
   --gray-track: #6c6e79;
   --color-background: #111111;
+  --aa-danger-button-bg: #dc2626;
+  --aa-danger-button-text: #ffffff;
+  --aa-danger-button-border: var(--aa-danger-button-bg);
+  --aa-danger-button-hover-bg: #b91c1c;
+  --aa-danger-button-hover-border: var(--aa-danger-button-hover-bg);
+  --aa-danger-button-disabled-bg: #3f2024;
+  --aa-danger-button-disabled-text: #f3acb0;
   --aa-gray-1-25: color-mix(in srgb, var(--gray-1) 75%, var(--gray-2) 25%);
   --aa-gray-1-50: color-mix(in srgb, var(--gray-1) 50%, var(--gray-2) 50%);
   --aa-gray-1-75: color-mix(in srgb, var(--gray-1) 25%, var(--gray-2) 75%);
@@ -178,6 +192,7 @@
   --aa-font-weight-normal: 400;
   --aa-font-weight-medium: 500;
   --aa-font-weight-semibold: 600;
+  --aa-font-weight-bold: 700;
   --aa-primary-button-bg: var(--blue-9);
   --aa-primary-button-text: var(--blue-contrast);
   --aa-primary-button-hover-bg: var(--blue-10);
@@ -535,10 +550,31 @@ input:not(.aa-text-input-control):focus-visible {
   }
 }
 
+.aa-demo-invitation {
+  font-weight: var(--aa-font-weight-bold);
+}
+
+.aa-demo-invitation:not(:disabled) {
+  animation: aa-demo-lift 2.8s ease-in-out infinite;
+}
+
+.aa-demo-invitation:hover,
+.aa-demo-invitation:focus-visible {
+  animation: none;
+}
+
+@keyframes aa-demo-lift {
+  0%, 55%, 100% { transform: perspective(600px) translateZ(0); }
+  65% { transform: perspective(600px) translateZ(30px) translateY(-6px); }
+  75%, 92% { transform: perspective(600px) translateZ(0); }
+  83% { transform: perspective(600px) translateZ(24px) translateY(-4px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
 
   .aa-notification-toast,
-  .aa-notification-toast[data-dismissing="true"] {
+  .aa-notification-toast[data-dismissing="true"],
+  .aa-demo-invitation:not(:disabled) {
     animation: none;
   }
 }

@@ -62,6 +62,14 @@ const backgroundTokenGroups: {
     },
   },
   {
+    key: "dangerButton",
+    values: {
+      default: "var(--aa-danger-button-bg)",
+      hover: "var(--aa-danger-button-hover-bg)",
+      disabled: "var(--aa-danger-button-disabled-bg)",
+    },
+  },
+  {
     key: "textInput",
     values: {
       default: "var(--aa-text-input-bg)",
