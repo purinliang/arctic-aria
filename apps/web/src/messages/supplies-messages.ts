@@ -1,0 +1,36 @@
+import { englishPaginationMessages, simplifiedChinesePaginationMessages } from './pagination-messages';
+export const englishSuppliesMessages = {
+  tabs: { food: 'Food', household: 'Household', travel: 'Travel shopping' }, all: 'All', attention: 'Needs attention',
+  new: 'New', title: 'Title', note: 'Note', kind: 'Type', level: 'Remaining', spares: 'Unopened spares',
+  item: 'Supply', wish: 'Travel purchase', edit: 'Edit', history: 'Usage history',
+  replace: 'Replace', replaceTitle: 'Replace this item?', replaceDescription: 'Start a new full item. Previous usage history stays stored.',
+  useSpare: 'Use an unopened spare', empty: 'Empty', unknown: 'Not enough history',
+  estimated: 'Estimated run-out', update: 'Update remaining level', buy: 'Buy', buySoon: 'Buy soon', spareAvailable: 'Spare available',
+  country: 'Buy in', shop: 'Shop', url: 'Link', linked: 'Linked supply', none: 'None', archived: 'Archived',
+  planned: 'Planned', purchased: 'Purchased', markPurchased: 'Mark purchased', markPlanned: 'Mark planned', openLink: 'Open link',
+  save: 'Save', saving: 'Saving', close: 'Close', archive: 'Archive', archiving: 'Archiving', cancel: 'Cancel',
+  archiveTitle: 'Archive this item?', archiveDescription: 'Hide this item while keeping its history and linked purchases.',
+  noItems: 'No items.', loading: 'Loading supplies', currentCycle: 'Current item', previousCycle: 'Previous item',
+  pagination: { ...englishPaginationMessages, ariaLabel: 'Supplies' },
+  results: { invalid: 'Check the item fields and spare count.', unavailable: 'Supplies are unavailable. Please try again.',
+    stale: 'This item changed. The list has refreshed; reopen the editor before saving again.', missing: 'This item is no longer available.',
+    level_increase: 'Use Replace to start a new item instead of increasing its remaining level.', auth_required: 'Please sign in again.' },
+};
+export type SuppliesMessages = typeof englishSuppliesMessages;
+export const chineseSuppliesMessages: SuppliesMessages = {
+  tabs: { food: '食品', household: '日用品', travel: '旅行购物' }, all: '全部', attention: '需要关注',
+  new: '新建', title: '名称', note: '备注', kind: '类型', level: '剩余量', spares: '未开封备用数量',
+  item: '物资', wish: '旅行采购', edit: '编辑', history: '使用记录',
+  replace: '替换', replaceTitle: '替换这件物资？', replaceDescription: '开始使用一件全新的物资，之前的使用记录仍会保留。',
+  useSpare: '使用一件未开封备用物资', empty: '已用完', unknown: '记录不足',
+  estimated: '预计用完', update: '请更新剩余量', buy: '购买', buySoon: '即将需要购买', spareAvailable: '有备用物资',
+  country: '采购国家', shop: '商店', url: '链接', linked: '关联物资', none: '无', archived: '已归档',
+  planned: '计划采购', purchased: '已购买', markPurchased: '标记已购买', markPlanned: '标记计划采购', openLink: '打开链接',
+  save: '保存', saving: '正在保存', close: '关闭', archive: '归档', archiving: '正在归档', cancel: '取消',
+  archiveTitle: '归档这件物资？', archiveDescription: '隐藏此项，但保留历史记录和关联的采购项目。',
+  noItems: '暂无物资。', loading: '正在加载物资', currentCycle: '当前物资', previousCycle: '之前的物资',
+  pagination: { ...simplifiedChinesePaginationMessages, ariaLabel: '物资列表' },
+  results: { invalid: '请检查物资信息和备用数量。', unavailable: '物资暂时不可用，请重试。',
+    stale: '此项已发生变化，列表已刷新。再次保存前请重新打开编辑窗口。', missing: '此项已不可用。',
+    level_increase: '请使用替换来开始使用新的物资，而不是增加当前剩余量。', auth_required: '请重新登录。' },
+};

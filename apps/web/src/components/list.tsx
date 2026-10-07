@@ -22,16 +22,18 @@ type ListItemDensity = "normal" | "compact";
 export function List({
   className,
   children,
+  variant = "rows",
 }: {
   darkMode: boolean;
   className?: string;
   children: ReactNode;
+  variant?: "rows" | "cards";
 }) {
   return (
     <div
       className={cx(
-        "overflow-hidden rounded-b-md",
-        listDividerColorClass,
+        variant === "cards" ? "grid min-w-0 grid-cols-1 gap-[var(--aa-space-body-gap)] sm:grid-cols-2" : "overflow-hidden rounded-b-md",
+        variant === "rows" ? listDividerColorClass : undefined,
         className,
       )}
     >

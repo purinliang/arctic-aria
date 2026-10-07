@@ -143,7 +143,7 @@ function ChoiceButton({
         compact
           ? cx(
               buttonHeightSmClass,
-              "px-[var(--aa-space-popover-x)] text-[length:var(--aa-font-size-md)] leading-[var(--aa-line-height-md)]",
+              "justify-center text-center px-[var(--aa-space-popover-x)] text-[length:var(--aa-font-size-md)] leading-[var(--aa-line-height-md)]",
             )
           : cx(
               "min-h-[var(--aa-button-height-sm)] text-[length:var(--aa-font-size-md)] leading-[var(--aa-line-height-md)]",
@@ -158,7 +158,7 @@ function ChoiceButton({
       {...props}
     >
       {option.icon}
-      <span className="min-w-0 break-words">
+      <span className={cx("min-w-0 break-words", compact ? "inline-flex items-center justify-center" : undefined)}>
         <Text tone="current" weight="semibold" className="break-words">
           {option.label}
         </Text>

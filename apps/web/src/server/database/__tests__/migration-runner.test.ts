@@ -81,6 +81,13 @@ test("migration runner splits simple SQL statements", () => {
   ]);
 });
 
+test("migration runner preserves PostgreSQL function bodies and quoted semicolons", () => {
+  const body = "CREATE FUNCTION fixture() RETURNS void LANGUAGE plpgsql AS $fn$ BEGIN PERFORM ';'; PERFORM 2; END $fn$";
+  assert.deepEqual(splitStatements(`${body}; SELECT 'it''s; safe', \"semi;colon\";`), [body, "SELECT 'it''s; safe', \"semi;colon\""]);
+  assert.deepEqual(splitStatements("SELECT $$a;b$$; SELECT 2 /* outer; /* inner; */ end; */;"), ["SELECT $$a;b$$", "SELECT 2 /* outer; /* inner; */ end; */"]);
+  assert.throws(() => splitStatements("SELECT $fn$unfinished;"), /Unterminated/);
+});
+
 class RecordingSql {
   records: { text: string; params?: unknown[] }[] = [];
 
@@ -88,5 +95,10 @@ class RecordingSql {
     this.records.push({ text, params });
 
     return [];
+  }
+
+  async transaction(queries: Promise<unknown>[]) {
+    assert.equal(queries.length, 3, 'DDL and migration metadata commit together');
+    return Promise.all(queries);
   }
 }

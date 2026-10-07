@@ -16,6 +16,7 @@ Arctic Aria
 |   |-- Events
 |   |-- Memories
 |   |-- Dashboard
+|   |-- Progress
 |   |-- Ideas
 |   |-- Scheduler
 |   `-- Reviews
@@ -200,6 +201,24 @@ Detailed docs:
 - [features/ideas/data-model.md](features/ideas/data-model.md)
 - [features/ideas/ui.md](features/ideas/ui.md)
 - [features/ideas/web-implementation.md](features/ideas/web-implementation.md)
+
+### Progress
+
+Progress owns manual work, study, and exercise duration records, plus retained
+non-AI chat infrastructure hidden in the frontend. It does not complete project
+tasks or routines. Legacy occurrence records remain stored without guessed durations.
+Its page and data model are documented in
+[features/daily-life/overview.md](features/daily-life/overview.md).
+
+### Money
+Money owns expense records, editable categories, and ordered currency preferences.
+It stores exact minor units and never converts or combines currencies. See
+[features/money/overview.md](features/money/overview.md).
+
+### Supplies
+Supplies owns stock levels, unopened spares, usage cycles/observations, estimates,
+and travel shopping wishes. It does not generate expense records. See
+[features/supplies/overview.md](features/supplies/overview.md).
 
 ### Scheduler
 

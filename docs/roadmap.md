@@ -8,6 +8,13 @@ Current released version: `v0.15.1`.
 
 Current development version on `develop`: `v0.16.0-dev`.
 
+## Development-Only Tracking
+
+As of 2026-10-08, Progress, Money, and Supplies from `feature/daily-life-log`
+are approved for integration into `develop` only. They remain in progress and
+need further UI and workflow review. Do not release them to `main` or deploy
+them to production without a separate developer approval.
+
 ## Next Work After v0.12.0
 
 - Continue explicit schedule actions for Today items. Routine `Later` and
@@ -57,6 +64,24 @@ For each feature branch that adds or changes persisted behavior, review:
   boundaries are needed
 
 ## Future Product Work
+
+- Money expense recording is implemented on `feature/daily-life-log`, pending
+  review. Migration 0037 is applied to the local-development database. Income,
+  accounts, debt, budgets, refunds, and charts
+  remain deferred. Supplies stock/history and linked travel shopping are also
+  implemented, pending review; migration 0038 is applied locally. Expiry tracking, outbound
+  reminders, and automatic inventory/expense integration remain deferred.
+
+- Progress / 进步 duration logging is implemented on
+  `feature/daily-life-log` (2026-10-07), pending review; migrations 0035–0036 are
+  applied locally. As of 2026-10-08, all three tracking pages use compact record
+  cards and simplified capture. Progress also has user/day/timezone-scoped browser
+  caching with background refresh and mutation updates.
+  Work, Study, and Exercise replace occurrence capture; a seven-day chart shows
+  daily totals and opens each day's records. Legacy occurrences remain stored.
+  Chat history infrastructure is retained, but its frontend is hidden for now.
+  Future chat integration should use existing authenticated feature commands,
+  with explicit confirmation before destructive or schedule-changing actions.
 
 Future work should be chosen after using the current app and writing more
 concrete feature details.

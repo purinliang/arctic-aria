@@ -6,6 +6,9 @@ export type AppRouteState = {
 };
 
 const viewPaths: Record<Exclude<DashboardView, "dashboard">, string> = {
+  daily: "/progress",
+  money: "/money",
+  supplies: "/supplies",
   design: "/design",
   events: "/events",
   ideas: "/ideas",
@@ -17,6 +20,8 @@ const viewPaths: Record<Exclude<DashboardView, "dashboard">, string> = {
 
 export function appRouteFromPathname(pathname: string): AppRouteState {
   const normalizedPath = normalizePathname(pathname);
+
+  if (normalizedPath === "/daily") return { view: "daily", projectId: null };
 
   if (normalizedPath === "/" || normalizedPath === "/today") {
     return { view: "dashboard", projectId: null };
@@ -45,6 +50,7 @@ export function appRouteFromPathname(pathname: string): AppRouteState {
 
 export function isSupportedAppPathname(pathname: string) {
   const normalizedPath = normalizePathname(pathname);
+  if (normalizedPath === "/daily") return true;
 
   if (normalizedPath === "/" || normalizedPath === "/today") {
     return true;

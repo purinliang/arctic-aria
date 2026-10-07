@@ -30,6 +30,28 @@ export const englishPageHelpMessages = {
         { title: "Experiences", body: "Pinned memories and suggestions offer experiences to revisit. They are suggestions, not overdue commitments." },
       ],
     },
+    daily: {
+      title: "Progress",
+      summary: "Record work, study, and exercise durations, then review the last seven days.",
+      sections: [
+        { title: "Record time", body: "Choose Work, Study, or Exercise and enter the minutes spent. You can adjust the recorded time and add a note. These records do not complete project tasks." },
+        { title: "Weekly progress", body: "The bar chart shows daily totals in your configured timezone, from six days ago on the left to Today on the right. Select a day to review or edit its records. Older records remain stored." },
+      ],
+    },
+    money: {
+      title: "Money", summary: "Record expenses and review daily or monthly totals without currency conversion.",
+      sections: [
+        { title: "Capture", body: "Choose a category, enter an amount and currency, and save. Manage categories to choose up to five quick capture buttons." },
+        { title: "Currencies", body: "Reorder your preferred currencies; the first is the default for new records. Other supported currencies remain available. Totals stay separate by currency." },
+      ],
+    },
+    supplies: {
+      title: "Supplies", summary: "Track remaining food and household supplies, and plan purchases abroad.",
+      sections: [
+        { title: "Stock", body: "Record a remaining level from empty (0) to full (5). Spare counts describe unopened items. Replace starts a new item and can consume one spare." },
+        { title: "Estimates and travel", body: "Run-out estimates use the latest three observations for the active item, never older replacement cycles. Travel shopping is a wishlist that can link to stock; marking purchased does not change supplies or expenses." },
+      ],
+    },
     projects: {
       title: "Projects",
       summary: "Organize long-term goals into milestones and actionable tasks.",
@@ -138,6 +160,28 @@ export const simplifiedChinesePageHelpMessages: typeof englishPageHelpMessages =
         { title: "任务和例行事项", body: "完成后勾选对应条目。可用的排期操作可以推迟灵活安排的工作，明天会将其移至下一天。已完成条目仍保留在今日页面，方便回顾。" },
         { title: "固定日程", body: "日程代表预约或其他固定承诺。需要调整时，请到日程页面更改时间或取消，而不是像灵活任务一样推迟。" },
         { title: "体验", body: "置顶记忆和推荐可以帮助重温体验。它们是建议，不是会逾期的承诺。" },
+      ],
+    },
+    daily: {
+      title: "进步",
+      summary: "记录工作、学习和运动的时长，并回顾最近七天。",
+      sections: [
+        { title: "记录时长", body: "选择工作、学习或运动，填写投入的分钟数。可以调整记录时间并添加备注。这些记录不会自动完成项目任务。" },
+        { title: "每周进步", body: "柱状图按当前时区显示每日总时长，从左侧的六天前到右侧的今天。选择某一天可查看或编辑记录。更早的记录仍然保留。" },
+      ],
+    },
+    money: {
+      title: "财务", summary: "记录支出并查看每日或每月总额，不进行货币转换。",
+      sections: [
+        { title: "记录支出", body: "选择分类，输入金额和货币，然后保存。管理分类可设置最多五个快速记录按钮。" },
+        { title: "货币", body: "调整常用货币顺序，第一项是新记录的默认货币。其他支持的货币仍可使用，不同货币分别计算总额。" },
+      ],
+    },
+    supplies: {
+      title: "物资", summary: "记录食品和日用品的剩余量，并计划海外采购。",
+      sections: [
+        { title: "库存", body: "使用从已用完（0）到全新（5）的剩余量等级。备用数量代表未开封的物资，替换会开始使用新物资，并可消耗一件备用物资。" },
+        { title: "预测和旅行", body: "预计用完时间仅依据当前物资最近三次记录，不使用之前物资的记录。旅行购物是可关联库存的采购清单，标记已购买不会修改库存或支出。" },
       ],
     },
     projects: {

@@ -125,6 +125,11 @@ not introduce form-field label spacing unless it is used inside a real form.
 
 ## Button
 
+`ActionCard` is a repeated clickable item, not a page section. It uses the shared
+secondary action palette, card-body padding, and text tokens. An icon, label, and
+supporting status stay within a stable minimum height. Progress uses three cards
+to open duration recording for Work, Study, and Exercise, without idle counters.
+
 `PageHelpButton` combines the shared ghost icon button, viewport-aware popover
 placement, and text tokens. Hover or keyboard focus shows a brief information
 bubble; Escape dismisses the bubble. The trigger remains focusable but has no
@@ -397,6 +402,8 @@ a feature explicitly needs route-backed tabs.
 Tabs use the same inset rounded background first used by the auth
 login/register selector. Use normal `sm` button height unless a feature has a
 documented reason for taller tabs.
+Non-filling tab lists keep their intrinsic width even inside grid/flex sections;
+use `fill` explicitly when each option should share the full available width.
 
 ## Settings Control Row
 
@@ -441,6 +448,12 @@ token.
 ## Card
 
 `card.tsx` owns compact card structure.
+
+`RecordCard` owns repeated quick-tracking records: a compact shared text stack,
+optional header actions, and optional inline controls, without a separate header
+stripe. It uses card-body spacing and limits note previews to two lines. Use
+`PagedList layout="cards"` for a six-item responsive record grid, not for framing
+whole page sections. The default list layout remains unchanged.
 
 Cards may include:
 
@@ -544,6 +557,13 @@ Default page sizes:
 - `10`: full-width or primary single-panel lists with more vertical room
 
 ## Manager List
+
+`StockLevelControl` displays six ghost icon choices for remaining levels 0–5,
+with accessible radio labels and a stable control size. It handles presentation
+only; owning features decide whether a change represents usage or replacement.
+
+`ReorderList` adds desktop drag handles and keyboard/mobile move arrows to
+compact manager rows. It preserves explicit order and ignores out-of-range moves.
 
 `manager-list.tsx` owns compact dialog-only management sections and rows. Use it
 inside manager dialogs that list user-created supporting records, such as
