@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import type { NeonQueryFunction } from '@neondatabase/serverless';
+import { MoneyRepository } from '../server/money-repository.ts';
+test('expense writes are parameterized, owner-scoped, and replay-safe', async () => {
+  const calls: { text: string; args: unknown[] }[] = [];
+  const sql = { async query(text: string, args: unknown[]) { calls.push({ text, args }); return [{ id: 'id', saved: true }]; } } as unknown as NeonQueryFunction<false, false>;
+  const repository = new MoneyRepository(sql);
+  const input = { id: 'id', isNew: true, categoryId: 'category', amount: '12.34', currency: 'AUD' as const, date: '2026-10-07', note: ' private ' };
+  await repository.save('owner', input);
+  await repository.save('owner', { ...input, isNew: false });
+  await repository.archive('owner', 'id');
+  await repository.settings('owner', { preferredCurrencies: ['CNY','AUD'], quickCategoryIds: [] });
+  assert.ok(calls.every((call) => call.args[0] === 'owner' && !call.text.includes('private')));
+  assert.equal(calls[0].args[3], 1234);
+  assert.match(calls[0].text, /ON CONFLICT/);
+  assert.match(calls[0].text, /money_expenses.user_id = \$1/);
+  assert.match(calls[1].text, /user_id = \$1/);
+  assert.match(calls[2].text, /deleted_at IS NULL/);
+  assert.match(calls[3].text, /save_money_settings/);
+});

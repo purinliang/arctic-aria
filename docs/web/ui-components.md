@@ -550,6 +550,9 @@ Default page sizes:
 
 ## Manager List
 
+`ReorderList` adds desktop drag handles and keyboard/mobile move arrows to
+compact manager rows. It preserves explicit order and ignores out-of-range moves.
+
 `manager-list.tsx` owns compact dialog-only management sections and rows. Use it
 inside manager dialogs that list user-created supporting records, such as
 Routine Groups, Event Groups, Project Milestones, and Memory Categories.

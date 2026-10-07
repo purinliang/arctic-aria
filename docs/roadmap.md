@@ -58,6 +58,10 @@ For each feature branch that adds or changes persisted behavior, review:
 
 ## Future Product Work
 
+- Money expense recording is implemented on `feature/daily-life-log`, pending
+  review and migration 0037. Income, accounts, debt, budgets, refunds, and charts
+  remain deferred. Supplies is the next phase of this personal-tools work.
+
 - Progress / 进步 duration logging is implemented on
   `feature/daily-life-log` (2026-10-07), pending review and migrations 0035–0036.
   Work, Study, and Exercise replace occurrence capture; a seven-day chart shows

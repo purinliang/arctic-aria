@@ -210,6 +210,11 @@ tasks or routines. Legacy occurrence records remain stored without guessed durat
 Its page and data model are documented in
 [features/daily-life/overview.md](features/daily-life/overview.md).
 
+### Money
+Money owns expense records, editable categories, and ordered currency preferences.
+It stores exact minor units and never converts or combines currencies. See
+[features/money/overview.md](features/money/overview.md).
+
 ### Scheduler
 
 The scheduler selects tasks and routines for upcoming time windows and returns

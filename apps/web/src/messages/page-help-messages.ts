@@ -38,6 +38,13 @@ export const englishPageHelpMessages = {
         { title: "Weekly progress", body: "The bar chart shows daily totals in your configured timezone, from six days ago on the left to Today on the right. Select a day to review or edit its records. Older records remain stored." },
       ],
     },
+    money: {
+      title: "Money", summary: "Record expenses and review daily or monthly totals without currency conversion.",
+      sections: [
+        { title: "Capture", body: "Choose a category, enter an amount and currency, and save. Manage categories to choose up to five quick capture buttons." },
+        { title: "Currencies", body: "Reorder your preferred currencies; the first is the default for new records. Other supported currencies remain available. Totals stay separate by currency." },
+      ],
+    },
     projects: {
       title: "Projects",
       summary: "Organize long-term goals into milestones and actionable tasks.",
@@ -154,6 +161,13 @@ export const simplifiedChinesePageHelpMessages: typeof englishPageHelpMessages =
       sections: [
         { title: "记录时长", body: "选择工作、学习或运动，填写投入的分钟数。可以调整记录时间并添加备注。这些记录不会自动完成项目任务。" },
         { title: "每周进步", body: "柱状图按当前时区显示每日总时长，从左侧的六天前到右侧的今天。选择某一天可查看或编辑记录。更早的记录仍然保留。" },
+      ],
+    },
+    money: {
+      title: "财务", summary: "记录支出并查看每日或每月总额，不进行货币转换。",
+      sections: [
+        { title: "记录支出", body: "选择分类，输入金额和货币，然后保存。管理分类可设置最多五个快速记录按钮。" },
+        { title: "货币", body: "调整常用货币顺序，第一项是新记录的默认货币。其他支持的货币仍可使用，不同货币分别计算总额。" },
       ],
     },
     projects: {

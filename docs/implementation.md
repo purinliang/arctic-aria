@@ -137,6 +137,7 @@ to Today:
 - `/progress` shows work/study/exercise duration recording and a seven-day chart;
   `/daily` redirects there, and chat remains hidden in the frontend
 - `/projects` shows the Projects list
+- `/money` shows expense capture and currency-separated daily/monthly history
 - `/projects/<project-id>` shows one Project detail page
 - `/routines` shows Routines
 - `/events` shows Events

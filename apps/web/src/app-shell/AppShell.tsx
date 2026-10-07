@@ -29,7 +29,7 @@ import type {
   UserPreferences,
 } from "@/features/settings/preferences";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
-import { DailyLifePage } from "@/features/daily-life/components/DailyLifePage";
+import { PersonalTrackingPages } from "./PersonalTrackingPages";
 import { DesignPage } from "@/features/design/components/DesignPage";
 import { EventsPage } from "@/features/events/components/EventsPage";
 import { useDashboardEvents } from "@/features/events/hooks/useDashboardEvents";
@@ -493,15 +493,14 @@ export function AppShell({
               showErrorNotification={showErrorNotification}
               showSuccessNotification={showSuccessNotification}
             />
-          ) : activeWorkspaceView === "daily" ? (
-            <DailyLifePage
+          ) : activeWorkspaceView === "daily" || activeWorkspaceView === "money" ? (
+            <PersonalTrackingPages
+              view={activeWorkspaceView}
               darkMode={darkMode}
               timezone={resolvedTimeZone}
               language={resolvedLanguage}
-              formMessages={messages.forms}
               timeFormatPreference={timeFormatPreference}
-              messages={messages.dailyLife}
-              notificationMessages={messages.notifications}
+              messages={messages}
               showErrorNotification={showErrorNotification}
             />
           ) : activeWorkspaceView === "ideas" ? (

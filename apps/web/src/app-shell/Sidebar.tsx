@@ -2,6 +2,7 @@
 import {
   Album,
   NotebookPen,
+  Wallet,
   Bell,
   CalendarDays,
   LayoutDashboard,
@@ -174,6 +175,8 @@ function SidebarFrame({
             darkMode={darkMode}
             onClick={() => onSelectView("daily")}
           />
+          <SidebarItem icon={<Wallet size={18} aria-hidden="true" />} label={messages.pages.money}
+            active={activeView === "money"} darkMode={darkMode} onClick={() => onSelectView("money")} />
           <SidebarItem
             icon={<FolderKanban size={18} aria-hidden="true" />}
             label={messages.pages.projects}

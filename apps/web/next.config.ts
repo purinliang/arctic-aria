@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
     return [
       { source: "/today", destination: "/" },
       { source: "/progress", destination: "/" },
+      { source: "/money", destination: "/" },
       { source: "/projects", destination: "/" },
       { source: "/projects/:projectId", destination: "/" },
       { source: "/routines", destination: "/" },

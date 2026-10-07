@@ -1,4 +1,5 @@
 import type { SupportedLanguage } from "./languages";
+import { englishMoneyMessages, chineseMoneyMessages } from "./money-messages";
 import { englishDailyLifeMessages, simplifiedChineseDailyLifeMessages } from "./daily-life-messages";
 import {
   englishPageHelpMessages,
@@ -52,6 +53,7 @@ export type NotificationMessages = AppMessages["notifications"];
 export type VersionStatusMessages = AppMessages["versionStatus"];
 
 const englishMessages = {
+  money: englishMoneyMessages,
   dailyLife: englishDailyLifeMessages,
   pageHelp: englishPageHelpMessages,
   appShell: {
@@ -63,6 +65,7 @@ const englishMessages = {
     pages: {
       dashboard: "Today",
       daily: "Progress",
+      money: "Money",
       design: "Design",
       events: "Events",
       ideas: "Ideas",
@@ -74,6 +77,7 @@ const englishMessages = {
     pageDescriptions: {
       dashboard: "Focus on today's plan.",
       daily: "Track time spent working, studying, and exercising.",
+      money: "Keep track of your expenses.",
       design: "Review shared component styles.",
       events: "Keep one-time plans visible.",
       ideas: "Capture thoughts for later review.",
@@ -429,6 +433,7 @@ const englishMessages = {
 
 const simplifiedChineseMessages: AppMessages = {
   dailyLife: simplifiedChineseDailyLifeMessages,
+  money: chineseMoneyMessages,
   pageHelp: simplifiedChinesePageHelpMessages,
   appShell: {
     brandName: "北极阿莉雅",
@@ -439,6 +444,7 @@ const simplifiedChineseMessages: AppMessages = {
     pages: {
       dashboard: "今日",
       daily: "进步",
+      money: "财务",
       design: "设计",
       events: "事件",
       ideas: "想法",
@@ -450,6 +456,7 @@ const simplifiedChineseMessages: AppMessages = {
     pageDescriptions: {
       dashboard: "专注今天的计划。",
       daily: "记录工作、学习和运动的时间。",
+      money: "记录你的日常支出。",
       design: "检查共享组件样式。",
       events: "查看一次性的计划。",
       ideas: "先收好想法，之后再整理。",
