@@ -138,6 +138,7 @@ to Today:
   `/daily` redirects there, and chat remains hidden in the frontend
 - `/projects` shows the Projects list
 - `/money` shows expense capture and currency-separated daily/monthly history
+- `/supplies` shows Food/Household stock and a linked Travel Shopping wishlist
 - `/projects/<project-id>` shows one Project detail page
 - `/routines` shows Routines
 - `/events` shows Events

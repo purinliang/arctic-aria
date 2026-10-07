@@ -1,5 +1,6 @@
 import type { SupportedLanguage } from "./languages";
 import { englishMoneyMessages, chineseMoneyMessages } from "./money-messages";
+import { englishSuppliesMessages, chineseSuppliesMessages } from "./supplies-messages";
 import { englishDailyLifeMessages, simplifiedChineseDailyLifeMessages } from "./daily-life-messages";
 import {
   englishPageHelpMessages,
@@ -54,6 +55,7 @@ export type VersionStatusMessages = AppMessages["versionStatus"];
 
 const englishMessages = {
   money: englishMoneyMessages,
+  supplies: englishSuppliesMessages,
   dailyLife: englishDailyLifeMessages,
   pageHelp: englishPageHelpMessages,
   appShell: {
@@ -66,6 +68,7 @@ const englishMessages = {
       dashboard: "Today",
       daily: "Progress",
       money: "Money",
+      supplies: "Supplies",
       design: "Design",
       events: "Events",
       ideas: "Ideas",
@@ -78,6 +81,7 @@ const englishMessages = {
       dashboard: "Focus on today's plan.",
       daily: "Track time spent working, studying, and exercising.",
       money: "Keep track of your expenses.",
+      supplies: "Keep track of supplies and purchases for your next trip.",
       design: "Review shared component styles.",
       events: "Keep one-time plans visible.",
       ideas: "Capture thoughts for later review.",
@@ -434,6 +438,7 @@ const englishMessages = {
 const simplifiedChineseMessages: AppMessages = {
   dailyLife: simplifiedChineseDailyLifeMessages,
   money: chineseMoneyMessages,
+  supplies: chineseSuppliesMessages,
   pageHelp: simplifiedChinesePageHelpMessages,
   appShell: {
     brandName: "北极阿莉雅",
@@ -445,6 +450,7 @@ const simplifiedChineseMessages: AppMessages = {
       dashboard: "今日",
       daily: "进步",
       money: "财务",
+      supplies: "物资",
       design: "设计",
       events: "事件",
       ideas: "想法",
@@ -457,6 +463,7 @@ const simplifiedChineseMessages: AppMessages = {
       dashboard: "专注今天的计划。",
       daily: "记录工作、学习和运动的时间。",
       money: "记录你的日常支出。",
+      supplies: "管理剩余物资和下次旅行的采购计划。",
       design: "检查共享组件样式。",
       events: "查看一次性的计划。",
       ideas: "先收好想法，之后再整理。",

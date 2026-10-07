@@ -45,6 +45,13 @@ export const englishPageHelpMessages = {
         { title: "Currencies", body: "Reorder your preferred currencies; the first is the default for new records. Other supported currencies remain available. Totals stay separate by currency." },
       ],
     },
+    supplies: {
+      title: "Supplies", summary: "Track remaining food and household supplies, and plan purchases abroad.",
+      sections: [
+        { title: "Stock", body: "Record a remaining level from empty (0) to full (5). Spare counts describe unopened items. Replace starts a new item and can consume one spare." },
+        { title: "Estimates and travel", body: "Run-out estimates use the latest three observations for the active item, never older replacement cycles. Travel shopping is a wishlist that can link to stock; marking purchased does not change supplies or expenses." },
+      ],
+    },
     projects: {
       title: "Projects",
       summary: "Organize long-term goals into milestones and actionable tasks.",
@@ -168,6 +175,13 @@ export const simplifiedChinesePageHelpMessages: typeof englishPageHelpMessages =
       sections: [
         { title: "记录支出", body: "选择分类，输入金额和货币，然后保存。管理分类可设置最多五个快速记录按钮。" },
         { title: "货币", body: "调整常用货币顺序，第一项是新记录的默认货币。其他支持的货币仍可使用，不同货币分别计算总额。" },
+      ],
+    },
+    supplies: {
+      title: "物资", summary: "记录食品和日用品的剩余量，并计划海外采购。",
+      sections: [
+        { title: "库存", body: "使用从已用完（0）到全新（5）的剩余量等级。备用数量代表未开封的物资，替换会开始使用新物资，并可消耗一件备用物资。" },
+        { title: "预测和旅行", body: "预计用完时间仅依据当前物资最近三次记录，不使用之前物资的记录。旅行购物是可关联库存的采购清单，标记已购买不会修改库存或支出。" },
       ],
     },
     projects: {

@@ -493,7 +493,7 @@ export function AppShell({
               showErrorNotification={showErrorNotification}
               showSuccessNotification={showSuccessNotification}
             />
-          ) : activeWorkspaceView === "daily" || activeWorkspaceView === "money" ? (
+          ) : activeWorkspaceView === "daily" || activeWorkspaceView === "money" || activeWorkspaceView === "supplies" ? (
             <PersonalTrackingPages
               view={activeWorkspaceView}
               darkMode={darkMode}

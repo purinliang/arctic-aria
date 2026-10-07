@@ -60,7 +60,9 @@ For each feature branch that adds or changes persisted behavior, review:
 
 - Money expense recording is implemented on `feature/daily-life-log`, pending
   review and migration 0037. Income, accounts, debt, budgets, refunds, and charts
-  remain deferred. Supplies is the next phase of this personal-tools work.
+  remain deferred. Supplies stock/history and linked travel shopping are also
+  implemented, pending review and migration 0038. Expiry tracking, outbound
+  reminders, and automatic inventory/expense integration remain deferred.
 
 - Progress / 进步 duration logging is implemented on
   `feature/daily-life-log` (2026-10-07), pending review and migrations 0035–0036.

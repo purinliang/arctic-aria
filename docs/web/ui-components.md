@@ -550,6 +550,10 @@ Default page sizes:
 
 ## Manager List
 
+`StockLevelControl` displays six ghost icon choices for remaining levels 0–5,
+with accessible radio labels and a stable control size. It handles presentation
+only; owning features decide whether a change represents usage or replacement.
+
 `ReorderList` adds desktop drag handles and keyboard/mobile move arrows to
 compact manager rows. It preserves explicit order and ignores out-of-range moves.
 

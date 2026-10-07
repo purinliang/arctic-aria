@@ -215,6 +215,11 @@ Money owns expense records, editable categories, and ordered currency preference
 It stores exact minor units and never converts or combines currencies. See
 [features/money/overview.md](features/money/overview.md).
 
+### Supplies
+Supplies owns stock levels, unopened spares, usage cycles/observations, estimates,
+and travel shopping wishes. It does not generate expense records. See
+[features/supplies/overview.md](features/supplies/overview.md).
+
 ### Scheduler
 
 The scheduler selects tasks and routines for upcoming time windows and returns

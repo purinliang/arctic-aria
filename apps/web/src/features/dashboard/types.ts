@@ -4,6 +4,7 @@ export type DashboardView =
   | "dashboard"
   | "daily"
   | "money"
+  | "supplies"
   | "design"
   | "events"
   | "ideas"

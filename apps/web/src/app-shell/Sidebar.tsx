@@ -3,6 +3,7 @@ import {
   Album,
   NotebookPen,
   Wallet,
+  Package,
   Bell,
   CalendarDays,
   LayoutDashboard,
@@ -177,6 +178,8 @@ function SidebarFrame({
           />
           <SidebarItem icon={<Wallet size={18} aria-hidden="true" />} label={messages.pages.money}
             active={activeView === "money"} darkMode={darkMode} onClick={() => onSelectView("money")} />
+          <SidebarItem icon={<Package size={18} aria-hidden="true" />} label={messages.pages.supplies}
+            active={activeView === "supplies"} darkMode={darkMode} onClick={() => onSelectView("supplies")} />
           <SidebarItem
             icon={<FolderKanban size={18} aria-hidden="true" />}
             label={messages.pages.projects}
