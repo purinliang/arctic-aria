@@ -8,6 +8,13 @@ Current released version: `v0.15.1`.
 
 Current development version on `develop`: `v0.16.0-dev`.
 
+## Development-Only Tracking
+
+As of 2026-10-08, Progress, Money, and Supplies from `feature/daily-life-log`
+are approved for integration into `develop` only. They remain in progress and
+need further UI and workflow review. Do not release them to `main` or deploy
+them to production without a separate developer approval.
+
 ## Next Work After v0.12.0
 
 - Continue explicit schedule actions for Today items. Routine `Later` and
