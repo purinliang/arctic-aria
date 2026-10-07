@@ -1,40 +1,49 @@
-// Supplies Page - Supply Editor.
+// Supplies Page - One-Time Stock Configuration.
 import { useState } from 'react';
 import { CrudEditorDialog, ConfirmDialog } from '@/components/dialog';
 import { FieldLabel, TextInput } from '@/components/forms/input-field';
 import { TextArea } from '@/components/forms/text-area-field';
 import { SingleChoiceGroup } from '@/components/forms/choice-group';
-import { StockLevelControl } from '@/components/stock-level-control';
+import { FormGrid } from '@/components/forms/form-layout';
 import type { SupplyInput } from '../types';
 import type { SuppliesMessages } from '@/messages/supplies-messages';
-import { validSupply } from '../supplies';
+import { validSupply, stockQuantity } from '../supplies';
 
 export function SupplyEditor({ input,messages,darkMode,onSave,onArchive,onClose,onError }: {
   input: SupplyInput; messages: SuppliesMessages; darkMode: boolean; onSave: (input: SupplyInput) => Promise<boolean>;
   onArchive: () => Promise<boolean>; onClose: () => void; onError: (message: string) => void;
 }) {
-  const [draft,setDraft] = useState(input), [spares,setSpares] = useState(String(input.spares));
+  const initial = stockQuantity(input);
+  const [draft,setDraft] = useState({ ...input,...initial });
+  const [numbers,setNumbers] = useState({ quantity: String(initial.quantity),increment: String(initial.increment),targetQuantity: String(initial.targetQuantity),lowStockThreshold: String(initial.lowStockThreshold) });
   const [pending,setPending] = useState(false), [confirm,setConfirm] = useState(false);
   async function submit() {
     if (pending) return;
-    const value = { ...draft,spares: spares.trim() ? Number(spares) : NaN };
+    const parsed = Object.fromEntries(Object.entries(numbers).map(([key,value]) => [key,value.trim() ? Number(value) : NaN]));
+    const value = { ...draft,...parsed };
     if (!validSupply(value)) { onError(messages.results.invalid); return; }
     setPending(true);
     try { if (await onSave(value)) onClose(); } finally { setPending(false); }
   }
+  const fields = [ ['quantity',messages.quantity],['targetQuantity',messages.target],['increment',messages.increment],['lowStockThreshold',messages.threshold] ] as const;
   return <>
-    <CrudEditorDialog darkMode={darkMode} title={input.isNew ? `${messages.item} · ${messages.tabs[input.kind]}` : messages.item} closeLabel={messages.close} pending={pending} saving={pending && !confirm}
+    <CrudEditorDialog darkMode={darkMode} title={messages.item} closeLabel={messages.close} pending={pending} saving={pending && !confirm}
       saveText={messages.save} savingText={messages.saving} deleteText={messages.archive} onSubmit={() => void submit()}
       onClose={() => { if (!pending) onClose(); }} onDelete={input.isNew ? undefined : () => setConfirm(true)}>
       <FieldLabel darkMode={darkMode} label={messages.title}><TextInput darkMode={darkMode} aria-label={messages.title}
         maxLength={100} value={draft.title} autoFocus disabled={pending} onChange={(event) => setDraft({ ...draft,title: event.target.value })} /></FieldLabel>
-      {!input.isNew ? <FieldLabel darkMode={darkMode} label={messages.kind}><SingleChoiceGroup darkMode={darkMode} disabled={pending} value={draft.kind}
+      <FieldLabel darkMode={darkMode} label={messages.kind}><SingleChoiceGroup darkMode={darkMode} disabled={pending} value={draft.kind}
         onChange={(value) => setDraft({ ...draft,kind: value as SupplyInput['kind'] })}
-        options={['food','household'].map((value) => ({ value,label: messages.tabs[value as 'food' | 'household'] }))} /></FieldLabel> : null}
-      {input.isNew ? <FieldLabel darkMode={darkMode} label={messages.level}><StockLevelControl darkMode={darkMode} disabled={pending}
-        label={messages.level} value={draft.level} onChange={(level) => setDraft({ ...draft,level })} /></FieldLabel> : null}
-      <FieldLabel darkMode={darkMode} label={messages.spares}><TextInput darkMode={darkMode} type="number" inputMode="numeric" min={0} max={999} step={1}
-        aria-label={messages.spares} value={spares} disabled={pending} onChange={(event) => setSpares(event.target.value)} /></FieldLabel>
+        options={['food','household'].map((value) => ({ value,label: messages.tabs[value as 'food' | 'household'] }))} /></FieldLabel>
+      <FieldLabel darkMode={darkMode} label={messages.unit}><TextInput darkMode={darkMode} aria-label={messages.unit} value={draft.unit} maxLength={40}
+        disabled={pending} onChange={(event) => setDraft({ ...draft,unit: event.target.value })} /></FieldLabel>
+      <FormGrid columns={2} className="min-[360px]:grid-cols-2">
+        {fields.map(([key,label]) => <FieldLabel key={key} darkMode={darkMode} label={label}>
+          <TextInput darkMode={darkMode} type="number" inputMode="decimal" min={key === 'increment' || key === 'targetQuantity' ? 0.001 : 0}
+            max={999999.999} step="any" aria-label={label} value={numbers[key]} disabled={pending}
+            onChange={(event) => setNumbers({ ...numbers,[key]: event.target.value })} />
+        </FieldLabel>)}
+      </FormGrid>
       <FieldLabel darkMode={darkMode} label={messages.note}><TextArea darkMode={darkMode} aria-label={messages.note} value={draft.note} maxLength={500}
         disabled={pending} onChange={(event) => setDraft({ ...draft,note: event.target.value })} /></FieldLabel>
     </CrudEditorDialog>

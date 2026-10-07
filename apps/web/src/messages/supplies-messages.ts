@@ -1,6 +1,9 @@
 import { englishPaginationMessages, simplifiedChinesePaginationMessages } from './pagination-messages';
 export const englishSuppliesMessages = {
   tabs: { food: 'Food', household: 'Household', travel: 'Travel shopping' }, all: 'All', attention: 'Needs attention',
+  allSupplies: 'All supplies', restock: 'Need restock', quantity: 'Current quantity', target: 'Target stock', increment: 'Quantity step', unit: 'Unit',
+  threshold: 'Low-stock threshold', decrease: 'Decrease', increase: 'Increase', remaining: 'remaining',
+  defaultUnit: 'units',
   new: 'New', title: 'Title', note: 'Note', kind: 'Type', level: 'Remaining', spares: 'Unopened spares',
   item: 'Supply', wish: 'Travel purchase', edit: 'Edit', history: 'Usage history',
   replace: 'Replace', replaceTitle: 'Replace this item?', replaceDescription: 'Start a new full item. Previous usage history stays stored.',
@@ -12,13 +15,16 @@ export const englishSuppliesMessages = {
   archiveTitle: 'Archive this item?', archiveDescription: 'Hide this item while keeping its history and linked purchases.',
   noItems: 'No items.', loading: 'Loading supplies', currentCycle: 'Current item', previousCycle: 'Previous item',
   pagination: { ...englishPaginationMessages, ariaLabel: 'Supplies' },
-  results: { invalid: 'Check the item fields and spare count.', unavailable: 'Supplies are unavailable. Please try again.',
+  results: { invalid: 'Check quantities, unit, step and threshold. Use at most three decimal places.', unavailable: 'Supplies are unavailable. Please try again.',
     stale: 'This item changed. The list has refreshed; reopen the editor before saving again.', missing: 'This item is no longer available.',
     level_increase: 'Use Replace to start a new item instead of increasing its remaining level.', auth_required: 'Please sign in again.' },
 };
 export type SuppliesMessages = typeof englishSuppliesMessages;
 export const chineseSuppliesMessages: SuppliesMessages = {
   tabs: { food: '食品', household: '日用品', travel: '旅行购物' }, all: '全部', attention: '需要关注',
+  allSupplies: '全部物资', restock: '需要补货', quantity: '当前数量', target: '目标库存', increment: '数量步长', unit: '单位',
+  threshold: '低库存阈值', decrease: '减少', increase: '增加', remaining: '剩余',
+  defaultUnit: '单位',
   new: '新建', title: '名称', note: '备注', kind: '类型', level: '剩余量', spares: '未开封备用数量',
   item: '物资', wish: '旅行采购', edit: '编辑', history: '使用记录',
   replace: '替换', replaceTitle: '替换这件物资？', replaceDescription: '开始使用一件全新的物资，之前的使用记录仍会保留。',
@@ -30,7 +36,7 @@ export const chineseSuppliesMessages: SuppliesMessages = {
   archiveTitle: '归档这件物资？', archiveDescription: '隐藏此项，但保留历史记录和关联的采购项目。',
   noItems: '暂无物资。', loading: '正在加载物资', currentCycle: '当前物资', previousCycle: '之前的物资',
   pagination: { ...simplifiedChinesePaginationMessages, ariaLabel: '物资列表' },
-  results: { invalid: '请检查物资信息和备用数量。', unavailable: '物资暂时不可用，请重试。',
+  results: { invalid: '请检查数量、单位、步长和阈值，最多支持三位小数。', unavailable: '物资暂时不可用，请重试。',
     stale: '此项已发生变化，列表已刷新。再次保存前请重新打开编辑窗口。', missing: '此项已不可用。',
     level_increase: '请使用替换来开始使用新的物资，而不是增加当前剩余量。', auth_required: '请重新登录。' },
 };

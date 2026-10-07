@@ -689,3 +689,14 @@ Use quieter alternatives:
 
 Do not add feature-local colored chip classes. If label chips return later,
 revise this section first and keep them as a shared primitive.
+
+## Tracking Controls
+
+`ActionCard` can show a prominent value and an action label for repeated daily
+capture. `RecordCard` accepts a right-aligned value alongside its existing action
+slot. `IconChoiceGrid` uses the existing choice-button tokens for compact
+three-column icon-over-label selection. `QuantityControl` and `QuantityProgress`
+provide shared stepping buttons and segmented/continuous stock indicators.
+Text-sized ghost Buttons provide unpadded inline commands such as opening a stock
+item. Nested secondary managers use explicit dialog layers 60/70/80 without
+changing the default layer for existing dialogs.

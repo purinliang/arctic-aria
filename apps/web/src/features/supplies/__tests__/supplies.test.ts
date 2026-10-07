@@ -8,7 +8,7 @@ const item: SupplyItem = { id,kind: 'household',title: 'Soap',note: null,spares:
 test('two observations estimate active depletion without extending it by spares', () => {
   assert.deepEqual(depletion(item),{ state: 'estimated',at: new Date('2026-10-06T00:00:00.000Z') });
   assert.deepEqual(depletion({ ...item,spares: 100 }),depletion(item));
-  assert.equal(needsAttention(item,new Date('2026-10-01T00:00:00Z')),true);
+  assert.equal(needsAttention(item),false,'predicted depletion must not drive restocking');
 });
 test('only latest three observations in the active cycle contribute', () => {
   const points = [5,4,3,2].map((level,index) => ({ id: String(index),cycleId: id,level,recordedAt: new Date(Date.UTC(2026,9,[1,2,3,7][index])).toISOString() }));

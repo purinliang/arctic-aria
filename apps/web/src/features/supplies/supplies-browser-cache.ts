@@ -1,7 +1,8 @@
 import { browserStorage, readBrowserSnapshot, writeBrowserSnapshot, clearBrowserSnapshot } from '../../app-shell/browser-snapshot-cache.ts';
 import type { SuppliesData, SupplyItem, WishItem } from './types.ts';
+import { validQuantity } from './supplies.ts';
 
-export const suppliesBrowserCacheKey = (userId: string) => `arctic-aria.supplies-browser-cache.v1.${encodeURIComponent(userId)}`;
+export const suppliesBrowserCacheKey = (userId: string) => `arctic-aria.supplies-browser-cache.v2.${encodeURIComponent(userId)}`;
 const nullable = (value: unknown) => value === null || typeof value === 'string';
 function validData(value: unknown): value is SuppliesData {
   if (!value || typeof value !== 'object') return false;
@@ -9,6 +10,7 @@ function validData(value: unknown): value is SuppliesData {
   return Array.isArray(data.items) && data.items.every((item) => item && typeof item.id === 'string' && typeof item.title === 'string'
     && ['food','household'].includes(item.kind) && Number.isInteger(item.level) && item.level >= 0 && item.level <= 5
     && Number.isInteger(item.spares) && item.spares >= 0 && item.spares <= 999 && Number.isInteger(item.version) && item.version > 0
+    && validQuantity(item as Required<Pick<SupplyItem,'quantity' | 'unit' | 'increment' | 'targetQuantity' | 'lowStockThreshold'>>)
     && nullable(item.note) && typeof item.cycleId === 'string' && !item.cycleId.startsWith('pending-')
     && Array.isArray(item.observations) && item.observations.every((point) => point && typeof point.id === 'string' && typeof point.cycleId === 'string'
       && Number.isInteger(point.level) && point.level >= 0 && point.level <= 5 && typeof point.recordedAt === 'string' && Number.isFinite(Date.parse(point.recordedAt))))
@@ -18,14 +20,15 @@ function validData(value: unknown): value is SuppliesData {
       && (item.url === null || (typeof item.url === 'string' && /^https?:\/\//.test(item.url))));
 }
 export function readSuppliesBrowserCache(userId: string, storage = browserStorage()) {
-  return readBrowserSnapshot<{ schemaVersion: 1; userId: string; data: SuppliesData }>(suppliesBrowserCacheKey(userId),(value): value is { schemaVersion: 1; userId: string; data: SuppliesData } => {
+  clearBrowserSnapshot(`arctic-aria.supplies-browser-cache.v1.${encodeURIComponent(userId)}`,storage);
+  return readBrowserSnapshot<{ schemaVersion: 2; userId: string; data: SuppliesData }>(suppliesBrowserCacheKey(userId),(value): value is { schemaVersion: 2; userId: string; data: SuppliesData } => {
     if (!value || typeof value !== 'object') return false;
     const snapshot = value as { schemaVersion: number; userId: string; data: unknown };
-    return snapshot.schemaVersion === 1 && snapshot.userId === userId && validData(snapshot.data);
+    return snapshot.schemaVersion === 2 && snapshot.userId === userId && validData(snapshot.data);
   },storage)?.data ?? null;
 }
 export function writeSuppliesBrowserCache(userId: string, data: SuppliesData, storage = browserStorage()) {
-  writeBrowserSnapshot(suppliesBrowserCacheKey(userId),{ schemaVersion: 1,userId,data },storage);
+  writeBrowserSnapshot(suppliesBrowserCacheKey(userId),{ schemaVersion: 2,userId,data },storage);
 }
 export function clearSuppliesBrowserCache(userId: string, storage = browserStorage()) {
   clearBrowserSnapshot(suppliesBrowserCacheKey(userId),storage);

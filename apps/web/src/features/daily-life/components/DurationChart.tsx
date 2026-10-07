@@ -32,7 +32,11 @@ export function DurationChart({ entries, days, timezone, language, darkMode, mes
         </span>)}
       </div>
       {loading ? <LoadingLine darkMode={darkMode} text={messages.loading} /> : null}
-      <div className="grid grid-cols-7 gap-[var(--aa-space-control-gap)]" role="group" aria-label={messages.title}>
+      <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-[var(--aa-space-control-gap)]">
+        <div className="flex h-32 flex-col justify-between self-center" aria-hidden="true">
+          {[maximum,maximum / 2,0].map((value) => <Text key={value} size="xs" tone="secondary">{Math.round(value)}</Text>)}
+        </div>
+        <div className="grid grid-cols-7 gap-[var(--aa-space-control-gap)]" role="group" aria-label={messages.title}>
         {week.map(({ day, totals, total }) => {
           const label = day === days[0] ? messages.today : shortDay(day, language);
           const summary = lifeActivities.map((activity) => `${messages.activities[activity]}: ${messages.minutes(totals[activity])}`).join(', ');
@@ -40,7 +44,7 @@ export function DurationChart({ entries, days, timezone, language, darkMode, mes
             disabled={loading} onClick={() => onSelectDay(day)}
             className="grid min-w-0 gap-[var(--aa-space-control-gap)] rounded-sm py-[var(--aa-space-tag-y)] transition-colors hover:bg-[var(--aa-secondary-button-hover-bg)] focus-visible:outline-2 focus-visible:outline-[var(--blue-9)] disabled:cursor-wait">
             <Text size="sm" tone="secondary" className="text-center">{total}</Text>
-            <span className="flex h-40 w-full items-end justify-center border-b border-[var(--aa-secondary-button-border)]" aria-hidden="true">
+            <span className="flex h-32 w-full items-end justify-center border-b border-[var(--aa-secondary-button-border)]" aria-hidden="true">
               <span className="flex h-full w-full max-w-10 flex-col justify-end">
                 {lifeActivities.map((activity) => <span key={activity} className={cx('block w-full', fills[activity])}
                   style={{ height: `${totals[activity] / maximum * 100}%` }} />)}
@@ -49,6 +53,7 @@ export function DurationChart({ entries, days, timezone, language, darkMode, mes
             <Text size="sm" weight={day === selectedDay ? 'semibold' : 'normal'} tone={day === selectedDay ? 'primary' : 'secondary'} className="text-center">{label}</Text>
           </button>;
         })}
+        </div>
       </div>
     </div>
   </Card>;

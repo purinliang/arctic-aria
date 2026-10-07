@@ -81,11 +81,14 @@ try {
       await card.waitFor();
       await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((button) => button.getAttribute('aria-label') === label && !button.disabled), label);
       await card.click();
-      assert.equal(await page.locator('.aa-dialog-overlay').getByRole('radiogroup').count(),0,'quick capture keeps the chosen activity');
+      assert.equal(await page.locator('.aa-dialog-overlay').getByRole('radiogroup').count(),1,'quick capture offers duration presets, not an activity switch');
+      await page.getByRole('radio',{ name: language === 'en' ? '30 min' : '30 分钟',exact: true }).click();
+      assert.equal(await page.getByLabel(durationLabel,{ exact: true }).inputValue(),'30');
       await page.getByLabel(durationLabel, { exact: true }).fill('45');
       await page.getByRole('button', { name: saveLabel, exact: true }).click();
       await page.locator('.aa-dialog-overlay').waitFor({ state: 'detached' });
-      assert.equal((await card.innerText()).trim(), label, 'idle capture cards must show only the activity name');
+      assert.ok((await card.innerText()).includes(language === 'en' ? '+ Add time' : '+ 添加时长'),'daily cards show the recording action');
+      assert.ok((await card.innerText()).includes(language === 'en' ? 'min' : '分钟'),'daily cards show accumulated duration');
       assert.ok(await card.evaluate((button) => button.scrollWidth <= button.clientWidth), 'capture label must fit its card');
     }
     assert.equal(entries.length, 11);

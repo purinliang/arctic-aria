@@ -1,46 +1,44 @@
 # Supplies UI
 
-Shared Tabs switch Food, Household, and Travel Shopping. Each tab uses a six-row
-PagedList of compact record cards, New action, and shared editor dialogs. Cards
-use two columns on larger screens and one on mobile. Tabs fit their choices.
-Tabs and row actions wrap on
-narrow screens without changing spacing/color/text families. Food and Household
-rows stack text above controls on mobile, keeping all six level choices visible.
+The normal workspace header contains title, description and information hint.
+A compact summary shows the restocking count and right-aligned New action. Below
+it, All supplies and Need restock (count) are primary filters; a compact category
+selector provides All, Food, Household and Travel shopping. The default view shows
+both stock categories, with clear amber low-stock status and normal stock still visible.
+Alphabetical order stays stable during adjustments so controls do not jump between
+pages when a quantity crosses its threshold.
+Changing category/filter resets six-row pagination.
 
-Stock rows show title, +N unopened spares (omit zero), optional note, estimated
-depletion/status metadata, and shared StockLevelControl. Six ghost icon controls
-select 0–5; filled circles represent remaining levels. Titles, notes, and supporting
-metadata use shared typography, with single-line supporting-text truncation and
-two-line note previews. Unknown estimates are omitted instead of repeating
-Not enough history. Travel cards omit the redundant Planned status and unknown
-linked estimates. Full notes and purchase status remain available in the editor.
+Each stock row is a reusable RecordCard in a vertical list. Its first line has a
+clickable name, quantity/target/unit (or a warning restock status), and edit icon.
+The next line is a full-width quantity bar. Small integral step counts use segments;
+fractional or large targets use continuous fill. Fill is capped at the target,
+but the displayed quantity is not. Normal fill uses the existing blue accent;
+low-stock fill uses amber. The last line shows remaining quantity and a compact
+minus / current quantity / plus controller. Accessible labels identify the item
+and operation without relying on colour.
 
-Stock observation changes are optimistic, pending per item, and roll back with a
-shared error notification on failure. Other rows remain usable. A higher level
-requires explicit replacement. Replace opens a confirmation-style editor, defaults
-to consuming a spare when available, and closes only after backend confirmation.
-It resets to full and starts a fresh estimation cycle. History opens a read-only
-six-row manager list with localized timestamps and current/previous cycle labels.
+Quantity changes use the configured step and permit stock above target. Subtraction
+clamps at zero. Only that item's controls are disabled while its command is pending;
+other items remain usable. Display/cache update after backend confirmation, before
+background revalidation. Failures preserve the previous value, show a shared
+notification, and refresh to resolve uncertain writes. Retry keys prevent duplicate
+changes after lost responses. A quantity at or below its threshold needs restocking;
+predictions and unopened spare counts do not affect this filter.
 
-All/Needs attention filtering includes empty/low items and estimated depletion
-within seven days. Empty active stock with spares says Replace; without spares,
-Buy. Low stock without spares says Buy soon; with spares, Spare available. Flat
-or insufficient history omits the estimate rather than inventing a run-out date.
+New and name/edit actions open the shared configuration dialog: name, Food/Household
+category, unit, current quantity, target quantity, step, low-stock threshold and
+optional note. Up to three decimal places are supported. Targets and steps must be
+positive; thresholds range from zero to target. Configuration/archive uses expected
+versions and closes only on success. Invalid or stale edits keep drafts open.
 
-The stock editor sets title, kind, spare count, and note; initial level is editable
-only during creation. Creation uses the active Food/Household tab, without
-repeating the kind switch; existing editors can still move an item between kinds.
-Existing levels change through the row controls. CRUD saves
-and confirmed archives are blocking, retain drafts on failure, and use shared
-notifications. Stale writes refresh the list and require reopening the editor.
+Travel shopping retains its six-row wishlist, linked supply, URL, optional country,
+shop/note, edit and purchased toggle. Marking purchased changes neither quantities
+nor expenses. Legacy levels, spare counts and observation history remain stored,
+but replacement and depletion forecasting are not part of this simplified UI.
 
-Travel rows show purchase notes, country/shop/status metadata, and optional linked
-stock level/spares/estimate. Purchased toggles are optimistic and independent per
-row. Open link uses a new browser tab with noopener/noreferrer. The shared editor
-sets optional link and destination fields without requiring a particular country.
-Purchasing does not generate inventory or expense records. All copy is localized.
-
-Returning to the page shows account-scoped cached stock and wishlist data without
-blocking the controls on background refresh. Failed refreshes retain the view and
-show shared notifications. Storage contains confirmed state only, never pending
-optimistic changes. Another account starts from its own snapshot or a loading state.
+Account-scoped confirmed snapshots restore all categories while refreshing. No
+pending quantity or wishlist change is saved as confirmed data. Cache schema v2
+rejects invalid quantity configuration and removes obsolete v1 snapshots. Refresh
+failures keep cached controls usable. Mobile preserves the same order with wrapped
+filters and comfortably sized shared quantity buttons; no horizontal scrolling.

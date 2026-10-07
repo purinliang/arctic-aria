@@ -1,6 +1,8 @@
 import { englishPaginationMessages, simplifiedChinesePaginationMessages } from './pagination-messages';
 export const englishMoneyMessages = {
   capture: 'Record expense', history: 'Expenses', categories: 'Categories', currencies: 'Currencies',
+  newExpense: 'New expense', customCategories: 'Custom categories', builtIns: 'Default categories', previousMonth: 'Previous month', nextMonth: 'Next month',
+  noCategories: 'No custom categories.',
   defaults: { food: 'Food', transport: 'Transport', housing: 'Housing', bills: 'Bills', shopping: 'Shopping', health: 'Health', other: 'Other' },
   day: 'Day', month: 'Month', date: 'Date', category: 'Category', all: 'All categories',
   amount: 'Amount', currency: 'Currency', note: 'Note', title: 'Expense', name: 'Name',
@@ -16,6 +18,8 @@ export const englishMoneyMessages = {
 export type MoneyMessages = typeof englishMoneyMessages;
 export const chineseMoneyMessages: MoneyMessages = {
   capture: '记录支出', history: '支出', categories: '分类', currencies: '货币',
+  newExpense: '新增支出', customCategories: '自定义分类', builtIns: '默认分类', previousMonth: '上个月', nextMonth: '下个月',
+  noCategories: '暂无自定义分类。',
   defaults: { food: '饮食', transport: '交通', housing: '住房', bills: '账单', shopping: '购物', health: '健康', other: '其他' },
   day: '日', month: '月', date: '日期', category: '分类', all: '所有分类',
   amount: '金额', currency: '货币', note: '备注', title: '支出记录', name: '名称',

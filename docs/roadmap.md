@@ -19,6 +19,11 @@ Follow-up on `feature/personal-tracking-cache` adds account-scoped Money period
 and Supplies stock/wishlist snapshots, with background refresh and confirmed-write
 invalidation. This successor branch is also development-only.
 
+2026-10-08 redesign on the same branch: Progress totals and duration presets,
+Money monthly summaries with fixed/custom category capture, and Supplies fractional
+quantities with restocking thresholds. Migrations 0039/0040 preserve category
+references and legacy supply records. Production release remains on hold.
+
 ## Next Work After v0.12.0
 
 - Continue explicit schedule actions for Today items. Routine `Later` and

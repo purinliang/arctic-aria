@@ -13,7 +13,7 @@ export function DialogOverlay({
   zIndex = "z-50",
   children,
 }: {
-  zIndex?: "z-50" | "z-[60]";
+  zIndex?: "z-50" | "z-[60]" | "z-[70]" | "z-[80]";
   children: ReactNode;
 }) {
   return (
@@ -174,7 +174,7 @@ export function CrudEditorDialog({
   savingText: string;
   deleteText?: string;
   headerActions?: ReactNode;
-  zIndex?: "z-50" | "z-[60]";
+  zIndex?: "z-50" | "z-[60]" | "z-[70]" | "z-[80]";
   children: ReactNode;
   onClose: () => void;
   onSubmit: () => void;
@@ -233,6 +233,7 @@ export function CrudEditorDialog({
 }
 
 export function ConfirmDialog({
+  zIndex = "z-[60]",
   darkMode,
   pending,
   title,
@@ -254,11 +255,12 @@ export function ConfirmDialog({
   cancelText?: string;
   closeLabel?: string;
   confirmIcon?: ReactNode;
+  zIndex?: "z-[60]" | "z-[80]";
   onCancel: () => void;
   onConfirm: () => void;
 }) {
   return (
-    <DialogOverlay zIndex="z-[60]">
+    <DialogOverlay zIndex={zIndex}>
       <DialogFrame darkMode={darkMode} size="sm">
         <DialogHeader
           darkMode={darkMode}

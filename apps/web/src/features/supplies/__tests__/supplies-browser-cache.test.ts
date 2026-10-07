@@ -3,7 +3,7 @@ import test from 'node:test';
 import { clearSuppliesBrowserCache, mergeConfirmedSupplies, readSuppliesBrowserCache, suppliesBrowserCacheKey, writeSuppliesBrowserCache } from '../supplies-browser-cache.ts';
 import type { SuppliesData } from '../types.ts';
 
-const data: SuppliesData = { items: [{ id: 'test-item',kind: 'household',title: 'Soap',note: null,level: 3,spares: 1,version: 2,cycleId: 'test-cycle',observations: [] }],wishlist: [] };
+const data: SuppliesData = { items: [{ id: 'test-item',kind: 'household',title: 'Soap',note: null,level: 3,spares: 1,version: 2,cycleId: 'test-cycle',observations: [],quantity: 1.5,unit: 'kg',increment: 0.5,targetQuantity: 3,lowStockThreshold: 1 }],wishlist: [] };
 function storage() {
   const values = new Map<string,string>();
   return { getItem: (key: string) => values.get(key) ?? null,setItem: (key: string,value: string) => { values.set(key,value); },removeItem: (key: string) => { values.delete(key); } };
@@ -20,9 +20,10 @@ test('Supplies caches confirmed and empty snapshots separately for each account'
 });
 test('Supplies rejects corrupt, wrong-owner, malformed and optimistic snapshots', () => {
   const store = storage(), key = suppliesBrowserCacheKey('test-user');
-  for (const value of ['invalid',JSON.stringify({ schemaVersion: 1,userId: 'other-user',data }),
-    JSON.stringify({ schemaVersion: 1,userId: 'test-user',data: { ...data,items: [{ ...data.items[0],cycleId: 'pending-fixture' }] } }),
-    JSON.stringify({ schemaVersion: 1,userId: 'test-user',data: { ...data,items: [{ ...data.items[0],level: 6 }] } })]) {
+  for (const value of ['invalid',JSON.stringify({ schemaVersion: 2,userId: 'other-user',data }),
+    JSON.stringify({ schemaVersion: 2,userId: 'test-user',data: { ...data,items: [{ ...data.items[0],cycleId: 'pending-fixture' }] } }),
+    JSON.stringify({ schemaVersion: 2,userId: 'test-user',data: { ...data,items: [{ ...data.items[0],quantity: -1 }] } }),
+    JSON.stringify({ schemaVersion: 2,userId: 'test-user',data: { ...data,items: [{ ...data.items[0],increment: 0 }] } })]) {
     store.setItem(key,value);
     assert.equal(readSuppliesBrowserCache('test-user',store),null);
     assert.equal(store.getItem(key),null);

@@ -39,3 +39,13 @@ export function validMoneySettings(value: MoneySettings) {
 export function expenseTotals(expenses: Expense[]) {
   return currencies.map((currency) => ({ currency, amount: expenses.filter((entry) => entry.currency === currency).reduce((sum, entry) => sum + BigInt(entry.amountMinor), BigInt(0)) }));
 }
+export function monthBounds(date: string) {
+  const start = `${date.slice(0,7)}-01`;
+  const next = shiftMonth(start,1);
+  return { start,end: new Date(Date.parse(`${next}T12:00:00Z`) - 86400000).toISOString().slice(0,10) };
+}
+export function shiftMonth(date: string, direction: number) {
+  const instant = new Date(`${date.slice(0,7)}-01T12:00:00Z`);
+  instant.setUTCMonth(instant.getUTCMonth() + direction);
+  return instant.toISOString().slice(0,10);
+}

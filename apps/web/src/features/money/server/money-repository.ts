@@ -10,7 +10,10 @@ export class MoneyRepository {
   async data(owner: string, period: MoneyPeriod): Promise<MoneyData> {
     const sql = this.sql();
     await sql.query('SELECT initialize_money($1::uuid)', [owner]);
-    const categories = await sql.query('SELECT id, name, seed_key AS "seedKey", archived_at IS NOT NULL AS archived FROM money_categories WHERE user_id = $1 ORDER BY archived_at NULLS FIRST, seed_key NULLS LAST, name, id', [owner]) as MoneyCategory[];
+    const categories = await sql.query(`SELECT id, name, seed_key AS "seedKey", archived_at IS NOT NULL AS archived FROM money_categories WHERE user_id = $1
+      ORDER BY archived_at NULLS FIRST, seed_key IS NULL,
+      array_position(ARRAY['food','transport','shopping','housing','bills','other','health'],seed_key) NULLS LAST,
+      position, name, id`, [owner]) as MoneyCategory[];
     const settings = await sql.query('SELECT preferred_currencies AS "preferredCurrencies" FROM money_settings WHERE user_id = $1', [owner]);
     const quick = await sql.query('SELECT category_id AS id FROM money_quick_categories WHERE user_id = $1 ORDER BY position', [owner]);
     const expenses = await sql.query(`SELECT id, category_id AS "categoryId", amount_minor::text AS "amountMinor", currency,
@@ -39,10 +42,10 @@ export class MoneyRepository {
     return (await this.sql().query('SELECT save_money_settings($1::uuid,$2::text[],$3::uuid[]) AS saved', [owner, settings.preferredCurrencies, settings.quickCategoryIds]))[0].saved === true;
   }
   async category(owner: string, id: string, name: string, isNew: boolean) {
-    const rows = await this.sql().query(isNew
-      ? 'INSERT INTO money_categories (user_id,id,name) VALUES ($1,$2,$3) ON CONFLICT (id) DO UPDATE SET id = EXCLUDED.id WHERE money_categories.user_id = $1 AND money_categories.archived_at IS NULL RETURNING id'
-      : 'UPDATE money_categories SET name = $3 WHERE user_id = $1 AND id = $2 AND archived_at IS NULL RETURNING id', [owner, id, name.trim()]);
-    return rows.length > 0;
+    return (await this.sql().query('SELECT save_money_category($1::uuid,$2::uuid,$3,$4) AS saved',[owner,id,name.trim(),isNew]))[0].saved === true;
+  }
+  async reorderCategories(owner: string, ids: string[]) {
+    return (await this.sql().query('SELECT reorder_money_categories($1::uuid,$2::uuid[]) AS saved',[owner,ids]))[0].saved === true;
   }
   async archiveCategory(owner: string, id: string) {
     return (await this.sql().query('SELECT archive_money_category($1::uuid,$2::uuid) AS saved', [owner, id]))[0].saved === true;

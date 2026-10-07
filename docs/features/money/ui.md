@@ -1,34 +1,35 @@
 # Money UI
 
-Quick capture uses shared ActionCards with icons and names, no counters. Initially
-Food, Transport, Housing, Bills, and Shopping are pinned. New opens an expense
-editor with category, decimal amount, preferred currencies, date, and note.
-Capture cards keep their selected category fixed and show it in the dialog title;
-New and existing-record editors retain the category picker. Currency choice
-labels use shared centered compact controls.
-More currencies reveals other supported currencies. Currency settings use shared
-choice controls and ReorderList: drag handles on desktop and move arrows for
-keyboard/mobile. The first preferred currency is the default; an empty preferred
-list cannot be saved. Existing records are unaffected by preference changes.
+The shared workspace header provides the title, short description and information
+hint. An unframed monthly summary shows month/year, compact previous/next arrows,
+prominent totals separated by currency, and the complete date range. Future month
+navigation is disabled. Totals cover all monthly records, independently of list
+pagination, day selection, or category filtering.
 
-The category manager uses ManagerDialogSection and six-row ManagerList. New aligns
-with edit actions; pin controls select up to five capture cards. Archival requires
-confirmation. Editing a category opens the shared CRUD dialog.
+New expense (primary) and Categories (secondary) share a compact action row.
+History uses compact Day/Month tabs, a date picker, a secondary category selector,
+and six vertical records per page. Each record shows category, optional note,
+date, a right-aligned amount and an edit icon. Day history filters the already
+loaded monthly data without a new request. A month change loads its own snapshot.
 
-History defaults to Day/today. Shared Tabs switch Day/Month; the calendar selects
-the reference date (Month uses that date's entire month). A category selector
-filters both totals and six paged expense cards. Cards use two columns on larger
-screens and one on mobile, with notes limited to two lines and full text kept in
-the editor. Tabs fit their labels rather than stretching the entire section.
-Totals remain separate
-by currency and cover every filtered record, not just the visible page.
+The compact expense dialog starts with a three-column icon grid: Food, Transport,
+Shopping / Housing, Bills, Other. Other reveals the ordered custom-category picker,
+plus the retained Health and Other categories. Categories can be managed from
+inside the dialog without losing its amount/date/note. Built-ins have fixed names
+and no edit/delete/reorder controls. Custom categories support create, rename,
+confirmed archival and ordering through drag handles or up/down buttons. Ordering
+never moves built-ins or rewrites expense references.
 
-CRUD saves/deletes block only their dialog and close after backend confirmation.
-Failures retain the draft and use shared notifications. Read requests ignore
-stale responses after period switches. Loading hides outdated list/totals.
-English and Chinese share responsive layouts, palette, text, and spacing tokens.
+Amount, optional note, date and existing currency choice controls remain in the
+same dialog. Preferred currency order is managed through its secondary Currencies
+header icon; the first currency is the default. Category management is also available
+through a named/tooltip header icon. Unsupported currencies and conversions
+remain unavailable. Nested managers use explicit dialog layers and preserve drafts.
 
-Cached period views keep capture, totals, and records visible during background
-refresh. Account, timezone, and period scopes prevent showing unrelated snapshots.
-Refresh failures retain visible cached content; confirmed writes invalidate old
-period snapshots before refresh. No cached data changes on failed writes.
+CRUD saves/deletes close only after confirmation from the backend. Failures retain
+drafts and use shared notifications. Cached account/timezone/month snapshots stay
+usable during background refresh and remain visible on refresh failure. Confirmed
+writes invalidate every period snapshot before refreshing the currently active
+month; stale responses cannot restore an old cache. Responsive controls wrap
+without horizontal overflow, using the same text, spacing and palette tokens as
+Progress and Supplies.

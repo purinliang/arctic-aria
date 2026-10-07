@@ -13,7 +13,7 @@ export function CurrencyEditor({ settings, messages, darkMode, onSave, onClose }
   onSave: (settings: MoneySettings) => Promise<boolean>; onClose: () => void;
 }) {
   const [preferred, setPreferred] = useState<Currency[]>(settings.preferredCurrencies), [pending, setPending] = useState(false);
-  return <CrudEditorDialog darkMode={darkMode} title={messages.currencies} closeLabel={messages.close}
+  return <CrudEditorDialog zIndex="z-[60]" darkMode={darkMode} title={messages.currencies} closeLabel={messages.close}
     pending={pending || preferred.length === 0} saving={pending} saveText={messages.save} savingText={messages.saving}
     onClose={() => { if (!pending) onClose(); }} onSubmit={() => {
       if (!preferred.length || pending) return;

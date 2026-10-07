@@ -13,6 +13,7 @@ export function useMoney({ userId,timezone,period }: { userId: string; timezone:
   const request = useRef(0);
   const active = useRef(false);
   const activeScope = useRef(scope);
+  const currentReload = useRef<(() => Promise<void>) | null>(null);
   const { date, mode } = period;
   const reload = useCallback(async () => {
     if (!active.current || activeScope.current !== scope) return;
@@ -25,6 +26,7 @@ export function useMoney({ userId,timezone,period }: { userId: string; timezone:
   useEffect(() => {
     const guard = request;
     active.current = true;
+    currentReload.current = reload;
     activeScope.current = scope;
     const timer = setTimeout(() => {
       const data = readMoneyBrowserCache({ userId,timezone },{ date,mode });
@@ -36,8 +38,9 @@ export function useMoney({ userId,timezone,period }: { userId: string; timezone:
   async function mutate(action: () => Promise<FeatureResult<boolean>>) {
     const saved = await invoke(action);
     if (saved) {
+      request.current++;
       clearMoneyBrowserCache(userId);
-      if (active.current) await reload();
+      if (active.current) await currentReload.current?.();
     }
     return !!saved;
   }

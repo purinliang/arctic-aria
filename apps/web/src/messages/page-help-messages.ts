@@ -41,15 +41,15 @@ export const englishPageHelpMessages = {
     money: {
       title: "Money", summary: "Record expenses and review daily or monthly totals without currency conversion.",
       sections: [
-        { title: "Capture", body: "Choose a category, enter an amount and currency, and save. Manage categories to choose up to five quick capture buttons." },
+        { title: "Capture", body: "Open New expense, choose a category, enter an amount and save. Other offers custom categories; their order can be managed without changing the fixed defaults." },
         { title: "Currencies", body: "Reorder your preferred currencies; the first is the default for new records. Other supported currencies remain available. Totals stay separate by currency." },
       ],
     },
     supplies: {
       title: "Supplies", summary: "Track remaining food and household supplies, and plan purchases abroad.",
       sections: [
-        { title: "Stock", body: "Record a remaining level from empty (0) to full (5). Spare counts describe unopened items. Replace starts a new item and can consume one spare." },
-        { title: "Estimates and travel", body: "Run-out estimates use the latest three observations for the active item, never older replacement cycles. Travel shopping is a wishlist that can link to stock; marking purchased does not change supplies or expenses." },
+        { title: "Stock", body: "Configure each item's unit, quantity step, target and low-stock threshold once. Use minus and plus to update quantities, including fractional units. Extra stock above the target is allowed." },
+        { title: "Restocking and travel", body: "An item needs restocking at or below its threshold. The restock filter hides normally stocked items only when selected. Travel shopping remains a separate wishlist; marking purchased does not change stock or expenses." },
       ],
     },
     projects: {
@@ -173,15 +173,15 @@ export const simplifiedChinesePageHelpMessages: typeof englishPageHelpMessages =
     money: {
       title: "财务", summary: "记录支出并查看每日或每月总额，不进行货币转换。",
       sections: [
-        { title: "记录支出", body: "选择分类，输入金额和货币，然后保存。管理分类可设置最多五个快速记录按钮。" },
+        { title: "记录支出", body: "打开新增支出，选择分类并输入金额后保存。其他选项提供自定义分类，可调整它们的顺序，不会改变固定的默认分类。" },
         { title: "货币", body: "调整常用货币顺序，第一项是新记录的默认货币。其他支持的货币仍可使用，不同货币分别计算总额。" },
       ],
     },
     supplies: {
       title: "物资", summary: "记录食品和日用品的剩余量，并计划海外采购。",
       sections: [
-        { title: "库存", body: "使用从已用完（0）到全新（5）的剩余量等级。备用数量代表未开封的物资，替换会开始使用新物资，并可消耗一件备用物资。" },
-        { title: "预测和旅行", body: "预计用完时间仅依据当前物资最近三次记录，不使用之前物资的记录。旅行购物是可关联库存的采购清单，标记已购买不会修改库存或支出。" },
+        { title: "库存", body: "为每件物资设置单位、数量步长、目标库存和低库存阈值。使用减号和加号更新数量，支持小数单位，也允许数量超过目标库存。" },
+        { title: "补货和旅行", body: "数量达到或低于阈值时需要补货。仅选择补货筛选时隐藏库存充足的物资。旅行购物仍是独立清单，标记已购买不会修改库存或支出。" },
       ],
     },
     projects: {

@@ -3,6 +3,7 @@ export type Currency = typeof currencies[number];
 export const seedCategories = ['food', 'transport', 'housing', 'bills', 'shopping', 'health', 'other'] as const;
 export type SeedCategory = typeof seedCategories[number];
 export type MoneyCategory = { id: string; name: string | null; seedKey: SeedCategory | null; archived: boolean };
+export const entryCategories = ['food','transport','shopping','housing','bills','other'] as const;
 export type MoneySettings = { preferredCurrencies: Currency[]; quickCategoryIds: string[] };
 export type Expense = { id: string; categoryId: string; amountMinor: number; currency: Currency; date: string; note: string | null };
 export type ExpenseInput = { id: string; isNew: boolean; categoryId: string; amount: string; currency: Currency; date: string; note: string };

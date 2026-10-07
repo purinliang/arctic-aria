@@ -1,36 +1,34 @@
 # Supplies Data Model
 
-Migration 0038 adds stock items, observations, retry receipts, and travel wishes.
-All are owner-scoped. Composite owner/item foreign keys protect observations,
-receipts, and optional wishlist links from cross-account references.
+Migration 0038 creates owner-scoped supply items, legacy observations, command
+receipts and travel wishes. Migration 0040 extends items with numeric(12,3)
+quantity, unit, increment, target_quantity and low_stock_threshold. Composite owner
+foreign keys continue to protect observations, receipts and wishlist links.
 
-Stock items store Food/Household kind, a required title (1–100 characters), optional
-note (500), current level (0–5), spares (0–999), version, and active cycle UUID.
-Creation is retry-safe using a stable item UUID and creates one initial observation.
-Metadata saves and archives use expected-version comparison; stale editors cannot
-overwrite newer stock levels or spare counts. Metadata edits do not rewrite usage.
+Backfill preserves each old level as a neutral quantity with unit `unit`, increment
+1, target 5 and threshold 1. It does not infer packs/bottles or add unopened spares.
+Old levels, spares, cycles and observations remain unchanged and queryable. They
+do not drive forecasts or current restocking decisions.
 
-Stock commands lock the item row, check ownership/version, and retain an owner/key
-retry receipt. Observation records a non-increasing level. Replacement starts a
-new full item with a new cycle and optionally consumes exactly one spare. All
-changes and their observation commit atomically in one PostgreSQL function call.
-Replayed commands return current stock without applying consumption twice.
-Archived items cannot be revived by replay. Two simultaneous replacements with
-the same version produce one change; the other returns a stale-version failure.
+Quantities range from 0 to 999999.999, with at most three decimal places. Increments
+and targets are positive; thresholds range from zero to target. Current quantity
+can exceed target. Units contain 1-40 trimmed characters; name and note retain
+their existing 100/500-character limits. Backend validation and SQL constraints
+enforce these rules. Required user identity comes from the authenticated action,
+never the form.
 
-Forecasting uses the latest three observations in the active cycle, or two when
-only two exist. Rate is endpoint level decrease divided by elapsed time; estimated
-depletion is latest observation time plus current level divided by rate. Equal-time,
-flat, insufficient, or increasing records yield no prediction. Spares do not extend
-the active item's estimate. Dates are explicitly estimated; a past estimate requests
-an update and never changes stock to empty automatically.
+`save_supply_stock` creates/configures one item atomically, retaining stable-id
+insert replay semantics. Updates require the expected version and increment it;
+stale editors cannot overwrite a quantity change. `adjust_supply_quantity` locks
+the owned active row, verifies version, applies direction times the stored step,
+clamps subtraction at zero, and commits its receipt and versioned change together.
+Owner/request-key replay returns without a second change. Archived items cannot
+be revived. Simultaneous commands with the same version produce one success and
+one stale response. Targets are preferences, not hard caps.
 
-Wishlist records store title, optional country (100), shop (200), HTTP/HTTPS link
-(1000), note (500), optional owned supply link, planned/purchased status, and
-version. URL protocol is validated and normalized before storage; links are not
-fetched by the backend. Changes use version checks. Marking purchased never changes
-stock or Money. Existing links survive supply archival and display as archived.
-
-Stock and wishlist removal is soft archival with confirmation. Observations and
-retry receipts remain stored, and an owner can still query archived usage history.
-Account removal cascades through all feature-owned records.
+Wishlist fields, optional owned links, URL validation, versioning and
+planned/purchased semantics remain unchanged. Purchased toggles do not alter stock
+or create Money expenses. Archived links and historical observations remain
+queryable. Item/wishlist removal is soft archival with confirmation; deleting an
+account cascades through its owned data. There is no automatic consumption,
+purchase prediction, or quantity-to-expense conversion.

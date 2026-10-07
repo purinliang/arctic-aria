@@ -211,13 +211,14 @@ Its page and data model are documented in
 [features/daily-life/overview.md](features/daily-life/overview.md).
 
 ### Money
-Money owns expense records, editable categories, and ordered currency preferences.
+Money owns expense records, immutable built-in categories, ordered custom categories, and currency preferences.
 It stores exact minor units and never converts or combines currencies. See
 [features/money/overview.md](features/money/overview.md).
 
 ### Supplies
-Supplies owns stock levels, unopened spares, usage cycles/observations, estimates,
-and travel shopping wishes. It does not generate expense records. See
+Supplies owns configurable stock quantities, restocking thresholds, and travel
+shopping wishes. Legacy levels, spares and observations remain stored; prediction
+is not part of the current UI. It does not generate expense records. See
 [features/supplies/overview.md](features/supplies/overview.md).
 
 ### Scheduler

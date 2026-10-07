@@ -13,7 +13,7 @@ import type { SupportedLanguage } from '@/messages/languages';
 import type { TimeFormatPreference } from '@/features/settings/preferences';
 import { lifeActivities } from '../types';
 import type { LifeActivity, LifeEntry } from '../types';
-import { entriesForDay, lifeWeek } from '../life-calendar';
+import { entriesForDay, lifeWeek, durationWeek } from '../life-calendar';
 import { useDailyLife } from '../hooks/useDailyLife';
 import type { LifeActionOptions } from '../hooks/useLifeAction';
 import { ActivityIcon } from './ActivityIcon';
@@ -36,6 +36,7 @@ export function DailyLifePage({ userId, darkMode, timezone, language, formMessag
   const selectedDay = selected && days.includes(selected) ? selected : days[0];
   const life = useDailyLife({ ...options, userId, dayKey: days[0], timezone });
   const records = entriesForDay(life.entries, selectedDay, timezone);
+  const totals = durationWeek(life.entries,days,timezone).at(-1)!.totals;
   const timeFormatter = new Intl.DateTimeFormat(language, { timeZone: timezone, hour: 'numeric', minute: '2-digit', hour12: timeFormatPreference === '12h' });
 
   function startRecord(activity: LifeActivity) {
@@ -43,11 +44,11 @@ export function DailyLifePage({ userId, darkMode, timezone, language, formMessag
   }
 
   return <div className={sectionStackClass}>
-    <ContentSection darkMode={darkMode} title={messages.record}>
-      <div className="grid grid-cols-3 gap-[var(--aa-space-control-gap)]">
+    <ContentSection darkMode={darkMode} title={messages.today}>
+      <div className="grid grid-cols-1 gap-[var(--aa-space-control-gap)] min-[360px]:grid-cols-2 sm:grid-cols-3">
         {lifeActivities.map((activity) => <ActionCard key={activity} label={messages.activities[activity]}
           aria-label={messages.activities[activity]} icon={<ActivityIcon activity={activity} size={22} />}
-          supporting={null} disabled={life.loading} onClick={() => startRecord(activity)} />)}
+          supporting={null} value={messages.minutes(totals[activity])} actionLabel={messages.addTime} disabled={life.loading} onClick={() => startRecord(activity)} />)}
       </div>
     </ContentSection>
 
@@ -56,7 +57,7 @@ export function DailyLifePage({ userId, darkMode, timezone, language, formMessag
 
     <ContentSection darkMode={darkMode} title={`${messages.entries} · ${selectedDay === days[0] ? messages.today : shortDay(selectedDay, language)}`}>
       <PagedList darkMode={darkMode} items={records} pageSize={6} resetKey={`${selectedDay}:${records[0]?.id}`}
-        layout="cards" loading={life.loading} loadingText={messages.loading} emptyText={messages.empty}
+        layout="rows" className="grid gap-[var(--aa-space-control-gap)]" loading={life.loading} loadingText={messages.loading} emptyText={messages.empty}
         messages={messages.pagination} ariaLabel={messages.pagination.ariaLabel}
         renderItem={(entry) => <RecordCard key={entry.id} darkMode={darkMode} title={messages.activities[entry.activity]}
           description={entry.note ?? undefined} support={`${messages.minutes(entry.durationMinutes)} · ${timeFormatter.format(new Date(entry.occurredAt))}`}
