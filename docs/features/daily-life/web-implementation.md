@@ -11,8 +11,16 @@
 - Navigation: app-shell route map, Sidebar, and Next.js rewrite for `/progress`.
   The former `/daily` route redirects to `/progress`.
 
-The feature loads only when its page is mounted. Entries do not share the
-dashboard browser cache. Feature hooks keep local mutations when a refresh
+The feature loads only when its page is mounted. Entries use a feature-owned,
+versioned localStorage snapshot, scoped to user id, timezone, and local day.
+Cached chart/log data appears immediately while the server refreshes in the
+background; capture remains usable and refresh failures keep the snapshot visible
+with a shared error notification. Empty successful snapshots are cached too.
+Successful saves/deletes update the snapshot; failed mutations do not change it.
+Corrupt snapshots, account mismatches, day rollover, and timezone changes fall
+back to live data. Blocked/full storage does not prevent normal page use.
+Entries do not share the dashboard browser cache.
+Feature hooks keep local mutations when a refresh
 response arrives later. Duration saves are blocking and replay-safe. Chat capture is
 blocking and replay-safe; it uses no model or external AI SDK. The frontend does
 not currently mount the chat panel or request its history.

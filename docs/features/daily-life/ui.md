@@ -10,6 +10,8 @@ An unframed Quick capture section contains three equal shared ActionCards: Work,
 Study, and Exercise, with Lucide activity icons. Cards show only their icon and
 activity name, without counts or last-recorded times. Clicking opens the shared
 editor with a required whole-minute duration, recorded time, and optional note.
+The selected activity is named in the dialog title, without a redundant activity
+switch. Existing-record editors still allow correcting the activity.
 
 Save uses the shared Saving state and waits for persistence before closing.
 Successful writes are silent. Failed writes keep the draft and show the shared
@@ -41,12 +43,20 @@ Refresh reloads the history without losing the draft. There is no AI API call.
 
 Below quick capture is a shared Last seven days card with a stacked bar chart.
 Seven bars run left to right from six days ago to Today. Work, Study, and Exercise
-have distinct colors and a legend. Daily total minutes appear above each bar;
+have distinct colors and a legend. Daily totals appear above each bar, with the
+minute unit shown once in the chart header to avoid crowded mobile labels;
 short weekday labels appear below, with Today localized. Empty days remain visible.
 All seven bars fit on mobile without horizontal scrolling. Accessible button
 names provide per-activity totals without relying on color. Selecting a bar
-shows that day's newest-first records below, six per page. There is no refresh
+shows that day's newest-first record cards below, six per page, in two columns on
+larger screens and one on mobile. Notes are limited to two visible lines; the
+editor retains the full text. There is no refresh
 button. The date window uses the user's timezone and rolls over once per minute.
+
+Returning to Progress shows the signed-in account's cached chart and records
+while refreshing in the background. Capture is not disabled by that refresh.
+If it fails, cached content stays visible with a shared error notification.
+Timezone changes or a new local day require a fresh seven-day snapshot.
 
 An edit icon opens the shared CRUD dialog for activity, duration, date, time, and optional
 note. Save is blocking and closes only after backend confirmation. Invalid,

@@ -60,14 +60,14 @@ export function LifeEntryEditor({ entry, isNew = false, timezone, darkMode, mess
 
   return <>
     <CrudEditorDialog darkMode={darkMode} pending={pending} saving={pending && !confirm}
-      title={isNew ? messages.addTitle : messages.editorTitle} closeLabel={messages.close} saveText={messages.save}
+      title={isNew ? `${messages.addTitle} · ${messages.activities[entry.activity]}` : messages.editorTitle} closeLabel={messages.close} saveText={messages.save}
       savingText={messages.saving} deleteText={messages.delete}
       onClose={() => { if (!pending) onClose(); }} onSubmit={() => void submit()} onDelete={isNew ? undefined : () => setConfirm(true)}>
-      <FieldLabel darkMode={darkMode} label={messages.activity}>
+      {!isNew ? <FieldLabel darkMode={darkMode} label={messages.activity}>
         <SingleChoiceGroup darkMode={darkMode} value={activity} disabled={pending}
           onChange={(value) => setActivity(value as LifeActivity)}
           options={lifeActivities.map((value) => ({ value, label: messages.activities[value], icon: <ActivityIcon activity={value} /> }))} />
-      </FieldLabel>
+      </FieldLabel> : null}
       <FieldLabel darkMode={darkMode} label={messages.duration}>
         <TextInput darkMode={darkMode} type="number" inputMode="numeric" min={1} max={1440} step={1}
           value={duration} aria-label={messages.duration} disabled={pending}

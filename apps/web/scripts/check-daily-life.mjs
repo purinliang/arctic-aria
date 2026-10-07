@@ -21,6 +21,8 @@ try {
     const entries = Array.from({ length: 8 }, (_, index) => ({ id: randomUUID(), activity: 'work', durationMinutes: 30, note: index === 0 ? 'Progress fixture '.repeat(25) : null, occurredAt: new Date(Date.now() - index * 60_000).toISOString() }));
     const failures = [];
     let failNextCapture = false;
+    let refreshGate = null;
+    let archivedId = null;
     await context.route('**/*', async (route) => {
       const request = route.request();
       const id = request.headers()['next-action'];
@@ -34,7 +36,13 @@ try {
       if (name === 'getCurrentUser') result = { id: '11111111-1111-4111-8111-111111111111', username: 'testusername', displayName: 'Test User', isAdmin: false, expiresAt: Date.now() + 3600_000 };
       else if (name === 'getPublicVersionStatus') result = { appVersionText: 'test', actualDatabaseVersionText: 'test', expectedDatabaseVersionText: 'test', aligned: true, message: '' };
       else if (['getUserPreferences', 'saveResolvedTimeZone'].includes(name)) result = { ok: true, preferences };
-      else if (name === 'getLifeEntries') result = { ok: true, data: entries };
+      else if (name === 'getLifeEntries') {
+        if (refreshGate) {
+          const gate = refreshGate; refreshGate = null;
+          await gate;
+          result = { ok: false,category: 'database_connection',code: 'life_unavailable',message: 'Unavailable' };
+        } else result = { ok: true, data: entries };
+      }
       else if (['getLifeChatHistory', 'sendLifeChatMessage'].includes(name)) {
         failures.push('Hidden chat must not request history or send messages');
         result = { ok: false, category: 'server', message: 'Chat is hidden' };
@@ -53,6 +61,7 @@ try {
           result = { ok: true, data: entry };
         }
       } else if (name === 'archiveLifeEntry') {
+        archivedId = args[0];
         entries.splice(entries.findIndex((entry) => entry.id === args[0]), 1);
         result = { ok: true, data: args[0] };
       } else if (name === 'getIdeaPageData') result = { ok: true, data: [] };
@@ -72,6 +81,7 @@ try {
       await card.waitFor();
       await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((button) => button.getAttribute('aria-label') === label && !button.disabled), label);
       await card.click();
+      assert.equal(await page.locator('.aa-dialog-overlay').getByRole('radiogroup').count(),0,'quick capture keeps the chosen activity');
       await page.getByLabel(durationLabel, { exact: true }).fill('45');
       await page.getByRole('button', { name: saveLabel, exact: true }).click();
       await page.locator('.aa-dialog-overlay').waitFor({ state: 'detached' });
@@ -106,8 +116,16 @@ try {
     await week.locator('button').last().click();
     await page.screenshot({ path: `${output}/${width}-${language}-${theme}.png`, fullPage: true });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'page must not overflow horizontally');
-    await page.reload();
     const editName = language === 'en' ? 'Edit entry: Exercise' : '编辑记录: 运动';
+    const cacheKey = 'arctic-aria.progress-browser-cache.v1.11111111-1111-4111-8111-111111111111';
+    await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key) ?? '{}').entries?.length === 11,cacheKey);
+    let releaseRefresh;
+    refreshGate = new Promise((resolve) => { releaseRefresh = resolve; });
+    await page.reload();
+    await page.getByRole('button', { name: editName, exact: true }).waitFor();
+    assert.equal(await page.getByRole('button',{ name: labels[0],exact: true }).isEnabled(),true,'cached capture stays usable during refresh');
+    assert.equal(await page.getByText(language === 'en' ? 'Loading progress' : '正在加载进步记录',{ exact: true }).count(),0);
+    releaseRefresh();
     await page.getByRole('button', { name: editName, exact: true }).click();
     const note = page.getByLabel(language === 'en' ? 'Note' : '备注', { exact: true });
     await note.fill('A short walk.');
@@ -130,6 +148,18 @@ try {
     await page.getByRole('button', { name: saveLabel, exact: true }).click();
     await page.locator('.aa-dialog-overlay').waitFor({ state: 'detached' });
     assert.equal(entries.length, count + 1, 'retry must save the retained draft');
+    await page.waitForFunction(({ key,count }) => JSON.parse(localStorage.getItem(key) ?? '{}').entries?.length === count,{ key: cacheKey,count: entries.length });
+    const cachedEntries = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).entries,cacheKey);
+    assert.ok(cachedEntries.some((entry) => entry.note === 'A short walk.'),'edits persist in the cache');
+    await page.getByRole('button',{ name: language === 'en' ? 'Edit entry: Study' : '编辑记录: 学习',exact: true }).first().click();
+    const deleteLabel = language === 'en' ? 'Delete' : '删除';
+    await page.locator('.aa-dialog-overlay').getByRole('button',{ name: deleteLabel,exact: true }).click();
+    await page.locator('.aa-dialog-overlay').last().getByRole('button',{ name: deleteLabel,exact: true }).click();
+    await page.waitForFunction(() => document.querySelectorAll('.aa-dialog-overlay').length === 0);
+    assert.ok(archivedId,'delete must submit the selected record');
+    await page.waitForFunction(({ key,id }) => !JSON.parse(localStorage.getItem(key) ?? '{}').entries?.some((entry) => entry.id === id),{ key: cacheKey,id: archivedId });
+    assert.ok(!entries.some((entry) => entry.id === archivedId));
+    assert.equal(entries.length,count);
     assert.deepEqual(failures, []);
     await context.close();
   }

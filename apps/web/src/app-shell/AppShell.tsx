@@ -495,6 +495,7 @@ export function AppShell({
             />
           ) : activeWorkspaceView === "daily" || activeWorkspaceView === "money" || activeWorkspaceView === "supplies" ? (
             <PersonalTrackingPages
+              userId={currentUser.id}
               view={activeWorkspaceView}
               darkMode={darkMode}
               timezone={resolvedTimeZone}

@@ -23,14 +23,14 @@ export function SupplyEditor({ input,messages,darkMode,onSave,onArchive,onClose,
     try { if (await onSave(value)) onClose(); } finally { setPending(false); }
   }
   return <>
-    <CrudEditorDialog darkMode={darkMode} title={messages.item} closeLabel={messages.close} pending={pending} saving={pending && !confirm}
+    <CrudEditorDialog darkMode={darkMode} title={input.isNew ? `${messages.item} · ${messages.tabs[input.kind]}` : messages.item} closeLabel={messages.close} pending={pending} saving={pending && !confirm}
       saveText={messages.save} savingText={messages.saving} deleteText={messages.archive} onSubmit={() => void submit()}
       onClose={() => { if (!pending) onClose(); }} onDelete={input.isNew ? undefined : () => setConfirm(true)}>
       <FieldLabel darkMode={darkMode} label={messages.title}><TextInput darkMode={darkMode} aria-label={messages.title}
         maxLength={100} value={draft.title} autoFocus disabled={pending} onChange={(event) => setDraft({ ...draft,title: event.target.value })} /></FieldLabel>
-      <FieldLabel darkMode={darkMode} label={messages.kind}><SingleChoiceGroup darkMode={darkMode} disabled={pending} value={draft.kind}
+      {!input.isNew ? <FieldLabel darkMode={darkMode} label={messages.kind}><SingleChoiceGroup darkMode={darkMode} disabled={pending} value={draft.kind}
         onChange={(value) => setDraft({ ...draft,kind: value as SupplyInput['kind'] })}
-        options={['food','household'].map((value) => ({ value,label: messages.tabs[value as 'food' | 'household'] }))} /></FieldLabel>
+        options={['food','household'].map((value) => ({ value,label: messages.tabs[value as 'food' | 'household'] }))} /></FieldLabel> : null}
       {input.isNew ? <FieldLabel darkMode={darkMode} label={messages.level}><StockLevelControl darkMode={darkMode} disabled={pending}
         label={messages.level} value={draft.level} onChange={(level) => setDraft({ ...draft,level })} /></FieldLabel> : null}
       <FieldLabel darkMode={darkMode} label={messages.spares}><TextInput darkMode={darkMode} type="number" inputMode="numeric" min={0} max={999} step={1}

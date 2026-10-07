@@ -39,6 +39,7 @@ export function PagedList<Item>({
   items,
   loading,
   loadingText,
+  layout = "rows",
   messages,
   pageSize,
   resetKey,
@@ -51,6 +52,7 @@ export function PagedList<Item>({
   items: readonly Item[];
   loading: boolean;
   loadingText: string;
+  layout?: "rows" | "cards";
   messages: PagedListMessages;
   pageSize: number;
   resetKey?: string;
@@ -78,7 +80,7 @@ export function PagedList<Item>({
   const showPagination = !loading && items.length > windowState.pageSize;
 
   return (
-    <List darkMode={darkMode} className={className}>
+    <List darkMode={darkMode} variant={layout} className={className}>
       {loading ? (
         <LoadingLine darkMode={darkMode} text={loadingText} />
       ) : null}
@@ -90,6 +92,7 @@ export function PagedList<Item>({
       {!loading ? visibleItems.map((item) => renderItem(item)) : null}
       {showPagination ? (
         <PagedListNavigation
+          className={layout === "cards" ? "sm:col-span-2" : undefined}
           ariaLabel={ariaLabel}
           darkMode={darkMode}
           messages={messages}

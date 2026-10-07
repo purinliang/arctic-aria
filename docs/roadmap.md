@@ -59,13 +59,17 @@ For each feature branch that adds or changes persisted behavior, review:
 ## Future Product Work
 
 - Money expense recording is implemented on `feature/daily-life-log`, pending
-  review and migration 0037. Income, accounts, debt, budgets, refunds, and charts
+  review. Migration 0037 is applied to the local-development database. Income,
+  accounts, debt, budgets, refunds, and charts
   remain deferred. Supplies stock/history and linked travel shopping are also
-  implemented, pending review and migration 0038. Expiry tracking, outbound
+  implemented, pending review; migration 0038 is applied locally. Expiry tracking, outbound
   reminders, and automatic inventory/expense integration remain deferred.
 
 - Progress / 进步 duration logging is implemented on
-  `feature/daily-life-log` (2026-10-07), pending review and migrations 0035–0036.
+  `feature/daily-life-log` (2026-10-07), pending review; migrations 0035–0036 are
+  applied locally. As of 2026-10-08, all three tracking pages use compact record
+  cards and simplified capture. Progress also has user/day/timezone-scoped browser
+  caching with background refresh and mutation updates.
   Work, Study, and Exercise replace occurrence capture; a seven-day chart shows
   daily totals and opens each day's records. Legacy occurrences remain stored.
   Chat history infrastructure is retained, but its frontend is hidden for now.

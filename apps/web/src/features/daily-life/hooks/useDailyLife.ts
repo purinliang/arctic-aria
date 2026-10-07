@@ -3,12 +3,13 @@ import { archiveLifeEntry, getLifeEntries, saveLifeEntry } from '../actions';
 import type { LifeEntry, LifeInput } from '../types';
 import { useLifeAction } from './useLifeAction';
 import type { LifeActionOptions } from './useLifeAction';
+import { readProgressBrowserCache, writeProgressBrowserCache } from '../progress-browser-cache';
 
-export function useDailyLife({ dayKey, timezone, messages, notificationMessages, showErrorNotification }: {
-  dayKey: string; timezone: string;
+export function useDailyLife({ userId, dayKey, timezone, messages, notificationMessages, showErrorNotification }: {
+  userId: string; dayKey: string; timezone: string;
 } & LifeActionOptions) {
-  const [entries, setEntries] = useState<LifeEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const scope = JSON.stringify([userId,dayKey,timezone]);
+  const [snapshot, setSnapshot] = useState<{ scope: string; entries: LifeEntry[]; loading: boolean; cacheReady: boolean }>({ scope,entries: [],loading: true,cacheReady: false });
   const sequence = useRef(0);
   const changed = useRef(new Set<string>());
 
@@ -17,26 +18,36 @@ export function useDailyLife({ dayKey, timezone, messages, notificationMessages,
   const refresh = useCallback(async () => {
     const request = ++sequence.current;
     changed.current.clear();
-    setLoading(true);
     const data = await invoke(getLifeEntries);
     if (request !== sequence.current) return;
-    if (data) setEntries((current) => [
-      ...current.filter((entry) => entry.id.startsWith('pending-') || changed.current.has(entry.id)),
-      ...data.filter((entry) => !changed.current.has(entry.id)),
-    ]);
-    setLoading(false);
-  }, [invoke]);
+    setSnapshot((current) => ({ scope,loading: false,cacheReady: data !== null || (current.scope === scope && current.cacheReady),
+      entries: data ? [
+        ...current.entries.filter((entry) => current.scope === scope && changed.current.has(entry.id)),
+        ...data.filter((entry) => !changed.current.has(entry.id)),
+      ] : current.scope === scope ? current.entries : [],
+    }));
+  }, [invoke,scope]);
 
   useEffect(() => {
-    const timer = setTimeout(() => void refresh(), 0);
+    const timer = setTimeout(() => {
+      const entries = readProgressBrowserCache({ userId,dayKey,timezone });
+      setSnapshot({ scope,entries: entries ?? [],loading: entries === null,cacheReady: entries !== null });
+      void refresh();
+    }, 0);
     return () => { clearTimeout(timer); sequence.current += 1; };
-  }, [dayKey, timezone, refresh]);
+  }, [userId,dayKey,timezone,scope,refresh]);
+
+  useEffect(() => {
+    if (snapshot.scope === scope && snapshot.cacheReady) {
+      writeProgressBrowserCache({ userId,dayKey,timezone },snapshot.entries);
+    }
+  }, [snapshot,scope,userId,dayKey,timezone]);
 
   async function save(input: LifeInput) {
     const entry = await invoke(() => saveLifeEntry(input));
     if (!entry) return false;
     changed.current.add(entry.id);
-    setEntries((current) => [entry, ...current.filter((item) => item.id !== entry.id)]);
+    setSnapshot((current) => current.scope === scope ? { ...current,cacheReady: true,entries: [entry,...current.entries.filter((item) => item.id !== entry.id)] } : current);
     return true;
   }
 
@@ -44,9 +55,9 @@ export function useDailyLife({ dayKey, timezone, messages, notificationMessages,
     const deleted = await invoke(() => archiveLifeEntry(id));
     if (!deleted) return false;
     changed.current.add(id);
-    setEntries((current) => current.filter((entry) => entry.id !== id));
+    setSnapshot((current) => current.scope === scope ? { ...current,entries: current.entries.filter((entry) => entry.id !== id) } : current);
     return true;
   }
 
-  return { entries, loading, refresh, save, remove };
+  return { entries: snapshot.scope === scope ? snapshot.entries : [], loading: snapshot.scope !== scope || snapshot.loading, refresh, save, remove };
 }

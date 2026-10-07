@@ -402,6 +402,8 @@ a feature explicitly needs route-backed tabs.
 Tabs use the same inset rounded background first used by the auth
 login/register selector. Use normal `sm` button height unless a feature has a
 documented reason for taller tabs.
+Non-filling tab lists keep their intrinsic width even inside grid/flex sections;
+use `fill` explicitly when each option should share the full available width.
 
 ## Settings Control Row
 
@@ -446,6 +448,12 @@ token.
 ## Card
 
 `card.tsx` owns compact card structure.
+
+`RecordCard` owns repeated quick-tracking records: a compact shared text stack,
+optional header actions, and optional inline controls, without a separate header
+stripe. It uses card-body spacing and limits note previews to two lines. Use
+`PagedList layout="cards"` for a six-item responsive record grid, not for framing
+whole page sections. The default list layout remains unchanged.
 
 Cards may include:
 

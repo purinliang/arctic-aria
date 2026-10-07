@@ -14,13 +14,15 @@ import { currencies } from '../types';
 import { validExpense } from '../money';
 
 export function categoryName(category: MoneyCategory, messages: MoneyMessages) { return category.name ?? (category.seedKey ? messages.defaults[category.seedKey] : ''); }
-export function ExpenseEditor({ input, categories, settings, messages, formMessages, darkMode, today, onSave, onDelete, onClose, onError }: {
+export function ExpenseEditor({ input, categoryLocked = false, categories, settings, messages, formMessages, darkMode, today, onSave, onDelete, onClose, onError }: {
   input: ExpenseInput; categories: MoneyCategory[]; settings: MoneySettings; messages: MoneyMessages;
   formMessages: FormMessages; darkMode: boolean; today: string; onSave: (input: ExpenseInput) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>; onClose: () => void; onError: (message: string) => void;
+  categoryLocked?: boolean;
 }) {
   const [draft, setDraft] = useState(input), [pending, setPending] = useState(false), [confirm, setConfirm] = useState(false);
   const [more, setMore] = useState(!settings.preferredCurrencies.includes(input.currency));
+  const category = categories.find((category) => category.id === input.categoryId);
   function update(patch: Partial<ExpenseInput>) { setDraft({ ...draft, ...patch }); }
   async function submit() {
     if (pending) return;
@@ -29,12 +31,12 @@ export function ExpenseEditor({ input, categories, settings, messages, formMessa
     try { if (await onSave(draft)) onClose(); } finally { setPending(false); }
   }
   return <>
-    <CrudEditorDialog darkMode={darkMode} title={messages.title} pending={pending} saving={pending && !confirm}
+    <CrudEditorDialog darkMode={darkMode} title={categoryLocked && category ? `${messages.title} · ${categoryName(category,messages)}` : messages.title} pending={pending} saving={pending && !confirm}
       saveText={messages.save} savingText={messages.saving} deleteText={messages.delete} closeLabel={messages.close}
       onClose={() => { if (!pending) onClose(); }} onSubmit={() => void submit()} onDelete={input.isNew ? undefined : () => setConfirm(true)}>
-      <FieldLabel darkMode={darkMode} label={messages.category}><SelectInput darkMode={darkMode} aria-label={messages.category}
+      {!categoryLocked ? <FieldLabel darkMode={darkMode} label={messages.category}><SelectInput darkMode={darkMode} aria-label={messages.category}
         value={draft.categoryId} disabled={pending} onChange={(categoryId) => update({ categoryId })} placeholder={messages.category}
-        options={categories.filter((category) => !category.archived || category.id === input.categoryId).map((category) => ({ value: category.id, label: categoryName(category, messages) }))} /></FieldLabel>
+        options={categories.filter((category) => !category.archived || category.id === input.categoryId).map((category) => ({ value: category.id, label: categoryName(category, messages) }))} /></FieldLabel> : null}
       <FieldLabel darkMode={darkMode} label={messages.amount}><TextInput darkMode={darkMode} aria-label={messages.amount}
         inputMode="decimal" value={draft.amount} disabled={pending} autoFocus onChange={(event) => update({ amount: event.target.value })} /></FieldLabel>
       <FieldLabel darkMode={darkMode} label={messages.currency}>

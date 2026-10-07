@@ -23,7 +23,7 @@ export function DurationChart({ entries, days, timezone, language, darkMode, mes
   const week = durationWeek(entries, days, timezone);
   const maximum = Math.max(60, ...week.map((day) => day.total));
   return <Card darkMode={darkMode} className="min-w-0">
-    <CardHeader darkMode={darkMode} title={messages.title} description={messages.description} />
+    <CardHeader darkMode={darkMode} title={messages.title} meta={messages.minuteUnit} />
     <div className={cx(cardBodyPaddingClass, 'grid gap-[var(--aa-space-body-gap)]')}>
       <div className="flex flex-wrap gap-[var(--aa-space-inline-gap)]">
         {lifeActivities.map((activity) => <span key={activity} className="inline-flex items-center gap-[var(--aa-space-icon-gap)]">
@@ -38,8 +38,8 @@ export function DurationChart({ entries, days, timezone, language, darkMode, mes
           const summary = lifeActivities.map((activity) => `${messages.activities[activity]}: ${messages.minutes(totals[activity])}`).join(', ');
           return <button key={day} type="button" aria-label={`${label}: ${summary}`} aria-pressed={day === selectedDay}
             disabled={loading} onClick={() => onSelectDay(day)}
-            className="grid min-w-0 gap-[var(--aa-space-control-gap)] rounded-sm px-[var(--aa-space-tag-x)] py-[var(--aa-space-tag-y)] transition-colors hover:bg-[var(--aa-secondary-button-hover-bg)] focus-visible:outline-2 focus-visible:outline-[var(--blue-9)] disabled:cursor-wait">
-            <Text size="sm" tone="secondary" className="text-center">{messages.minutes(total)}</Text>
+            className="grid min-w-0 gap-[var(--aa-space-control-gap)] rounded-sm py-[var(--aa-space-tag-y)] transition-colors hover:bg-[var(--aa-secondary-button-hover-bg)] focus-visible:outline-2 focus-visible:outline-[var(--blue-9)] disabled:cursor-wait">
+            <Text size="sm" tone="secondary" className="text-center">{total}</Text>
             <span className="flex h-40 w-full items-end justify-center border-b border-[var(--aa-secondary-button-border)]" aria-hidden="true">
               <span className="flex h-full w-full max-w-10 flex-col justify-end">
                 {lifeActivities.map((activity) => <span key={activity} className={cx('block w-full', fills[activity])}

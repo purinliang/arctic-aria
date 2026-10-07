@@ -40,12 +40,12 @@ export function SuppliesPage({ messages,darkMode,language,timezone,...options }:
       {tab !== 'travel' ? <SingleChoiceGroup darkMode={darkMode} value={attention ? 'attention' : 'all'}
         options={[{ value: 'all',label: messages.all },{ value: 'attention',label: messages.attention }]}
         onChange={(value) => setAttention(value === 'attention')} /> : null}
-      {tab === 'travel' ? <PagedList darkMode={darkMode} items={state.data.wishlist} pageSize={6} loading={state.loading}
+      {tab === 'travel' ? <PagedList darkMode={darkMode} layout="cards" items={state.data.wishlist} pageSize={6} loading={state.loading}
         resetKey="travel" messages={messages.pagination} ariaLabel={messages.pagination.ariaLabel} emptyText={messages.noItems} loadingText={messages.loading}
         renderItem={(item) => <WishRow key={item.id} item={item} linked={state.data.items.find((row) => row.id === item.linkedSupplyId)}
           messages={messages} darkMode={darkMode} language={language} timezone={timezone} pending={state.pending.includes(item.id)}
           onEdit={() => setWish({ ...item,isNew: false })} onToggle={() => void state.toggleWish(item)} />} />
-        : <PagedList darkMode={darkMode} items={state.data.items.filter((item) => item.kind === tab && (!attention || needsAttention(item)))}
+        : <PagedList darkMode={darkMode} layout="cards" items={state.data.items.filter((item) => item.kind === tab && (!attention || needsAttention(item)))}
           pageSize={6} resetKey={`${tab}:${attention}`} loading={state.loading} messages={messages.pagination} ariaLabel={messages.pagination.ariaLabel}
           emptyText={messages.noItems} loadingText={messages.loading} renderItem={(item) => <SupplyRow key={item.id} item={item}
             messages={messages} darkMode={darkMode} language={language} timezone={timezone} pending={state.pending.includes(item.id)}

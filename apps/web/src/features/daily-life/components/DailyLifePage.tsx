@@ -6,8 +6,7 @@ import { ActionCard } from '@/components/action-card';
 import { Button } from '@/components/button';
 import { ContentSection } from '@/components/content-section';
 import { PagedList } from '@/components/paged-list';
-import { ListItem, ListItemContent, ListItemTitle, ListItemSupportingText } from '@/components/list';
-import { DescriptionText } from '@/components/text';
+import { RecordCard } from '@/components/record-card';
 import { sectionStackClass } from '@/components/spacing';
 import type { FormMessages } from '@/messages/app-messages';
 import type { SupportedLanguage } from '@/messages/languages';
@@ -21,8 +20,8 @@ import { ActivityIcon } from './ActivityIcon';
 import { LifeEntryEditor } from './LifeEntryEditor';
 import { DurationChart, shortDay } from './DurationChart';
 
-export function DailyLifePage({ darkMode, timezone, language, formMessages, timeFormatPreference, ...options }: LifeActionOptions & {
-  darkMode: boolean; timezone: string; language: SupportedLanguage;
+export function DailyLifePage({ userId, darkMode, timezone, language, formMessages, timeFormatPreference, ...options }: LifeActionOptions & {
+  userId: string; darkMode: boolean; timezone: string; language: SupportedLanguage;
   formMessages: FormMessages; timeFormatPreference: TimeFormatPreference;
 }) {
   const { messages } = options;
@@ -35,7 +34,7 @@ export function DailyLifePage({ darkMode, timezone, language, formMessages, time
   }, []);
   const days = lifeWeek(now, timezone);
   const selectedDay = selected && days.includes(selected) ? selected : days[0];
-  const life = useDailyLife({ ...options, dayKey: days[0], timezone });
+  const life = useDailyLife({ ...options, userId, dayKey: days[0], timezone });
   const records = entriesForDay(life.entries, selectedDay, timezone);
   const timeFormatter = new Intl.DateTimeFormat(language, { timeZone: timezone, hour: 'numeric', minute: '2-digit', hour12: timeFormatPreference === '12h' });
 
@@ -57,17 +56,13 @@ export function DailyLifePage({ darkMode, timezone, language, formMessages, time
 
     <ContentSection darkMode={darkMode} title={`${messages.entries} · ${selectedDay === days[0] ? messages.today : shortDay(selectedDay, language)}`}>
       <PagedList darkMode={darkMode} items={records} pageSize={6} resetKey={`${selectedDay}:${records[0]?.id}`}
-        loading={life.loading} loadingText={messages.loading} emptyText={messages.empty}
+        layout="cards" loading={life.loading} loadingText={messages.loading} emptyText={messages.empty}
         messages={messages.pagination} ariaLabel={messages.pagination.ariaLabel}
-        renderItem={(entry) => <ListItem key={entry.id} darkMode={darkMode}>
-          <ListItemContent title={<div className="flex items-center gap-[var(--aa-space-control-gap)]">
-            <ActivityIcon activity={entry.activity} /><ListItemTitle>{messages.activities[entry.activity]}</ListItemTitle>
-          </div>} main={entry.note ? <DescriptionText darkMode={darkMode} className="break-words [overflow-wrap:anywhere]">{entry.note}</DescriptionText> : undefined}
-            support={<ListItemSupportingText>{messages.minutes(entry.durationMinutes)} · {timeFormatter.format(new Date(entry.occurredAt))}</ListItemSupportingText>} />
-          <Button darkMode={darkMode} tone="ghost" size="icon" aria-label={`${messages.edit}: ${messages.activities[entry.activity]}`}
+        renderItem={(entry) => <RecordCard key={entry.id} darkMode={darkMode} title={messages.activities[entry.activity]}
+          description={entry.note ?? undefined} support={`${messages.minutes(entry.durationMinutes)} · ${timeFormatter.format(new Date(entry.occurredAt))}`}
+          action={<Button darkMode={darkMode} tone="ghost" size="icon" aria-label={`${messages.edit}: ${messages.activities[entry.activity]}`}
             title={messages.edit} icon={<PenLine size={16} aria-hidden="true" />}
-            onClick={() => setDraft({ entry, isNew: false })} />
-        </ListItem>} />
+            onClick={() => setDraft({ entry, isNew: false })} />} />} />
     </ContentSection>
 
     {draft ? <LifeEntryEditor key={`${draft.entry.id}:${timezone}`} entry={draft.entry} isNew={draft.isNew} darkMode={darkMode}

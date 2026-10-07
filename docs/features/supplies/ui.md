@@ -1,14 +1,19 @@
 # Supplies UI
 
 Shared Tabs switch Food, Household, and Travel Shopping. Each tab uses a six-row
-PagedList, New action, and shared editor dialogs. Tabs and row actions wrap on
+PagedList of compact record cards, New action, and shared editor dialogs. Cards
+use two columns on larger screens and one on mobile. Tabs fit their choices.
+Tabs and row actions wrap on
 narrow screens without changing spacing/color/text families. Food and Household
 rows stack text above controls on mobile, keeping all six level choices visible.
 
 Stock rows show title, +N unopened spares (omit zero), optional note, estimated
 depletion/status metadata, and shared StockLevelControl. Six ghost icon controls
 select 0–5; filled circles represent remaining levels. Titles, notes, and supporting
-metadata use shared typography, with single-line supporting-text truncation.
+metadata use shared typography, with single-line supporting-text truncation and
+two-line note previews. Unknown estimates are omitted instead of repeating
+Not enough history. Travel cards omit the redundant Planned status and unknown
+linked estimates. Full notes and purchase status remain available in the editor.
 
 Stock observation changes are optimistic, pending per item, and roll back with a
 shared error notification on failure. Other rows remain usable. A higher level
@@ -20,10 +25,12 @@ six-row manager list with localized timestamps and current/previous cycle labels
 All/Needs attention filtering includes empty/low items and estimated depletion
 within seven days. Empty active stock with spares says Replace; without spares,
 Buy. Low stock without spares says Buy soon; with spares, Spare available. Flat
-or insufficient history says Not enough history, not an invented run-out date.
+or insufficient history omits the estimate rather than inventing a run-out date.
 
 The stock editor sets title, kind, spare count, and note; initial level is editable
-only during creation. Existing levels change through the row controls. CRUD saves
+only during creation. Creation uses the active Food/Household tab, without
+repeating the kind switch; existing editors can still move an item between kinds.
+Existing levels change through the row controls. CRUD saves
 and confirmed archives are blocking, retain drafts on failure, and use shared
 notifications. Stale writes refresh the list and require reopening the editor.
 

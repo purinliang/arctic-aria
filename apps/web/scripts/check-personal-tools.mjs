@@ -111,6 +111,13 @@ try {
     assert.equal(settings.preferredCurrencies[0], 'CNY');
     await page.getByRole('button', { name: food, exact: true }).click();
     assert.equal(await page.getByRole('radio', { name: 'CNY', exact: true }).getAttribute('aria-checked'), 'true');
+    const centered = await page.getByRole('radio',{ name: 'CNY',exact: true }).evaluate((button) => {
+      const outer = button.getBoundingClientRect(), label = button.querySelector('span').getBoundingClientRect();
+      return Math.abs(outer.x + outer.width / 2 - label.x - label.width / 2) < 1
+        && Math.abs(outer.y + outer.height / 2 - label.y - label.height / 2) < 1;
+    });
+    assert.ok(centered,'currency labels must be centered in shared choice controls');
+    assert.equal(await page.locator('.aa-dialog-overlay').getByRole('button',{ name: en ? 'Category' : '分类',exact: true }).count(),0,'quick capture does not repeat the category picker');
     await page.getByLabel(en ? 'Amount' : '金额', { exact: true }).fill('45.67');
     failExpense = true;
     await page.getByRole('button', { name: save, exact: true }).click();
@@ -144,6 +151,11 @@ try {
     const stockName = `${remaining}: Food fixture 1`;
     const level2 = page.getByRole('radio',{ name: `${stockName}: 2/5`,exact: true });
     await level2.waitFor();
+    const compactTabs = await page.getByRole('tablist').evaluate((tabs) => {
+      const width = tabs.getBoundingClientRect().width;
+      return width - [...tabs.children].reduce((sum,child) => sum + child.getBoundingClientRect().width,0) < 24;
+    });
+    assert.ok(compactTabs,'tabs must fit their choices without unused trailing space');
     await page.getByRole('button',{ name: en ? 'Next page' : '下一页',exact: true }).click();
     await page.getByText('Food fixture 7 · +2',{ exact: true }).waitFor();
     await page.getByRole('button',{ name: en ? 'First page' : '第一页',exact: true }).click();

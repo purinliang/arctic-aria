@@ -32,7 +32,7 @@ export function Tabs({
       className={cx(
         "inline-flex max-w-full gap-[var(--aa-space-tab-list-gap)] rounded-md border p-[var(--aa-space-tab-list-padding)]",
         panelHoverContainerColorClass,
-        fill ? "w-full" : undefined,
+        fill ? "w-full" : "w-fit self-start justify-self-start",
         className,
       )}
       role="tablist"
