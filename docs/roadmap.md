@@ -8,6 +8,12 @@ Current released version: `v0.15.1`.
 
 Current development version on `develop`: `v0.16.0-dev`.
 
+## Pending Hotfix
+
+- `v0.16.1`: prevent the sign-in form flashing during `?demo=true` entry.
+  Implemented on `hotfix/v0.16.1-demo-entry-flash`; production release and
+  integration back into `develop` remain pending.
+
 ## Next Work After v0.12.0
 
 - Continue explicit schedule actions for Today items. Routine `Later` and

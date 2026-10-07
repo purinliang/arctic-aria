@@ -108,7 +108,9 @@ Use the same UI rules as registration, with these differences:
   credentials, and stays visible until the request finishes. Failure returns
   to the same tab with personal form inputs preserved and a shared notification.
 - `?demo=true` starts the same flow after checking the existing session. It
-  never replaces an already signed-in account. Consume the parameter once,
+  keeps the loading screen visible until demo entry has been evaluated, without
+  briefly displaying the sign-in form between session loading and demo loading.
+  It never replaces an already signed-in account. Consume the parameter once,
   retaining other query parameters and the hash, so errors and later sign-out
   do not restart demo entry. The former `?mode=demo` has no effect.
 
