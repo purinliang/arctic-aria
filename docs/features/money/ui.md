@@ -27,3 +27,8 @@ CRUD saves/deletes block only their dialog and close after backend confirmation.
 Failures retain the draft and use shared notifications. Read requests ignore
 stale responses after period switches. Loading hides outdated list/totals.
 English and Chinese share responsive layouts, palette, text, and spacing tokens.
+
+Cached period views keep capture, totals, and records visible during background
+refresh. Account, timezone, and period scopes prevent showing unrelated snapshots.
+Refresh failures retain visible cached content; confirmed writes invalidate old
+period snapshots before refresh. No cached data changes on failed writes.

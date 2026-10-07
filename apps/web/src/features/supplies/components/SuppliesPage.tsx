@@ -19,13 +19,13 @@ import { WishEditor } from './WishEditor';
 import { ReplaceDialog, HistoryDialog } from './StockDialogs';
 import { SupplyRow, WishRow } from './SupplyRows';
 
-export function SuppliesPage({ messages,darkMode,language,timezone,...options }: Omit<FeatureActionOptions,'resultMessages'> & {
-  messages: SuppliesMessages; darkMode: boolean; language: string; timezone: string;
+export function SuppliesPage({ userId,messages,darkMode,language,timezone,...options }: Omit<FeatureActionOptions,'resultMessages'> & {
+  userId: string; messages: SuppliesMessages; darkMode: boolean; language: string; timezone: string;
 }) {
   const [tab,setTab] = useState<SupplyKind | 'travel'>('food'), [attention,setAttention] = useState(false);
   const [supply,setSupply] = useState<SupplyInput | null>(null), [wish,setWish] = useState<WishInput | null>(null);
   const [replace,setReplace] = useState<SupplyItem | null>(null), [history,setHistory] = useState<SupplyItem | null>(null);
-  const state = useSupplies({ ...options,resultMessages: messages.results });
+  const state = useSupplies(userId,{ ...options,resultMessages: messages.results });
   const { invoke } = state;
   const loadHistory = useCallback((id: string) => invoke(() => getSupplyHistory(id)),[invoke]);
   function create() {

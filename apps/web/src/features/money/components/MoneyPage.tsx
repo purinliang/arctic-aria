@@ -24,15 +24,15 @@ import { ExpenseEditor, categoryName } from './ExpenseEditor';
 import { CurrencyEditor } from './CurrencyEditor';
 import { CategoryManager } from './CategoryManager';
 
-export function MoneyPage({ darkMode, timezone, language, messages, formMessages, ...options }: Omit<FeatureActionOptions, 'resultMessages'> & {
-  darkMode: boolean; timezone: string; language: string; messages: MoneyMessages; formMessages: FormMessages;
+export function MoneyPage({ userId, darkMode, timezone, language, messages, formMessages, ...options }: Omit<FeatureActionOptions, 'resultMessages'> & {
+  userId: string; darkMode: boolean; timezone: string; language: string; messages: MoneyMessages; formMessages: FormMessages;
 }) {
   const today = localDateKey(new Date(), timezone);
   const [period, setPeriod] = useState<MoneyPeriod>({ mode: 'day', date: today });
   const [filter, setFilter] = useState(''), [draft, setDraft] = useState<ExpenseInput | null>(null);
   const [categoryLocked,setCategoryLocked] = useState(false);
   const [manager, setManager] = useState<'categories' | 'currencies' | null>(null);
-  const { data, loading, mutate } = useMoney(period, { ...options, resultMessages: messages.results });
+  const { data, loading, mutate } = useMoney({ userId,timezone,period }, { ...options, resultMessages: messages.results });
   const categories = data?.categories ?? [], settings = data?.settings ?? { preferredCurrencies: ['AUD' as const, 'CNY' as const], quickCategoryIds: [] };
   const name = (id: string) => { const category = categories.find((category) => category.id === id); return category ? categoryName(category, messages) : ''; };
   const expenses = (data?.expenses ?? []).filter((entry) => !filter || entry.categoryId === filter);

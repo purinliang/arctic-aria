@@ -5,6 +5,15 @@ repository live in `apps/web/src/features/supplies`. Forecasting is a pure helpe
 Shared StockLevelControl owns the reusable six-step UI. Domain data is loaded only
 when the page mounts and is not mixed into the dashboard cache.
 
+An account-scoped localStorage snapshot shows stock and travel purchases while
+refreshing in the background. Only confirmed backend data is cached: pending
+levels, replacement cycles, and purchase toggles never enter storage. Successful
+lightweight commands update the confirmed snapshot immediately. CRUD commands
+invalidate it before fetching the refreshed list. Refresh failure keeps visible
+data and reports through shared notifications. Pending and newer-version rows
+are protected from stale refreshes. Estimates are still computed for the current
+time and formatted for the current timezone/language, not cached as display text.
+
 Pending commands are keyed per item. Optimistic stock/wishlist updates preserve
 unrelated pending rows during refresh. Command keys survive failed stock requests;
 the server receipt prevents a lost-response retry from consuming an extra spare.
@@ -15,6 +24,7 @@ Run focused tests and `./scripts/verify-web.sh`. The repeatable schema check,
 includes simultaneous replacement requests. Browser checks use mocked actions
 against a matching production build: `node apps/web/scripts/check-personal-tools.mjs`.
 They cover both languages/themes and desktop/mobile, capture, retry/rollback,
+cached reloads during failed refreshes, confirmed-only stock and purchase caches,
 pagination, stock replacement/history, and wishlist isolation. Screenshots live in
 `/tmp/arctic-aria-personal-tools`; BASE_URL/SCREENSHOT_DIR override the defaults.
 

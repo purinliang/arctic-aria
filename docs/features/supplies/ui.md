@@ -39,3 +39,8 @@ stock level/spares/estimate. Purchased toggles are optimistic and independent pe
 row. Open link uses a new browser tab with noopener/noreferrer. The shared editor
 sets optional link and destination fields without requiring a particular country.
 Purchasing does not generate inventory or expense records. All copy is localized.
+
+Returning to the page shows account-scoped cached stock and wishlist data without
+blocking the controls on background refresh. Failed refreshes retain the view and
+show shared notifications. Storage contains confirmed state only, never pending
+optimistic changes. Another account starts from its own snapshot or a loading state.

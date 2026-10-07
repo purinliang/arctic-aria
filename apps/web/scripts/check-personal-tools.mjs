@@ -32,6 +32,7 @@ try {
     const expenses = Array.from({ length: 8 }, (_, index) => ({ id: randomUUID(), categoryId: categories[0].id, amountMinor: 1230, currency: index === 7 ? 'CNY' : 'AUD', date: today, note: null }));
     const failures = []; let failExpense = false; let monthlyRequested = false;
     let failStock = false;
+    let moneyRefreshGate = null, suppliesRefreshGate = null;
     const commands = new Set();
     const histories = new Map();
     const items = ['food','household'].flatMap((kind) => Array.from({ length: 8 },(_,index) => {
@@ -49,7 +50,10 @@ try {
       if (name === 'getCurrentUser') result = { id: '11111111-1111-4111-8111-111111111111', username: 'testusername', displayName: 'Test User', isAdmin: false, expiresAt: Date.now() + 3600_000 };
       else if (name === 'getPublicVersionStatus') result = { appVersionText: 'test', actualDatabaseVersionText: 'test', expectedDatabaseVersionText: 'test', aligned: true, message: '' };
       else if (['getUserPreferences','saveResolvedTimeZone'].includes(name)) result = { ok: true, preferences };
-      else if (name === 'getMoneyData') { monthlyRequested ||= args[0].mode === 'month'; result = { ok: true, data: { categories, settings, expenses } }; }
+      else if (name === 'getMoneyData') {
+        if (moneyRefreshGate) { const gate = moneyRefreshGate; moneyRefreshGate = null; await gate; result = { ok: false,code: 'unavailable',category: 'database_connection',message: 'Unavailable' }; }
+        else { monthlyRequested ||= args[0].mode === 'month'; result = { ok: true, data: { categories, settings, expenses } }; }
+      }
       else if (name === 'saveMoneySettings') { settings = args[0]; result = { ok: true, data: true }; }
       else if (name === 'saveExpense') {
         if (failExpense) { failExpense = false; result = { ok: false, code: 'unavailable', category: 'database_update', message: 'Unavailable' }; }
@@ -62,7 +66,10 @@ try {
       } else if (name === 'archiveExpense') { expenses.splice(expenses.findIndex((entry) => entry.id === args[0]), 1); result = { ok: true, data: true }; }
       else if (name === 'saveMoneyCategory') { const input = args[0]; const category = input.isNew ? { id: input.id, seedKey: null, archived: false } : categories.find((category) => category.id === input.id); Object.assign(category, { name: input.name }); if (input.isNew) categories.push(category); result = { ok: true, data: true }; }
       else if (name === 'archiveMoneyCategory') { categories.find((category) => category.id === args[0]).archived = true; settings.quickCategoryIds = settings.quickCategoryIds.filter((id) => id !== args[0]); result = { ok: true, data: true }; }
-      else if (name === 'getSuppliesData') result = { ok: true,data: { items,wishlist } };
+      else if (name === 'getSuppliesData') {
+        if (suppliesRefreshGate) { const gate = suppliesRefreshGate; suppliesRefreshGate = null; await gate; result = { ok: false,code: 'unavailable',category: 'database_connection',message: 'Unavailable' }; }
+        else result = { ok: true,data: { items,wishlist } };
+      }
       else if (name === 'getSupplyHistory') result = { ok: true,data: [...(histories.get(args[0]) ?? [])].reverse() };
       else if (name === 'changeSupply') {
         await new Promise((resolve) => setTimeout(resolve,150));
@@ -145,7 +152,16 @@ try {
     await dismissNotifications(page,en);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Money must fit viewport');
     await page.screenshot({ path: `${output}/money-${width}-${language}-${theme}.png`, fullPage: true });
+    const moneyCacheKey = 'arctic-aria.money-browser-cache.v1.11111111-1111-4111-8111-111111111111';
+    const suppliesCacheKey = 'arctic-aria.supplies-browser-cache.v1.11111111-1111-4111-8111-111111111111';
+    await page.getByRole('tab',{ name: en ? 'Day' : '日',exact: true }).click();
+    await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key) ?? '{}').views?.some((view) => view.period.mode === 'day' && view.data.expenses.length === 9),moneyCacheKey);
+    let releaseMoney;
+    moneyRefreshGate = new Promise((resolve) => { releaseMoney = resolve; });
     await page.reload(); await page.getByRole('button', { name: 'Category fixture', exact: true }).waitFor();
+    assert.equal(await page.getByRole('button',{ name: 'Category fixture',exact: true }).isEnabled(),true,'cached Money capture remains usable during refresh');
+    assert.equal(await page.getByText(en ? 'Loading expenses' : '正在加载支出',{ exact: true }).count(),0);
+    releaseMoney();
     await page.goto(`${baseUrl}/supplies`);
     const remaining = en ? 'Remaining' : '剩余量';
     const stockName = `${remaining}: Food fixture 1`;
@@ -160,6 +176,7 @@ try {
     await page.getByText('Food fixture 7 · +2',{ exact: true }).waitFor();
     await page.getByRole('button',{ name: en ? 'First page' : '第一页',exact: true }).click();
     failStock = true; await level2.click();
+    assert.equal(await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).data.items.find((item) => item.title === 'Food fixture 1').level,suppliesCacheKey),3,'optimistic levels must not be persisted');
     await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((button) => button.getAttribute('aria-label') === label && !button.disabled),`${stockName}: 2/5`);
     assert.equal(items[0].level,3,'failed observation must roll back');
     await level2.click();
@@ -179,6 +196,13 @@ try {
     await page.getByRole('button',{ name: save,exact: true }).click();
     await page.locator('.aa-dialog-overlay').waitFor({ state: 'detached' });
     assert.equal(items.filter((item) => item.kind === 'food').length,9);
+    await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key) ?? '{}').data?.items.length === 17,suppliesCacheKey);
+    let releaseSupplies;
+    suppliesRefreshGate = new Promise((resolve) => { releaseSupplies = resolve; });
+    await page.reload();
+    await page.getByText('Added food fixture · +1',{ exact: true }).waitFor();
+    assert.equal(await page.getByRole('button',{ name: en ? 'New' : '新建',exact: true }).isEnabled(),true,'cached Supplies controls remain usable during refresh');
+    releaseSupplies();
     await page.getByRole('radio',{ name: en ? 'Needs attention' : '需要关注',exact: true }).click();
     assert.equal(await page.getByText('Added food fixture · +1',{ exact: true }).count(),0,'full replacement must not need attention');
     await page.getByRole('radio',{ name: en ? 'All' : '全部',exact: true }).click();
@@ -202,9 +226,10 @@ try {
     await page.getByRole('button',{ name: `${en ? 'Mark purchased' : '标记已购买'}: Travel fixture 1`,exact: true }).click();
     await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((button) => button.getAttribute('aria-label') === label && !button.disabled),`${en ? 'Mark planned' : '标记计划采购'}: Travel fixture 1`);
     assert.equal(wishlist.find((item) => item.title === 'Travel fixture 1').status,'purchased'); assert.equal(JSON.stringify(items),stockBeforePurchase,'wishlist must not change stock');
+    await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key))?.data.wishlist.some((item) => item.title === 'Travel fixture 1' && item.status === 'purchased'),suppliesCacheKey);
     assert.equal(expenses.length,9,'wishlist must not create expenses');
     assert.deepEqual(failures, []);
     await context.close();
   }
-  console.log('Personal tools browser matrix passed: Money capture/currencies/retries and Supplies tabs, pagination, stock rollback, replacement, history, capture, and wishlist isolation.');
+  console.log('Personal tools browser matrix passed: Money capture/currencies/retries, cached reloads during failed refreshes, and Supplies confirmed-only caching, pagination, stock rollback, replacement, history, capture, and wishlist isolation.');
 } finally { await browser.close(); }

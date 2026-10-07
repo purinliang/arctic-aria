@@ -15,6 +15,10 @@ are approved for integration into `develop` only. They remain in progress and
 need further UI and workflow review. Do not release them to `main` or deploy
 them to production without a separate developer approval.
 
+Follow-up on `feature/personal-tracking-cache` adds account-scoped Money period
+and Supplies stock/wishlist snapshots, with background refresh and confirmed-write
+invalidation. This successor branch is also development-only.
+
 ## Next Work After v0.12.0
 
 - Continue explicit schedule actions for Today items. Routine `Later` and
