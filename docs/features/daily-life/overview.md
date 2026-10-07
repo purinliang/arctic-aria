@@ -1,17 +1,19 @@
-# Daily
+# Progress
 
-Daily is a chronological record of ordinary life, separate from Today planning,
-Projects, and Memories. Its sidebar item follows Today and opens `/daily`.
+Progress (进步) records time spent working, studying, and exercising, separate
+from Today planning, project completion, and Memories. Its sidebar item follows
+Today and opens `/progress`; `/daily` redirects to the new route. Internal
+feature keys and storage names remain `daily-life` to avoid unrelated churn.
 
-Meal, Shower, Sleep, and Exercise cards capture one activity with the server's
-current timestamp. Sleep and Exercise are occurrences in this version, not
-duration trackers. Multiple activities of the same kind on one day are valid.
-Work and study remain project tasks; this feature does not create obligations,
-routine completions, memory signals, or Today selections.
+Work, Study, and Exercise cards open a duration form. Each record stores whole
+minutes, a timestamp, and an optional note. Multiple sessions on one day are
+valid. Meal, shower, and sleep have no recording controls. These records do not
+complete project tasks or routines, create obligations, or affect Today.
 
-The page shows today and the previous six calendar dates in the user's configured
-timezone. Older entries remain stored. Notes and recorded times can be edited;
-entries can be removed with confirmation.
+The chart shows daily duration totals across seven local calendar dates, oldest
+on the left and Today on the right. Short weekday labels replace full dates.
+Select a bar to inspect its records below. Older records remain stored. Duration,
+notes, and recorded times can be edited; removal requires confirmation.
 
 Chat is currently hidden in the frontend; its backend and stored conversation
 history remain intact. Its implementation always gives the localized

@@ -12,9 +12,9 @@ export function ActionCard({ icon, label, supporting, className, ...props }: But
       'grid min-h-28 min-w-0 content-start rounded-md border text-left transition disabled:cursor-not-allowed',
       cardBodyPaddingClass, bodyStackClass, buttonToneClass('secondary', false), className,
     )}>
-      <span className="flex min-w-0 items-center gap-[var(--aa-space-control-gap)]">
+      <span className="flex min-w-0 flex-col items-start gap-[var(--aa-space-control-gap)] sm:flex-row sm:items-center">
         <span className="shrink-0">{icon}</span>
-        <Text size="lg" weight="semibold" tone="current">{label}</Text>
+        <Text size="lg" weight="semibold" tone="current" className="min-w-0 break-words">{label}</Text>
       </span>
       <Text size="sm" tone="secondary" className="min-w-0" aria-live="polite">{supporting}</Text>
     </button>

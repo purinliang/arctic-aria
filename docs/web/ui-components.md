@@ -127,8 +127,8 @@ not introduce form-field label spacing unless it is used inside a real form.
 
 `ActionCard` is a repeated clickable item, not a page section. It uses the shared
 secondary action palette, card-body padding, and text tokens. An icon, label, and
-supporting status stay within a stable minimum height. Daily uses four cards for
-fast activity capture; pending state disables only the selected activity.
+supporting status stay within a stable minimum height. Progress uses three cards
+to open duration recording for Work, Study, and Exercise, without idle counters.
 
 `PageHelpButton` combines the shared ghost icon button, viewport-aware popover
 placement, and text tokens. Hover or keyboard focus shows a brief information

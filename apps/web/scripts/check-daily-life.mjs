@@ -18,7 +18,7 @@ try {
       localStorage.setItem('arctic-aria.language-preference', language);
       localStorage.setItem('arctic-aria.theme-preference', theme);
     }, { language, theme });
-    const entries = Array.from({ length: 8 }, (_, index) => ({ id: randomUUID(), activity: 'meal', note: index === 0 ? 'Daily fixture '.repeat(25) : null, occurredAt: new Date(Date.now() - index * 60_000).toISOString() }));
+    const entries = Array.from({ length: 8 }, (_, index) => ({ id: randomUUID(), activity: 'work', durationMinutes: 30, note: index === 0 ? 'Progress fixture '.repeat(25) : null, occurredAt: new Date(Date.now() - index * 60_000).toISOString() }));
     const failures = [];
     let failNextCapture = false;
     await context.route('**/*', async (route) => {
@@ -29,7 +29,7 @@ try {
         return route.continue();
       }
       const name = names.get(id);
-      const args = JSON.parse(request.postData() ?? '[]');
+      const args = JSON.parse(request.postData() ?? '[]', (_key, value) => value === '$undefined' ? undefined : value);
       let result;
       if (name === 'getCurrentUser') result = { id: '11111111-1111-4111-8111-111111111111', username: 'testusername', displayName: 'Test User', isAdmin: false, expiresAt: Date.now() + 3600_000 };
       else if (name === 'getPublicVersionStatus') result = { appVersionText: 'test', actualDatabaseVersionText: 'test', expectedDatabaseVersionText: 'test', aligned: true, message: '' };
@@ -48,7 +48,7 @@ try {
           const input = args[0];
           const entry = input.id ? entries.find((entry) => entry.id === input.id) : { id: randomUUID() };
           assert.ok(entry);
-          Object.assign(entry, { activity: input.activity, note: input.note ?? null, occurredAt: input.occurredAt ?? new Date().toISOString() });
+          Object.assign(entry, { activity: input.activity, durationMinutes: input.durationMinutes, note: input.note ?? null, occurredAt: input.occurredAt ?? new Date().toISOString() });
           if (!input.id) entries.unshift(entry);
           result = { ok: true, data: entry };
         }
@@ -63,17 +63,47 @@ try {
     const page = await context.newPage();
     page.on('pageerror', (error) => failures.push(error.message));
     await page.goto(`${baseUrl}/daily`);
-    const labels = language === 'en' ? ['Meal', 'Shower', 'Sleep', 'Exercise'] : ['用餐', '洗澡', '睡眠', '运动'];
+    await page.waitForURL(`${baseUrl}/progress`);
+    const labels = language === 'en' ? ['Work', 'Study', 'Exercise'] : ['工作', '学习', '运动'];
+    const durationLabel = language === 'en' ? 'Duration (minutes)' : '时长（分钟）';
+    const saveLabel = language === 'en' ? 'Save' : '保存';
     for (const label of labels) {
       const card = page.getByRole('button', { name: label, exact: true });
       await card.waitFor();
       await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((button) => button.getAttribute('aria-label') === label && !button.disabled), label);
       await card.click();
-      await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((button) => button.getAttribute('aria-label') === label && !button.disabled), label);
+      await page.getByLabel(durationLabel, { exact: true }).fill('45');
+      await page.getByRole('button', { name: saveLabel, exact: true }).click();
+      await page.locator('.aa-dialog-overlay').waitFor({ state: 'detached' });
+      assert.equal((await card.innerText()).trim(), label, 'idle capture cards must show only the activity name');
+      assert.ok(await card.evaluate((button) => button.scrollWidth <= button.clientWidth), 'capture label must fit its card');
     }
-    assert.equal(entries.length, 12);
+    assert.equal(entries.length, 11);
     assert.equal(await page.getByRole('textbox').count(), 0, 'chat composer must be absent');
     assert.equal(await page.getByRole('heading', { name: language === 'en' ? 'Chat' : '聊天', exact: true }).count(), 0, 'chat panel must be absent');
+    const week = page.getByRole('group', { name: language === 'en' ? 'Last seven days' : '最近七天', exact: true });
+    await week.waitFor();
+    const columns = await week.locator('button').evaluateAll((buttons) => buttons.map((button) => ({
+      title: button.getAttribute('aria-label'), x: button.getBoundingClientRect().x, y: button.getBoundingClientRect().y,
+    })));
+    assert.equal(columns.length, 7, 'week must show seven day columns');
+    assert.ok(columns.at(-1).title.startsWith(language === 'en' ? 'Today:' : '今天:'), 'Today must be the rightmost day');
+    assert.ok(columns.at(-1).title.includes(language === 'en' ? 'Work: 285 min' : '工作: 285 分钟'), 'chart must sum work durations');
+    assert.ok(columns.every((column, index) => column.y === columns[0].y && (index === 0 || column.x > columns[index - 1].x)), 'days must run left to right in one row');
+    assert.equal(await page.getByRole('button', { name: /Refresh|刷新/, exact: true }).count(), 0, 'Daily must not have a refresh button');
+    const todayBounds = await week.locator('button').last().boundingBox();
+    assert.ok(todayBounds && todayBounds.x >= 0 && todayBounds.x + todayBounds.width <= width, 'Today must be reachable within the card viewport');
+    const paginationFits = await page.locator('nav[aria-label]').evaluateAll((navs) => navs.every((nav) => {
+      const bounds = nav.getBoundingClientRect();
+      return [...nav.children].every((child) => {
+        const item = child.getBoundingClientRect();
+        return item.left >= bounds.left && item.right <= bounds.right;
+      });
+    }));
+    assert.ok(paginationFits, 'pagination controls must fit inside their day column');
+    await week.locator('button').first().click();
+    assert.equal(await page.getByRole('button', { name: language === 'en' ? 'Edit entry: Exercise' : '编辑记录: 运动', exact: true }).count(), 0);
+    await week.locator('button').last().click();
     await page.screenshot({ path: `${output}/${width}-${language}-${theme}.png`, fullPage: true });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'page must not overflow horizontally');
     await page.reload();
@@ -92,10 +122,16 @@ try {
     const count = entries.length;
     failNextCapture = true;
     await page.getByRole('button', { name: labels[1], exact: true }).click();
-    await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((button) => button.getAttribute('aria-label') === label && !button.disabled), labels[1]);
+    await page.getByLabel(durationLabel, { exact: true }).fill('20');
+    await page.getByRole('button', { name: saveLabel, exact: true }).click();
+    await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((button) => button.textContent.trim() === label && !button.disabled), saveLabel);
     assert.equal(entries.length, count, 'failed capture must roll back');
+    assert.equal(await page.getByLabel(durationLabel, { exact: true }).inputValue(), '20', 'failed save must retain duration');
+    await page.getByRole('button', { name: saveLabel, exact: true }).click();
+    await page.locator('.aa-dialog-overlay').waitFor({ state: 'detached' });
+    assert.equal(entries.length, count + 1, 'retry must save the retained draft');
     assert.deepEqual(failures, []);
     await context.close();
   }
-  console.log('Daily browser checks passed at desktop/mobile widths in both languages and themes: capture, hidden chat with no chat requests, edit, reload, rollback, and no horizontal overflow.');
+  console.log('Progress browser checks passed at desktop/mobile widths in both languages and themes: duration recording, chart totals and day selection, hidden chat, edit, reload, failed-save retry, and no horizontal overflow.');
 } finally { await browser.close(); }

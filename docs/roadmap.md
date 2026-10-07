@@ -58,8 +58,10 @@ For each feature branch that adds or changes persisted behavior, review:
 
 ## Future Product Work
 
-- Daily capture is implemented on
-  `feature/daily-life-log` (2026-10-07), pending review and migration 0035.
+- Progress / 进步 duration logging is implemented on
+  `feature/daily-life-log` (2026-10-07), pending review and migrations 0035–0036.
+  Work, Study, and Exercise replace occurrence capture; a seven-day chart shows
+  daily totals and opens each day's records. Legacy occurrences remain stored.
   Chat history infrastructure is retained, but its frontend is hidden for now.
   Future chat integration should use existing authenticated feature commands,
   with explicit confirmation before destructive or schedule-changing actions.

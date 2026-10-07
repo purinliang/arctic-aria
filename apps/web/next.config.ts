@@ -4,10 +4,13 @@ import { resolveAppMetadata } from "./scripts/read-app-metadata.mjs";
 const appMetadata = resolveAppMetadata(process.cwd());
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [{ source: "/daily", destination: "/progress", permanent: false }];
+  },
   async rewrites() {
     return [
       { source: "/today", destination: "/" },
-      { source: "/daily", destination: "/" },
+      { source: "/progress", destination: "/" },
       { source: "/projects", destination: "/" },
       { source: "/projects/:projectId", destination: "/" },
       { source: "/routines", destination: "/" },

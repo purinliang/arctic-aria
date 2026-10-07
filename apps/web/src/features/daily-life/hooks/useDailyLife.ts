@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { archiveLifeEntry, getLifeEntries, saveLifeEntry } from '../actions';
-import type { LifeActivity, LifeEntry, LifeInput } from '../types';
+import type { LifeEntry, LifeInput } from '../types';
 import { useLifeAction } from './useLifeAction';
 import type { LifeActionOptions } from './useLifeAction';
 
@@ -9,9 +9,6 @@ export function useDailyLife({ dayKey, timezone, messages, notificationMessages,
 } & LifeActionOptions) {
   const [entries, setEntries] = useState<LifeEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [pendingKinds, setPendingKinds] = useState<LifeActivity[]>([]);
-  const pendingRef = useRef(new Set<LifeActivity>());
-  const retries = useRef(new Map<LifeActivity, string>());
   const sequence = useRef(0);
   const changed = useRef(new Set<string>());
 
@@ -35,30 +32,6 @@ export function useDailyLife({ dayKey, timezone, messages, notificationMessages,
     return () => { clearTimeout(timer); sequence.current += 1; };
   }, [dayKey, timezone, refresh]);
 
-  async function capture(activity: LifeActivity) {
-    if (pendingRef.current.has(activity)) return;
-    pendingRef.current.add(activity);
-    setPendingKinds([...pendingRef.current]);
-    // A capture key identifies one click; retries cannot insert duplicates.
-    const captureKey = retries.current.get(activity) ?? crypto.randomUUID();
-    retries.current.set(activity, captureKey);
-    const temporaryId = `pending-${captureKey}`;
-    setEntries((current) => [{ id: temporaryId, activity, occurredAt: new Date().toISOString(), note: null }, ...current]);
-    try {
-      const entry = await invoke(() => saveLifeEntry({ activity, captureKey }));
-      if (entry) {
-        changed.current.add(entry.id);
-        retries.current.delete(activity);
-      }
-      setEntries((current) => entry
-        ? [entry, ...current.filter((item) => item.id !== temporaryId && item.id !== entry.id)]
-        : current.filter((item) => item.id !== temporaryId));
-    } finally {
-      pendingRef.current.delete(activity);
-      setPendingKinds([...pendingRef.current]);
-    }
-  }
-
   async function save(input: LifeInput) {
     const entry = await invoke(() => saveLifeEntry(input));
     if (!entry) return false;
@@ -75,5 +48,5 @@ export function useDailyLife({ dayKey, timezone, messages, notificationMessages,
     return true;
   }
 
-  return { entries, loading, pendingKinds, refresh, capture, save, remove };
+  return { entries, loading, refresh, save, remove };
 }

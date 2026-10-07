@@ -12,16 +12,19 @@ test('life SQL scopes every command by owner, bounds calendar days, and protects
   const queries: { query: string; params: unknown[] }[] = [];
   const sql = { async query(query: string, params: unknown[]) {
     queries.push({ query, params });
-    return [{ id: key, activity: 'meal', occurred_at: now, note: null }];
+    return [{ id: key, activity: 'work', duration_minutes: 30, occurred_at: now, note: null }];
   } } as unknown as NeonQueryFunction<false, false>;
   const repo = new PostgresLifeRepository(sql);
-  await repo.list('owner', 'Australia/Sydney', now);
-  await repo.save('owner', { captureKey: key, activity: 'meal', occurredAt: now.toISOString(), note: 'private note' }, now);
-  await repo.save('owner', { id: key, captureKey: key, activity: 'sleep', occurredAt: now.toISOString() }, now);
+  assert.equal((await repo.list('owner', 'Australia/Sydney', now))[0].durationMinutes, 30);
+  await repo.save('owner', { captureKey: key, activity: 'work', durationMinutes: 30, occurredAt: now.toISOString(), note: 'private note' }, now);
+  await repo.save('owner', { id: key, captureKey: key, activity: 'study', durationMinutes: 45, occurredAt: now.toISOString() }, now);
   await repo.archive('owner', key, now);
   assert.match(queries[0].query, /AT TIME ZONE \$2/);
   assert.match(queries[0].query, /date - 6/);
   assert.match(queries[0].query, /occurred_at <= \$3/);
+  assert.match(queries[0].query, /duration_minutes IS NOT NULL/);
+  assert.equal(queries[1].params[6], 30);
+  assert.equal(queries[2].params[6], 45);
   assert.match(queries[1].query, /ON CONFLICT \(user_id, capture_key\)/);
   assert.match(queries[1].query, /WHERE daily_life_entries.deleted_at IS NULL/);
   assert.ok(!queries[1].query.includes('private note'));

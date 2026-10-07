@@ -20,6 +20,7 @@ test("app routes map root and today to dashboard", () => {
 
 test("app routes map major pages", () => {
   assert.deepEqual(appRouteFromPathname("/daily"), { view: "daily", projectId: null });
+  assert.deepEqual(appRouteFromPathname("/progress"), { view: "daily", projectId: null });
   assert.deepEqual(appRouteFromPathname("/projects"), {
     view: "projects",
     projectId: null,
@@ -68,7 +69,7 @@ test("app routes ignore unsupported project query route", () => {
 
 test("app route path builders use stable page paths", () => {
   assert.equal(appPathForView("dashboard"), "/today");
-  assert.equal(appPathForView("daily"), "/daily");
+  assert.equal(appPathForView("daily"), "/progress");
   assert.equal(appPathForView("projects"), "/projects");
   assert.equal(appPathForView("routines"), "/routines");
   assert.equal(appPathForView("events"), "/events");
@@ -82,6 +83,7 @@ test("app route support check accepts only implemented workspace paths", () => {
   assert.equal(isSupportedAppPathname("/"), true);
   assert.equal(isSupportedAppPathname("/today"), true);
   assert.equal(isSupportedAppPathname("/daily"), true);
+  assert.equal(isSupportedAppPathname("/progress"), true);
   assert.equal(isSupportedAppPathname("/projects"), true);
   assert.equal(isSupportedAppPathname("/projects/project-one"), true);
   assert.equal(isSupportedAppPathname("/routines"), true);

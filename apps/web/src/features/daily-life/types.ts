@@ -1,4 +1,4 @@
-export const lifeActivities = ['meal', 'shower', 'sleep', 'exercise'] as const;
+export const lifeActivities = ['work', 'study', 'exercise'] as const;
 export type LifeActivity = typeof lifeActivities[number];
 
 export type LifeEntry = {
@@ -6,12 +6,14 @@ export type LifeEntry = {
   activity: LifeActivity;
   occurredAt: string;
   note: string | null;
+  durationMinutes: number;
 };
 
 export type LifeInput = {
   id?: string;
   captureKey: string;
   activity: LifeActivity;
+  durationMinutes: number;
   occurredAt?: string;
   note?: string | null;
 };

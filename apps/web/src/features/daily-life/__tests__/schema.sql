@@ -38,6 +38,26 @@ BEGIN
     RAISE EXCEPTION 'Recent query must work across DST';
   END IF;
 END $$;
+INSERT INTO daily_life_entries (user_id, capture_key, activity, occurred_at, duration_minutes)
+VALUES ('11111111-1111-4111-8111-111111111111', gen_random_uuid(), 'study', now(), 60);
+DO $$
+BEGIN
+  IF (SELECT duration_minutes FROM daily_life_entries WHERE activity = 'study') != 60 THEN
+    RAISE EXCEPTION 'Duration must be persisted';
+  END IF;
+  BEGIN
+    INSERT INTO daily_life_entries (user_id, capture_key, activity, occurred_at, duration_minutes)
+    VALUES ('11111111-1111-4111-8111-111111111111', gen_random_uuid(), 'work', now(), 0);
+    RAISE EXCEPTION 'Expected duration minimum';
+  EXCEPTION WHEN check_violation THEN NULL;
+  END;
+  BEGIN
+    INSERT INTO daily_life_entries (user_id, capture_key, activity, occurred_at, duration_minutes)
+    VALUES ('11111111-1111-4111-8111-111111111111', gen_random_uuid(), 'exercise', now(), 1441);
+    RAISE EXCEPTION 'Expected duration maximum';
+  EXCEPTION WHEN check_violation THEN NULL;
+  END;
+END $$;
 UPDATE daily_life_entries SET deleted_at = now();
 INSERT INTO daily_life_entries (user_id, capture_key, activity, occurred_at)
 VALUES ('11111111-1111-4111-8111-111111111111', '33333333-3333-4333-8333-333333333333', 'sleep', now())

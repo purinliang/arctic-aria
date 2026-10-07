@@ -1,24 +1,23 @@
-# Daily UI
+# Progress UI
 
-The top-level Daily page sits immediately after Today in navigation. It uses the
+The top-level Progress / 进步 page sits immediately after Today in navigation. It uses the
 normal workspace title, description, and information hint. No floating menu,
 hamburger, extra Today tab, or hidden chat page is added.
 
 ## Quick Capture
 
-An unframed Quick capture section contains four equal shared ActionCards: Meal,
-Shower, Sleep, and Exercise, with Lucide activity icons. Cards form four columns
-on desktop and two on narrow screens. Their dimensions stay stable while counts
-or pending labels change. Supporting text shows today's count and latest time.
+An unframed Quick capture section contains three equal shared ActionCards: Work,
+Study, and Exercise, with Lucide activity icons. Cards show only their icon and
+activity name, without counts or last-recorded times. Clicking opens the shared
+editor with a required whole-minute duration, recorded time, and optional note.
 
-Clicking a card adds an optimistic activity entry immediately. Only the active
-kind is disabled until its request finishes; another card remains usable. The
-pending card shows shared Recording dots. Successful writes are silent. A failed
-write removes only its optimistic row and uses the shared error notification.
+Save uses the shared Saving state and waits for persistence before closing.
+Successful writes are silent. Failed writes keep the draft and show the shared
+error notification; retries retain the same capture key.
 
 ## Chat
 
-Chat is currently hidden in the frontend. The Daily page does not mount its
+Chat is currently hidden in the frontend. The Progress page does not mount its
 panel or hook, so it does not fetch history or send messages. There is no
 composer, chat navigation entry, or chat information hint. Backend actions,
 stored history, and the existing panel implementation remain intact for later
@@ -40,18 +39,20 @@ Refresh reloads the history without losing the draft. There is no AI API call.
 
 ## Recent Log
 
-Below quick capture is an unframed Last seven days section. Each date uses a shared
-ContentSubsection and normal list rows, with six entries per page if needed.
-Today and Yesterday have localized labels; dates and times respect the app's
-language, timezone, and 12/24-hour preference. Entries are newest first within
-each day. Empty dates remain visible. The date window rolls over at local
-midnight, checked once per minute while the page is open.
+Below quick capture is a shared Last seven days card with a stacked bar chart.
+Seven bars run left to right from six days ago to Today. Work, Study, and Exercise
+have distinct colors and a legend. Daily total minutes appear above each bar;
+short weekday labels appear below, with Today localized. Empty days remain visible.
+All seven bars fit on mobile without horizontal scrolling. Accessible button
+names provide per-activity totals without relying on color. Selecting a bar
+shows that day's newest-first records below, six per page. There is no refresh
+button. The date window uses the user's timezone and rolls over once per minute.
 
-An edit icon opens the shared CRUD dialog for activity, date, time, and optional
+An edit icon opens the shared CRUD dialog for activity, duration, date, time, and optional
 note. Save is blocking and closes only after backend confirmation. Invalid,
 future, or nonexistent local clock-change times show an error without discarding
 the draft. Changing only a note preserves the original seconds. Delete opens the
 shared confirmation dialog and removes the row only after confirmation succeeds.
 
-There are no work/study cards, streak goals, sleep duration controls, or automatic
-routine completion side effects. English and Simplified Chinese use typed catalogs.
+There are no meal/shower/sleep controls, streak goals, running timers, or automatic
+routine or project completion side effects. English and Chinese use typed catalogs.

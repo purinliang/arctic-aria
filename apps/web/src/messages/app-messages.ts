@@ -62,7 +62,7 @@ const englishMessages = {
     workspace: "Workspace",
     pages: {
       dashboard: "Today",
-      daily: "Daily",
+      daily: "Progress",
       design: "Design",
       events: "Events",
       ideas: "Ideas",
@@ -73,7 +73,7 @@ const englishMessages = {
     },
     pageDescriptions: {
       dashboard: "Focus on today's plan.",
-      daily: "Keep a record of everyday life.",
+      daily: "Track time spent working, studying, and exercising.",
       design: "Review shared component styles.",
       events: "Keep one-time plans visible.",
       ideas: "Capture thoughts for later review.",
@@ -438,7 +438,7 @@ const simplifiedChineseMessages: AppMessages = {
     workspace: "工作区",
     pages: {
       dashboard: "今日",
-      daily: "日常记录",
+      daily: "进步",
       design: "设计",
       events: "事件",
       ideas: "想法",
@@ -449,7 +449,7 @@ const simplifiedChineseMessages: AppMessages = {
     },
     pageDescriptions: {
       dashboard: "专注今天的计划。",
-      daily: "记录日常生活中的片段。",
+      daily: "记录工作、学习和运动的时间。",
       design: "检查共享组件样式。",
       events: "查看一次性的计划。",
       ideas: "先收好想法，之后再整理。",

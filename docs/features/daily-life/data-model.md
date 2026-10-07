@@ -1,14 +1,21 @@
-# Daily Data Model
+# Progress Data Model
 
 Migration `0035_create_daily_life_entries.sql` adds two user-owned tables.
+Migration `0036_add_daily_life_durations.sql` extends activity entries with
+duration and new activity types. Apply both before using Progress.
 
 ## Activity Entries
 
 `daily_life_entries` contains `id`, `user_id`, `capture_key`, `activity`,
-`occurred_at`, optional `note`, and creation/update/deletion timestamps.
+`occurred_at`, `duration_minutes`, optional `note`, and creation/update/deletion timestamps.
 
-- Activity is restricted to `meal`, `shower`, `sleep`, or `exercise` by backend
-  validation and a database check.
+- New and edited records require `work`, `study`, or `exercise` and an integer
+  duration from 1 to 1440 minutes. Backend validation and database constraints
+  enforce this. Durations are attributed entirely to the recorded local date,
+  not split across midnight; this is manual session logging, not a running timer.
+- Legacy meal/shower/sleep/exercise occurrences remain stored with NULL duration.
+  They are excluded from normal Progress queries and never assigned an invented
+  duration. The migration neither deletes nor rewrites legacy records.
 - Notes are trimmed; blank notes become NULL. Maximum length is 500 Unicode
   characters, matching PostgreSQL character counting.
 - Occurrence is a UTC timestamp, not a timezone-less date. Quick capture defaults
@@ -16,7 +23,8 @@ Migration `0035_create_daily_life_entries.sql` adds two user-owned tables.
   future. Display and seven-day boundaries use the configured user timezone.
 - `(user_id, capture_key)` is unique. Each capture gets a UUID; replaying it
   returns the existing active row without modifying its activity or timestamp.
-  Distinct capture keys allow repeated activities without daily count limits.
+  Distinct capture keys allow repeated sessions. The editor retains its key and
+  draft on failed saves, so a retry cannot insert a duplicate session.
 - User ownership is checked by the authenticated server action and included in
   every select/update/archive query. User identifiers never come from the form.
 - A partial index on owner and occurrence supports recent active-entry reads.

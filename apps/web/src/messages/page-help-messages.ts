@@ -31,11 +31,11 @@ export const englishPageHelpMessages = {
       ],
     },
     daily: {
-      title: "Daily",
-      summary: "Record meals, showers, sleep, and exercise, then review the last seven days.",
+      title: "Progress",
+      summary: "Record work, study, and exercise durations, then review the last seven days.",
       sections: [
-        { title: "Quick capture", body: "Each activity card records one occurrence at the current time. Edit an entry to change its time or add a note. Work and study belong in Projects." },
-        { title: "Recent activity", body: "The log shows today and the previous six dates in your configured timezone. Older entries remain stored; deleting an entry requires confirmation." },
+        { title: "Record time", body: "Choose Work, Study, or Exercise and enter the minutes spent. You can adjust the recorded time and add a note. These records do not complete project tasks." },
+        { title: "Weekly progress", body: "The bar chart shows daily totals in your configured timezone, from six days ago on the left to Today on the right. Select a day to review or edit its records. Older records remain stored." },
       ],
     },
     projects: {
@@ -149,11 +149,11 @@ export const simplifiedChinesePageHelpMessages: typeof englishPageHelpMessages =
       ],
     },
     daily: {
-      title: "日常记录",
-      summary: "记录用餐、洗澡、睡眠和运动，并回顾最近七天。",
+      title: "进步",
+      summary: "记录工作、学习和运动的时长，并回顾最近七天。",
       sections: [
-        { title: "快速记录", body: "点击活动卡片会以当前时间记录一次活动。编辑记录可以调整时间或添加备注，工作和学习仍由项目管理。" },
-        { title: "近期活动", body: "日志显示当前时区中的今天及之前六天。更早的记录仍然保留，删除记录需要确认。" },
+        { title: "记录时长", body: "选择工作、学习或运动，填写投入的分钟数。可以调整记录时间并添加备注。这些记录不会自动完成项目任务。" },
+        { title: "每周进步", body: "柱状图按当前时区显示每日总时长，从左侧的六天前到右侧的今天。选择某一天可查看或编辑记录。更早的记录仍然保留。" },
       ],
     },
     projects: {

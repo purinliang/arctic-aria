@@ -11,4 +11,5 @@ for attempt in $(seq 1 30); do
 done
 docker exec "$container" psql -U postgres -v ON_ERROR_STOP=1 -c 'CREATE TABLE users (id uuid PRIMARY KEY);' >/dev/null
 docker exec -i "$container" psql -U postgres -v ON_ERROR_STOP=1 < "$root/apps/database/migrations/0035_create_daily_life_entries.sql" >/dev/null
+docker exec -i "$container" psql -U postgres -v ON_ERROR_STOP=1 < "$root/apps/database/migrations/0036_add_daily_life_durations.sql" >/dev/null
 docker exec -i "$container" psql -U postgres -v ON_ERROR_STOP=1 < "$root/apps/web/src/features/daily-life/__tests__/schema.sql"

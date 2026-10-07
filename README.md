@@ -28,7 +28,7 @@ not a medical, therapy, or mental health treatment product.
 
 Arctic Aria is organized around features and supporting services:
 
-- Features: auth, settings, projects, routines, events, memories, dashboard, Daily, ideas,
+- Features: auth, settings, projects, routines, events, memories, dashboard, Progress, ideas,
   Daily Review delivery, and future broader reviews.
 - Apps: web dashboard for full control, Discord integration hosted by the web
   app for quick idea capture and messages, and CLI tooling reserved for future

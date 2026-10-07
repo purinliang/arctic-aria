@@ -1,7 +1,7 @@
 // Daily Page - Entry Editor.
 import { useState } from 'react';
 import { CrudEditorDialog, ConfirmDialog } from '@/components/dialog';
-import { FieldLabel } from '@/components/forms/input-field';
+import { FieldLabel, TextInput } from '@/components/forms/input-field';
 import { TextArea } from '@/components/forms/text-area-field';
 import { DatePickerField } from '@/components/forms/date-picker-field';
 import { TimePickerField } from '@/components/forms/time-picker-field';
@@ -15,8 +15,9 @@ import { lifeActivities } from '../types';
 import type { LifeEntry, LifeInput, LifeActivity } from '../types';
 import { ActivityIcon } from './ActivityIcon';
 
-export function LifeEntryEditor({ entry, timezone, darkMode, messages, formMessages, timeFormatPreference, onSave, onDelete, onClose, showErrorNotification }: {
+export function LifeEntryEditor({ entry, isNew = false, timezone, darkMode, messages, formMessages, timeFormatPreference, onSave, onDelete, onClose, showErrorNotification }: {
   entry: LifeEntry; timezone: string; darkMode: boolean; messages: DailyLifeMessages;
+  isNew?: boolean;
   formMessages: FormMessages; timeFormatPreference: TimeFormatPreference;
   onSave: (input: LifeInput) => Promise<boolean>; onDelete: (id: string) => Promise<boolean>;
   onClose: () => void; showErrorNotification: (message: string, title?: string) => void;
@@ -27,11 +28,16 @@ export function LifeEntryEditor({ entry, timezone, darkMode, messages, formMessa
   const [time, setTime] = useState(originalTime);
   const [note, setNote] = useState(entry.note ?? '');
   const [activity, setActivity] = useState(entry.activity);
+  const [duration, setDuration] = useState(isNew ? '' : String(entry.durationMinutes));
   const [pending, setPending] = useState(false);
   const [confirm, setConfirm] = useState(false);
 
   async function submit() {
     if (pending) return;
+    const durationMinutes = Number(duration);
+    if (!Number.isInteger(durationMinutes) || durationMinutes < 1 || durationMinutes > 1440) {
+      showErrorNotification(messages.results.life_duration_invalid); return;
+    }
     const instant = zonedDateTimeToUtcDate({ dateKey: date, time, timeZone: timezone });
     const roundTrip = instant && localDateTimeParts(instant, timezone);
     if (!instant || !roundTrip || roundTrip.dateKey !== date || `${String(roundTrip.hour).padStart(2, '0')}:${String(roundTrip.minute).padStart(2, '0')}` !== time) {
@@ -39,7 +45,7 @@ export function LifeEntryEditor({ entry, timezone, darkMode, messages, formMessa
     }
     setPending(true);
     try {
-      const saved = await onSave({ id: entry.id, captureKey: entry.id, activity, note,
+      const saved = await onSave({ id: isNew ? undefined : entry.id, captureKey: entry.id, activity, note, durationMinutes,
         occurredAt: date === original.dateKey && time === originalTime ? entry.occurredAt : instant.toISOString() });
       if (saved) onClose();
     } finally { setPending(false); }
@@ -54,13 +60,18 @@ export function LifeEntryEditor({ entry, timezone, darkMode, messages, formMessa
 
   return <>
     <CrudEditorDialog darkMode={darkMode} pending={pending} saving={pending && !confirm}
-      title={messages.editorTitle} closeLabel={messages.close} saveText={messages.save}
+      title={isNew ? messages.addTitle : messages.editorTitle} closeLabel={messages.close} saveText={messages.save}
       savingText={messages.saving} deleteText={messages.delete}
-      onClose={() => { if (!pending) onClose(); }} onSubmit={() => void submit()} onDelete={() => setConfirm(true)}>
+      onClose={() => { if (!pending) onClose(); }} onSubmit={() => void submit()} onDelete={isNew ? undefined : () => setConfirm(true)}>
       <FieldLabel darkMode={darkMode} label={messages.activity}>
         <SingleChoiceGroup darkMode={darkMode} value={activity} disabled={pending}
           onChange={(value) => setActivity(value as LifeActivity)}
           options={lifeActivities.map((value) => ({ value, label: messages.activities[value], icon: <ActivityIcon activity={value} /> }))} />
+      </FieldLabel>
+      <FieldLabel darkMode={darkMode} label={messages.duration}>
+        <TextInput darkMode={darkMode} type="number" inputMode="numeric" min={1} max={1440} step={1}
+          value={duration} aria-label={messages.duration} disabled={pending}
+          onChange={(event) => setDuration(event.target.value)} autoFocus={isNew} />
       </FieldLabel>
       <FormGrid columns={2}>
         <FieldLabel darkMode={darkMode} label={messages.date}>

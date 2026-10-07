@@ -15,6 +15,9 @@ export function validateLifeInput(input: LifeInput, now: Date):
     return fail('life_invalid', 'This entry is invalid.');
   }
   if (!lifeActivities.includes(input.activity)) return fail('life_invalid', 'Choose a daily-life activity.');
+  if (!Number.isInteger(input.durationMinutes) || input.durationMinutes < 1 || input.durationMinutes > 1440) {
+    return fail('life_duration_invalid', 'Enter a duration from 1 to 1440 whole minutes.');
+  }
   if (input.note != null && typeof input.note !== 'string') return fail('life_invalid', 'This note is invalid.');
   const note = input.note?.trim() || null;
   if (note && Array.from(note).length > 500) return fail('life_note_long', 'Use 500 characters or fewer.');
