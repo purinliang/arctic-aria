@@ -122,7 +122,11 @@ export async function backfillMigrationChecksum(sql, input) {
 }
 
 export async function recordAppliedMigration(sql, input) {
-  await sql.query(
+  await appliedMigrationQuery(sql,input);
+}
+
+export function appliedMigrationQuery(sql, input) {
+  return sql.query(
     `INSERT INTO schema_migrations (
        name, checksum, app_version, app_commit, app_source_state
      )

@@ -19,5 +19,15 @@ pagination, stock replacement/history, and wishlist isolation. Screenshots live 
 `/tmp/arctic-aria-personal-tools`; BASE_URL/SCREENSHOT_DIR override the defaults.
 
 Migration 0038 must be approved/applied to the intended database before persisted
-use. Neither check writes to the configured app database. History remains read-only
+use. Neither check above writes to the configured app database. For an explicitly
+selected development database and a local server, run from `apps/web`:
+
+```bash
+node --env-file=.env.local scripts/check-personal-tools-live.mjs --confirm-development
+```
+
+This check uses real server actions, creates an isolated temporary account, and
+removes only its fixture records in `finally`. Never target production. It covers
+expense persistence, stock observation/replacement/history, and reload.
+History remains read-only
 in v1; expiry tracking and outbound reminders are deliberately deferred.

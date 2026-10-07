@@ -5,11 +5,13 @@ import {
   ensureMigrationAuditTables,
   finishMigrationRun,
   readAppliedMigrationRows,
-  recordAppliedMigration,
+  appliedMigrationQuery,
   safeMigrationFailureMessage,
   startMigrationRun,
 } from "./migration-run-audit.mjs";
 import { validateAppliedMigrationHistory } from "./migration-metadata.mjs";
+import { splitStatements } from "./split-sql-statements.mjs";
+export { splitStatements } from "./split-sql-statements.mjs";
 
 export async function runDatabaseMigrations(input) {
   const { sql, migrations, appMetadata, onProgress } = input;
@@ -177,13 +179,6 @@ export async function applyPendingMigrations(input) {
   };
 }
 
-export function splitStatements(sqlText) {
-  return sqlText
-    .split(";")
-    .map((statement) => statement.trim())
-    .filter(Boolean);
-}
-
 async function applyMigration(sql, migration, appMetadata) {
   let sqlText;
 
@@ -198,23 +193,13 @@ async function applyMigration(sql, migration, appMetadata) {
   }
 
   try {
-    for (const statement of splitStatements(sqlText)) {
-      await sql.query(statement);
-    }
+    const queries = splitStatements(sqlText).map((statement) => sql.query(statement));
+    queries.push(appliedMigrationQuery(sql, { migration, appMetadata }));
+    await sql.transaction(queries);
   } catch (error) {
     return {
       ok: false,
       stage: "apply_migration",
-      message: error instanceof Error ? error.message : String(error),
-    };
-  }
-
-  try {
-    await recordAppliedMigration(sql, { migration, appMetadata });
-  } catch (error) {
-    return {
-      ok: false,
-      stage: "record_migration",
       message: error instanceof Error ? error.message : String(error),
     };
   }
