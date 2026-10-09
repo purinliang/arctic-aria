@@ -13,6 +13,9 @@ export type ChoiceOption = {
   label: ReactNode;
   description?: ReactNode;
   icon?: ReactNode;
+  action?: boolean;
+  expanded?: boolean;
+  ariaLabel?: string;
 };
 
 export function IconChoiceGrid({ darkMode,options,value,onChange,disabled,label }: {
@@ -20,7 +23,8 @@ export function IconChoiceGrid({ darkMode,options,value,onChange,disabled,label 
 }) {
   return <div role="radiogroup" aria-label={label} className="grid grid-cols-3 gap-[var(--aa-space-control-gap)]">
     {options.map((option) => <ChoiceButton key={option.value} darkMode={darkMode} option={option} selected={value === option.value}
-      vertical role="radio" aria-checked={value === option.value} disabled={disabled} onClick={() => onChange(option.value)} />)}
+      vertical role={option.action ? undefined : 'radio'} aria-checked={option.action ? undefined : value === option.value}
+      aria-label={option.ariaLabel} aria-expanded={option.expanded} disabled={disabled} onClick={() => onChange(option.value)} />)}
   </div>;
 }
 

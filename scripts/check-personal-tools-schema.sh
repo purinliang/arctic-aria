@@ -5,7 +5,7 @@ container="arctic-aria-tools-schema-$$-$RANDOM"
 docker run --rm -d --name "$container" -e POSTGRES_HOST_AUTH_METHOD=trust postgres:18 >/dev/null
 trap 'docker stop "$container" >/dev/null 2>&1 || true' EXIT
 for attempt in $(seq 1 30); do
-  if docker exec "$container" pg_isready -U postgres >/dev/null 2>&1; then break; fi
+  if docker logs "$container" 2>&1 | rg -q 'init process complete' && docker exec "$container" pg_isready -U postgres >/dev/null 2>&1; then break; fi
   sleep 1
 done
 docker exec "$container" psql -U postgres -v ON_ERROR_STOP=1 -c 'CREATE TABLE users (id uuid PRIMARY KEY);' >/dev/null
@@ -20,6 +20,9 @@ docker exec "$container" psql -U postgres -v ON_ERROR_STOP=1 -c "INSERT INTO use
 docker exec -i "$container" psql -U postgres -v ON_ERROR_STOP=1 < "$root/apps/database/migrations/0040_supply_quantities.sql" >/dev/null
 docker exec -i "$container" psql -U postgres -v ON_ERROR_STOP=1 < "$root/apps/web/src/features/supplies/__tests__/quantity-backfill.sql"
 docker exec -i "$container" psql -U postgres -v ON_ERROR_STOP=1 < "$root/apps/web/src/features/supplies/__tests__/quantity-schema.sql"
+docker exec -i "$container" psql -U postgres -v ON_ERROR_STOP=1 < "$root/apps/web/src/features/money/__tests__/legacy-subscription.sql" >/dev/null
+docker exec -i "$container" psql -U postgres -v ON_ERROR_STOP=1 < "$root/apps/database/migrations/0041_money_subscription.sql" >/dev/null
+docker exec -i "$container" psql -U postgres -v ON_ERROR_STOP=1 < "$root/apps/web/src/features/money/__tests__/subscription-schema.sql"
 
 docker exec "$container" psql -U postgres -v ON_ERROR_STOP=1 -c "INSERT INTO users VALUES ('11111111-1111-4111-8111-111111111111'); SELECT create_supply('11111111-1111-4111-8111-111111111111','33333333-3333-4333-8333-333333333333','household','Concurrent fixture',NULL,0,2);" >/dev/null
 docker exec "$container" psql -U postgres -v ON_ERROR_STOP=1 -c "SELECT change_supply('11111111-1111-4111-8111-111111111111','33333333-3333-4333-8333-333333333333',1,'44444444-4444-4444-8444-444444444444','replace',5,true);" >/dev/null &

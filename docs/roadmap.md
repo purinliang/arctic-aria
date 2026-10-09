@@ -29,6 +29,12 @@ new items, optimistic interactive stock bars, priority sorting and a minimal
 editor. Existing physical quantities stay intact and read-only; no new migration.
 Travel shopping remains available in a collapsed secondary section.
 
+2026-10-09 Money refinement on the same branch: monthly navigation and category
+tabs, filtered per-currency totals, compact expense entry with inline custom
+creation and history-ranked note suggestions. Migration 0041 adds immutable
+Subscription without changing historical associations. Currency/category
+administration is hidden. Development-only; production release remains on hold.
+
 ## Next Work After v0.12.0
 
 - Continue explicit schedule actions for Today items. Routine `Later` and

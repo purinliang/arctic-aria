@@ -39,10 +39,10 @@ export const englishPageHelpMessages = {
       ],
     },
     money: {
-      title: "Money", summary: "Record expenses and review daily or monthly totals without currency conversion.",
+      title: "Money", summary: "Record expenses and review monthly category totals without currency conversion.",
       sections: [
-        { title: "Capture", body: "Open New expense, choose a category, enter an amount and save. Other offers custom categories; their order can be managed without changing the fixed defaults." },
-        { title: "Currencies", body: "Reorder your preferred currencies; the first is the default for new records. Other supported currencies remain available. Totals stay separate by currency." },
+        { title: "Capture", body: "Open New expense, choose a category, enter an amount and save. More offers additional categories and inline custom creation. Note suggestions follow your category's history and remain freely editable." },
+        { title: "Currencies", body: "Choose AUD, CNY, USD, JPY or EUR. New expenses default to AUD. Monthly totals follow the selected category and stay separate by currency." },
       ],
     },
     supplies: {
@@ -171,10 +171,10 @@ export const simplifiedChinesePageHelpMessages: typeof englishPageHelpMessages =
       ],
     },
     money: {
-      title: "财务", summary: "记录支出并查看每日或每月总额，不进行货币转换。",
+      title: "财务", summary: "记录支出并查看每月分类总额，不进行货币转换。",
       sections: [
-        { title: "记录支出", body: "打开新增支出，选择分类并输入金额后保存。其他选项提供自定义分类，可调整它们的顺序，不会改变固定的默认分类。" },
-        { title: "货币", body: "调整常用货币顺序，第一项是新记录的默认货币。其他支持的货币仍可使用，不同货币分别计算总额。" },
+        { title: "记录支出", body: "打开新增支出，选择分类并输入金额后保存。更多选项提供其他分类和直接创建自定义分类。备注建议按该分类的历史使用情况排序，仍可自由编辑。" },
+        { title: "货币", body: "选择 AUD、CNY、USD、JPY 或 EUR，新支出默认为 AUD。每月总额按当前分类筛选，不同货币分别计算。" },
       ],
     },
     supplies: {

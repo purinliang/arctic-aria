@@ -6,6 +6,15 @@ import type { MoneyData } from '../types.ts';
 const scope = { userId: 'test-user',timezone: 'Australia/Sydney' };
 const day = { mode: 'day' as const,date: '2026-10-08' };
 const data: MoneyData = { categories: [],expenses: [],settings: { preferredCurrencies: ['AUD','CNY'],quickCategoryIds: [] } };
+test('Money caches note counts while accepting older snapshots without counts',() => {
+  const store = storage(), notes = { ...data,noteUsage: [{ categoryId: 'food',note: 'Groceries',count: 3 }] };
+  writeMoneyBrowserCache(scope,day,notes,store);
+  assert.deepEqual(readMoneyBrowserCache(scope,day,store),notes);
+  for (const count of [0,-1,1.5,'3']) {
+    store.setItem(moneyBrowserCacheKey(scope.userId),JSON.stringify({ schemaVersion: 1,...scope,views: [{ period: day,data: { ...notes,noteUsage: [{ ...notes.noteUsage[0],count }] } }] }));
+    assert.equal(readMoneyBrowserCache(scope,day,store),null);
+  }
+});
 function storage() {
   const values = new Map<string,string>();
   return { getItem: (key: string) => values.get(key) ?? null,setItem: (key: string,value: string) => { values.set(key,value); },removeItem: (key: string) => { values.delete(key); } };

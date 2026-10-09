@@ -1,6 +1,6 @@
 import { getSql } from '../../../server/database/neon.ts';
 import { parseAmount } from '../money.ts';
-import type { Expense, ExpenseInput, MoneyCategory, MoneyData, MoneyPeriod, MoneySettings } from '../types.ts';
+import type { Expense, ExpenseInput, MoneyCategory, MoneyData, MoneyPeriod, MoneySettings, NoteUsage } from '../types.ts';
 import type { NeonQueryFunction } from '@neondatabase/serverless';
 
 export class MoneyRepository {
@@ -12,7 +12,7 @@ export class MoneyRepository {
     await sql.query('SELECT initialize_money($1::uuid)', [owner]);
     const categories = await sql.query(`SELECT id, name, seed_key AS "seedKey", archived_at IS NOT NULL AS archived FROM money_categories WHERE user_id = $1
       ORDER BY archived_at NULLS FIRST, seed_key IS NULL,
-      array_position(ARRAY['food','transport','shopping','housing','bills','other','health'],seed_key) NULLS LAST,
+      array_position(ARRAY['food','transport','shopping','housing','bills','health','subscription','other'],seed_key) NULLS LAST,
       position, name, id`, [owner]) as MoneyCategory[];
     const settings = await sql.query('SELECT preferred_currencies AS "preferredCurrencies" FROM money_settings WHERE user_id = $1', [owner]);
     const quick = await sql.query('SELECT category_id AS id FROM money_quick_categories WHERE user_id = $1 ORDER BY position', [owner]);
@@ -21,8 +21,12 @@ export class MoneyRepository {
       AND recorded_date >= CASE WHEN $2 = 'month' THEN date_trunc('month', $3::date)::date ELSE $3::date END
       AND recorded_date < CASE WHEN $2 = 'month' THEN (date_trunc('month', $3::date) + interval '1 month')::date ELSE $3::date + 1 END
       ORDER BY recorded_date DESC, created_at DESC, id DESC`, [owner, period.mode, period.date]);
+    const notes = await sql.query(`SELECT category_id AS "categoryId", min(btrim(note)) AS note, count(*)::text AS count
+      FROM money_expenses WHERE user_id = $1 AND deleted_at IS NULL AND note IS NOT NULL AND btrim(note) <> ''
+      GROUP BY category_id,lower(btrim(note)) ORDER BY category_id,lower(btrim(note))`,[owner]);
     return { categories, settings: { preferredCurrencies: settings[0].preferredCurrencies, quickCategoryIds: quick.map((row) => row.id) } as MoneySettings,
-      expenses: expenses.map((row) => ({ ...row, amountMinor: Number(row.amountMinor) })) as Expense[] };
+      expenses: expenses.map((row) => ({ ...row, amountMinor: Number(row.amountMinor) })) as Expense[],
+      noteUsage: notes.map((row) => ({ ...row,count: Number(row.count) })) as NoteUsage[] };
   }
   async save(owner: string, input: ExpenseInput) {
     const args = [owner, input.id, input.categoryId, parseAmount(input.amount, input.currency), input.currency, input.date, input.note.trim() || null];

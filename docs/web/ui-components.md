@@ -705,7 +705,9 @@ revise this section first and keep them as a shared primitive.
 `ActionCard` can show a prominent value and an action label for repeated daily
 capture. `RecordCard` accepts a right-aligned value alongside its existing action
 slot. `IconChoiceGrid` uses the existing choice-button tokens for compact
-three-column icon-over-label selection. `QuantityControl` and `QuantityProgress`
+three-column icon-over-label selection. Optional action tiles (such as More or
+inline creation) retain the same visual style but use button, not radio, semantics.
+`QuantityControl` and `QuantityProgress`
 provide shared stepping buttons and segmented/continuous stock indicators.
 Text-sized ghost Buttons provide unpadded inline commands such as opening a stock
 item. Nested secondary managers use explicit dialog layers 60/70/80 without

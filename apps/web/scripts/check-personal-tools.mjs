@@ -27,10 +27,11 @@ try {
       localStorage.setItem('arctic-aria.language-preference',language); localStorage.setItem('arctic-aria.theme-preference',theme);
     },{ language,theme });
     const today = new Date().toLocaleDateString('en-CA',{ timeZone: 'Australia/Sydney' });
-    const categories = ['food','transport','housing','bills','shopping','health','other'].map((seedKey) => ({ id: randomUUID(),seedKey,name: null,archived: false }));
+    const categories = ['food','transport','shopping','housing','bills','health','subscription','other'].map((seedKey) => ({ id: randomUUID(),seedKey,name: null,archived: false }));
     categories.push(...['Custom A','Custom B'].map((name) => ({ id: randomUUID(),seedKey: null,name,archived: false })));
-    let settings = { preferredCurrencies: ['AUD','CNY'],quickCategoryIds: categories.slice(0,5).map((item) => item.id) };
-    const expenses = Array.from({ length: 8 },(_,index) => ({ id: randomUUID(),categoryId: categories[0].id,amountMinor: 1230,currency: index === 7 ? 'CNY' : 'AUD',date: today,note: null }));
+    let settings = { preferredCurrencies: ['CNY','AUD'],quickCategoryIds: categories.slice(0,5).map((item) => item.id) };
+    const expenses = Array.from({ length: 8 },(_,index) => ({ id: randomUUID(),categoryId: categories[0].id,amountMinor: 1230,currency: index === 7 ? 'CNY' : 'AUD',date: today,note: index < 3 ? 'Snacks' : null }));
+    const noteUsage = () => expenses.filter((entry) => entry.note).map((entry) => ({ categoryId: entry.categoryId,note: entry.note,count: 1 }));
     const items = ['food','household'].flatMap((kind) => Array.from({ length: 8 },(_,index) => ({
       id: randomUUID(),kind,title: `${kind === 'food' ? 'Food' : 'Household'} fixture ${index + 1}`,note: null,level: 3,spares: 2,version: 1,cycleId: randomUUID(),observations: [],
       quantity: index === 1 ? 0.5 : 5,unit: index === 1 ? 'kg' : 'unit',increment: index === 1 ? 0.5 : 1,targetQuantity: index === 1 ? 2 : 5,lowStockThreshold: 1,
@@ -50,7 +51,7 @@ try {
       else if (name === 'getMoneyData') {
         moneyReads++;
         if (moneyGate) { const gate = moneyGate; moneyGate = null; await gate; result = unavailable; }
-        else result = { ok: true,data: { categories,settings,expenses: expenses.filter((entry) => entry.date.slice(0,7) === args[0].date.slice(0,7)) } };
+        else result = { ok: true,data: { categories,settings,noteUsage: noteUsage(),expenses: expenses.filter((entry) => entry.date.slice(0,7) === args[0].date.slice(0,7)) } };
       } else if (name === 'saveMoneySettings') { settings = args[0]; result = { ok: true,data: true }; }
       else if (name === 'saveExpense') {
         if (failExpense) { failExpense = false; result = unavailable; }
@@ -105,36 +106,45 @@ try {
     await page.goto(`${baseUrl}/money`); await button(newExpense).waitFor();
     await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((item) => item.textContent.trim() === label && !item.disabled),newExpense);
     await button(newExpense).click();
-    assert.equal(await lastDialog().getByRole('radio').count(),8,'six categories and two preferred currencies');
+    assert.equal(await lastDialog().getByRole('radio').count(),10,'five primary categories and all five currencies');
+    assert.equal(await page.getByRole('radio',{ name: 'AUD',exact: true }).getAttribute('aria-checked'),'true','AUD ignores legacy preferred order');
+    assert.equal(await lastDialog().getByRole('button',{ name: en ? 'More' : '更多',exact: true }).count(),1,'More is an action, not a category');
+    await button(en ? 'Groceries' : '杂货').click();
+    assert.equal(await page.getByLabel(en ? 'Note' : '备注',{ exact: true }).inputValue(),en ? 'Groceries' : '杂货');
     await page.screenshot({ path: `${output}/expense-entry-${width}-${language}-${theme}.png`,fullPage: true });
-    await button(en ? 'Currencies' : '货币').click();
-    await button(`${en ? 'Move up' : '上移'}: CNY`).click(); await lastDialog().getByRole('button',{ name: save,exact: true }).click();
-    await page.waitForFunction(() => document.querySelectorAll('.aa-dialog-overlay').length === 1);
     await page.getByRole('radio',{ name: 'CNY',exact: true }).click();
     await page.getByLabel(en ? 'Amount' : '金额',{ exact: true }).fill('45.67');
     failExpense = true; await button(save).click();
     await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((item) => item.textContent.trim() === label && !item.disabled),save);
     assert.equal(expenses.length,8); assert.equal(await page.getByLabel(en ? 'Amount' : '金额',{ exact: true }).inputValue(),'45.67');
     await button(save).click(); await page.locator('.aa-dialog-overlay').waitFor({ state: 'detached' }); assert.equal(expenses.length,9);
-    const reads = moneyReads; await page.getByRole('tab',{ name: en ? 'Day' : '日',exact: true }).click();
-    await page.getByRole('tab',{ name: en ? 'Month' : '月',exact: true }).click(); assert.equal(moneyReads,reads,'day/month share one monthly cache');
-    await button(en ? 'Categories' : '分类').and(page.locator('button:not([aria-haspopup])')).click();
-    assert.equal(await lastDialog().getByRole('button',{ name: `${en ? 'Edit' : '编辑'}: ${en ? 'Food' : '饮食'}`,exact: true }).count(),0,'built-in categories have no edit action');
-    await button(`${en ? 'Move up' : '上移'}: Custom B`).click();
-    await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((item) => item.getAttribute('aria-label') === label && item.disabled),`${en ? 'Move up' : '上移'}: Custom B`);
-    assert.equal(categories.filter((item) => item.seedKey === null)[0].name,'Custom B');
-    await button(en ? 'New' : '新建').click(); await page.getByLabel(en ? 'Name' : '名称',{ exact: true }).fill('Category fixture');
-    await lastDialog().getByRole('button',{ name: save,exact: true }).click();
-    await page.waitForFunction(() => document.querySelectorAll('.aa-dialog-overlay').length === 1);
-    await lastDialog().getByRole('button',{ name: en ? 'Close' : '关闭',exact: true }).click();
-    await button(newExpense).click(); await page.getByRole('radio',{ name: en ? 'Other' : '其他',exact: true }).click();
-    await button(en ? 'Custom categories' : '自定义分类').click(); await page.getByRole('option',{ name: 'Custom B',exact: true }).click();
+    const reads = moneyReads;
+    await page.getByRole('tab',{ name: en ? 'Transport' : '交通',exact: true }).click();
+    await page.getByText('AUD 0.00',{ exact: true }).waitFor(); assert.equal(moneyReads,reads,'category filtering uses the monthly snapshot');
+    await page.getByRole('tab',{ name: en ? 'All' : '全部',exact: true }).click();
+    await button(en ? 'Previous month' : '上个月').click(); await page.getByText('AUD 0.00',{ exact: true }).waitFor();
+    await button(en ? 'Next month' : '下个月').click(); await page.getByText('AUD 86.10',{ exact: true }).waitFor();
+    await button(newExpense).click();
+    await page.getByLabel(en ? 'Note' : '备注',{ exact: true }).fill('Manual fixture');
+    await button(en ? 'More' : '更多').click();
+    await page.getByRole('radio',{ name: en ? 'Subscription' : '订阅',exact: true }).click();
+    assert.equal(await page.getByLabel(en ? 'Note' : '备注',{ exact: true }).inputValue(),'Manual fixture','category change preserves note');
+    await button('AI').waitFor();
+    await button(en ? 'New category' : '新建分类').click(); await page.getByLabel(en ? 'Name' : '名称',{ exact: true }).fill('Category fixture');
+    await button(en ? 'Create' : '创建').click();
+    await page.getByRole('radio',{ name: 'Category fixture',exact: true }).waitFor();
+    await page.waitForFunction(() => document.querySelector('button[role="radio"][aria-checked="true"]')?.textContent.includes('Category fixture'));
     await page.getByLabel(en ? 'Amount' : '金额',{ exact: true }).fill('10'); await button(save).click();
-    await page.locator('.aa-dialog-overlay').waitFor({ state: 'detached' }); assert.equal(expenses[0].categoryId,categories.find((item) => item.name === 'Custom B').id);
+    await page.locator('.aa-dialog-overlay').waitFor({ state: 'detached' }); assert.equal(expenses[0].categoryId,categories.find((item) => item.name === 'Category fixture').id);
+    await page.getByRole('tab',{ name: 'Category fixture',exact: true }).click();
+    assert.equal(await page.getByText('AUD 10.00',{ exact: true }).count(),2,'filtered total and matching record agree');
+    assert.equal(await page.getByText('AUD 86.10',{ exact: true }).count(),0);
+    await page.getByRole('tab',{ name: en ? 'All' : '全部',exact: true }).click();
     const moneyKey = `arctic-aria.money-browser-cache.v1.${owner}`, suppliesKey = `arctic-aria.supplies-browser-cache.v2.${owner}`;
     await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key) ?? '{}').views?.some((view) => view.data.expenses.length === 10),moneyKey);
     let releaseMoney; moneyGate = new Promise((resolve) => { releaseMoney = resolve; });
     await page.reload(); await button(newExpense).waitFor(); assert.equal(await button(newExpense).isEnabled(),true); releaseMoney();
+    await page.getByRole('button',{ name: en ? 'Dismiss notification' : '关闭通知',exact: true }).first().waitFor();
     await dismissNotifications(page,en);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),'Money fits viewport');
     await page.screenshot({ path: `${output}/money-${width}-${language}-${theme}.png`,fullPage: true });

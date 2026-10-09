@@ -1,35 +1,37 @@
 # Money UI
 
-The shared workspace header provides the title, short description and information
-hint. An unframed monthly summary shows month/year, compact previous/next arrows,
-prominent totals separated by currency, and the complete date range. Future month
-navigation is disabled. Totals cover all monthly records, independently of list
-pagination, day selection, or category filtering.
+The shared workspace header provides the title, description and information hint.
+The unframed page has three rows:
 
-New expense (primary) and Categories (secondary) share a compact action row.
-History uses compact Day/Month tabs, a date picker, a secondary category selector,
-and six vertical records per page. Each record shows category, optional note,
-date, a right-aligned amount and an edit icon. Day history filters the already
-loaded monthly data without a new request. A month change loads its own snapshot.
+1. Compact previous/month/next navigation on the left, shared segmented category
+   tabs on the right. All is selected initially. On mobile the tabs move below
+   navigation and scroll horizontally without widening the page.
+2. Prominent selected-category monthly totals on the left, primary New expense
+   on the right. Each currency has its own total; no conversion or date range.
+3. Newest-first transaction cards, six per page, showing category, optional note,
+   date, right-aligned amount/currency and an edit icon. No extra history heading,
+   daily picker, Day/Month switch or category administration controls.
 
-The compact expense dialog starts with a three-column icon grid: Food, Transport,
-Shopping / Housing, Bills, Other. Other reveals the ordered custom-category picker,
-plus the retained Health and Other categories. Categories can be managed from
-inside the dialog without losing its amount/date/note. Built-ins have fixed names
-and no edit/delete/reorder controls. Custom categories support create, rename,
-confirmed archival and ordering through drag handles or up/down buttons. Ordering
-never moves built-ins or rewrites expense references.
+The entry dialog starts with Food, Transport, Shopping / Housing, Bills, More in
+the existing three-column icon tile grid. More is an expansion button, not a
+category. It reveals Health, Subscription, active custom categories and an icon
+plus tile. The plus tile opens inline name/Create/Cancel controls, retaining the
+expense draft. Built-ins cannot be renamed or deleted. There is no manual category
+ordering or management dialog. Legacy Other and archived categories remain visible
+when editing their own historical records; custom associations are preserved.
 
-Amount, optional note, date and existing currency choice controls remain in the
-same dialog. Preferred currency order is managed through its secondary Currencies
-header icon; the first currency is the default. Category management is also available
-through a named/tooltip header icon. Unsupported currencies and conversions
-remain unavailable. Nested managers use explicit dialog layers and preserve drafts.
+Below categories are Amount, all five currencies in AUD/CNY/USD/JPY/EUR order,
+Note with suggestions, Date, and the full-width Save action. New records default
+to AUD regardless of retained backend currency preferences. Edits keep their currency.
+Note suggestions combine localized presets with all active historical notes in
+the selected category, ranked by frequency. Case and surrounding whitespace are
+deduplicated. Ties follow preset order, then alphabetical custom notes. Unused
+presets remain available. The first six suggestions show initially, with More
+when needed. Clicking fills the freely editable note; category changes never
+overwrite it. Saved edits and deletions update derived counts on refresh.
 
-CRUD saves/deletes close only after confirmation from the backend. Failures retain
-drafts and use shared notifications. Cached account/timezone/month snapshots stay
-usable during background refresh and remain visible on refresh failure. Confirmed
-writes invalidate every period snapshot before refreshing the currently active
-month; stale responses cannot restore an old cache. Responsive controls wrap
-without horizontal overflow, using the same text, spacing and palette tokens as
-Progress and Supplies.
+Confirmed saves/deletes close the dialog; failures retain drafts and use shared
+notifications. Inline category creation disables expense submission while saving.
+Account/timezone/month cache snapshots remain usable during background refresh
+and on refresh failure. Confirmed writes invalidate every monthly snapshot before
+reloading the active month; stale responses cannot restore invalidated caches.

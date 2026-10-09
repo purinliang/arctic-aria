@@ -19,7 +19,9 @@ function validData(value: unknown): value is MoneyData {
     && Array.isArray(data.settings.quickCategoryIds) && data.settings.quickCategoryIds.every((id) => typeof id === 'string')
     && Array.isArray(data.expenses) && data.expenses.every((item) => item && typeof item.id === 'string' && typeof item.categoryId === 'string'
       && currencies.includes(item.currency) && Number.isSafeInteger(item.amountMinor) && item.amountMinor > 0
-      && typeof item.date === 'string' && validPeriod({ mode: 'day',date: item.date }) && (item.note === null || typeof item.note === 'string'));
+      && typeof item.date === 'string' && validPeriod({ mode: 'day',date: item.date }) && (item.note === null || typeof item.note === 'string'))
+    && (data.noteUsage === undefined || (Array.isArray(data.noteUsage) && data.noteUsage.every((item) => item && typeof item.categoryId === 'string'
+      && typeof item.note === 'string' && Number.isSafeInteger(item.count) && item.count > 0)));
 }
 function read(scope: Scope, storage: ReturnType<typeof browserStorage>) {
   return readBrowserSnapshot<Snapshot>(moneyBrowserCacheKey(scope.userId),(value): value is Snapshot => {
