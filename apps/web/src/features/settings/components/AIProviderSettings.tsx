@@ -114,19 +114,20 @@ export function AIProviderSettings({ darkMode, messages, showSuccessNotification
           support={pending === "load" ? messages.loading : status.hasKey ? messages.savedKey : messages.noKey}
           control={<div className={`flex w-full min-w-0 items-center ${controlGapClass}`}>
             <div className="min-w-0 flex-1"><PasswordInput darkMode={darkMode} value={apiKey}
-              aria-label={messages.apiKey} autoComplete="new-password" maxLength={256} spellCheck={false}
+              id="geminiApiKey" name="geminiApiKey" aria-label={messages.apiKey}
+              autoComplete="off" maxLength={256} spellCheck={false}
               placeholder={status.hasKey ? messages.replacePlaceholder : messages.placeholder}
               disabled={!loaded || pending !== null} onChange={event => setAPIKey(event.target.value)}
               trailing={status.hasKey ? <Button darkMode={darkMode} tone="ghost" size="icon" className={fieldIconButtonSizeClass}
                 title={messages.remove} aria-label={messages.remove} disabled={pending !== null}
                 onClick={() => void perform("remove")}><Trash2 size={16} aria-hidden="true" /></Button> : undefined} /></div>
-            <Button darkMode={darkMode} tone="secondary" size="md" aria-label={messages.test} title={messages.test}
+            <Button type="button" darkMode={darkMode} tone="secondary" size="md" aria-label={messages.test} title={messages.test}
               disabled={!loaded || pending !== null || !apiKey.trim()}
               icon={<FlaskConical size={16} aria-hidden="true" />}
               loading={pending === "test"} loadingIcon={<LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}
               onClick={() => void perform("test")}>
               <span className="hidden min-[360px]:inline">{messages.test}</span></Button>
-            <Button darkMode={darkMode} tone="primary" size="md" aria-label={messages.save} title={messages.save}
+            <Button type="button" darkMode={darkMode} tone="primary" size="md" aria-label={messages.save} title={messages.save}
               disabled={!loaded || pending !== null || !apiKey.trim()}
               icon={<Save size={16} aria-hidden="true" />}
               loading={pending === "save"} loadingIcon={<LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}

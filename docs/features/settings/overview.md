@@ -120,6 +120,14 @@ status; success clears the input and shows a shared notification. Theme and
 language changes do not discard the draft. Account changes remount the card.
 No browser storage/cache contains credentials.
 
+The masked key field uses `type="password"`, its own `geminiApiKey` name/id,
+and `autocomplete="off"`; it must not advertise an account `new-password`.
+It has no form owner and is separate from the Change Password dialog. Test and
+Save are explicit non-submit buttons; pressing Enter does not submit credentials.
+Chrome may still ignore autocomplete preferences; its native password-manager
+prompt needs confirmation in a real browser profile before considering a
+different masking approach. Do not change account-password forms for this issue.
+
 Provider changes persist automatically when a saved key exists. Disabled hides
 the key row and disables AI without deleting the key; failed writes restore the
 previous selection. Selecting Gemini without a key opens configuration, and Save

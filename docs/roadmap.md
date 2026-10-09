@@ -60,6 +60,10 @@ Progress and Travel Shopping must stay hidden until human confirmation.
   AI Provider settings with encrypted user-owned keys and rate-limited tests.
   Live access requires each user's API key and Google model eligibility.
   Production release requires a stable credential-encryption deployment secret.
+  Pending human confirmation: verify API key saves no longer trigger Chrome's
+  native account-password update prompt in an existing browser profile. The key
+  remains masked with its own field identity and autocomplete disabled; consider
+  alternative masking only if Chrome still misclassifies it.
   AI/chat integration, data-sharing consent and command confirmations remain pending human review.
   Do not automatically restore Progress or chat as part of this setup.
 

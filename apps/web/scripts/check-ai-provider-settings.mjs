@@ -66,15 +66,38 @@ try {
     await selectProvider('Google Gemini');
     await input.waitFor(); await page.waitForFunction(label => !document.querySelector(`input[aria-label="${label}"]`)?.disabled,en ? 'API key' : 'API 密钥');
     assert.equal(await input.getAttribute('type'),'password');
+    assert.equal(await input.getAttribute('id'),'geminiApiKey');
+    assert.equal(await input.getAttribute('name'),'geminiApiKey');
+    assert.equal(await input.getAttribute('autocomplete'),'off');
+    assert.equal(await input.evaluate(node => node.form),null,'API key has no form owner');
     const save = page.getByRole('button',{ name: en ? 'Save' : '保存',exact: true });
     const test = page.getByRole('button',{ name: en ? 'Test' : '测试',exact: true });
+    for (const action of [test,save]) {
+      assert.equal(await action.getAttribute('type'),'button');
+      assert.equal(await action.evaluate(node => node.form),null);
+    }
+    await page.getByRole('button',{ name: en ? 'Change password' : '更改密码',exact: true }).click();
+    const passwordDialog = page.getByRole('dialog',{ name: en ? 'Change password' : '更改密码',exact: true });
+    await passwordDialog.waitFor();
+    assert.equal(await passwordDialog.evaluate(node => node.tagName),'FORM');
+    assert.equal(await passwordDialog.locator('#geminiApiKey').count(),0);
+    assert.equal(await input.evaluate(node => node.closest('form')),null);
+    await page.getByRole('button',{ name: en ? 'Close password change' : '关闭密码更改',exact: true }).click();
+    await passwordDialog.waitFor({ state: 'detached' });
     await input.fill('test-fixture-api-key');
+    await page.evaluate(() => {
+      window.aiSettingsSubmits = 0;
+      document.addEventListener('submit',() => { window.aiSettingsSubmits++; },true);
+    });
+    await input.press('Enter');
+    assert.equal(saves,0); assert.equal(tests,0);
     await test.click(); assert.equal(tests,1); assert.equal(saves,0);
     failSave = true; await save.click();
     await page.waitForFunction(label => ![...document.querySelectorAll('button')].find(node => node.textContent.trim() === label)?.disabled,en ? 'Save' : '保存');
     assert.equal(await input.inputValue(),'test-fixture-api-key');
     await save.click(); await page.waitForFunction(label => document.querySelector(`input[aria-label="${label}"]`)?.value === '',en ? 'API key' : 'API 密钥');
     assert.equal(status.enabled,true); assert.equal(status.hasKey,true);
+    assert.equal(await page.evaluate(() => window.aiSettingsSubmits),0,'API actions never submit a form');
     const storage = await page.evaluate(() => JSON.stringify({ ...localStorage,...sessionStorage }));
     assert.ok(!storage.includes('test-fixture-api-key'));
     assert.equal(await test.isDisabled(),true,'Test never falls back to the saved key');
