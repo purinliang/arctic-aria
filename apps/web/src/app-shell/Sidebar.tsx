@@ -19,6 +19,7 @@ import { Button } from "@/components/button";
 import { ScrollArea } from "@/components/scroll-area";
 import type { DashboardView } from "@/features/dashboard/types";
 import type { AppShellMessages } from "@/messages/app-messages";
+import { showProgressPage } from './feature-visibility';
 
 export type SidebarPinnedProject = {
   id: string;
@@ -169,13 +170,13 @@ function SidebarFrame({
             darkMode={darkMode}
             onClick={() => onSelectView("dashboard")}
           />
-          <SidebarItem
+          {showProgressPage ? <SidebarItem
             icon={<NotebookPen size={18} aria-hidden="true" />}
             label={messages.pages.daily}
             active={activeView === "daily"}
             darkMode={darkMode}
             onClick={() => onSelectView("daily")}
-          />
+          /> : null}
           <SidebarItem icon={<Wallet size={18} aria-hidden="true" />} label={messages.pages.money}
             active={activeView === "money"} darkMode={darkMode} onClick={() => onSelectView("money")} />
           <SidebarItem icon={<Package size={18} aria-hidden="true" />} label={messages.pages.supplies}

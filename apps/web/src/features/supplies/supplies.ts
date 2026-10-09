@@ -1,12 +1,28 @@
 import { validId } from '../../server/feature-result.ts';
-import type { SupplyInput, SupplyItem, StockCommand, WishInput } from './types.ts';
+import type { SupplyInput, SupplyItem, StockCommand, StockQuantity, QuantityCommand, WishInput } from './types.ts';
 const text = (value: unknown, limit: number, required = false): boolean =>
   value == null ? !required : typeof value === 'string' && (!required || !!value.trim()) && Array.from(value.trim()).length <= limit;
 const integer = (value: unknown, minimum: number, maximum: number): value is number => typeof value === 'number' && Number.isInteger(value) && value >= minimum && value <= maximum;
 export function validSupply(input: SupplyInput) {
   return !!input && validId(input.id) && typeof input.isNew === 'boolean' && ['food','household'].includes(input.kind)
     && text(input.title,100,true) && typeof input.note === 'string' && text(input.note,500) && integer(input.level,0,5)
-    && integer(input.spares,0,999) && integer(input.version,1,2_147_483_646);
+    && integer(input.spares,0,999) && integer(input.version,1,2_147_483_646) && validQuantity(stockQuantity(input));
+}
+export function stockQuantity(item: Partial<StockQuantity> & { level: number }): StockQuantity {
+  return { quantity: item.quantity ?? item.level,unit: item.unit ?? 'unit',increment: item.increment ?? 1,
+    targetQuantity: item.targetQuantity ?? 5,lowStockThreshold: item.lowStockThreshold ?? 1 };
+}
+export function validQuantity(value: StockQuantity) {
+  const decimal = (number: number, minimum: number) => Number.isFinite(number) && number >= minimum && number <= 999999.999
+    && Math.abs(number * 1000 - Math.round(number * 1000)) < 0.000001;
+  return decimal(value.quantity,0) && decimal(value.increment,0.001) && decimal(value.targetQuantity,0.001)
+    && decimal(value.lowStockThreshold,0) && value.lowStockThreshold <= value.targetQuantity && text(value.unit,40,true);
+}
+export function adjustedQuantity(item: StockQuantity, direction: -1 | 1) {
+  return Math.max(0,Math.round(item.quantity * 1000) + direction * Math.round(item.increment * 1000)) / 1000;
+}
+export function validQuantityCommand(input: QuantityCommand) {
+  return !!input && validId(input.id) && validId(input.key) && integer(input.version,1,2_147_483_646) && [-1,1].includes(input.direction);
 }
 export function validStock(input: StockCommand) {
   return !!input && validId(input.id) && validId(input.key) && integer(input.version,1,2_147_483_646)
@@ -33,7 +49,7 @@ export function depletion(item: SupplyItem): Depletion {
   const at = new Date(Date.parse(last.recordedAt) + item.level / used * elapsed);
   return Number.isFinite(at.getTime()) ? { state: 'estimated', at } : { state: 'unknown' };
 }
-export function needsAttention(item: SupplyItem, now = new Date()) {
-  const estimate = depletion(item);
-  return item.level <= 1 || (estimate.state === 'estimated' && estimate.at.getTime() <= now.getTime() + 7 * 86400_000);
+export function needsAttention(item: SupplyItem) {
+  const stock = stockQuantity(item);
+  return stock.quantity <= stock.lowStockThreshold;
 }

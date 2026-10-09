@@ -12,7 +12,7 @@ import { controlGapClass } from "./spacing";
 import { cx } from "./utils";
 
 export type { ButtonTone } from "./button-tone";
-export type ButtonSize = "sm" | "md" | "md-lg" | "lg" | "icon";
+export type ButtonSize = "sm" | "md" | "md-lg" | "lg" | "icon" | "text";
 
 export function Button({
   darkMode,
@@ -56,6 +56,7 @@ export function Button({
 }
 
 function buttonSizeClass(size: ButtonSize) {
+  if (size === "text") return "px-0 text-[length:var(--aa-font-size-md)]";
   if (size === "sm") {
     return cx(
       buttonHeightSmClass,

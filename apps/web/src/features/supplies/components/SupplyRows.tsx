@@ -1,12 +1,15 @@
 // Supplies Page - Stock And Travel Rows.
-import { Check, ExternalLink, History, PenLine, RotateCcw } from 'lucide-react';
+import { Check, ExternalLink, PenLine } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/button';
-import { StockLevelControl } from '@/components/stock-level-control';
+import { QuantityProgress } from '@/components/quantity-control';
+import { StockLevelSlider } from '@/components/stock-level-slider';
 import { RecordCard } from '@/components/record-card';
 import { Text } from '@/components/text';
 import type { SuppliesMessages } from '@/messages/supplies-messages';
 import type { SupplyItem, WishItem } from '../types';
-import { depletion, needsAttention } from '../supplies';
+import { depletion, needsAttention, stockQuantity } from '../supplies';
+import { isLevelStock } from '../stock-level';
 
 export function estimateText(item: SupplyItem,messages: SuppliesMessages,language: string,timezone: string) {
   const estimate = depletion(item);
@@ -15,26 +18,24 @@ export function estimateText(item: SupplyItem,messages: SuppliesMessages,languag
   if (estimate.at < new Date()) return messages.update;
   return `${messages.estimated}: ${new Intl.DateTimeFormat(language,{ dateStyle: 'medium',timeZone: timezone }).format(estimate.at)}`;
 }
-export function SupplyRow({ item,messages,darkMode,language,timezone,pending,onLevel,onEdit,onHistory,onReplace }: {
-  item: SupplyItem; messages: SuppliesMessages; darkMode: boolean; language: string; timezone: string; pending: boolean;
-  onLevel: (level: number) => void; onEdit: () => void; onHistory: () => void; onReplace: () => void;
+export function SupplyRow({ item,messages,darkMode,language,pending,onLevel,onEdit,onInteractionChange }: {
+  item: SupplyItem; messages: SuppliesMessages; darkMode: boolean; language: string; pending: boolean;
+  onLevel: (level: number) => void; onEdit: () => void;
+  onInteractionChange: (active: boolean) => void;
 }) {
-  const attention = needsAttention(item);
-  const action = attention ? item.spares > 0 ? item.level === 0 ? messages.replace : messages.spareAvailable : item.level === 0 ? messages.buy : messages.buySoon : '';
-  const estimate = depletion(item).state === 'unknown' ? '' : estimateText(item,messages,language,timezone);
-  return <RecordCard darkMode={darkMode} title={`${item.title}${item.spares ? ` · +${item.spares}` : ''}`}
-    description={item.note ?? undefined} support={[estimate,action].filter(Boolean).join(' · ') || undefined}
-    action={<Button darkMode={darkMode} tone="ghost" size="icon" disabled={pending} title={messages.edit} aria-label={`${messages.edit}: ${item.title}`}
-      icon={<PenLine size={16} />} onClick={onEdit} />}>
-    <div className="flex min-w-0 flex-wrap items-center gap-[var(--aa-space-control-gap)]">
-      <StockLevelControl darkMode={darkMode} value={item.level} disabled={pending} label={`${messages.level}: ${item.title}`} onChange={onLevel} />
-      <div className="flex gap-[var(--aa-space-control-gap)]">
-        <Button darkMode={darkMode} tone="ghost" size="icon" disabled={pending} title={messages.replace} aria-label={`${messages.replace}: ${item.title}`}
-          icon={<RotateCcw size={16} />} onClick={onReplace} />
-        <Button darkMode={darkMode} tone="ghost" size="icon" disabled={pending} title={messages.history} aria-label={`${messages.history}: ${item.title}`}
-          icon={<History size={16} />} onClick={onHistory} />
-      </div>
-    </div>
+  const stock = stockQuantity(item);
+  const [preview,setPreview] = useState<number | null>(null);
+  const level = preview ?? stock.quantity;
+  const scaled = isLevelStock(item);
+  const number = (value: number) => new Intl.NumberFormat(language,{ maximumFractionDigits: 3 }).format(value);
+  const unit = stock.unit === 'unit' ? messages.defaultUnit : stock.unit;
+  return <RecordCard density="compact" darkMode={darkMode} title={<Button darkMode={darkMode} tone="ghost" size="text" disabled={pending}
+    title={`${item.title} · ${messages.tabs[item.kind]}`} className="min-w-0 max-w-full truncate text-left" onClick={onEdit}>{item.title}</Button>}>
+    {scaled ? <StockLevelSlider value={level} label={`${messages.level}: ${item.title}`} valueText={`${level}/5 · ${messages.levelNames[level]}`} onInteractionChange={onInteractionChange}
+      onPreview={setPreview}
+      onCommit={(level) => { setPreview(null); onLevel(level); }} />
+      : <div title={messages.legacyQuantity} className="flex h-8 items-center"><QuantityProgress value={stock.quantity} target={stock.targetQuantity}
+        increment={stock.increment} warning={needsAttention(item)} label={`${item.title}: ${number(stock.quantity)} ${unit}`} /></div>}
   </RecordCard>;
 }
 export function WishRow({ item,linked,messages,darkMode,language,timezone,pending,onToggle,onEdit }: {
@@ -45,7 +46,7 @@ export function WishRow({ item,linked,messages,darkMode,language,timezone,pendin
   return <RecordCard darkMode={darkMode} title={item.title} description={item.note ?? undefined}
     support={<>
       <Text as="span" size="sm" tone="secondary" truncate>{[item.country,item.shop,item.status === 'purchased' ? messages.purchased : ''].filter(Boolean).join(' · ')}</Text>
-      {linked ? <Text as="span" size="sm" tone="secondary" truncate>{linked.title} · {linked.level}/5{linked.spares ? ` · +${linked.spares}` : ''}</Text>
+      {linked ? <Text as="span" size="sm" tone="secondary" truncate>{linked.title} · {stockQuantity(linked).quantity} {stockQuantity(linked).unit}</Text>
         : item.linkedSupplyId ? <Text as="span" size="sm" tone="secondary" truncate>{item.linkedTitle} · {messages.archived}</Text> : null}
     </>}
     action={<>

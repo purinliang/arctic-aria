@@ -6,10 +6,11 @@ hamburger, extra Today tab, or hidden chat page is added.
 
 ## Quick Capture
 
-An unframed Quick capture section contains three equal shared ActionCards: Work,
-Study, and Exercise, with Lucide activity icons. Cards show only their icon and
-activity name, without counts or last-recorded times. Clicking opens the shared
-editor with a required whole-minute duration, recorded time, and optional note.
+An unframed Today section contains three equal shared ActionCards: Work,
+Study, and Exercise, with Lucide activity icons, prominent accumulated durations,
+and Add time actions. Desktop uses three columns; narrow screens use two or one.
+Clicking opens the shared editor with 15/30/60/120-minute presets, a custom
+whole-minute duration, recorded time, and optional note.
 The selected activity is named in the dialog title, without a redundant activity
 switch. Existing-record editors still allow correcting the activity.
 
@@ -48,8 +49,9 @@ minute unit shown once in the chart header to avoid crowded mobile labels;
 short weekday labels appear below, with Today localized. Empty days remain visible.
 All seven bars fit on mobile without horizontal scrolling. Accessible button
 names provide per-activity totals without relying on color. Selecting a bar
-shows that day's newest-first record cards below, six per page, in two columns on
-larger screens and one on mobile. Notes are limited to two visible lines; the
+shows that day's newest-first records in a vertical list below, six per page.
+A compact minute axis and consistent activity legend sit beside/above the bars.
+Notes are limited to two visible lines; the
 editor retains the full text. There is no refresh
 button. The date window uses the user's timezone and rolls over once per minute.
 

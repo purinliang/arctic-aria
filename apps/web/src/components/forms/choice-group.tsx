@@ -13,7 +13,20 @@ export type ChoiceOption = {
   label: ReactNode;
   description?: ReactNode;
   icon?: ReactNode;
+  action?: boolean;
+  expanded?: boolean;
+  ariaLabel?: string;
 };
+
+export function IconChoiceGrid({ darkMode,options,value,onChange,disabled,label }: {
+  darkMode: boolean; options: ChoiceOption[]; value: string; onChange: (value: string) => void; disabled: boolean; label: string;
+}) {
+  return <div role="radiogroup" aria-label={label} className="grid grid-cols-3 gap-[var(--aa-space-control-gap)]">
+    {options.map((option) => <ChoiceButton key={option.value} darkMode={darkMode} option={option} selected={value === option.value}
+      vertical role={option.action ? undefined : 'radio'} aria-checked={option.action ? undefined : value === option.value}
+      aria-label={option.ariaLabel} aria-expanded={option.expanded} disabled={disabled} onClick={() => onChange(option.value)} />)}
+  </div>;
+}
 
 export function SingleChoiceGroup({
   darkMode,
@@ -125,11 +138,13 @@ function ChoiceButton({
   option,
   selected,
   className,
+  vertical = false,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   darkMode: boolean;
   option: ChoiceOption;
   selected: boolean;
+  vertical?: boolean;
 }) {
   void darkMode;
 
@@ -140,7 +155,7 @@ function ChoiceButton({
       className={cx(
         "inline-flex min-w-0 max-w-full items-center whitespace-normal rounded-md border text-left font-[var(--aa-font-weight-semibold)] transition disabled:cursor-not-allowed",
         controlGapClass,
-        compact
+        vertical ? "min-h-20 flex-col justify-center text-center px-[var(--aa-space-popover-x)] py-[var(--aa-space-control-gap)] text-[length:var(--aa-font-size-md)] leading-[var(--aa-line-height-md)]" : compact
           ? cx(
               buttonHeightSmClass,
               "justify-center text-center px-[var(--aa-space-popover-x)] text-[length:var(--aa-font-size-md)] leading-[var(--aa-line-height-md)]",

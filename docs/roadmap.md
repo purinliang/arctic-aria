@@ -10,10 +10,48 @@ Current development version on `develop`: `v0.16.0-dev`.
 
 ## Development-Only Tracking
 
+- **Pending human confirmation:** Restore and review the Progress page. Hidden
+  on develop and feature builds; implementation, data and APIs remain intact.
+  Do not re-enable during unrelated work. Main/hotfix visibility is unchanged.
+- **Pending human confirmation:** Restore and review Travel Shopping in Supplies.
+  Temporarily hide the UI only; retain code, records and supporting commands.
+  Do not re-enable during unrelated work.
+
 As of 2026-10-08, Progress, Money, and Supplies from `feature/daily-life-log`
 are approved for integration into `develop` only. They remain in progress and
 need further UI and workflow review. Do not release them to `main` or deploy
 them to production without a separate developer approval.
+
+Follow-up on `feature/personal-tracking-cache` adds account-scoped Money period
+and Supplies stock/wishlist snapshots, with background refresh and confirmed-write
+invalidation. This successor branch is also development-only.
+
+2026-10-08 redesign on the same branch: Progress totals and duration presets,
+Money monthly summaries with fixed/custom category capture, and Supplies fractional
+quantities with restocking thresholds. Migrations 0039/0040 preserve category
+references and legacy supply records. Production release remains on hold.
+
+2026-10-09 Supplies simplification on the same branch uses fixed 0–5 levels for
+new items, optimistic interactive stock bars, priority sorting and a minimal
+editor. Existing physical quantities stay intact and read-only; no new migration.
+Travel shopping remains available in a collapsed secondary section.
+
+2026-10-09 compact Supplies follow-up: responsive 3/2/1-column grid, first-cell
+creation tile and continuously interactive bars. Per-item serial queues coalesce
+rapid selections and reuse server versions; no schema change. Travel Shopping
+is now hidden pending the explicit human review above.
+
+2026-10-09 Money refinement on the same branch: monthly navigation and category
+tabs, filtered per-currency totals, compact expense entry with inline custom
+creation and history-ranked note suggestions. Migration 0041 adds immutable
+Subscription without changing historical associations. Currency/category
+administration is hidden. Development-only; production release remains on hold.
+
+2026-10-09 integration: the developer approved merging
+`feature/personal-tracking-cache` into `develop`, including caches, compact stock
+updates, monthly expense entry, shared dialog action menus and dashed empty
+states. Further product review and production-release approval remain pending.
+Progress and Travel Shopping must stay hidden until human confirmation.
 
 ## Next Work After v0.12.0
 

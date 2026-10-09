@@ -39,17 +39,17 @@ export const englishPageHelpMessages = {
       ],
     },
     money: {
-      title: "Money", summary: "Record expenses and review daily or monthly totals without currency conversion.",
+      title: "Money", summary: "Record expenses and review monthly category totals without currency conversion.",
       sections: [
-        { title: "Capture", body: "Choose a category, enter an amount and currency, and save. Manage categories to choose up to five quick capture buttons." },
-        { title: "Currencies", body: "Reorder your preferred currencies; the first is the default for new records. Other supported currencies remain available. Totals stay separate by currency." },
+        { title: "Capture", body: "Open New expense, choose a category, enter an amount and save. More offers additional categories and inline custom creation. Note suggestions follow your category's history and remain freely editable." },
+        { title: "Currencies", body: "Choose AUD, CNY, USD, JPY or EUR. New expenses default to AUD. Monthly totals follow the selected category and stay separate by currency." },
       ],
     },
     supplies: {
-      title: "Supplies", summary: "Track remaining food and household supplies, and plan purchases abroad.",
+      title: "Supplies", summary: "Track remaining food and household supplies with compact stock cards.",
       sections: [
-        { title: "Stock", body: "Record a remaining level from empty (0) to full (5). Spare counts describe unopened items. Replace starts a new item and can consume one spare." },
-        { title: "Estimates and travel", body: "Run-out estimates use the latest three observations for the active item, never older replacement cycles. Travel shopping is a wishlist that can link to stock; marking purchased does not change supplies or expenses." },
+        { title: "Stock", body: "New items use an approximate 0–5 scale, starting at 5. Click or drag the bar to update the remaining level. Red items appear first, then amber, then blue. Existing physical quantities stay unchanged." },
+        { title: "Quick updates", body: "Use New supply to add an item. Open its title to edit. Stock bars accept consecutive changes while saving; only confirmed values are cached." },
       ],
     },
     projects: {
@@ -171,17 +171,17 @@ export const simplifiedChinesePageHelpMessages: typeof englishPageHelpMessages =
       ],
     },
     money: {
-      title: "财务", summary: "记录支出并查看每日或每月总额，不进行货币转换。",
+      title: "财务", summary: "记录支出并查看每月分类总额，不进行货币转换。",
       sections: [
-        { title: "记录支出", body: "选择分类，输入金额和货币，然后保存。管理分类可设置最多五个快速记录按钮。" },
-        { title: "货币", body: "调整常用货币顺序，第一项是新记录的默认货币。其他支持的货币仍可使用，不同货币分别计算总额。" },
+        { title: "记录支出", body: "打开新增支出，选择分类并输入金额后保存。更多选项提供其他分类和直接创建自定义分类。备注建议按该分类的历史使用情况排序，仍可自由编辑。" },
+        { title: "货币", body: "选择 AUD、CNY、USD、JPY 或 EUR，新支出默认为 AUD。每月总额按当前分类筛选，不同货币分别计算。" },
       ],
     },
     supplies: {
-      title: "物资", summary: "记录食品和日用品的剩余量，并计划海外采购。",
+      title: "物资", summary: "使用紧凑的余量卡片记录食品和日用品。",
       sections: [
-        { title: "库存", body: "使用从已用完（0）到全新（5）的剩余量等级。备用数量代表未开封的物资，替换会开始使用新物资，并可消耗一件备用物资。" },
-        { title: "预测和旅行", body: "预计用完时间仅依据当前物资最近三次记录，不使用之前物资的记录。旅行购物是可关联库存的采购清单，标记已购买不会修改库存或支出。" },
+        { title: "余量", body: "新物资使用固定的 0–5 近似余量，初始值为 5。点击或拖动进度条即可更新。列表依次显示红色、琥珀色和蓝色项目，已有的实际数量保持不变。" },
+        { title: "快速更新", body: "使用新建物资添加项目，点击名称可编辑。保存过程中仍可连续调整余量，缓存仅保存已确认的值。" },
       ],
     },
     projects: {

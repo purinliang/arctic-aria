@@ -10,6 +10,6 @@ export function PersonalTrackingPages({ userId, view, darkMode, timezone, langua
   timeFormatPreference: TimeFormatPreference; messages: AppMessages; showErrorNotification: (message: string, title?: string) => void;
 }) {
   const shared = { darkMode, timezone, language, formMessages: messages.forms, notificationMessages: messages.notifications, showErrorNotification };
-  return view === 'supplies' ? <SuppliesPage {...shared} messages={messages.supplies} /> : view === 'money' ? <MoneyPage {...shared} messages={messages.money} />
+  return view === 'supplies' ? <SuppliesPage key={userId} userId={userId} {...shared} messages={messages.supplies} /> : view === 'money' ? <MoneyPage key={userId} userId={userId} {...shared} messages={messages.money} />
     : <DailyLifePage key={userId} userId={userId} {...shared} messages={messages.dailyLife} timeFormatPreference={timeFormatPreference} />;
 }

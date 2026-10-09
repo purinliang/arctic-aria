@@ -69,6 +69,8 @@ export function LifeEntryEditor({ entry, isNew = false, timezone, darkMode, mess
           options={lifeActivities.map((value) => ({ value, label: messages.activities[value], icon: <ActivityIcon activity={value} /> }))} />
       </FieldLabel> : null}
       <FieldLabel darkMode={darkMode} label={messages.duration}>
+        <SingleChoiceGroup darkMode={darkMode} value={duration} disabled={pending} onChange={setDuration}
+          options={[15,30,60,120].map((minutes) => ({ value: String(minutes),label: messages.minutes(minutes) }))} />
         <TextInput darkMode={darkMode} type="number" inputMode="numeric" min={1} max={1440} step={1}
           value={duration} aria-label={messages.duration} disabled={pending}
           onChange={(event) => setDuration(event.target.value)} autoFocus={isNew} />

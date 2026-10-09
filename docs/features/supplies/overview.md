@@ -1,12 +1,13 @@
 # Supplies
 
-Supplies / 物资 opens `/supplies` after Money. Food and Household track one active
-package/bottle with a remaining level from 0 (empty) to 5 (full), plus separate
-unopened spares. Travel Shopping is a non-urgent wishlist for purchases abroad,
-optionally linked to existing stock. Countries are user-entered, not tied to
-China or Japan or the account's home country.
+Supplies / 物资 opens `/supplies` after Money. It is a household replenishment
+tracker: Food and Household items have configurable units, quantity steps,
+preferred target stock and low-stock thresholds. Minus/plus actions record real
+quantities, including fractional amounts. Travel shopping remains a separate,
+non-urgent wishlist for purchases abroad with optional links to tracked stock.
 
-Reminders appear only on this page. There is no Discord scheduling, expiry or
-weight tracking, purchasing integration, automatic Money expense, or project
-completion. See [ui.md](ui.md), [data-model.md](data-model.md), and
+There is no consumption prediction, automatic ordering, warehouse workflow,
+Discord reminder scheduling, automatic Money expense, or project completion.
+Legacy levels, spare counts and usage history remain stored without guessed
+measurement units. See [ui.md](ui.md), [data-model.md](data-model.md), and
 [web-implementation.md](web-implementation.md).

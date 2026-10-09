@@ -16,6 +16,16 @@ Form controls live under:
 apps/web/src/components/forms/
 ```
 
+## Stock Controls
+
+`StockLevelSlider` is the shared compact 0–5 range control. It previews pointer
+or keyboard changes, commits on completion, and exposes native accessible slider
+semantics. Five increments use red for 0/1, amber for 2 and blue for 3–5; zero
+retains a visible red fill. Its full-width 32px target supports touch interaction.
+Persistence, rollback, item locking and ordering belong to the consuming feature.
+`Disclosure` provides a collapsed optional section with a native summary control.
+`RecordCard` supports compact density using shared list-row spacing tokens.
+
 ## Color
 
 `color.ts` owns reusable color and border class helpers. Color tokens,
@@ -178,6 +188,19 @@ created object clearly.
 buttons. Use it for command lists such as dialog header overflow actions. Action
 menus should not show a title inside the popup, and rows should stay text-only
 unless the menu has enough actions that icons materially improve scanning.
+
+Menus align beneath the trigger's right edge, with the shared panel surface,
+border, radius and shadow. The menu padding token is 4px; borderless rows use
+12px horizontal and 8px vertical padding. Rows are transparent until hovered or
+keyboard-focused. Destructive rows use restrained red text and a tinted hover,
+not a solid destructive button. Disabled rows do not highlight.
+
+Opening focuses the first enabled item. Arrow keys cycle enabled items; Home
+and End focus the first and last. Escape dismisses only the menu, returning
+focus to its trigger. Tab dismisses and continues normal dialog tabbing from
+the trigger. Item activation and outside dismissal retain the owning dialog's
+existing callbacks and confirmation behavior. Header triggers use the same
+shared icon-button size as Close.
 
 ## Icon
 
@@ -515,13 +538,30 @@ relationship between the slots, and the list text components own the compact
 multiline rhythm.
 
 Empty states, overview copy, form help, and dialog body text are not list rows.
-Use `DescriptionText` or `SupportingText` for those surfaces instead of forcing
+Use `EmptyState` for empty content lists, and `DescriptionText` or
+`SupportingText` for copy, form help and dialog body text instead of forcing
 them into `ListItemTitle` or `ListItemContent`.
 
 Use `ExpandableListItem` for rows that open details. The header row and expanded
 details must be rendered inside the same list item so the background, padding,
 and divider behavior stay consistent. Do not place expanded details in a
 separate grey box or sibling container below the item.
+
+## Empty State
+
+`empty-state.tsx` owns the shared informational empty-content frame: a dashed
+secondary border, standard card radius, transparent background, card-body
+padding and centered muted text. Optional description text uses the shared
+smaller text stack. It has no button role, keyboard stop, hover state or action.
+Unlike the Supplies New supply card, this frame reports absence of content
+rather than opening a creation flow. Keep loading and error messages separate.
+
+`PagedList` uses the frame when loaded content is empty, spanning all columns
+in card layouts. This covers Money, Projects, project tasks, Routines and Events
+(definitions and instances), Memories and Ideas without feature-local styling.
+A leading creation card still suppresses the extra empty frame; Supplies keeps
+its first-position New supply action. Compact dashboard hints and dialog manager
+lists retain their existing empty-line presentation for now.
 
 ## Paged List
 
@@ -689,3 +729,20 @@ Use quieter alternatives:
 
 Do not add feature-local colored chip classes. If label chips return later,
 revise this section first and keep them as a shared primitive.
+
+## Tracking Controls
+
+`ActionCard` can show a prominent value and an action label for repeated daily
+capture. `RecordCard` accepts a right-aligned value alongside its existing action
+slot. `IconChoiceGrid` uses the existing choice-button tokens for compact
+three-column icon-over-label selection. Optional action tiles (such as More or
+inline creation) retain the same visual style but use button, not radio, semantics.
+`CreateCard` is a compact dashed creation
+tile for repeated-card grids. `PagedList` can accept an optional leading creation
+item; grid pagination spans all columns. `StockLevelSlider` preserves keyboard
+focus-visible while keeping mouse/touch progress interaction unframed.
+`QuantityControl` and `QuantityProgress`
+provide shared stepping buttons and segmented/continuous stock indicators.
+Text-sized ghost Buttons provide unpadded inline commands such as opening a stock
+item. Nested secondary managers use explicit dialog layers 60/70/80 without
+changing the default layer for existing dialogs.

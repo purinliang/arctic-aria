@@ -1,15 +1,19 @@
 import { getSql } from '../../../server/database/neon.ts';
 import type { NeonQueryFunction } from '@neondatabase/serverless';
-import type { Observation, StockCommand, SuppliesData, SupplyInput, SupplyItem, WishInput, WishItem } from '../types.ts';
+import type { Observation, StockCommand, StockQuantity, QuantityCommand, SuppliesData, SupplyInput, SupplyItem, WishInput, WishItem } from '../types.ts';
+import { stockQuantity } from '../supplies.ts';
 
-type SupplyRow = { id: string; kind: SupplyItem['kind']; title: string; note: string | null; level: number; spares: number; version: number; cycle_id: string; observations: Observation[] };
+type SupplyRow = { id: string; kind: SupplyItem['kind']; title: string; note: string | null; level: number; spares: number; version: number; cycle_id: string; observations: Observation[] } & StockQuantity;
 const itemSelect = `SELECT item.id,item.kind,item.title,item.note,item.level,item.spares,item.version,item.cycle_id,
+  item.quantity,item.unit,item.increment,item.target_quantity AS "targetQuantity",item.low_stock_threshold AS "lowStockThreshold",
   COALESCE((SELECT jsonb_agg(point ORDER BY point."recordedAt" DESC,point.id DESC) FROM
     (SELECT id,cycle_id AS "cycleId",level,recorded_at AS "recordedAt" FROM supply_observations
      WHERE user_id = item.user_id AND item_id = item.id AND cycle_id = item.cycle_id ORDER BY recorded_at DESC,id DESC LIMIT 3) point), '[]'::jsonb) AS observations
   FROM supply_items item WHERE item.user_id = $1 AND item.archived_at IS NULL`;
 const mapItem = (row: SupplyRow): SupplyItem => ({ id: row.id, kind: row.kind, title: row.title, note: row.note, level: row.level,
-  spares: row.spares, version: row.version, cycleId: row.cycle_id, observations: row.observations.map((point) => ({ ...point, recordedAt: new Date(point.recordedAt).toISOString() })) });
+  spares: row.spares, version: row.version, cycleId: row.cycle_id, quantity: Number(row.quantity),unit: row.unit,increment: Number(row.increment),
+  targetQuantity: Number(row.targetQuantity),lowStockThreshold: Number(row.lowStockThreshold),
+  observations: row.observations.map((point) => ({ ...point, recordedAt: new Date(point.recordedAt).toISOString() })) });
 const wishColumns = 'id,title,country,shop,url,note,linked_supply_id AS "linkedSupplyId",status,version';
 const optional = (value: string | null) => value?.trim() || null;
 
@@ -30,11 +34,18 @@ export class SuppliesRepository {
     return rows[0] ? mapItem(rows[0]) : null;
   }
   async save(owner: string, input: SupplyInput) {
-    const sql = this.sql();
-    const rows = input.isNew ? await sql.query('SELECT create_supply($1::uuid,$2::uuid,$3,$4,$5,$6,$7) AS item', [owner,input.id,input.kind,input.title.trim(),optional(input.note),input.level,input.spares])
-      : await sql.query('UPDATE supply_items SET kind = $3,title = $4,note = $5,spares = $6,version = version + 1,updated_at = now() WHERE user_id = $1 AND id = $2 AND version = $7 AND archived_at IS NULL RETURNING id',
-          [owner,input.id,input.kind,input.title.trim(),optional(input.note),input.spares,input.version]);
-    return rows.length && (input.isNew ? rows[0].item : rows[0].id) ? this.item(owner,input.id) : null;
+    const stock = stockQuantity(input);
+    const rows = await this.sql().query('SELECT save_supply_stock($1::uuid,$2::uuid,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) AS saved',
+      [owner,input.id,input.isNew,input.version,input.kind,input.title.trim(),optional(input.note),stock.quantity,stock.unit,stock.increment,stock.targetQuantity,stock.lowStockThreshold,input.spares]);
+    return rows[0].saved ? this.item(owner,input.id) : null;
+  }
+  async adjust(owner: string, input: QuantityCommand): Promise<{ error: string } | { item: SupplyItem }> {
+    const rows = await this.sql().query('SELECT adjust_supply_quantity($1::uuid,$2::uuid,$3,$4::uuid,$5) AS result',
+      [owner,input.id,input.version,input.key,input.direction]);
+    const result = rows[0].result as { error?: string };
+    if (result.error) return { error: result.error };
+    const item = await this.item(owner,input.id);
+    return item ? { item } : { error: 'missing' };
   }
   async change(owner: string, input: StockCommand): Promise<{ error: string } | { item: SupplyItem }> {
     const rows = await this.sql().query('SELECT change_supply($1::uuid,$2::uuid,$3,$4::uuid,$5,$6,$7) AS result',

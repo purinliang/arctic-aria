@@ -48,3 +48,11 @@ export async function archiveMoneyCategory(id: string) {
   const result = await featureCommand('money', () => new MoneyRepository().archiveCategory(user.id, id));
   return result.ok && !result.data ? failure('missing', 'not_found') : result;
 }
+
+export async function reorderMoneyCategories(ids: string[]) {
+  const user = await getCurrentUser();
+  if (!user) return failure('auth_required','auth');
+  if (!Array.isArray(ids) || ids.length > 1000 || !ids.every(validId) || new Set(ids).size !== ids.length) return failure('invalid');
+  const result = await featureCommand('money',() => new MoneyRepository().reorderCategories(user.id,ids));
+  return result.ok && !result.data ? failure('invalid') : result;
+}

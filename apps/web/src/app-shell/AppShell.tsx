@@ -57,6 +57,7 @@ import {
   writeStoredDeveloperModeEnabled,
 } from "./developer-mode";
 import { Sidebar } from "./Sidebar";
+import { showProgressPage } from './feature-visibility';
 
 export function AppShell({
   currentUser,
@@ -110,7 +111,7 @@ export function AppShell({
     () => browserPathname() ?? initialPathname,
   );
   const pathnameRoute = appRouteFromPathname(currentPathname);
-  const activeView = pathnameRoute.view;
+  const activeView = pathnameRoute.view === 'daily' && !showProgressPage ? 'dashboard' : pathnameRoute.view;
   const [developerModeEnabled, setDeveloperModeEnabled] = useState(
     readStoredDeveloperModeEnabled,
   );
@@ -232,6 +233,14 @@ export function AppShell({
       window.removeEventListener("popstate", syncBrowserPathname);
     };
   }, [initialPathname]);
+
+  useEffect(() => {
+    if (pathnameRoute.view !== 'daily' || showProgressPage) return;
+    const todayPath = appPathForView('dashboard');
+    window.history.replaceState({ arcticAriaPath: todayPath },'',todayPath);
+    const timer = setTimeout(() => setCurrentPathname(todayPath),0);
+    return () => clearTimeout(timer);
+  },[pathnameRoute.view]);
 
   useEffect(() => {
     if (activeView !== "design" || showDesignPage) {

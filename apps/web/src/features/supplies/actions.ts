@@ -1,8 +1,8 @@
 'use server';
 import { getCurrentUser } from '../auth/actions';
 import { failure, featureCommand, validId } from '../../server/feature-result';
-import { validStock, validSupply, validWish } from './supplies';
-import type { StockCommand, SupplyInput, WishInput } from './types';
+import { validStock, validSupply, validWish, validQuantityCommand } from './supplies';
+import type { StockCommand, SupplyInput, WishInput, QuantityCommand } from './types';
 import { SuppliesRepository } from './server/supplies-repository';
 
 export async function getSuppliesData() {
@@ -22,6 +22,13 @@ export async function changeSupply(input: StockCommand) {
   if (!validStock(input)) return failure('invalid');
   const result = await featureCommand('supplies', () => new SuppliesRepository().change(user.id,input));
   return result.ok ? 'error' in result.data ? failure(result.data.error) : { ok: true as const, data: result.data.item } : result;
+}
+export async function adjustSupplyQuantity(input: QuantityCommand) {
+  const user = await getCurrentUser();
+  if (!user) return failure('auth_required','auth');
+  if (!validQuantityCommand(input)) return failure('invalid');
+  const result = await featureCommand('supplies',() => new SuppliesRepository().adjust(user.id,input));
+  return result.ok ? 'error' in result.data ? failure(result.data.error) : { ok: true as const,data: result.data.item } : result;
 }
 export async function getSupplyHistory(id: string) {
   const user = await getCurrentUser();
