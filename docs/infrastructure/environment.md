@@ -110,9 +110,9 @@ Thinking is disabled for 2.5 models for a lightweight baseline. Errors are
 normalized without retaining raw exceptions containing request data or keys.
 
 Settings includes a user-owned AI Provider card. Authenticated server actions
-use only that account's saved key or the key explicitly entered for a manual
-test. They never fall back to `GEMINI_API_KEY`. The test sends one neutral prompt,
-not product data; explicit tests work while AI is disabled and never enable it.
+use only account-owned credentials. Manual tests require the currently entered
+key and never fall back to saved keys or `GEMINI_API_KEY`. The test sends one
+neutral prompt, not product data, and does not save the key or enable AI.
 Each account is limited to one test per 30 seconds using an atomic database claim.
 The user-facing model is fixed to `gemini-2.5-flash`, independent of CLI overrides.
 

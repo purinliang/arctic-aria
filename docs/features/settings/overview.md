@@ -106,8 +106,10 @@ explicit role or environment rule rather than a hard-coded account name.
 ## AI Provider
 
 The card sits below Discord and uses the same shared panel, header, list, and
-SettingsControlRow layout. It contains Enable AI, a disabled Google Gemini
-provider selector, a password-style key input, and Test/Save actions. A saved
+SettingsControlRow layout. Its Provider dropdown offers Disabled and Google
+Gemini, with "Select the AI service to use." below the label. The API key row
+appears only when Gemini is selected, with a password-style input and Test/Save
+actions on the same horizontal row, using the input's standard height. A saved
 key shows a status label and a compact remove action, never its actual value.
 English and Simplified Chinese catalogs cover labels and expected failures.
 
@@ -118,10 +120,13 @@ status; success clears the input and shows a shared notification. Theme and
 language changes do not discard the draft. Account changes remount the card.
 No browser storage/cache contains credentials.
 
-Save persists enablement and an optional replacement key. Blank input retains
-the old key. Removal clears it and disables AI. Test uses the draft key if
-present, otherwise this user's saved key. It is an explicit connection check
-even while disabled, not an AI product action; it does not persist draft keys.
+Provider changes persist automatically when a saved key exists. Disabled hides
+the key row and disables AI without deleting the key; failed writes restore the
+previous selection. Selecting Gemini without a key opens configuration, and Save
+persists the key and enables Gemini. Blank input never erases a saved key.
+Removal clears it and disables AI. Test validates only the currently entered
+key, never a saved/global fallback. Save is independent of test success. Tests
+are explicit connection checks, not AI product actions, and do not persist keys.
 It sends only a neutral test prompt, with no automatic product-data export.
 Normal future AI operations must respect saved enablement. Chat remains hidden.
 

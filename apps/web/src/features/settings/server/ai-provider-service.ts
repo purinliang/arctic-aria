@@ -60,16 +60,14 @@ export function createAIProviderService({
         return repository.save(userId, input.enabled, key ? encryption.encrypt(userId, key) : null, input.removeKey === true);
       });
     },
-    async test(userId: string, draftKey?: string): Promise<FeatureResult<{ tested: true }>> {
-      if (draftKey !== undefined && typeof draftKey !== "string") return failure("ai_invalid");
-      const key = draftKey?.trim() ?? "";
-      if (key && !validAPIKey(key)) return failure("ai_invalid");
+    async test(userId: string, draftKey: string): Promise<FeatureResult<{ tested: true }>> {
+      if (typeof draftKey !== "string") return failure("ai_key_required", "domain");
+      const key = draftKey.trim();
+      if (!key) return failure("ai_key_required", "domain");
+      if (!validAPIKey(key)) return failure("ai_invalid");
       return command(userId, async () => {
-        const row = key ? null : await repository.find(userId);
-        if (!key && !row?.encrypted_api_key) throw new AISettingsError("ai_key_required");
         if (!(await repository.claimTest(userId))) throw new AISettingsError("ai_test_throttled");
-        const apiKey = key || encryption.decrypt(userId, row!.encrypted_api_key!);
-        await client(apiKey).generateText("Reply with the word READY.");
+        await client(key).generateText("Reply with the word READY.");
         return { tested: true as const };
       });
     },

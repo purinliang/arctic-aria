@@ -19,8 +19,9 @@ and has-key flags. All action ownership comes from the authenticated session.
 
 Blank key input preserves the saved key atomically. Disabling retains it;
 explicit removal clears the ciphertext and disables AI in the same write.
-Replacing a key does not reset the durable test cooldown. Manual tests may use
-an unsaved draft key without persisting it or enabling AI. Atomic upsert claims
+Replacing a key does not reset the durable test cooldown. Manual tests require
+an explicitly entered draft key; blank input never falls back to the saved key.
+They do not persist the draft or enable AI. Atomic upsert claims
 permit one test per user per 30 seconds across server instances. No global key
 fallback is permitted. Rows cascade only when the owning user is deleted;
 removing a key does not delete the row or its cooldown history.

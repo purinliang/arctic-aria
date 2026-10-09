@@ -39,7 +39,7 @@ test("AI settings encrypt account-owned keys and return status only", async () =
     const result = await service.save(userId, { enabled: true, provider: "google_gemini", apiKey: key });
     assert.deepEqual(result, { ok: true, data: { enabled: true, provider: "google_gemini", hasKey: true } });
     assert.ok(!JSON.stringify(rows.get(userId)).includes(key));
-    assert.ok((await service.test(userId)).ok);
+    assert.ok((await service.test(userId, key)).ok);
   }
   assert.deepEqual(calls, [keyA, keyB]);
 });
@@ -57,13 +57,15 @@ test("Blank keys preserve credentials; disable retains them; remove clears and d
 });
 
 test("AI tests have no app-key fallback and typed tests do not persist draft credentials", async () => {
-  const { service, calls, rows } = fixture();
+  const { service, calls, rows, encryption } = fixture();
   process.env.GEMINI_API_KEY = "test-global-api-key";
   try {
-    assert.equal((await service.test(userA)).ok, false);
+    await service.save(userA, { enabled: true, provider: "google_gemini", apiKey: keyB });
+    assert.equal((await service.test(userA, " ")).ok, false);
     assert.deepEqual(calls, []);
     assert.ok((await service.test(userA, keyA)).ok);
-    assert.deepEqual(calls, [keyA]); assert.equal(rows.size, 0);
+    assert.deepEqual(calls, [keyA]);
+    assert.equal(encryption.decrypt(userA, rows.get(userA)!.encrypted_api_key!), keyB);
   } finally { delete process.env.GEMINI_API_KEY; }
 });
 
@@ -92,4 +94,6 @@ test("AI tests rate-limit each account independently and sanitize provider failu
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.code, "ai_key_rejected");
   assert.ok(!JSON.stringify(result).includes(keyA));
+  assert.ok((await service.save(userA, { enabled: true, provider: "google_gemini", apiKey: keyA })).ok,
+    "Saving a key does not require a successful test");
 });

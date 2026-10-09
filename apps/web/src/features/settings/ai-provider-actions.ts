@@ -15,7 +15,7 @@ export async function saveAIProviderSettings(input: AIProviderInput) {
   return user ? aiProviderService.save(user.id, input) : failure("settings_unauthorized", "auth");
 }
 
-export async function testAIProvider(draftKey?: string) {
+export async function testAIProvider(draftKey: string) {
   const user = await getCurrentUser();
   return user ? aiProviderService.test(user.id, draftKey) : failure("settings_unauthorized", "auth");
 }

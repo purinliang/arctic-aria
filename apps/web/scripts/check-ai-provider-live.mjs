@@ -43,6 +43,12 @@ try {
     const errors = [];
     page.on('pageerror',error => errors.push(error.name));
     await page.goto(`${baseUrl}/settings`);
+    const provider = page.getByRole('button',{ name: 'Provider',exact: true });
+    async function selectProvider(label) {
+      await provider.click(); await page.getByRole('option',{ name: label,exact: true }).click();
+    }
+    await page.waitForFunction(() => document.querySelector('button[aria-label="Provider"]')?.disabled === false);
+    await selectProvider('Google Gemini');
     const input = page.getByLabel('API key',{ exact: true });
     await page.waitForFunction(() => {
       const input = document.querySelector('input[aria-label="API key"]');
@@ -52,7 +58,6 @@ try {
     assert.equal(await page.getByRole('button',{ name: 'Remove API key',exact: true }).count(),0,'new account cannot see another account credential');
     const key = `test-live-account-${index}-api-key`;
     await input.fill(key);
-    await page.getByRole('switch',{ name: 'Enable AI',exact: true }).click();
     await page.getByRole('button',{ name: 'Save',exact: true }).click();
     await page.getByRole('button',{ name: 'Remove API key',exact: true }).waitFor();
     let row = await repository.find(id);
@@ -62,14 +67,13 @@ try {
     assert.equal(await input.inputValue(),'');
     await page.reload();
     await page.getByRole('button',{ name: 'Remove API key',exact: true }).waitFor();
-    assert.equal(await page.getByRole('switch',{ name: 'Enable AI',exact: true }).getAttribute('aria-checked'),'true');
-    await page.getByRole('switch',{ name: 'Enable AI',exact: true }).click();
-    await page.getByRole('button',{ name: 'Save',exact: true }).click();
-    await page.waitForFunction(() => document.querySelector('input[aria-label="API key"]')?.disabled === false);
+    assert.ok((await provider.textContent()).includes('Google Gemini'));
+    await selectProvider('Disabled');
+    await page.waitForFunction(() => document.querySelector('button[aria-label="Provider"]')?.disabled === false);
+    assert.equal(await input.count(),0);
     row = await repository.find(id);
     assert.equal(row.enabled,false); assert.equal(crypto.decrypt(id,row.encrypted_api_key),key);
-    await page.getByRole('switch',{ name: 'Enable AI',exact: true }).click();
-    await page.getByRole('button',{ name: 'Save',exact: true }).click();
+    await selectProvider('Google Gemini');
     await page.waitForFunction(() => document.querySelector('input[aria-label="API key"]')?.disabled === false);
     assert.equal((await repository.find(id)).enabled,true,'blank replacement can re-enable an existing key');
     const claims = await Promise.all([repository.claimTest(id),repository.claimTest(id),repository.claimTest(id)]);

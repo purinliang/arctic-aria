@@ -1,5 +1,5 @@
 export type AIProviderMessages = {
-  title: string; description: string; enabled: string; provider: string;
+  title: string; description: string; provider: string; providerDescription: string; disabled: string;
   apiKey: string; placeholder: string; replacePlaceholder: string;
   savedKey: string; noKey: string; save: string; test: string; remove: string;
   loading: string; retry: string; saved: string; tested: string;
@@ -8,7 +8,7 @@ export type AIProviderMessages = {
 
 export const englishAIProviderMessages: AIProviderMessages = {
   title: "AI Provider", description: "Your personal AI connection.",
-  enabled: "Enable AI", provider: "Provider", apiKey: "API key",
+  provider: "Provider", providerDescription: "Select the AI service to use.", disabled: "Disabled", apiKey: "API key",
   placeholder: "Paste your API key", replacePlaceholder: "Replace saved API key",
   savedKey: "API key saved", noKey: "Not configured", save: "Save", test: "Test",
   remove: "Remove API key", loading: "Loading", retry: "Retry",
@@ -28,7 +28,7 @@ export const englishAIProviderMessages: AIProviderMessages = {
 
 export const chineseAIProviderMessages: AIProviderMessages = {
   title: "AI 提供商", description: "你的个人 AI 连接。",
-  enabled: "启用 AI", provider: "提供商", apiKey: "API 密钥",
+  provider: "提供商", providerDescription: "选择要使用的 AI 服务。", disabled: "禁用", apiKey: "API 密钥",
   placeholder: "粘贴你的 API 密钥", replacePlaceholder: "替换已保存的 API 密钥",
   savedKey: "API 密钥已保存", noKey: "未配置", save: "保存", test: "测试",
   remove: "移除 API 密钥", loading: "加载中", retry: "重试",
