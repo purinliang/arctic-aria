@@ -538,13 +538,30 @@ relationship between the slots, and the list text components own the compact
 multiline rhythm.
 
 Empty states, overview copy, form help, and dialog body text are not list rows.
-Use `DescriptionText` or `SupportingText` for those surfaces instead of forcing
+Use `EmptyState` for empty content lists, and `DescriptionText` or
+`SupportingText` for copy, form help and dialog body text instead of forcing
 them into `ListItemTitle` or `ListItemContent`.
 
 Use `ExpandableListItem` for rows that open details. The header row and expanded
 details must be rendered inside the same list item so the background, padding,
 and divider behavior stay consistent. Do not place expanded details in a
 separate grey box or sibling container below the item.
+
+## Empty State
+
+`empty-state.tsx` owns the shared informational empty-content frame: a dashed
+secondary border, standard card radius, transparent background, card-body
+padding and centered muted text. Optional description text uses the shared
+smaller text stack. It has no button role, keyboard stop, hover state or action.
+Unlike the Supplies New supply card, this frame reports absence of content
+rather than opening a creation flow. Keep loading and error messages separate.
+
+`PagedList` uses the frame when loaded content is empty, spanning all columns
+in card layouts. This covers Money, Projects, project tasks, Routines and Events
+(definitions and instances), Memories and Ideas without feature-local styling.
+A leading creation card still suppresses the extra empty frame; Supplies keeps
+its first-position New supply action. Compact dashboard hints and dialog manager
+lists retain their existing empty-line presentation for now.
 
 ## Paged List
 

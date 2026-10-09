@@ -12,6 +12,13 @@ The unframed page has three rows:
    date, right-aligned amount/currency and an edit icon. No extra history heading,
    daily picker, Day/Month switch or category administration controls.
 
+An empty selected month/category shows a full-width shared dashed empty-state
+frame reading No expenses yet (localized). Its transparent background, standard
+card radius, card-body padding and muted text keep it compact. The frame is
+informational and has no click action. Month/category navigation, zero totals
+and the New expense action remain unchanged. Loading does not show an empty
+frame; adding a matching expense replaces the frame with transaction cards.
+
 The entry dialog starts with Food, Transport, Shopping / Housing, Bills, More in
 the existing three-column icon tile grid. More is an expansion button, not a
 category. It reveals Health, Subscription, active custom categories and an icon

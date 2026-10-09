@@ -18,6 +18,18 @@ async function dismissNotifications(page,en) {
     await page.waitForFunction(({ label,count }) => [...document.querySelectorAll('button')].filter((item) => item.getAttribute('aria-label') === label).length < count,{ label,count });
   }
 }
+async function checkEmptyFrame(frame) {
+  await frame.waitFor();
+  const style = await frame.evaluate((node) => {
+    const css = getComputedStyle(node);
+    return { border: css.borderStyle,radius: css.borderRadius,background: css.backgroundColor,
+      width: node.getBoundingClientRect().width,parentWidth: node.parentElement.clientWidth };
+  });
+  assert.equal(style.border,'dashed'); assert.equal(style.radius,'6px');
+  assert.equal(style.background,'rgba(0, 0, 0, 0)');
+  assert.ok(Math.abs(style.width - style.parentWidth) <= 2,'empty frame fills its content area');
+  assert.equal(await frame.locator('button,a,input,[tabindex]').count(),0,'empty state is informational, not a creation control');
+}
 const browser = await chromium.launch({ headless: true });
 try {
   for (const width of [1280,820,390]) for (const language of ['en','zh-CN']) for (const theme of ['light','dark']) {
@@ -28,6 +40,7 @@ try {
     },{ language,theme });
     const today = new Date().toLocaleDateString('en-CA',{ timeZone: 'Australia/Sydney' });
     const project = { id: randomUUID(),title: 'Project fixture',description: 'Neutral project fixture',startDate: today,deadlineDate: '',expectedDurationDays: '',durationRange: 'open',sidebarPinOrder: null,timelineText: '',currentMilestone: '',progressText: '',tasks: [],milestones: [] };
+    const projects = [project];
     const categories = ['food','transport','shopping','housing','bills','health','subscription','other'].map((seedKey) => ({ id: randomUUID(),seedKey,name: null,archived: false }));
     categories.push(...['Custom A','Custom B'].map((name) => ({ id: randomUUID(),seedKey: null,name,archived: false })));
     let settings = { preferredCurrencies: ['CNY','AUD'],quickCategoryIds: categories.slice(0,5).map((item) => item.id) };
@@ -101,7 +114,7 @@ try {
         if (!item) { item = { id: input.id }; wishlist.unshift(item); }
         Object.assign(item,input,{ version: input.version + 1 }); result = { ok: true,data: item };
       } else if (name === 'getIdeaPageData') result = { ok: true,data: [] };
-      else if (name?.startsWith('get') && name.endsWith('DashboardData')) result = { ok: true,data: { projects: [project],tasks: [],events: [],eventInstances: [],todayEvents: [],eventGroups: [],routines: [],routineInstances: [],routineDefinitions: [],routineGroups: [],categories: [],pinnedMemories: [],memoryRecords: [] } };
+      else if (name?.startsWith('get') && name.endsWith('DashboardData')) result = { ok: true,data: { projects,tasks: [],events: [],eventInstances: [],todayEvents: [],eventGroups: [],routines: [],routineInstances: [],routineDefinitions: [],routineGroups: [],categories: [],pinnedMemories: [],memoryRecords: [] } };
       else { failures.push(`Unexpected action ${name}`); result = unavailable; }
       await route.fulfill({ status: 200,contentType: 'text/x-component',body: `0:{"a":"$@1","f":[],"b":"fixture"}\n1:${JSON.stringify(result)}\n` });
     });
@@ -127,8 +140,15 @@ try {
     const reads = moneyReads;
     await page.getByRole('tab',{ name: en ? 'Transport' : '交通',exact: true }).click();
     await page.getByText('AUD 0.00',{ exact: true }).waitFor(); assert.equal(moneyReads,reads,'category filtering uses the monthly snapshot');
+    const emptyMoney = page.locator('.aa-empty-state');
+    await checkEmptyFrame(emptyMoney);
+    assert.equal(await emptyMoney.textContent(),en ? 'No expenses yet' : '暂无支出');
+    assert.equal(await button(newExpense).isEnabled(),true,'empty results retain expense creation');
+    await page.screenshot({ path: `${output}/money-empty-${width}-${language}-${theme}.png`,fullPage: true });
     await page.getByRole('tab',{ name: en ? 'All' : '全部',exact: true }).click();
+    assert.equal(await emptyMoney.count(),0,'matching records replace the empty state');
     await button(en ? 'Previous month' : '上个月').click(); await page.getByText('AUD 0.00',{ exact: true }).waitFor();
+    await checkEmptyFrame(emptyMoney);
     await button(en ? 'Next month' : '下个月').click(); await page.getByText('AUD 86.10',{ exact: true }).waitFor();
     await button(newExpense).click();
     await page.getByLabel(en ? 'Note' : '备注',{ exact: true }).fill('Manual fixture');
@@ -231,6 +251,7 @@ try {
       return fill.classList.contains('bg-amber-500') && !['transparent','rgba(0, 0, 0, 0)'].includes(getComputedStyle(fill).backgroundColor);
     }),'level two has a rendered amber colour');
     await button(newSupply).click(); await page.getByLabel(en ? 'Title' : '名称',{ exact: true }).fill('Added rice fixture');
+    assert.equal(await page.locator('.aa-empty-state').count(),0,'Supplies creation cards do not acquire informational empty styling');
     assert.equal(await page.getByRole('slider',{ name: en ? 'Initial stock' : '初始余量',exact: true }).inputValue(),'5');
     assert.equal(await page.getByLabel(en ? 'Unit' : '单位',{ exact: true }).count(),0);
     await page.screenshot({ path: `${output}/supply-config-${width}-${language}-${theme}.png`,fullPage: true });
@@ -301,6 +322,18 @@ try {
     await projectMenuTrigger.click();
     await button(en ? 'Close project template' : '关闭项目模板').click();
     await page.getByRole('menu').waitFor({ state: 'detached' });
+    await button(en ? 'Close project editor' : '关闭项目编辑器').click();
+    projects.length = 0;
+    for (const route of ['projects','events','routines','memories','ideas']) {
+      await page.goto(`${baseUrl}/${route}`);
+      await checkEmptyFrame(page.locator('.aa-empty-state').first());
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),`${route} empty page fits viewport`);
+    }
+    items.length = 0;
+    await page.goto(`${baseUrl}/supplies`);
+    await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key) ?? '{}').data?.items.length === 0,suppliesKey);
+    assert.equal(await page.locator('.aa-empty-state').count(),0,'empty Supplies keeps only its interactive creation entry');
+    assert.equal(await button(newSupply).isEnabled(),true);
     assert.equal(expenses.length,10); assert.deepEqual(failures,[]);
     await context.close();
     console.log(`Personal tools passed: ${width}px ${language} ${theme}`);

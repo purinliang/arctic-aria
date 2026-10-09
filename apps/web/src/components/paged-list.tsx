@@ -7,6 +7,7 @@ import {
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { Button } from "./button";
+import { EmptyState } from "./empty-state";
 import { List } from "./list";
 import { LoadingLine } from "./loading";
 import {
@@ -15,10 +16,9 @@ import {
 } from "./paged-list-utils";
 import {
   controlGapClass,
-  listRowPaddingClass,
   pagedListNavigationPaddingClass,
 } from "./spacing";
-import { DescriptionText, SupportingText } from "./text";
+import { SupportingText } from "./text";
 import { cx } from "./utils";
 
 export type PagedListNavigationMessages = {
@@ -88,9 +88,11 @@ export function PagedList<Item>({
         <LoadingLine darkMode={darkMode} text={loadingText} />
       ) : null}
       {!loading && items.length === 0 && !leadingItem ? (
-        <DescriptionText darkMode={darkMode} className={listRowPaddingClass}>
-          {emptyText}
-        </DescriptionText>
+        <EmptyState
+          darkMode={darkMode}
+          text={emptyText}
+          className={layout === "cards" ? "col-span-full" : undefined}
+        />
       ) : null}
       {!loading ? visibleItems.map((item) => renderItem(item)) : null}
       {showPagination ? (
