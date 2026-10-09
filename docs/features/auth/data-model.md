@@ -87,6 +87,15 @@ Security rules:
 - If a future password pepper is added, keep it outside the database and outside
   committed files.
 
+## AI Provider Credentials
+
+User-owned Gemini API keys are separate Settings credentials, not passwords or
+auth-session material. They use dedicated AES-256-GCM encryption rather than
+hashing because the server must send the original key to Google. The server
+encryption key must never reuse `AUTH_SESSION_SECRET`. AI settings actions derive
+ownership exclusively from the signed session and never return saved keys.
+See [Settings credential storage](../settings/data-model.md#user_ai_settings).
+
 ## Password Changes
 
 Authenticated users may change their own password by providing the current

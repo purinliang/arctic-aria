@@ -55,6 +55,14 @@ Progress and Travel Shopping must stay hidden until human confirmation.
 
 ## Next Work After v0.12.0
 
+- Gemini API environment is prepared on `feature/gemini-api-environment`
+  (2026-10-09): server-only adapter, explicit smoke commands, and account-scoped
+  AI Provider settings with encrypted user-owned keys and rate-limited tests.
+  Live access requires each user's API key and Google model eligibility.
+  Production release requires a stable credential-encryption deployment secret.
+  AI/chat integration, data-sharing consent and command confirmations remain pending human review.
+  Do not automatically restore Progress or chat as part of this setup.
+
 - Continue explicit schedule actions for Today items. Routine `Later` and
   `Tomorrow`, and project task `Tomorrow`, are implemented on
   `feature/routine-schedule-actions`. A separate remove-from-Today action

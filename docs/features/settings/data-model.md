@@ -4,6 +4,27 @@ Settings persistence stores one preference row per authenticated user.
 
 ## Tables
 
+### `user_ai_settings`
+
+Migration `0042` adds one credential row per user: `user_id` (primary key with
+user-delete cascade), `provider` (only `google_gemini`), `enabled`, nullable
+`encrypted_api_key`, `last_test_at`, and creation/update timestamps. An enabled
+row must have a key. Missing rows represent disabled/unconfigured AI.
+
+Keys are AES-256-GCM encrypted with the dedicated server-only
+`AI_CREDENTIAL_ENCRYPTION_KEY`, a random 12-byte nonce, and authenticated data
+bound to the user, provider, and envelope version. The database stores a `v1`
+envelope, never plaintext. Normal status reads return only provider, enabled,
+and has-key flags. All action ownership comes from the authenticated session.
+
+Blank key input preserves the saved key atomically. Disabling retains it;
+explicit removal clears the ciphertext and disables AI in the same write.
+Replacing a key does not reset the durable test cooldown. Manual tests may use
+an unsaved draft key without persisting it or enabling AI. Atomic upsert claims
+permit one test per user per 30 seconds across server instances. No global key
+fallback is permitted. Rows cascade only when the owning user is deleted;
+removing a key does not delete the row or its cooldown history.
+
 ### `user_settings`
 
 `user_settings` owns account-scoped display preferences. The row is created on

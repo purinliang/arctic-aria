@@ -43,6 +43,11 @@ Backend inside the web app:
 - feature-local services and repositories
 - direct SQL repository adapters
 - shared database connection helper
+- optional server-side Gemini text adapter in `apps/web/src/server/ai`, with
+  account-owned encrypted credentials configured in Settings and rate-limited
+  connection tests; `AI_CREDENTIAL_ENCRYPTION_KEY` is required for saved keys;
+  private configuration and explicit `ai:check` / `ai:smoke` commands; not wired
+  to chat or product commands
 
 Verification:
 

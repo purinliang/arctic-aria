@@ -20,6 +20,7 @@ that appear only after an administrator enables developer mode:
   sign-out
 - `Discord`: Discord connection status, connection code flow, direct-message
   test, and disconnect controls
+- `AI Provider`: user-owned Gemini configuration and connection testing
 - `About`: visible app version, collapsed database-version metadata, and the
   administrator-only developer-mode switch
 - `Developer Tools`: administrator-only diagnostics and internal import tools,
@@ -101,6 +102,28 @@ Do not show migration filenames in the user-facing Settings UI. Do not add
 developer-account-specific display rules for version metadata. If a future
 admin/debug mode is added, reveal the existing mounted database row through an
 explicit role or environment rule rather than a hard-coded account name.
+
+## AI Provider
+
+The card sits below Discord and uses the same shared panel, header, list, and
+SettingsControlRow layout. It contains Enable AI, a disabled Google Gemini
+provider selector, a password-style key input, and Test/Save actions. A saved
+key shows a status label and a compact remove action, never its actual value.
+English and Simplified Chinese catalogs cover labels and expected failures.
+
+Loading disables only this card's editable controls; a failed initial read
+offers Retry. Save/Test/Remove are blocking, prevent duplicate requests, and
+leave the rest of Settings usable. Failure keeps unsaved input and current
+status; success clears the input and shows a shared notification. Theme and
+language changes do not discard the draft. Account changes remount the card.
+No browser storage/cache contains credentials.
+
+Save persists enablement and an optional replacement key. Blank input retains
+the old key. Removal clears it and disables AI. Test uses the draft key if
+present, otherwise this user's saved key. It is an explicit connection check
+even while disabled, not an AI product action; it does not persist draft keys.
+It sends only a neutral test prompt, with no automatic product-data export.
+Normal future AI operations must respect saved enablement. Chat remains hidden.
 
 ## Developer Tools
 

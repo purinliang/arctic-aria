@@ -1,4 +1,5 @@
 import type { SupportedLanguage } from "./languages";
+import { englishAIProviderMessages, chineseAIProviderMessages } from "./ai-provider-messages";
 import { englishMoneyMessages, chineseMoneyMessages } from "./money-messages";
 import { englishSuppliesMessages, chineseSuppliesMessages } from "./supplies-messages";
 import { englishDailyLifeMessages, simplifiedChineseDailyLifeMessages } from "./daily-life-messages";
@@ -146,6 +147,7 @@ const englishMessages = {
     },
   },
   settings: {
+    ai: englishAIProviderMessages,
     description: "Theme, language, and app information.",
     accountDescription: "Profile, password, and sign-out.",
     password: englishPasswordChangeMessages,
@@ -527,6 +529,7 @@ const simplifiedChineseMessages: AppMessages = {
     },
   },
   settings: {
+    ai: chineseAIProviderMessages,
     description: "主题、语言和应用信息。",
     accountDescription: "资料、密码和退出登录。",
     password: simplifiedChinesePasswordChangeMessages,
