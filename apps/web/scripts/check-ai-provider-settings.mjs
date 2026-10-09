@@ -125,6 +125,12 @@ try {
     const rectangles = await Promise.all([input,test,save].map(control => control.boundingBox()));
     assert.ok(rectangles.every(rect => rect.height === rectangles[0].height),'Input and actions share one height');
     assert.ok(rectangles.every(rect => Math.abs(rect.y - rectangles[0].y) < 1),'Actions remain on the input row');
+    if (width >= 1024) {
+      const providerRect = await provider.boundingBox();
+      assert.equal(rectangles[0].width,providerRect.width,'Desktop key input keeps standard Settings control width');
+      assert.ok(rectangles[1].x >= rectangles[0].x + rectangles[0].width,'Test sits to the right of the full-width key input');
+      assert.ok(rectangles[2].x >= rectangles[1].x + rectangles[1].width,'Save follows Test');
+    }
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),'no horizontal overflow');
     const dismiss = page.getByRole('button',{ name: en ? 'Dismiss notification' : '关闭通知',exact: true });
     await dismiss.evaluateAll(buttons => buttons.forEach(button => button.click()));

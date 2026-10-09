@@ -109,8 +109,10 @@ The card sits below Discord and uses the same shared panel, header, list, and
 SettingsControlRow layout. Its Provider dropdown offers Disabled and Google
 Gemini, with "Select the AI service to use." below the label. The API key row
 appears only when Gemini is selected, with a password-style input and Test/Save
-actions on the same horizontal row, using the input's standard height. A saved
-key shows a status label and a compact remove action, never its actual value.
+actions on the same horizontal row, using the input's standard height. The
+key input retains the standard 20rem Settings control width on desktop, with
+actions alongside rather than inside that width; narrow layouts shrink the input.
+A saved key shows a status label and a compact remove action, never its actual value.
 English and Simplified Chinese catalogs cover labels and expected failures.
 
 Loading disables only this card's editable controls; a failed initial read

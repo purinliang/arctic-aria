@@ -111,9 +111,10 @@ export function AIProviderSettings({ darkMode, messages, showSuccessNotification
               <RefreshCw size={16} aria-hidden="true" />{messages.retry}</Button> : null}
           </div>} />
         {enabled ? <SettingsControlRow darkMode={darkMode} title={messages.apiKey}
+          className="lg:grid-cols-[minmax(0,1fr)_auto]"
           support={pending === "load" ? messages.loading : status.hasKey ? messages.savedKey : messages.noKey}
           control={<div className={`flex w-full min-w-0 items-center ${controlGapClass}`}>
-            <div className="min-w-0 flex-1"><PasswordInput darkMode={darkMode} value={apiKey}
+            <div className="min-w-0 flex-1 lg:w-[20rem] lg:flex-none"><PasswordInput darkMode={darkMode} value={apiKey}
               id="geminiApiKey" name="geminiApiKey" aria-label={messages.apiKey}
               autoComplete="off" maxLength={256} spellCheck={false}
               placeholder={status.hasKey ? messages.replacePlaceholder : messages.placeholder}
