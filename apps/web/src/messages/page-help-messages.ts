@@ -30,6 +30,28 @@ export const englishPageHelpMessages = {
         { title: "Experiences", body: "Pinned memories and suggestions offer experiences to revisit. They are suggestions, not overdue commitments." },
       ],
     },
+    daily: {
+      title: "Progress",
+      summary: "Record work, study, and exercise durations, then review the last seven days.",
+      sections: [
+        { title: "Record time", body: "Choose Work, Study, or Exercise and enter the minutes spent. You can adjust the recorded time and add a note. These records do not complete project tasks." },
+        { title: "Weekly progress", body: "The bar chart shows daily totals in your configured timezone, from six days ago on the left to Today on the right. Select a day to review or edit its records. Older records remain stored." },
+      ],
+    },
+    money: {
+      title: "Money", summary: "Record expenses and review monthly category totals without currency conversion.",
+      sections: [
+        { title: "Capture", body: "Open New expense, choose a category, enter an amount and save. More offers additional categories and inline custom creation. Note suggestions follow your category's history and remain freely editable." },
+        { title: "Currencies", body: "Choose AUD, CNY, USD, JPY or EUR. New expenses default to AUD. Monthly totals follow the selected category and stay separate by currency." },
+      ],
+    },
+    supplies: {
+      title: "Supplies", summary: "Track remaining food and household supplies with compact stock cards.",
+      sections: [
+        { title: "Stock", body: "New items use an approximate 0–5 scale, starting at 5. Click or drag the bar to update the remaining level. Red items appear first, then amber, then blue. Existing physical quantities stay unchanged." },
+        { title: "Quick updates", body: "Use New supply to add an item. Open its title to edit. Stock bars accept consecutive changes while saving; only confirmed values are cached." },
+      ],
+    },
     projects: {
       title: "Projects",
       summary: "Organize long-term goals into milestones and actionable tasks.",
@@ -138,6 +160,28 @@ export const simplifiedChinesePageHelpMessages: typeof englishPageHelpMessages =
         { title: "任务和例行事项", body: "完成后勾选对应条目。可用的排期操作可以推迟灵活安排的工作，明天会将其移至下一天。已完成条目仍保留在今日页面，方便回顾。" },
         { title: "固定日程", body: "日程代表预约或其他固定承诺。需要调整时，请到日程页面更改时间或取消，而不是像灵活任务一样推迟。" },
         { title: "体验", body: "置顶记忆和推荐可以帮助重温体验。它们是建议，不是会逾期的承诺。" },
+      ],
+    },
+    daily: {
+      title: "进步",
+      summary: "记录工作、学习和运动的时长，并回顾最近七天。",
+      sections: [
+        { title: "记录时长", body: "选择工作、学习或运动，填写投入的分钟数。可以调整记录时间并添加备注。这些记录不会自动完成项目任务。" },
+        { title: "每周进步", body: "柱状图按当前时区显示每日总时长，从左侧的六天前到右侧的今天。选择某一天可查看或编辑记录。更早的记录仍然保留。" },
+      ],
+    },
+    money: {
+      title: "财务", summary: "记录支出并查看每月分类总额，不进行货币转换。",
+      sections: [
+        { title: "记录支出", body: "打开新增支出，选择分类并输入金额后保存。更多选项提供其他分类和直接创建自定义分类。备注建议按该分类的历史使用情况排序，仍可自由编辑。" },
+        { title: "货币", body: "选择 AUD、CNY、USD、JPY 或 EUR，新支出默认为 AUD。每月总额按当前分类筛选，不同货币分别计算。" },
+      ],
+    },
+    supplies: {
+      title: "物资", summary: "使用紧凑的余量卡片记录食品和日用品。",
+      sections: [
+        { title: "余量", body: "新物资使用固定的 0–5 近似余量，初始值为 5。点击或拖动进度条即可更新。列表依次显示红色、琥珀色和蓝色项目，已有的实际数量保持不变。" },
+        { title: "快速更新", body: "使用新建物资添加项目，点击名称可编辑。保存过程中仍可连续调整余量，缓存仅保存已确认的值。" },
       ],
     },
     projects: {

@@ -1,12 +1,19 @@
 import type { NextConfig } from "next";
 import { resolveAppMetadata } from "./scripts/read-app-metadata.mjs";
+import { progressVisibleOnBranch } from './src/app-shell/feature-visibility';
 
 const appMetadata = resolveAppMetadata(process.cwd());
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [{ source: "/daily", destination: "/progress", permanent: false }];
+  },
   async rewrites() {
     return [
       { source: "/today", destination: "/" },
+      { source: "/progress", destination: "/" },
+      { source: "/money", destination: "/" },
+      { source: "/supplies", destination: "/" },
       { source: "/projects", destination: "/" },
       { source: "/projects/:projectId", destination: "/" },
       { source: "/routines", destination: "/" },
@@ -18,6 +25,7 @@ const nextConfig: NextConfig = {
     ];
   },
   env: {
+    NEXT_PUBLIC_PROGRESS_PAGE_VISIBLE: String(progressVisibleOnBranch(appMetadata.branch)),
     NEXT_PUBLIC_APP_VERSION: appMetadata.version,
     NEXT_PUBLIC_APP_COMMIT: appMetadata.commit,
     NEXT_PUBLIC_APP_SOURCE_STATE: appMetadata.sourceState,

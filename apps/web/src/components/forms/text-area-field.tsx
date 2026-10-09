@@ -1,4 +1,4 @@
-import type { TextareaHTMLAttributes } from "react";
+import type { Ref, TextareaHTMLAttributes } from "react";
 import { textAreaMinHeightMdClass } from "../control-layout";
 import { formControlClass } from "./form-control-style";
 import { cx } from "../utils";
@@ -11,6 +11,7 @@ export function TextArea({
 }: TextareaHTMLAttributes<HTMLTextAreaElement> & {
   darkMode: boolean;
   hasError?: boolean;
+  ref?: Ref<HTMLTextAreaElement>;
 }) {
   return (
     <textarea

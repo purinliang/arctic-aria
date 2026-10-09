@@ -43,6 +43,11 @@ Backend inside the web app:
 - feature-local services and repositories
 - direct SQL repository adapters
 - shared database connection helper
+- optional server-side Gemini text adapter in `apps/web/src/server/ai`, with
+  account-owned encrypted credentials configured in Settings and rate-limited
+  connection tests; `AI_CREDENTIAL_ENCRYPTION_KEY` is required for saved keys;
+  private configuration and explicit `ai:check` / `ai:smoke` commands; Aria Chat
+  uses account-owned keys, without product mutation commands
 
 Verification:
 
@@ -134,7 +139,11 @@ refresh and direct entry keep the selected surface instead of always returning
 to Today:
 
 - `/` and `/today` show Today
+- `/progress` shows work/study/exercise duration recording and a seven-day chart;
+  `/daily` redirects there, and chat remains hidden in the frontend
 - `/projects` shows the Projects list
+- `/money` shows expense capture and currency-separated daily/monthly history
+- `/supplies` shows Food/Household stock and a linked Travel Shopping wishlist
 - `/projects/<project-id>` shows one Project detail page
 - `/routines` shows Routines
 - `/events` shows Events

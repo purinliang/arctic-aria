@@ -7,6 +7,7 @@ import {
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { Button } from "./button";
+import { EmptyState } from "./empty-state";
 import { List } from "./list";
 import { LoadingLine } from "./loading";
 import {
@@ -15,10 +16,9 @@ import {
 } from "./paged-list-utils";
 import {
   controlGapClass,
-  listRowPaddingClass,
   pagedListNavigationPaddingClass,
 } from "./spacing";
-import { DescriptionText, SupportingText } from "./text";
+import { SupportingText } from "./text";
 import { cx } from "./utils";
 
 export type PagedListNavigationMessages = {
@@ -39,10 +39,12 @@ export function PagedList<Item>({
   items,
   loading,
   loadingText,
+  layout = "rows",
   messages,
   pageSize,
   resetKey,
   renderItem,
+  leadingItem,
 }: {
   ariaLabel: string;
   className?: string;
@@ -51,10 +53,12 @@ export function PagedList<Item>({
   items: readonly Item[];
   loading: boolean;
   loadingText: string;
+  layout?: "rows" | "cards";
   messages: PagedListMessages;
   pageSize: number;
   resetKey?: string;
   renderItem: (item: Item) => ReactNode;
+  leadingItem?: ReactNode;
 }) {
   const normalizedResetKey = `${resetKey ?? "default"}:${Math.max(
     1,
@@ -78,18 +82,22 @@ export function PagedList<Item>({
   const showPagination = !loading && items.length > windowState.pageSize;
 
   return (
-    <List darkMode={darkMode} className={className}>
+    <List darkMode={darkMode} variant={layout} className={className}>
+      {leadingItem}
       {loading ? (
         <LoadingLine darkMode={darkMode} text={loadingText} />
       ) : null}
-      {!loading && items.length === 0 ? (
-        <DescriptionText darkMode={darkMode} className={listRowPaddingClass}>
-          {emptyText}
-        </DescriptionText>
+      {!loading && items.length === 0 && !leadingItem ? (
+        <EmptyState
+          darkMode={darkMode}
+          text={emptyText}
+          className={layout === "cards" ? "col-span-full" : undefined}
+        />
       ) : null}
       {!loading ? visibleItems.map((item) => renderItem(item)) : null}
       {showPagination ? (
         <PagedListNavigation
+          className={layout === "cards" ? "col-span-full" : undefined}
           ariaLabel={ariaLabel}
           darkMode={darkMode}
           messages={messages}

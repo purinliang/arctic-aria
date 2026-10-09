@@ -118,6 +118,22 @@ history is a valid prefix of the current source tree:
 - Legacy rows that predate checksum tracking can be backfilled only when their
   names match the current migration history prefix.
 
+SQL splitting preserves quoted strings, comments, and PostgreSQL dollar-quoted
+function bodies. Each migration's statements and its `schema_migrations` row
+run in one Neon transaction, so a failed statement does not leave partial DDL.
+
+The old runner could leave empty Money tables before migration 0037's first
+function. Only for that known development failure, run from `apps/web`:
+
+```bash
+node --env-file=.env.local scripts/recover-incomplete-money-migration.mjs --confirm-recovery
+pnpm database:migrate
+```
+
+Recovery refuses applied migrations, nonempty tables, or existing Money
+functions. It takes table locks and does not use `CASCADE`. Do not run it on
+production or use it for unrelated migration failures.
+
 The actual database version shown in the app comes from the applied migration
 table, not from the commit that last ran `pnpm database:migrate`. App commit metadata
 is audit context only. User-facing UI shows the app version and the compact

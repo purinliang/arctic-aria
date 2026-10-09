@@ -2,6 +2,9 @@ export type TaskStatus = "todo" | "done";
 
 export type DashboardView =
   | "dashboard"
+  | "daily"
+  | "money"
+  | "supplies"
   | "design"
   | "events"
   | "ideas"

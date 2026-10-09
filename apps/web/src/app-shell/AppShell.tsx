@@ -29,6 +29,7 @@ import type {
   UserPreferences,
 } from "@/features/settings/preferences";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
+import { PersonalTrackingPages } from "./PersonalTrackingPages";
 import { DesignPage } from "@/features/design/components/DesignPage";
 import { EventsPage } from "@/features/events/components/EventsPage";
 import { useDashboardEvents } from "@/features/events/hooks/useDashboardEvents";
@@ -56,6 +57,8 @@ import {
   writeStoredDeveloperModeEnabled,
 } from "./developer-mode";
 import { Sidebar } from "./Sidebar";
+import { showProgressPage } from './feature-visibility';
+import { ChatWidget } from '@/features/chat/components/ChatWidget';
 
 export function AppShell({
   currentUser,
@@ -109,7 +112,7 @@ export function AppShell({
     () => browserPathname() ?? initialPathname,
   );
   const pathnameRoute = appRouteFromPathname(currentPathname);
-  const activeView = pathnameRoute.view;
+  const activeView = pathnameRoute.view === 'daily' && !showProgressPage ? 'dashboard' : pathnameRoute.view;
   const [developerModeEnabled, setDeveloperModeEnabled] = useState(
     readStoredDeveloperModeEnabled,
   );
@@ -231,6 +234,14 @@ export function AppShell({
       window.removeEventListener("popstate", syncBrowserPathname);
     };
   }, [initialPathname]);
+
+  useEffect(() => {
+    if (pathnameRoute.view !== 'daily' || showProgressPage) return;
+    const todayPath = appPathForView('dashboard');
+    window.history.replaceState({ arcticAriaPath: todayPath },'',todayPath);
+    const timer = setTimeout(() => setCurrentPathname(todayPath),0);
+    return () => clearTimeout(timer);
+  },[pathnameRoute.view]);
 
   useEffect(() => {
     if (activeView !== "design" || showDesignPage) {
@@ -492,6 +503,17 @@ export function AppShell({
               showErrorNotification={showErrorNotification}
               showSuccessNotification={showSuccessNotification}
             />
+          ) : activeWorkspaceView === "daily" || activeWorkspaceView === "money" || activeWorkspaceView === "supplies" ? (
+            <PersonalTrackingPages
+              userId={currentUser.id}
+              view={activeWorkspaceView}
+              darkMode={darkMode}
+              timezone={resolvedTimeZone}
+              language={resolvedLanguage}
+              timeFormatPreference={timeFormatPreference}
+              messages={messages}
+              showErrorNotification={showErrorNotification}
+            />
           ) : activeWorkspaceView === "ideas" ? (
             <IdeasPage
               darkMode={darkMode}
@@ -599,6 +621,8 @@ export function AppShell({
         </div>
       </div>
 
+      <ChatWidget key={currentUser.id} userId={currentUser.id} darkMode={darkMode} language={resolvedLanguage}
+        timeZone={resolvedTimeZone} onSettings={() => handleViewChange('settings')} />
       <NotificationStack
         notifications={notifications}
         darkMode={darkMode}

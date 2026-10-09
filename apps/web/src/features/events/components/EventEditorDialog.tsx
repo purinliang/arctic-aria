@@ -158,6 +158,7 @@ function EventEditorMenu({
           {onDelete ? (
             <ActionMenuItem
               darkMode={darkMode}
+              destructive
               onClick={() => {
                 setOpen(false);
                 onDelete();
