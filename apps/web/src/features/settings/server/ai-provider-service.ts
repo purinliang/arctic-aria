@@ -5,7 +5,7 @@ import { failure, validId } from "../../../server/feature-result.ts";
 import type { FeatureResult } from "../../../server/feature-result.ts";
 import { defaultAIModel, defaultAIProviderStatus, validAPIKey, validGeminiModel } from "../ai-provider.ts";
 import type { AIProviderInput, AIProviderStatus, GeminiModel } from "../ai-provider.ts";
-import { AIProviderRepository } from "./ai-provider-repository.ts";
+import { AIKeyAlreadySavedError, AIProviderRepository } from "./ai-provider-repository.ts";
 
 type Repository = Pick<AIProviderRepository, "find" | "save" | "claimTest">;
 
@@ -30,6 +30,7 @@ export function createAIProviderService({
     try { return { ok: true, data: await work() }; }
     catch (error) {
       if (error instanceof AISettingsError) return failure(error.code, "domain");
+      if (error instanceof AIKeyAlreadySavedError) return failure("ai_key_exists", "domain");
       if (error instanceof CredentialEncryptionError) return failure("ai_encryption_unavailable", "domain");
       if (error instanceof GeminiError) {
         return failure(error.status === 429 ? "ai_quota" : error.status === 400 || error.status === 401 || error.status === 403
@@ -57,8 +58,14 @@ export function createAIProviderService({
       if ((key && !validAPIKey(key)) || (input.removeKey && (input.enabled || key))) return failure("ai_invalid");
       if (!validId(userId)) return failure("settings_unauthorized", "auth");
       return command(userId, async () => {
-        if (input.enabled && !key && !(await repository.find(userId))?.encrypted_api_key) {
+        const existing = key || input.enabled ? await repository.find(userId) : null;
+        if (key && existing?.encrypted_api_key) throw new AISettingsError("ai_key_exists");
+        if (input.enabled && !key && !existing?.encrypted_api_key) {
           throw new AISettingsError("ai_key_required");
+        }
+        if (key) {
+          if (!(await repository.claimTest(userId))) throw new AISettingsError("ai_test_throttled");
+          await client(key, input.model ?? existing?.model ?? defaultAIModel).generateText(geminiConnectionTestPrompt);
         }
         return repository.save(userId, input.enabled, key ? encryption.encrypt(userId, key) : null, input.removeKey === true, input.model);
       });

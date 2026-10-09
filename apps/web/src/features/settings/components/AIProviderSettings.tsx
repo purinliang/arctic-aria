@@ -2,10 +2,9 @@
 
 // Settings Page - AI Provider Panel.
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bot, FlaskConical, LoaderCircle, RefreshCw, Save, Trash2 } from "lucide-react";
+import { Bot, LoaderCircle, RefreshCw, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
-import { fieldIconButtonSizeClass } from "@/components/control-layout";
 import { MaskedTextInput } from "@/components/forms/masked-text-input";
 import { SelectInput } from "@/components/forms/selection-field";
 import { List } from "@/components/list";
@@ -15,7 +14,7 @@ import { controlGapClass } from "@/components/spacing";
 import { useFeatureAction } from "@/components/use-feature-action";
 import type { FeatureActionOptions } from "@/components/use-feature-action";
 import type { AIProviderMessages } from "@/messages/ai-provider-messages";
-import { getAIProviderSettings, saveAIProviderSettings, testAIProvider } from "../ai-provider-actions";
+import { getAIProviderSettings, saveAIProviderSettings } from "../ai-provider-actions";
 import { defaultAIProviderStatus, geminiModelOptions, validGeminiModel } from "../ai-provider";
 import type { AIProviderStatus } from "../ai-provider";
 
@@ -32,7 +31,7 @@ export function AIProviderSettings({ darkMode, messages, showSuccessNotification
   const [model, setModel] = useState(defaultAIProviderStatus.model);
   const [apiKey, setAPIKey] = useState("");
   const [loaded, setLoaded] = useState(false);
-  const [pending, setPending] = useState<"load" | "provider" | "model" | "save" | "test" | "remove" | null>("load");
+  const [pending, setPending] = useState<"load" | "provider" | "model" | "save" | "remove" | null>("load");
   const busy = useRef(false);
   const mounted = useRef(false);
 
@@ -88,23 +87,18 @@ export function AIProviderSettings({ darkMode, messages, showSuccessNotification
     }
   }
 
-  async function perform(kind: "save" | "test" | "remove") {
+  async function perform(kind: "save" | "remove") {
     if (busy.current || !loaded) return;
     busy.current = true;
     setPending(kind);
     try {
-      if (kind === "test") {
-        const result = await invoke(() => testAIProvider(apiKey.trim(), model));
-        if (result && mounted.current) showSuccessNotification(messages.tested, messages.title);
-      } else {
-        const result = await invoke(() => saveAIProviderSettings({
-          provider: "google_gemini", enabled: kind === "remove" ? false : enabled, model,
-          apiKey: kind === "remove" ? undefined : apiKey, removeKey: kind === "remove",
-        }));
-        if (result && mounted.current) {
-          setStatus(result); setEnabled(result.enabled); setModel(result.model); setAPIKey("");
-          showSuccessNotification(messages.saved, messages.title);
-        }
+      const result = await invoke(() => saveAIProviderSettings({
+        provider: "google_gemini", enabled: kind === "remove" ? false : enabled, model,
+        apiKey: kind === "remove" ? undefined : apiKey, removeKey: kind === "remove",
+      }));
+      if (result && mounted.current) {
+        setStatus(result); setEnabled(result.enabled); setModel(result.model); setAPIKey("");
+        showSuccessNotification(messages.saved, messages.title);
       }
     } finally {
       busy.current = false;
@@ -138,21 +132,18 @@ export function AIProviderSettings({ darkMode, messages, showSuccessNotification
         {enabled ? <SettingsControlRow darkMode={darkMode} title={messages.apiKey}
           className="lg:grid-cols-[minmax(0,1fr)_auto]"
           support={pending === "load" ? messages.loading : status.hasKey ? messages.savedKey : messages.noKey}
-          control={<div className={`flex w-full min-w-0 items-center ${controlGapClass}`}>
+          control={status.hasKey ? <div className="flex w-full justify-end">
+            <Button type="button" darkMode={darkMode} tone="ghost" size="icon"
+              title={messages.remove} aria-label={messages.remove} disabled={pending !== null}
+              loading={pending === "remove"} loadingIcon={<LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}
+              onClick={() => void perform("remove")}><Trash2 size={16} aria-hidden="true" /></Button>
+          </div> : <div className={`flex w-full min-w-0 items-center ${controlGapClass}`}>
             <div className="min-w-0 flex-1 lg:w-[20rem] lg:flex-none"><MaskedTextInput darkMode={darkMode} value={apiKey}
               id="geminiApiKey" name="geminiApiKey" aria-label={messages.apiKey}
               autoComplete="off" autoCapitalize="off" autoCorrect="off" maxLength={256} spellCheck={false}
-              placeholder={status.hasKey ? messages.replacePlaceholder : messages.placeholder}
+              placeholder={messages.placeholder}
               disabled={!loaded || pending !== null} onChange={event => setAPIKey(event.target.value)}
-              trailing={status.hasKey ? <Button darkMode={darkMode} tone="ghost" size="icon" className={fieldIconButtonSizeClass}
-                title={messages.remove} aria-label={messages.remove} disabled={pending !== null}
-                onClick={() => void perform("remove")}><Trash2 size={16} aria-hidden="true" /></Button> : undefined} /></div>
-            <Button type="button" darkMode={darkMode} tone="secondary" size="md" aria-label={messages.test} title={messages.test}
-              disabled={!loaded || pending !== null || !apiKey.trim()}
-              icon={<FlaskConical size={16} aria-hidden="true" />}
-              loading={pending === "test"} loadingIcon={<LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}
-              onClick={() => void perform("test")}>
-              <span className="hidden min-[360px]:inline">{messages.test}</span></Button>
+            /></div>
             <Button type="button" darkMode={darkMode} tone="primary" size="md" aria-label={messages.save} title={messages.save}
               disabled={!loaded || pending !== null || !apiKey.trim()}
               icon={<Save size={16} aria-hidden="true" />}

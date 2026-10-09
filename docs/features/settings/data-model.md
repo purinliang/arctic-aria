@@ -29,11 +29,14 @@ has-key flags, and selected model. All action ownership comes from the authentic
 
 Blank key input preserves the saved key atomically. Disabling retains it;
 explicit removal clears the ciphertext and disables AI in the same write.
-Replacing a key does not reset the durable test cooldown. Manual tests require
-an explicitly entered draft key; blank input never falls back to the saved key.
-They use the selected draft model without persisting the draft key/model or
-enabling AI. Test calls omitting model use 3.5 Flash-Lite; the current UI
-always sends its selected model. Atomic upsert claims
+Adding a key requires a successful neutral provider connection check before
+encryption is persisted; failure never saves the key or enables AI. Existing
+keys cannot be replaced. Delete first; the repository also guards against a
+concurrent key appearing between validation and persistence. Deletion does not
+reset the durable test cooldown. Checks use the entered key, never a stored or
+global fallback, and the selected model. The current UI exposes only Save,
+combining validation and persistence. The retained backend test command checks
+a draft without saving it; omitted models default to 3.5 Flash-Lite. Atomic upsert claims
 permit one test per user per 30 seconds across server instances. No global key
 fallback is permitted. Rows cascade only when the owning user is deleted;
 removing a key does not delete the row or its cooldown history.

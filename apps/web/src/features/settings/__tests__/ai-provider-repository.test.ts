@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { AIProviderRepository } from "../server/ai-provider-repository.ts";
+import { AIKeyAlreadySavedError, AIProviderRepository } from "../server/ai-provider-repository.ts";
 
 test("AI repository scopes credential reads/writes and preserves keys atomically", async () => {
   const records: { text: string; params: unknown[] }[] = [];
@@ -13,12 +13,18 @@ test("AI repository scopes credential reads/writes and preserves keys atomically
   assert.deepEqual(records[0].params, ["owner"]);
   assert.deepEqual(await repository.save("owner", true, null, false), { enabled: true, hasKey: true, provider: "google_gemini", model: "gemini-3.5-flash-lite" });
   assert.deepEqual(records[1].params, ["owner", true, null, false, null, "gemini-3.5-flash-lite"]);
-  assert.match(records[1].text, /COALESCE\(\$3, user_ai_settings.encrypted_api_key\)/);
+  assert.match(records[1].text, /COALESCE\(user_ai_settings.encrypted_api_key, \$3\)/);
+  assert.match(records[1].text, /WHERE \$3 IS NULL OR user_ai_settings.encrypted_api_key IS NULL/);
   assert.match(records[1].text, /CASE WHEN \$4 THEN NULL/);
   assert.match(records[1].text, /model = COALESCE\(\$5, user_ai_settings.model\)/);
   await repository.save("owner", true, null, false, "gemini-3.5-flash-lite");
   assert.equal(records[2].params[4], "gemini-3.5-flash-lite");
   assert.ok(!records[1].text.includes("RETURNING enabled, encrypted_api_key,"));
+});
+
+test("a replacement rejected by the atomic database guard has a typed error", async () => {
+  const repository = new AIProviderRepository({ query: async () => [] } as never);
+  await assert.rejects(repository.save("owner", true, "encrypted-test-key", false), AIKeyAlreadySavedError);
 });
 
 test("AI test cooldown uses one atomic owner-scoped database claim", async () => {

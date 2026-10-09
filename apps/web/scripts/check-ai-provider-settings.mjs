@@ -26,7 +26,7 @@ try {
       localStorage.setItem('arctic-aria.theme-preference',theme);
     },{ language,theme });
     let status = { enabled: false,provider: 'google_gemini',hasKey: false,model: 'gemini-3.5-flash-lite' };
-    let failSave = false, saves = 0, tests = 0;
+    let failSave = false, failValidation = true, saves = 0;
     const failures = [];
     await context.route('**/*',async route => {
       const request = route.request(), id = request.headers()['next-action'];
@@ -42,18 +42,16 @@ try {
       else if (name === 'saveAIProviderSettings') {
         saves++;
         await new Promise(resolve => setTimeout(resolve,100));
-        if (failSave) { failSave = false; result = { ok: false,category: 'database_update',code: 'ai_unavailable',message: 'Unavailable' }; }
+        const input = args[0];
+        assert.equal(input.model,'gemini-3.5-flash-lite');
+        if (input.apiKey && failValidation) {
+          failValidation = false; result = { ok: false,category: 'domain',code: 'ai_key_rejected',message: 'Key rejected' };
+        } else if (failSave) { failSave = false; result = { ok: false,category: 'database_update',code: 'ai_unavailable',message: 'Unavailable' }; }
         else {
-          const input = args[0];
           assert.equal(input.provider,'google_gemini');
           status = { enabled: input.enabled,provider: input.provider,hasKey: input.removeKey ? false : Boolean(input.apiKey) || status.hasKey,model: input.model ?? status.model };
           result = { ok: true,data: status };
         }
-      } else if (name === 'testAIProvider') {
-        tests++;
-        assert.equal(args[0],'test-fixture-api-key');
-        assert.equal(args[1],'gemini-3.5-flash-lite');
-        result = { ok: false,category: 'domain',code: 'ai_key_rejected',message: 'Key rejected' };
       } else if (name?.startsWith('get') && name.endsWith('DashboardData')) {
         result = { ok: true,data: { projects: [],tasks: [],events: [],eventInstances: [],todayEvents: [],eventGroups: [],routines: [],routineInstances: [],routineDefinitions: [],routineGroups: [],categories: [],pinnedMemories: [],memoryRecords: [] } };
       } else { failures.push(`Unexpected action: ${name}`); result = { ok: false,category: 'server',message: 'Unavailable' }; }
@@ -90,7 +88,9 @@ try {
     assert.equal(await input.evaluate(node => node.form),null,'API key has no form owner');
     const save = page.getByRole('button',{ name: en ? 'Save' : '保存',exact: true });
     const test = page.getByRole('button',{ name: en ? 'Test' : '测试',exact: true });
-    for (const action of [test,save]) {
+    assert.equal(await test.count(),0,'Only Save is offered');
+    const remove = page.getByRole('button',{ name: en ? 'Delete API key' : '删除 API 密钥',exact: true });
+    for (const action of [save]) {
       assert.equal(await action.getAttribute('type'),'button');
       assert.equal(await action.evaluate(node => node.form),null);
     }
@@ -113,49 +113,53 @@ try {
       document.addEventListener('submit',() => { window.aiSettingsSubmits++; },true);
     });
     await input.press('Enter');
-    assert.equal(saves,0); assert.equal(tests,0);
-    await test.click(); assert.equal(tests,1); assert.equal(saves,0);
+    assert.equal(saves,0);
+    await save.click();
+    await page.waitForFunction(label => document.querySelector(`button[aria-label="${label}"]`)?.disabled === false,en ? 'Save' : '保存');
+    assert.equal(status.hasKey,false,'Failed validation never saves a key');
+    assert.equal(status.enabled,false,'Failed validation never enables AI');
+    assert.equal(await input.inputValue(),'test-fixture-api-key');
     failSave = true; await save.click();
     await page.waitForFunction(label => ![...document.querySelectorAll('button')].find(node => node.textContent.trim() === label)?.disabled,en ? 'Save' : '保存');
     assert.equal(await input.inputValue(),'test-fixture-api-key');
-    await save.click(); await page.waitForFunction(label => document.querySelector(`input[aria-label="${label}"]`)?.value === '',en ? 'API key' : 'API 密钥');
+    await save.click(); await remove.waitFor();
     assert.equal(status.enabled,true); assert.equal(status.hasKey,true);
     assert.equal(status.model,'gemini-3.5-flash-lite');
     assert.equal(await page.evaluate(() => window.aiSettingsSubmits),0,'API actions never submit a form');
     const storage = await page.evaluate(() => JSON.stringify({ ...localStorage,...sessionStorage }));
     assert.ok(!storage.includes('test-fixture-api-key'));
-    assert.equal(await test.isDisabled(),true,'Test never falls back to the saved key');
+    assert.equal(await input.count(),0,'Saved keys have no replacement input');
+    assert.equal(await save.count(),0,'Saved keys offer only Delete');
     failSave = true;
     await selectProvider(en ? 'Disabled' : '禁用');
-    await input.waitFor();
-    await page.waitForFunction(label => !document.querySelector(`input[aria-label="${label}"]`)?.disabled,en ? 'API key' : 'API 密钥');
+    await remove.waitFor();
+    await page.waitForFunction(label => document.querySelector(`button[aria-label="${label}"]`)?.disabled === false,en ? 'Delete API key' : '删除 API 密钥');
     assert.equal(status.enabled,true,'Failed disable rolls back provider selection');
     await selectProvider(en ? 'Disabled' : '禁用');
-    await input.waitFor({ state: 'detached' });
+    await remove.waitFor({ state: 'detached' });
     await page.waitForFunction(label => !document.querySelector(`button[aria-label="${label}"]`)?.disabled,en ? 'Provider' : '提供商');
     assert.equal(status.enabled,false); assert.equal(status.hasKey,true);
     await page.reload(); await provider.waitFor();
     await page.waitForFunction(label => !document.querySelector(`button[aria-label="${label}"]`)?.disabled,en ? 'Provider' : '提供商');
     assert.equal(await input.count(),0);
     assert.equal(await model.count(),0);
-    await selectProvider('Google Gemini'); await input.waitFor();
-    await page.waitForFunction(label => !document.querySelector(`input[aria-label="${label}"]`)?.disabled,en ? 'API key' : 'API 密钥');
+    await selectProvider('Google Gemini'); await remove.waitFor();
+    await page.waitForFunction(label => document.querySelector(`button[aria-label="${label}"]`)?.disabled === false,en ? 'Delete API key' : '删除 API 密钥');
     assert.equal(status.enabled,true); assert.equal(status.hasKey,true);
     assert.ok((await model.textContent()).includes('Gemini 3.5 Flash-Lite'),'Model survives disable and reload');
-    assert.equal(await input.inputValue(),'');
-    await page.getByRole('button',{ name: en ? 'Remove API key' : '移除 API 密钥',exact: true }).click();
-    await page.getByRole('button',{ name: en ? 'Remove API key' : '移除 API 密钥',exact: true }).waitFor({ state: 'detached' });
+    assert.equal(await input.count(),0);
+    await page.screenshot({ path: `${output}/${language}-${theme}-${width}-saved.png`,fullPage: true });
+    await remove.click(); await remove.waitFor({ state: 'detached' });
     assert.equal(status.enabled,false); assert.equal(status.hasKey,false);
     await selectProvider('Google Gemini'); await input.waitFor();
-    assert.equal(await test.isDisabled(),true);
-    const rectangles = await Promise.all([input,test,save].map(control => control.boundingBox()));
+    assert.equal(await save.isDisabled(),true);
+    const rectangles = await Promise.all([input,save].map(control => control.boundingBox()));
     assert.ok(rectangles.every(rect => rect.height === rectangles[0].height),'Input and actions share one height');
     assert.ok(rectangles.every(rect => Math.abs(rect.y - rectangles[0].y) < 1),'Actions remain on the input row');
     if (width >= 1024) {
       const providerRect = await provider.boundingBox();
       assert.equal(rectangles[0].width,providerRect.width,'Desktop key input keeps standard Settings control width');
-      assert.ok(rectangles[1].x >= rectangles[0].x + rectangles[0].width,'Test sits to the right of the full-width key input');
-      assert.ok(rectangles[2].x >= rectangles[1].x + rectangles[1].width,'Save follows Test');
+      assert.ok(rectangles[1].x >= rectangles[0].x + rectangles[0].width,'Save sits to the right of the full-width key input');
     }
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),'no horizontal overflow');
     const dismiss = page.getByRole('button',{ name: en ? 'Dismiss notification' : '关闭通知',exact: true });
@@ -167,5 +171,5 @@ try {
     assert.deepEqual(failures,[]);
     await context.close();
   }
-  console.log('AI settings UI checks passed: languages/themes, mobile/desktop, CSS masking/native fallback, typing/pasting, save rollback, test, removal and no browser credential storage.');
+  console.log('AI settings UI checks passed: languages/themes, mobile/desktop, masking, typing/pasting, save validation/rollback, delete-only saved keys and no browser credential storage.');
 } finally { await browser.close(); }

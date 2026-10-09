@@ -5,6 +5,8 @@ import type { GeminiModel } from "../ai-provider.ts";
 
 export type AICredential = { enabled: boolean; encrypted_api_key: string | null; model: GeminiModel };
 
+export class AIKeyAlreadySavedError extends Error {}
+
 export class AIProviderRepository {
   private readonly sql?: NeonQueryFunction<false, false>;
   constructor(sql?: NeonQueryFunction<false, false>) { this.sql = sql; }
@@ -25,13 +27,15 @@ export class AIProviderRepository {
        ON CONFLICT (user_id) DO UPDATE SET
          enabled = EXCLUDED.enabled,
          encrypted_api_key = CASE WHEN $4 THEN NULL
-           ELSE COALESCE($3, user_ai_settings.encrypted_api_key) END,
+           ELSE COALESCE(user_ai_settings.encrypted_api_key, $3) END,
          model = COALESCE($5, user_ai_settings.model),
          updated_at = now()
+       WHERE $3 IS NULL OR user_ai_settings.encrypted_api_key IS NULL
        RETURNING enabled, encrypted_api_key IS NOT NULL AS has_key, model`,
       [userId, enabled, encryptedKey, removeKey, model ?? null, defaultAIModel],
     );
     const row = rows[0];
+    if (!row && encryptedKey) throw new AIKeyAlreadySavedError("Delete the saved key before adding another.");
     if (!row) throw new Error("AI settings write failed.");
     return { enabled: Boolean(row.enabled), provider: "google_gemini" as const, hasKey: Boolean(row.has_key), model: row.model as GeminiModel };
   }

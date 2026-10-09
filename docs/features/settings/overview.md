@@ -112,15 +112,17 @@ appears for Gemini and shows only Gemini 3.5 Flash-Lite. The selector is disable
 while there is only one supported option. Options use hard-coded ascending model
 version order, with Lite before Flash within the same version, when more are
 added. New and existing configurations use 3.5 Flash-Lite. The API key row
-appears only when Gemini is selected, with a password-style input and Test/Save
-actions on the same horizontal row, using the input's standard height. The
+appears only when Gemini is selected. Without a saved key it shows a masked input
+and a single Save action on the same horizontal row, using the input's standard height. The
 key input retains the standard 20rem Settings control width on desktop, with
 actions alongside rather than inside that width; narrow layouts shrink the input.
-A saved key shows a status label and a compact remove action, never its actual value.
+A saved key shows a status label and a compact Delete action, never its actual
+value, a replacement input, or a separate Test/Save action. Delete before adding
+another key; deletion also disables AI.
 English and Simplified Chinese catalogs cover labels and expected failures.
 
 Loading disables only this card's editable controls; a failed initial read
-offers Retry. Save/Test/Remove are blocking, prevent duplicate requests, and
+offers Retry. Save/Delete are blocking, prevent duplicate requests, and
 leave the rest of Settings usable. Failure keeps unsaved input and current
 status; success clears the input and shows a shared notification. Theme and
 language changes do not discard the draft. Account changes remount the card.
@@ -133,8 +135,8 @@ and Firefox (114+) support this property. Feature detection falls back to a
 native password field in unsupported browsers; until detection completes the
 input is empty and disabled, so an existing draft cannot flash unmasked.
 CSS masking is visual only, not encryption. It must not advertise `new-password`.
-It has no form owner and is separate from the Change Password dialog. Test and
-Save are explicit non-submit buttons; pressing Enter does not submit credentials.
+It has no form owner and is separate from the Change Password dialog. Save and
+Delete are explicit non-submit buttons; pressing Enter does not submit credentials.
 Chrome's native password-manager behaviour still needs confirmation in a real
 browser profile; the compatibility fallback may retain password-field heuristics
 in older browsers. Do not change account-password forms for this issue.
@@ -146,10 +148,13 @@ persists the key, selected model, and enables Gemini. A model change with a save
 key persists automatically without changing ciphertext or the unsaved key draft;
 a failed model write restores the previous selection. Without a saved key the
 model remains a draft until Save. Blank input never erases a saved key.
-Removal clears it and disables AI. Test validates only the currently entered
-key with the selected model, never a saved/global key or alternate model fallback.
-Save is independent of test success. Tests
-are explicit connection checks, not AI product actions, and do not persist keys.
+Removal clears it and disables AI. Save validates the entered key with the
+selected model before persisting encrypted credentials or enabling AI. Failure
+preserves the draft and leaves the key unsaved. The connection check never uses
+a saved/global key or alternate model fallback. It shares the per-user 30-second
+cooldown with the retained backend test command. Provider/model-only changes
+preserve saved keys without running a new connection check. Replacement is
+rejected both by the service and by an atomic database write guard.
 It sends only a neutral test prompt, with no automatic product-data export.
 Normal future AI operations must respect saved enablement. Chat remains hidden.
 
@@ -157,7 +162,7 @@ Local `pnpm dev` logs failed Gemini generation as `[Gemini] generateContent fail
 with only the validated model, HTTP status (or null), and application error code.
 Production and test runtimes do not emit these diagnostics. Never log
 unfiltered error bodies, prompts, credentials, or Server Function arguments.
-For the neutral Settings connection test only, development also prints Google's
+For the neutral Settings connection check only, development also prints Google's
 error code/status/message with credentials and identifying metadata redacted.
 Headers, arbitrary response metadata and exception stacks are never included;
 normal generation does not log provider messages. Production stays silent.

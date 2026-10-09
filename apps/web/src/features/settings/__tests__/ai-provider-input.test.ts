@@ -11,7 +11,8 @@ test("Gemini key uses non-account identity and does not advertise a new password
   assert.match(source, /spellCheck=\{false\}/);
   assert.doesNotMatch(source, /autoComplete="(?:new|current)-password"/);
   assert.doesNotMatch(source, /<form\b|onSubmit=/);
-  for (const action of ["test", "save"]) {
+  assert.doesNotMatch(source, /messages\.test|replacePlaceholder|testAIProvider/);
+  for (const action of ["save", "remove"]) {
     assert.match(source, new RegExp(`<Button type="button"[^>]*aria-label=\\{messages\\.${action}\\}`));
   }
 });

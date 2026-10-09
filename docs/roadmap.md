@@ -78,6 +78,10 @@ Progress and Travel Shopping must stay hidden until human confirmation.
   the model. Do not enable raw provider or Server Function argument logging.
   The neutral Settings test can also print Google's redacted error message in
   development only; credential-bearing headers and response metadata stay omitted.
+  Settings now exposes only Save for a new key: validate first, persist only on
+  success. Saved keys expose Delete only, with backend and atomic database guards
+  against replacement. Native Chrome behaviour and real-key access remain human
+  review items; automated persistence checks use a fake provider.
   AI/chat integration, data-sharing consent and command confirmations remain pending human review.
   Do not automatically restore Progress or chat as part of this setup.
 

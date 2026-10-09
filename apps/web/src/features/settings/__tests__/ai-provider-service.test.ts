@@ -4,6 +4,7 @@ import { createAIProviderService } from "../server/ai-provider-service.ts";
 import { createCredentialEncryption } from "../../../server/ai/credential-encryption.ts";
 import { GeminiError } from "../../../server/ai/gemini-client.ts";
 import type { AICredential } from "../server/ai-provider-repository.ts";
+import { AIKeyAlreadySavedError } from "../server/ai-provider-repository.ts";
 import { defaultAIModel } from "../ai-provider.ts";
 import type { GeminiModel } from "../ai-provider.ts";
 
@@ -43,7 +44,6 @@ test("AI settings encrypt account-owned keys and return status only", async () =
     const result = await service.save(userId, { enabled: true, provider: "google_gemini", apiKey: key });
     assert.deepEqual(result, { ok: true, data: { enabled: true, provider: "google_gemini", hasKey: true, model: defaultAIModel } });
     assert.ok(!JSON.stringify(rows.get(userId)).includes(key));
-    assert.ok((await service.test(userId, key)).ok);
   }
   assert.deepEqual(calls, [keyA, keyB]);
 });
@@ -78,6 +78,7 @@ test("model selection persists per user without replacing keys, including saves 
 test("connection tests use the selected draft model without persisting it or accepting unknown models", async () => {
   const f = fixture();
   await f.service.save(userA, { enabled: true, provider: "google_gemini", apiKey: keyA, model: defaultAIModel });
+  f.models.length = 0;
   for (const model of [defaultAIModel] as const) {
     f.claimed.clear();
     assert.ok((await f.service.test(userA, keyB, model)).ok);
@@ -96,10 +97,11 @@ test("connection tests use the selected draft model without persisting it or acc
 });
 
 test("AI tests have no app-key fallback and typed tests do not persist draft credentials", async () => {
-  const { service, calls, rows, encryption } = fixture();
+  const { service, calls, rows, encryption, claimed } = fixture();
   process.env.GEMINI_API_KEY = "test-global-api-key";
   try {
     await service.save(userA, { enabled: true, provider: "google_gemini", apiKey: keyB });
+    calls.length = 0; claimed.clear();
     assert.equal((await service.test(userA, " ")).ok, false);
     assert.deepEqual(calls, []);
     assert.ok((await service.test(userA, keyA)).ok);
@@ -133,6 +135,34 @@ test("AI tests rate-limit each account independently and sanitize provider failu
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.code, "ai_key_rejected");
   assert.ok(!JSON.stringify(result).includes(keyA));
-  assert.ok((await service.save(userA, { enabled: true, provider: "google_gemini", apiKey: keyA })).ok,
-    "Saving a key does not require a successful test");
+  f.claimed.clear();
+  assert.equal((await service.save(userA, { enabled: true, provider: "google_gemini", apiKey: keyA })).ok, false);
+  assert.equal(f.rows.size, 0, "Failed validation must not save or enable a key");
+});
+
+test("Save validates the entered key and model before persistence, and replacement requires deletion", async () => {
+  const f = fixture();
+  assert.ok((await f.service.save(userA, { enabled: true, provider: "google_gemini", apiKey: keyA, model: defaultAIModel })).ok);
+  assert.deepEqual(f.calls, [keyA]);
+  assert.deepEqual(f.models, [defaultAIModel]);
+  const ciphertext = f.rows.get(userA)!.encrypted_api_key;
+  const result = await f.service.save(userA, { enabled: true, provider: "google_gemini", apiKey: keyB });
+  assert.ok(!result.ok && result.code === "ai_key_exists");
+  assert.equal(f.rows.get(userA)!.encrypted_api_key, ciphertext);
+  assert.deepEqual(f.calls, [keyA]);
+  await f.service.save(userA, { enabled: false, provider: "google_gemini", removeKey: true });
+  const throttled = await f.service.save(userA, { enabled: true, provider: "google_gemini", apiKey: keyB });
+  assert.ok(!throttled.ok && throttled.code === "ai_test_throttled");
+  f.claimed.clear();
+  assert.ok((await f.service.save(userA, { enabled: true, provider: "google_gemini", apiKey: keyB })).ok);
+  assert.equal(f.encryption.decrypt(userA, f.rows.get(userA)!.encrypted_api_key!), keyB);
+});
+
+test("a concurrent saved key is not overwritten after a successful connection check", async () => {
+  const f = fixture();
+  const service = createAIProviderService({ repository: { ...f.repository,
+    async save() { throw new AIKeyAlreadySavedError(); },
+  }, encryption: f.encryption, client: () => ({ async generateText() { return { text: "READY", model: defaultAIModel }; } }) });
+  const result = await service.save(userA, { enabled: true, provider: "google_gemini", apiKey: keyA });
+  assert.ok(!result.ok && result.code === "ai_key_exists");
 });
