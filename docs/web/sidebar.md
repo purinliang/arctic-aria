@@ -43,6 +43,8 @@ The main navigation area should contain:
 - Projects
   - up to three pinned project shortcuts, shown as indented children when set
 - Routines
+- Money
+- Supplies
 - Events
 - Memories
 - Ideas
@@ -70,6 +72,8 @@ localStorage for the current browser, not in the database.
 
 Review is hidden from the sidebar until the review feature has a stable
 navigation design.
+Progress is hidden on every branch pending human confirmation. Direct entry
+to `/progress` or `/daily` returns to Today; implementation and data stay intact.
 
 ## Sidebar Actions
 

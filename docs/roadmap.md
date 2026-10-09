@@ -13,9 +13,9 @@ This roadmap records future work. It should not repeat released implementation
 details; released behavior belongs in `docs/releases/` and stable rules belong
 in the owning feature, web, or infrastructure docs.
 
-Current released version: `v0.16.1`.
+Current released version: `v0.17.0`.
 
-Next release target: `v0.17.0`.
+Next hotfix target: `v0.17.1`.
 
 2026-10-10: `feature/gemini-api-environment` is integrated into `develop`.
 The developer requested release preparation, including the accumulated Money
@@ -28,8 +28,8 @@ preparation. Deferred feature visibility remains unchanged.
 ## Development-Only Tracking
 
 - **Pending human confirmation:** Restore and review the Progress page. Hidden
-  on develop and feature builds; implementation, data and APIs remain intact.
-  Do not re-enable during unrelated work. Main/hotfix visibility is unchanged.
+  on all branches, including production and hotfix builds; implementation, data
+  and APIs remain intact. Do not re-enable during unrelated work.
 - **Pending human confirmation:** Restore and review Travel Shopping in Supplies.
   Temporarily hide the UI only; retain code, records and supporting commands.
   Do not re-enable during unrelated work.

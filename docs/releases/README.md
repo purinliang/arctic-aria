@@ -69,3 +69,4 @@ documentation updates. Keep the body specific enough to be useful when reading
 - [v0.16.0.md](v0.16.0.md)
 - [v0.16.1.md](v0.16.1.md): demo-entry hotfix release record.
 - [v0.17.0.md](v0.17.0.md): release preparation.
+- [v0.17.1.md](v0.17.1.md): Progress visibility and sidebar hotfix.
