@@ -107,7 +107,11 @@ explicit role or environment rule rather than a hard-coded account name.
 
 The card sits below Discord and uses the same shared panel, header, list, and
 SettingsControlRow layout. Its Provider dropdown offers Disabled and Google
-Gemini, with "Select the AI service to use." below the label. The API key row
+Gemini, with "Select the AI service to use." below the label. A shared Model row
+appears for Gemini and shows only Gemini 3.5 Flash-Lite. The selector is disabled
+while there is only one supported option. Options use hard-coded ascending model
+version order, with Lite before Flash within the same version, when more are
+added. New and existing configurations use 3.5 Flash-Lite. The API key row
 appears only when Gemini is selected, with a password-style input and Test/Save
 actions on the same horizontal row, using the input's standard height. The
 key input retains the standard 20rem Settings control width on desktop, with
@@ -136,11 +140,15 @@ browser profile; the compatibility fallback may retain password-field heuristics
 in older browsers. Do not change account-password forms for this issue.
 
 Provider changes persist automatically when a saved key exists. Disabled hides
-the key row and disables AI without deleting the key; failed writes restore the
+the key and model rows and disables AI without deleting either setting; failed writes restore the
 previous selection. Selecting Gemini without a key opens configuration, and Save
-persists the key and enables Gemini. Blank input never erases a saved key.
+persists the key, selected model, and enables Gemini. A model change with a saved
+key persists automatically without changing ciphertext or the unsaved key draft;
+a failed model write restores the previous selection. Without a saved key the
+model remains a draft until Save. Blank input never erases a saved key.
 Removal clears it and disables AI. Test validates only the currently entered
-key, never a saved/global fallback. Save is independent of test success. Tests
+key with the selected model, never a saved/global key or alternate model fallback.
+Save is independent of test success. Tests
 are explicit connection checks, not AI product actions, and do not persist keys.
 It sends only a neutral test prompt, with no automatic product-data export.
 Normal future AI operations must respect saved enablement. Chat remains hidden.

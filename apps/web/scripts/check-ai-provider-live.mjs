@@ -33,6 +33,7 @@ try {
     const id = randomUUID(), username = `test${randomUUID().replaceAll('-','').slice(0,12)}`;
     await sql.query('INSERT INTO users (id,username,password_hash,display_name) VALUES ($1,$2,$3,$4)',[id,username,'disabled-test-login','Test User']);
     owners.push(id);
+    if (index === 1) await sql.query("INSERT INTO user_ai_settings (user_id, model) VALUES ($1, 'gemini-3.5-flash-lite')",[id]);
     const context = await browser.newContext({ viewport: { width: 1280,height: 900 } });
     await context.addInitScript(() => {
       localStorage.setItem('arctic-aria.language-preference','en');
@@ -55,6 +56,9 @@ try {
       return input && !input.disabled;
     });
     assert.equal(await input.inputValue(),'');
+    const model = page.getByRole('button',{ name: 'Model',exact: true });
+    assert.ok((await model.textContent()).includes('Gemini 3.5 Flash-Lite'));
+    assert.equal(await model.isDisabled(),true);
     assert.equal(await page.getByRole('button',{ name: 'Remove API key',exact: true }).count(),0,'new account cannot see another account credential');
     const key = `test-live-account-${index}-api-key`;
     await input.fill(key);
@@ -65,9 +69,15 @@ try {
     assert.ok(!row.encrypted_api_key.includes(key));
     assert.equal(crypto.decrypt(id,row.encrypted_api_key),key);
     assert.equal(await input.inputValue(),'');
+    const ciphertext = row.encrypted_api_key;
+    await repository.save(id,true,null,false,'gemini-3.5-flash-lite');
+    row = await repository.find(id);
+    assert.equal(row.model,'gemini-3.5-flash-lite');
+    assert.equal(row.encrypted_api_key,ciphertext,'Changing model does not replace the key');
     await page.reload();
     await page.getByRole('button',{ name: 'Remove API key',exact: true }).waitFor();
     assert.ok((await provider.textContent()).includes('Google Gemini'));
+    assert.ok((await model.textContent()).includes('Gemini 3.5 Flash-Lite'));
     await selectProvider('Disabled');
     await page.waitForFunction(() => document.querySelector('button[aria-label="Provider"]')?.disabled === false);
     assert.equal(await input.count(),0);
@@ -80,7 +90,9 @@ try {
     assert.equal(claims.filter(Boolean).length,1,'concurrent claims accept only one test');
     await page.getByRole('button',{ name: 'Remove API key',exact: true }).click();
     await page.getByRole('button',{ name: 'Remove API key',exact: true }).waitFor({ state: 'detached' });
-    assert.deepEqual(await repository.find(id),{ enabled: false,encrypted_api_key: null });
+    assert.deepEqual(await repository.find(id),{ enabled: false,encrypted_api_key: null,model: 'gemini-3.5-flash-lite' });
+    await assert.rejects(sql.query("UPDATE user_ai_settings SET model = 'gemini-2.5-flash' WHERE user_id = $1",[id]),
+      error => error.code === '23514','Database rejects unavailable models');
     assert.equal(await repository.claimTest(id),false,'removal preserves cooldown');
     assert.deepEqual(errors,[]);
     await context.close();

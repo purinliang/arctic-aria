@@ -11,17 +11,29 @@ user-delete cascade), `provider` (only `google_gemini`), `enabled`, nullable
 `encrypted_api_key`, `last_test_at`, and creation/update timestamps. An enabled
 row must have a key. Missing rows represent disabled/unconfigured AI.
 
+Migration `0043` adds a non-null `model` constrained to `gemini-2.5-flash`,
+`gemini-3.5-flash-lite`, or `gemini-3.8-flash`. It first fills existing rows with
+2.5 Flash, then changes the insert default to 3.5 Flash-Lite. Keys, enabled flags,
+and test timestamps are not modified. Migration `0044` subsequently moves all
+existing model settings to 3.5 Flash-Lite and restricts the constraint to that
+single supported model, following developer confirmation. Model selection is
+account-scoped and retained on disable/removal. Saves omitting model preserve it atomically;
+new rows without an explicit model use 3.5 Flash-Lite. Unsupported models are
+rejected by the service before any provider call or cooldown claim.
+
 Keys are AES-256-GCM encrypted with the dedicated server-only
 `AI_CREDENTIAL_ENCRYPTION_KEY`, a random 12-byte nonce, and authenticated data
 bound to the user, provider, and envelope version. The database stores a `v1`
 envelope, never plaintext. Normal status reads return only provider, enabled,
-and has-key flags. All action ownership comes from the authenticated session.
+has-key flags, and selected model. All action ownership comes from the authenticated session.
 
 Blank key input preserves the saved key atomically. Disabling retains it;
 explicit removal clears the ciphertext and disables AI in the same write.
 Replacing a key does not reset the durable test cooldown. Manual tests require
 an explicitly entered draft key; blank input never falls back to the saved key.
-They do not persist the draft or enable AI. Atomic upsert claims
+They use the selected draft model without persisting the draft key/model or
+enabling AI. Test calls omitting model use 3.5 Flash-Lite; the current UI
+always sends its selected model. Atomic upsert claims
 permit one test per user per 30 seconds across server instances. No global key
 fallback is permitted. Rows cascade only when the owning user is deleted;
 removing a key does not delete the row or its cooldown history.

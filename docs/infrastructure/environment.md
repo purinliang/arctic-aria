@@ -114,13 +114,19 @@ use only account-owned credentials. Manual tests require the currently entered
 key and never fall back to saved keys or `GEMINI_API_KEY`. The test sends one
 neutral prompt, not product data, and does not save the key or enable AI.
 Each account is limited to one test per 30 seconds using an atomic database claim.
-The user-facing model is fixed to `gemini-2.5-flash`, independent of CLI overrides.
+Settings stores an account-owned model choice, currently limited to
+`gemini-3.5-flash-lite`. The connection
+test uses the selected model without silently falling back. CLI overrides do
+not change user settings. Existing configurations move to 3.5 Flash-Lite.
 
 Migration `0042` stores encrypted keys in `user_ai_settings`. AES-256-GCM uses
 random nonces and owner/provider-bound authenticated data. The browser receives
-only enabled/provider/has-key status, never stored keys or ciphertext. Draft
+only enabled/provider/has-key/model status, never stored keys or ciphertext. Draft
 keys live only in React memory and are cleared after save and account changes.
 No key or raw provider/database error is logged.
+Migration `0043` adds the account model choice; `0044` restricts it to 3.5
+Flash-Lite. Neither changes saved ciphertext or cooldowns. Apply both to the development/preview database before testing the new
+UI; production requires its own migration when this feature is released.
 
 Prepare local encrypted storage before using Save:
 

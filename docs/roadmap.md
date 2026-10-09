@@ -64,10 +64,14 @@ Progress and Travel Shopping must stay hidden until human confirmation.
   native account-password update prompt in an existing browser profile. The key
   now uses a CSS-masked text field with its own identity and autocomplete disabled,
   with a native masked fallback only in browsers without CSS masking support.
-  Pending human confirmation: choose a current Gemini model for new projects.
-  Google now restricts Gemini 2.5 access to previous users; the current explicit
-  2.5 Flash test can return HTTP 404 for a new key/project. Do not silently switch
-  models or treat every 404 as proof of an invalid key.
+  Implemented 2026-10-10: account-owned Model row, currently showing only 3.5
+  Flash-Lite per developer confirmation. Options use hard-coded ascending version
+  order (Lite before Flash at the same version) when expanded. Migrations
+  `0043` and `0044` add model storage and move existing settings to 3.5 Flash-Lite.
+  Model-only saves retain
+  ciphertext, and tests use the selected model. Live model access still needs
+  human confirmation; do not silently fall back or treat every 404 as proof of
+  an invalid key.
   Local development now emits credential-free Gemini failure diagnostics
   (model, HTTP status, application code). Root cause of the developer's reported
   404 remains unconfirmed; compare the same key and API request before changing

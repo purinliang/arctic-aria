@@ -25,7 +25,7 @@ try {
       localStorage.setItem('arctic-aria.language-preference',language);
       localStorage.setItem('arctic-aria.theme-preference',theme);
     },{ language,theme });
-    let status = { enabled: false,provider: 'google_gemini',hasKey: false };
+    let status = { enabled: false,provider: 'google_gemini',hasKey: false,model: 'gemini-3.5-flash-lite' };
     let failSave = false, saves = 0, tests = 0;
     const failures = [];
     await context.route('**/*',async route => {
@@ -46,12 +46,13 @@ try {
         else {
           const input = args[0];
           assert.equal(input.provider,'google_gemini');
-          status = { enabled: input.enabled,provider: input.provider,hasKey: input.removeKey ? false : Boolean(input.apiKey) || status.hasKey };
+          status = { enabled: input.enabled,provider: input.provider,hasKey: input.removeKey ? false : Boolean(input.apiKey) || status.hasKey,model: input.model ?? status.model };
           result = { ok: true,data: status };
         }
       } else if (name === 'testAIProvider') {
         tests++;
         assert.equal(args[0],'test-fixture-api-key');
+        assert.equal(args[1],'gemini-3.5-flash-lite');
         result = { ok: false,category: 'domain',code: 'ai_key_rejected',message: 'Key rejected' };
       } else if (name?.startsWith('get') && name.endsWith('DashboardData')) {
         result = { ok: true,data: { projects: [],tasks: [],events: [],eventInstances: [],todayEvents: [],eventGroups: [],routines: [],routineInstances: [],routineDefinitions: [],routineGroups: [],categories: [],pinnedMemories: [],memoryRecords: [] } };
@@ -64,15 +65,20 @@ try {
     await page.goto(`${baseUrl}/settings`);
     const input = page.getByLabel(en ? 'API key' : 'API 密钥',{ exact: true });
     const provider = page.getByRole('button',{ name: en ? 'Provider' : '提供商',exact: true });
+    const model = page.getByRole('button',{ name: en ? 'Model' : '模型',exact: true });
     async function selectProvider(label) {
       await provider.click(); await page.getByRole('option',{ name: label,exact: true }).click();
     }
     await provider.waitFor();
     await page.waitForFunction(label => !document.querySelector(`button[aria-label="${label}"]`)?.disabled,en ? 'Provider' : '提供商');
     assert.equal(await input.count(),0,'Disabled hides the key row');
+    assert.equal(await model.count(),0,'Disabled hides the model row');
     assert.equal(await page.getByRole('switch',{ name: en ? 'Enable AI' : '启用 AI' }).count(),0);
     await selectProvider('Google Gemini');
     await input.waitFor(); await page.waitForFunction(label => !document.querySelector(`input[aria-label="${label}"]`)?.disabled,en ? 'API key' : 'API 密钥');
+    assert.ok((await model.textContent()).includes('Gemini 3.5 Flash-Lite'));
+    assert.equal(await model.isDisabled(),true,'Single supported model is not changeable');
+    assert.equal(saves,0,'Opening configuration does not save the draft');
     assert.equal(await input.getAttribute('type'),fallback ? 'password' : 'text');
     if (!fallback) assert.equal(await input.evaluate(node => getComputedStyle(node).getPropertyValue('-webkit-text-security')),'disc');
     assert.equal(await input.getAttribute('id'),'geminiApiKey');
@@ -114,6 +120,7 @@ try {
     assert.equal(await input.inputValue(),'test-fixture-api-key');
     await save.click(); await page.waitForFunction(label => document.querySelector(`input[aria-label="${label}"]`)?.value === '',en ? 'API key' : 'API 密钥');
     assert.equal(status.enabled,true); assert.equal(status.hasKey,true);
+    assert.equal(status.model,'gemini-3.5-flash-lite');
     assert.equal(await page.evaluate(() => window.aiSettingsSubmits),0,'API actions never submit a form');
     const storage = await page.evaluate(() => JSON.stringify({ ...localStorage,...sessionStorage }));
     assert.ok(!storage.includes('test-fixture-api-key'));
@@ -130,9 +137,11 @@ try {
     await page.reload(); await provider.waitFor();
     await page.waitForFunction(label => !document.querySelector(`button[aria-label="${label}"]`)?.disabled,en ? 'Provider' : '提供商');
     assert.equal(await input.count(),0);
+    assert.equal(await model.count(),0);
     await selectProvider('Google Gemini'); await input.waitFor();
     await page.waitForFunction(label => !document.querySelector(`input[aria-label="${label}"]`)?.disabled,en ? 'API key' : 'API 密钥');
     assert.equal(status.enabled,true); assert.equal(status.hasKey,true);
+    assert.ok((await model.textContent()).includes('Gemini 3.5 Flash-Lite'),'Model survives disable and reload');
     assert.equal(await input.inputValue(),'');
     await page.getByRole('button',{ name: en ? 'Remove API key' : '移除 API 密钥',exact: true }).click();
     await page.getByRole('button',{ name: en ? 'Remove API key' : '移除 API 密钥',exact: true }).waitFor({ state: 'detached' });

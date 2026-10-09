@@ -16,7 +16,7 @@ import { useFeatureAction } from "@/components/use-feature-action";
 import type { FeatureActionOptions } from "@/components/use-feature-action";
 import type { AIProviderMessages } from "@/messages/ai-provider-messages";
 import { getAIProviderSettings, saveAIProviderSettings, testAIProvider } from "../ai-provider-actions";
-import { defaultAIProviderStatus } from "../ai-provider";
+import { defaultAIProviderStatus, geminiModelOptions, validGeminiModel } from "../ai-provider";
 import type { AIProviderStatus } from "../ai-provider";
 
 export function AIProviderSettings({ darkMode, messages, showSuccessNotification, ...options }: Omit<FeatureActionOptions, "resultMessages"> & {
@@ -29,16 +29,17 @@ export function AIProviderSettings({ darkMode, messages, showSuccessNotification
   useEffect(() => { invokeRef.current = invoke; }, [invoke]);
   const [status, setStatus] = useState<AIProviderStatus>(defaultAIProviderStatus);
   const [enabled, setEnabled] = useState(false);
+  const [model, setModel] = useState(defaultAIProviderStatus.model);
   const [apiKey, setAPIKey] = useState("");
   const [loaded, setLoaded] = useState(false);
-  const [pending, setPending] = useState<"load" | "provider" | "save" | "test" | "remove" | null>("load");
+  const [pending, setPending] = useState<"load" | "provider" | "model" | "save" | "test" | "remove" | null>("load");
   const busy = useRef(false);
   const mounted = useRef(false);
 
   const load = useCallback(async () => {
     const result = await invokeRef.current(getAIProviderSettings);
     if (!mounted.current) return;
-    if (result) { setStatus(result); setEnabled(result.enabled); setLoaded(true); }
+    if (result) { setStatus(result); setEnabled(result.enabled); setModel(result.model); setLoaded(true); }
     setPending(null);
   }, []);
 
@@ -57,10 +58,29 @@ export function AIProviderSettings({ darkMode, messages, showSuccessNotification
     busy.current = true;
     setPending("provider");
     try {
-      const result = await invoke(() => saveAIProviderSettings({ provider: "google_gemini", enabled: nextEnabled }));
+      const result = await invoke(() => saveAIProviderSettings({ provider: "google_gemini", enabled: nextEnabled, model }));
       if (mounted.current) {
         if (result) setStatus(result);
         else setEnabled(previous);
+      }
+    } finally {
+      busy.current = false;
+      if (mounted.current) setPending(null);
+    }
+  }
+
+  async function selectModel(value: string) {
+    if (busy.current || !loaded || pending !== null || !validGeminiModel(value) || value === model) return;
+    const previous = model;
+    setModel(value);
+    if (!status.hasKey) return;
+    busy.current = true;
+    setPending("model");
+    try {
+      const result = await invoke(() => saveAIProviderSettings({ provider: "google_gemini", enabled, model: value }));
+      if (mounted.current) {
+        if (result) setStatus(result);
+        else setModel(previous);
       }
     } finally {
       busy.current = false;
@@ -74,15 +94,15 @@ export function AIProviderSettings({ darkMode, messages, showSuccessNotification
     setPending(kind);
     try {
       if (kind === "test") {
-        const result = await invoke(() => testAIProvider(apiKey.trim()));
+        const result = await invoke(() => testAIProvider(apiKey.trim(), model));
         if (result && mounted.current) showSuccessNotification(messages.tested, messages.title);
       } else {
         const result = await invoke(() => saveAIProviderSettings({
-          provider: "google_gemini", enabled: kind === "remove" ? false : enabled,
+          provider: "google_gemini", enabled: kind === "remove" ? false : enabled, model,
           apiKey: kind === "remove" ? undefined : apiKey, removeKey: kind === "remove",
         }));
         if (result && mounted.current) {
-          setStatus(result); setEnabled(result.enabled); setAPIKey("");
+          setStatus(result); setEnabled(result.enabled); setModel(result.model); setAPIKey("");
           showSuccessNotification(messages.saved, messages.title);
         }
       }
@@ -110,6 +130,11 @@ export function AIProviderSettings({ darkMode, messages, showSuccessNotification
               onClick={() => { setPending("load"); void load(); }}>
               <RefreshCw size={16} aria-hidden="true" />{messages.retry}</Button> : null}
           </div>} />
+        {enabled ? <SettingsControlRow darkMode={darkMode} title={messages.model}
+          support={messages.modelDescription}
+          control={<SelectInput darkMode={darkMode} value={model}
+            disabled={!loaded || pending !== null || geminiModelOptions.length === 1} aria-label={messages.model}
+            options={[...geminiModelOptions]} onChange={value => void selectModel(value)} />} /> : null}
         {enabled ? <SettingsControlRow darkMode={darkMode} title={messages.apiKey}
           className="lg:grid-cols-[minmax(0,1fr)_auto]"
           support={pending === "load" ? messages.loading : status.hasKey ? messages.savedKey : messages.noKey}

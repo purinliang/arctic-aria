@@ -2,7 +2,7 @@
 
 import { getCurrentUser } from "@/features/auth/actions";
 import { failure } from "@/server/feature-result";
-import type { AIProviderInput } from "./ai-provider";
+import type { AIProviderInput, GeminiModel } from "./ai-provider";
 import { aiProviderService } from "./server/ai-provider-service";
 
 export async function getAIProviderSettings() {
@@ -15,7 +15,7 @@ export async function saveAIProviderSettings(input: AIProviderInput) {
   return user ? aiProviderService.save(user.id, input) : failure("settings_unauthorized", "auth");
 }
 
-export async function testAIProvider(draftKey: string) {
+export async function testAIProvider(draftKey: string, model?: GeminiModel) {
   const user = await getCurrentUser();
-  return user ? aiProviderService.test(user.id, draftKey) : failure("settings_unauthorized", "auth");
+  return user ? aiProviderService.test(user.id, draftKey, model) : failure("settings_unauthorized", "auth");
 }
