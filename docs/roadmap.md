@@ -47,6 +47,12 @@ creation and history-ranked note suggestions. Migration 0041 adds immutable
 Subscription without changing historical associations. Currency/category
 administration is hidden. Development-only; production release remains on hold.
 
+2026-10-09 integration: the developer approved merging
+`feature/personal-tracking-cache` into `develop`, including caches, compact stock
+updates, monthly expense entry, shared dialog action menus and dashed empty
+states. Further product review and production-release approval remain pending.
+Progress and Travel Shopping must stay hidden until human confirmation.
+
 ## Next Work After v0.12.0
 
 - Continue explicit schedule actions for Today items. Routine `Later` and
