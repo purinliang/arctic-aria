@@ -232,13 +232,13 @@ export function AuthGate() {
     };
   }, [applyPreferencesLocally, currentUser, syncResolvedTimeZone]);
 
-  useDemoEntry({
+  const demoEntryReady = useDemoEntry({
     sessionChecked,
     signedIn: Boolean(currentUser),
     onStart: () => handleSubmit(true),
   });
 
-  if (!sessionChecked || demoPending) {
+  if (!sessionChecked || !demoEntryReady || demoPending) {
     return <AuthLoadingScreen demo={demoPending} />;
   }
 

@@ -189,6 +189,17 @@ Manual smoke test:
 4. Sign in with the same username and password.
 5. Try signing in with a different username and confirm it fails.
 
+Demo-entry regression check (after building and starting a matching preview):
+
+```bash
+BASE_URL=http://localhost:3004 node scripts/check-demo-entry.mjs
+```
+
+The check mocks auth and metadata requests without touching the database. It
+detects even brief credential-form mounts before demo loading, and checks the
+two-second delay, failed-entry recovery, query/hash preservation, and no retries
+across desktop/mobile, English/Chinese, and light/dark themes.
+
 ## Improvements To Consider Next
 
 - Add rate limiting for login and registration attempts.

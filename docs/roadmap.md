@@ -69,6 +69,12 @@ updates, monthly expense entry, shared dialog action menus and dashed empty
 states. Further product review and production-release approval remain pending.
 Progress and Travel Shopping must stay hidden until human confirmation.
 
+## Pending Hotfix
+
+- `v0.16.1`: prevent the sign-in form flashing during `?demo=true` entry.
+  Implemented on `hotfix/v0.16.1-demo-entry-flash`; production release and
+  integration back into `develop` remain pending.
+
 ## Next Work After v0.12.0
 
 - Gemini API environment is prepared on `feature/gemini-api-environment`
