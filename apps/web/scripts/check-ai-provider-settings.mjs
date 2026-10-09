@@ -10,8 +10,16 @@ const names = new Map(Object.entries(manifest.node).map(([id,value]) => [id,valu
 await mkdir(output,{ recursive: true });
 const browser = await chromium.launch({ headless: true });
 try {
-  for (const width of [1280,390,320]) for (const language of ['en','zh-CN']) for (const theme of ['light','dark']) {
+  const cases = [1280,390,320].flatMap(width => ['en','zh-CN'].flatMap(language =>
+    ['light','dark'].map(theme => ({ width,language,theme,fallback: false }))));
+  cases.push({ width: 1280,language: 'en',theme: 'dark',fallback: true });
+  for (const { width,language,theme,fallback } of cases) {
     const context = await browser.newContext({ viewport: { width,height: 900 } });
+    await context.grantPermissions(['clipboard-read','clipboard-write']);
+    if (fallback) await context.addInitScript(() => {
+      const supports = CSS.supports.bind(CSS);
+      CSS.supports = (property,value) => property === '-webkit-text-security' ? false : supports(property,value);
+    });
     const preferences = { languagePreference: language,themePreference: theme,timeZonePreference: 'system',resolvedTimeZone: null,timeFormatPreference: '24h',multipleTimezonesEnabled: false };
     await context.addInitScript(({ language,theme }) => {
       localStorage.setItem('arctic-aria.language-preference',language);
@@ -65,10 +73,14 @@ try {
     assert.equal(await page.getByRole('switch',{ name: en ? 'Enable AI' : '启用 AI' }).count(),0);
     await selectProvider('Google Gemini');
     await input.waitFor(); await page.waitForFunction(label => !document.querySelector(`input[aria-label="${label}"]`)?.disabled,en ? 'API key' : 'API 密钥');
-    assert.equal(await input.getAttribute('type'),'password');
+    assert.equal(await input.getAttribute('type'),fallback ? 'password' : 'text');
+    if (!fallback) assert.equal(await input.evaluate(node => getComputedStyle(node).getPropertyValue('-webkit-text-security')),'disc');
     assert.equal(await input.getAttribute('id'),'geminiApiKey');
     assert.equal(await input.getAttribute('name'),'geminiApiKey');
     assert.equal(await input.getAttribute('autocomplete'),'off');
+    assert.equal(await input.getAttribute('autocapitalize'),'off');
+    assert.equal(await input.getAttribute('autocorrect'),'off');
+    assert.equal(await input.evaluate(node => node.spellcheck),false);
     assert.equal(await input.evaluate(node => node.form),null,'API key has no form owner');
     const save = page.getByRole('button',{ name: en ? 'Save' : '保存',exact: true });
     const test = page.getByRole('button',{ name: en ? 'Test' : '测试',exact: true });
@@ -84,7 +96,12 @@ try {
     assert.equal(await input.evaluate(node => node.closest('form')),null);
     await page.getByRole('button',{ name: en ? 'Close password change' : '关闭密码更改',exact: true }).click();
     await passwordDialog.waitFor({ state: 'detached' });
-    await input.fill('test-fixture-api-key');
+    await input.pressSequentially('test-fixture-api-key');
+    assert.equal(await input.inputValue(),'test-fixture-api-key','Typing preserves the real key');
+    await input.fill('');
+    await page.evaluate(() => navigator.clipboard.writeText('test-fixture-api-key'));
+    await input.press('Control+V');
+    assert.equal(await input.inputValue(),'test-fixture-api-key','Pasting preserves the real key');
     await page.evaluate(() => {
       window.aiSettingsSubmits = 0;
       document.addEventListener('submit',() => { window.aiSettingsSubmits++; },true);
@@ -136,9 +153,10 @@ try {
     await dismiss.evaluateAll(buttons => buttons.forEach(button => button.click()));
     await page.waitForFunction(label => !document.querySelector(`button[aria-label="${label}"]`),en ? 'Dismiss notification' : '关闭通知');
     await input.scrollIntoViewIfNeeded();
-    await page.screenshot({ path: `${output}/${language}-${theme}-${width}.png`,fullPage: true });
+    await input.fill('test-fixture-api-key');
+    await page.screenshot({ path: `${output}/${language}-${theme}-${width}${fallback ? '-fallback' : ''}.png`,fullPage: true });
     assert.deepEqual(failures,[]);
     await context.close();
   }
-  console.log('AI settings UI checks passed: languages/themes, mobile/desktop, masked keys, save rollback, test, removal and no browser credential storage.');
+  console.log('AI settings UI checks passed: languages/themes, mobile/desktop, CSS masking/native fallback, typing/pasting, save rollback, test, removal and no browser credential storage.');
 } finally { await browser.close(); }

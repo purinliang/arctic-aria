@@ -62,8 +62,12 @@ Progress and Travel Shopping must stay hidden until human confirmation.
   Production release requires a stable credential-encryption deployment secret.
   Pending human confirmation: verify API key saves no longer trigger Chrome's
   native account-password update prompt in an existing browser profile. The key
-  remains masked with its own field identity and autocomplete disabled; consider
-  alternative masking only if Chrome still misclassifies it.
+  now uses a CSS-masked text field with its own identity and autocomplete disabled,
+  with a native masked fallback only in browsers without CSS masking support.
+  Pending human confirmation: choose a current Gemini model for new projects.
+  Google now restricts Gemini 2.5 access to previous users; the current explicit
+  2.5 Flash test can return HTTP 404 for a new key/project. Do not silently switch
+  models or treat every 404 as proof of an invalid key.
   AI/chat integration, data-sharing consent and command confirmations remain pending human review.
   Do not automatically restore Progress or chat as part of this setup.
 

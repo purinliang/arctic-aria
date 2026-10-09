@@ -6,7 +6,7 @@ import { Bot, FlaskConical, LoaderCircle, RefreshCw, Save, Trash2 } from "lucide
 import { Button } from "@/components/button";
 import { CardHeader } from "@/components/card";
 import { fieldIconButtonSizeClass } from "@/components/control-layout";
-import { PasswordInput } from "@/components/forms/input-field";
+import { MaskedTextInput } from "@/components/forms/masked-text-input";
 import { SelectInput } from "@/components/forms/selection-field";
 import { List } from "@/components/list";
 import { Panel } from "@/components/panel";
@@ -114,9 +114,9 @@ export function AIProviderSettings({ darkMode, messages, showSuccessNotification
           className="lg:grid-cols-[minmax(0,1fr)_auto]"
           support={pending === "load" ? messages.loading : status.hasKey ? messages.savedKey : messages.noKey}
           control={<div className={`flex w-full min-w-0 items-center ${controlGapClass}`}>
-            <div className="min-w-0 flex-1 lg:w-[20rem] lg:flex-none"><PasswordInput darkMode={darkMode} value={apiKey}
+            <div className="min-w-0 flex-1 lg:w-[20rem] lg:flex-none"><MaskedTextInput darkMode={darkMode} value={apiKey}
               id="geminiApiKey" name="geminiApiKey" aria-label={messages.apiKey}
-              autoComplete="off" maxLength={256} spellCheck={false}
+              autoComplete="off" autoCapitalize="off" autoCorrect="off" maxLength={256} spellCheck={false}
               placeholder={status.hasKey ? messages.replacePlaceholder : messages.placeholder}
               disabled={!loaded || pending !== null} onChange={event => setAPIKey(event.target.value)}
               trailing={status.hasKey ? <Button darkMode={darkMode} tone="ghost" size="icon" className={fieldIconButtonSizeClass}

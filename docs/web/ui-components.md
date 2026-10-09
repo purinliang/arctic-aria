@@ -126,6 +126,11 @@ dialog, form section, or list row.
 
 ## Masked Text
 
+`forms/masked-text-input.tsx` owns editable non-account secrets such as Gemini
+API keys. It reuses `TextInput` sizing and styling, with CSS text masking on
+supported browsers and a native password fallback otherwise. It withholds the
+value until masking support is known. Keep account credentials on `PasswordInput`.
+
 `masked-text.tsx` owns read-only masked text display for values that should not
 look editable, such as an external account id. Use it instead of a disabled
 password input when the user can view or hide a value but cannot edit it.
