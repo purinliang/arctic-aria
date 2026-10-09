@@ -1,38 +1,30 @@
 # Supplies Web Implementation
 
-Feature code lives in `apps/web/src/features/supplies`. `stock-level.ts` owns
-neutral-scale compatibility, absolute save inputs and the initial/update ordering
-comparator. StockLevelSlider, compact RecordCard and Disclosure are shared UI.
-Native range input provides integer snapping, pointer and keyboard semantics;
-the visual track uses existing design tokens.
+Feature code lives in apps/web/src/features/supplies. stock-level.ts owns
+neutral-scale compatibility, absolute save inputs and severity/category/title
+ordering. Shared RecordCard, CreateCard, PagedList and StockLevelSlider render
+the compact responsive grid. PagedList's optional leading item provides a
+creation cell; grid pagination spans every column.
 
-`useSupplies.setLevel` updates optimistically and submits the existing authenticated
-`saveSupply` action with expected version. Only that item locks. Duplicate submits
-are rejected, failures roll back, and only confirmed values enter the account
-cache. Refresh merging protects pending rows and newer versions. Old receipt-based
-quantity/replacement commands remain unchanged but are not used by this UI.
+Today checkbox request chains and revision guards inform StockLevelQueue.
+One request per item is in flight. New selections update the UI immediately,
+replace the queued target and increment a local revision. Successful responses
+provide the next backend version; the queue saves only the latest target.
+Different items remain independent. Server optimistic concurrency, not browser
+timestamps, determines accepted writes. Failed/uncertain writes read the current
+item before a bounded retry. A final failure restores confirmed stock with shared
+notification feedback. No spinners or global overlays are used.
 
-Cache format remains v2. Neutral integer 0–5 configurations use sliders; other
-quantities remain read-only. Metadata edits preserve existing configuration.
-Travel purchases retain independent optimistic commands. No schema changes or
-new migrations are needed.
+useSupplies protects queued rows from stale refreshes and only writes confirmed
+snapshots to the account-scoped v2 cache. Native range inputs preserve keyboard
+and accessible slider semantics; transparent input styling and focus-visible
+keep the progress indicator visually quiet for pointer users. Active drags retain
+their local preview across server version changes.
 
-Run focused tests and `./scripts/verify-web.sh`. The existing disposable schema
-check remains `bash scripts/check-personal-tools-schema.sh`. Against a matching
-production build, run `node apps/web/scripts/check-personal-tools.mjs`.
+Legacy physical quantities are read-only; metadata edits preserve configuration.
+Travel Shopping's visibility constant is false pending human confirmation;
+implementation, data and APIs remain unchanged. No migrations are required.
 
-The mocked eight-context browser matrix covers Money, keyboard zero/refill,
-optimistic rollback, per-row locking, one-write drag completion, frozen ordering
-during interaction, legacy quantities, confirmed-only caches, failed refreshes,
-travel isolation and responsive overflow. Screenshots are stored in
-`/tmp/arctic-aria-personal-tools`.
-
-For a local server and explicitly selected development database, from `apps/web`:
-
-```bash
-node --env-file=.env.local scripts/check-personal-tools-live.mjs --confirm-development
-```
-
-This uses real server actions and an isolated account with fixture cleanup in
-`finally`. It checks expenses, default level five, empty/refill saves, reload and
-non-destructive legacy metadata editing. Never target production.
+Run focused Supplies/shared/app-shell tests, ./scripts/verify-web.sh and the
+personal-tools browser matrix, including tablet and rapid queued interactions.
+The real-backend check verifies confirmed persistence and legacy editing.

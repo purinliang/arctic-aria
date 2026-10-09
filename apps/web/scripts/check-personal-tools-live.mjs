@@ -68,7 +68,7 @@ try {
   await page.reload();
   await page.getByRole('button',{ name: 'New expense',exact: true }).waitFor();
   await page.goto(`${baseUrl}/supplies`);
-  await page.getByRole('button',{ name: 'New',exact: true }).click();
+  await page.getByRole('button',{ name: 'New supply',exact: true }).click();
   await page.getByLabel('Title',{ exact: true }).fill('Live stock fixture');
   assert.equal(await page.getByRole('slider',{ name: 'Initial stock',exact: true }).inputValue(),'5');
   await page.getByRole('button',{ name: 'Create',exact: true }).click();
@@ -77,21 +77,22 @@ try {
   await slider.focus(); await page.keyboard.press('Home');
   await page.waitForFunction(() => {
     const slider = document.querySelector('input[aria-label="Remaining: Live stock fixture"]');
-    return slider && !slider.disabled && slider.value === '0';
+    return slider && slider.value === '0' && !document.querySelector('button[title="Live stock fixture · Food"]').disabled;
   });
   let stock = await sql.query('SELECT quantity::text,increment::text,unit,version FROM supply_items WHERE user_id = $1',[id]);
   assert.deepEqual(stock,[{ quantity: '0.000',increment: '1.000',unit: 'unit',version: 2 }]);
   await slider.focus(); await page.keyboard.press('End');
-  await page.waitForFunction(() => !document.querySelector('input[aria-label="Remaining: Live stock fixture"]').disabled);
+  await page.waitForFunction(() => !document.querySelector('button[title="Live stock fixture · Food"]').disabled);
   stock = await sql.query('SELECT quantity::text,target_quantity::text,version FROM supply_items WHERE user_id = $1',[id]);
   assert.deepEqual(stock,[{ quantity: '5.000',target_quantity: '5.000',version: 3 }]);
   await page.reload();
-  await page.getByText('5/5',{ exact: true }).waitFor();
+  await page.getByRole('slider',{ name: 'Remaining: Live stock fixture',exact: true }).waitFor();
+  assert.equal(await page.getByRole('slider',{ name: 'Remaining: Live stock fixture',exact: true }).inputValue(),'5');
   const legacyId = randomUUID();
   await sql.query('SELECT save_supply_stock($1::uuid,$2::uuid,true,1,$3,$4,NULL,2.5,$5,0.5,2,1,2)',[id,legacyId,'food','Legacy stock fixture','kg']);
-  await page.reload(); await page.getByText('2.5 kg',{ exact: true }).waitFor();
+  await page.reload(); await page.getByRole('button',{ name: 'Legacy stock fixture',exact: true }).waitFor();
   assert.equal(await page.getByRole('slider',{ name: 'Remaining: Legacy stock fixture',exact: true }).count(),0);
-  await page.getByRole('button',{ name: 'Edit: Legacy stock fixture',exact: true }).click();
+  await page.getByRole('button',{ name: 'Legacy stock fixture',exact: true }).click();
   await page.getByLabel('Title',{ exact: true }).fill('Renamed legacy fixture');
   await page.getByRole('button',{ name: 'Save',exact: true }).click();
   await page.locator('.aa-dialog-overlay').waitFor({ state: 'detached' });

@@ -24,20 +24,17 @@ export function SupplyRow({ item,messages,darkMode,language,pending,onLevel,onEd
   onInteractionChange: (active: boolean) => void;
 }) {
   const stock = stockQuantity(item);
-  const [preview,setPreview] = useState<{ version: number; level: number } | null>(null);
-  const level = preview?.version === item.version ? preview.level : stock.quantity;
+  const [preview,setPreview] = useState<number | null>(null);
+  const level = preview ?? stock.quantity;
   const scaled = isLevelStock(item);
   const number = (value: number) => new Intl.NumberFormat(language,{ maximumFractionDigits: 3 }).format(value);
   const unit = stock.unit === 'unit' ? messages.defaultUnit : stock.unit;
   return <RecordCard density="compact" darkMode={darkMode} title={<Button darkMode={darkMode} tone="ghost" size="text" disabled={pending}
-    title={`${item.title} · ${messages.tabs[item.kind]}`} className="min-w-0 max-w-full whitespace-normal break-words text-left" onClick={onEdit}>{item.title}</Button>}
-    value={scaled ? `${level}/5` : `${number(stock.quantity)} ${unit}`}
-    action={<Button darkMode={darkMode} tone="ghost" size="icon" disabled={pending} title={messages.edit} aria-label={`${messages.edit}: ${item.title}`}
-      icon={<PenLine size={16} />} onClick={onEdit} />}>
-    {scaled ? <StockLevelSlider value={level} label={`${messages.level}: ${item.title}`} valueText={`${level}/5 · ${messages.levelNames[level]}`} disabled={pending} onInteractionChange={onInteractionChange}
-      onPreview={(level) => setPreview({ version: item.version,level })}
+    title={`${item.title} · ${messages.tabs[item.kind]}`} className="min-w-0 max-w-full truncate text-left" onClick={onEdit}>{item.title}</Button>}>
+    {scaled ? <StockLevelSlider value={level} label={`${messages.level}: ${item.title}`} valueText={`${level}/5 · ${messages.levelNames[level]}`} onInteractionChange={onInteractionChange}
+      onPreview={setPreview}
       onCommit={(level) => { setPreview(null); onLevel(level); }} />
-      : <div title={messages.legacyQuantity} className="py-[var(--aa-space-tag-y)]"><QuantityProgress value={stock.quantity} target={stock.targetQuantity}
+      : <div title={messages.legacyQuantity} className="flex h-8 items-center"><QuantityProgress value={stock.quantity} target={stock.targetQuantity}
         increment={stock.increment} warning={needsAttention(item)} label={`${item.title}: ${number(stock.quantity)} ${unit}`} /></div>}
   </RecordCard>;
 }

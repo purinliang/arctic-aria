@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFeatureAction } from '@/components/use-feature-action';
+import { notifyActionFailure, runNotifiedServerAction } from '@/app-shell/action-notifications';
 import type { FeatureActionOptions } from '@/components/use-feature-action';
 import type { FeatureResult } from '@/server/feature-result';
 import { adjustSupplyQuantity, getSuppliesData, saveSupply, saveWish } from '../actions';
+import { StockLevelQueue } from '../stock-level-queue';
 import { levelInput } from '../stock-level';
-import { stockQuantity } from '../supplies';
 import type { SuppliesData, SupplyItem, WishItem } from '../types';
 import { clearSuppliesBrowserCache, mergeConfirmedSupplies, readSuppliesBrowserCache, writeSuppliesBrowserCache } from '../supplies-browser-cache';
 
@@ -14,6 +15,7 @@ export function useSupplies(userId: string, options: FeatureActionOptions) {
   const locks = useRef(new Set<string>()), changed = useRef(new Set<string>()), sequence = useRef(0);
   const retries = useRef(new Map<string,string>());
   const confirmed = useRef<SuppliesData | null>(null), active = useRef(false);
+  const levelQueue = useRef(new StockLevelQueue());
   const invoke = useFeatureAction(options);
   const reload = useCallback(async () => {
     const token = ++sequence.current;
@@ -77,26 +79,39 @@ export function useSupplies(userId: string, options: FeatureActionOptions) {
       if (active.current) await reload();
     }
   }
-  async function setLevel(item: SupplyItem, level: number) {
-    const input = levelInput(item,level);
-    if (!input || locks.current.has(item.id) || input.quantity === stockQuantity(item).quantity) return false;
+  function setLevel(item: SupplyItem,level: number) {
+    if (!levelInput(item,level)) return Promise.resolve();
+    let failure = { message: options.resultMessages.unavailable,title: undefined as string | undefined };
+    async function attempt<T>(action: () => Promise<FeatureResult<T>>) {
+      const capture = (message: string,title?: string) => { failure = { message,title }; };
+      const result = await runNotifiedServerAction({ action,messages: options.notificationMessages,showErrorNotification: capture });
+      if (!result.ok) return null;
+      if (!result.value.ok) {
+        notifyActionFailure({ result: result.value,...options,showErrorNotification: capture });
+        return null;
+      }
+      return result.value.data;
+    }
     locks.current.add(item.id); setPending([...locks.current]);
-    setData((current) => ({ ...current,items: current.items.map((row) => row.id === item.id ? { ...row,quantity: level } : row) }));
-    try {
-      const saved = await invoke(() => saveSupply(input));
-      if (saved) {
+    return levelQueue.current.enqueue(item,level,{
+      save: (input) => attempt(() => saveSupply(input)),
+      read: async (id) => (await attempt(getSuppliesData))?.items.find((row) => row.id === id) ?? null,
+      failed: () => { if (active.current) options.showErrorNotification(failure.message,failure.title); },
+      visible: (saved,quantity) => {
+        if (active.current) setData((current) => ({ ...current,items: current.items.map((row) => row.id === item.id ? { ...saved,quantity } : row) }));
+      },
+      confirmed: (saved) => {
         changed.current.add(item.id);
         if (active.current && confirmed.current) {
           confirmed.current = { ...confirmed.current,items: confirmed.current.items.map((row) => row.id === item.id ? saved : row) };
           writeSuppliesBrowserCache(userId,confirmed.current);
         } else clearSuppliesBrowserCache(userId);
-      }
-      if (active.current) setData((current) => ({ ...current,items: current.items.map((row) => row.id === item.id ? saved || item : row) }));
-      return !!saved;
-    } finally {
-      locks.current.delete(item.id);
-      if (active.current) { setPending([...locks.current]); await reload(); }
-    }
+      },
+      settled: (id) => {
+        locks.current.delete(id);
+        if (active.current) { setPending([...locks.current]); void reload(); }
+      },
+    });
   }
   async function toggleWish(item: WishItem) {
     if (locks.current.has(item.id)) return;

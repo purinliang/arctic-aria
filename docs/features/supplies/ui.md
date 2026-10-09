@@ -1,40 +1,37 @@
 # Supplies UI
 
-The workspace header keeps its title, description and information hint. A
-right-aligned New action precedes one compact list with ten rows per page. There
-is no restock summary, category dropdown, filter toolbar or repeated list heading.
-Name tooltips include Food/Household as secondary category metadata.
+The workspace header keeps its title, description and information hint.
+A compact shared-card grid uses three columns on desktop, two on tablet and one
+on mobile. Eleven supplies appear per page alongside a first-position dashed
+New supply tile. Pagination spans the grid; the tile stays first on every page
+and opens the unchanged creation editor.
 
-Each compact shared RecordCard has two rows: name on the left, remaining level
-and edit icon on the right; then a full-width StockLevelSlider. Levels 0/1 are
-red, 2 amber, and 3–5 blue. Five visual increments show the scale; zero keeps a
-small red fill visible. The entire track is clickable with a 32px interaction
-target, native slider semantics and keyboard support.
+Each card has only a single-line clickable title and a full-width stock bar.
+Titles open editing; no pencil, visible numeric level or extra description.
+Title tooltips include Food/Household. Levels 0/1 remain red, 2 amber and 3-5 blue.
+Five visual increments indicate the scale; zero retains a short red fill.
+The 32px pointer target supports click, drag, touch and native range keyboard
+controls. It is unselectable, uses grab/grabbing cursors and has no mouse-focus
+outline. Keyboard focus remains visible through focus-visible.
 
-Dragging previews integer levels immediately without intermediate submissions.
-Release commits once and recalculates ordering: severity (red, amber, blue),
-category (Food, Household), then alphabetical title. The same comparator applies
-on loading and updates. Pointer/keyboard interaction freezes ordering until
-completion; cancelled pointer gestures restore their starting preview.
+Dragging previews integer levels without submitting intermediate values.
+Release recalculates severity/category/title ordering. Ordering stays frozen
+during active pointer or keyboard interaction. Cancelling restores the initial
+preview; pending server responses do not interrupt an active drag.
 
-Commits are optimistic, locking only the saving item without spinners. Failures
-restore the confirmed value and show a concise shared notification. Only confirmed
-snapshots enter the cache; pending and newer-version rows are protected from stale
-refreshes. Version checks prevent overwriting another client. Refresh resolves
-uncertain writes after transport failure.
+Stock bars never lock during saves. Each item has a serial, versioned write queue
+that collapses intermediate committed intentions to the latest level. Responses
+update confirmed versions/cache without replacing a newer local level.
+Unrelated items save independently. A failed write reads current stock to resolve
+uncertain commits or stale versions and retries once for the current intention.
+If it still fails, restore confirmed stock with shared error feedback; another
+interaction can retry. Only confirmed data enters the cache. Editing the title
+waits until that item's queue finishes, preventing stale configuration edits.
 
-The editor contains name, the unchanged Food/Household selector labelled Category,
-Initial stock slider (default 5), a collapsed optional note, and a full-width
-Create/Save action. Non-empty notes open initially. Saves close only after backend
-confirmation; archival retains its confirmation flow.
+The editor remains name, unchanged Food/Household Category selector, Initial
+stock slider (default 5), collapsed optional note and full-width Create/Save.
+Existing physical quantities remain read-only indicators with accessible quantity
+text. Their stored quantities/configuration are not converted or clamped.
 
-Existing physical quantities keep exact values and units. Their row uses a
-read-only quantity indicator rather than a misleading scale. Name/category/note
-edits preserve quantity, unit, target, increment, threshold, spares and history.
-The editor explains that stock adjustment is unavailable for those records. No
-conversion or clamping occurs.
-
-Travel shopping remains in a collapsed secondary section with its existing
-New/edit/link/purchased actions and six-row pagination. Purchasing changes neither
-stock nor expenses. No consumption or prediction workflow is introduced. Mobile
-keeps the same compact order without horizontal overflow.
+Travel Shopping is hidden, not deleted. Code, records and commands remain intact.
+Restoration requires pending human confirmation in docs/roadmap.md.

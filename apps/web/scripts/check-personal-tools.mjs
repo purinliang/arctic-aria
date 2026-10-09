@@ -20,7 +20,7 @@ async function dismissNotifications(page,en) {
 }
 const browser = await chromium.launch({ headless: true });
 try {
-  for (const width of [1280,390]) for (const language of ['en','zh-CN']) for (const theme of ['light','dark']) {
+  for (const width of [1280,820,390]) for (const language of ['en','zh-CN']) for (const theme of ['light','dark']) {
     const context = await browser.newContext({ viewport: { width,height: 844 },timezoneId: 'Australia/Sydney',hasTouch: width === 390 });
     const preferences = { languagePreference: language,themePreference: theme,timeZonePreference: 'Australia/Sydney',resolvedTimeZone: 'Australia/Sydney',timeFormatPreference: '24h',multipleTimezonesEnabled: false };
     await context.addInitScript(({ language,theme }) => {
@@ -37,7 +37,7 @@ try {
       quantity: index === 1 ? 0.5 : 5,unit: index === 1 ? 'kg' : 'unit',increment: index === 1 ? 0.5 : 1,targetQuantity: index === 1 ? 2 : 5,lowStockThreshold: 1,
     })));
     const wishlist = Array.from({ length: 8 },(_,index) => ({ id: randomUUID(),title: `Travel fixture ${index + 1}`,country: 'Japan',shop: 'Example shop',url: 'https://example.com/item',note: null,linkedSupplyId: index === 0 ? items[0].id : null,status: 'planned',version: 1 }));
-    const failures = [], commands = new Set(); let failExpense = false, failStock = false, moneyReads = 0;
+    const failures = [], commands = new Set(); let failExpense = false, failStock = 0, moneyReads = 0;
     let moneyGate = null, suppliesGate = null, stockGate = null, stockWrites = 0;
     await context.route('**/*',async (route) => {
       const request = route.request(), id = request.headers()['next-action'];
@@ -76,7 +76,7 @@ try {
       } else if (name === 'adjustSupplyQuantity') {
         await new Promise((resolve) => setTimeout(resolve,150));
         const input = args[0], item = items.find((item) => item.id === input.id); assert.ok(item);
-        if (failStock) { failStock = false; result = unavailable; }
+        if (failStock) { failStock--; result = unavailable; }
         else {
           if (!commands.has(input.key)) { commands.add(input.key); item.version++; item.quantity = Math.max(0,Math.round(item.quantity * 1000) + input.direction * Math.round(item.increment * 1000)) / 1000; }
           result = { ok: true,data: item };
@@ -84,9 +84,10 @@ try {
       } else if (name === 'saveSupply') {
         stockWrites++;
         if (stockGate) { const gate = stockGate; stockGate = null; await gate; }
-        if (failStock) { failStock = false; result = unavailable; }
+        if (failStock) { failStock--; result = unavailable; }
         else {
           const input = args[0]; let item = items.find((item) => item.id === input.id);
+          if (item) assert.equal(input.version,item.version,'queued writes use the latest confirmed backend version');
           if (!item) { item = { id: input.id,cycleId: randomUUID(),observations: [],version: 0 }; items.unshift(item); }
           Object.assign(item,input,{ note: input.note || null,version: item.version + 1 }); result = { ok: true,data: item };
         }
@@ -151,12 +152,18 @@ try {
     await page.goto(`${baseUrl}/supplies`);
     const slider = page.getByRole('slider',{ name: `${en ? 'Remaining' : '剩余量'}: Food fixture 1`,exact: true });
     await slider.waitFor();
+    const newSupply = en ? 'New supply' : '新建物资';
+    assert.equal(await button(newSupply).evaluate((button) => getComputedStyle(button.parentElement).gridTemplateColumns.split(' ').length),width >= 1024 ? 3 : width >= 640 ? 2 : 1);
+    assert.equal(await button(newSupply).evaluate((button) => button.parentElement.firstElementChild === button),true,'creation is first grid cell');
+    const createHeight = (await button(newSupply).boundingBox()).height;
+    assert.ok(Math.abs(createHeight - (await page.locator('article').first().boundingBox()).height) <= 3,'creation tile matches compact stock card height');
     assert.equal(await page.getByRole('radio').count(),0,'no filtering toolbar');
     assert.equal(await page.getByRole('slider',{ name: `${en ? 'Remaining' : '剩余量'}: Food fixture 2`,exact: true }).count(),0,'legacy fractional quantity stays read-only');
     const first = () => items.find((item) => item.title === 'Food fixture 1');
-    let releaseStock; stockGate = new Promise((resolve) => { releaseStock = resolve; }); failStock = true;
+    let releaseStock; stockGate = new Promise((resolve) => { releaseStock = resolve; }); failStock = 2;
     await slider.focus(); await page.keyboard.press('Home');
-    await page.waitForFunction((label) => document.querySelector(`input[aria-label="${label}"]`).disabled,`${en ? 'Remaining' : '剩余量'}: Food fixture 1`);
+    await page.waitForFunction((label) => document.querySelector(`input[aria-label="${label}"]`).value === '0',`${en ? 'Remaining' : '剩余量'}: Food fixture 1`);
+    assert.equal(await slider.isEnabled(),true,'saving stock remains interactive');
     assert.equal(await slider.inputValue(),'0','optimistic value appears while write is held');
     assert.equal(await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).data.items.find((item) => item.title === 'Food fixture 1').quantity,suppliesKey),5,'pending changes never enter cache');
     assert.equal(await page.getByRole('slider',{ name: `${en ? 'Remaining' : '剩余量'}: Food fixture 3`,exact: true }).isEnabled(),true,'unrelated items stay interactive');
@@ -164,6 +171,16 @@ try {
     await page.waitForFunction((label) => { const input = document.querySelector(`input[aria-label="${label}"]`); return !input.disabled && input.value === '5'; },`${en ? 'Remaining' : '剩余量'}: Food fixture 1`);
     assert.equal(first().quantity,5,'failure restores confirmed value');
     await dismissNotifications(page,en);
+    const rapidWrites = stockWrites;
+    stockGate = new Promise((resolve) => { releaseStock = resolve; });
+    await slider.focus(); await page.keyboard.press('Home');
+    await page.keyboard.press('ArrowRight'); await page.keyboard.press('ArrowRight'); await page.keyboard.press('End'); await page.keyboard.press('ArrowLeft');
+    assert.equal(await slider.inputValue(),'4','latest local intent wins while first write is pending');
+    assert.equal(await slider.isEnabled(),true);
+    releaseStock();
+    await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key)).data.items.find((item) => item.title === 'Food fixture 1').quantity === 4,suppliesKey);
+    assert.equal(stockWrites,rapidWrites + 2,'rapid intermediate levels coalesce into one final write');
+    assert.equal(first().quantity,4);
     await slider.focus(); await page.keyboard.press('Home');
     await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key)).data.items.find((item) => item.title === 'Food fixture 1').quantity === 0,suppliesKey);
     assert.equal(await slider.inputValue(),'0');
@@ -183,6 +200,9 @@ try {
     await page.mouse.up();
     await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key)).data.items.find((item) => item.title === 'Food fixture 1').quantity === 5,suppliesKey);
     assert.equal(stockWrites,writes + 1,'one final drag write');
+    assert.equal(await slider.evaluate((input) => getComputedStyle(input.parentElement).boxShadow.includes('2px')),false,'mouse drag has no focus outline');
+    await page.keyboard.press('Tab'); await page.keyboard.press('Shift+Tab');
+    assert.equal(await slider.evaluate((input) => input.matches(':focus-visible') && getComputedStyle(input.parentElement).boxShadow.includes('2px')),true,'keyboard focus remains visible');
     const third = page.getByRole('slider',{ name: `${en ? 'Remaining' : '剩余量'}: Food fixture 3`,exact: true });
     await third.focus(); await page.keyboard.press('Home');
     await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key)).data.items.find((item) => item.title === 'Food fixture 3').quantity === 0,suppliesKey);
@@ -205,24 +225,23 @@ try {
       const fill = input.parentElement.firstElementChild.firstElementChild;
       return fill.classList.contains('bg-amber-500') && !['transparent','rgba(0, 0, 0, 0)'].includes(getComputedStyle(fill).backgroundColor);
     }),'level two has a rendered amber colour');
-    await button(en ? 'New' : '新建').click(); await page.getByLabel(en ? 'Title' : '名称',{ exact: true }).fill('Added rice fixture');
+    await button(newSupply).click(); await page.getByLabel(en ? 'Title' : '名称',{ exact: true }).fill('Added rice fixture');
     assert.equal(await page.getByRole('slider',{ name: en ? 'Initial stock' : '初始余量',exact: true }).inputValue(),'5');
     assert.equal(await page.getByLabel(en ? 'Unit' : '单位',{ exact: true }).count(),0);
     await page.screenshot({ path: `${output}/supply-config-${width}-${language}-${theme}.png`,fullPage: true });
     await button(en ? 'Create' : '创建').click(); await page.locator('.aa-dialog-overlay').waitFor({ state: 'detached' });
     await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key) ?? '{}').data?.items.length === 17,suppliesKey);
     let releaseSupplies; suppliesGate = new Promise((resolve) => { releaseSupplies = resolve; });
-    await page.reload(); await button('Added rice fixture').waitFor(); assert.equal(await button(en ? 'New' : '新建').isEnabled(),true); releaseSupplies();
+    await page.reload(); await button('Added rice fixture').waitFor(); assert.equal(await button(newSupply).isEnabled(),true); releaseSupplies();
     await page.getByRole('button',{ name: en ? 'Dismiss notification' : '关闭通知',exact: true }).first().waitFor();
     await dismissNotifications(page,en);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),'Supplies fits viewport');
     await page.screenshot({ path: `${output}/supplies-${width}-${language}-${theme}.png`,fullPage: true });
-    await page.locator('summary').filter({ hasText: en ? 'Travel shopping' : '旅行购物' }).click();
-    const stockBeforePurchase = JSON.stringify(items);
-    await button(`${en ? 'Mark purchased' : '标记已购买'}: Travel fixture 1`).click();
-    await button(`${en ? 'Mark planned' : '标记计划采购'}: Travel fixture 1`).waitFor();
-    await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key))?.data.wishlist.some((item) => item.title === 'Travel fixture 1' && item.status === 'purchased'),suppliesKey);
-    assert.equal(JSON.stringify(items),stockBeforePurchase); assert.equal(expenses.length,10); assert.deepEqual(failures,[]);
+    assert.equal(await page.locator('summary').filter({ hasText: en ? 'Travel shopping' : '旅行购物' }).count(),0,'travel UI is hidden');
+    assert.equal(wishlist.length,8,'travel records remain untouched');
+    assert.equal(await button(en ? 'Progress' : '进步').count(),0,'no Progress navigation entry');
+    await page.goto(`${baseUrl}/progress`); await page.waitForURL('**/today');
+    assert.equal(expenses.length,10); assert.deepEqual(failures,[]);
     await context.close();
   }
   console.log('Personal tools matrix passed: expense capture, categories, currencies, optimistic stock sliders, rollback, drag commit, legacy preservation, confirmed-only caches and responsive layouts.');

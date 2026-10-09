@@ -44,6 +44,7 @@ export function PagedList<Item>({
   pageSize,
   resetKey,
   renderItem,
+  leadingItem,
 }: {
   ariaLabel: string;
   className?: string;
@@ -57,6 +58,7 @@ export function PagedList<Item>({
   pageSize: number;
   resetKey?: string;
   renderItem: (item: Item) => ReactNode;
+  leadingItem?: ReactNode;
 }) {
   const normalizedResetKey = `${resetKey ?? "default"}:${Math.max(
     1,
@@ -81,10 +83,11 @@ export function PagedList<Item>({
 
   return (
     <List darkMode={darkMode} variant={layout} className={className}>
+      {leadingItem}
       {loading ? (
         <LoadingLine darkMode={darkMode} text={loadingText} />
       ) : null}
-      {!loading && items.length === 0 ? (
+      {!loading && items.length === 0 && !leadingItem ? (
         <DescriptionText darkMode={darkMode} className={listRowPaddingClass}>
           {emptyText}
         </DescriptionText>
@@ -92,7 +95,7 @@ export function PagedList<Item>({
       {!loading ? visibleItems.map((item) => renderItem(item)) : null}
       {showPagination ? (
         <PagedListNavigation
-          className={layout === "cards" ? "sm:col-span-2" : undefined}
+          className={layout === "cards" ? "col-span-full" : undefined}
           ariaLabel={ariaLabel}
           darkMode={darkMode}
           messages={messages}

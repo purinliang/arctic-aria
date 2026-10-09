@@ -707,6 +707,10 @@ capture. `RecordCard` accepts a right-aligned value alongside its existing actio
 slot. `IconChoiceGrid` uses the existing choice-button tokens for compact
 three-column icon-over-label selection. Optional action tiles (such as More or
 inline creation) retain the same visual style but use button, not radio, semantics.
+`CreateCard` is a compact dashed creation
+tile for repeated-card grids. `PagedList` can accept an optional leading creation
+item; grid pagination spans all columns. `StockLevelSlider` preserves keyboard
+focus-visible while keeping mouse/touch progress interaction unframed.
 `QuantityControl` and `QuantityProgress`
 provide shared stepping buttons and segmented/continuous stock indicators.
 Text-sized ghost Buttons provide unpadded inline commands such as opening a stock

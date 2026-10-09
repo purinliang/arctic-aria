@@ -36,6 +36,11 @@ new items, optimistic interactive stock bars, priority sorting and a minimal
 editor. Existing physical quantities stay intact and read-only; no new migration.
 Travel shopping remains available in a collapsed secondary section.
 
+2026-10-09 compact Supplies follow-up: responsive 3/2/1-column grid, first-cell
+creation tile and continuously interactive bars. Per-item serial queues coalesce
+rapid selections and reuse server versions; no schema change. Travel Shopping
+is now hidden pending the explicit human review above.
+
 2026-10-09 Money refinement on the same branch: monthly navigation and category
 tabs, filtered per-currency totals, compact expense entry with inline custom
 creation and history-ranked note suggestions. Migration 0041 adds immutable

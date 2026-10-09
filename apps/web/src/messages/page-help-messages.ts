@@ -46,10 +46,10 @@ export const englishPageHelpMessages = {
       ],
     },
     supplies: {
-      title: "Supplies", summary: "Track remaining food and household supplies, and plan purchases abroad.",
+      title: "Supplies", summary: "Track remaining food and household supplies with compact stock cards.",
       sections: [
         { title: "Stock", body: "New items use an approximate 0–5 scale, starting at 5. Click or drag the bar to update the remaining level. Red items appear first, then amber, then blue. Existing physical quantities stay unchanged." },
-        { title: "Travel shopping", body: "The collapsed travel wishlist keeps optional links and purchase status. Marking purchased does not change stock or expenses." },
+        { title: "Quick updates", body: "Use New supply to add an item. Open its title to edit. Stock bars accept consecutive changes while saving; only confirmed values are cached." },
       ],
     },
     projects: {
@@ -178,10 +178,10 @@ export const simplifiedChinesePageHelpMessages: typeof englishPageHelpMessages =
       ],
     },
     supplies: {
-      title: "物资", summary: "记录食品和日用品的剩余量，并计划海外采购。",
+      title: "物资", summary: "使用紧凑的余量卡片记录食品和日用品。",
       sections: [
         { title: "余量", body: "新物资使用固定的 0–5 近似余量，初始值为 5。点击或拖动进度条即可更新。列表依次显示红色、琥珀色和蓝色项目，已有的实际数量保持不变。" },
-        { title: "旅行购物", body: "折叠的旅行购物清单保留可选关联和采购状态。标记已购买不会修改物资余量或支出。" },
+        { title: "快速更新", body: "使用新建物资添加项目，点击名称可编辑。保存过程中仍可连续调整余量，缓存仅保存已确认的值。" },
       ],
     },
     projects: {
