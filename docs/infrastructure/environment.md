@@ -143,6 +143,12 @@ this feature is released. Back up it separately from the database. Losing or
 changing it makes saved keys unreadable; rotation requires deliberate
 decryption/re-encryption with both old and new keys, not automatic regeneration.
 
+Release preparation on 2026-10-10 configured an independent production-only
+`AI_CREDENTIAL_ENCRYPTION_KEY` as a sensitive Vercel variable. Do not replace or
+regenerate it during deployments. Production's `pnpm deploy` build command runs
+the migration runner before deployment promotion; no separate pre-release
+production migration was performed.
+
 Repeatable settings checks, from `apps/web` with a fresh production build running
 locally on port 3001:
 

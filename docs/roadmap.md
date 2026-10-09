@@ -19,10 +19,11 @@ Next release target: `v0.17.0`.
 
 2026-10-10: `feature/gemini-api-environment` is integrated into `develop`.
 The developer requested release preparation, including the accumulated Money
-and Supplies refinements. See `docs/releases/v0.17.0.md`. Production rollout
-still requires migrations through `0045`, a stable AI credential-encryption
-secret, and integration of the `v0.16.1` demo-entry hotfix. No deployment is
-performed by release preparation. Deferred feature visibility remains unchanged.
+and Supplies refinements. See `docs/releases/v0.17.0.md`. The `v0.16.1`
+demo-entry hotfix is integrated, and the production-only AI credential-encryption
+secret is configured in Vercel. The existing `pnpm deploy` build command applies
+migrations through `0045` before promotion. No deployment is performed by release
+preparation. Deferred feature visibility remains unchanged.
 
 ## Development-Only Tracking
 
