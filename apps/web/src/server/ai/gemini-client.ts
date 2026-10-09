@@ -47,11 +47,18 @@ export function createGeminiClient({ env = process.env, generate }: {
         if (!text) throw new GeminiError("empty_response");
         return { text, model: config.model };
       } catch (error) {
-        if (error instanceof GeminiError) throw error;
         // Provider errors can contain credentials or request content; do not retain them.
         const status = error && typeof error === "object" && "status" in error && typeof error.status === "number"
-          ? error.status : undefined;
-        throw new GeminiError("request_failed", status);
+          && Number.isInteger(error.status) && error.status >= 100 && error.status <= 599 ? error.status : undefined;
+        const failure = error instanceof GeminiError ? error : new GeminiError("request_failed", status);
+        if (process.env.NODE_ENV === "development") {
+          console.warn("[Gemini] generateContent failed", {
+            model: config.model,
+            status: failure.status ?? null,
+            code: failure.code,
+          });
+        }
+        throw failure;
       }
     },
   };

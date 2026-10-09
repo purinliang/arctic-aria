@@ -68,6 +68,10 @@ Progress and Travel Shopping must stay hidden until human confirmation.
   Google now restricts Gemini 2.5 access to previous users; the current explicit
   2.5 Flash test can return HTTP 404 for a new key/project. Do not silently switch
   models or treat every 404 as proof of an invalid key.
+  Local development now emits credential-free Gemini failure diagnostics
+  (model, HTTP status, application code). Root cause of the developer's reported
+  404 remains unconfirmed; compare the same key and API request before changing
+  the model. Do not enable raw provider or Server Function argument logging.
   AI/chat integration, data-sharing consent and command confirmations remain pending human review.
   Do not automatically restore Progress or chat as part of this setup.
 

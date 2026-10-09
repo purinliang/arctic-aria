@@ -145,6 +145,13 @@ are explicit connection checks, not AI product actions, and do not persist keys.
 It sends only a neutral test prompt, with no automatic product-data export.
 Normal future AI operations must respect saved enablement. Chat remains hidden.
 
+Local `pnpm dev` logs failed Gemini generation as `[Gemini] generateContent failed`
+with only the validated model, HTTP status (or null), and application error code.
+Production and test runtimes do not emit these diagnostics. Never log provider
+messages, error bodies, prompts, credentials, or Server Function arguments.
+Next.js may still report HTTP 200 for the Server Action carrying an expected
+failure result; that status does not mean the upstream Gemini request succeeded.
+
 ## Developer Tools
 
 Progress: implemented for administrator latency diagnostics and internal import
