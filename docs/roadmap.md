@@ -13,9 +13,16 @@ This roadmap records future work. It should not repeat released implementation
 details; released behavior belongs in `docs/releases/` and stable rules belong
 in the owning feature, web, or infrastructure docs.
 
-Current released version: `v0.15.1`.
+Current released version: `v0.16.1`.
 
-Current development version on `develop`: `v0.16.0-dev`.
+Next release target: `v0.17.0`.
+
+2026-10-10: `feature/gemini-api-environment` is integrated into `develop`.
+The developer requested release preparation, including the accumulated Money
+and Supplies refinements. See `docs/releases/v0.17.0.md`. Production rollout
+still requires migrations through `0045`, a stable AI credential-encryption
+secret, and integration of the `v0.16.1` demo-entry hotfix. No deployment is
+performed by release preparation. Deferred feature visibility remains unchanged.
 
 ## Development-Only Tracking
 

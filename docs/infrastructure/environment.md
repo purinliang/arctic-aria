@@ -158,8 +158,11 @@ account isolation, reload and atomic cooldowns, then removes its test accounts.
 Both use fake keys and never call Google. Do not run the live check against a
 production database. A genuine model response still requires a user-owned key.
 
-No chat UI, product-data export or AI command execution is added. Chat and
-Progress remain hidden pending human confirmation. Future user-facing calls must
+Aria Chat uses the user's saved credentials and sends their conversation text
+to Google, with seven-day history and cleanup described in
+[Chat](../features/chat/overview.md). It does not export other product data or
+execute AI commands. Progress remains hidden on development builds pending
+human confirmation. Future user-facing calls must
 check the account's enabled setting, authenticate,
 enforce authorization/rate limits, disclose external data transfer and require
 confirmation before destructive or scheduling commands. Do not import this

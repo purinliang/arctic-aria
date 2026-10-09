@@ -46,8 +46,8 @@ Backend inside the web app:
 - optional server-side Gemini text adapter in `apps/web/src/server/ai`, with
   account-owned encrypted credentials configured in Settings and rate-limited
   connection tests; `AI_CREDENTIAL_ENCRYPTION_KEY` is required for saved keys;
-  private configuration and explicit `ai:check` / `ai:smoke` commands; not wired
-  to chat or product commands
+  private configuration and explicit `ai:check` / `ai:smoke` commands; Aria Chat
+  uses account-owned keys, without product mutation commands
 
 Verification:
 
