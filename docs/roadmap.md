@@ -1,5 +1,14 @@
 # Roadmap
 
+## Floating Chat
+
+- Implemented a compact workspace Aria Chat opener, per-user Gemini
+  conversation, seven-day history, browser cache and retention cleanup.
+- History search backend is retained, but panel search UI is intentionally
+  hidden per developer review. Do not restore it without human confirmation.
+- Pending human confirmation: review live-key chat quality and compact
+  desktop/mobile interaction. Chat has no task or other product mutation tools.
+
 This roadmap records future work. It should not repeat released implementation
 details; released behavior belongs in `docs/releases/` and stable rules belong
 in the owning feature, web, or infrastructure docs.

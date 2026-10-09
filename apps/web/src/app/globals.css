@@ -208,6 +208,8 @@
   --aa-secondary-button-disabled-border: var(--gray-5);
   --aa-secondary-button-disabled-bg: var(--aa-gray-2-50);
   --aa-secondary-button-disabled-text: var(--gray-10);
+  --aa-chat-assistant-bg: var(--gray-4);
+  --aa-chat-assistant-text: var(--aa-primary-text);
   --aa-text-input-bg: var(--aa-secondary-button-bg);
   --aa-text-input-text: var(--aa-secondary-button-text);
   --aa-text-input-placeholder-text: var(--gray-11);

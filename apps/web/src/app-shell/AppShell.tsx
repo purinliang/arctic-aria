@@ -58,6 +58,7 @@ import {
 } from "./developer-mode";
 import { Sidebar } from "./Sidebar";
 import { showProgressPage } from './feature-visibility';
+import { ChatWidget } from '@/features/chat/components/ChatWidget';
 
 export function AppShell({
   currentUser,
@@ -620,6 +621,8 @@ export function AppShell({
         </div>
       </div>
 
+      <ChatWidget key={currentUser.id} userId={currentUser.id} darkMode={darkMode} language={resolvedLanguage}
+        timeZone={resolvedTimeZone} onSettings={() => handleViewChange('settings')} />
       <NotificationStack
         notifications={notifications}
         darkMode={darkMode}

@@ -63,3 +63,27 @@ test("Gemini empty or blocked output is not treated as a successful response", a
   const client = createGeminiClient({ env, generate: async () => new GenerateContentResponse() });
   await assert.rejects(client.generateText("Hello"), { code: "empty_response" });
 });
+
+test('Gemini chat preserves explicit conversation roles and rejects malformed history', async () => {
+  let calls = 0;
+  const client = createGeminiClient({ env, generate: async input => {
+    calls++;
+    assert.deepEqual(input.contents, [
+      { role: 'user', parts: [{ text: 'Hello' }] }, { role: 'model', parts: [{ text: 'Hi' }] },
+      { role: 'user', parts: [{ text: 'Next' }] },
+    ]);
+    return response();
+  } });
+  await client.generateConversation([{ role: 'user', text: 'Hello' }, { role: 'model', text: 'Hi' }, { role: 'user', text: 'Next' }]);
+  await assert.rejects(client.generateConversation([]), { code: 'invalid_input' });
+  await assert.rejects(client.generateConversation([{ role: 'model', text: 'Bad' }]), { code: 'invalid_input' });
+  assert.equal(calls, 1);
+});
+
+test('Gemini sanitizes network and timeout failures into stable adapter codes', async () => {
+  for (const [error, code] of [[new TypeError('private content'), 'network_failure'],
+    [Object.assign(new Error('private content'), { name: 'TimeoutError' }), 'timeout']] as const) {
+    const client = createGeminiClient({ env, generate: async () => { throw error; } });
+    await assert.rejects(client.generateText('Hello'), { code });
+  }
+});
