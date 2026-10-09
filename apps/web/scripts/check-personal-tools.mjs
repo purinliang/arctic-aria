@@ -27,6 +27,7 @@ try {
       localStorage.setItem('arctic-aria.language-preference',language); localStorage.setItem('arctic-aria.theme-preference',theme);
     },{ language,theme });
     const today = new Date().toLocaleDateString('en-CA',{ timeZone: 'Australia/Sydney' });
+    const project = { id: randomUUID(),title: 'Project fixture',description: 'Neutral project fixture',startDate: today,deadlineDate: '',expectedDurationDays: '',durationRange: 'open',sidebarPinOrder: null,timelineText: '',currentMilestone: '',progressText: '',tasks: [],milestones: [] };
     const categories = ['food','transport','shopping','housing','bills','health','subscription','other'].map((seedKey) => ({ id: randomUUID(),seedKey,name: null,archived: false }));
     categories.push(...['Custom A','Custom B'].map((name) => ({ id: randomUUID(),seedKey: null,name,archived: false })));
     let settings = { preferredCurrencies: ['CNY','AUD'],quickCategoryIds: categories.slice(0,5).map((item) => item.id) };
@@ -91,12 +92,16 @@ try {
           if (!item) { item = { id: input.id,cycleId: randomUUID(),observations: [],version: 0 }; items.unshift(item); }
           Object.assign(item,input,{ note: input.note || null,version: item.version + 1 }); result = { ok: true,data: item };
         }
+      } else if (name === 'archiveSupply') {
+        const input = args[0], index = items.findIndex((item) => item.id === input.id);
+        assert.ok(index >= 0); assert.equal(input.wishlist,false); assert.equal(input.version,items[index].version);
+        items.splice(index,1); result = { ok: true,data: true };
       } else if (name === 'saveWish') {
         const input = args[0]; let item = wishlist.find((item) => item.id === input.id);
         if (!item) { item = { id: input.id }; wishlist.unshift(item); }
         Object.assign(item,input,{ version: input.version + 1 }); result = { ok: true,data: item };
       } else if (name === 'getIdeaPageData') result = { ok: true,data: [] };
-      else if (name?.startsWith('get') && name.endsWith('DashboardData')) result = { ok: true,data: { projects: [],tasks: [],events: [],eventInstances: [],todayEvents: [],eventGroups: [],routines: [],routineInstances: [],routineDefinitions: [],routineGroups: [],categories: [],pinnedMemories: [],memoryRecords: [] } };
+      else if (name?.startsWith('get') && name.endsWith('DashboardData')) result = { ok: true,data: { projects: [project],tasks: [],events: [],eventInstances: [],todayEvents: [],eventGroups: [],routines: [],routineInstances: [],routineDefinitions: [],routineGroups: [],categories: [],pinnedMemories: [],memoryRecords: [] } };
       else { failures.push(`Unexpected action ${name}`); result = unavailable; }
       await route.fulfill({ status: 200,contentType: 'text/x-component',body: `0:{"a":"$@1","f":[],"b":"fixture"}\n1:${JSON.stringify(result)}\n` });
     });
@@ -237,12 +242,68 @@ try {
     await dismissNotifications(page,en);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),'Supplies fits viewport');
     await page.screenshot({ path: `${output}/supplies-${width}-${language}-${theme}.png`,fullPage: true });
+    await button('Added rice fixture').click();
+    const menuTrigger = button(en ? 'More actions' : '更多操作');
+    const closeEditor = lastDialog().getByRole('button',{ name: en ? 'Close' : '关闭',exact: true });
+    assert.deepEqual(await menuTrigger.evaluate((node) => [node.offsetWidth,node.offsetHeight]),await closeEditor.evaluate((node) => [node.offsetWidth,node.offsetHeight]),'menu trigger matches Close dimensions');
+    assert.equal(await lastDialog().getByRole('button',{ name: en ? 'Archive' : '归档',exact: true }).count(),0,'no destructive footer button');
+    await page.getByLabel(en ? 'Title' : '名称',{ exact: true }).fill('Unsaved title fixture');
+    await menuTrigger.click();
+    const menu = page.getByRole('menu'), deletion = menu.getByRole('menuitem',{ name: en ? 'Delete' : '删除',exact: true });
+    await deletion.waitFor();
+    assert.equal(await deletion.evaluate((node) => node === document.activeElement),true,'first enabled menu item receives focus');
+    assert.equal(await menu.evaluate((node) => getComputedStyle(node).padding),'4px');
+    assert.equal(await deletion.evaluate((node) => getComputedStyle(node).padding),'8px 12px');
+    assert.equal(await deletion.evaluate((node) => getComputedStyle(node).borderWidth),'0px');
+    assert.ok(Math.abs((await menu.boundingBox()).x + (await menu.boundingBox()).width - ((await menuTrigger.boundingBox()).x + (await menuTrigger.boundingBox()).width)) < 2,'menu aligns beneath trigger right edge');
+    assert.ok(await menu.evaluate((node) => node.getBoundingClientRect().left >= 0 && node.getBoundingClientRect().right <= innerWidth),'menu fits narrow viewport');
+    await page.screenshot({ path: `${output}/supply-action-menu-${width}-${language}-${theme}.png`,fullPage: true });
+    await page.keyboard.press('Escape'); await menu.waitFor({ state: 'detached' });
+    assert.equal(await menuTrigger.evaluate((node) => node === document.activeElement),true,'Escape returns focus without closing editor');
+    await page.keyboard.press('Enter'); await deletion.waitFor();
+    await page.keyboard.press('Tab'); await menu.waitFor({ state: 'detached' });
+    assert.equal(await closeEditor.evaluate((node) => node === document.activeElement),true,'Tab dismisses and advances to the next header control');
+    await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Enter'); await deletion.waitFor();
+    await page.keyboard.press('ArrowDown'); await page.keyboard.press('End');
+    assert.equal(await deletion.evaluate((node) => node === document.activeElement),true);
+    await page.keyboard.press('Enter'); await menu.waitFor({ state: 'detached' });
+    await page.getByText(en ? 'Archive this item?' : '归档这件物资？',{ exact: true }).waitFor();
+    await button(en ? 'Cancel' : '取消').click();
+    assert.equal(await page.getByLabel(en ? 'Title' : '名称',{ exact: true }).inputValue(),'Unsaved title fixture','cancelled confirmation preserves draft');
+    assert.equal(items.length,17,'opening and cancelling Delete does not mutate backend fixtures');
+    await menuTrigger.click(); await deletion.click();
+    await button(en ? 'Archive' : '归档').click();
+    await page.waitForFunction(() => document.querySelectorAll('.aa-dialog-overlay').length === 0);
+    assert.equal(items.length,16,'confirmed Delete uses the existing archive command');
+    assert.equal(await button('Added rice fixture').count(),0);
     assert.equal(await page.locator('summary').filter({ hasText: en ? 'Travel shopping' : '旅行购物' }).count(),0,'travel UI is hidden');
     assert.equal(wishlist.length,8,'travel records remain untouched');
     assert.equal(await button(en ? 'Progress' : '进步').count(),0,'no Progress navigation entry');
     await page.goto(`${baseUrl}/progress`); await page.waitForURL('**/today');
+    await page.goto(`${baseUrl}/projects`); await button('Project fixture').click();
+    await button(en ? 'Edit' : '编辑').first().click();
+    const projectMenuTrigger = button(en ? 'Project editor actions' : '项目编辑操作');
+    await projectMenuTrigger.click();
+    const projectItems = page.getByRole('menuitem');
+    assert.equal(await projectItems.count(),2,'Projects retains Template and Delete');
+    assert.equal(await projectItems.first().evaluate((node) => node === document.activeElement),true);
+    await page.keyboard.press('ArrowUp');
+    assert.equal(await projectItems.last().evaluate((node) => node === document.activeElement),true,'Up wraps to Delete');
+    await page.keyboard.press('Home');
+    assert.equal(await projectItems.first().evaluate((node) => node === document.activeElement),true);
+    await page.keyboard.press('ArrowDown');
+    assert.equal(await projectItems.last().evaluate((node) => node === document.activeElement),true);
+    assert.equal(await projectItems.last().evaluate((node) => getComputedStyle(node).outlineStyle),'none','keyboard highlight has no button-like outline');
+    assert.ok(await projectItems.last().evaluate((node) => !['transparent','rgba(0, 0, 0, 0)'].includes(getComputedStyle(node).backgroundColor)),'keyboard focus retains visible background highlight');
+    await page.screenshot({ path: `${output}/project-action-menu-${width}-${language}-${theme}.png`,fullPage: true });
+    await page.keyboard.press('Escape'); await page.getByRole('menu').waitFor({ state: 'detached' });
+    assert.equal(await projectMenuTrigger.evaluate((node) => node === document.activeElement),true);
+    await projectMenuTrigger.click();
+    await button(en ? 'Close project template' : '关闭项目模板').click();
+    await page.getByRole('menu').waitFor({ state: 'detached' });
     assert.equal(expenses.length,10); assert.deepEqual(failures,[]);
     await context.close();
+    console.log(`Personal tools passed: ${width}px ${language} ${theme}`);
   }
-  console.log('Personal tools matrix passed: expense capture, categories, currencies, optimistic stock sliders, rollback, drag commit, legacy preservation, confirmed-only caches and responsive layouts.');
+  console.log('Personal tools matrix passed: expense capture, categories, currencies, optimistic stock sliders, rollback, drag commit, legacy preservation, confirmed-only caches, responsive layouts and dialog action menus.');
 } finally { await browser.close(); }

@@ -189,6 +189,19 @@ buttons. Use it for command lists such as dialog header overflow actions. Action
 menus should not show a title inside the popup, and rows should stay text-only
 unless the menu has enough actions that icons materially improve scanning.
 
+Menus align beneath the trigger's right edge, with the shared panel surface,
+border, radius and shadow. The menu padding token is 4px; borderless rows use
+12px horizontal and 8px vertical padding. Rows are transparent until hovered or
+keyboard-focused. Destructive rows use restrained red text and a tinted hover,
+not a solid destructive button. Disabled rows do not highlight.
+
+Opening focuses the first enabled item. Arrow keys cycle enabled items; Home
+and End focus the first and last. Escape dismisses only the menu, returning
+focus to its trigger. Tab dismisses and continues normal dialog tabbing from
+the trigger. Item activation and outside dismissal retain the owning dialog's
+existing callbacks and confirmation behavior. Header triggers use the same
+shared icon-button size as Close.
+
 ## Icon
 
 Use `lucide-react` icons for normal UI icons when a suitable icon exists.

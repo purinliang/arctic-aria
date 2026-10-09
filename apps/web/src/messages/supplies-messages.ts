@@ -1,5 +1,6 @@
 import { englishPaginationMessages, simplifiedChinesePaginationMessages } from './pagination-messages';
 export const englishSuppliesMessages = {
+  moreActions: 'More actions', closeMenu: 'Close action menu', delete: 'Delete',
   tabs: { food: 'Food', household: 'Household', travel: 'Travel shopping' }, all: 'All', attention: 'Needs attention',
   allSupplies: 'All supplies', restock: 'Need restock', quantity: 'Current quantity', target: 'Target stock', increment: 'Quantity step', unit: 'Unit',
   threshold: 'Low-stock threshold', decrease: 'Decrease', increase: 'Increase', remaining: 'remaining',
@@ -23,6 +24,7 @@ export const englishSuppliesMessages = {
 };
 export type SuppliesMessages = typeof englishSuppliesMessages;
 export const chineseSuppliesMessages: SuppliesMessages = {
+  moreActions: '更多操作', closeMenu: '关闭操作菜单', delete: '删除',
   tabs: { food: '食品', household: '日用品', travel: '旅行购物' }, all: '全部', attention: '需要关注',
   allSupplies: '全部物资', restock: '需要补货', quantity: '当前数量', target: '目标库存', increment: '数量步长', unit: '单位',
   threshold: '低库存阈值', decrease: '减少', increase: '增加', remaining: '剩余',

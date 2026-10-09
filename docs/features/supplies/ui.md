@@ -33,5 +33,11 @@ stock slider (default 5), collapsed optional note and full-width Create/Save.
 Existing physical quantities remain read-only indicators with accessible quantity
 text. Their stored quantities/configuration are not converted or clamped.
 
+Existing supplies have a More actions icon beside the header Close button.
+Its shared compact action menu contains Delete; there is no destructive footer
+button. Delete opens the existing archive confirmation and retains soft-archive
+persistence, version checks and pending behavior. Cancel keeps the editor draft.
+Create/Save remains the full-width footer action; new supplies have no menu.
+
 Travel Shopping is hidden, not deleted. Code, records and commands remain intact.
 Restoration requires pending human confirmation in docs/roadmap.md.

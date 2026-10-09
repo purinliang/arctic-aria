@@ -1,5 +1,8 @@
 // Supplies Page - Simple Stock Editor.
 import { useState } from 'react';
+import { MoreHorizontal } from 'lucide-react';
+import { ActionMenu, ActionMenuItem } from '@/components/action-menu';
+import { Button } from '@/components/button';
 import { CrudEditorDialog, ConfirmDialog } from '@/components/dialog';
 import { Disclosure } from '@/components/disclosure';
 import { FieldLabel, TextInput } from '@/components/forms/input-field';
@@ -18,6 +21,7 @@ export function SupplyEditor({ input,messages,darkMode,onSave,onArchive,onClose,
 }) {
   const [draft,setDraft] = useState({ ...input,...stockQuantity(input) });
   const [pending,setPending] = useState(false), [confirm,setConfirm] = useState(false);
+  const [menuOpen,setMenuOpen] = useState(false);
   const scaled = isLevelStock(input);
   async function submit() {
     if (pending) return;
@@ -27,8 +31,16 @@ export function SupplyEditor({ input,messages,darkMode,onSave,onArchive,onClose,
   }
   return <>
     <CrudEditorDialog darkMode={darkMode} title={messages.item} closeLabel={messages.close} pending={pending} saving={pending && !confirm}
-      saveText={input.isNew ? messages.create : messages.save} savingText={messages.saving} deleteText={messages.archive} onSubmit={() => void submit()}
-      onClose={() => { if (!pending) onClose(); }} onDelete={input.isNew ? undefined : () => setConfirm(true)}>
+      saveText={input.isNew ? messages.create : messages.save} savingText={messages.saving} onSubmit={() => void submit()}
+      headerActions={!input.isNew ? <div className="relative">
+        <Button darkMode={darkMode} tone="ghost" size="icon" disabled={pending} title={messages.moreActions}
+          aria-label={messages.moreActions} aria-expanded={menuOpen} aria-haspopup="menu" icon={<MoreHorizontal size={16} aria-hidden="true" />}
+          onClick={() => setMenuOpen((open) => !open)} />
+        {menuOpen ? <ActionMenu label={messages.moreActions} closeLabel={messages.closeMenu} onDismiss={() => setMenuOpen(false)}>
+          <ActionMenuItem darkMode={darkMode} destructive disabled={pending} onClick={() => { setMenuOpen(false); setConfirm(true); }}>{messages.delete}</ActionMenuItem>
+        </ActionMenu> : null}
+      </div> : undefined}
+      onClose={() => { if (!pending) onClose(); }}>
       <FieldLabel darkMode={darkMode} label={messages.title}><TextInput darkMode={darkMode} aria-label={messages.title}
         maxLength={100} value={draft.title} autoFocus disabled={pending} onChange={(event) => setDraft({ ...draft,title: event.target.value })} /></FieldLabel>
       <FieldLabel darkMode={darkMode} label={messages.kind}><SingleChoiceGroup darkMode={darkMode} disabled={pending} value={draft.kind}

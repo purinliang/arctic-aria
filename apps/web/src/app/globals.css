@@ -235,6 +235,7 @@
   --aa-space-body-gap: 12px;
   --aa-space-inline-gap: 12px;
   --aa-space-control-gap: 8px;
+  --aa-space-menu-padding: 4px;
   --aa-space-icon-gap: 6px;
   --aa-space-text-title-desc: 2px;
   --aa-space-text-desc-support: 2px;
@@ -483,7 +484,7 @@ textarea {
   }
 }
 
-button:not(.aa-form-button-control):focus-visible,
+button:not(.aa-form-button-control):not(.aa-action-menu-item):focus-visible,
 input:not(.aa-text-input-control):focus-visible {
   outline: 2px solid var(--aa-primary-button-bg);
   outline-offset: 2px;
