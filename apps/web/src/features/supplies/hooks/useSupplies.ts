@@ -2,7 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFeatureAction } from '@/components/use-feature-action';
 import type { FeatureActionOptions } from '@/components/use-feature-action';
 import type { FeatureResult } from '@/server/feature-result';
-import { adjustSupplyQuantity, getSuppliesData, saveWish } from '../actions';
+import { adjustSupplyQuantity, getSuppliesData, saveSupply, saveWish } from '../actions';
+import { levelInput } from '../stock-level';
+import { stockQuantity } from '../supplies';
 import type { SuppliesData, SupplyItem, WishItem } from '../types';
 import { clearSuppliesBrowserCache, mergeConfirmedSupplies, readSuppliesBrowserCache, writeSuppliesBrowserCache } from '../supplies-browser-cache';
 
@@ -75,6 +77,27 @@ export function useSupplies(userId: string, options: FeatureActionOptions) {
       if (active.current) await reload();
     }
   }
+  async function setLevel(item: SupplyItem, level: number) {
+    const input = levelInput(item,level);
+    if (!input || locks.current.has(item.id) || input.quantity === stockQuantity(item).quantity) return false;
+    locks.current.add(item.id); setPending([...locks.current]);
+    setData((current) => ({ ...current,items: current.items.map((row) => row.id === item.id ? { ...row,quantity: level } : row) }));
+    try {
+      const saved = await invoke(() => saveSupply(input));
+      if (saved) {
+        changed.current.add(item.id);
+        if (active.current && confirmed.current) {
+          confirmed.current = { ...confirmed.current,items: confirmed.current.items.map((row) => row.id === item.id ? saved : row) };
+          writeSuppliesBrowserCache(userId,confirmed.current);
+        } else clearSuppliesBrowserCache(userId);
+      }
+      if (active.current) setData((current) => ({ ...current,items: current.items.map((row) => row.id === item.id ? saved || item : row) }));
+      return !!saved;
+    } finally {
+      locks.current.delete(item.id);
+      if (active.current) { setPending([...locks.current]); await reload(); }
+    }
+  }
   async function toggleWish(item: WishItem) {
     if (locks.current.has(item.id)) return;
     locks.current.add(item.id); setPending([...locks.current]);
@@ -92,5 +115,5 @@ export function useSupplies(userId: string, options: FeatureActionOptions) {
       setData((current) => ({ ...current,wishlist: current.wishlist.map((row) => row.id === item.id ? saved ? { ...optimistic,...saved } : item : row) }));
     } finally { locks.current.delete(item.id); setPending([...locks.current]); if (active.current) await reload(); }
   }
-  return { data,loading,pending,invoke,mutate,adjust,toggleWish };
+  return { data,loading,pending,invoke,mutate,adjust,setLevel,toggleWish };
 }

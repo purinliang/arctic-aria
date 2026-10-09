@@ -16,6 +16,16 @@ Form controls live under:
 apps/web/src/components/forms/
 ```
 
+## Stock Controls
+
+`StockLevelSlider` is the shared compact 0–5 range control. It previews pointer
+or keyboard changes, commits on completion, and exposes native accessible slider
+semantics. Five increments use red for 0/1, amber for 2 and blue for 3–5; zero
+retains a visible red fill. Its full-width 32px target supports touch interaction.
+Persistence, rollback, item locking and ordering belong to the consuming feature.
+`Disclosure` provides a collapsed optional section with a native summary control.
+`RecordCard` supports compact density using shared list-row spacing tokens.
+
 ## Color
 
 `color.ts` owns reusable color and border class helpers. Color tokens,

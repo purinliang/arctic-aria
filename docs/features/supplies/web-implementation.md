@@ -1,45 +1,38 @@
 # Supplies Web Implementation
 
-Feature-owned components, hooks, validation, types, authenticated actions, and
-repository live in `apps/web/src/features/supplies`. Forecasting is a pure helper.
-Shared QuantityControl/QuantityProgress own compact stepping and stock indicators. Domain data is loaded only
-when the page mounts and is not mixed into the dashboard cache.
+Feature code lives in `apps/web/src/features/supplies`. `stock-level.ts` owns
+neutral-scale compatibility, absolute save inputs and the initial/update ordering
+comparator. StockLevelSlider, compact RecordCard and Disclosure are shared UI.
+Native range input provides integer snapping, pointer and keyboard semantics;
+the visual track uses existing design tokens.
 
-An account-scoped localStorage snapshot shows stock and travel purchases while
-refreshing in the background. Only confirmed backend data is cached: pending
-quantity changes and purchase toggles never enter storage. Successful
-quantity commands update the UI and confirmed snapshot immediately after backend
-confirmation; wishlist toggles retain their optimistic interaction. CRUD commands
-invalidate it before fetching the refreshed list. Refresh failure keeps visible
-data and reports through shared notifications. Pending and newer-version rows
-are protected from stale refreshes. Quantities are formatted for the current
-language, not cached as display text. Forecasting is not rendered or used for restocking.
+`useSupplies.setLevel` updates optimistically and submits the existing authenticated
+`saveSupply` action with expected version. Only that item locks. Duplicate submits
+are rejected, failures roll back, and only confirmed values enter the account
+cache. Refresh merging protects pending rows and newer versions. Old receipt-based
+quantity/replacement commands remain unchanged but are not used by this UI.
 
-Pending commands are keyed per item. Confirmed stock and optimistic wishlist updates preserve
-unrelated pending rows during refresh. Command keys survive failed quantity requests;
-the server receipt prevents a lost-response retry from changing stock twice.
-Metadata and wishlist edits use version comparison; failures leave dialogs open.
+Cache format remains v2. Neutral integer 0–5 configurations use sliders; other
+quantities remain read-only. Metadata edits preserve existing configuration.
+Travel purchases retain independent optimistic commands. No schema changes or
+new migrations are needed.
 
-Run focused tests and `./scripts/verify-web.sh`. The repeatable schema check,
-`bash scripts/check-personal-tools-schema.sh`, uses disposable PostgreSQL and
-includes legacy backfill, built-in category protection, custom ordering, exact
-fractional steps and simultaneous quantity/replacement requests. Browser checks use mocked actions
-against a matching production build: `node apps/web/scripts/check-personal-tools.mjs`.
-They cover both languages/themes and desktop/mobile, capture, retry/rollback,
-cached reloads during failed refreshes, confirmed-only stock and purchase caches,
-fractional quantity changes, thresholds, excess stock, capture and wishlist isolation. Screenshots live in
-`/tmp/arctic-aria-personal-tools`; BASE_URL/SCREENSHOT_DIR override the defaults.
+Run focused tests and `./scripts/verify-web.sh`. The existing disposable schema
+check remains `bash scripts/check-personal-tools-schema.sh`. Against a matching
+production build, run `node apps/web/scripts/check-personal-tools.mjs`.
 
-Migrations 0038 and 0040 must be approved/applied to the intended database before persisted
-use. Neither check above writes to the configured app database. For an explicitly
-selected development database and a local server, run from `apps/web`:
+The mocked eight-context browser matrix covers Money, keyboard zero/refill,
+optimistic rollback, per-row locking, one-write drag completion, frozen ordering
+during interaction, legacy quantities, confirmed-only caches, failed refreshes,
+travel isolation and responsive overflow. Screenshots are stored in
+`/tmp/arctic-aria-personal-tools`.
+
+For a local server and explicitly selected development database, from `apps/web`:
 
 ```bash
 node --env-file=.env.local scripts/check-personal-tools-live.mjs --confirm-development
 ```
 
-This check uses real server actions, creates an isolated temporary account, and
-removes only its fixture records in `finally`. Never target production. It covers
-expense persistence, fractional quantity steps, excess stock, and reload.
-The quantity workflow is also covered by the schema and mocked browser checks. Expiry
-tracking and outbound reminders are deliberately deferred.
+This uses real server actions and an isolated account with fixture cleanup in
+`finally`. It checks expenses, default level five, empty/refill saves, reload and
+non-destructive legacy metadata editing. Never target production.

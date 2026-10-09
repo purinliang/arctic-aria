@@ -48,8 +48,8 @@ export const englishPageHelpMessages = {
     supplies: {
       title: "Supplies", summary: "Track remaining food and household supplies, and plan purchases abroad.",
       sections: [
-        { title: "Stock", body: "Configure each item's unit, quantity step, target and low-stock threshold once. Use minus and plus to update quantities, including fractional units. Extra stock above the target is allowed." },
-        { title: "Restocking and travel", body: "An item needs restocking at or below its threshold. The restock filter hides normally stocked items only when selected. Travel shopping remains a separate wishlist; marking purchased does not change stock or expenses." },
+        { title: "Stock", body: "New items use an approximate 0–5 scale, starting at 5. Click or drag the bar to update the remaining level. Red items appear first, then amber, then blue. Existing physical quantities stay unchanged." },
+        { title: "Travel shopping", body: "The collapsed travel wishlist keeps optional links and purchase status. Marking purchased does not change stock or expenses." },
       ],
     },
     projects: {
@@ -180,8 +180,8 @@ export const simplifiedChinesePageHelpMessages: typeof englishPageHelpMessages =
     supplies: {
       title: "物资", summary: "记录食品和日用品的剩余量，并计划海外采购。",
       sections: [
-        { title: "库存", body: "为每件物资设置单位、数量步长、目标库存和低库存阈值。使用减号和加号更新数量，支持小数单位，也允许数量超过目标库存。" },
-        { title: "补货和旅行", body: "数量达到或低于阈值时需要补货。仅选择补货筛选时隐藏库存充足的物资。旅行购物仍是独立清单，标记已购买不会修改库存或支出。" },
+        { title: "余量", body: "新物资使用固定的 0–5 近似余量，初始值为 5。点击或拖动进度条即可更新。列表依次显示红色、琥珀色和蓝色项目，已有的实际数量保持不变。" },
+        { title: "旅行购物", body: "折叠的旅行购物清单保留可选关联和采购状态。标记已购买不会修改物资余量或支出。" },
       ],
     },
     projects: {

@@ -1,12 +1,15 @@
 // Supplies Page - Stock And Travel Rows.
 import { Check, ExternalLink, PenLine } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/button';
-import { QuantityControl, QuantityProgress } from '@/components/quantity-control';
+import { QuantityProgress } from '@/components/quantity-control';
+import { StockLevelSlider } from '@/components/stock-level-slider';
 import { RecordCard } from '@/components/record-card';
 import { Text } from '@/components/text';
 import type { SuppliesMessages } from '@/messages/supplies-messages';
 import type { SupplyItem, WishItem } from '../types';
-import { depletion, needsAttention, stockQuantity, adjustedQuantity } from '../supplies';
+import { depletion, needsAttention, stockQuantity } from '../supplies';
+import { isLevelStock } from '../stock-level';
 
 export function estimateText(item: SupplyItem,messages: SuppliesMessages,language: string,timezone: string) {
   const estimate = depletion(item);
@@ -15,27 +18,27 @@ export function estimateText(item: SupplyItem,messages: SuppliesMessages,languag
   if (estimate.at < new Date()) return messages.update;
   return `${messages.estimated}: ${new Intl.DateTimeFormat(language,{ dateStyle: 'medium',timeZone: timezone }).format(estimate.at)}`;
 }
-export function SupplyRow({ item,messages,darkMode,language,pending,onAdjust,onEdit }: {
+export function SupplyRow({ item,messages,darkMode,language,pending,onLevel,onEdit,onInteractionChange }: {
   item: SupplyItem; messages: SuppliesMessages; darkMode: boolean; language: string; pending: boolean;
-  onAdjust: (direction: -1 | 1) => void; onEdit: () => void;
+  onLevel: (level: number) => void; onEdit: () => void;
+  onInteractionChange: (active: boolean) => void;
 }) {
-  const attention = needsAttention(item);
   const stock = stockQuantity(item);
+  const [preview,setPreview] = useState<{ version: number; level: number } | null>(null);
+  const level = preview?.version === item.version ? preview.level : stock.quantity;
+  const scaled = isLevelStock(item);
   const number = (value: number) => new Intl.NumberFormat(language,{ maximumFractionDigits: 3 }).format(value);
   const unit = stock.unit === 'unit' ? messages.defaultUnit : stock.unit;
-  const remaining = `${number(stock.quantity)} ${unit} · ${messages.remaining}`;
-  return <RecordCard darkMode={darkMode} title={<Button darkMode={darkMode} tone="ghost" size="text" disabled={pending}
-    className="min-w-0 max-w-full whitespace-normal break-words text-left" onClick={onEdit}>{item.title}</Button>}
-    value={attention ? <span className={darkMode ? 'text-amber-400' : 'text-amber-700'}>{messages.restock}</span> : `${number(stock.quantity)} / ${number(stock.targetQuantity)} ${unit}`}
+  return <RecordCard density="compact" darkMode={darkMode} title={<Button darkMode={darkMode} tone="ghost" size="text" disabled={pending}
+    title={`${item.title} · ${messages.tabs[item.kind]}`} className="min-w-0 max-w-full whitespace-normal break-words text-left" onClick={onEdit}>{item.title}</Button>}
+    value={scaled ? `${level}/5` : `${number(stock.quantity)} ${unit}`}
     action={<Button darkMode={darkMode} tone="ghost" size="icon" disabled={pending} title={messages.edit} aria-label={`${messages.edit}: ${item.title}`}
       icon={<PenLine size={16} />} onClick={onEdit} />}>
-    <QuantityProgress value={stock.quantity} target={stock.targetQuantity} increment={stock.increment} warning={attention} label={`${item.title}: ${remaining}`} />
-    <div className="flex min-w-0 flex-wrap items-center justify-between gap-[var(--aa-space-control-gap)]">
-      <Text size="sm" tone="secondary" className="min-w-0 break-words">{remaining}</Text>
-      <QuantityControl darkMode={darkMode} value={number(stock.quantity)} label={`${messages.quantity}: ${item.title}`}
-        disabled={pending} decreaseDisabled={stock.quantity === 0} increaseDisabled={adjustedQuantity(stock,1) > 999999.999}
-        decreaseLabel={`${messages.decrease}: ${item.title}`} increaseLabel={`${messages.increase}: ${item.title}`} onChange={onAdjust} />
-    </div>
+    {scaled ? <StockLevelSlider value={level} label={`${messages.level}: ${item.title}`} valueText={`${level}/5 · ${messages.levelNames[level]}`} disabled={pending} onInteractionChange={onInteractionChange}
+      onPreview={(level) => setPreview({ version: item.version,level })}
+      onCommit={(level) => { setPreview(null); onLevel(level); }} />
+      : <div title={messages.legacyQuantity} className="py-[var(--aa-space-tag-y)]"><QuantityProgress value={stock.quantity} target={stock.targetQuantity}
+        increment={stock.increment} warning={needsAttention(item)} label={`${item.title}: ${number(stock.quantity)} ${unit}`} /></div>}
   </RecordCard>;
 }
 export function WishRow({ item,linked,messages,darkMode,language,timezone,pending,onToggle,onEdit }: {

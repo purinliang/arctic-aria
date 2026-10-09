@@ -32,3 +32,17 @@ or create Money expenses. Archived links and historical observations remain
 queryable. Item/wishlist removal is soft archival with confirmation; deleting an
 account cascades through its owned data. There is no automatic consumption,
 purchase prediction, or quantity-to-expense conversion.
+
+## Simplified Stock Levels
+
+The current UI creates approximate levels, not physical units: quantity 0–5,
+neutral unit `unit`, increment 1, target 5 and threshold 1. Initial stock defaults
+to 5. The editor does not expose this configuration. The existing version-checked
+`save_supply_stock` command persists absolute levels without changing SQL functions,
+schema, spare counts, old level observations, or cycles. No new migration is needed.
+
+Existing neutral integer quantities in this configuration remain editable. All
+other configurations, fractional quantities and values above five retain their
+actual quantity/unit and are read-only in the stock list. Metadata edits pass their
+complete existing configuration unchanged; no scale conversion, clamping, or
+physical-unit inference occurs. Old adjustment/history APIs remain available.

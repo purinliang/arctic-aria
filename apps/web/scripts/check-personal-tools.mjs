@@ -21,7 +21,7 @@ async function dismissNotifications(page,en) {
 const browser = await chromium.launch({ headless: true });
 try {
   for (const width of [1280,390]) for (const language of ['en','zh-CN']) for (const theme of ['light','dark']) {
-    const context = await browser.newContext({ viewport: { width,height: 844 },timezoneId: 'Australia/Sydney' });
+    const context = await browser.newContext({ viewport: { width,height: 844 },timezoneId: 'Australia/Sydney',hasTouch: width === 390 });
     const preferences = { languagePreference: language,themePreference: theme,timeZonePreference: 'Australia/Sydney',resolvedTimeZone: 'Australia/Sydney',timeFormatPreference: '24h',multipleTimezonesEnabled: false };
     await context.addInitScript(({ language,theme }) => {
       localStorage.setItem('arctic-aria.language-preference',language); localStorage.setItem('arctic-aria.theme-preference',theme);
@@ -33,11 +33,11 @@ try {
     const expenses = Array.from({ length: 8 },(_,index) => ({ id: randomUUID(),categoryId: categories[0].id,amountMinor: 1230,currency: index === 7 ? 'CNY' : 'AUD',date: today,note: null }));
     const items = ['food','household'].flatMap((kind) => Array.from({ length: 8 },(_,index) => ({
       id: randomUUID(),kind,title: `${kind === 'food' ? 'Food' : 'Household'} fixture ${index + 1}`,note: null,level: 3,spares: 2,version: 1,cycleId: randomUUID(),observations: [],
-      quantity: index === 1 ? 0.5 : 1.5,unit: 'kg',increment: 0.5,targetQuantity: 2,lowStockThreshold: 1,
+      quantity: index === 1 ? 0.5 : 5,unit: index === 1 ? 'kg' : 'unit',increment: index === 1 ? 0.5 : 1,targetQuantity: index === 1 ? 2 : 5,lowStockThreshold: 1,
     })));
     const wishlist = Array.from({ length: 8 },(_,index) => ({ id: randomUUID(),title: `Travel fixture ${index + 1}`,country: 'Japan',shop: 'Example shop',url: 'https://example.com/item',note: null,linkedSupplyId: index === 0 ? items[0].id : null,status: 'planned',version: 1 }));
     const failures = [], commands = new Set(); let failExpense = false, failStock = false, moneyReads = 0;
-    let moneyGate = null, suppliesGate = null;
+    let moneyGate = null, suppliesGate = null, stockGate = null, stockWrites = 0;
     await context.route('**/*',async (route) => {
       const request = route.request(), id = request.headers()['next-action'];
       if (!id) return new URL(request.url()).origin === new URL(baseUrl).origin ? route.continue() : route.abort();
@@ -81,9 +81,14 @@ try {
           result = { ok: true,data: item };
         }
       } else if (name === 'saveSupply') {
-        const input = args[0]; let item = items.find((item) => item.id === input.id);
-        if (!item) { item = { id: input.id,cycleId: randomUUID(),observations: [],version: 1 }; items.unshift(item); }
-        Object.assign(item,input,{ note: input.note || null }); result = { ok: true,data: item };
+        stockWrites++;
+        if (stockGate) { const gate = stockGate; stockGate = null; await gate; }
+        if (failStock) { failStock = false; result = unavailable; }
+        else {
+          const input = args[0]; let item = items.find((item) => item.id === input.id);
+          if (!item) { item = { id: input.id,cycleId: randomUUID(),observations: [],version: 0 }; items.unshift(item); }
+          Object.assign(item,input,{ note: input.note || null,version: item.version + 1 }); result = { ok: true,data: item };
+        }
       } else if (name === 'saveWish') {
         const input = args[0]; let item = wishlist.find((item) => item.id === input.id);
         if (!item) { item = { id: input.id }; wishlist.unshift(item); }
@@ -134,32 +139,75 @@ try {
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),'Money fits viewport');
     await page.screenshot({ path: `${output}/money-${width}-${language}-${theme}.png`,fullPage: true });
     await page.goto(`${baseUrl}/supplies`);
-    await button(en ? 'Type' : '类型').click(); await page.getByRole('option',{ name: en ? 'Food' : '食品',exact: true }).click();
-    const minus = button(`${en ? 'Decrease' : '减少'}: Food fixture 1`), plus = button(`${en ? 'Increase' : '增加'}: Food fixture 1`);
-    await minus.waitFor(); failStock = true; await minus.click();
-    assert.equal(await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).data.items.find((item) => item.title === 'Food fixture 1').quantity,suppliesKey),1.5,'pending changes never enter cache');
-    await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((item) => item.getAttribute('aria-label') === label && !item.disabled),`${en ? 'Decrease' : '减少'}: Food fixture 1`);
-    assert.equal(items[0].quantity,1.5); await minus.click();
-    await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((item) => item.getAttribute('aria-label') === label && !item.disabled),`${en ? 'Increase' : '增加'}: Food fixture 1`);
-    assert.equal(items[0].quantity,1,'fractional decrement');
-    for (let index = 0; index < 3; index++) {
-      await plus.click(); await page.waitForFunction((label) => [...document.querySelectorAll('button')].some((item) => item.getAttribute('aria-label') === label && !item.disabled),`${en ? 'Increase' : '增加'}: Food fixture 1`);
+    const slider = page.getByRole('slider',{ name: `${en ? 'Remaining' : '剩余量'}: Food fixture 1`,exact: true });
+    await slider.waitFor();
+    assert.equal(await page.getByRole('radio').count(),0,'no filtering toolbar');
+    assert.equal(await page.getByRole('slider',{ name: `${en ? 'Remaining' : '剩余量'}: Food fixture 2`,exact: true }).count(),0,'legacy fractional quantity stays read-only');
+    const first = () => items.find((item) => item.title === 'Food fixture 1');
+    let releaseStock; stockGate = new Promise((resolve) => { releaseStock = resolve; }); failStock = true;
+    await slider.focus(); await page.keyboard.press('Home');
+    await page.waitForFunction((label) => document.querySelector(`input[aria-label="${label}"]`).disabled,`${en ? 'Remaining' : '剩余量'}: Food fixture 1`);
+    assert.equal(await slider.inputValue(),'0','optimistic value appears while write is held');
+    assert.equal(await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).data.items.find((item) => item.title === 'Food fixture 1').quantity,suppliesKey),5,'pending changes never enter cache');
+    assert.equal(await page.getByRole('slider',{ name: `${en ? 'Remaining' : '剩余量'}: Food fixture 3`,exact: true }).isEnabled(),true,'unrelated items stay interactive');
+    releaseStock();
+    await page.waitForFunction((label) => { const input = document.querySelector(`input[aria-label="${label}"]`); return !input.disabled && input.value === '5'; },`${en ? 'Remaining' : '剩余量'}: Food fixture 1`);
+    assert.equal(first().quantity,5,'failure restores confirmed value');
+    await dismissNotifications(page,en);
+    await slider.focus(); await page.keyboard.press('Home');
+    await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key)).data.items.find((item) => item.title === 'Food fixture 1').quantity === 0,suppliesKey);
+    assert.equal(await slider.inputValue(),'0');
+    assert.ok(await slider.evaluate((input) => input.parentElement.firstElementChild.firstElementChild.getBoundingClientRect().width > 0),'empty level retains visible red fill');
+    assert.ok(await slider.evaluate((input) => {
+      const fill = input.parentElement.firstElementChild.firstElementChild;
+      return fill.classList.contains('bg-red-500') && !['transparent','rgba(0, 0, 0, 0)'].includes(getComputedStyle(fill).backgroundColor);
+    }),'empty level has a rendered red colour');
+    const order = () => page.locator('article').evaluateAll((rows) => rows.map((row) => row.textContent));
+    const beforeDrag = await order(), writes = stockWrites, bounds = await slider.boundingBox();
+    await page.mouse.move(bounds.x + 2,bounds.y + bounds.height / 2); await page.mouse.down();
+    await page.mouse.move(bounds.x + bounds.width - 2,bounds.y + bounds.height / 2,{ steps: 8 });
+    assert.equal(stockWrites,writes,'drag previews must not persist intermediate levels');
+    assert.equal(await slider.inputValue(),'5');
+    const duringDrag = await order();
+    assert.equal(duringDrag.findIndex((row) => row.includes('Food fixture 1')),beforeDrag.findIndex((row) => row.includes('Food fixture 1')),'ordering frozen during drag');
+    await page.mouse.up();
+    await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key)).data.items.find((item) => item.title === 'Food fixture 1').quantity === 5,suppliesKey);
+    assert.equal(stockWrites,writes + 1,'one final drag write');
+    const third = page.getByRole('slider',{ name: `${en ? 'Remaining' : '剩余量'}: Food fixture 3`,exact: true });
+    await third.focus(); await page.keyboard.press('Home');
+    await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key)).data.items.find((item) => item.title === 'Food fixture 3').quantity === 0,suppliesKey);
+    const touchBounds = await third.boundingBox();
+    if (width === 390) {
+      const client = await context.newCDPSession(page), touchWrites = stockWrites;
+      const point = (x) => [{ x,y: touchBounds.y + touchBounds.height / 2 }];
+      await client.send('Input.dispatchTouchEvent',{ type: 'touchStart',touchPoints: point(touchBounds.x + 2) });
+      await client.send('Input.dispatchTouchEvent',{ type: 'touchMove',touchPoints: point(touchBounds.x + touchBounds.width * 0.4) });
+      await client.send('Input.dispatchTouchEvent',{ type: 'touchEnd',touchPoints: [] });
+      await client.detach();
+      await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key)).data.items.find((item) => item.title === 'Food fixture 3').quantity === 2,suppliesKey);
+      assert.equal(stockWrites,touchWrites + 1,'touch drag commits once');
+    } else {
+      await third.click({ position: { x: touchBounds.width * 0.4,y: touchBounds.height / 2 } });
+      await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key)).data.items.find((item) => item.title === 'Food fixture 3').quantity === 2,suppliesKey);
     }
-    assert.equal(items[0].quantity,2.5,'stock can exceed target');
+    assert.equal(items.find((item) => item.title === 'Food fixture 2').quantity,0.5,'legacy quantity was not converted');
+    assert.ok(await third.evaluate((input) => {
+      const fill = input.parentElement.firstElementChild.firstElementChild;
+      return fill.classList.contains('bg-amber-500') && !['transparent','rgba(0, 0, 0, 0)'].includes(getComputedStyle(fill).backgroundColor);
+    }),'level two has a rendered amber colour');
     await button(en ? 'New' : '新建').click(); await page.getByLabel(en ? 'Title' : '名称',{ exact: true }).fill('Added rice fixture');
-    for (const [label,value] of [[en ? 'Unit' : '单位','kg'],[en ? 'Current quantity' : '当前数量','1.5'],[en ? 'Quantity step' : '数量步长','0.5'],[en ? 'Target stock' : '目标库存','3'],[en ? 'Low-stock threshold' : '低库存阈值','1']]) await page.getByLabel(label,{ exact: true }).fill(value);
+    assert.equal(await page.getByRole('slider',{ name: en ? 'Initial stock' : '初始余量',exact: true }).inputValue(),'5');
+    assert.equal(await page.getByLabel(en ? 'Unit' : '单位',{ exact: true }).count(),0);
     await page.screenshot({ path: `${output}/supply-config-${width}-${language}-${theme}.png`,fullPage: true });
-    await button(save).click(); await page.locator('.aa-dialog-overlay').waitFor({ state: 'detached' });
+    await button(en ? 'Create' : '创建').click(); await page.locator('.aa-dialog-overlay').waitFor({ state: 'detached' });
     await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key) ?? '{}').data?.items.length === 17,suppliesKey);
     let releaseSupplies; suppliesGate = new Promise((resolve) => { releaseSupplies = resolve; });
     await page.reload(); await button('Added rice fixture').waitFor(); assert.equal(await button(en ? 'New' : '新建').isEnabled(),true); releaseSupplies();
-    await page.getByRole('radio',{ name: new RegExp(`^${en ? 'Need restock' : '需要补货'}`) }).click();
-    assert.equal(await button('Added rice fixture').count(),0,'normal stock remains visible until restock filter selected');
-    await page.getByRole('radio',{ name: en ? 'All supplies' : '全部物资',exact: true }).click();
+    await page.getByRole('button',{ name: en ? 'Dismiss notification' : '关闭通知',exact: true }).first().waitFor();
     await dismissNotifications(page,en);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),'Supplies fits viewport');
     await page.screenshot({ path: `${output}/supplies-${width}-${language}-${theme}.png`,fullPage: true });
-    await button(en ? 'Type' : '类型').click(); await page.getByRole('option',{ name: en ? 'Travel shopping' : '旅行购物',exact: true }).click();
+    await page.locator('summary').filter({ hasText: en ? 'Travel shopping' : '旅行购物' }).click();
     const stockBeforePurchase = JSON.stringify(items);
     await button(`${en ? 'Mark purchased' : '标记已购买'}: Travel fixture 1`).click();
     await button(`${en ? 'Mark planned' : '标记计划采购'}: Travel fixture 1`).waitFor();
@@ -167,5 +215,5 @@ try {
     assert.equal(JSON.stringify(items),stockBeforePurchase); assert.equal(expenses.length,10); assert.deepEqual(failures,[]);
     await context.close();
   }
-  console.log('Personal tools matrix passed: compact expense capture, fixed/custom categories, ordering, currencies, quantity steps/thresholds, excess stock, confirmed-only caches, failed refreshes, and responsive layouts.');
+  console.log('Personal tools matrix passed: expense capture, categories, currencies, optimistic stock sliders, rollback, drag commit, legacy preservation, confirmed-only caches and responsive layouts.');
 } finally { await browser.close(); }

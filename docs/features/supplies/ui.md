@@ -1,44 +1,40 @@
 # Supplies UI
 
-The normal workspace header contains title, description and information hint.
-A compact summary shows the restocking count and right-aligned New action. Below
-it, All supplies and Need restock (count) are primary filters; a compact category
-selector provides All, Food, Household and Travel shopping. The default view shows
-both stock categories, with clear amber low-stock status and normal stock still visible.
-Alphabetical order stays stable during adjustments so controls do not jump between
-pages when a quantity crosses its threshold.
-Changing category/filter resets six-row pagination.
+The workspace header keeps its title, description and information hint. A
+right-aligned New action precedes one compact list with ten rows per page. There
+is no restock summary, category dropdown, filter toolbar or repeated list heading.
+Name tooltips include Food/Household as secondary category metadata.
 
-Each stock row is a reusable RecordCard in a vertical list. Its first line has a
-clickable name, quantity/target/unit (or a warning restock status), and edit icon.
-The next line is a full-width quantity bar. Small integral step counts use segments;
-fractional or large targets use continuous fill. Fill is capped at the target,
-but the displayed quantity is not. Normal fill uses the existing blue accent;
-low-stock fill uses amber. The last line shows remaining quantity and a compact
-minus / current quantity / plus controller. Accessible labels identify the item
-and operation without relying on colour.
+Each compact shared RecordCard has two rows: name on the left, remaining level
+and edit icon on the right; then a full-width StockLevelSlider. Levels 0/1 are
+red, 2 amber, and 3–5 blue. Five visual increments show the scale; zero keeps a
+small red fill visible. The entire track is clickable with a 32px interaction
+target, native slider semantics and keyboard support.
 
-Quantity changes use the configured step and permit stock above target. Subtraction
-clamps at zero. Only that item's controls are disabled while its command is pending;
-other items remain usable. Display/cache update after backend confirmation, before
-background revalidation. Failures preserve the previous value, show a shared
-notification, and refresh to resolve uncertain writes. Retry keys prevent duplicate
-changes after lost responses. A quantity at or below its threshold needs restocking;
-predictions and unopened spare counts do not affect this filter.
+Dragging previews integer levels immediately without intermediate submissions.
+Release commits once and recalculates ordering: severity (red, amber, blue),
+category (Food, Household), then alphabetical title. The same comparator applies
+on loading and updates. Pointer/keyboard interaction freezes ordering until
+completion; cancelled pointer gestures restore their starting preview.
 
-New and name/edit actions open the shared configuration dialog: name, Food/Household
-category, unit, current quantity, target quantity, step, low-stock threshold and
-optional note. Up to three decimal places are supported. Targets and steps must be
-positive; thresholds range from zero to target. Configuration/archive uses expected
-versions and closes only on success. Invalid or stale edits keep drafts open.
+Commits are optimistic, locking only the saving item without spinners. Failures
+restore the confirmed value and show a concise shared notification. Only confirmed
+snapshots enter the cache; pending and newer-version rows are protected from stale
+refreshes. Version checks prevent overwriting another client. Refresh resolves
+uncertain writes after transport failure.
 
-Travel shopping retains its six-row wishlist, linked supply, URL, optional country,
-shop/note, edit and purchased toggle. Marking purchased changes neither quantities
-nor expenses. Legacy levels, spare counts and observation history remain stored,
-but replacement and depletion forecasting are not part of this simplified UI.
+The editor contains name, the unchanged Food/Household selector labelled Category,
+Initial stock slider (default 5), a collapsed optional note, and a full-width
+Create/Save action. Non-empty notes open initially. Saves close only after backend
+confirmation; archival retains its confirmation flow.
 
-Account-scoped confirmed snapshots restore all categories while refreshing. No
-pending quantity or wishlist change is saved as confirmed data. Cache schema v2
-rejects invalid quantity configuration and removes obsolete v1 snapshots. Refresh
-failures keep cached controls usable. Mobile preserves the same order with wrapped
-filters and comfortably sized shared quantity buttons; no horizontal scrolling.
+Existing physical quantities keep exact values and units. Their row uses a
+read-only quantity indicator rather than a misleading scale. Name/category/note
+edits preserve quantity, unit, target, increment, threshold, spares and history.
+The editor explains that stock adjustment is unavailable for those records. No
+conversion or clamping occurs.
+
+Travel shopping remains in a collapsed secondary section with its existing
+New/edit/link/purchased actions and six-row pagination. Purchasing changes neither
+stock nor expenses. No consumption or prediction workflow is introduced. Mobile
+keeps the same compact order without horizontal overflow.

@@ -24,6 +24,11 @@ Money monthly summaries with fixed/custom category capture, and Supplies fractio
 quantities with restocking thresholds. Migrations 0039/0040 preserve category
 references and legacy supply records. Production release remains on hold.
 
+2026-10-09 Supplies simplification on the same branch uses fixed 0–5 levels for
+new items, optimistic interactive stock bars, priority sorting and a minimal
+editor. Existing physical quantities stay intact and read-only; no new migration.
+Travel shopping remains available in a collapsed secondary section.
+
 ## Next Work After v0.12.0
 
 - Continue explicit schedule actions for Today items. Routine `Later` and
