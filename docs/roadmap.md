@@ -10,6 +10,13 @@ Current development version on `develop`: `v0.16.0-dev`.
 
 ## Development-Only Tracking
 
+- **Pending human confirmation:** Restore and review the Progress page. Hidden
+  on develop and feature builds; implementation, data and APIs remain intact.
+  Do not re-enable during unrelated work. Main/hotfix visibility is unchanged.
+- **Pending human confirmation:** Restore and review Travel Shopping in Supplies.
+  Temporarily hide the UI only; retain code, records and supporting commands.
+  Do not re-enable during unrelated work.
+
 As of 2026-10-08, Progress, Money, and Supplies from `feature/daily-life-log`
 are approved for integration into `develop` only. They remain in progress and
 need further UI and workflow review. Do not release them to `main` or deploy
