@@ -1,5 +1,14 @@
 # Roadmap
 
+## Floating Chat
+
+- Implemented a compact workspace Aria Chat opener, per-user Gemini
+  conversation, seven-day history, browser cache and retention cleanup.
+- History search backend is retained, but panel search UI is intentionally
+  hidden per developer review. Do not restore it without human confirmation.
+- Pending human confirmation: review live-key chat quality and compact
+  desktop/mobile interaction. Chat has no task or other product mutation tools.
+
 This roadmap records future work. It should not repeat released implementation
 details; released behavior belongs in `docs/releases/` and stable rules belong
 in the owning feature, web, or infrastructure docs.
@@ -54,6 +63,36 @@ states. Further product review and production-release approval remain pending.
 Progress and Travel Shopping must stay hidden until human confirmation.
 
 ## Next Work After v0.12.0
+
+- Gemini API environment is prepared on `feature/gemini-api-environment`
+  (2026-10-09): server-only adapter, explicit smoke commands, and account-scoped
+  AI Provider settings with encrypted user-owned keys and rate-limited tests.
+  Live access requires each user's API key and Google model eligibility.
+  Production release requires a stable credential-encryption deployment secret.
+  Pending human confirmation: verify API key saves no longer trigger Chrome's
+  native account-password update prompt in an existing browser profile. The key
+  now uses a CSS-masked text field with its own identity and autocomplete disabled,
+  with a native masked fallback only in browsers without CSS masking support.
+  Implemented 2026-10-10: account-owned Model row, currently showing only 3.5
+  Flash-Lite per developer confirmation. Options use hard-coded ascending version
+  order (Lite before Flash at the same version) when expanded. Migrations
+  `0043` and `0044` add model storage and move existing settings to 3.5 Flash-Lite.
+  Model-only saves retain
+  ciphertext, and tests use the selected model. Live model access still needs
+  human confirmation; do not silently fall back or treat every 404 as proof of
+  an invalid key.
+  Local development now emits credential-free Gemini failure diagnostics
+  (model, HTTP status, application code). Root cause of the developer's reported
+  404 remains unconfirmed; compare the same key and API request before changing
+  the model. Do not enable raw provider or Server Function argument logging.
+  The neutral Settings test can also print Google's redacted error message in
+  development only; credential-bearing headers and response metadata stay omitted.
+  Settings now exposes only Save for a new key: validate first, persist only on
+  success. Saved keys expose Delete only, with backend and atomic database guards
+  against replacement. Native Chrome behaviour and real-key access remain human
+  review items; automated persistence checks use a fake provider.
+  AI/chat integration, data-sharing consent and command confirmations remain pending human review.
+  Do not automatically restore Progress or chat as part of this setup.
 
 - Continue explicit schedule actions for Today items. Routine `Later` and
   `Tomorrow`, and project task `Tomorrow`, are implemented on

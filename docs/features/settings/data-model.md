@@ -4,6 +4,43 @@ Settings persistence stores one preference row per authenticated user.
 
 ## Tables
 
+### `user_ai_settings`
+
+Migration `0042` adds one credential row per user: `user_id` (primary key with
+user-delete cascade), `provider` (only `google_gemini`), `enabled`, nullable
+`encrypted_api_key`, `last_test_at`, and creation/update timestamps. An enabled
+row must have a key. Missing rows represent disabled/unconfigured AI.
+
+Migration `0043` adds a non-null `model` constrained to `gemini-2.5-flash`,
+`gemini-3.5-flash-lite`, or `gemini-3.8-flash`. It first fills existing rows with
+2.5 Flash, then changes the insert default to 3.5 Flash-Lite. Keys, enabled flags,
+and test timestamps are not modified. Migration `0044` subsequently moves all
+existing model settings to 3.5 Flash-Lite and restricts the constraint to that
+single supported model, following developer confirmation. Model selection is
+account-scoped and retained on disable/removal. Saves omitting model preserve it atomically;
+new rows without an explicit model use 3.5 Flash-Lite. Unsupported models are
+rejected by the service before any provider call or cooldown claim.
+
+Keys are AES-256-GCM encrypted with the dedicated server-only
+`AI_CREDENTIAL_ENCRYPTION_KEY`, a random 12-byte nonce, and authenticated data
+bound to the user, provider, and envelope version. The database stores a `v1`
+envelope, never plaintext. Normal status reads return only provider, enabled,
+has-key flags, and selected model. All action ownership comes from the authenticated session.
+
+Blank key input preserves the saved key atomically. Disabling retains it;
+explicit removal clears the ciphertext and disables AI in the same write.
+Adding a key requires a successful neutral provider connection check before
+encryption is persisted; failure never saves the key or enables AI. Existing
+keys cannot be replaced. Delete first; the repository also guards against a
+concurrent key appearing between validation and persistence. Deletion does not
+reset the durable test cooldown. Checks use the entered key, never a stored or
+global fallback, and the selected model. The current UI exposes only Save,
+combining validation and persistence. The retained backend test command checks
+a draft without saving it; omitted models default to 3.5 Flash-Lite. Atomic upsert claims
+permit one test per user per 30 seconds across server instances. No global key
+fallback is permitted. Rows cascade only when the owning user is deleted;
+removing a key does not delete the row or its cooldown history.
+
 ### `user_settings`
 
 `user_settings` owns account-scoped display preferences. The row is created on

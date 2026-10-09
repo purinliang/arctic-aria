@@ -1,5 +1,10 @@
 # Web Color
 
+Chat assistant replies and temporary processing bubbles use
+`--aa-chat-assistant-bg` (theme grey-4) and `--aa-chat-assistant-text` (primary
+text). These are chat-specific roles; normal secondary buttons retain their
+existing lighter grey-2 background.
+
 This document defines the shared web color roles. Theme preference loading
 remains documented in [theme.md](theme.md), and component structure remains
 documented in [ui-components.md](ui-components.md).

@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "ai:check": "node --env-file-if-exists=.env.local scripts/check-gemini.mjs",
+    "ai:smoke": "node --env-file-if-exists=.env.local scripts/check-gemini.mjs --smoke",
     "build": "next build",
     "deploy": "pnpm build && pnpm discord:sync-commands && pnpm database:migrate",
     "database:migrate": "node scripts/run-database-migrations.mjs",
@@ -16,6 +18,7 @@
     "test": "node --test \"src/**/*.test.ts\""
   },
   "dependencies": {
+    "@google/genai": "2.28.0",
     "@neondatabase/serverless": "1.1.0",
     "bcryptjs": "3.0.3",
     "lucide-react": "1.22.0",

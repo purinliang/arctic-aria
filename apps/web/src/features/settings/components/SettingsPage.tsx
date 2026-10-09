@@ -36,6 +36,7 @@ import type {
 import type { LanguagePreference } from "@/messages/languages";
 import { DiscordBindingSettings } from "./DiscordBindingSettings";
 import { DiscordIcon } from "./DiscordIcon";
+import { AIProviderSettings } from "./AIProviderSettings";
 
 export function SettingsPage({
   currentUserDisplayName,
@@ -267,6 +268,10 @@ export function SettingsPage({
           />
         </List>
       </Panel>
+      <AIProviderSettings key={currentUserId} darkMode={darkMode} messages={messages.ai}
+        notificationMessages={notificationMessages}
+        showErrorNotification={showErrorNotification}
+        showSuccessNotification={showSuccessNotification} />
       <Panel darkMode={darkMode} className="min-w-0">
         <CardHeader
           darkMode={darkMode}

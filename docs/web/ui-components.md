@@ -126,6 +126,11 @@ dialog, form section, or list row.
 
 ## Masked Text
 
+`forms/masked-text-input.tsx` owns editable non-account secrets such as Gemini
+API keys. It reuses `TextInput` sizing and styling, with CSS text masking on
+supported browsers and a native password fallback otherwise. It withholds the
+value until masking support is known. Keep account credentials on `PasswordInput`.
+
 `masked-text.tsx` owns read-only masked text display for values that should not
 look editable, such as an external account id. Use it instead of a disabled
 password input when the user can view or hide a value but cannot edit it.
@@ -640,6 +645,23 @@ submissions should be normalized to `NULL` before persistence. This fallback is
 display-only and must not be stored in the database.
 
 ## Dialog
+
+`FloatingDialog` is a compact non-modal bottom-right surface with animated
+visibility, reduced-motion support, Escape dismissal and focus restoration.
+It does not trap focus or block the workspace. Its fixed responsive width and
+viewport-constrained height support a header, scrolling content and composer.
+`ChatMessage` provides escaped plain-text conversation bubbles using shared
+text, surface and padding tokens. Own messages use primary/inverse colours;
+assistant replies and temporary Thinking bubbles use `--aa-chat-assistant-bg`
+(the theme's grey-4) and primary text for stronger contrast in both themes.
+Conversation bubbles use shared list-row padding: 16px horizontal, 8px vertical.
+Both user and assistant bubbles are capped at 75% of the conversation width.
+Message text uses the shared large body token (16px) for comfortable reading.
+`SystemNotice` presents compact inline system failures with an optional recovery
+action, rather than impersonating an assistant reply. `AutoGrowTextArea` starts
+at the standard form-control height, expands to five lines and then scrolls
+internally. It uses shared typography/padding tokens and matches adjacent
+form-height icon actions; mobile text is large enough to avoid input zoom.
 
 `dialog.tsx` owns dialog shells and confirmation dialogs.
 

@@ -20,6 +20,7 @@ that appear only after an administrator enables developer mode:
   sign-out
 - `Discord`: Discord connection status, connection code flow, direct-message
   test, and disconnect controls
+- `AI Provider`: user-owned Gemini configuration and connection testing
 - `About`: visible app version, collapsed database-version metadata, and the
   administrator-only developer-mode switch
 - `Developer Tools`: administrator-only diagnostics and internal import tools,
@@ -101,6 +102,72 @@ Do not show migration filenames in the user-facing Settings UI. Do not add
 developer-account-specific display rules for version metadata. If a future
 admin/debug mode is added, reveal the existing mounted database row through an
 explicit role or environment rule rather than a hard-coded account name.
+
+## AI Provider
+
+The card sits below Discord and uses the same shared panel, header, list, and
+SettingsControlRow layout. Its Provider dropdown offers Disabled and Google
+Gemini, with "Select the AI service to use." below the label. A shared Model row
+appears for Gemini and shows only Gemini 3.5 Flash-Lite. The selector is disabled
+while there is only one supported option. Options use hard-coded ascending model
+version order, with Lite before Flash within the same version, when more are
+added. New and existing configurations use 3.5 Flash-Lite. The API key row
+appears only when Gemini is selected. Without a saved key it shows a masked input
+and a single Save action on the same horizontal row, using the input's standard height. The
+key input retains the standard 20rem Settings control width on desktop, with
+actions alongside rather than inside that width; narrow layouts shrink the input.
+A saved key shows a status label and a compact Delete action, never its actual
+value, a replacement input, or a separate Test/Save action. Delete before adding
+another key; deletion also disables AI.
+English and Simplified Chinese catalogs cover labels and expected failures.
+
+Loading disables only this card's editable controls; a failed initial read
+offers Retry. Save/Delete are blocking, prevent duplicate requests, and
+leave the rest of Settings usable. Failure keeps unsaved input and current
+status; success clears the input and shows a shared notification. Theme and
+language changes do not discard the draft. Account changes remount the card.
+No browser storage/cache contains credentials.
+
+The key uses shared `MaskedTextInput`: `type="text"` with CSS
+`-webkit-text-security: disc`, its own `geminiApiKey` name/id, and autocomplete,
+capitalization, correction, and spellcheck disabled. Modern Chromium, Safari,
+and Firefox (114+) support this property. Feature detection falls back to a
+native password field in unsupported browsers; until detection completes the
+input is empty and disabled, so an existing draft cannot flash unmasked.
+CSS masking is visual only, not encryption. It must not advertise `new-password`.
+It has no form owner and is separate from the Change Password dialog. Save and
+Delete are explicit non-submit buttons; pressing Enter does not submit credentials.
+Chrome's native password-manager behaviour still needs confirmation in a real
+browser profile; the compatibility fallback may retain password-field heuristics
+in older browsers. Do not change account-password forms for this issue.
+
+Provider changes persist automatically when a saved key exists. Disabled hides
+the key and model rows and disables AI without deleting either setting; failed writes restore the
+previous selection. Selecting Gemini without a key opens configuration, and Save
+persists the key, selected model, and enables Gemini. A model change with a saved
+key persists automatically without changing ciphertext or the unsaved key draft;
+a failed model write restores the previous selection. Without a saved key the
+model remains a draft until Save. Blank input never erases a saved key.
+Removal clears it and disables AI. Save validates the entered key with the
+selected model before persisting encrypted credentials or enabling AI. Failure
+preserves the draft and leaves the key unsaved. The connection check never uses
+a saved/global key or alternate model fallback. It shares the per-user 30-second
+cooldown with the retained backend test command. Provider/model-only changes
+preserve saved keys without running a new connection check. Replacement is
+rejected both by the service and by an atomic database write guard.
+It sends only a neutral test prompt, with no automatic product-data export.
+Normal future AI operations must respect saved enablement. Chat remains hidden.
+
+Local `pnpm dev` logs failed Gemini generation as `[Gemini] generateContent failed`
+with only the validated model, HTTP status (or null), and application error code.
+Production and test runtimes do not emit these diagnostics. Never log
+unfiltered error bodies, prompts, credentials, or Server Function arguments.
+For the neutral Settings connection check only, development also prints Google's
+error code/status/message with credentials and identifying metadata redacted.
+Headers, arbitrary response metadata and exception stacks are never included;
+normal generation does not log provider messages. Production stays silent.
+Next.js may still report HTTP 200 for the Server Action carrying an expected
+failure result; that status does not mean the upstream Gemini request succeeded.
 
 ## Developer Tools
 

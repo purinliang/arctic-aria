@@ -31,6 +31,9 @@ Current variables:
 | `DISCORD_APP_ID` | Yes for command sync and deploy | Local and Vercel | App ID from the Discord Developer Portal, used by `pnpm --dir apps/web discord:sync-commands`. |
 | `DISCORD_PUBLIC_KEY` | Yes for Discord interactions | Local and Vercel | Public Key used to verify requests from Discord. |
 | `CRON_SECRET` | Yes for scheduled reminder routes | Vercel web app, Cloudflare cron worker, and local cron-route testing | Secret used to authorize internal cron routes. |
+| `GEMINI_API_KEY` | Optional development smoke test only | Local server secrets | Not used by user-facing AI actions; users supply their own keys. |
+| `GEMINI_MODEL` | Optional development smoke test only | Local server variables | Defaults to `gemini-2.5-flash`; no automatic model fallback. |
+| `AI_CREDENTIAL_ENCRYPTION_KEY` | Required for saved user AI credentials | Local server or deployment secrets | Base64-encoded 32-byte AES key, separate from auth secrets. Keep stable and private. |
 
 Current credential state as of 2026-07-19:
 
@@ -67,6 +70,101 @@ openssl rand -base64 48
 The Settings page can send a Discord test message to the signed-in user's bound
 Discord account. That web action calls the same server-side delivery logic as
 outbound messages, so it needs `DISCORD_BOT_TOKEN`.
+
+## Gemini API Preparation
+
+The optional server adapter is in `apps/web/src/server/ai/`. It uses Google's
+official `@google/genai` SDK, pinned to an exact 2.x version. Published SDK files
+work without dependency lifecycle scripts; installation explicitly denies new
+SDK/protobuf scripts instead of granting broad build permissions.
+
+Create an API key through [Google AI Studio](https://aistudio.google.com/apikey)
+and set `GEMINI_API_KEY` in ignored `apps/web/.env.local` only for development
+CLI smoke tests. Product users enter their own key in Settings. Restrict keys to the Gemini API.
+Never paste real keys into chat, commits or terminal arguments. Do not set a
+browser-public variable, store plaintext in product tables, or add it to Next config.
+
+`GEMINI_MODEL` defaults to `gemini-2.5-flash`. Google currently limits 2.5 model
+access to previous users; check the project's access before relying on it.
+See [Google's model availability guidance](https://ai.google.dev/gemini-api/docs/deprecations).
+If access is unavailable, explicitly choose an accessible text model using
+`GEMINI_MODEL`; the adapter never changes models silently.
+
+From the repository root:
+
+```bash
+pnpm --dir apps/web ai:check
+pnpm --dir apps/web ai:smoke
+```
+
+Both commands load `.env.local` without printing credentials. `ai:check` checks
+local configuration only and consumes no API quota. `ai:smoke` explicitly sends
+one neutral request, which may incur quota usage or charges; it reports only
+success/failure, model and safe HTTP status, not prompt, response or provider
+error bodies. Normal tests, builds and deployments do not run it. The smoke
+test verifies model access, key validity/restrictions and basic generation.
+
+The adapter accepts text only (up to 8,000 characters), limits output to 1,024
+tokens, uses a 30-second request timeout, and disables automatic retries.
+Thinking is disabled for 2.5 models for a lightweight baseline. Errors are
+normalized without retaining raw exceptions containing request data or keys.
+
+Settings includes a user-owned AI Provider card. Authenticated server actions
+use only account-owned credentials. Save validates the entered key with one
+neutral prompt, not product data, before storing encrypted credentials. A failed
+check never saves the key or enables AI. It never falls back to saved keys or
+`GEMINI_API_KEY`. Saved keys expose Delete only; delete before adding another.
+Each account is limited to one test per 30 seconds using an atomic database claim.
+Settings stores an account-owned model choice, currently limited to
+`gemini-3.5-flash-lite`. The connection
+test uses the selected model without silently falling back. CLI overrides do
+not change user settings. Existing configurations move to 3.5 Flash-Lite.
+
+Migration `0042` stores encrypted keys in `user_ai_settings`. AES-256-GCM uses
+random nonces and owner/provider-bound authenticated data. The browser receives
+only enabled/provider/has-key/model status, never stored keys or ciphertext. Draft
+keys live only in React memory and are cleared after successful save and account changes.
+No key or raw provider/database error is logged.
+Migration `0043` adds the account model choice; `0044` restricts it to 3.5
+Flash-Lite. Neither changes saved ciphertext or cooldowns. Apply both to the development/preview database before testing the new
+UI; production requires its own migration when this feature is released.
+
+Prepare local encrypted storage before using Save:
+
+```bash
+node apps/web/scripts/setup-ai-encryption.mjs
+pnpm --dir apps/web database:migrate
+```
+
+The setup command adds a random key to ignored `.env.local`, without displaying
+it, and preserves an existing key. Restart the local server afterward. Production
+requires its own stable `AI_CREDENTIAL_ENCRYPTION_KEY` deployment secret before
+this feature is released. Back up it separately from the database. Losing or
+changing it makes saved keys unreadable; rotation requires deliberate
+decryption/re-encryption with both old and new keys, not automatic regeneration.
+
+Repeatable settings checks, from `apps/web` with a fresh production build running
+locally on port 3001:
+
+```bash
+node scripts/check-ai-provider-settings.mjs
+BASE_URL=http://localhost:3001 node --env-file=.env.local scripts/check-ai-provider-live.mjs --confirm-development
+```
+
+The first check mocks all actions and covers desktop/mobile, both languages and
+themes, masked keys, rollback and removal. The second uses the selected
+development database and disposable accounts to check authentication, encryption,
+account isolation, reload and atomic cooldowns, then removes its test accounts.
+Both use fake keys and never call Google. Do not run the live check against a
+production database. A genuine model response still requires a user-owned key.
+
+No chat UI, product-data export or AI command execution is added. Chat and
+Progress remain hidden pending human confirmation. Future user-facing calls must
+check the account's enabled setting, authenticate,
+enforce authorization/rate limits, disclose external data transfer and require
+confirmation before destructive or scheduling commands. Do not import this
+adapter from client components; it uses the SDK's Node-only entry point and
+rejects browser configuration.
 
 ## Environment Database Split
 

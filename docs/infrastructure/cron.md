@@ -142,3 +142,8 @@ status and throws. It does not log secrets or raw user-authored product content.
 The web app still records Discord delivery idempotency through
 `discord_message_deliveries`, so retrying a cron invocation should not duplicate
 messages for the same user and idempotency key.
+
+The same authorized route also deletes AI chat exchanges older than seven days.
+Chat reads exclude expired entries immediately; physical cleanup of inactive
+accounts occurs on the next successful 15-minute invocation. Only deletion
+counts are returned or logged, never message text or credentials.
