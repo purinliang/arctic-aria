@@ -72,6 +72,8 @@ Progress and Travel Shopping must stay hidden until human confirmation.
   (model, HTTP status, application code). Root cause of the developer's reported
   404 remains unconfirmed; compare the same key and API request before changing
   the model. Do not enable raw provider or Server Function argument logging.
+  The neutral Settings test can also print Google's redacted error message in
+  development only; credential-bearing headers and response metadata stay omitted.
   AI/chat integration, data-sharing consent and command confirmations remain pending human review.
   Do not automatically restore Progress or chat as part of this setup.
 

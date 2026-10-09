@@ -1,4 +1,5 @@
 export const defaultGeminiModel = "gemini-2.5-flash";
+export const geminiConnectionTestPrompt = "Reply with the word READY.";
 
 export class GeminiConfigError extends Error {}
 

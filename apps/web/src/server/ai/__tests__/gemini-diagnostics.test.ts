@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { GenerateContentResponse } from "@google/genai/node";
+import { ApiError, GenerateContentResponse } from "@google/genai/node";
 import { createGeminiClient } from "../gemini-client.ts";
+import { geminiConnectionTestPrompt } from "../gemini-config.ts";
 
 const environment: Record<string, string | undefined> = process.env;
 
@@ -33,12 +34,38 @@ test("production and test Gemini failures do not log provider exceptions", async
   try {
     for (const mode of ["production", "test"]) {
       environment.NODE_ENV = mode;
-      const client = createGeminiClient({ env: { GEMINI_API_KEY: "test-api-key" }, generate: async () => {
+      const client = createGeminiClient({ env: { GEMINI_API_KEY: "test-api-key" }, logConnectionTestErrors: true, generate: async () => {
         throw Object.assign(new Error("test-api-key"), { status: 429 });
       } });
-      await assert.rejects(client.generateText("Hello"), { code: "request_failed", status: 429 });
+      await assert.rejects(client.generateText(geminiConnectionTestPrompt), { code: "request_failed", status: 429 });
     }
     assert.equal(warn.mock.callCount(), 0);
+  } finally {
+    if (previous === undefined) delete environment.NODE_ENV;
+    else environment.NODE_ENV = previous;
+  }
+});
+
+test("provider response logging is opt-in and limited to the neutral connection test", async (t) => {
+  const previous = environment.NODE_ENV;
+  environment.NODE_ENV = "development";
+  const warn = t.mock.method(console, "warn", () => {});
+  try {
+    const generate = async () => {
+      throw new ApiError({ status: 404, message: JSON.stringify({ error: {
+        code: 404, status: "NOT_FOUND", message: "models/gemini-2.5-flash is not found. test-api-key",
+        details: [{ metadata: { credential: "test-api-key" } }],
+      } }) });
+    };
+    const client = createGeminiClient({ env: { GEMINI_API_KEY: "test-api-key" }, generate, logConnectionTestErrors: true });
+    await assert.rejects(client.generateText(geminiConnectionTestPrompt), { status: 404 });
+    assert.deepEqual(warn.mock.calls[1].arguments, ["[Gemini] provider error response (redacted)", {
+      error: { code: 404, status: "NOT_FOUND", message: "models/gemini-2.5-flash is not found. [redacted]" },
+    }]);
+    await assert.rejects(client.generateText("private product prompt"), { status: 404 });
+    const quiet = createGeminiClient({ env: { GEMINI_API_KEY: "test-api-key" }, generate });
+    await assert.rejects(quiet.generateText(geminiConnectionTestPrompt), { status: 404 });
+    assert.equal(warn.mock.callCount(), 4);
   } finally {
     if (previous === undefined) delete environment.NODE_ENV;
     else environment.NODE_ENV = previous;

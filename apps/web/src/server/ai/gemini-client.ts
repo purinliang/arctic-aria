@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai/node";
 import type { GenerateContentParameters, GenerateContentResponse } from "@google/genai/node";
-import { geminiConfig } from "./gemini-config.ts";
+import { geminiConfig, geminiConnectionTestPrompt } from "./gemini-config.ts";
+import { connectionTestErrorResponse } from "./connection-test-diagnostics.ts";
 
 type Generator = (input: GenerateContentParameters) => Promise<GenerateContentResponse>;
 type GeminiErrorCode = "invalid_input" | "request_failed" | "empty_response";
@@ -17,9 +18,10 @@ export class GeminiError extends Error {
   }
 }
 
-export function createGeminiClient({ env = process.env, generate }: {
+export function createGeminiClient({ env = process.env, generate, logConnectionTestErrors = false }: {
   env?: Record<string, string | undefined>;
   generate?: Generator;
+  logConnectionTestErrors?: boolean;
 } = {}) {
   const config = geminiConfig(env);
   const sdk = generate ? null : new GoogleGenAI({
@@ -57,6 +59,10 @@ export function createGeminiClient({ env = process.env, generate }: {
             status: failure.status ?? null,
             code: failure.code,
           });
+          if (logConnectionTestErrors && prompt.trim() === geminiConnectionTestPrompt) {
+            const response = connectionTestErrorResponse(error, config.apiKey);
+            if (response) console.warn("[Gemini] provider error response (redacted)", response);
+          }
         }
         throw failure;
       }

@@ -147,8 +147,12 @@ Normal future AI operations must respect saved enablement. Chat remains hidden.
 
 Local `pnpm dev` logs failed Gemini generation as `[Gemini] generateContent failed`
 with only the validated model, HTTP status (or null), and application error code.
-Production and test runtimes do not emit these diagnostics. Never log provider
-messages, error bodies, prompts, credentials, or Server Function arguments.
+Production and test runtimes do not emit these diagnostics. Never log
+unfiltered error bodies, prompts, credentials, or Server Function arguments.
+For the neutral Settings connection test only, development also prints Google's
+error code/status/message with credentials and identifying metadata redacted.
+Headers, arbitrary response metadata and exception stacks are never included;
+normal generation does not log provider messages. Production stays silent.
 Next.js may still report HTTP 200 for the Server Action carrying an expected
 failure result; that status does not mean the upstream Gemini request succeeded.
 

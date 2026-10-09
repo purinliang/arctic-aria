@@ -1,6 +1,6 @@
 import { createCredentialEncryption, CredentialEncryptionError } from "../../../server/ai/credential-encryption.ts";
 import { createGeminiClient, GeminiError } from "../../../server/ai/gemini-client.ts";
-import { defaultGeminiModel } from "../../../server/ai/gemini-config.ts";
+import { defaultGeminiModel, geminiConnectionTestPrompt } from "../../../server/ai/gemini-config.ts";
 import { failure, validId } from "../../../server/feature-result.ts";
 import type { FeatureResult } from "../../../server/feature-result.ts";
 import { defaultAIProviderStatus, validAPIKey } from "../ai-provider.ts";
@@ -17,7 +17,9 @@ class AISettingsError extends Error {
 export function createAIProviderService({
   repository = new AIProviderRepository(),
   encryption = createCredentialEncryption(),
-  client = (apiKey: string) => createGeminiClient({ env: { GEMINI_API_KEY: apiKey, GEMINI_MODEL: defaultGeminiModel } }),
+  client = (apiKey: string) => createGeminiClient({
+    env: { GEMINI_API_KEY: apiKey, GEMINI_MODEL: defaultGeminiModel }, logConnectionTestErrors: true,
+  }),
 }: {
   repository?: Repository;
   encryption?: ReturnType<typeof createCredentialEncryption>;
@@ -67,7 +69,7 @@ export function createAIProviderService({
       if (!validAPIKey(key)) return failure("ai_invalid");
       return command(userId, async () => {
         if (!(await repository.claimTest(userId))) throw new AISettingsError("ai_test_throttled");
-        await client(key).generateText("Reply with the word READY.");
+        await client(key).generateText(geminiConnectionTestPrompt);
         return { tested: true as const };
       });
     },
